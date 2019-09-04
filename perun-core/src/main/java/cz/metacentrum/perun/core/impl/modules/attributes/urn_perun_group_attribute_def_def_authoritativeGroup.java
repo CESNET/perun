@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
@@ -25,15 +26,20 @@ public class urn_perun_group_attribute_def_def_authoritativeGroup extends GroupA
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_authoritativeGroup.class);
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
-		//Member group can't have set this attribute
-		if(group.getName().equals(VosManager.MEMBERS_GROUP)) throw new WrongAttributeValueException(attribute, group, "Members group is authoritative automatic, there is not allowed to set this attribute for members group.");
-	
-		Integer value = (Integer) attribute.getValue();
+		Integer value = attribute.valueAsInteger();
 		if(value < 0 || value > 1) throw new WrongAttributeValueException(attribute, group, "Attribute can have only value 1 or 0 (true or false).");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
+		//Null value is ok, means no settings for group
+		if (attribute.getValue() == null) return;
+		//Member group can't have set this attribute
+		if(group.getName().equals(VosManager.MEMBERS_GROUP)) throw new WrongReferenceAttributeValueException(attribute, null, group, null, "Members group is authoritative automatic, there is not allowed to set this attribute for members group.");
 	}
 
 	@Override

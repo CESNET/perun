@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
@@ -17,18 +18,9 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 public class urn_perun_group_attribute_def_def_collectionID extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		// null attribute
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute collectionID cannot be null.");
-
-		// wrong type of the attribute
-		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
-
-		String collectionID = attribute.valueAsString();
-
-		if (collectionID.isEmpty()) {
-			throw new WrongAttributeValueException(attribute, "Attribute collectionID cannot be empty.");
-		}
+		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, "Attribute collectionID cannot be null.");
 	}
 
 	@Override

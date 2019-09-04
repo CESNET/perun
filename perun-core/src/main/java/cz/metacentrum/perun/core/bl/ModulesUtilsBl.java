@@ -145,15 +145,16 @@ public interface ModulesUtilsBl {
 	/**
 	 * Check if gid in arguments is free in the namespace
 	 *
-	 * @param sess
+	 * @param sess perun session
 	 * @param attribute group or resource unixGID-namespace attribute with value
 	 *
-	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
-	 * @throws WrongAttributeValueException
+	 * @throws InternalErrorException if something is not correct or attribute is null
+	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
+	 * @throws AttributeNotExistsException if attribute does not exist
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
+	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Return true if i have right on any of groups or resources to WRITE the attribute

@@ -19,18 +19,9 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationTime
 	private static final Pattern pattern = Pattern.compile("^(([0-1][0-9])|(2[0-3])):[0-5][0,5]$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
-
-		try {
-			Attribute foundAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
-			if(foundAttribute.getValue() != null) {
-				throw new WrongAttributeAssignmentException("Attribute " + attribute.getName() + " cannot be set because attribute " + GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME + " is already set.");
-			}
-		} catch (AttributeNotExistsException exc) {
-			throw new ConsistencyErrorException("Attribute " + GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME + " is supposed to exist", exc);
-		}
 
 		ArrayList<String> attrValues = attribute.valueAsList();
 
@@ -42,8 +33,18 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationTime
 		}
 	}
 
-
-
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		if (attribute.getValue() == null) return;
+		try {
+			Attribute foundAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
+			if(foundAttribute.getValue() != null) {
+				throw new WrongReferenceAttributeValueException(attribute, foundAttribute, group, null, group, null, "Attribute " + attribute.getName() + " cannot be set because attribute " + GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME + " is already set.");
+			}
+		} catch (AttributeNotExistsException exc) {
+			throw new ConsistencyErrorException("Attribute " + GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME + " is supposed to exist", exc);
+		}
+	}
 
 	@Override
 	public List<String> getDependencies() {

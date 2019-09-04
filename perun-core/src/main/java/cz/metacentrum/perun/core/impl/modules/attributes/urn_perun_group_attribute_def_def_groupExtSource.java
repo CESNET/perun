@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
@@ -24,10 +24,10 @@ import java.util.List;
 public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//prepare groupName value variable
 		String extSourceName = null;
-		if(attribute.getValue() != null) extSourceName = (String) attribute.getValue();
+		if(attribute.getValue() != null) extSourceName = attribute.valueAsString();
 
 		//if extSourceName is null, attribute can be removed
 		if (extSourceName != null) {
@@ -37,7 +37,7 @@ public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttri
 				for(ExtSource es: allowedExtSources) {
 					if(extSourceName.equals(es.getName())) return;
 				}
-				throw new WrongAttributeValueException(attribute, group, "ExtSourceName " + extSourceName + " is not valid, because VO " + groupVo + " of this group has no such extSource assigned.");
+				throw new WrongReferenceAttributeValueException(attribute, null, group, null, "ExtSourceName " + extSourceName + " is not valid, because VO " + groupVo + " of this group has no such extSource assigned.");
 			} catch (VoNotExistsException ex) {
 				throw new ConsistencyErrorException("Vo of this group " + group + " not exists!");
 			}

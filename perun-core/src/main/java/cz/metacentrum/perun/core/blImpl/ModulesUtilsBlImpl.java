@@ -229,7 +229,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+	public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.notNull(attribute, "attribute");
 		Integer gid = null;
 		if(attribute.getValue() != null) gid = (Integer) attribute.getValue();
@@ -243,7 +243,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 		//Gid is not in range, throw exception
 		if(!isGIDWithinRanges(gidRanges, gid)) {
-			throw new WrongAttributeValueException(attribute, "GID number is not in allowed ranges " + gidRanges + " for namespace " + gidNamespace);
+			throw new WrongReferenceAttributeValueException(attribute, gidRangesAttribute, null, null, gidNamespace, null, "GID number is not in allowed ranges " + gidRanges + " for namespace " + gidNamespace);
 		}
 	}
 

@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
@@ -26,10 +27,10 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9']+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//prepare groupName value variable
 		String groupName = null;
-		if(attribute.getValue() != null) groupName = (String) attribute.getValue();
+		if(attribute.getValue() != null) groupName = attribute.valueAsString();
 
 		if(groupName == null) {
 			// if this is group attribute, its ok
@@ -40,6 +41,12 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 
 		//TODO Check reserved google group names
 		//sess.getPerunBl().getModulesUtilsBl().checkReservedGoogleGroupNames(attribute);
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		// null value is ok
+		if (attribute.getValue() == null) return;
 
 		//prepare lists of groups with the same groupName value in the same namespace
 
@@ -58,7 +65,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 				}
 			}
 			//if not, than can't use already used groupName
-			if(!haveRights) throw new WrongAttributeValueException(attribute, group, "GroupName is already used in this namespace: " + attribute.getFriendlyNameParameter() + " and you haven't right to use it.");
+			if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, null, group, null, "GroupName is already used in this namespace: " + attribute.getFriendlyNameParameter() + " and you haven't right to use it.");
 		}
 	}
 

@@ -25,16 +25,16 @@ import java.util.Date;
 public class urn_perun_group_attribute_def_def_lastSynchronizationTimestamp extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
 		//test of timestamp format
-		String attrValue = (String) attribute.getValue();
+		String attrValue = attribute.valueAsString();
 		try {
 			Date date = BeansUtils.getDateFormatter().parse(attrValue);
 		} catch (ParseException ex) {
-			throw new WrongAttributeValueException(attribute, group, "Format of timestamp is not correct and can't be parsed correctly. Ex. 'dd-MM-yyyy HH:mm:ss'", ex);
+			throw new WrongAttributeValueException(attribute, group, "Format of timestamp is not correct and can't be parsed correctly. Ex. 'yyyy-MM-dd HH:mm:ss.S'", ex);
 		}
 	}
 
