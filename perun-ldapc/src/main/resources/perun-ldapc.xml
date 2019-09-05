@@ -65,6 +65,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="beansCondition">
 						<list>
 							<value>cz.metacentrum.perun.core.api.Resource</value>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
 						</list>
 					</property>
 					<property name="pattern" value=" deleted.#Facility" />
