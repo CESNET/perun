@@ -647,6 +647,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			<!--  this list will be added to built-in defaultAttributeDescriptions -->
 			<list>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="entityID" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="entityID" />
+							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="OIDCClientID" />
 					<property name="required" value="false" />
 					<property name="singleValueExtractor">
@@ -656,7 +666,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
-				<!-- not used (yet) 
+				<!-- not used (yet)
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="OIDCCheckGroupMembership" />
 					<property name="required" value="false" />
@@ -671,7 +681,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="perunGroup" class="cz.metacentrum.perun.ldapc.model.impl.PerunGroupImpl">
 	</bean>
 
