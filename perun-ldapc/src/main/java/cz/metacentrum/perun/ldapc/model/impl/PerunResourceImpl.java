@@ -5,6 +5,7 @@ import static org.springframework.ldap.query.LdapQueryBuilder.query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Name;
 
@@ -76,13 +77,15 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 				);
 	}
 
-	public void addResource(Resource resource, String entityID) throws InternalErrorException {
+	public void addResource(Resource resource, Map<String,String> facilityAttributes) throws InternalErrorException {
 		addEntry(resource);
 		// get info about entityID attribute if exists
-		if(entityID != null) {
+		if (!facilityAttributes.isEmpty()) {
 			try {
 				DirContextOperations context = findByDN(buildDN(resource));
-				context.setAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEntityID, entityID);
+				for (String ldapAttrName : facilityAttributes.keySet()) {
+					context.setAttributeValue(ldapAttrName, facilityAttributes.get(ldapAttrName));
+				}
 				ldapTemplate.modifyAttributes(context);
 			} catch (Exception e) {
 				throw new InternalErrorException(e);
