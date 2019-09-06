@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.ldapc.model;
 
 import java.util.List;
-import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
@@ -19,13 +18,12 @@ public interface PerunResource extends PerunEntry<Resource> {
 	public void deleteResource(Resource resource) throws InternalErrorException;
 
 	/**
-	 * Add resource to LDAP.
+	 * Add resource to LDAP
 	 *
 	 * @param resource resource from Perun
-	 * @param facilityAttributes map of facility attributes to be stored within resource
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void addResource(Resource resource, Map<String,String> facilityAttributes) throws InternalErrorException;
+	public void addResource(Resource resource) throws InternalErrorException;
 
 	public void updateResource(Resource resource) throws InternalErrorException;
 
