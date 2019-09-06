@@ -65,6 +65,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="beansCondition">
 						<list>
 							<value>cz.metacentrum.perun.core.api.Resource</value>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
 						</list>
 					</property>
 					<property name="pattern" value=" deleted.#Facility" />
@@ -646,6 +647,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="attributeDescriptions">
 			<!--  this list will be added to built-in defaultAttributeDescriptions -->
 			<list>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="entityID" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="entityID" />
+							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="OIDCClientID" />
 					<property name="required" value="false" />

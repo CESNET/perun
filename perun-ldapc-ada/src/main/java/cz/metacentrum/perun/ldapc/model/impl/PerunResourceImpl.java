@@ -5,6 +5,7 @@ import static org.springframework.ldap.query.LdapQueryBuilder.query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Name;
 
@@ -49,48 +50,38 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 						PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
 						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> resource.getName()
-						),
+				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunResourceId,
 						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getId())
-						),
+				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityId,
 						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getFacilityId())
-						),
+				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId,
 						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getVoId())
-						),
+				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrDescription,
 						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> resource.getDescription()
-						),
+				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityDn,
 						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> perunFacility.getEntryDN(String.valueOf(resource.getFacilityId())).toString()
-															+ "," + ldapProperties.getLdapBase()
-						)
-				);
+								+ "," + ldapProperties.getLdapBase()
+				)
+		);
 	}
 
-	public void addResource(Resource resource, String entityID) throws InternalErrorException {
+	public void addResource(Resource resource) throws InternalErrorException {
 		addEntry(resource);
-		// get info about entityID attribute if exists
-		if(entityID != null) {
-			try {
-				DirContextOperations context = findByDN(buildDN(resource));
-				context.setAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEntityID, entityID);
-				ldapTemplate.modifyAttributes(context);
-			} catch (Exception e) {
-				throw new InternalErrorException(e);
-			}
-		}
 	}
 
 	public void deleteResource(Resource resource) throws InternalErrorException {
@@ -101,7 +92,6 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	@Override
 	public void updateResource(Resource resource) throws InternalErrorException {
 		modifyEntry(resource);
-
 	}
 
 	@Override
@@ -168,7 +158,7 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	@Override
 	public List<Name> listEntries() throws InternalErrorException {
 		return ldapTemplate.search(query().
-				where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunResource),
+						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunResource),
 				getNameMapper());
 	}
 
