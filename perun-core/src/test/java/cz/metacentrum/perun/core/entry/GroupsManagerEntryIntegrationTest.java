@@ -1308,6 +1308,195 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void addMembersToGroupsFromTriggerAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "addMembersToGroupsFromTriggerAttribute");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+		List<Group> groups = setUpGroups(vo);
+		Member member = setUpMember(vo);
+		ArrayList<String> list = new ArrayList<>();
+		list.add(String.valueOf(groups.get(0).getId()));
+		Attribute triggerAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger"));
+		triggerAttr.setValue(list);
+		attributesManager.setAttribute(sess, group, triggerAttr);
+
+		assertTrue(groupsManager.getGroupMembers(sess, groups.get(0)).isEmpty());
+		groupsManager.addMember(sess, group, member);
+		groupsManager.removeMember(sess, group, member);
+		assertTrue(groupsManager.isGroupMember(sess, groups.get(0), member));
+	}
+
+	@Test
+	public void addMembersToGroupsFromTriggerAttributeWithGroupStructure() throws Exception {
+		System.out.println(CLASS_NAME + "addMembersToGroupsFromTriggerAttributeWithGroupStructure");
+
+		vo = setUpVo();
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, group, group2);
+		groupsManagerBl.createGroup(sess, group2, group3);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group3, member);
+
+		ArrayList<String> list = new ArrayList<>();
+		list.add(String.valueOf(group3.getId()));
+
+		Attribute triggerAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger"));
+		triggerAttr.setValue(list);
+		attributesManager.setAttribute(sess, group3, triggerAttr);
+
+		assertTrue(groupsManager.isGroupMember(sess, group, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group, member));
+		assertTrue(groupsManager.isGroupMember(sess, group2, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group2, member));
+		assertTrue(groupsManager.isDirectGroupMember(sess, group3, member));
+
+		groupsManager.removeMember(sess, group3, member);
+
+		assertTrue(groupsManager.isGroupMember(sess, group, member));
+		assertTrue(groupsManager.isGroupMember(sess, group2, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group2, member));
+		assertTrue(groupsManager.isDirectGroupMember(sess, group3, member));
+
+	}
+
+	@Test
+	public void addMembersToGroupsFromTriggerAttributeOutsideGroupStructure() throws Exception {
+		System.out.println(CLASS_NAME + "addMembersToGroupsFromTriggerAttributeOutsideGroupStructure");
+
+		vo = setUpVo();
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, group, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+		groupsManager.addMember(sess, group2, member);
+
+
+		ArrayList<String> list = new ArrayList<>();
+		list.add(String.valueOf(group3.getId()));
+
+		Attribute triggerAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger"));
+		triggerAttr.setValue(list);
+		attributesManager.setAttribute(sess, group, triggerAttr);
+
+		groupsManager.removeMember(sess, group, member);
+		assertFalse(groupsManager.isGroupMember(sess, group3, member));
+	}
+
+	@Test
+	public void addMembersToGroupsFromTriggerAttributeOutsideGroupStructure2() throws Exception {
+		System.out.println(CLASS_NAME + "addMembersToGroupsFromTriggerAttributeOutsideGroupStructure2");
+
+		vo = setUpVo();
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, group, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group2, member);
+
+
+		ArrayList<String> list = new ArrayList<>();
+		list.add(String.valueOf(group3.getId()));
+
+		Attribute triggerAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger"));
+		triggerAttr.setValue(list);
+		attributesManager.setAttribute(sess, group, triggerAttr);
+
+		groupsManager.removeMember(sess, group2, member);
+		assertTrue(groupsManager.isGroupMember(sess, group3, member));
+	}
+
+	@Test
+	public void addMembersToGroupsFromTriggerAttributeWithGroupStructureTriggerToFour() throws Exception {
+		System.out.println(CLASS_NAME + "addMembersToGroupsFromTriggerAttributeWithGroupStructureTriggerToFour");
+
+		vo = setUpVo();
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, group, group2);
+		groupsManagerBl.createGroup(sess, group2, group3);
+		groupsManagerBl.createGroup(sess, group3, group4);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group3, member);
+
+		ArrayList<String> list = new ArrayList<>();
+		list.add(String.valueOf(group4.getId()));
+
+		Attribute triggerAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger"));
+		triggerAttr.setValue(list);
+		attributesManager.setAttribute(sess, group3, triggerAttr);
+
+		assertTrue(groupsManager.isGroupMember(sess, group, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group, member));
+		assertTrue(groupsManager.isGroupMember(sess, group2, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group2, member));
+		assertTrue(groupsManager.isDirectGroupMember(sess, group3, member));
+
+		groupsManager.removeMember(sess, group3, member);
+
+		assertTrue(groupsManager.isGroupMember(sess, group, member));
+		assertTrue(groupsManager.isGroupMember(sess, group2, member));
+		assertTrue(groupsManager.isGroupMember(sess, group3, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group2, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group3, member));
+		assertTrue(groupsManager.isDirectGroupMember(sess, group4, member));
+	}
+
+	@Test
+	public void addMembersToGroupsFromTriggerAttributeWithGroupStructureDirectMemberOfMoreGroups() throws Exception {
+		System.out.println(CLASS_NAME + "addMembersToGroupsFromTriggerAttributeWithGroupStructureDirectMemberOfMoreGroups");
+
+		vo = setUpVo();
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, group, group2);
+		groupsManagerBl.createGroup(sess, group2, group3);
+		groupsManagerBl.createGroup(sess, group3, group4);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group3, member);
+		groupsManager.addMember(sess, group4, member);
+
+		ArrayList<String> list = new ArrayList<>();
+		list.add(String.valueOf(group2.getId()));
+		ArrayList<String> list2 = new ArrayList<>();
+		list.add(String.valueOf(group4.getId()));
+
+		Attribute triggerAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger"));
+		triggerAttr.setValue(list);
+		attributesManager.setAttribute(sess, group4, triggerAttr);
+
+		Attribute triggerAttr2 = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger"));
+		triggerAttr.setValue(list2);
+		attributesManager.setAttribute(sess, group3, triggerAttr2);
+
+		groupsManager.removeMember(sess, group4, member);
+		groupsManager.removeMember(sess, group3, member);
+
+		assertTrue(groupsManager.isGroupMember(sess, group, member));
+		assertTrue(groupsManager.isGroupMember(sess, group3, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group, member));
+		assertFalse(groupsManager.isDirectGroupMember(sess, group3, member));
+		assertTrue(groupsManager.isDirectGroupMember(sess, group4, member));
+		assertTrue(groupsManager.isDirectGroupMember(sess, group2, member));
+	}
+
+	@Test
 	public void removeMembersCorrectMemberGroupStatusesAreSet() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberCorrectMemberGroupStatusesAreSet");
 

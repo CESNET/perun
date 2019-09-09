@@ -1001,6 +1001,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		membersToRemove.removeAll(newMembers);
 
 		for(Member removedIndirectMember: membersToRemove) {
+			addMemberToGroupsFromTriggerAttribute(sess, group, removedIndirectMember);
 			notifyMemberRemovalFromGroup(sess, group, removedIndirectMember);
 			//remove all member-group attributes because member is not part of group any more
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, removedIndirectMember, group);
@@ -1094,6 +1095,39 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		if (!VosManager.MEMBERS_GROUP.equals(group.getName())) {
 			recalculateMemberGroupStatusRecursively(sess, member, group);
+		}
+
+		if (!getGroupsManagerImpl().isGroupMember(sess, group, member)) {
+			addMemberToGroupsFromTriggerAttribute(sess, group, member);
+		}
+	}
+
+	/**
+	 * Adds the member to the groups in 'groupTrigger' attribute of the 'group' argument
+	 * If any error occurs, the group will be skipped and the error will be logged.
+	 * If there is an error in getting the attribute, the method will log the error and return
+	 *
+	 * @param sess PerunSession
+	 * @param group Group from which the member has been removed
+	 * @param member Member to be added to groups in groupTrigger
+	 */
+	private void addMemberToGroupsFromTriggerAttribute(PerunSession sess, Group group, Member member) {
+		ArrayList<String> groupsForAddition;
+		try {
+			groupsForAddition = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF+":groupTrigger").valueAsList();
+		} catch (InternalErrorException | WrongAttributeAssignmentException | AttributeNotExistsException | NumberFormatException e) {
+			log.error("Error while getting groupTrigger attribute, Exception message: " + e.toString());
+			return;
+		}
+		if (groupsForAddition == null) return;
+
+		for (String groupId : groupsForAddition) {
+			try {
+				Group groupForAddition = getGroupById(sess, Integer.parseInt(groupId));
+				addDirectMember(sess, groupForAddition, member);
+			} catch (InternalErrorException | WrongReferenceAttributeValueException | AlreadyMemberException | WrongAttributeValueException | GroupNotExistsException e) {
+				log.error("Member could not be added to the group, Exception message: " + e.toString());
+			}
 		}
 	}
 
