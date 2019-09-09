@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_persistent_shadow.class);
-	private final static String extSourceNameEduteams = "https://proxy.acc.demo.eduteams.org/proxy";
+	private final static String extSourceNameEduteams = "https://proxy.acc.eduteams.org/proxy";
 	private final static String domainNameEduteams = "@eduteams.org";
 	private final static String attrNameEduteams = "login-namespace:eduteams-acc-persistent-shadow";
 
