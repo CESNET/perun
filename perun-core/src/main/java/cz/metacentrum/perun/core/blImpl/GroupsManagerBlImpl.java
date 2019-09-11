@@ -41,7 +41,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBeanProcessingPool;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -2624,9 +2623,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for(RichMember richMember: groupMembers) {
 			idsOfUsersInGroup.put(richMember.getUserId(), richMember);
 		}
-
 		//try to find users by login and loginSource
 		for(Map<String, String> subjectFromLoginSource : subjects) {
+			if (subjectFromLoginSource == null) {
+				log.error("Null value in the subjects list. Skipping.");
+				continue;
+			}
 			String login = subjectFromLoginSource.get("login");
 			// Skip subjects, which doesn't have login
 			if (login == null || login.isEmpty()) {
@@ -2638,15 +2640,31 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//try to find user from perun by login and member extSource (need to use memberSource because loginSource is not saved by synchronization)
 			User user = null;
 			Candidate candidate = null;
+
+			List<UserExtSource> userExtSources = new ArrayList<>();
 			try {
 				UserExtSource userExtSource = getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(sess, memberSource, login);
-				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
-				if(!idsOfUsersInGroup.containsKey(user.getId())) {
-					candidate = new Candidate(user, userExtSource);
-					//for lightweight synchronization we want to skip all update of attributes
-					candidate.setAttributes(new HashMap<>());
+				userExtSources.add(userExtSource);
+			} catch (UserExtSourceNotExistsException e) {
+				//skipping, this extSource does not exist and thus won't be in the list
+			}
+			List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subjectFromLoginSource);
+			userExtSources.addAll(additionalUserExtSources);
+			for (UserExtSource source : userExtSources) {
+				try {
+					user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, source);
+					if(!idsOfUsersInGroup.containsKey(user.getId())) {
+						candidate = new Candidate(user, source);
+						//for lightweight synchronization we want to skip all update of attributes
+						candidate.setAttributes(new HashMap<>());
+					}
+					break;
+				} catch(UserNotExistsException e) {
+					//skip because the user from this ExtSource does not exist so we can continue
 				}
-			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
+			}
+
+			if (user == null) {
 				//If not find, get more information about him from member extSource
 				List<Map<String, String>> subjectToConvert = Collections.singletonList(subjectFromLoginSource);
 				List<Candidate> converetedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, skippedMembers);

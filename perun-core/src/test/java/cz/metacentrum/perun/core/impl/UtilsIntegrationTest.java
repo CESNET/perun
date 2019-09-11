@@ -1,6 +1,13 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersManager;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,21 +16,47 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests of methods from Utils class.
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class UtilsIntegrationTest {
+public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
+
+	private User user;           // our User
+	private Vo vo;
+	String userFirstName = "";
+	String userLastName = "";
+	String extLogin = "";
+	String extLogin2 = "";
+	final String extSourceName = "UserManagerEntryIntegrationTest";
+	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
+
+	final String extSourceName2 = "UserManagerEntryIntegrationTest2";
+	final UserExtSource userExtSource2 = new UserExtSource();
+
+	private UsersManager usersManager;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
+		usersManager = perun.getUsersManager();
+		// set random name and logins during every setUp method
+		userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));   // his login in external source
+		extLogin2 = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		vo = setUpVo();
+		setUpUser();
+		setUpUserExtSource();
 	}
 
 	@Test
@@ -183,5 +216,66 @@ public class UtilsIntegrationTest {
 		Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareGracePeriodDate(m);
 		assertEquals(new Integer(5), fieldAmount.getLeft());
 		assertEquals(ChronoUnit.DAYS, fieldAmount.getRight());
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesTest() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSources");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin);
+		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2);
+
+		List<UserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 2);
+		assertTrue(list.contains(userExtSource2));
+		assertTrue(list.contains(userExtSource));
+	}
+
+	private Vo setUpVo() throws Exception {
+
+		Vo newVo = new Vo(0, "UserManagerTestVo", "UMTestVo");
+		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
+		// create test VO in database
+		assertNotNull("unable to create testing Vo",returnedVo);
+		assertEquals("both VOs should be the same",newVo,returnedVo);
+		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
+		// get and create real external source from DB
+		perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
+		// add real ext source to our VO
+
+		ExtSource newExtSource2 = new ExtSource(extSourceName2, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		ExtSource es2 = perun.getExtSourcesManager().createExtSource(sess, newExtSource2, null);
+		// get and create real external source from DB
+		perun.getExtSourcesManager().addExtSource(sess, returnedVo, es2);
+		return returnedVo;
+	}
+
+	private void setUpUserExtSource() throws Exception {
+
+		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
+		userExtSource.setExtSource(externalSource);
+		userExtSource.setLogin(extLogin);
+		assertNotNull(usersManager.addUserExtSource(sess, user, userExtSource));
+
+		ExtSource externalSource2 = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName2);
+		userExtSource2.setExtSource(externalSource2);
+		userExtSource2.setLogin(extLogin2);
+		assertNotNull(usersManager.addUserExtSource(sess, user, userExtSource2));
+	}
+
+	private void setUpUser() throws Exception {
+
+		user = new User();
+		user.setFirstName(userFirstName);
+		user.setMiddleName("");
+		user.setLastName(userLastName);
+		user.setTitleBefore("");
+		user.setTitleAfter("");
+		assertNotNull(perun.getUsersManagerBl().createUser(sess, user));
+		// create new user in database
+		usersForDeletion.add(user);
+		// save user for deletion after testing
 	}
 }
