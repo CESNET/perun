@@ -9,8 +9,6 @@ package cz.metacentrum.perun.core.api.exceptions;
 public class CandidateNotExistsException extends EntityNotExistsException {
 	static final long serialVersionUID = 0;
 
-	private String candidate;
-
 	public CandidateNotExistsException(String message, Throwable cause) {
 		super(message, cause);
 	}
@@ -19,12 +17,7 @@ public class CandidateNotExistsException extends EntityNotExistsException {
 		super(cause);
 	}
 
-	public CandidateNotExistsException(String candidate) {
-		super(candidate.toString());
-		this.candidate = candidate;
-	}
-
-	public String getCandidate() {
-		return this.candidate;
+	public CandidateNotExistsException(String message) {
+		super(message);
 	}
 }

@@ -224,7 +224,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		try {
 			subject = ((ExtSourceSimpleApi) source).getSubjectByLogin(login);
 		} catch (SubjectNotExistsException e) {
-			throw new CandidateNotExistsException(login);
+			throw new CandidateNotExistsException("Searched candidate with login [" + login + "] does not exist");
 		}
 
 		if (subject == null) {
