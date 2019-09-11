@@ -8,7 +8,6 @@ import java.util.List;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
+import cz.metacentrum.perun.ldapc.beans.PerunAttributeConfigurer;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunEntry;
 
@@ -60,18 +60,24 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	protected LdapProperties ldapProperties;
 
 	private List<PerunAttribute<T>> attributeDescriptions;
+	private PerunAttributeConfigurer<T> attributeDescriptionsExt;
 	private List<String> updatableAttributeNames; 
 	
 	public void afterPropertiesSet() {
-		if(attributeDescriptions == null)
-			attributeDescriptions = getDefaultAttributeDescriptions();
-		else
-			attributeDescriptions.addAll(getDefaultAttributeDescriptions());
-		if(updatableAttributeNames == null)
-			updatableAttributeNames = getDefaultUpdatableAttributes();
-		else
-			updatableAttributeNames.addAll(getDefaultUpdatableAttributes());
+		if(attributeDescriptions == null) {
+			attributeDescriptions = new ArrayList<PerunAttribute<T>>();
+		}
+		attributeDescriptions.addAll(getDefaultAttributeDescriptions());
+		if(updatableAttributeNames == null) {
+			updatableAttributeNames = new ArrayList<String>();
+		}
+		updatableAttributeNames.addAll(getDefaultUpdatableAttributes());
 			
+		// add attributes from extension list
+		List<PerunAttribute<T>> attrsExt = attributeDescriptionsExt.getAttributeDescriptions();
+		if(attrsExt != null) {
+			attributeDescriptions.addAll(attrsExt);
+		}
 	}
 
 	abstract protected List<String> getDefaultUpdatableAttributes();
@@ -287,6 +293,14 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	@Override
 	public void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions) {
 		this.attributeDescriptions = attributeDescriptions;
+	}
+
+	public PerunAttributeConfigurer<T> getAttributeDescriptionsExt() {
+		return attributeDescriptionsExt;
+	}
+
+	public void setAttributeDescriptionsExt(PerunAttributeConfigurer<T> attributeDescriptionsExt) {
+		this.attributeDescriptionsExt = attributeDescriptionsExt;
 	}
 
 	@Override
