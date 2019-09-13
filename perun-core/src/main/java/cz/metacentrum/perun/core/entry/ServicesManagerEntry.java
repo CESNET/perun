@@ -67,7 +67,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.notNull(service.getName(), "service.name");
 
 		if (!service.getName().matches(ServicesManager.SERVICE_NAME_REGEXP)) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong service name, service name must matches " + ServicesManager.SERVICE_NAME_REGEXP + ", but was: " + service.getName()));
+			throw new IllegalArgumentException("Wrong service name, service name must matches " + ServicesManager.SERVICE_NAME_REGEXP + ", but was: " + service.getName());
 		}
 
 		// Authorization

@@ -149,11 +149,11 @@ public class VosManagerEntry implements VosManager {
 
 
 		if (vo.getName().length() > 128) {
-			throw new InternalErrorException("VO name is too long, >128 characters");
+			throw new IllegalArgumentException("VO name is too long, >128 characters");
 		}
 
 		if (!vo.getShortName().matches("^[-_a-zA-z0-9.]{1,32}$")) {
-			throw new InternalErrorException("Wrong VO short name - must matches [-_a-zA-z0-9.]+ and not be longer than 32 characters.");
+			throw new IllegalArgumentException("Wrong VO short name - must matches [-_a-zA-z0-9.]+ and not be longer than 32 characters.");
 		}
 
 		return vosManagerBl.createVo(sess, vo);
@@ -170,11 +170,11 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		if (vo.getName().length() > 128) {
-			throw new InternalErrorException("VO name is too long, >128 characters");
+			throw new IllegalArgumentException("VO name is too long, >128 characters");
 		}
 
 		if (!vo.getShortName().matches("^[-_a-zA-z0-9.]{1,32}$")) {
-			throw new InternalErrorException("Wrong VO short name - must matches [-_a-zA-z0-9.]+ and not be longer than 32 characters.");
+			throw new IllegalArgumentException("Wrong VO short name - must matches [-_a-zA-z0-9.]+ and not be longer than 32 characters.");
 		}
 
 		return vosManagerBl.updateVo(sess, vo);

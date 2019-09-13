@@ -92,7 +92,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 
 		if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
+			throw new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP);
 		}
 
 		if (group.getParentGroupId() != null) throw new InternalErrorException("Top-level groups can't have parentGroupId set!");
@@ -121,7 +121,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 
 		if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
+			throw new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP);
 		}
 
 		// Authorization
@@ -207,7 +207,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.notNull(group.getName(), "group.name");
 
 		if (!group.getShortName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong group shortName, group shortName must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
+			throw new IllegalArgumentException("Wrong group shortName, group shortName must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP);
 		}
 
 		// Authorization
@@ -276,7 +276,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.notNull(name, "name");
 
 		if (!name.matches(GroupsManager.GROUP_FULL_NAME_REGEXP)) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_FULL_NAME_REGEXP));
+			throw new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_FULL_NAME_REGEXP);
 		}
 
 		Group group = getGroupsManagerBl().getGroupByName(sess, vo, name);

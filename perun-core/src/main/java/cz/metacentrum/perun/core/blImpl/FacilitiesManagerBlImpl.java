@@ -295,7 +295,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 		//check facility name, it can contain only a-zA-Z.0-9_-
 		if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters"));
+			throw new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters");
 		}
 
 		//check if facility have uniq name
@@ -391,7 +391,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public Facility updateFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityExistsException {
 		//check facility name, it can contain only a-zA-Z.0-9_-
 		if (!facility.getName().matches("^[ a-zA-Z.0-9_-]+$")) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters"));
+			throw new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters");
 		}
 
 		getPerunBl().getAuditer().log(sess, new FacilityUpdated(facility));

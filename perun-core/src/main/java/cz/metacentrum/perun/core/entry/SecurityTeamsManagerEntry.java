@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -102,11 +103,11 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		}
 
 		if (securityTeam.getName().length() > 128) {
-			throw new InternalErrorException("Security Team name is too long, >128 characters");
+			throw new IllegalArgumentException("Security Team name is too long, >128 characters");
 		}
 
 		if (!securityTeam.getName().matches("^[-_a-zA-z0-9.]{1,128}$")) {
-			throw new InternalErrorException("Wrong Security name - must matches [-_a-zA-z0-9.]+ and not be longer than 128 characters.");
+			throw new IllegalArgumentException("Wrong Security name - must matches [-_a-zA-z0-9.]+ and not be longer than 128 characters.");
 		}
 
 		getSecurityTeamsManagerBl().checkSecurityTeamNotExists(sess, securityTeam);
@@ -130,11 +131,11 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		}
 
 		if (securityTeam.getName().length() > 128) {
-			throw new InternalErrorException("Security Team name is too long, >128 characters");
+			throw new IllegalArgumentException("Security Team name is too long, >128 characters");
 		}
 
 		if (!securityTeam.getName().matches("^[-_a-zA-z0-9.]{1,128}$")) {
-			throw new InternalErrorException("Wrong Security name - must matches [-_a-zA-z0-9.]+ and not be longer than 128 characters.");
+			throw new IllegalArgumentException("Wrong Security name - must matches [-_a-zA-z0-9.]+ and not be longer than 128 characters.");
 		}
 
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
