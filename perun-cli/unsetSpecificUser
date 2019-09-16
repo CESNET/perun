@@ -29,6 +29,7 @@ GetOptions ("help|h"  => sub {
 
 # Check options
 unless (defined($userId)) { die "ERROR: specificUserId is required \n";}
+unless (defined($specUsrType)) { die "ERROR: specUserType is required \n";}
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
