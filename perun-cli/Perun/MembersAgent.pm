@@ -118,4 +118,14 @@ sub unsuspendMember
  return Perun::Common::callManagerMethod('unsuspendMember', '', @_);
 }
 
+sub setSponsorshipForMember
+{
+ return Perun::Common::callManagerMethod('setSponsorshipForMember', 'RichMember', @_);
+}
+
+sub unsetSponsorshipForMember
+{
+ return Perun::Common::callManagerMethod('unsetSponsorshipForMember', 'RichMember', @_);
+}
+
 1;
