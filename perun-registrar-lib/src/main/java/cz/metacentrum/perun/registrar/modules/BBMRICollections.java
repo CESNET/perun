@@ -29,12 +29,12 @@ import java.util.*;
  */
 public class BBMRICollections implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
-	public static final String BIOBANK_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
-	public static final String COLLECTIONS_GROUP_NAME = "collections:bbmriEricDirectory";
-	public static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
-	public static final String REPRESENTATIVES_GROUP_NAME = "representatives";
-	public static final String ADD_NEW_COLLECTIONS_GROUP_NAME = "addNewCollections";
+	private final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
+	private static final String BIOBANK_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
+	private static final String COLLECTIONS_GROUP_NAME = "collections:BBMRI-ERIC Directory";
+	private static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
+	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
+	private static final String ADD_NEW_COLLECTIONS_GROUP_NAME = "addNewCollections";
 
 	private RegistrarManager registrar;
 
