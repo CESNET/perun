@@ -1,22 +1,5 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.naming.Name;
-
-import cz.metacentrum.perun.core.bl.PerunBl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -25,7 +8,22 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+
+import javax.naming.Name;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class UserSynchronizer extends AbstractSynchronizer implements ApplicationContextAware {
@@ -37,7 +35,9 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 	private PerunUser[] perunUser = new PerunUser[5];
 
 	private static AtomicInteger taskCount;
-	
+
+	private static boolean wasThreadException = false;
+
 	private class SyncUsersWorker implements Runnable {
 
 		public int poolIndex;
@@ -67,9 +67,11 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources);
 			} catch (PerunException e) {
 				log.error("Error synchronizing user", e);
+				UserSynchronizer.wasThreadException = true;
 
 			} catch (Exception e) {
 				log.error("Error synchronizing user", e);
+				UserSynchronizer.wasThreadException = true;
 
 			} finally {
 				taskCount.decrementAndGet();
@@ -79,12 +81,13 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 	}
 
 
-	public void synchronizeUsers() {
+	public void synchronizeUsers() throws InternalErrorException {
 
 		PerunBl perun = (PerunBl)ldapcManager.getPerunBl();
 
 		ThreadPoolTaskExecutor syncExecutor = new ThreadPoolTaskExecutor();
 		int poolIndex;
+		boolean shouldWriteExceptionLog = true;
 
 		for(poolIndex = 0; poolIndex < perunUser.length; poolIndex++ ) {
 			perunUser[poolIndex] = context.getBean("perunUser", PerunUser.class);
@@ -103,17 +106,17 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 			poolIndex = 0;
 			taskCount = new AtomicInteger(0);
-			
+
 			for(User user: users) {
-				
+
 				presentUsers.add(perunUser[0].getEntryDN(String.valueOf(user.getId())));
 
 				log.debug("Getting list of attributes for user {}", user.getId());
 				List<Attribute> attrs = new ArrayList<Attribute>();
 				List<String> attrNames = fillPerunAttributeNames(perunUser[poolIndex].getPerunAttributeNames());
-					try {
-						//log.debug("Getting attribute {} for user {}", attrName, user.getId());
-						attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), user, attrNames));
+				try {
+					//log.debug("Getting attribute {} for user {}", attrName, user.getId());
+					attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), user, attrNames));
 						/* very chatty
 						if(attr == null) {
 							log.debug("Got null for attribute {}", attrName);
@@ -123,9 +126,11 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 							log.debug("Got attribute {} with value {}", attrName, attr.getValue().toString());
 						}
 						*/
-					} catch (PerunException e) {
-						log.warn("Couldn't get attributes {} for user {}: {}", attrNames, user.getId(), e.getMessage());
-					}
+				} catch (PerunException e) {
+					log.warn("Couldn't get attributes {} for user {}: {}", attrNames, user.getId(), e.getMessage());
+					shouldWriteExceptionLog = false;
+					throw new InternalErrorException(e);
+				}
 				log.debug("Got attributes {}", attrNames.toString());
 
 				try {
@@ -157,6 +162,8 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 				} catch (PerunException e) {
 					log.error("Error synchronizing user", e);
+					shouldWriteExceptionLog = false;
+					throw new InternalErrorException(e);
 				}
 
 				poolIndex = (poolIndex + 1) % perunUser.length;
@@ -166,10 +173,16 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				removeOldEntries(perunUser[0], presentUsers, log);
 			} catch (InternalErrorException e) {
 				log.error("Error removing old user entries", e);
+				shouldWriteExceptionLog = false;
+				throw new InternalErrorException(e);
 			}
-			
+
 		} catch (PerunException e) {
-			log.error("Error synchronizing users", e);
+			if (shouldWriteExceptionLog) {
+				log.error("Error synchronizing users", e);
+			}
+			throw new InternalErrorException(e);
+
 		} finally {
 			// wait for all the tasks to get executed
 			while(!syncExecutor.getThreadPoolExecutor().getQueue().isEmpty()) {
@@ -191,6 +204,9 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 			for(poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
 				perunUser[poolIndex] = null;
 			}
+		}
+		if (wasThreadException) {
+			throw new InternalErrorException("Error synchronizing user in executed thread");
 		}
 
 	}

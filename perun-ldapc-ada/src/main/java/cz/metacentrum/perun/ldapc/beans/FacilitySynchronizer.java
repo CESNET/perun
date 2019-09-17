@@ -28,9 +28,10 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 	@Autowired
 	protected PerunFacility perunFacility;
 
-	public void synchronizeFacilities() {
+	public void synchronizeFacilities() throws InternalErrorException {
 		PerunBl perun = (PerunBl)ldapcManager.getPerunBl();
 		Set<Name> presentFacilities = new HashSet<Name>();
+		boolean shouldWriteExceptionLog = true;
 
 		try {
 			log.debug("Getting list of facilities");
@@ -40,7 +41,7 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 			for(Facility facility : facilities) {
 
 				presentFacilities.add(perunFacility.getEntryDN(String.valueOf(facility.getId())));
-						
+
 				try {
 					log.debug("Synchronizing facility {}", facility);
 
@@ -52,13 +53,19 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 						attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), facility, attrNames));
 					} catch (PerunException e) {
 						log.warn("No attributes {} found for facility {}: {}", attrNames, facility.getId(), e.getMessage());
+						shouldWriteExceptionLog = false;
+						throw new InternalErrorException(e);
 					}
 					log.debug("Got attributes {}", attrs.toString());
 
 					perunFacility.synchronizeFacility(facility, attrs);
-							
+
 				} catch (PerunException e) {
-					log.error("Error synchronizing facility", e);
+					if (shouldWriteExceptionLog)  {
+						log.error("Error synchronizing facility", e);
+					}
+					shouldWriteExceptionLog = false;
+					throw new InternalErrorException(e);
 				}
 			}
 
@@ -66,13 +73,17 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 				removeOldEntries(perunFacility, presentFacilities, log);
 			} catch (InternalErrorException e) {
 				log.error("Error removing old facility entries", e);
+				shouldWriteExceptionLog = false;
+				throw new InternalErrorException(e);
 			}
-		
 		} catch (PerunException e) {
-			log.error("Error reading list of facilities", e);
+			if (shouldWriteExceptionLog) {
+				log.error("Error reading list of facilities", e);
+			}
+			throw new InternalErrorException(e);
 		}
 
-	
+
 	}
-	
+
 }

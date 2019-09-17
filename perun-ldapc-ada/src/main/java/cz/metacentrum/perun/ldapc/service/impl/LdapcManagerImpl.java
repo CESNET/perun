@@ -58,7 +58,7 @@ public class LdapcManagerImpl implements LdapcManager {
 		System.out.println("Event processor thread interrupted.");
 	}
 
-	public void synchronize() {
+	public void synchronize() throws InternalErrorException {
 		try {
 			voSynchronizer.synchronizeVOs();
 			facilitySynchronizer.synchronizeFacilities();
@@ -70,6 +70,7 @@ public class LdapcManagerImpl implements LdapcManager {
 			((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
 		} catch (Exception  e) {
 			log.error("Error synchronizing to LDAP", e);
+			throw new InternalErrorException(e);
 		}
 	}
 
