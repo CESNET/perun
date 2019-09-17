@@ -1,16 +1,12 @@
 package cz.metacentrum.perun.ldapc.service.impl;
 
-import cz.metacentrum.perun.core.bl.PerunBl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.beans.FacilitySynchronizer;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.beans.GroupSynchronizer;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.beans.ResourceSynchronizer;
@@ -18,6 +14,9 @@ import cz.metacentrum.perun.ldapc.beans.UserSynchronizer;
 import cz.metacentrum.perun.ldapc.beans.VOSynchronizer;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @org.springframework.stereotype.Service(value = "ldapcManager")
 public class LdapcManagerImpl implements LdapcManager {
@@ -58,7 +57,7 @@ public class LdapcManagerImpl implements LdapcManager {
 		System.out.println("Event processor thread interrupted.");
 	}
 
-	public void synchronize() {
+	public void synchronize() throws InternalErrorException {
 		try {
 			voSynchronizer.synchronizeVOs();
 			facilitySynchronizer.synchronizeFacilities();
@@ -70,6 +69,7 @@ public class LdapcManagerImpl implements LdapcManager {
 			((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
 		} catch (Exception  e) {
 			log.error("Error synchronizing to LDAP", e);
+			throw new InternalErrorException(e);
 		}
 	}
 

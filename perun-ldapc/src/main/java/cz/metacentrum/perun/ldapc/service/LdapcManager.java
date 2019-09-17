@@ -17,7 +17,7 @@ public interface LdapcManager {
 	 */
 	void stopProcessingEvents();
 
-	void synchronize();
+	void synchronize() throws InternalErrorException;
 
 	public Perun getPerunBl();
 
