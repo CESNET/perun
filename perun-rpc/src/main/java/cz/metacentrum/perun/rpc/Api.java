@@ -536,6 +536,7 @@ public class Api extends HttpServlet {
 		//prepare result object
 		Object result = null;
 
+		PrintWriter printWriter = null;
 		try {
 			String[] fcm; //[0] format, [1] class, [2] method
 			try {
@@ -715,10 +716,9 @@ public class Api extends HttpServlet {
 				if (!(result instanceof Response)) throw new InternalErrorException("SCIM manager returned unexpected result: " + result);
 				resp.setStatus(((Response) result).getStatus());
 				String response = (String) ((Response) result).getEntity();
-				PrintWriter printWriter = new PrintWriter(resp.getOutputStream());
+				printWriter = new PrintWriter(resp.getOutputStream());
 				printWriter.println(response);
 				printWriter.flush();
-				printWriter.close();
 			} else {
 				//Save only exceptions from caller to result
 				try {
@@ -775,6 +775,7 @@ public class Api extends HttpServlet {
 					}
 				}
 			}
+			if (printWriter != null) printWriter.close();
 		}
 
 		out.close();
