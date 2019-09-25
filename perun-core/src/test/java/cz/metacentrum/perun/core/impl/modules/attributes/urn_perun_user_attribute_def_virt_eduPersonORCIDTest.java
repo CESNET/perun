@@ -33,12 +33,13 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 		UserExtSource ues1 = new UserExtSource(10, new ExtSource(100, "name1", "type1"), "login1");
 		UserExtSource ues2 = new UserExtSource(20, new ExtSource(200, "name2", "type2"), "login2");
 		Attribute att1 = new Attribute();
-		String VALUE1 = "0000-0002-0305-7446";
-		att1.setValue(VALUE1+"@orcid");
+		String orcidAddress = "http://orcid.org/";
+		String VALUE1 = orcidAddress + "0000-0002-0305-7446";
+		String VALUE2 = orcidAddress + "0000-0002-1111-2222";
+		att1.setValue(VALUE1 + ";" + VALUE2);
 		Attribute att2 = new Attribute();
-		String VALUE2 = "0000-0002-1111-2222";
-		String VALUE3 = "0000-0002-1111-3333@muni.cz";
-		att2.setValue(VALUE2+"@orcid;"+VALUE3);
+		String VALUE3 = orcidAddress + "0000-0002-1111-3333";
+		att2.setValue(VALUE3);
 
 		when(session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user)).thenReturn(
 				Arrays.asList(ues1, ues2)
@@ -59,10 +60,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 		@SuppressWarnings("unchecked")
 		List<String> actual = (List<String>) receivedAttr.getValue();
 		Collections.sort(actual);
-		List<String> expected = Arrays.asList("http://orcid.org/"+VALUE1,"http://orcid.org/"+VALUE2);
+		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
 		Collections.sort(expected);
 		assertEquals("collected values are incorrect",expected,actual);
-
 	}
 
 }
