@@ -23,11 +23,11 @@ import org.json.JSONObject;
 public class urn_perun_vo_attribute_def_def_aup extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 
-		String value = (String)attribute.getValue();
+		String value = attribute.valueAsString();
 
-		if (value == null || value.isEmpty()) return;
+		if (value == null) return;
 
 		// we expect array or AUPs
 		try {

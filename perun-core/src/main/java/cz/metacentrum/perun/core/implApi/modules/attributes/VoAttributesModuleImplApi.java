@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
@@ -46,9 +47,10 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @param vo Virtual Organization
 	 * @param attribute attribute to be checked
 	 *
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

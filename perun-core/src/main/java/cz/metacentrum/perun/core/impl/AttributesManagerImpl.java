@@ -3869,7 +3869,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
 		if (voModule == null) return; //module doesn't exists

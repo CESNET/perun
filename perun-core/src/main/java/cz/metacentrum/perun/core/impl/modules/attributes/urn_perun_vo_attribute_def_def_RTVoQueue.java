@@ -13,18 +13,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleIm
  */
 public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 
-	//Pattern extensionDatePattern = Pattern.compile("^$");
-
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) {
-		//There is no special queue in RT for this VO (in specific method use default queue)
-		if(attribute.getValue() == null) return;
-
-		//Get value from attribute
-		String attrValue = attribute.valueAsString();
-
-		//TODO: Create some regexp Pattern for RTVoQueue and test it there
-	}
+	//TODO: Create some regexp Pattern for RTVoQueue and test it there
 
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) {
