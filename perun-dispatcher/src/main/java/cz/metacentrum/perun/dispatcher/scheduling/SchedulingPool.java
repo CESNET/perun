@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.service.TaskStore;
 
 import java.util.List;
@@ -126,5 +127,13 @@ public interface SchedulingPool extends TaskStore {
 	 * @param string Serialized TaskResult object
 	 */
 	void onTaskDestinationComplete(int clientID, String string);
-	
+
+	/**
+	 * Store TaskResult sent from Engine.
+	 *
+	 * @param clientID ID of Engine
+	 * @param taskResult TaskResult object
+	 */
+	void onTaskDestinationComplete(int clientID, TaskResult taskResult);
+
 }

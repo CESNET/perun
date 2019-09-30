@@ -17,6 +17,7 @@ import cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled;
 import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskSchedule;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -350,8 +352,29 @@ public class TaskScheduler extends AbstractRunner {
 			while (iter.hasNext()) {
 				Destination dest = iter.next();
 				if (serviceDenialDao.isServiceBlockedOnDestination(service.getId(), dest.getId())) {
+
+					// create fake task result to let admin know about the block
+					TaskResult result = new TaskResult();
+					result.setTaskId(task.getId());
+					result.setDestination(dest);
+					result.setDestinationId(dest.getId());
+					result.setService(service);
+					result.setStandardMessage("");
+					result.setErrorMessage("Destination is blocked in Perun.");
+					result.setReturnCode(1);
+					result.setId(0);
+					result.setTimestamp(new Date(System.currentTimeMillis()));
+					result.setStatus(TaskResult.TaskResultStatus.DENIED);
+					try {
+						schedulingPool.onTaskDestinationComplete(engineMessageProducer.getClientID(), result);
+					} catch (Exception ex) {
+						log.warn("Couldn't store fake TaskResult about blocked destination.");
+					}
+
+					// actually remove from destinations sent to engine
 					iter.remove();
 					log.debug("[{}] Removed blocked destination: {}",  task.getId(), dest.toString());
+
 				}
 			}
 			if (destinations.isEmpty()) {
