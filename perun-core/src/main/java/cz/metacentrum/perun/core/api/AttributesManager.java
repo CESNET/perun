@@ -2598,7 +2598,7 @@ public interface AttributesManager {
 	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute
 	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
 	 */
-	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -2608,7 +2608,7 @@ public interface AttributesManager {
 	 * @throws WrongAttributeValueException if any of attributes values is wrong/illegal
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Vo, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this resource attribute has valid semantics.

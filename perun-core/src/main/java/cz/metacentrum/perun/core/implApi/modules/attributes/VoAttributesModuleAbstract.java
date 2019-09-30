@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
@@ -22,7 +23,7 @@ public abstract class VoAttributesModuleAbstract extends AttributesModuleAbstrac
 
 	}
 
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 	}
 

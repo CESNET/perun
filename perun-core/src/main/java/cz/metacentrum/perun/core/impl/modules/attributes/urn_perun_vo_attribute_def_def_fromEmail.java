@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
@@ -21,12 +22,9 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
 	private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
-		// null attribute
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo fromEmail cannot be null.");
-
-		// wrong type of the attribute
-		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
+	public void checkAttributeSyntax(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+		// null attribute is ok for syntax check
+		if (attribute.getValue() == null) return;
 
 		String fromEmail = attribute.valueAsString();
 
@@ -45,6 +43,12 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
 				}
 			}
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException {
+		// null attribute
+		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, "Vo fromEmail cannot be null.");
 	}
 
 	@Override

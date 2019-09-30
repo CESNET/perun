@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
@@ -18,22 +19,21 @@ import java.util.List;
 public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
-		// null attribute
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo toEmail list cannot be null.");
-
-		// wrong type of the attribute
-		if (!(attribute.getValue() instanceof List)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: List");
+	public void checkAttributeSyntax(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+		// null attribute is ok for syntax check
+		if (attribute.getValue() == null) return;
 
 		List<String> toEmails = attribute.valueAsList();
 
-		// the List is empty
-		if (toEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of toEmails is empty.");
-
 		for (String email : toEmails) {
-			if (email == null) throw new WrongAttributeValueException(attribute, "Email is null.");
 			if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, email))) throw new WrongAttributeValueException(attribute, "Vo : " + vo.getName() +" has toEmail " + email +" which is not valid.");
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException {
+		// null attribute
+		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, "Vo toEmail list cannot be null.");
 	}
 
 	@Override
