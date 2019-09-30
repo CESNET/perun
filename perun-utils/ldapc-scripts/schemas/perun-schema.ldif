@@ -31,12 +31,19 @@ olcAttributeTypes: {26}( 1.3.6.1.4.1.8057.2.80.30 NAME 'loa' DESC 'Level of auth
 olcAttributeTypes: {27}( 1.3.6.1.4.1.8057.2.80.31 NAME 'internalUserIdentifiers' DESC 'All identifiers collected from UserExtSource attribute additionalIdentifiers' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: {28}( 1.3.6.1.4.1.8057.2.80.32 NAME 'perunFacilityDn' DESC 'DN of Facility the resource belongs to' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE )
 olcAttributeTypes: {29}( 1.3.6.1.4.1.8057.2.80.35 NAME 'eduPersonOrcid' DESC 'All OrcID identifiers of user' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {30}( 1.3.6.1.4.1.8057.2.80.36 NAME 'checkGroupMembership' DESC 'OIDC check group membership' EQUALITY caseExactMatch SYNTAX  1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {31}( 1.3.6.1.4.1.8057.2.80.37 NAME 'voShortNames' DESC 'Short names of assigned VOs' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {32}( 1.3.6.1.4.1.8057.2.80.38 NAME 'wayfFilter' DESC 'WAYF filter for the facility' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {33}( 1.3.6.1.4.1.8057.2.80.39 NAME 'wayfEFilter' DESC 'WAYF filter for the facility' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {34}( 1.3.6.1.4.1.8057.2.80.40 NAME 'isTestSp' DESC 'is test SP?' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {35}( 1.3.6.1.4.1.8057.2.80.41 NAME 'proxyIdentifiers' DESC 'Proxy identifiers' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {36}( 1.3.6.1.4.1.8057.2.80.42 NAME 'showOnServiceList' DESC 'show on service list?' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 replace: olcObjectClasses
 olcObjectClasses: {0}( 1.3.6.1.4.1.8057.2.80.4 NAME 'perunUser' DESC 'User managed by Perun' SUP inetOrgPerson STRUCTURAL MUST ( perunUserId $ isServiceUser  $ isSponsoredUser ) MAY ( preferredMail $ userCertificateSubject $ uidNumber $ login $ eduPersonPrincipalNames $ userPassword $ memberOfPerunVo $ libraryIDs $ schacHomeOrganizations $ eduPersonScopedAffiliations $ bonaFideStatus $ groupNames $ institutionsCountries $ isCesnetEligible $ loa $ internalUserIdentifiers $ eduPersonOrcid ) )
 olcObjectClasses: {1}( 1.3.6.1.4.1.8057.2.80.5 NAME 'perunGroup' DESC 'Group managed by Perun' SUP top  STRUCTURAL MUST ( cn $ perunGroupId $ perunVoId $ perunUniqueGroupName ) MAY ( uniqueMember $ businessCategory $ seeAlso $ owner $ ou $ o $ description $ perunParentGroup $ perunParentGroupId $ assignedToResourceId ) )
-olcObjectClasses: {2}( 1.3.6.1.4.1.8057.2.80.15 NAME 'perunResource' DESC 'Resource managed by Perun' SUP top STRUCTURAL MUST ( cn $  perunResourceId $ perunVoId $ perunFacilityId ) MAY (uniqueMember $ businessCategory $ seeAlso $ owner $ ou $ o $ description $ assignedGroupId $ entityID $ OIDCClientID $ perunFacilityDn ))
+olcObjectClasses: {2}( 1.3.6.1.4.1.8057.2.80.15 NAME 'perunResource' DESC 'Resource managed by Perun' SUP top STRUCTURAL MUST ( cn $  perunResourceId $ perunVoId $ perunFacilityId ) MAY (uniqueMember $ businessCategory $ seeAlso $ owner $ ou $ o $ description $ assignedGroupId $ perunFacilityDn ))
 olcObjectClasses: {3}( 1.3.6.1.4.1.8057.2.80.6 NAME 'perunVO' DESC 'VO managed by Perun' SUP organization STRUCTURAL MUST perunVoId MAY uniqueMember )
-olcObjectClasses: {4}( 1.3.6.1.4.1.8057.2.80.34 NAME 'perunFacility' DESC 'Facility managed by Perun' SUP top STRUCTURAL MUST ( cn $ perunFacilityId ) MAY ( description $ entityID $ OIDCClientID ) )
+olcObjectClasses: {4}( 1.3.6.1.4.1.8057.2.80.34 NAME 'perunFacility' DESC 'Facility managed by Perun' SUP top STRUCTURAL MUST ( cn $ perunFacilityId ) MAY ( description $ entityID $ OIDCClientID $ checkGroupMembership $ voShortNames $ wayfFilter $ wayfEFilter $ isTestSp $ proxyIdentifiers $ showOnServiceList ) )
 -
 

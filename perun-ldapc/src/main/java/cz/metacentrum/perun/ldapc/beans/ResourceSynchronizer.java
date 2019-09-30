@@ -54,13 +54,6 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 						));
 
 						try {
-							log.debug("Getting list of resources for resource {}", resource.getId());
-							// Facility facility = Rpc.ResourcesManager.getFacility(ldapcManager.getRpcCaller(), resource);
-							Facility facility = perun.getResourcesManagerBl().getFacility(ldapcManager.getPerunSession(), resource);
-
-							// params.clear();
-							// params.put("facility",  new Integer(facility.getId()));
-
 							log.debug("Getting list of attributes for resource {}", resource.getId());
 							List<Attribute> attrs = new ArrayList<Attribute>();
 							/*
@@ -78,7 +71,7 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 							List<String> attrNames = fillPerunAttributeNames(perunResource.getPerunAttributeNames());
 							try {
 								//log.debug("Getting attribute {} for resource {}", attrName, resource.getId());
-								attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), facility, attrNames));
+								attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), resource, attrNames));
 							} catch (PerunRuntimeException e) {
 								log.warn("No attributes {} found for resource {}: {}", attrNames, resource.getId(), e.getMessage());
 								shouldWriteExceptionLog = false;
