@@ -25,9 +25,9 @@ public class urn_perun_member_group_attribute_def_virt_groupStatus extends Membe
 	final static Logger log = LoggerFactory.getLogger(urn_perun_member_group_attribute_def_virt_groupStatus.class);
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
 
-		String status = (String) attribute.getValue();
+		String status = attribute.valueAsString();
 
 		if (status == null) return; // NULL is ok
 

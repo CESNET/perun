@@ -39,10 +39,8 @@ public interface MemberGroupAttributesModuleImplApi extends AttributesModuleImpl
 	 * @param member Member
 	 * @param group Group
 	 * @param attribute Attribute to be checked.
-	 *
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute);
 
 	/**
 	 * This method MAY fill Member's attributes in a specified group.
