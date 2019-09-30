@@ -265,14 +265,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			//If groupManager has right on the group
 			if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 		}
-		if (roles.containsKey(Role.FACILITYADMIN)) {
-			//IMPORTANT "for now possible, but need to discuss"
-			if (getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource).contains(group)) {
-				List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
-				for (Group g : groups) {
-					if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
-				}
-			}
+		if(roles.containsKey(Role.FACILITYADMIN)) {
+			if (isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
 		}
 //	    if (roles.containsKey(Role.SELF)) ; //Not Allowed
 
