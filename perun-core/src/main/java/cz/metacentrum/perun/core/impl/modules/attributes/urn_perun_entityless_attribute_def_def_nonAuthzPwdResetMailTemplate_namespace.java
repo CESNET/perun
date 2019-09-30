@@ -13,13 +13,10 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
 public class urn_perun_entityless_attribute_def_def_nonAuthzPwdResetMailTemplate_namespace extends EntitylessAttributesModuleAbstract {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) return;
-		if (!(attribute.getValue() instanceof String)) {
-			throw new WrongAttributeValueException(attribute, key, "value must be of type String");
-		}
-		String value = attribute.valueAsString();
-		if (!value.contains("{link}")) {
+
+		if (!attribute.valueAsString().contains("{link}")) {
 			throw new WrongAttributeValueException(attribute, key, "value doesn't contain contain tag {link}");
 		}
 	}

@@ -26,13 +26,11 @@ import java.util.Set;
 public class urn_perun_entityless_attribute_def_def_orgAups extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 
 		if(attribute.getValue() == null) return;
 
-		Map<String, String> map = (Map<String, String>) attribute.getValue();
-
-		if(map.isEmpty()) return;
+		Map<String, String> map = attribute.valueAsMap();
 
 		Set<String> mapKeys = map.keySet();
 		for(String mapKey: mapKeys) {

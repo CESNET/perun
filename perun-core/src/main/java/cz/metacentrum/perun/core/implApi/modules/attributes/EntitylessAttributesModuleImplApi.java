@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
@@ -34,11 +35,11 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
 	 * @param attribute attribute to check
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
 	 */
 
-	void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.

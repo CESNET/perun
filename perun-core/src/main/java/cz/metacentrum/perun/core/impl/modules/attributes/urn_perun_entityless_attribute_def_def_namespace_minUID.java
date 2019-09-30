@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
@@ -24,19 +25,23 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minUID extends En
 	private static final String A_E_namespaceMaxUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
-		Integer minUID = (Integer) attribute.getValue();
-		if(minUID != null) {
-			if(minUID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
-			try {
-				Attribute maxUIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, A_E_namespaceMaxUID);
-				Integer maxUID = (Integer) maxUIDAttr.getValue();
-				if(maxUID != null) {
-					if(minUID > maxUID) throw new WrongAttributeValueException(attribute, "Attribute value must be less than maxUID. MaxUID = " + maxUID + ", and minUID try to set = " + minUID);
-				}
-			} catch (AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException("Attribute namespace-maxUID is supposed to exist.",ex);
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		Integer minUID = attribute.valueAsInteger();
+		if(minUID != null && minUID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be bigger than 0.");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Integer minUID = attribute.valueAsInteger();
+		if (minUID == null) return;
+		try {
+			Attribute maxUIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, A_E_namespaceMaxUID);
+			Integer maxUID = (Integer) maxUIDAttr.getValue();
+			if(maxUID != null) {
+				if(minUID > maxUID) throw new WrongReferenceAttributeValueException(attribute, maxUIDAttr, key, null, key, null, "Attribute value must be less than maxUID. MaxUID = " + maxUID + ", and minUID try to set = " + minUID);
 			}
+		} catch (AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException("Attribute namespace-maxUID is supposed to exist.",ex);
 		}
 	}
 
