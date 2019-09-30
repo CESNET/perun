@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,28 +30,54 @@ public class urn_perun_user_attribute_def_def_timezoneTest {
 	}
 
 	@Test
+	public void testCheckAttributeSyntax() throws Exception {
+		System.out.println("testCheckAttributeSyntax()");
+
+		Attribute attributeToCheck = new Attribute();
+
+		attributeToCheck.setValue("Europe/Prague");
+		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+
+		attributeToCheck.setValue("Africa/Johannesburg");
+		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+
+		attributeToCheck.setValue("Jamaica");
+		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+	}
+
+	@Test(expected = WrongAttributeValueException.class)
+		public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
+			System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+
+			Attribute attributeToCheck = new Attribute();
+			attributeToCheck.setValue("123");
+
+			classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+		}
+
+	@Test
 	public void testCheckAttributeSemantics() throws Exception {
 		System.out.println("testCheckAttributeSemantics()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("Europe/Prague");
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
 		attributeToCheck.setValue("Africa/Johannesburg");
-		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
 
 		attributeToCheck.setValue("Jamaica");
 		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 	}
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
-			System.out.println("testCheckAttributeSemanticsWithWrongValue()");
+	@Test(expected = WrongReferenceAttributeValueException.class)
+	public void testCheckAttributeSemanticsWithNullValue() throws Exception {
+		System.out.println("testCheckAttributeSemanticsWithNullValue()");
 
-			Attribute attributeToCheck = new Attribute();
-			attributeToCheck.setValue("123");
+		Attribute attributeToCheck = new Attribute();
 
-			classInstance.checkAttributeSemantics(session, user, attributeToCheck);
-		}
+		attributeToCheck.setValue(null);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
+	}
 }

@@ -12,8 +12,8 @@ import org.apache.commons.codec.binary.Base64;
 
 import javax.security.cert.CertificateException;
 import javax.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
@@ -21,9 +21,9 @@ import java.util.LinkedHashMap;
 public class urn_perun_user_attribute_def_def_userCertificates extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		try {
-			HashMap<String,String> certs = (HashMap<String,String>) attribute.getValue();
+			Map<String,String> certs = attribute.valueAsMap();
 
 			if (certs != null) {
 				for (String certDN : certs.keySet()) {

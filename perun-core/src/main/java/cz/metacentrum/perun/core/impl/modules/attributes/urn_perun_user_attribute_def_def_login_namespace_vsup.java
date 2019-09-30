@@ -39,7 +39,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	private final static String VSUP_MAIL_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":vsupMail";
 
 	/**
-	 * Checks if the user's login is unique in the namespace organization.
+	 * Check if the user's login is in the correct format and if it is permitted to use.
 	 * Check if maximum length is 20 chars, because of MSAD limitations.
 	 *
 	 * @param sess PerunSession
@@ -47,20 +47,19 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	 * @param attribute Attribute to check value to
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
-	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		Utils.notNull(attribute, "attribute");
 		if (unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
 
-		// check uniqueness
-		super.checkAttributeSemantics(sess, user, attribute);
+		// check attribute syntax
+		super.checkAttributeSyntax(sess, user, attribute);
 
 		// plus check, that login is max 20 chars.
 		if (attribute.getValue() != null) {
-			if (((String)attribute.getValue()).length() > 20) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' exceeds 20 chars limit.");
+			if ((attribute.valueAsString()).length() > 20) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' exceeds 20 chars limit.");
 		}
 
 	}
@@ -125,7 +124,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 				try {
 					checkAttributeSemantics(perunSession, user, filledAttribute);
 					return filledAttribute;
-				} catch (WrongAttributeValueException ex) {
+				} catch (WrongReferenceAttributeValueException ex) {
 					// continue in a WHILE cycle
 					iterator++;
 				}

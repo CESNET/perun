@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -18,16 +19,21 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user,"Cant be null.");
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+		if(attribute.getValue() == null) return;
 		
 		//Testing if some ssh key contains new line character
-		List<String> sshKeys = (ArrayList<String>) attribute.getValue();
+		List<String> sshKeys = attribute.valueAsList();
 		for(String sshKey: sshKeys) {
 			if(sshKey != null) {
 				if(sshKey.contains("\n")) throw new WrongAttributeValueException(attribute, user, "One of keys in attribute contains new line character. New line character is not allowed here.");
 			}
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Cant be null.");
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -27,10 +27,10 @@ import java.util.Set;
 public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 
 		if (attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute, user, "Value can't be null");
+			throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
 		}
 
 		// check existing DN
@@ -45,7 +45,7 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 		usersWithSameCN.remove(user); //remove self
 		if (!usersWithSameCN.isEmpty()) {
 			if(usersWithSameCN.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated CN detected." +  attribute + " " + usersWithSameCN);
-			throw new WrongAttributeValueException(attribute, user, "This CN " + attribute.getValue() + " is already occupied for CEITEC AD");
+			throw new WrongReferenceAttributeValueException(attribute, attribute, user, null, usersWithSameCN.iterator().next(), null, "This CN " + attribute.getValue() + " is already occupied for CEITEC AD");
 		}
 
 	}
@@ -75,7 +75,7 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 			try {
 				checkAttributeSemantics(session, user, filledAttribute);
 				return filledAttribute;
-			} catch (WrongAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				// continue in a WHILE cycle
 				iterator++;
 			}

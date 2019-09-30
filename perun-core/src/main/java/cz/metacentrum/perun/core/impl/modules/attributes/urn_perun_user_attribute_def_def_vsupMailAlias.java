@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -51,28 +52,37 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 	private static final Pattern emailAliasPattern = Pattern.compile("^[A-Za-z]+\\.[A-Za-z]+([0-9])*@vsup\\.cz$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		// can be empty
 		if (attribute.getValue() == null) return;
 
 		// if set, must match generic format
-		Matcher emailMatcher = emailAliasPattern.matcher((String)attribute.getValue());
+		Matcher emailMatcher = emailAliasPattern.matcher(attribute.valueAsString());
 		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "School mail alias is not in a correct form: \"firstName.lastName[counter]@vsup.cz\".");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+
+		// can be empty
+		if (attribute.getValue() == null) return;
 
 		// We must check uniqueness since vsupMailAlias is filled by itself and filling function iterates until value is correct.
 
 		try {
 			Attribute reservedMailsAttribute = sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(sess, usedMailsKeyVsup, usedMailsUrn);
 			if (reservedMailsAttribute.getValue() != null) {
-				Map<String,String> reservedMailsAttributeValue = (Map<String,String>)reservedMailsAttribute.getValue();
+				Map<String,String> reservedMailsAttributeValue = reservedMailsAttribute.valueAsMap();
 				String ownersUserId = reservedMailsAttributeValue.get(attribute.valueAsString());
 				if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
-					throw new WrongAttributeValueException("VŠUP mail alias: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
+					User ownersUser = sess.getPerunBl().getUsersManagerBl().getUserById(sess, Integer.parseInt(ownersUserId));
+					throw new WrongReferenceAttributeValueException(attribute, reservedMailsAttribute, user, null, ownersUser, null, "VŠUP mail alias: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
 				}
 			}
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
+		} catch (UserNotExistsException e) {
+			throw new ConsistencyErrorException("User doesn't exists.", e);
 		}
 
 	}
@@ -118,7 +128,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 			try {
 				checkAttributeSemantics(session, user, filledAttribute);
 				return filledAttribute;
-			} catch (WrongAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				// continue in a WHILE cycle
 				iterator++;
 			}

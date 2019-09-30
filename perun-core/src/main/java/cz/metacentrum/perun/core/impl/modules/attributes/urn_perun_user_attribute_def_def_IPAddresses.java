@@ -28,7 +28,7 @@ public class urn_perun_user_attribute_def_def_IPAddresses extends UserAttributes
 	private static final Pattern IPv6_PATTERN_SHORT = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		List<String> value = attribute.valueAsList();
 		if (value != null) {
 			for (String address : value) {

@@ -20,11 +20,9 @@ import java.util.regex.Matcher;
 public class urn_perun_user_attribute_def_def_mailaliasesGenericMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		String attributeValue;
-
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) return;
-		else attributeValue = (String) attribute.getValue();
+		String attributeValue = attribute.valueAsString();
 
 		Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);
 		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");

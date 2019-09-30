@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -22,11 +23,16 @@ public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends Use
 	private static final Pattern pattern = Pattern.compile("^[-/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null");
-		String value = (String) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+		if(attribute.getValue() == null) return;
+		String value = attribute.valueAsString();
 		Matcher matcher = pattern.matcher(value);
 		if(!matcher.matches()) throw new WrongAttributeValueException(attribute, user, "Attribute's value is not in correct format. format: login@realm");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if(attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Attribute's value can't be null");
 	}
 
 	@Override

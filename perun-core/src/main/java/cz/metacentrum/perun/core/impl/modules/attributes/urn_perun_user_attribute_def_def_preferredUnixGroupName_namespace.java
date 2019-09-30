@@ -20,9 +20,9 @@ public class urn_perun_user_attribute_def_def_preferredUnixGroupName_namespace e
 	private static final Pattern pattern = Pattern.compile("^[-_.a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue()!= null) {
-			for(String groupName: (List<String>)attribute.getValue()) {
+			for(String groupName: attribute.valueAsList()) {
 				Matcher matcher = pattern.matcher(groupName);
 				if (!matcher.matches()) throw new WrongAttributeValueException(attribute, user, "GroupName: " + groupName + " content invalid characters. Allowed are only letters, numbers and characters _ and - and .");
 			}

@@ -25,7 +25,7 @@ import java.util.Set;
 public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute userCertDNs;
 		try {
 			userCertDNs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
@@ -34,16 +34,16 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 		}
 		Map<String, String> certDNsValue;
 		if(userCertDNs.getValue() != null) {
-			certDNsValue = (Map<String, String>) userCertDNs.getValue();
+			certDNsValue = userCertDNs.valueAsMap();
 		} else {
-			if(attribute.getValue() != null) throw new WrongReferenceAttributeValueException(attribute, userCertDNs, "There is no certificates for this user so preferred certificate can't be choose.");
+			if(attribute.getValue() != null) throw new WrongReferenceAttributeValueException(attribute, userCertDNs, user, null, user, null, "There is no certificates for this user so preferred certificate can't be choose.");
 			else return;
 		}
 		if(attribute.getValue() == null) {
-			if(certDNsValue != null && !certDNsValue.isEmpty()) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null because of notNull attribute userCertDNs");
+			if(certDNsValue != null && !certDNsValue.isEmpty()) throw new WrongReferenceAttributeValueException(attribute, userCertDNs, user, null, user, null, "This attribute value can't be null because of notNull attribute userCertDNs");
 		} else {
-			String preferredCertDNValue = (String) attribute.getValue();
-			if(!certDNsValue.containsKey(preferredCertDNValue)) throw new WrongAttributeValueException(attribute, "This attribute value must be one of exsiting keys in userCertDNs.");
+			String preferredCertDNValue = attribute.valueAsString();
+			if(!certDNsValue.containsKey(preferredCertDNValue)) throw new WrongReferenceAttributeValueException(attribute, userCertDNs, user, null, user, null, "This attribute value must be one of exsiting keys in userCertDNs.");
 		}
 	}
 

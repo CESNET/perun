@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -23,12 +24,9 @@ public class urn_perun_user_attribute_def_def_phone extends UserAttributesModule
 	private static final Pattern pattern = Pattern.compile("^[+][0-9]{4,16}$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		// null attribute
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "User attribute phone cannot be null.");
-
-		// wrong type of the attribute
-		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
+		if (attribute.getValue() == null) return;
 
 		String phone = attribute.valueAsString();
 
@@ -36,6 +34,13 @@ public class urn_perun_user_attribute_def_def_phone extends UserAttributesModule
 		if (!matcher.matches()) {
 			throw new WrongAttributeValueException(attribute, "Phone is not in correct format!");
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+		// null attribute
+		if (attribute.getValue() == null)
+			throw new WrongReferenceAttributeValueException(attribute, "User attribute phone cannot be null.");
 	}
 
 	@Override
