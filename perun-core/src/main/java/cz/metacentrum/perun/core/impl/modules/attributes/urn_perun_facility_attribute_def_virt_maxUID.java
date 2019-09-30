@@ -32,8 +32,8 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 		try {
 			Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 			if(uidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);
-			Attribute namespaceMaxUidAttribute = getNamespaceMaxUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
-			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, (String) uidNamespaceAttribute.getValue(), namespaceMaxUidAttribute);
+			Attribute namespaceMaxUidAttribute = getNamespaceMaxUidAttribute(sess, uidNamespaceAttribute.valueAsString());
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, uidNamespaceAttribute.valueAsString(), namespaceMaxUidAttribute);
 		} catch(WrongReferenceAttributeValueException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, ex.getReferenceAttribute());
 		}

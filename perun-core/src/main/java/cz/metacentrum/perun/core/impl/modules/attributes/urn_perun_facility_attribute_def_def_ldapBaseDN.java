@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
@@ -17,13 +18,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
-		if (attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute, facility, "attribute is null");
-		}
+		if (attribute.getValue() == null) return;
 
-		String value = (String) attribute.getValue();
+		String value = attribute.valueAsString();
 		if (value.length() < 3) {
 			throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
 		}
@@ -33,6 +32,11 @@ public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAtt
 		if ( !(sub.equalsIgnoreCase("ou=") || sub.equalsIgnoreCase("dc=")) ) {
 			throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, facility, null, "attribute is null");
 	}
 
 	@Override

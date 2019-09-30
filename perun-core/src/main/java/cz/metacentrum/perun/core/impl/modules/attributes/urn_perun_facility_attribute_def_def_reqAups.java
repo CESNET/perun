@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
@@ -26,9 +26,9 @@ public class urn_perun_facility_attribute_def_def_reqAups extends FacilityAttrib
 	private final static String availableAups = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":orgAups";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 
-		List<String> aups = (List<String>) attribute.getValue();
+		List<String> aups = attribute.valueAsList();
 
 		if (aups == null || aups.isEmpty()) return;
 
@@ -40,13 +40,13 @@ public class urn_perun_facility_attribute_def_def_reqAups extends FacilityAttrib
 		// fill available keys
 		for (Attribute a : allAUPS) {
 			if (a != null && a.getValue() != null && a.getValue() instanceof LinkedHashMap) {
-				LinkedHashMap<String,String> map = (LinkedHashMap<String,String>)a.getValue();
+				LinkedHashMap<String,String> map = a.valueAsMap();
 				keys.addAll(map.keySet());
 			}
 		}
 
 		for (String aup : aups) {
-			if (!keys.contains(aup)) throw new WrongAttributeValueException(attribute, aup+" AUP doesn't exist in available organization AUPs.");
+			if (!keys.contains(aup)) throw new WrongReferenceAttributeValueException(attribute, null, facility, null, aup+" AUP doesn't exist in available organization AUPs.");
 		}
 
 	}

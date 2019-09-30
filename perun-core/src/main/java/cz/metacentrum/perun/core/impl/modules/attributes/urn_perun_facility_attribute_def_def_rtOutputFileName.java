@@ -24,14 +24,14 @@ public class urn_perun_facility_attribute_def_def_rtOutputFileName extends Facil
 	Pattern fileNamePattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
 		//attribute can be empty
 		if (attribute.getValue() == null) {
 			return;
 		}
 
-		String value = (String) attribute.getValue();
+		String value = attribute.valueAsString();
 
 		Matcher matcher = fileNamePattern.matcher(value);
 		if (!matcher.matches()) {
