@@ -4,8 +4,6 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +12,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdAdded;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdRemoved;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdUpdated;
@@ -27,12 +26,12 @@ import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.InvitationSentEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -942,6 +941,9 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
+			User sendingUser = sess.getPerunPrincipal().getUser();
+			AuditEvent event = new InvitationSentEvent(sendingUser, email, language, group, vo);
+			sess.getPerun().getAuditer().log(sess, event);
 			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
 					, (Object) message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
@@ -1077,6 +1079,9 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
+			User sendingUser = sess.getPerunPrincipal().getUser();
+			AuditEvent event = new InvitationSentEvent(sendingUser, email, language, group, vo);
+			sess.getPerun().getAuditer().log(sess, event);
 			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
 					, message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
