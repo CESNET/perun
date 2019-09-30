@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
@@ -280,7 +281,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 				else a.setValue(100005);
 				try {
 					modulesUtilsBl.checkIfGIDIsWithinRange((PerunSessionImpl) sess, a);
-				} catch (WrongAttributeValueException ex) {
+				} catch (WrongReferenceAttributeValueException ex) {
 					i++;
 				}
 			}

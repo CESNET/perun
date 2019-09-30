@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
@@ -21,9 +22,9 @@ public class urn_perun_group_attribute_def_def_fromEmail  extends GroupAttribute
 	private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		// null attribute
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Group fromEmail cannot be null.");
+		if (attribute.getValue() == null) return;
 
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
@@ -45,6 +46,12 @@ public class urn_perun_group_attribute_def_def_fromEmail  extends GroupAttribute
 				}
 			}
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null)
+			throw new WrongReferenceAttributeValueException(attribute, "Group fromEmail cannot be null.");
 	}
 
 	@Override

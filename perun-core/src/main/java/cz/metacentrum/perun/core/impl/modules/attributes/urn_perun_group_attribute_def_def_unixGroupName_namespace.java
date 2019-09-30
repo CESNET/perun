@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -31,22 +32,26 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 	private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException, InternalErrorException {
+		if (attribute.getValue() == null) return;
+		//Check attribute regex
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[-._a-zA-Z0-9]+$");
+
+		//Check reserved unix group names
+		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		//prepare namespace and groupName value variables
 		String groupName = null;
-		if(attribute.getValue() != null) groupName = (String) attribute.getValue();
+		if(attribute.getValue() != null) groupName = attribute.valueAsString();
 		String groupNameNamespace = attribute.getFriendlyNameParameter();
 
 		if(groupName == null) {
 			// if this is group attribute, its ok
 			return;
 		}
-
-		//Check attribute regex
-		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[-._a-zA-Z0-9]+$");
-
-		//Check reserved unix group names
-		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);
 
 		try {
 			//prepare attributes group and resource unixGroupName
@@ -67,7 +72,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 			//First need to know that i have right to write any of duplicit groupName-namespace attribute
 			boolean haveRights = sess.getPerunBl().getModulesUtilsBl().haveRightToWriteAttributeInAnyGroupOrResource(sess, groupsWithSameGroupNameInTheSameNamespace, resourcesWithSameGroupNameInTheSameNamespace, groupUnixGroupName, resourceUnixGroupName);
-			if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, "This groupName is already used for other group or resource and user has no rights to use it.");
+			if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, null, group, null, "This groupName is already used for other group or resource and user has no rights to use it.");
 
 			//Now if rights are ok, prepare lists of UnixGIDs attributes of this group (also equivalent resource GID)
 			List<Attribute> groupUnixGIDs = sess.getPerunBl().getAttributesManagerBl().getAllAttributesStartWithNameWithoutNullValue(sess, group, A_G_unixGID_namespace + ":");
@@ -81,7 +86,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 						compare = sess.getPerunBl().getModulesUtilsBl().haveTheSameAttributeWithTheSameNamespace(sess, g, a);
 
 						if(compare > 0) {
-							throw new WrongReferenceAttributeValueException(attribute, a, "One of the group GIDs is from the same namespace like other group GID but with different values.");
+							throw new WrongReferenceAttributeValueException(attribute, a, group, null, g, null, "One of the group GIDs is from the same namespace like other group GID but with different values.");
 						}
 					}
 				}
@@ -95,7 +100,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 						compare = sess.getPerunBl().getModulesUtilsBl().haveTheSameAttributeWithTheSameNamespace(sess, r, a);
 
 						if(compare > 0) {
-							throw new WrongReferenceAttributeValueException(attribute, a, "One of the group GIDs is from the same namespace like other resource GIDs but with different values.");
+							throw new WrongReferenceAttributeValueException(attribute, a, group, null, r, null, "One of the group GIDs is from the same namespace like other resource GIDs but with different values.");
 						}
 					}
 				}

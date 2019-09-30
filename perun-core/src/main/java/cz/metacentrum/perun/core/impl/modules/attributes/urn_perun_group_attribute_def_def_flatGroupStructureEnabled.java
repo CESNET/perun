@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
@@ -30,7 +31,7 @@ public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends
 	private static final String MANDATORY_ATTRIBUTE_NAME = GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME;
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
@@ -38,7 +39,7 @@ public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends
 		try {
 			Attribute foundAttribute = attributeManager.getAttribute(perunSession, group, MANDATORY_ATTRIBUTE_NAME);
 			if(foundAttribute == null || foundAttribute.getValue() == null) {
-				throw new WrongAttributeAssignmentException("Attribute " + MANDATORY_ATTRIBUTE_NAME + " must be defined first.");
+				throw new WrongReferenceAttributeValueException(attribute, foundAttribute, group, null, group, null, "Attribute " + MANDATORY_ATTRIBUTE_NAME + " must be defined first.");
 			}
 		} catch (AttributeNotExistsException exc) {
 			throw new ConsistencyErrorException("Attribute " + MANDATORY_ATTRIBUTE_NAME + " is supposed to exist", exc);

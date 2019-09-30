@@ -118,7 +118,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		try{
 			String gidNamespace = attribute.getFriendlyNameParameter();
 
@@ -133,25 +133,19 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 				for(String namespace : namespacesWhereGroupMustHaveGIDifItHaveUnixNameThere) {
 					Attribute unixGroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, A_G_unixGroupName_namespace + ":" + namespace);
 					if(unixGroupName.getValue() != null) {
-						throw new WrongAttributeValueException(attribute, group, "Group is propagated to the facility where it have set unix group name so it must have unix GID too.");
+						throw new WrongReferenceAttributeValueException(attribute,  unixGroupName, group, null, group, null, "Group is propagated to the facility where it have set unix group name so it must have unix GID too.");
 					}
 				}
 				return;   //Group is not propagated to any facility in this GID namespace or it doesn't have set unix name there so it doesn't need to have unix GID.
 			}
 
-			//Special behaviour if gid is null
-			Integer attrValue;
-			if(attribute.getValue() == null) {
-				throw new WrongAttributeValueException(attribute, group, "Unix GID must be set");
-			} else {
-				attrValue = (Integer) attribute.getValue();
-			}
+			Integer attrValue = attribute.valueAsInteger();
 
 			//check if gid is not already depleted
 			Attribute usedGids = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_usedGids);
 			//null in value means there is no depleted or used gids
 			if(usedGids.getValue() != null) {
-				Map<String, String> usedGidsValue = (Map<String,String>) usedGids.getValue();
+				Map<String, String> usedGidsValue = usedGids.valueAsMap();
 				//Dx, where x is GID means depleted value for GID x
 				if(usedGidsValue.containsKey("D" + attrValue.toString())) {
 					throw new WrongReferenceAttributeValueException(attribute, usedGids, group, null, gidNamespace, null, "This GID is already depleted.");
@@ -159,7 +153,11 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 			}
 
 			//Check if gid GID is within allowed range
-			sess.getPerunBl().getModulesUtilsBl().checkIfGIDIsWithinRange(sess, attribute);
+			try {
+				sess.getPerunBl().getModulesUtilsBl().checkIfGIDIsWithinRange(sess, attribute);
+			} catch (WrongAttributeValueException e) {
+				throw new WrongReferenceAttributeValueException(e);
+			}
 
 			//Prepare lists for all groups and resources with same GID in the same namespace
 
@@ -185,7 +183,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 
 						if(compare > 0) {
 							//This is problem, there is the same attribute but have other value
-							throw new WrongReferenceAttributeValueException(attribute, a, "There is a group with same GID (namespace: "  + gidNamespace + ") and different unix group name (namespace: " + a.getFriendlyNameParameter() + "). " + g + " " + group);
+							throw new WrongReferenceAttributeValueException(attribute, a, group, null, g, null, "There is a group with same GID (namespace: "  + gidNamespace + ") and different unix group name (namespace: " + a.getFriendlyNameParameter() + "). " + g + " " + group);
 						}
 						//Other possibilities are not problem, less than 0 mean that same attribute not exists, and 0 mean that attribute exists but have same value
 					}
@@ -204,7 +202,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 
 						if(compare > 0) {
 							//This is problem, there is the same attribute but have other value
-							throw new WrongReferenceAttributeValueException(attribute, a, "There is a resource with same GID (namespace: "  + gidNamespace + ") and different unix group name (namespace: " + a.getFriendlyNameParameter() + "). " + r + " " + group);
+							throw new WrongReferenceAttributeValueException(attribute, a, group, null, r, null, "There is a resource with same GID (namespace: "  + gidNamespace + ") and different unix group name (namespace: " + a.getFriendlyNameParameter() + "). " + r + " " + group);
 						}
 						//Other possibilities are not problem, less than 0 mean that same attribute not exists, and 0 mean that attribute exists but have same value
 					}

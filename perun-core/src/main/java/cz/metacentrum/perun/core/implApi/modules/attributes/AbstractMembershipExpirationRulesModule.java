@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
@@ -31,11 +30,7 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
 	public static final String membershipPeriodLoaKeyName = "periodLoa";
 	public static final String membershipDoNotAllowLoaKeyName = "doNotAllowLoa";
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, T entity, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-
-	}
-
-	public void checkAttributeSemantics(PerunSessionImpl sess, T entity, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, T entity, Attribute attribute) throws WrongAttributeValueException {
 		Map<String, String> attrValue;
 
 		//For no value is correct (it means no rules)
@@ -123,6 +118,10 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
 				}
 			}
 		}
+	}
+
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, T entity, Attribute attribute) {
+
 	}
 
 	/**

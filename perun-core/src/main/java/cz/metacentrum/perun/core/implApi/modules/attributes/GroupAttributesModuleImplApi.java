@@ -36,11 +36,11 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @param attribute attribute to check
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
 	 */
 
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.
