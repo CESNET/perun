@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleImplApi;
@@ -22,8 +22,9 @@ import java.util.List;
 public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-		if(!attribute.equals(getAttributeValue(sess, member, attribute))) throw new WrongAttributeValueException(attribute, member, "Attribute value is not the highest value from member's UserExtSources Loas.");
+	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		Attribute currentAttribute = getAttributeValue(sess, member, attribute);
+		if(!attribute.equals(currentAttribute)) throw new WrongReferenceAttributeValueException(attribute, currentAttribute, member, null, member, null, "Attribute value is not the highest value from member's UserExtSources Loas.");
 	}
 
 	@Override

@@ -3,12 +3,18 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
@@ -105,7 +111,7 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 		classInstance.checkAttributeSemantics(session, member, attribute);
 	}
 
-	@Test(expected = WrongAttributeValueException.class)
+	@Test(expected = WrongReferenceAttributeValueException.class)
 	public void testCheckNull() throws Exception {
 		System.out.println("testCheckNull()");
 		attributeToCheck.setValue(null);
@@ -116,21 +122,21 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 	public void testCheckType() throws Exception {
 		System.out.println("testCheckType()");
 		attributeToCheck.setValue("AAA");
-		classInstance.checkAttributeSemantics(session, member, attributeToCheck);
+		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
 	public void testCheckEmailSyntax() throws Exception {
 		System.out.println("testCheckEmailSyntax()");
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "a/-+"));
-		classInstance.checkAttributeSemantics(session, member, attributeToCheck);
+		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
 	public void testCheckDuplicates() throws Exception {
 		System.out.println("testCheckDuplicates()");
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", "my@example.com"));
-		classInstance.checkAttributeSemantics(session, member, attributeToCheck);
+		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
 	}
 
 	@Test
@@ -139,17 +145,24 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com"));
 		try {
 			classInstance.checkAttributeSemantics(session, member, attributeToCheck);
-			fail("should throw WrongAttributeValueException");
-		} catch (WrongAttributeValueException ex) {
+			fail("should throw WrongReferenceAttributeValueException");
+		} catch (WrongReferenceAttributeValueException ex) {
 			assertThat(ex.getMessage(), endsWith("does not contain 123456@muni.cz"));
 		}
 	}
 
 	@Test
-	public void testCorrect() throws Exception {
-		System.out.println("testCorrect()");
+	public void testCorrectSemantics() throws Exception {
+		System.out.println("testCorrectSemantics()");
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", uco + "@muni.cz"));
 		classInstance.checkAttributeSemantics(session, member, attributeToCheck);
+	}
+
+	@Test
+	public void testCorrectSyntax() throws Exception {
+		System.out.println("testCorrectSyntax()");
+		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", uco + "@muni.cz"));
+		classInstance.checkAttributeSyntax(session, member, attributeToCheck);
 	}
 
 	@Test
@@ -157,12 +170,16 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 		System.out.println("testClashMember()");
 		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("member"))))
 				.thenReturn(Sets.newHashSet(new Pair<>(1000, 0)));
+		Member memberWithDuplicateEmail = mock(Member.class);
+		MembersManagerBl membersManagerBl = mock(MembersManagerBl.class);
+		when(session.getPerunBl().getMembersManagerBl()).thenReturn(membersManagerBl);
+		when(session.getPerunBl().getMembersManagerBl().getMemberById(session, 1000)).thenReturn(memberWithDuplicateEmail);
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", uco + "@muni.cz"));
 		try {
 			classInstance.checkAttributeSemantics(session, member, attributeToCheck);
-			fail("should throw WrongAttributeValueException");
-		} catch (WrongAttributeValueException ex) {
-			assertThat(ex.getMessage(), endsWith("some of the email addresses are already assigned to the following members: [1000]"));
+			fail("should throw WrongReferenceAttributeValueException");
+		} catch (WrongReferenceAttributeValueException ex) {
+			assertThat(ex.getMessage(), endsWith("some of the email addresses are already assigned."));
 		}
 	}
 
@@ -171,12 +188,20 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 		System.out.println("testClashGroupResource()");
 		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("group_resource"))))
 				.thenReturn(Sets.newHashSet(new Pair<>(55, 66)));
+		Group groupWithDuplicateEmail = mock(Group.class);
+		Resource resourceWithDuplicateEmail = mock(Resource.class);
+		ResourcesManagerBl resourcesManagerBl = mock(ResourcesManagerBl.class);
+		GroupsManagerBl groupsManagerBl = mock(GroupsManagerBl.class);
+		when(session.getPerunBl().getGroupsManagerBl()).thenReturn(groupsManagerBl);
+		when(session.getPerunBl().getResourcesManagerBl()).thenReturn(resourcesManagerBl);
+		when(session.getPerunBl().getGroupsManagerBl().getGroupById(session, 55)).thenReturn(groupWithDuplicateEmail);
+		when(session.getPerunBl().getResourcesManagerBl().getResourceById(session, 66)).thenReturn(resourceWithDuplicateEmail);
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", uco + "@muni.cz"));
 		try {
 			classInstance.checkAttributeSemantics(session, member, attributeToCheck);
-			fail("should throw WrongAttributeValueException");
-		} catch (WrongAttributeValueException ex) {
-			assertThat(ex.getMessage(), endsWith("some of the email addresses are already assigned to the following group_resource pairs: [Pair:[Left='55', Right='66']]"));
+			fail("should throw WrongReferenceAttributeValueException");
+		} catch (WrongReferenceAttributeValueException ex) {
+			assertThat(ex.getMessage(), endsWith("some of the email addresses are already assigned."));
 		}
 	}
 }
