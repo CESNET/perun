@@ -1,25 +1,18 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
+import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 
 /**
- * Checked version of InternalErrorException.
+ * Class representing an exception caused by an unexpected error.
  *
- * @see cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
  * @author Martin Kuba
  */
-public class InternalErrorException extends PerunException {
+public class InternalErrorException extends PerunRuntimeException {
 	static final long serialVersionUID = 0;
 	private final static Logger log = LoggerFactory.getLogger(InternalErrorException.class);
-
-	public InternalErrorException(InternalErrorRuntimeException rt) {
-		super(rt.getMessage(),rt);
-
-		log.error("Internal Error Exception:", this);
-	}
 
 	public InternalErrorException(String message) {
 		super(message);

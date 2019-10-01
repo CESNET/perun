@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.impl.AuthzRoles;
 
 /**
  * Identification of the acting person.
@@ -29,12 +28,12 @@ public class PerunPrincipal {
 	/**
 	 * Creates a new instance for a given string.
 	 * @param actor string identifying the user in Grouper
-	 * @throws InternalErrorRuntimeException actor is null
+	 * @throws InternalErrorException actor is null
 	 */
 	public PerunPrincipal(String actor, String extSourceName, String extSourceType) {
-		if (actor == null) throw new InternalErrorRuntimeException(new NullPointerException("actor is null"));
-		if (extSourceName == null) throw new InternalErrorRuntimeException(new NullPointerException("extSourceName is null"));
-		if (extSourceType == null) throw new InternalErrorRuntimeException(new NullPointerException("extSourceType is null"));
+		if (actor == null) throw new InternalErrorException(new NullPointerException("actor is null"));
+		if (extSourceName == null) throw new InternalErrorException(new NullPointerException("extSourceName is null"));
+		if (extSourceType == null) throw new InternalErrorException(new NullPointerException("extSourceType is null"));
 
 		this.actor = actor;
 		this.extSourceName = extSourceName;

@@ -138,10 +138,10 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			if (jdbc.update("delete from security_teams where id=?", securityTeam.getId()) == 0) {
 				throw new ConsistencyErrorException("no record was deleted from the DB.");
 			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
 		} catch (ConsistencyErrorException e) {
 			throw new SecurityTeamNotExistsException(e);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 
 		log.debug("SecurityTeam {} deleted", securityTeam);
@@ -317,7 +317,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			}
 		} catch(EmptyResultDataAccessException ex) {
 			// is ok. No row with same name was founded
-		} catch(RuntimeException | ConsistencyErrorException e) {
+		} catch(RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -362,7 +362,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException | ConsistencyErrorException e) {
+		} catch(RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -391,7 +391,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException | ConsistencyErrorException e) {
+		} catch(RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -424,7 +424,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException | ConsistencyErrorException e) {
+		} catch(RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}

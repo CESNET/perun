@@ -1274,7 +1274,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException | ConsistencyErrorException e) {
+		} catch(RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}

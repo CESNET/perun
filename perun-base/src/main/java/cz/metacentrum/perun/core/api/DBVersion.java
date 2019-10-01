@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -63,7 +64,7 @@ public class DBVersion implements Comparable<DBVersion>{
 	@Override
 	public int compareTo(DBVersion version) {
 		if(version == null) {
-			throw new InternalErrorRuntimeException(new NullPointerException("DBVersion version"));
+			throw new InternalErrorException(new NullPointerException("DBVersion version"));
 		}
 
 		String[] thisSplitVersion = this.version.split("\\.");

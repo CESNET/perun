@@ -527,7 +527,7 @@ public class Api extends HttpServlet {
 					serializer.write(Arrays.asList(pendingRequests.values().toArray()));
 				}
 			} catch (RpcException e) {
-				serializer.writePerunException(e);
+				serializer.writePerunRuntimeException(e);
 			}
 			out.close();
 			return;
@@ -755,7 +755,7 @@ public class Api extends HttpServlet {
 				resp.setStatus(500);
 			}
 			log.warn("Perun exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ex);
-			ser.writePerunException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
+			ser.writePerunRuntimeException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
 		} finally {
 			if (!isGet && !isPut && perunRequest != null) {
 				//save result of this perunRequest

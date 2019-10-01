@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.api.exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 
 /**
  * Exception, which is using for bad range of messages count for audit messages.

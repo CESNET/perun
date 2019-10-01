@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -53,7 +52,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 
 	//FIXME delete this method
 	public ExtSourcesManagerImplApi getExtSourcesManagerImpl() {
-		throw new InternalErrorRuntimeException("Unsupported method!");
+		throw new InternalErrorException("Unsupported method!");
 	}
 
 	@Override

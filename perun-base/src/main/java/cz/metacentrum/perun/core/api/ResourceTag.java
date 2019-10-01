@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Auditable;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.api.BeansUtils;
-
 /**
  * Resource Tag entity.
  *

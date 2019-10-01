@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.OwnersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -45,7 +44,7 @@ public class OwnersManagerEntry implements OwnersManager {
 
 	/*FIXME delete this method */
 	public OwnersManagerImplApi getOwnersManagerImpl() {
-		throw new InternalErrorRuntimeException("Unsupported method!");
+		throw new InternalErrorException("Unsupported method!");
 	}
 
 	@Override
