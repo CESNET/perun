@@ -100,10 +100,12 @@ public class UserResourceEndpointController {
 				email.setType("preferred email");
 				return email;
 			}
-		} catch (InternalErrorException | WrongAttributeAssignmentException ex) {
+		} catch (InternalErrorException ex) {
 			log.error("Internal exception occured while getting preferred email of user " + perunUser.getId(), ex);
 		} catch (AttributeNotExistsException ex) {
 			log.error("Attribute preferredMail doesn't exist for user " + perunUser.getId(), ex);
+		} catch (WrongAttributeAssignmentException ex) {
+			log.error("Trying to assign attribute to the wrong entity while getting preferred email of user " + perunUser.getId(), ex);
 		}
 		return null;
 	}

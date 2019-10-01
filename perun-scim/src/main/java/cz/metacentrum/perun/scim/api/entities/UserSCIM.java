@@ -1,9 +1,15 @@
 package cz.metacentrum.perun.scim.api.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.ImmutableList;
+import org.infinispan.commons.util.ImmutableListCopy;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,7 +20,10 @@ import java.util.List;
  */
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class UserSCIM extends Resource {
+public class UserSCIM {
+
+	@JsonIgnore
+	private Resource resource;
 
 	@JsonProperty
 	private List<String> schemas;
@@ -32,7 +41,10 @@ public class UserSCIM extends Resource {
 	private List<EmailSCIM> emails;
 
 	public UserSCIM(Long id, Long externalId, Meta meta, List<String> schemas, String userName, String name, String displayName, List<EmailSCIM> emails) {
-		super(id, externalId, meta);
+		resource = new Resource();
+		resource.setId(id);
+		resource.setExternalId(externalId);
+		resource.setMeta(meta);
 		this.schemas = schemas;
 		this.userName = userName;
 		this.name = name;
@@ -41,10 +53,14 @@ public class UserSCIM extends Resource {
 	}
 
 	public UserSCIM(Long id, Long externalId, Meta meta) {
-		super(id, externalId, meta);
+		resource = new Resource();
+		resource.setId(id);
+		resource.setExternalId(externalId);
+		resource.setMeta(meta);
 	}
 
 	public UserSCIM() {
+		resource = new Resource();
 	}
 
 	public List<String> getSchemas() {
@@ -79,6 +95,40 @@ public class UserSCIM extends Resource {
 		this.displayName = displayName;
 	}
 
+	public void setId(Long id) {
+		resource.setId(id);
+	}
+
+	public void setExternalId(Long externalId) {
+		resource.setExternalId(externalId);
+	}
+
+	public void setMeta(Meta meta) {
+		resource.setMeta(meta);
+	}
+
+	public Long getId() {
+		return resource.getId();
+	}
+
+	public Long getExternalId() {
+		return resource.getExternalId();
+	}
+
+	public Meta getMeta() {
+		return resource.getMeta();
+	}
+
+	@JsonIgnore
+	public Resource getResource() {
+		return resource;
+	}
+
+	@JsonIgnore
+	public void setResource(Resource resource) {
+		this.resource = resource;
+	}
+
 	public List<EmailSCIM> getEmails() {
 		return emails;
 	}
@@ -91,7 +141,6 @@ public class UserSCIM extends Resource {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof UserSCIM)) return false;
-		if (!super.equals(o)) return false;
 
 		UserSCIM userSCIM = (UserSCIM) o;
 
@@ -101,6 +150,8 @@ public class UserSCIM extends Resource {
 			return false;
 		if (getName() != null ? !getName().equals(userSCIM.getName()) : userSCIM.getName() != null) return false;
 		if (getDisplayName() != null ? !getDisplayName().equals(userSCIM.getDisplayName()) : userSCIM.getDisplayName() != null)
+			return false;
+		if (getResource() != null ? !getResource().equals(userSCIM.getResource()) : userSCIM.getResource() != null)
 			return false;
 		return getEmails() != null ? getEmails().equals(userSCIM.getEmails()) : userSCIM.getEmails() == null;
 
@@ -114,6 +165,7 @@ public class UserSCIM extends Resource {
 		result = 31 * result + (getName() != null ? getName().hashCode() : 0);
 		result = 31 * result + (getDisplayName() != null ? getDisplayName().hashCode() : 0);
 		result = 31 * result + (getEmails() != null ? getEmails().hashCode() : 0);
+		result = 31 * result + (getResource() != null ? getResource().hashCode() : 0);
 		return result;
 	}
 

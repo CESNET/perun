@@ -35,7 +35,7 @@ public class ResourceTypesEndpointController {
 		}
 	}
 
-	private List<ResourceTypeSCIM> getAllResourceTypes() {
+	private static List<ResourceTypeSCIM> getAllResourceTypes() {
 		List<ResourceTypeSCIM> resources = new ArrayList();
 
 		// prepare user resource
