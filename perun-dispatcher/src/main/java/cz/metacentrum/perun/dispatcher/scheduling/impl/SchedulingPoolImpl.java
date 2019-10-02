@@ -604,7 +604,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (!listOfBeans.isEmpty()) {
 				TaskResult taskResult = (TaskResult) listOfBeans.get(0);
 				log.debug("[{}] Received TaskResult for Task from Engine {}.", taskResult.getTaskId(), clientID);
-				resultManager.insertNewTaskResult(taskResult, clientID);
+				onTaskDestinationComplete(clientID, taskResult);
 			} else {
 				log.error("No TaskResult found in message from Engine {}: {}.", clientID, string);
 			}
@@ -612,6 +612,15 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			log.error("Could not save TaskResult from Engine {}, {}, {}", clientID, string, e.getMessage());
 		}
 
+	}
+
+	@Override
+	public void onTaskDestinationComplete(int clientID, TaskResult taskResult) {
+		try {
+			resultManager.insertNewTaskResult(taskResult, clientID);
+		} catch (Exception e) {
+			log.error("Could not save TaskResult from Engine {}, {}, {}", clientID, taskResult, e.getMessage());
+		}
 	}
 
 }
