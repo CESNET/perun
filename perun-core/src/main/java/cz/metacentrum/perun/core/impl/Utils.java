@@ -1061,10 +1061,11 @@ public class Utils {
 	 * @param user user to send notification for
 	 * @param email user's email to send notification to
 	 * @param namespace namespace the password was re-set
+	 * @param login login of user
 	 * @param subject Subject from template or null
 	 * @param content Message from template or null
 	 */
-	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String subject, String content) {
+	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String login, String subject, String content) {
 
 		// create mail sender
 		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
@@ -1092,10 +1093,13 @@ public class Utils {
 				"\n----------------------------------------------------------------" +
 				"\nPerun - Identity & Access Management System";
 
-
 		if (content == null || content.isEmpty()) {
 			message.setText(text);
 		} else {
+			content = content.replace("{displayName}", user.getDisplayName());
+			content = content.replace("{namespace}", namespace);
+			content = content.replace("{login}", login);
+			content = content.replace("{instanceName}", instanceName);
 			message.setText(content);
 		}
 
