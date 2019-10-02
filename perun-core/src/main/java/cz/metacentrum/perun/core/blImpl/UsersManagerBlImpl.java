@@ -2221,11 +2221,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if (namespace.isEmpty()) throw new InternalErrorException("Password reset request is not valid anymore or doesn't existed at all for User: "+user);
 
 		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
-		boolean found = false;
+		String login = null;
 		for (Attribute a : logins) {
-			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
+			if (a.getFriendlyNameParameter().equals(namespace)) {
+				login = a.valueAsString();
+				break;
+			}
 		}
-		if (!found) throw new InternalErrorException(user.toString()+" doesn't have login in namespace: "+namespace);
+		if (login == null) throw new InternalErrorException(user.toString()+" doesn't have login in namespace: "+namespace);
 
 		// reset password without checking old
 		try {
@@ -2292,7 +2295,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		for (String email : emails) {
-			Utils.sendPasswordResetConfirmationEmail(user, email, namespace, subject, message);
+			Utils.sendPasswordResetConfirmationEmail(user, email, namespace, login, subject, message);
 		}
 
 	}
