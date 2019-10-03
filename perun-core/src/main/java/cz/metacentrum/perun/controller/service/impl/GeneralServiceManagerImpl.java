@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Propagation manager allows to plan/force propagation, block/unblock Services on Facilities and Destinations.
@@ -126,6 +129,14 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) {
 		serviceDenialDao.unblockAllServicesOnFacility(facility.getId());
 		sess.getPerun().getAuditer().log(sess, new FreeAllDenialsOnFacility(facility));
+	}
+
+	@Override
+	public void unblockAllServicesOnDestination(PerunSession sess, String destinationName) {
+		List<Destination> destinations = ((PerunBlImpl) sess.getPerun()).getServicesManagerBl().getDestinations(sess);
+		for(Destination destination: destinations) {
+			if(destination.getDestination().equals(destinationName)) this.unblockAllServicesOnDestination(sess, destination.getId());
+		}
 	}
 
 	@Override
