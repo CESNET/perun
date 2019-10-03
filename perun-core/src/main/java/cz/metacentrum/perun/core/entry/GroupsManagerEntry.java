@@ -51,7 +51,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -81,7 +80,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 	//FIXME delete this method
 	public GroupsManagerImplApi getGroupsManagerImpl() {
-		throw new InternalErrorRuntimeException("Unsupported method!");
+		throw new InternalErrorException("Unsupported method!");
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunResource;
 import org.slf4j.Logger;
@@ -79,7 +79,7 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 							try {
 								//log.debug("Getting attribute {} for resource {}", attrName, resource.getId());
 								attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), facility, attrNames));
-							} catch (PerunException e) {
+							} catch (PerunRuntimeException e) {
 								log.warn("No attributes {} found for resource {}: {}", attrNames, resource.getId(), e.getMessage());
 								shouldWriteExceptionLog = false;
 								throw new InternalErrorException(e);
@@ -97,7 +97,7 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 
 							perunResource.synchronizeResource(resource, attrs, assignedGroups);
 
-						} catch (PerunException e) {
+						} catch (PerunRuntimeException e) {
 							if (shouldWriteExceptionLog) {
 								log.error("Error synchronizing resource", e);
 							}
@@ -107,7 +107,7 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 					}
 
 
-				} catch (PerunException e) {
+				} catch (PerunRuntimeException e) {
 					if (shouldWriteExceptionLog) {
 						log.error("Error synchronizing resources", e);
 					}

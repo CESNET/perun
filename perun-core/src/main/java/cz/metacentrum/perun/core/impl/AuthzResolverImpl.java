@@ -19,7 +19,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +83,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			return new Pair<>(role, perunBeans);
 
 		} catch (Exception e) {
-			throw new InternalErrorRuntimeException(e);
+			throw new InternalErrorException(e);
 		}
 	};
 

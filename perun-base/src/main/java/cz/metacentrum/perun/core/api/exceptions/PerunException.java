@@ -17,36 +17,26 @@ public abstract class PerunException extends Exception {
 	public PerunException() {
 		super();
 
-		if (!(this instanceof InternalErrorException)) {
-			log.debug("Exception {}: {}.", errorId, this);
-		}
+		log.debug("Exception {}: {}.", errorId, this);
 	}
 
 	public PerunException(String message) {
 		super(message);
 
-		if (!(this instanceof InternalErrorException)) {
-			log.debug("Exception {}: {}.", errorId, this);
-		}
-
+		log.debug("Exception {}: {}.", errorId, this);
 	}
 
 	public PerunException(String message, Throwable cause) {
 		super(message, cause);
 
-		if (!(this instanceof InternalErrorException)) {
-			log.debug("Exception {}: {}.", errorId, this);
-		}
-
+		log.debug("Exception {}: {}.", errorId, this);
 	}
 
 	public PerunException(Throwable cause) {
 
 		super(cause!=null?cause.getMessage():null,cause);
 
-		if (!(this instanceof InternalErrorException)) {
-			log.debug("Exception {}: {}.", errorId, this);
-		}
+		log.debug("Exception {}: {}.", errorId, this);
 	}
 
 	@Override

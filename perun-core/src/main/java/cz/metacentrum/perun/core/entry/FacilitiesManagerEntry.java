@@ -56,7 +56,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -87,7 +86,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	public FacilitiesManagerEntry() {}
 
 	public FacilitiesManagerImplApi getFacilitiesManagerImpl() {
-		throw new InternalErrorRuntimeException("Unsupported method!");
+		throw new InternalErrorException("Unsupported method!");
 	}
 
 	@Override

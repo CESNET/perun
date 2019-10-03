@@ -342,10 +342,10 @@ public class Auditer {
 							}
 						});
 
-			} catch (RuntimeException e) {
-				log.error("Cannot store auditer log json message in batch for list ['{}'], exception: {}", auditerMessages, e);
 			} catch (InternalErrorException e) {
 				log.error("Could not get system date identifier for the DB", e);
+			} catch (RuntimeException e) {
+				log.error("Cannot store auditer log json message in batch for list ['{}'], exception: {}", auditerMessages, e);
 			}
 
 		}

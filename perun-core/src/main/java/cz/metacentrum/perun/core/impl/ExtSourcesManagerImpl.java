@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +76,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 			else es.setCreatedByUid(rs.getInt("ext_sources_created_by_uid"));
 			return es;
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
-			throw new InternalErrorRuntimeException(e);
+			throw new InternalErrorException(e);
 		}
 	};
 
@@ -119,7 +118,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 			} catch (ClassNotFoundException e) {
 				throw new InternalErrorException(e);
 			} catch (InstantiationException | IllegalAccessException e) {
-				throw new InternalErrorRuntimeException(e);
+				throw new InternalErrorException(e);
 			}
 
 			// Set the properties
@@ -483,7 +482,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 			log.warn("No external source configuration file found.");
 		} catch (Exception e) {
 			log.error("Cannot initialize ExtSourceManager.");
-			throw new InternalErrorRuntimeException(e);
+			throw new InternalErrorException(e);
 		}
 	}
 

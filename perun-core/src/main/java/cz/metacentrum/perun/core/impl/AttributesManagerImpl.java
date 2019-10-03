@@ -35,8 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongModuleTypeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.ConsistencyErrorRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
@@ -264,7 +262,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					//noinspection ResultOfMethodCallIgnored
 					clob.getCharacterStream().read(cbuf);
 				} catch (IOException ex) {
-					throw new InternalErrorRuntimeException(ex);
+					throw new InternalErrorException(ex);
 				}
 				valueText = new String(cbuf);
 			}
@@ -293,7 +291,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
 		} catch (InternalErrorException ex) {
-			throw new InternalErrorRuntimeException(ex);
+			throw new InternalErrorException(ex);
 		}
 
 		attribute.setDescription(rs.getString("attr_names_dsc"));
@@ -359,11 +357,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					Object manager = sess.getPerun().getClass().getMethod("get" + managerName).invoke(sess.getPerun());
 					attribute.setValue(manager.getClass().getMethod(methodName, PerunSession.class, attributeHolder.getClass()).invoke(manager, sess, attributeHolder));
 				} catch (NoSuchMethodException ex) {
-					throw new InternalErrorRuntimeException("Bad core-managed attribute definition.", ex);
+					throw new InternalErrorException("Bad core-managed attribute definition.", ex);
 				} catch (IllegalAccessException ex) {
-					throw new InternalErrorRuntimeException(ex);
+					throw new InternalErrorException(ex);
 				} catch (InvocationTargetException ex) {
-					throw new InternalErrorRuntimeException("An exception raise while geting core-managed attribute value.", ex);
+					throw new InternalErrorException("An exception raise while geting core-managed attribute value.", ex);
 				}
 			}
 
@@ -382,7 +380,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							//noinspection ResultOfMethodCallIgnored
 							clob.getCharacterStream().read(cbuf);
 						} catch (IOException ex) {
-							throw new InternalErrorRuntimeException(ex);
+							throw new InternalErrorException(ex);
 						}
 						stringValue = new String(cbuf);
 					}
@@ -398,7 +396,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			try {
 				attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 			return attribute;
@@ -443,7 +441,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							cbuf = new char[(int) clob.length()];
 							clob.getCharacterStream().read(cbuf);
 						} catch(IOException ex) {
-							throw new InternalErrorRuntimeException(ex);
+							throw new InternalErrorException(ex);
 						}
 						stringValue = new String(cbuf);
 					}
@@ -454,7 +452,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				try {
 					attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
 				} catch(InternalErrorException ex) {
-					throw new InternalErrorRuntimeException(ex);
+					throw new InternalErrorException(ex);
 				}
 			}
 
@@ -470,7 +468,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					return new AttributeHolders(attribute, primaryHolder, secondaryHolder, AttributeHolders.SavedBy.ID);
 				}
 			} catch (InternalErrorException e) {
-				throw new InternalErrorRuntimeException(e);
+				throw new InternalErrorException(e);
 			}
 		}
 	}
@@ -495,7 +493,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				methodName = "is" + Character.toUpperCase(attribute.getFriendlyName().charAt(0)) + attribute.getFriendlyName().substring(1);
 				method = attributeHolder.getClass().getMethod(methodName);
 			} catch (NoSuchMethodException e) {
-				throw new InternalErrorRuntimeException("There is no method '" + methodGet + "' or '" + methodName + "'  for core attribute definition. " + attribute, e);
+				throw new InternalErrorException("There is no method '" + methodGet + "' or '" + methodName + "'  for core attribute definition. " + attribute, e);
 			}
 		}
 		try {
@@ -521,14 +519,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							//noinspection unchecked
 							value = new ArrayList<String>((List) value);
 						} else {
-							throw new InternalErrorRuntimeException("Cannot convert result of method " + attributeHolder.getClass().getName() + "." + methodName + " to ArrayList.");
+							throw new InternalErrorException("Cannot convert result of method " + attributeHolder.getClass().getName() + "." + methodName + " to ArrayList.");
 						}
 					} else if (attribute.getType().equals(LinkedHashMap.class.getName()) && !(value instanceof LinkedHashMap)) {
 						if (value instanceof Map) {
 							//noinspection unchecked
 							value = new LinkedHashMap<String, String>((Map) value);
 						} else {
-							throw new InternalErrorRuntimeException("Cannot convert result of method " + attributeHolder.getClass().getName() + "." + methodName + " to LinkedHashMap.");
+							throw new InternalErrorException("Cannot convert result of method " + attributeHolder.getClass().getName() + "." + methodName + " to LinkedHashMap.");
 						}
 					}
 
@@ -542,9 +540,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			attribute.setValue(value);
 			return attribute;
 		} catch (IllegalAccessException ex) {
-			throw new InternalErrorRuntimeException(ex);
+			throw new InternalErrorException(ex);
 		} catch (InvocationTargetException ex) {
-			throw new InternalErrorRuntimeException("An exception raise while getting core attribute value.", ex);
+			throw new InternalErrorException("An exception raise while getting core attribute value.", ex);
 		}
 	}
 
@@ -559,127 +557,127 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return attribute with set value
 	 */
 	private Attribute setValueForVirtualAttribute(PerunSession sess, AttributesManagerImpl attributesManagerImpl, Attribute attribute, Object attributeHolder, Object attributeHolder2) {
-		if (attributeHolder == null) throw new InternalErrorRuntimeException("Bad usage of attributeRowMapper");
+		if (attributeHolder == null) throw new InternalErrorException("Bad usage of attributeRowMapper");
 
 		if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof User))
-				throw new ConsistencyErrorRuntimeException("First attribute holder of user_facility attribute isn't user");
+				throw new ConsistencyErrorException("First attribute holder of user_facility attribute isn't user");
 			if (attributeHolder2 == null || !(attributeHolder2 instanceof Facility))
-				throw new ConsistencyErrorRuntimeException("Second attribute holder of user_facility attribute isn't facility");
+				throw new ConsistencyErrorException("Second attribute holder of user_facility attribute isn't facility");
 
 			try {
 				UserFacilityVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getFacilityUserVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (User) attributeHolder, (Facility) attributeHolder2, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_FACILITY_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof Facility))
-				throw new ConsistencyErrorRuntimeException("Attribute holder of facility attribute isn't facility");
+				throw new ConsistencyErrorException("Attribute holder of facility attribute isn't facility");
 
 			try {
 				FacilityVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getFacilityVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Facility) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_RESOURCE_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof Resource))
-				throw new ConsistencyErrorRuntimeException("Attribute holder of resource attribute isn't resource");
+				throw new ConsistencyErrorException("Attribute holder of resource attribute isn't resource");
 
 			try {
 				ResourceVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_USER_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof User))
-				throw new ConsistencyErrorRuntimeException("Attribute holder of user attribute isn't user");
+				throw new ConsistencyErrorException("Attribute holder of user attribute isn't user");
 
 			try {
 				UserVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getUserVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (User) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof Member))
-				throw new ConsistencyErrorRuntimeException("Attribute holder of member attribute isn't member");
+				throw new ConsistencyErrorException("Attribute holder of member attribute isn't member");
 
 			try {
 				MemberVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getMemberVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Member) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_GROUP_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof Group))
-				throw new ConsistencyErrorRuntimeException("Attribute holder of group attribute isn't group");
+				throw new ConsistencyErrorException("Attribute holder of group attribute isn't group");
 
 			try {
 				GroupVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getGroupVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Group) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof Group))
-				throw new ConsistencyErrorRuntimeException("First attribute holder of group_resource attribute isn't group");
+				throw new ConsistencyErrorException("First attribute holder of group_resource attribute isn't group");
 			if (attributeHolder2 == null || !(attributeHolder2 instanceof Resource))
-				throw new ConsistencyErrorRuntimeException("Second attribute holder of group-resource attribute isn't resource");
+				throw new ConsistencyErrorException("Second attribute holder of group-resource attribute isn't resource");
 
 			try {
 				GroupResourceVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceGroupVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Group) attributeHolder, (Resource) attributeHolder2, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof Member))
-				throw new ConsistencyErrorRuntimeException("First attribute holder of member_resource attribute isn't Member");
+				throw new ConsistencyErrorException("First attribute holder of member_resource attribute isn't Member");
 			if (attributeHolder2 == null || !(attributeHolder2 instanceof Resource))
-				throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't Resource");
+				throw new ConsistencyErrorException("Second attribute holder of member_resource attribute isn't Resource");
 
 			try {
 				MemberResourceVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Member) attributeHolder, (Resource) attributeHolder2, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof Member))
-				throw new ConsistencyErrorRuntimeException("First attribute holder of member_group attribute isn't Member");
+				throw new ConsistencyErrorException("First attribute holder of member_group attribute isn't Member");
 			if (attributeHolder2 == null || !(attributeHolder2 instanceof Group))
-				throw new ConsistencyErrorRuntimeException("Second attribute holder of member_group attribute isn't Group");
+				throw new ConsistencyErrorException("Second attribute holder of member_group attribute isn't Group");
 
 			try {
 				MemberGroupVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getMemberGroupVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Member) attributeHolder, (Group) attributeHolder2, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_UES_ATTR_VIRT)) {
 			if (!(attributeHolder instanceof UserExtSource))
-				throw new ConsistencyErrorRuntimeException("Attribute holder of UserExtSource attribute isn't UserExtSource");
+				throw new ConsistencyErrorException("Attribute holder of UserExtSource attribute isn't UserExtSource");
 
 			try {
 				UserExtSourceVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getUserExtSourceVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (UserExtSource) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 
 		} else {
-			throw new InternalErrorRuntimeException("Virtual attribute modules for this namespace isn't defined.");
+			throw new InternalErrorException("Virtual attribute modules for this namespace isn't defined.");
 		}
 	}
 
@@ -793,7 +791,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							//noinspection ResultOfMethodCallIgnored
 							clob.getCharacterStream().read(cbuf);
 						} catch (IOException ex) {
-							throw new InternalErrorRuntimeException(ex);
+							throw new InternalErrorException(ex);
 						}
 						stringValue = new String(cbuf);
 					}
@@ -809,7 +807,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			try {
 				return BeansUtils.stringToAttributeValue(stringValue, attributeDefinition.getType());
 			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				throw new InternalErrorException(ex);
 			}
 		}
 	}
@@ -3440,7 +3438,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					MemberAttributeExtractor memberAttributeExtractor = new MemberAttributeExtractor(sess, this, resource, members);
 					return memberAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
-		} catch (InternalErrorRuntimeException ex) {
+		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
@@ -3475,7 +3473,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				MemberAttributeExtractor memberAttributeExtractor = new MemberAttributeExtractor(sess, this, members);
 				return memberAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
-		} catch (InternalErrorRuntimeException ex) {
+		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
@@ -3510,7 +3508,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					UserAttributeExtractor userAttributeExtractor = new UserAttributeExtractor(sess, this, users, facility);
 					return userAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
-		} catch (InternalErrorRuntimeException ex) {
+		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
@@ -3545,7 +3543,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				UserAttributeExtractor userAttributeExtractor = new UserAttributeExtractor(sess, this, users);
 				return userAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
-		} catch (InternalErrorRuntimeException ex) {
+		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
@@ -4577,54 +4575,54 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public boolean isCoreAttribute(PerunSession sess, AttributeDefinition attribute) {
 		if (attribute == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("Attribute attribute is null"));
+			throw new InternalErrorException(new NullPointerException("Attribute attribute is null"));
 		if (attribute.getNamespace() == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
+			throw new InternalErrorException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().endsWith(":core");
 	}
 
 	@Override
 	public boolean isDefAttribute(PerunSession sess, AttributeDefinition attribute) {
 		if (attribute == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("Attribute attribute is null"));
+			throw new InternalErrorException(new NullPointerException("Attribute attribute is null"));
 		if (attribute.getNamespace() == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
+			throw new InternalErrorException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().endsWith(":def");
 	}
 
 	@Override
 	public boolean isOptAttribute(PerunSession sess, AttributeDefinition attribute) {
 		if (attribute == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("Attribute attribute is null"));
+			throw new InternalErrorException(new NullPointerException("Attribute attribute is null"));
 		if (attribute.getNamespace() == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
+			throw new InternalErrorException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().endsWith(":opt");
 	}
 
 	@Override
 	public boolean isCoreManagedAttribute(PerunSession sess, AttributeDefinition attribute) {
 		if (attribute == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("Attribute attribute is null"));
+			throw new InternalErrorException(new NullPointerException("Attribute attribute is null"));
 		if (attribute.getNamespace() == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
+			throw new InternalErrorException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().matches("urn:perun:[^:]+:attribute-def:core-managed:[a-zA-Z]+Manager");
 	}
 
 	@Override
 	public boolean isVirtAttribute(PerunSession sess, AttributeDefinition attribute) {
 		if (attribute == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("Attribute attribute is null"));
+			throw new InternalErrorException(new NullPointerException("Attribute attribute is null"));
 		if (attribute.getNamespace() == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
+			throw new InternalErrorException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().endsWith(":virt");
 	}
 
 	@Override
 	public boolean isFromNamespace(AttributeDefinition attribute, String namespace) {
 		if (attribute == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("Attribute attribute is null"));
+			throw new InternalErrorException(new NullPointerException("Attribute attribute is null"));
 		if (attribute.getNamespace() == null)
-			throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
+			throw new InternalErrorException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().startsWith(namespace + ":") || attribute.getNamespace().equals(namespace);
 	}
 
@@ -5337,9 +5335,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						if(c%1000==0) log.debug("{} values of {} were converted", c, attrDef.getName());
 
 					} catch (InternalErrorException e) {
-						throw new InternalErrorRuntimeException(e);
+						throw new InternalErrorException(e);
 					} catch (DuplicateKeyException ex) {
-						throw new InternalErrorRuntimeException("value " + value + " of attribute " + attrDef.getName() + " for " + bean + "=" + beanId + " is not unique", ex);
+						throw new InternalErrorException("value " + value + " of attribute " + attrDef.getName() + " for " + bean + "=" + beanId + " is not unique", ex);
 					}
 				}, attrDef.getId());
 				log.debug("{} values of {} were converted", counter.get(), attrDef.getName());
@@ -5377,19 +5375,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 								break;
 						}
 					} catch (InternalErrorException e) {
-						throw new InternalErrorRuntimeException(e);
+						throw new InternalErrorException(e);
 					} catch (DuplicateKeyException ex) {
-						throw new InternalErrorRuntimeException("value " + value + " of attribute " + attrDef.getName() + " for " + bean1 + "=" + bean1Id + "," + bean2 + "=" + bean2Id + " is not unique", ex);
+						throw new InternalErrorException("value " + value + " of attribute " + attrDef.getName() + " for " + bean1 + "=" + bean1Id + "," + bean2 + "=" + bean2Id + " is not unique", ex);
 					}
 				}, attrDef.getId());
 			}
-		} catch (InternalErrorRuntimeException ex) {
+		} catch (InternalErrorException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 
-	private static String readAttributeValue(PerunSession session, AttributeDefinition attrDef, ResultSet rs) throws InternalErrorRuntimeException, SQLException {
+	private static String readAttributeValue(PerunSession session, AttributeDefinition attrDef, ResultSet rs) throws InternalErrorException, SQLException {
 		if (Utils.isLargeAttribute(session, attrDef)) {
 			if (Compatibility.isOracle()) {
 				//large attributes
@@ -5397,7 +5395,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				try(Reader characterStream = clob.getCharacterStream()) {
 					return CharStreams.toString(characterStream);
 				} catch (IOException e) {
-					throw new InternalErrorRuntimeException("cannot read CLOB",e);
+					throw new InternalErrorException("cannot read CLOB",e);
 				} finally {
 					clob.free();
 				}
