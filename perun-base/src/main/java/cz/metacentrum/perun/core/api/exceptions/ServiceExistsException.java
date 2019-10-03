@@ -12,14 +12,27 @@ public class ServiceExistsException extends EntityExistsException {
 
 	private Service service;
 
+	/**
+	 * Simple constructor with a message
+	 * @param message message with details about the cause
+	 */
 	public ServiceExistsException(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructor with a message and Throwable object
+	 * @param message message with details about the cause
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public ServiceExistsException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
+	/**
+	 * Constructor with a Throwable object
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public ServiceExistsException(Throwable cause) {
 		super(cause);
 	}

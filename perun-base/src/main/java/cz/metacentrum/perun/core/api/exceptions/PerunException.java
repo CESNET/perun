@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class PerunException extends Exception {
 	static final long serialVersionUID = 0;
-
+ss
 	private final static Logger log = LoggerFactory.getLogger("ultimate_logger");
 	private String errorId = Long.toHexString(System.currentTimeMillis());
 
@@ -22,6 +22,10 @@ public abstract class PerunException extends Exception {
 		}
 	}
 
+	/**
+	 * Simple constructor with a message
+	 * @param message message with details about the cause
+	 */
 	public PerunException(String message) {
 		super(message);
 
@@ -31,6 +35,11 @@ public abstract class PerunException extends Exception {
 
 	}
 
+	/**
+	 * Constructor with a message and Throwable object
+	 * @param message message with details about the cause
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public PerunException(String message, Throwable cause) {
 		super(message, cause);
 
@@ -40,6 +49,10 @@ public abstract class PerunException extends Exception {
 
 	}
 
+	/**
+	 * Constructor with a Throwable object
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public PerunException(Throwable cause) {
 
 		super(cause!=null?cause.getMessage():null,cause);

@@ -12,9 +12,13 @@ import cz.metacentrum.perun.core.api.PerunBean;
  */
 public class PerunBeanNotSupportedException extends PerunException {
 	static final long serialVersionUID = 0;
-
+ss
 	private PerunBean complementaryObject;
 
+	/**
+	 * Simple constructor with a message
+	 * @param message message with details about the cause
+	 */
 	public PerunBeanNotSupportedException(String message) {
 		super(message);
 	}
@@ -24,6 +28,11 @@ public class PerunBeanNotSupportedException extends PerunException {
 		this.complementaryObject = complementaryObject;
 	}
 
+	/**
+	 * Constructor with a message and Throwable object
+	 * @param message message with details about the cause
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public PerunBeanNotSupportedException(String message, Throwable cause) {
 		super(message, cause);
 	}
@@ -33,6 +42,10 @@ public class PerunBeanNotSupportedException extends PerunException {
 		this.complementaryObject = complementaryObject;
 	}
 
+	/**
+	 * Constructor with a Throwable object
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public PerunBeanNotSupportedException(Throwable cause) {
 		super(cause);
 	}
