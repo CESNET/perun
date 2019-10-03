@@ -3,6 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.*;
 
 import java.util.List;
@@ -173,8 +174,14 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("destination")) {
 				ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
+			} else if (parms.contains("destinationName")) {
+				if(parms.contains("destinationType")) {
+					ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+				} else {
+					ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), parms.readString("destinationName"));
+				}
 			} else {
-				ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "destination (id) or destinationName (text)");
 			}
 			return null;
 		}

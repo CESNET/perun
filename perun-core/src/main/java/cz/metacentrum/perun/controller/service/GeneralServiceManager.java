@@ -119,6 +119,15 @@ public interface GeneralServiceManager {
 	void unblockAllServicesOnFacility(PerunSession perunSession, Facility facility);
 
 	/**
+	 * Erase all the possible denials on destinations defined by the destinationName.
+	 * From this moment on, there are no Services being denied on these destinations.
+	 *
+	 * @param sess
+	 * @param destinationName The name of destinations we want to clear of all the denials.
+	 */
+	void unblockAllServicesOnDestination(PerunSession sess, String destinationName);
+
+	/**
 	 * Erase all the possible denials on this destination.
 	 * From this moment on, there are no Services being denied on this destination.
 	 *
