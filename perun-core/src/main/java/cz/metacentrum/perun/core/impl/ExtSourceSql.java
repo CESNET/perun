@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
@@ -238,7 +237,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			}
 		} catch (SQLException e) {
 			log.error("SQL exception during searching for subject '{}'", query);
-			throw new InternalErrorRuntimeException(e);
+			throw new InternalErrorException(e);
 		}
 	}
 
@@ -277,7 +276,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 		} catch (SQLException e) {
 			log.error("SQL exception during creating the connection to URL", getAttributes().get("url"));
-			throw new InternalErrorRuntimeException(e);
+			throw new InternalErrorException(e);
 		}
 	}
 
@@ -349,7 +348,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			}
 		} catch (SQLException e) {
 			log.error("SQL exception during searching for subject '{}'", query);
-			throw new InternalErrorRuntimeException(e);
+			throw new InternalErrorException(e);
 		}
 	}
 

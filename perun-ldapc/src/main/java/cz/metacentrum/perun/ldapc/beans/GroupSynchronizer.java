@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import org.slf4j.Logger;
@@ -74,7 +74,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 
 							perunGroup.synchronizeGroup(group, members, resources);
 
-						} catch (PerunException e) {
+						} catch (PerunRuntimeException e) {
 							log.error("Error synchronizing group", e);
 							shouldWriteExceptionLog = false;
 							throw new InternalErrorException(e);
@@ -83,7 +83,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 
 
 
-				} catch (PerunException e) {
+				} catch (PerunRuntimeException e) {
 					if (shouldWriteExceptionLog) {
 						log.error("Error synchronizing groups", e);
 					}

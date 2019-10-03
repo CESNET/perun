@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +22,12 @@ public abstract class PerunSession {
 	 * @param perun     Perun
 	 * @param principal identification of the actor, who will perform operations.
 	 * @param client	represents client who communicates with Perun.
-	 * @throws InternalErrorRuntimeException if any parametr is null
+	 * @throws InternalErrorException if any parametr is null
 	 */
 	public PerunSession(Perun perun, PerunPrincipal principal, PerunClient client) {
-		if (perun == null) throw new InternalErrorRuntimeException(new NullPointerException("perun is null"));
-		if (principal == null) throw new InternalErrorRuntimeException(new NullPointerException("principal is null"));
-		if (client == null) throw new InternalErrorRuntimeException(new NullPointerException("client is null"));
+		if (perun == null) throw new InternalErrorException(new NullPointerException("perun is null"));
+		if (principal == null) throw new InternalErrorException(new NullPointerException("principal is null"));
+		if (client == null) throw new InternalErrorException(new NullPointerException("client is null"));
 		this.principal = principal;
 		this.perun = perun;
 		this.client = client;

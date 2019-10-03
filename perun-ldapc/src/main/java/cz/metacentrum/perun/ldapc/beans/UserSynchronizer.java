@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
 				//perunUser[poolIndex].synchronizePrincipals(user, userExtSources);
 				perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources);
-			} catch (PerunException e) {
+			} catch (PerunRuntimeException e) {
 				log.error("Error synchronizing user", e);
 				UserSynchronizer.wasThreadException = true;
 
@@ -126,7 +126,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 							log.debug("Got attribute {} with value {}", attrName, attr.getValue().toString());
 						}
 						*/
-				} catch (PerunException e) {
+				} catch (PerunRuntimeException e) {
 					log.warn("Couldn't get attributes {} for user {}: {}", attrNames, user.getId(), e.getMessage());
 					shouldWriteExceptionLog = false;
 					throw new InternalErrorException(e);
@@ -160,7 +160,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 					syncExecutor.execute(new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources));
 					taskCount.incrementAndGet();
 
-				} catch (PerunException e) {
+				} catch (PerunRuntimeException e) {
 					log.error("Error synchronizing user", e);
 					shouldWriteExceptionLog = false;
 					throw new InternalErrorException(e);
@@ -177,7 +177,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				throw new InternalErrorException(e);
 			}
 
-		} catch (PerunException e) {
+		} catch (PerunRuntimeException e) {
 			if (shouldWriteExceptionLog) {
 				log.error("Error synchronizing users", e);
 			}

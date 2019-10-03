@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.controller.model;
 
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 
 import java.util.HashMap;
 import java.util.Map;

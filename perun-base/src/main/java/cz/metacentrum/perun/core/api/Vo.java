@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Auditable;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
  * Vo entity.
@@ -16,8 +14,8 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 
 	public Vo(int id, String name, String shortName) {
 		super(id);
-		if (name == null)  throw new InternalErrorRuntimeException(new NullPointerException("name is null"));
-		if (shortName == null)  throw new InternalErrorRuntimeException(new NullPointerException("shortName is null"));
+		if (name == null)  throw new InternalErrorException(new NullPointerException("name is null"));
+		if (shortName == null)  throw new InternalErrorException(new NullPointerException("shortName is null"));
 		this.name = name;
 		this.shortName = shortName;
 
@@ -26,16 +24,16 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 	@Deprecated
 	public Vo(int id, String name, String shortName, String createdAt, String createdBy, String modifiedAt, String modifiedBy) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, null, null);
-		if (name == null)  throw new InternalErrorRuntimeException(new NullPointerException("name is null"));
-		if (shortName == null)  throw new InternalErrorRuntimeException(new NullPointerException("shortName is null"));
+		if (name == null)  throw new InternalErrorException(new NullPointerException("name is null"));
+		if (shortName == null)  throw new InternalErrorException(new NullPointerException("shortName is null"));
 		this.name = name;
 		this.shortName = shortName;
 	}
 
 	public Vo(int id, String name, String shortName, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
-		if (name == null)  throw new InternalErrorRuntimeException(new NullPointerException("name is null"));
-		if (shortName == null)  throw new InternalErrorRuntimeException(new NullPointerException("shortName is null"));
+		if (name == null)  throw new InternalErrorException(new NullPointerException("name is null"));
+		if (shortName == null)  throw new InternalErrorException(new NullPointerException("shortName is null"));
 		this.name = name;
 		this.shortName = shortName;
 	}
@@ -49,12 +47,12 @@ public class Vo extends Auditable implements Comparable<PerunBean> {
 	}
 
 	public void setName(String name) {
-		if (name == null)  throw new InternalErrorRuntimeException(new NullPointerException("name is null"));
+		if (name == null)  throw new InternalErrorException(new NullPointerException("name is null"));
 		this.name = name;
 	}
 
 	public void setShortName(String shortName) {
-		if (shortName == null)  throw new InternalErrorRuntimeException(new NullPointerException("shortName is null"));
+		if (shortName == null)  throw new InternalErrorException(new NullPointerException("shortName is null"));
 		this.shortName = shortName;
 	}
 

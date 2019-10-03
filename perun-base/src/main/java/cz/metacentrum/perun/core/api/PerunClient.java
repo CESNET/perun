@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,8 +26,8 @@ public class PerunClient {
 	 * @param scopes Domains represent clinet rights. "Scopes" in OAuth terminology. "Claims" in OpenID terminology
 	 */
 	public PerunClient(String id, List<String> scopes) {
-		if (id == null) throw new InternalErrorRuntimeException(new NullPointerException("id is null"));
-		if (scopes == null) throw new InternalErrorRuntimeException(new NullPointerException("scopes are null"));
+		if (id == null) throw new InternalErrorException(new NullPointerException("id is null"));
+		if (scopes == null) throw new InternalErrorException(new NullPointerException("scopes are null"));
 
 		this.id = id;
 		this.scopes = scopes;

@@ -1948,7 +1948,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					failedDueToException = true;
 					exceptionMessage = "Cannot synchronize group ";
 					log.error(exceptionMessage + group, e);
-					exceptionMessage += "due to exception: " + e.getName() + " => " + e.getMessage();
+					exceptionMessage += "due to exception: " + e.getClass().getSimpleName() + " => " + e.getMessage();
 				} catch (Exception e) {
 					failedDueToException = true;
 					exceptionMessage = "Cannot synchronize group ";

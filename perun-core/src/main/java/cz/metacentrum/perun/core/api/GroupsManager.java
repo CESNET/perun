@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 
 import java.util.List;
 import java.util.Map;
@@ -193,7 +192,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
-	 * @throws InternalErrorRuntimeException
 	 * @throws GroupAlreadyRemovedException if there is at least 1 group not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group on resource affected by deleting from DB
 	 * @throws GroupRelationDoesNotExist
@@ -215,7 +213,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
-	 * @throws InternalErrorRuntimeException
 	 */
 	Group updateGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException;
 
@@ -230,7 +227,6 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws InternalErrorRuntimeException
 	 */
 	Group getGroupById(PerunSession perunSession, int id) throws GroupNotExistsException, InternalErrorException, PrivilegeException;
 
@@ -248,7 +244,6 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws InternalErrorRuntimeException
 	 */
 	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException, InternalErrorException, PrivilegeException, VoNotExistsException;
 
@@ -264,7 +259,6 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws AlreadyMemberException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException
@@ -302,7 +296,6 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws AlreadyMemberException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException
@@ -323,7 +316,6 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws AlreadyMemberException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException
@@ -343,7 +335,6 @@ public interface GroupsManager {
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws InternalErrorRuntimeException
 	 * @throws MemberNotExistsException when member doesn't exist
 	 * @throws NotGroupMemberException  when member is not in the group
 	 * @throws GroupNotExistsException when the group doesn't exist
@@ -363,7 +354,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
@@ -375,7 +365,6 @@ public interface GroupsManager {
 	 * @param groups list of groups, from which the member is to be removed, can be empty
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws InternalErrorRuntimeException
 	 * @throws MemberNotExistsException when member doesn't exist
 	 * @throws NotGroupMemberException  when member is not in the group
 	 * @throws GroupNotExistsException when the group doesn't exist
@@ -394,7 +383,6 @@ public interface GroupsManager {
 	 * @param group group, from which the members are to be removed
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws InternalErrorRuntimeException
 	 * @throws MemberNotExistsException when member doesn't exist
 	 * @throws NotGroupMemberException  when member is not in the group
 	 * @throws GroupNotExistsException when the group doesn't exist
@@ -458,7 +446,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	List<Member> getGroupMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
@@ -547,7 +534,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	int getGroupMembersCount(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
@@ -634,7 +620,6 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
 	 * @throws AlreadyAdminException
-	 * @throws InternalErrorRuntimeException
 	 * @throws UserNotExistsException
 	 */
 	void addAdmin(PerunSession perunSession, Group group,  User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
@@ -650,7 +635,6 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
 	 * @throws AlreadyAdminException
-	 * @throws InternalErrorRuntimeException
 	 */
 	void addAdmin(PerunSession perunSession, Group group,  Group authorizedGroup) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException;
 
@@ -665,7 +649,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 * @throws UserNotAdminException
 	 * @throws UserNotExistsException
 	 */
@@ -681,7 +664,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 * @throws GroupNotAdminException
 	 */
 	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, GroupNotAdminException;
@@ -780,7 +762,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
@@ -795,7 +776,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	@Deprecated
 	List<User> getDirectAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
@@ -809,7 +789,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 *
 	 * @return list of all group administrators of the given group
 	 */
@@ -824,7 +803,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
@@ -839,7 +817,6 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
 	 * @throws UserNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	@Deprecated
 	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;

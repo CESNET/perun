@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 
@@ -83,9 +82,9 @@ public interface DatabaseManagerBl {
 	 * @param preparedStatement database prepared statement to get working connection
 	 * @return java sql array with pre-loaded list of ids
 	 * @throws SQLException if any sql exception has been thrown
-	 * @throws InternalErrorRuntimeException if oracle method to work with an array can't be get or invoked
+	 * @throws InternalErrorException if oracle method to work with an array can't be get or invoked
 	 */
-	static java.sql.Array prepareSQLArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
+	static java.sql.Array prepareSQLArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException, InternalErrorException {
 		List<Integer> listOfBeansIds = perunBeans.stream().map(PerunBean::getId).collect(Collectors.toList());
 		return prepareSQLArrayOfNumbersFromIntegers(listOfBeansIds, preparedStatement);
 	}
@@ -98,9 +97,9 @@ public interface DatabaseManagerBl {
 	 * @param preparedStatement database prepared statement to get working connection
 	 * @return java sql array with pre-loaded list of integers
 	 * @throws SQLException if any sql exception has been thrown
-	 * @throws InternalErrorRuntimeException if oracle method to work with an array can't be get or invoked
+	 * @throws InternalErrorException if oracle method to work with an array can't be get or invoked
 	 */
-	static java.sql.Array prepareSQLArrayOfNumbersFromIntegers(List<Integer> integers, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
+	static java.sql.Array prepareSQLArrayOfNumbersFromIntegers(List<Integer> integers, PreparedStatement preparedStatement) throws SQLException, InternalErrorException {
 		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
 		if(Compatibility.isOracle()) {
 			int[] arrayOfInts = integers.stream().mapToInt(i -> i).toArray();
@@ -109,7 +108,7 @@ public interface DatabaseManagerBl {
 				createOracleArrayMethod.setAccessible(true);
 				return (java.sql.Array) createOracleArrayMethod.invoke(connection, AttributesManager.ORACLE_ARRAY_OF_NUMBERS, arrayOfInts);
 			} catch (Exception ex) {
-				throw new InternalErrorRuntimeException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
+				throw new InternalErrorException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
 			}
 		} else {
 			Integer[] arrayOfBeansIds = integers.toArray(new Integer[0]);
@@ -124,9 +123,9 @@ public interface DatabaseManagerBl {
 	 * @param preparedStatement database prepared statement to get working connection
 	 * @return java sql array with pre-loaded list of strings
 	 * @throws SQLException if any sql exception has been thrown
-	 * @throws InternalErrorRuntimeException if oracle method to work with an array can't be get or invoked
+	 * @throws InternalErrorException if oracle method to work with an array can't be get or invoked
 	 */
-	static java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
+	static java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorException {
 		String[] arrayOfStrings = strings.toArray(new String[0]);
 		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
 		if(Compatibility.isOracle()) {
@@ -135,7 +134,7 @@ public interface DatabaseManagerBl {
 				createOracleArrayMethod.setAccessible(true);
 				return (java.sql.Array) createOracleArrayMethod.invoke(connection, AttributesManager.ORACLE_ARRAY_OF_STRINGS, arrayOfStrings);
 			} catch (Exception ex) {
-				throw new InternalErrorRuntimeException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
+				throw new InternalErrorException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
 			}
 		} else {
 			return connection.createArrayOf(JDBCType.VARCHAR.name(), arrayOfStrings);
