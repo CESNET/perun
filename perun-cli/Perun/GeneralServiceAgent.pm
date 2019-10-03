@@ -53,6 +53,10 @@ sub unblockServiceOnDestination {
 	return Perun::Common::callManagerMethod('unblockServiceOnDestination', '', @_);
 }
 
+sub unblockAllServicesOnDestination {
+	return Perun::Common::callManagerMethod('unblockAllServicesOnDestination', '', @_);
+}
+
 # facility => $facilityId
 sub getServicesBlockedOnFacility {
 	return Perun::Common::callManagerMethod('getServicesBlockedOnFacility', '[]Service', @_);
