@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -33,6 +34,97 @@ import java.util.List;
  *
  */
 public interface ServicesManagerImplApi {
+
+	/**
+	 * Block Service on Facility. It won't be possible to propagate service on whole facility
+	 * or any of its destinations.
+	 *
+	 * @param serviceId The Service to be blocked on the Facility
+	 * @param facilityId The Facility on which we want to block the Service
+	 * @throws InternalErrorException
+	 */
+	void blockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException;
+
+	/**
+	 * Block Service on specific Destination. Service still can be propagated to other facility Destinations.
+	 *
+	 * @param serviceId The Service to be blocked on this particular destination
+	 * @param destinationId The destination on which we want to block the Service
+	 * @throws InternalErrorException
+	 */
+	void blockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException;
+
+	/**
+	 * Unblock Service on whole Facility. If was not blocked, nothing happens.
+	 *
+	 * @param serviceId ID of Service to unblock on Facility.
+	 * @param facilityId ID of Facility to unblock Service on.
+	 */
+	void unblockServiceOnFacility(int serviceId, int facilityId);
+
+	/**
+	 * Unblock Service on specific Destination. If was not blocked, nothing happens.
+	 *
+	 * @param serviceId ID of Service to unblock on Destination.
+	 * @param destinationId ID of Destination to unblock Service on.
+	 */
+	void unblockServiceOnDestination(int serviceId, int destinationId);
+
+	/**
+	 * Unblock all blocked Services on Facility.
+	 *
+	 * @param facility ID of Facility we want to unblock all Services.
+	 */
+	void unblockAllServicesOnFacility(int facility);
+
+	/**
+	 * Unblock all blocked Services on specified Destination.
+	 *
+	 * @param destination ID of Destination we want to unblock all Services.
+	 */
+	void unblockAllServicesOnDestination(int destination);
+
+	/**
+	 * Get Services blocked on Facility.
+	 *
+	 * @param facilityId ID of Facility to get blocked Services for.
+	 * @return List of blocked Services.
+	 */
+	List<Service> getServicesBlockedOnFacility(int facilityId);
+
+	/**
+	 * Get Services blocked on Destination.
+	 *
+	 * @param destinationId ID of Destination to get blocked Services for.
+	 * @return List of blocked Services.
+	 */
+	List<Service> getServicesBlockedOnDestination(int destinationId);
+
+	/**
+	 * Return TRUE if Service is blocked on Facility.
+	 *
+	 * @param serviceId ID of Service to check on.
+	 * @param facilityId ID of Facility to check on.
+	 * @return TRUE if Service is blocked on Facility / FALSE otherwise
+	 */
+	boolean isServiceBlockedOnFacility(int serviceId, int facilityId);
+
+	/**
+	 * Return TRUE if Service is blocked on Destination.
+	 *
+	 * @param serviceId ID of Service to check on.
+	 * @param destinationId ID of Destination to check on.
+	 * @return TRUE if Service is blocked on Destination / FALSE otherwise
+	 */
+	boolean isServiceBlockedOnDestination(int serviceId, int destinationId);
+
+	/**
+	 * Return list of services this destination points to.
+	 *
+	 * @param destinationId ID of destination
+	 * @return Services associated with this destination.
+	 */
+	List<Service> getServicesFromDestination(int destinationId);
 
 	/**
 	 * Creates new service.

@@ -12,11 +12,12 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.dispatcher.exceptions.InvalidEventMessageException;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
 import cz.metacentrum.perun.dispatcher.model.Event;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
-import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
+
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
@@ -60,7 +61,6 @@ public class EventProcessor extends AbstractRunner {
 	private BlockingQueue<Event> eventQueue;
 	private EngineMessageProducerPool engineMessageProducerPool;
 	private EventServiceResolver eventServiceResolver;
-	private ServiceDenialDao serviceDenialDao;
 	private SchedulingPool schedulingPool;
 	private Perun perun;
 	private Properties dispatcherProperties;
@@ -93,15 +93,6 @@ public class EventProcessor extends AbstractRunner {
 	@Autowired
 	public void setEventServiceResolver(EventServiceResolver eventServiceResolver) {
 		this.eventServiceResolver = eventServiceResolver;
-	}
-
-	public ServiceDenialDao getServiceDenialDao() {
-		return serviceDenialDao;
-	}
-
-	@Autowired
-	public void setServiceDenialDao(ServiceDenialDao serviceDenialDao) {
-		this.serviceDenialDao = serviceDenialDao;
 	}
 
 	public SchedulingPool getSchedulingPool() {
@@ -173,7 +164,7 @@ public class EventProcessor extends AbstractRunner {
 					continue;
 				}
 
-				if (serviceDenialDao.isServiceBlockedOnFacility(service.getId(), facility.getId())) {
+				if (((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(service, facility)) {
 					log.debug("Service blocked on Facility: {} , {}.", service, facility);
 					continue;
 				}
@@ -200,7 +191,7 @@ public class EventProcessor extends AbstractRunner {
 						Iterator<Destination> iter = destinations.iterator();
 						while (iter.hasNext()) {
 							Destination dest = iter.next();
-							if (serviceDenialDao.isServiceBlockedOnDestination(service.getId(), dest.getId())) {
+							if (((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(service, dest.getId())) {
 								iter.remove();
 							}
 						}

@@ -1,5 +1,15 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnDestination;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnFacility;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnFacilityAndService;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnService;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeAllDenialsOnDestination;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeAllDenialsOnFacility;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnDestination;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnFacility;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnFacilityAndService;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnService;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.AllRequiredAttributesRemovedFromService;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.AttributeAddedAsRequiredToService;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.AttributesAddedAsRequiredToService;
@@ -18,7 +28,11 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceUpdated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCreated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
+import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +78,10 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,6 +103,157 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	public ServicesManagerBlImpl(ServicesManagerImplApi servicesManagerImpl) {
 		this.servicesManagerImpl = servicesManagerImpl;
+	}
+
+	@Override
+	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
+	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException {
+		getServicesManagerImpl().blockServiceOnFacility(service.getId(), facility.getId());
+		sess.getPerun().getAuditer().log(sess, new BanServiceOnFacility(service, facility));
+	}
+
+	@Override
+	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
+	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
+		getServicesManagerImpl().blockServiceOnDestination(service.getId(), destinationId);
+		sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+		List<Service> services = getAssignedServices(sess, facility);
+		for (Service service : services) {
+			try {
+				getServicesManagerImpl().blockServiceOnFacility(service.getId(), facility.getId());
+				sess.getPerun().getAuditer().log(sess, new BanServiceOnFacility(service, facility));
+			} catch (ServiceAlreadyBannedException e) {
+				// we ignore, that service was already blocked
+			}
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void blockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException {
+		List<Service> services = getServicesManagerImpl().getServicesFromDestination(destinationId);
+		for (Service service : services) {
+			try {
+				getServicesManagerImpl().blockServiceOnDestination(service.getId(), destinationId);
+				sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
+			} catch (ServiceAlreadyBannedException e) {
+				// we ignore, that service was already blocked
+			}
+		}
+	}
+
+	@Override
+	public List<Service> getServicesBlockedOnFacility(PerunSession perunSession, Facility facility) {
+		return getServicesManagerImpl().getServicesBlockedOnFacility(facility.getId());
+	}
+
+	@Override
+	public List<Service> getServicesBlockedOnDestination(PerunSession perunSession, int destinationId) {
+		return getServicesManagerImpl().getServicesBlockedOnDestination(destinationId);
+	}
+
+	@Override
+	public boolean isServiceBlockedOnFacility(Service service, Facility facility) {
+		return getServicesManagerImpl().isServiceBlockedOnFacility(service.getId(), facility.getId());
+	}
+
+	@Override
+	public boolean isServiceBlockedOnDestination(Service service, int destinationId) {
+		return getServicesManagerImpl().isServiceBlockedOnDestination(service.getId(), destinationId);
+	}
+
+	@Override
+	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) {
+		getServicesManagerImpl().unblockAllServicesOnFacility(facility.getId());
+		sess.getPerun().getAuditer().log(sess, new FreeAllDenialsOnFacility(facility));
+	}
+
+	@Override
+	public void unblockAllServicesOnDestination(PerunSession sess, String destinationName) {
+		List<Destination> destinations = ((PerunBlImpl) sess.getPerun()).getServicesManagerBl().getDestinations(sess);
+		for(Destination destination: destinations) {
+			if(destination.getDestination().equals(destinationName)) this.unblockAllServicesOnDestination(sess, destination.getId());
+		}
+	}
+
+	@Override
+	public void unblockAllServicesOnDestination(PerunSession sess, int destinationId) {
+		getServicesManagerImpl().unblockAllServicesOnDestination(destinationId);
+		sess.getPerun().getAuditer().log(sess, new FreeAllDenialsOnDestination(destinationId));
+	}
+
+	@Override
+	public void unblockServiceOnFacility(PerunSession sess, Service service, Facility facility) {
+		getServicesManagerImpl().unblockServiceOnFacility(service.getId(), facility.getId());
+		sess.getPerun().getAuditer().log(sess, new FreeDenialServiceOnFacility(service, facility));
+	}
+
+	@Override
+	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) {
+		getServicesManagerImpl().unblockServiceOnDestination(service.getId(), destinationId);
+		sess.getPerun().getAuditer().log(sess, new FreeDenialServiceOnDestination(service, destinationId));
+	}
+
+	@Override
+	public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) {
+		//Global
+		if(!service.isEnabled()) return false;
+		//Local
+		if(getServicesManagerImpl().isServiceBlockedOnFacility(service.getId(), facility.getId())) return false;
+		//Call log method out of transaction
+		sess.getPerun().getAuditer().log(sess, new ForcePropagationOnFacilityAndService(facility, service));
+		return true;
+	}
+
+	@Override
+	public boolean forceServicePropagation(PerunSession sess, Service service) {
+		//Global
+		if(!service.isEnabled()) return false;
+		//Call log method out of transaction
+		sess.getPerun().getAuditer().log(sess, new ForcePropagationOnService(service));
+		return true;
+	}
+
+	@Override
+	public boolean planServicePropagation(PerunSession perunSession, Facility facility, Service service) {
+		//Global
+		if(!service.isEnabled()) return false;
+		//Local
+		if(getServicesManagerImpl().isServiceBlockedOnFacility(service.getId(), facility.getId())) return false;
+		//Call log method out of transaction
+		perunSession.getPerun().getAuditer().log(perunSession, new PropagationPlannedOnFacilityAndService(facility, service));
+		return true;
+	}
+
+	@Override
+	public boolean planServicePropagation(PerunSession perunSession, Service service) {
+		//Global
+		if(!service.isEnabled()) return false;
+		//Call log method out of transaction
+		perunSession.getPerun().getAuditer().log(perunSession, new PropagationPlannedOnService(service));
+		return true;
+	}
+
+	@Override
+	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException {
+
+		// result list
+		List<ServiceForGUI> result = new ArrayList<>();
+		// get assigned services
+		List<Service> services = getAssignedServices(perunSession, facility);
+		for (Service service : services){
+			// new ServiceForGUI
+			ServiceForGUI newService = new ServiceForGUI(service);
+			newService.setAllowedOnFacility(!getServicesManagerImpl().isServiceBlockedOnFacility(service.getId(), facility.getId()));
+			result.add(newService);
+		}
+		return result;
+
 	}
 
 	@Override
