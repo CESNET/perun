@@ -839,17 +839,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(facility.getId(), Holder.HolderType.FACILITY));
-			return this.setValuesOfAttributes(sess, attrs, facility, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, facility, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("fac") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("fac") + " from attr_names " +
 							"left join facility_attr_values fac    on id=fac.attr_id and fac.facility_id=? " +
 							"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_OPT);
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for facility exists.");
 			return new ArrayList<>();
@@ -861,6 +872,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -870,7 +883,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(facility.getId(), Holder.HolderType.FACILITY), null);
-			return this.setValuesOfAttributes(sess, attrs, facility, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, facility, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -882,10 +895,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("fav") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("fav") + " from attr_names " +
 							"left join facility_attr_values fav on id=fav.attr_id and facility_id=:fId " +
 							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, facility));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -906,116 +929,260 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.FACILITY, null);
-			return this.setValuesOfAttributes(sess, attrs, facility, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, facility, null);
 		}
-		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, facility), AttributesManager.NS_FACILITY_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, facility), AttributesManager.NS_FACILITY_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.MEMBER, null);
-			return this.setValuesOfAttributes(sess, attrs, member, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, null);
 		}
-		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, member), AttributesManager.NS_MEMBER_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, member), AttributesManager.NS_MEMBER_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.VO, null);
-			return this.setValuesOfAttributes(sess, attrs, vo, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, vo, null);
 		}
-		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, vo), AttributesManager.NS_VO_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, vo), AttributesManager.NS_VO_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + vo);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.GROUP, null);
-			return this.setValuesOfAttributes(sess, attrs, group, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, null);
 		}
-		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, group), AttributesManager.NS_GROUP_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, group), AttributesManager.NS_GROUP_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + group);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Host host) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.HOST, null);
-			return this.setValuesOfAttributes(sess, attrs, host, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, host, null);
 		}
-		return  getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, host), AttributesManager.NS_HOST_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, host), AttributesManager.NS_HOST_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + host);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.RESOURCE, null);
-			return this.setValuesOfAttributes(sess, attrs, resource, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, resource, null);
 		}
-		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, resource), AttributesManager.NS_RESOURCE_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, resource), AttributesManager.NS_RESOURCE_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.USER, null);
-			return this.setValuesOfAttributes(sess, attrs, user, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, null);
 		}
-		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, user), AttributesManager.NS_USER_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, user), AttributesManager.NS_USER_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + user);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.UES, null);
-			return this.setValuesOfAttributes(sess, attrs, ues, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, ues, null);
 		}
-		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, ues), AttributesManager.NS_UES_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, ues), AttributesManager.NS_UES_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + ues);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.MEMBER, Holder.HolderType.RESOURCE);
-			return this.setValuesOfAttributes(sess, attrs, member, resource);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, resource);
 		}
-		return getVirtualAttributes(new MemberResourceAttributeRowMapper(sess, this, member, resource), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new MemberResourceAttributeRowMapper(sess, this, member, resource), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + resource);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.USER, Holder.HolderType.FACILITY);
-			return this.setValuesOfAttributes(sess, attrs, user, facility);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, facility);
 		}
-		return getVirtualAttributes(new UserFacilityAttributeRowMapper(sess, this, user, facility), AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+		List<Attribute> attributesDB = getVirtualAttributes(new UserFacilityAttributeRowMapper(sess, this, user, facility), AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility + " and " + user);
+			}
+		}
+
+		return attributesDB;
 	}
 
 	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.MEMBER, Holder.HolderType.GROUP);
-			return this.setValuesOfAttributes(sess, attrs, member, group);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, group);
 		}
-		return  getVirtualAttributes(new MemberGroupAttributeRowMapper(sess, this, member, group), AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+		List<Attribute> attributesDB =  getVirtualAttributes(new MemberGroupAttributeRowMapper(sess, this, member, group), AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+
+		if (attributesCache != null) {
+			Collections.sort(attributesDB);
+			Collections.sort(attributesCache);
+			if (!attributesDB.equals(attributesCache)) {
+				log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + group);
+			}
+		}
+
+		return attributesDB;
 	}
 
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(vo.getId(), Holder.HolderType.VO));
-			return this.setValuesOfAttributes(sess, attrs, vo, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, vo, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("voattr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("voattr") + " from attr_names " +
 							"left join vo_attr_values voattr    on id=voattr.attr_id and voattr.vo_id=? " +
 							"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, vo), vo.getId(), AttributesManager.NS_VO_ATTR_CORE, AttributesManager.NS_VO_ATTR_DEF, AttributesManager.NS_VO_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + vo);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1025,16 +1192,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(group.getId(), Holder.HolderType.GROUP));
-			return this.setValuesOfAttributes(sess, attrs, group, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
 							"left join group_attr_values groupattr    on id=groupattr.attr_id and groupattr.group_id=? " +
 							"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, group), group.getId(), AttributesManager.NS_GROUP_ATTR_CORE, AttributesManager.NS_GROUP_ATTR_DEF, AttributesManager.NS_GROUP_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + group);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1044,16 +1223,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(host.getId(), Holder.HolderType.HOST));
-			return this.setValuesOfAttributes(sess, attrs, host, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, host, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
 							"left join host_attr_values on id=attr_id and host_id=? " +
 							"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, host), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + host);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for host exists.");
 			return new ArrayList<>();
@@ -1064,16 +1255,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, resource, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, resource, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
 							"left join resource_attr_values on id=attr_id and resource_id=? " +
 							"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_OPT);
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for resource exists.");
 			return new ArrayList<>();
@@ -1085,17 +1287,29 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
-			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
+			attributesCache = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 
 		try {
 			//member-resource attributes, member core attributes
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join   member_resource_attr_values   mem        on attr_names.id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where namespace in (?,?) and (mem.attr_value is not null or mem.attr_value_text is not null)",
 					new MemberResourceAttributeRowMapper(sess, this, member, resource),
 					resource.getId(), member.getId(),
 					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + resource);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for member-resource combination exists.");
 			return new ArrayList<>();
@@ -1106,16 +1320,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
-			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
+			attributesCache = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
 
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"left join member_group_attr_values mem_gr on attr_names.id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where namespace in (?,?) and (mem_gr.attr_value is not null or mem_gr.attr_value_text is not null)",
 					new MemberGroupAttributeRowMapper(sess, this, member, group), group.getId(), member.getId(),
 					AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + group);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for member-group combination exists.");
 			return new ArrayList<>();
@@ -1126,6 +1352,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1135,7 +1363,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, member, resource);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, resource);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1147,10 +1375,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
 							"left join member_resource_attr_values mem_res on id=mem_res.attr_id and member_id=:mId and resource_id=:rId " +
 							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new MemberResourceAttributeRowMapper(sess, this, member, resource));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + resource + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1160,6 +1398,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1169,7 +1409,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, group, resource);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, resource);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1181,10 +1421,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
 							"left join group_resource_attr_values grp_res on id=grp_res.attr_id and group_id=:gId and resource_id=:rId " +
 							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new GroupResourceAttributeRowMapper(sess, this, group, resource));
+
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + group + " and " + resource + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1194,6 +1445,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1203,7 +1456,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
-			return this.setValuesOfAttributes(sess, attrs, user, facility);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, facility);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1215,10 +1468,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("user_fac") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("user_fac") + " from attr_names " +
 							"left join user_facility_attr_values user_fac on id=user_fac.attr_id and user_id=:uId and facility_id=:fId " +
 							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new UserFacilityAttributeRowMapper(sess, this, user, facility));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + user + " and " + facility + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1228,6 +1491,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1237,7 +1502,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
-			return this.setValuesOfAttributes(sess, attrs, member, group);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, group);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1249,10 +1514,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and member_id=:mId and group_id=:gId " +
 							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new MemberGroupAttributeRowMapper(sess, this, member, group));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + group + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1262,17 +1537,29 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER));
-			return this.setValuesOfAttributes(sess, attrs, member, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join    member_attr_values     mem      on id=mem.attr_id     and    member_id=? " +
 							"where namespace=? or (namespace in (?,?) and (mem.attr_value is not null or mem.attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), member.getId(),
 					AttributesManager.NS_MEMBER_ATTR_CORE, AttributesManager.NS_MEMBER_ATTR_OPT, AttributesManager.NS_MEMBER_ATTR_DEF);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for member exists.");
 			return new ArrayList<>();
@@ -1283,6 +1570,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1292,7 +1581,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(vo.getId(), Holder.HolderType.VO), null);
-			return this.setValuesOfAttributes(sess, attrs, vo, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, vo, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1304,10 +1593,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("vot") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("vot") + " from attr_names " +
 							"left join vo_attr_values vot on id=vot.attr_id and vo_id=:vId " +
 							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, vo));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + vo + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1317,9 +1616,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllAttributesByStartPartOfName(startPartOfName, new Holder(group.getId(), Holder.HolderType.GROUP));
-			return this.setValuesOfAttributes(sess, attrs, group, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1330,10 +1631,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("startPartOfName", startPartOfName + "%");
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grt") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grt") + " from attr_names " +
 							"left join group_attr_values grt on id=grt.attr_id and group_id=:gId " +
 							"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name LIKE :startPartOfName",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, group));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + group);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1343,9 +1654,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllAttributesByStartPartOfName(startPartOfName, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, resource, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, resource, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1356,10 +1669,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("startPartOfName", startPartOfName + "%");
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ret") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ret") + " from attr_names " +
 							"left join resource_attr_values ret on id=ret.attr_id and resource_id=:rId " +
 							"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name LIKE :startPartOfName",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, resource));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1369,6 +1692,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1378,7 +1703,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(member.getId(), Holder.HolderType.MEMBER), null);
-			return this.setValuesOfAttributes(sess, attrs, member, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1390,10 +1715,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join member_attr_values mem on id=mem.attr_id and member_id=:mId " +
 							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, member));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1403,6 +1738,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1412,7 +1749,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(group.getId(), Holder.HolderType.GROUP), null);
-			return this.setValuesOfAttributes(sess, attrs, group, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1424,10 +1761,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
 							"left join group_attr_values groupattr on id=groupattr.attr_id and group_id=:gId " +
 							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, group));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + group + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1471,15 +1818,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
-			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
+			attributesCache = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
 							"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
 							"where namespace in (?,?) and (usr_fac.attr_value is not null or usr_fac.attr_value_text is not null)",
 					new UserFacilityAttributeRowMapper(sess, this, user, facility), facility.getId(), user.getId(),
 					AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility + " and " + user);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for user-facility combination exists.");
 			return new ArrayList<>();
@@ -1490,14 +1849,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getUserFacilityAttributesForAnyUser(facility.getId());
+		List<Attribute> attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			attributesCache = perun.getCacheManager().getUserFacilityAttributesForAnyUser(facility.getId());
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
 							"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? " +
 							"where namespace in (?,?) and (usr_fac.attr_value is not null or usr_fac.attr_value_text is not null)",
 					new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(),
 					AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for user-facility combination exists.");
 			return new ArrayList<>();
@@ -1509,17 +1881,29 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(user.getId(), Holder.HolderType.USER));
-			return this.setValuesOfAttributes(sess, attrs, user, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 							"left join      user_attr_values    usr    on      id=usr.attr_id    and   user_id=? " +
 							"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, user), user.getId(),
 					AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + user);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for user exists.");
 			return new ArrayList<>();
@@ -1530,6 +1914,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1539,7 +1925,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(user.getId(), Holder.HolderType.USER), null);
-			return this.setValuesOfAttributes(sess, attrs, user, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1551,10 +1937,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 							"left join user_attr_values usr on id=usr.attr_id and user_id=:uId " +
 							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, user));
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + user);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1566,6 +1962,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1575,7 +1973,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(ues.getId(), Holder.HolderType.UES), null);
-			return this.setValuesOfAttributes(sess, attrs, ues, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, ues, null);
 		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -1587,10 +1985,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
+			List<Attribute> attributesDB = namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
 							"left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=:uesId " +
 							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, ues));
+
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + ues + " and their names are: " + attrNames);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1601,15 +2010,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
-			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
+			attributesCache = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
 							"left join    group_resource_attr_values     grp_res      on id=grp_res.attr_id     and   resource_id=? and group_id=? " +
 							"where namespace in (?,?) and (grp_res.attr_value is not null or grp_res.attr_value_text is not null)",
 					new GroupResourceAttributeRowMapper(sess, this, group, resource), resource.getId(), group.getId(),
 					AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF, AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT);
+
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource + " and " + group);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for user-facility combination exists.");
 			return new ArrayList<>();
@@ -1620,12 +2042,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, String key) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled()) return perun.getCacheManager().getAllNonEmptyEntitylessAttributes(key);
+		List<Attribute> attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled()) attributesCache = perun.getCacheManager().getAllNonEmptyEntitylessAttributes(key);
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
 							"left join entityless_attr_values enattr on id=enattr.attr_id and enattr.subject=? " +
 							"where namespace in (?,?) and (enattr.attr_value is not null or enattr.attr_value_text is not null)",
 					new SingleBeanAttributeRowMapper<>(sess, this, null), key, AttributesManager.NS_ENTITYLESS_ATTR_DEF, AttributesManager.NS_ENTITYLESS_ATTR_OPT);
+
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + key);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1635,17 +2070,29 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(ues.getId(), Holder.HolderType.UES));
-			return this.setValuesOfAttributes(sess, attrs, ues, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, ues, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
 							"left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? " +
 							"where namespace=? or (namespace in (?,?) and (ues.attr_value is not null or ues.attr_value_text is not null))",
 					new SingleBeanAttributeRowMapper<>(sess, this, ues), ues.getId(),
 					AttributesManager.NS_UES_ATTR_CORE, AttributesManager.NS_UES_ATTR_DEF, AttributesManager.NS_UES_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + ues);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for UserExtSource exists.");
 			return new ArrayList<>();
@@ -1673,12 +2120,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws  InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllNonEmptyEntitylessAttributesByName(attrName);
+		List<Attribute> attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			attributesCache = perun.getCacheManager().getAllNonEmptyEntitylessAttributesByName(attrName);
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
 							"left join entityless_attr_values enattr on id=enattr.attr_id " +
 							"where attr_name=? and namespace in (?,?) and (enattr.attr_value is not null or enattr.attr_value_text is not null)",
 					new SingleBeanAttributeRowMapper<>(sess, this, null), attrName, AttributesManager.NS_ENTITYLESS_ATTR_DEF, AttributesManager.NS_ENTITYLESS_ATTR_OPT);
+
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + attrName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1688,10 +2149,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getEntitylessAttrKeys(attributeDefinition.getName());
+		List<String> keysCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			keysCache = perun.getCacheManager().getEntitylessAttrKeys(attributeDefinition.getName());
 
 		try {
-			return jdbc.query("SELECT subject FROM attr_names JOIN entityless_attr_values ON id=attr_id  WHERE attr_name=?", ENTITYLESS_KEYS_MAPPER, attributeDefinition.getName());
+			List<String> keysDB = jdbc.query("SELECT subject FROM attr_names JOIN entityless_attr_values ON id=attr_id  WHERE attr_name=?", ENTITYLESS_KEYS_MAPPER, attributeDefinition.getName());
+
+			if (keysCache != null) {
+				Collections.sort(keysDB);
+				Collections.sort(keysCache);
+				if (!keysDB.equals(keysCache)) {
+					log.error("keys do not match, keys from cache are: " + keysCache + " while keys from db are: " + keysDB + " the attribute definition is: " + attributeDefinition);
+				}
+			}
+
+			return keysDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1701,12 +2175,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAttributesByAttributeDefinition(attributeDefinition);
+		List<Attribute> attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			attributesCache = perun.getCacheManager().getAttributesByAttributeDefinition(attributeDefinition);
 
 		// Get the entity from the name
 		String entity = attributeDefinition.getEntity();
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery(entity + "_attr_values") + " from attr_names join " + entity + "_attr_values on id=attr_id  where attr_name=?", ATTRIBUTE_MAPPER, attributeDefinition.getName());
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery(entity + "_attr_values") + " from attr_names join " + entity + "_attr_values on id=attr_id  where attr_name=?", ATTRIBUTE_MAPPER, attributeDefinition.getName());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " their definition is " + attributeDefinition);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1737,13 +2224,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributeCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(facility.getId(), Holder.HolderType.FACILITY), null);
-			return setValueOfAttribute(sess, attr, facility, null);
+			attributeCache = setValueOfAttribute(sess, attr, facility, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), attributeName);
+			Attribute attributeDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), attributeName);
+
+			if (attributeCache != null) {
+				if (!attributeCache.equals(attributeDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributeCache + " while attribute from db is: " + attributeDB + " the attribute belongs to " + facility + " and its name is " + attributeName);
+				}
+			}
+
+			return attributeDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Facility attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
@@ -1753,10 +2250,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllSimilarAttributeNames(startingPartOfAttributeName);
+		List<String> attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			 attributesCache = perun.getCacheManager().getAllSimilarAttributeNames(startingPartOfAttributeName);
 
 		try {
-			return jdbc.query("SELECT attr_name FROM attr_names WHERE attr_name LIKE ? || '%'", ATTRIBUTE_NAMES_MAPPER, startingPartOfAttributeName);
+			List<String> attributesDB = jdbc.query("SELECT attr_name FROM attr_names WHERE attr_name LIKE ? || '%'", ATTRIBUTE_NAMES_MAPPER, startingPartOfAttributeName);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes start with " + startingPartOfAttributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1766,13 +2276,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(vo.getId(), Holder.HolderType.VO), null);
-			return setValueOfAttribute(sess, attr, vo, null);
+			attributesCache = setValueOfAttribute(sess, attr, vo, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, vo), vo.getId(), attributeName);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, vo), vo.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + vo + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Vo attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
@@ -1782,13 +2302,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(group.getId(), Holder.HolderType.GROUP), null);
-			return setValueOfAttribute(sess, attr, group, null);
+			attributesCache = setValueOfAttribute(sess, attr, group, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("group_attr_values") + " from attr_names left join group_attr_values on id=attr_id and group_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, group), group.getId(), attributeName);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("group_attr_values") + " from attr_names left join group_attr_values on id=attr_id and group_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, group), group.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + group + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Group attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
@@ -1798,13 +2328,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(resource.getId(), Holder.HolderType.RESOURCE), null);
-			return setValueOfAttribute(sess, attr, resource, null);
+			attributesCache = setValueOfAttribute(sess, attr, resource, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), attributeName);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + resource + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Resource attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
@@ -1814,19 +2354,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return setValueOfAttribute(sess, attr, member, resource);
+			attributesCache = setValueOfAttribute(sess, attr, member, resource);
 		}
 
 		try {
 			//member-resource attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where attr_name=?",
 					new MemberResourceAttributeRowMapper(sess, this, member, resource), resource.getId(), member.getId(), attributeName);
 
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + member + " and " + resource + " and its name is " + attributeName);
+				}
+			}
 
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -1836,18 +2384,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
-			return setValueOfAttribute(sess, attr, member, group);
+			attributesCache = setValueOfAttribute(sess, attr, member, group);
 		}
 
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where attr_name=?",
 					new MemberGroupAttributeRowMapper(sess, this, member, group), group.getId(), member.getId(), attributeName);
 
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + member + " and " + group + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -1857,17 +2414,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(member.getId(), Holder.HolderType.MEMBER), null);
-			return setValueOfAttribute(sess, attr, member, null);
+			attributesCache = setValueOfAttribute(sess, attr, member, null);
 		}
 
 		//member and member core attributes
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join      member_attr_values    mem    on      id=mem.attr_id    and   member_id=? " +
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), member.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + member + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -1877,16 +2444,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
-			return setValueOfAttribute(sess, attr, user, facility);
+			attributesCache = setValueOfAttribute(sess, attr, user, facility);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
 							"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
 							"where attr_name=?",
 					new UserFacilityAttributeRowMapper(sess, this, user, facility), facility.getId(), user.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + facility + " and " + user + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -1896,17 +2473,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(user.getId(), Holder.HolderType.USER), null);
-			return setValueOfAttribute(sess, attr, user, null);
+			attributesCache = setValueOfAttribute(sess, attr, user, null);
 		}
 
 		//user and user core attributes
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 							"left join      user_attr_values    usr    on      id=usr.attr_id    and   user_id=? " +
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, user), user.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + user + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -1917,14 +2504,24 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(host.getId(), Holder.HolderType.HOST), null);
-			return setValueOfAttribute(sess, attr, host, null);
+			attributesCache = setValueOfAttribute(sess, attr, host, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
 					"left join host_attr_values on id=attr_id and host_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, host), host.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + host + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Host attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
@@ -1953,16 +2550,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getEntitylessAttribute(attributeName, key);
-			return setValueOfAttribute(sess, attr, null, null);
+			attributesCache = setValueOfAttribute(sess, attr, null, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("entityless_attr_values") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("entityless_attr_values") + " from attr_names " +
 							"left join    entityless_attr_values     on id=entityless_attr_values.attr_id     and   subject=? " +
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, null), key, attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + key + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -1972,6 +2579,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Map<String, String> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			Map<String,String> keyValueMap = new HashMap<>();
 			List<String> entitylessAttrKeys = perun.getCacheManager().getEntitylessAttrKeys(attributeName);
@@ -1981,7 +2590,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				keyValueMap.put(key, entitylessAttrValue);
 			}
 
-			return keyValueMap;
+			attributesCache = keyValueMap;
 		}
 
 		try {
@@ -1990,6 +2599,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							" from attr_names join entityless_attr_values on id=attr_id " +
 							" where type='java.lang.String' and attr_name=?",
 					rs -> { map.put(rs.getString(1), rs.getString(2)); }, attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(map)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + map + " and its name is " + attributeName);
+				}
+			}
+
 			return map;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
@@ -2000,16 +2616,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(ues.getId(), Holder.HolderType.UES), null);
-			return setValueOfAttribute(sess, attr, ues, null);
+			attributesCache = setValueOfAttribute(sess, attr, ues, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("user_ext_source_attr_values") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("user_ext_source_attr_values") + " from attr_names " +
 							"left join user_ext_source_attr_values on id=attr_id and user_ext_source_id=? " +
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, ues), ues.getId(), attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + ues + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2019,10 +2645,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
-		if(!CacheManager.isCacheDisabled()) return perun.getCacheManager().getAttributeDefinition(attributeName);
+		AttributeDefinition attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled())
+			attributesCache = perun.getCacheManager().getAttributeDefinition(attributeName);
 
 		try {
-			return jdbc.queryForObject("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names WHERE attr_name=?", ATTRIBUTE_DEFINITION_MAPPER, attributeName);
+			AttributeDefinition attributesDB = jdbc.queryForObject("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names WHERE attr_name=?", ATTRIBUTE_DEFINITION_MAPPER, attributeName);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attribute definitions do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " and its name is " + attributeName);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute - attribute.name='" + attributeName + "'", ex);
 		} catch (RuntimeException ex) {
@@ -2032,10 +2669,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAttributesDefinitions();
+		List<AttributeDefinition> attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			attributesCache = perun.getCacheManager().getAttributesDefinitions();
 
 		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names", ATTRIBUTE_DEFINITION_MAPPER);
+			List<AttributeDefinition> attributesDB = jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names", ATTRIBUTE_DEFINITION_MAPPER);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesCache);
+				Collections.sort(attributesDB);
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The The attribute definitions do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute definition exists.");
 			return new ArrayList<>();
@@ -2046,10 +2696,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAttributesDefinitionsByNamespace(namespace);
+		List<AttributeDefinition> attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			attributesCache = perun.getCacheManager().getAttributesDefinitionsByNamespace(namespace);
 
 		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names WHERE namespace=?", ATTRIBUTE_DEFINITION_MAPPER, namespace);
+			List<AttributeDefinition> attributesDB = jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names WHERE namespace=?", ATTRIBUTE_DEFINITION_MAPPER, namespace);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesCache);
+				Collections.sort(attributesDB);
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attribute definitions do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " and their namespace is " + namespace);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute definition with namespace='{}' exists.", namespace);
 			return new ArrayList<>();
@@ -2060,10 +2723,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException {
-		if(!CacheManager.isCacheDisabled()) return perun.getCacheManager().getAttributeDefinition(id);
+		AttributeDefinition attributesCache = null;
+
+		if(!CacheManager.isCacheDisabled()) attributesCache = perun.getCacheManager().getAttributeDefinition(id);
 
 		try {
-			return jdbc.queryForObject("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names WHERE id=?", ATTRIBUTE_DEFINITION_MAPPER, id);
+			AttributeDefinition attributesDB = jdbc.queryForObject("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names WHERE id=?", ATTRIBUTE_DEFINITION_MAPPER, id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attribute definitions do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2073,13 +2746,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(facility.getId(), Holder.HolderType.FACILITY), null);
-			return setValueOfAttribute(sess, attr, facility, null);
+			attributesCache = setValueOfAttribute(sess, attr, facility, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), id);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2089,13 +2772,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(vo.getId(), Holder.HolderType.VO), null);
-			return setValueOfAttribute(sess, attr, vo, null);
+			attributesCache = setValueOfAttribute(sess, attr, vo, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, vo), vo.getId(), id);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, vo), vo.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + vo + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2105,13 +2798,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(resource.getId(), Holder.HolderType.RESOURCE), null);
-			return setValueOfAttribute(sess, attr, resource, null);
+			attributesCache = setValueOfAttribute(sess, attr, resource, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), id);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + resource + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2121,16 +2824,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return setValueOfAttribute(sess, attr, group, resource);
+			attributesCache = setValueOfAttribute(sess, attr, group, resource);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
 							"left join    group_resource_attr_values     grp_res      on id=grp_res.attr_id     and   resource_id=? and group_id=? " +
 							"where id=?",
 					new GroupResourceAttributeRowMapper(sess, this, group, resource), resource.getId(), group.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + group + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2140,16 +2853,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(group.getId(), Holder.HolderType.GROUP), null);
-			return setValueOfAttribute(sess, attr, group, null);
+			attributesCache = setValueOfAttribute(sess, attr, group, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
 							"left join group_attr_values grp on id=grp.attr_id and group_id=? " +
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, group), group.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + group + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2159,13 +2882,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(host.getId(), Holder.HolderType.HOST), null);
-			return setValueOfAttribute(sess, attr, host, null);
+			attributesCache = setValueOfAttribute(sess, attr, host, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names left join host_attr_values on id=attr_id and host_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, host), host.getId(), id);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names left join host_attr_values on id=attr_id and host_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, host), host.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + host + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2176,17 +2909,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return setValueOfAttribute(sess, attr, member, resource);
+			attributesCache = setValueOfAttribute(sess, attr, member, resource);
 		}
 
 		try {
 			//member-resource attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), resource.getId(), member.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + member + " and " + resource + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2196,17 +2939,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
-			return setValueOfAttribute(sess, attr, member, group);
+			attributesCache = setValueOfAttribute(sess, attr, member, group);
 		}
 
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), group.getId(), member.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + member + " and " + group + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2216,17 +2969,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(member.getId(), Holder.HolderType.MEMBER), null);
-			return setValueOfAttribute(sess, attr, member, null);
+			attributesCache = setValueOfAttribute(sess, attr, member, null);
 		}
 
 		try {
 			//member and member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join      member_attr_values    mem    on      id=mem.attr_id    and   member_id=? " +
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), member.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + member + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2236,16 +2999,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
-			return setValueOfAttribute(sess, attr, user, facility);
+			attributesCache = setValueOfAttribute(sess, attr, user, facility);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
 							"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
 							"where id=?",
 					new UserFacilityAttributeRowMapper(sess, this, user, facility), facility.getId(), user.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + facility + " and " + user + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2255,17 +3028,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(user.getId(), Holder.HolderType.USER), null);
-			return setValueOfAttribute(sess, attr, user, null);
+			attributesCache = setValueOfAttribute(sess, attr, user, null);
 		}
 
 		try {
 			//user and user core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 							"left join      user_attr_values    usr    on      id=usr.attr_id    and   user_id=? " +
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, user), user.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + user + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2275,13 +3058,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException {
+		Attribute attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(ues.getId(), Holder.HolderType.UES), null);
-			return setValueOfAttribute(sess, attr, ues, null);
+			attributesCache = setValueOfAttribute(sess, attr, ues, null);
 		}
 
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("ues") + " from attr_names left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, ues), ues.getId(), id);
+			Attribute attributesDB = jdbc.queryForObject("select " + getAttributeMappingSelectQuery("ues") + " from attr_names left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, ues), ues.getId(), id);
+
+			if (attributesCache != null) {
+				if (!attributesCache.equals(attributesDB)) {
+					log.error("The attributes do not match, attribute from cache is: " + attributesCache + " while attribute from db is: " + attributesDB + " the attribute belongs to " + ues + " and its id is " + id);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
@@ -2755,19 +3548,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<AttributeDefinition> getResourceRequiredAttributesDefinition(PerunSession sess, Resource resource) throws InternalErrorException {
+		List<AttributeDefinition> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<AttributeDefinition> attrDefs = perun.getCacheManager().getAttributesDefinitions(attrIds);
 			if(attrDefs.isEmpty()) log.debug("None resource required attributes definitions found for resource: {}", resource);
-			return attrDefs;
+			attributesCache = attrDefs;
 		}
 
 		try {
-			return jdbc.query("SELECT DISTINCT " + attributeDefinitionMappingSelectQuery + " FROM resource_services " +
+			List<AttributeDefinition> attributesDB = jdbc.query("SELECT DISTINCT " + attributeDefinitionMappingSelectQuery + " FROM resource_services " +
 							"JOIN service_required_attrs ON service_required_attrs.service_id=resource_services.service_id AND resource_services.resource_id=? " +
 							"JOIN attr_names ON service_required_attrs.attr_id=attr_names.id",
 					ATTRIBUTE_DEFINITION_MAPPER, resource.getId());
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attribute definitions do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None resource required attributes definitions found for resource: {}.", resource);
 			return new ArrayList<>();
@@ -2800,21 +3604,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(facility.getId(), Holder.HolderType.FACILITY));
 			if(attrs.isEmpty()) log.debug("None required attributes found for facility: {} and services from resource: {}.", facility, resource);
-			return this.setValuesOfAttributes(sess, attrs, facility, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, facility, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
 							"left join facility_attr_values on id=facility_attr_values.attr_id and facility_id=? " +
 							"where namespace in (?,?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=? )",
 					new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT, resource.getId());
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource + " and " + facility);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for facility: {} and services from resource: {}.", facility, resource);
 			return new ArrayList<>();
@@ -2825,21 +3640,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			if(attrs.isEmpty()) log.debug("None required attributes found for resource: {} and services from resource to get services from: {}.", resource, resourceToGetServicesFrom);
-			return this.setValuesOfAttributes(sess, attrs, resource, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, resource, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
 							"left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=? " +
 							"where namespace in (?,?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_OPT, AttributesManager.NS_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and services getted from it.", resourceToGetServicesFrom);
 			return new ArrayList<>();
@@ -2850,21 +3676,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER));
 			if(attrs.isEmpty()) log.debug("None required attributes found for member: {} and services from resource: {}.", member, resourceToGetServicesFrom);
-			return this.setValuesOfAttributes(sess, attrs, member, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("member_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("member_attr_values") + " from attr_names " +
 							"left join member_attr_values on id=member_attr_values.attr_id and member_attr_values.member_id=? " +
 							"where namespace in (?,?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), member.getId(), AttributesManager.NS_MEMBER_ATTR_DEF, AttributesManager.NS_MEMBER_ATTR_CORE, AttributesManager.NS_MEMBER_ATTR_OPT, AttributesManager.NS_MEMBER_ATTR_VIRT, resourceToGetServicesFrom.getId());
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and services getted from it.", resourceToGetServicesFrom);
 			return new ArrayList<>();
@@ -2875,19 +3712,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, member, resource);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, resource);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where namespace in (?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
 					new MemberResourceAttributeRowMapper(sess, this, member, resource), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + resource);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -2897,19 +3746,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
-			return this.setValuesOfAttributes(sess, attrs, user, facility);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, facility);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 							"left join      user_facility_attr_values    usr    on      attr_names.id=usr.attr_id    and   user_id=? and facility_id=? " +
 							"where namespace in (?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
 					new UserFacilityAttributeRowMapper(sess, this, user, facility), user.getId(), facility.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT, resource.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility + " and " + user);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -2919,19 +3780,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, group, resource);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, resource);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
 							"left join      group_resource_attr_values    grp   on      attr_names.id=grp.attr_id    and   grp.group_id=? and grp.resource_id=? " +
 							"where namespace in (?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
 					new GroupResourceAttributeRowMapper(sess, this, group, resource), group.getId(), resource.getId(), AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF, AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT, AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource + " and " + group);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -2941,20 +3814,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
-			return this.setValuesOfAttributes(sess, attrs, user, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, null);
 		}
 
 		try {
 			//user and user core attributes
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 							"left join      user_attr_values    usr    on      attr_names.id=usr.attr_id    and   user_id=? " +
 							"where namespace in (?,?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?) ",
 					new SingleBeanAttributeRowMapper<>(sess, this, user), user.getId(), AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT, AttributesManager.NS_USER_ATTR_VIRT, resource.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + user);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -2986,19 +3871,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP));
-			return this.setValuesOfAttributes(sess, attrs, group, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
 							"left join      group_attr_values   grp    on      attr_names.id=grp.attr_id    and   group_id=? " +
 							"where namespace in (?,?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, group), group.getId(), AttributesManager.NS_GROUP_ATTR_CORE, AttributesManager.NS_GROUP_ATTR_DEF, AttributesManager.NS_GROUP_ATTR_OPT, AttributesManager.NS_GROUP_ATTR_VIRT, resourceToGetServicesFrom.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + group);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3008,13 +3905,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service) throws InternalErrorException {
+		List<AttributeDefinition> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
-			return perun.getCacheManager().getAttributesDefinitions(attrIds);
+			attributesCache = perun.getCacheManager().getAttributesDefinitions(attrIds);
 		}
 
 		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names, service_required_attrs WHERE id=attr_id AND service_id=?", ATTRIBUTE_DEFINITION_MAPPER, service.getId());
+			List<AttributeDefinition> attributesDB = jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names, service_required_attrs WHERE id=attr_id AND service_id=?", ATTRIBUTE_DEFINITION_MAPPER, service.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attribute definitions do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3025,20 +3934,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(facility.getId(), Holder.HolderType.FACILITY));
 			if(attrs.isEmpty()) log.debug("None required attributes found for facility: {} and service: {}.", facility, service);
-			return this.setValuesOfAttributes(sess, attrs, facility, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, facility, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join facility_attr_values on id=facility_attr_values.attr_id and facility_id=? " +
 							"where namespace in (?,?,?,?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, facility), service.getId(), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT);
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for facility: {} and service: {}.", facility, service);
 			return new ArrayList<>();
@@ -3049,20 +3969,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(vo.getId(), Holder.HolderType.VO));
 			if(attrs.isEmpty()) log.debug("None required attributes found for vo: {} and service: {}.", vo, service);
-			return this.setValuesOfAttributes(sess, attrs, vo, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, vo, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join vo_attr_values on id=vo_attr_values.attr_id and vo_id=? " +
 							"where namespace in (?,?,?,?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, vo), service.getId(), vo.getId(), AttributesManager.NS_VO_ATTR_DEF, AttributesManager.NS_VO_ATTR_CORE, AttributesManager.NS_VO_ATTR_OPT, AttributesManager.NS_VO_ATTR_VIRT);
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + vo + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for vo: {} and service: {}.", vo, service);
 			return new ArrayList<>();
@@ -3073,20 +4004,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			if(attrs.isEmpty()) log.debug("None required attributes found for resource: {} and service {} ", resource, service);
-			return this.setValuesOfAttributes(sess, attrs, resource, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, resource, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=? " +
 							"where namespace in (?,?,?,?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, resource), service.getId(), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_OPT, AttributesManager.NS_RESOURCE_ATTR_VIRT);
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and service {}.", resource, service);
 			return new ArrayList<>();
@@ -3100,13 +4042,15 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("serviceIds", serviceIds);
 
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = this.namedParameterJdbcTemplate.queryForList("select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"where service_required_attrs.service_id in (:serviceIds)",
 					parameters, Integer.class);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			if(attrs.isEmpty()) log.debug("None required attributes found for resource: {} and services with id {} ", resource, serviceIds);
-			return this.setValuesOfAttributes(sess, attrs, resource, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, resource, null);
 		}
 
 		try {
@@ -3119,12 +4063,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			parameters.addValue("resourceId", resource.getId());
 			parameters.addValue("namespace", namespace);
 
-			return this.namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names "
+			List<Attribute> attributesDB = this.namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names "
 							+ "join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id in (:serviceIds) "
 							+ "left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=:resourceId "
 							+ "where namespace in (:namespace)",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, resource));
 
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource + " on services " + serviceIds);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and services with id {}.", resource, serviceIds);
 			return new ArrayList<>();
@@ -3135,20 +4088,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, member, resource);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, resource);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 
 							"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where namespace in (?,?,?)",
 					new MemberResourceAttributeRowMapper(sess, this, member, resource), service.getId(), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + resource + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3156,18 +4121,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
-			return this.setValuesOfAttributes(sess, attrs, member, group);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, group);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where namespace in (?,?,?)",
 					new MemberGroupAttributeRowMapper(sess, this, member, group), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + group + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3175,19 +4152,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
-			return this.setValuesOfAttributes(sess, attrs, member, group);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, group);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where namespace in (?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
 					new MemberGroupAttributeRowMapper(sess, this, member, group), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT, resourceToGetServicesFrom.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " and " + group + " on services from resource " + resourceToGetServicesFrom);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3197,19 +4186,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER));
-			return this.setValuesOfAttributes(sess, attrs, member, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, member, null);
 		}
 
 		//member and member core attributes
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join      member_attr_values    mem    on      id=mem.attr_id    and   member_id=? " +
 							"where namespace in (?,?,?,?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), service.getId(), member.getId(), AttributesManager.NS_MEMBER_ATTR_CORE, AttributesManager.NS_MEMBER_ATTR_DEF, AttributesManager.NS_MEMBER_ATTR_OPT, AttributesManager.NS_MEMBER_ATTR_VIRT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + member + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3219,18 +4220,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
-			return this.setValuesOfAttributes(sess, attrs, user, facility);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, facility);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
 							"where namespace in (?,?,?)",
 					new UserFacilityAttributeRowMapper(sess, this, user, facility), service.getId(), facility.getId(), user.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility + "and " + user + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3240,18 +4253,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
-			return this.setValuesOfAttributes(sess, attrs, group, resource);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, resource);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join    group_resource_attr_values     grp_res     on id=grp_res.attr_id     and   group_id=? and resource_id=? " +
 							"where namespace in (?,?,?)",
 					new GroupResourceAttributeRowMapper(sess, this, group, resource), service.getId(), group.getId(), resource.getId(), AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF, AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT, AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + resource + " and " + group + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3261,19 +4286,31 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
-			return this.setValuesOfAttributes(sess, attrs, user, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, user, null);
 		}
 
 		//user and user core attributes
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join      user_attr_values    usr    on      id=usr.attr_id    and   user_id=? " +
 							"where namespace in (?,?,?,?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, user), service.getId(), user.getId(), AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT, AttributesManager.NS_USER_ATTR_VIRT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + user + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3405,19 +4442,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
+		HashMap<Member, List<Attribute>>  hashMap = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
-			HashMap<Member, List<Attribute>> hashMap = new HashMap<>();
+			hashMap = new HashMap<>();
 			for (Member member: members) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, member, resource);
 				hashMap.put(member, setAttrs);
 			}
-			return hashMap;
 		}
 
 		try {
-			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
+			HashMap<Member, List<Attribute>> hashMapDB = jdbc.execute("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
 				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
 				"JOIN members ON members.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN member_resource_attr_values mem ON attr_names.id=mem.attr_id AND mem.resource_id=? " +
@@ -3432,6 +4470,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					MemberAttributeExtractor memberAttributeExtractor = new MemberAttributeExtractor(sess, this, resource, members);
 					return memberAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
+
+			if (hashMap != null) {
+				if (!hashMap.equals(hashMapDB)) {
+					log.error("The attributes do not match, attributes from cache are: " + hashMap + " while attributes from db are: " + hashMapDB + " the attributes belong to " + resource + " and " + members + " on service " + service);
+				}
+			}
+
+			return hashMapDB;
 		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
@@ -3440,19 +4486,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException {
+		HashMap<Member, List<Attribute>> hashMap = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
-			HashMap<Member, List<Attribute>> hashMap = new HashMap<>();
+			hashMap = new HashMap<>();
 			for (Member member: members) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, member, null);
 				hashMap.put(member, setAttrs);
 			}
-			return hashMap;
 		}
 
 		try {
-			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
+			HashMap<Member, List<Attribute>> hashMapDB = jdbc.execute("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
 				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
 				"JOIN members ON members.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN member_attr_values mem ON attr_names.id=mem.attr_id " +
@@ -3467,6 +4514,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				MemberAttributeExtractor memberAttributeExtractor = new MemberAttributeExtractor(sess, this, members);
 				return memberAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
+
+			if (hashMap != null) {
+				if (!hashMap.equals(hashMapDB)) {
+					log.error("The attributes do not match, attributes from cache are: " + hashMap + " while attributes from db are: " + hashMapDB + " the attributes belong to " + members + " on service " + service);
+				}
+			}
+
+			return hashMapDB;
 		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
@@ -3475,19 +4530,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
+		HashMap<User, List<Attribute>> hashMap = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
-			HashMap<User, List<Attribute>> hashMap = new HashMap<>();
+			hashMap = new HashMap<>();
 			for (User user: users) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, facility);
 				hashMap.put(user, setAttrs);
 			}
-			return hashMap;
 		}
 
 		try {
-			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", users.id FROM attr_names " +
+			HashMap<User, List<Attribute>> hashMapDB = jdbc.execute("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", users.id FROM attr_names " +
 				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
 				"JOIN users ON users.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id AND facility_id=? AND user_id=users.id " +
@@ -3502,6 +4558,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					UserAttributeExtractor userAttributeExtractor = new UserAttributeExtractor(sess, this, users, facility);
 					return userAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
+
+			if (hashMap != null) {
+				if (!hashMap.equals(hashMapDB)) {
+					log.error("The attributes do not match, attributes from cache are: " + hashMap + " while attributes from db are: " + hashMapDB + " the attributes belong to " + facility + " and " + users + " on service " + service);
+				}
+			}
+
+			return hashMapDB;
 		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
@@ -3510,19 +4574,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
+		HashMap<User, List<Attribute>> hashMap = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
-			HashMap<User, List<Attribute>> hashMap = new HashMap<>();
+			hashMap = new HashMap<>();
 			for (User user: users) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, null);
 				hashMap.put(user, setAttrs);
 			}
-			return hashMap;
 		}
 
 		try {
-			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("usr") + ", users.id FROM attr_names " +
+			HashMap<User, List<Attribute>> hashMapDB =  jdbc.execute("SELECT " + getAttributeMappingSelectQuery("usr") + ", users.id FROM attr_names " +
 				"JOIN service_required_attrs on attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
 				"JOIN users ON users.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id AND user_id=users.id " +
@@ -3537,6 +4602,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				UserAttributeExtractor userAttributeExtractor = new UserAttributeExtractor(sess, this, users);
 				return userAttributeExtractor.extractData(preparedStatement.executeQuery());
 			});
+
+			if (hashMap != null) {
+				if (!hashMap.equals(hashMapDB)) {
+					log.error("The attributes do not match, attributes from cache are: " + hashMap + " while attributes from db are: " + hashMapDB + " the attributes belong to " + users + " on service " + service);
+				}
+			}
+
+			return hashMapDB;
 		} catch (InternalErrorException ex) {
 			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
@@ -3545,18 +4618,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(host.getId(), Holder.HolderType.HOST));
-			return this.setValuesOfAttributes(sess, attrs, host, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, host, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("host") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("host") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join      host_attr_values    host   on      id=host.attr_id    and   host_id=? " +
 							"where namespace in (?,?,?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, host), service.getId(), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + host + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3566,18 +4651,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP));
-			return this.setValuesOfAttributes(sess, attrs, group, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, group, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join      group_attr_values    grp   on      id=grp.attr_id    and  group_id=? " +
 							"where namespace in (?,?,?,?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, group), service.getId(), group.getId(), AttributesManager.NS_GROUP_ATTR_CORE, AttributesManager.NS_GROUP_ATTR_DEF, AttributesManager.NS_GROUP_ATTR_OPT, AttributesManager.NS_GROUP_ATTR_VIRT);
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + group + " on service " + service);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3587,22 +4684,34 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+		List<Attribute> attributesCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = jdbc.queryForList("select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
 					"join resources on resource_services.resource_id=resources.id and resources.facility_id=?", new Object[] {facility.getId()}, Integer.class);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(facility.getId(), Holder.HolderType.FACILITY));
-			return this.setValuesOfAttributes(sess, attrs, facility, null);
+			attributesCache = this.setValuesOfAttributes(sess, attrs, facility, null);
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
+			List<Attribute> attributesDB = jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
 							"left join facility_attr_values on attr_names.id=facility_attr_values.attr_id and facility_attr_values.facility_id=? " +
 							"where namespace in (?,?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
 							"join resources on resource_services.resource_id=resources.id  and resources.facility_id=?)",
 					new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT, facility.getId());
+
+			if (attributesCache != null) {
+				Collections.sort(attributesDB);
+				Collections.sort(attributesCache);
+				if (!attributesDB.equals(attributesCache)) {
+					log.error("The attributes do not match, attributes from cache are: " + attributesCache + " while attributes from db are: " + attributesDB + " the attributes belong to " + facility);
+				}
+			}
+
+			return attributesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			log.info("None required attributes found for facility: {} and services from it's resources.", facility);
 			return new ArrayList<>();
@@ -4513,12 +5622,18 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		Utils.notNull(attribute.getNamespace(), "attribute.namespace");
 		Utils.notNull(attribute.getType(), "attribute.type");
 
+		Boolean existCache = null;
+
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
-			return perun.getCacheManager().checkAttributeExists(attribute);
+			existCache = perun.getCacheManager().checkAttributeExists(attribute);
 		}
 
 		try {
-			return 1 == jdbc.queryForInt("select count('x') from attr_names where attr_name=? and friendly_name=? and namespace=? and id=? and type=?", attribute.getName(), attribute.getFriendlyName(), attribute.getNamespace(), attribute.getId(), attribute.getType());
+			boolean existDB = 1 == jdbc.queryForInt("select count('x') from attr_names where attr_name=? and friendly_name=? and namespace=? and id=? and type=?", attribute.getName(), attribute.getFriendlyName(), attribute.getNamespace(), attribute.getId(), attribute.getType());
+			if (existCache != null && !existCache.equals(existDB)) {
+				log.error("existences do not match, cache existance value is: " + existCache + " while value from db is: " + existDB + " the attribute in question is " + attribute);
+			}
+			return existDB;
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -4640,10 +5755,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Object> getAllResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.RESOURCE, attributeDefinition);
+		List<Object> valuesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
+			valuesCache = perun.getCacheManager().getAllValues(Holder.HolderType.RESOURCE, attributeDefinition);
 
 		try {
-			return jdbc.query("SELECT attr_value FROM resource_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+			List<Object> valuesDB = jdbc.query("SELECT attr_value FROM resource_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+
+			if (valuesCache != null) {
+				if (!valuesDB.equals(valuesCache)) {
+					log.error("values do not match, values from cache are: " + valuesCache + " while attributes from db are: " + valuesDB + " the values belong to " + attributeDefinition);
+				}
+			}
+
+			return valuesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -4653,10 +5779,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Object> getAllGroupResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.GROUP, Holder.HolderType.RESOURCE, attributeDefinition);
+		List<Object> valuesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) valuesCache = perun.getCacheManager().getAllValues(Holder.HolderType.GROUP, Holder.HolderType.RESOURCE, attributeDefinition);
 
 		try {
-			return jdbc.query("SELECT attr_value FROM group_resource_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+			List<Object> valuesDB = jdbc.query("SELECT attr_value FROM group_resource_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+
+			if (valuesCache != null) {
+				if (!valuesDB.equals(valuesCache)) {
+					log.error("values do not match, values from cache are: " + valuesCache + " while attributes from db are: " + valuesDB + " the values belong to " + attributeDefinition);
+				}
+			}
+
+			return valuesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -4666,10 +5802,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.GROUP, attributeDefinition);
+		List<Object> valuesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) valuesCache = perun.getCacheManager().getAllValues(Holder.HolderType.GROUP, attributeDefinition);
 
 		try {
-			return jdbc.query("SELECT attr_value FROM group_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+			List<Object> valuesDB = jdbc.query("SELECT attr_value FROM group_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+
+			if (valuesCache != null) {
+				if (!valuesDB.equals(valuesCache)) {
+					log.error("values do not match, values from cache are: " + valuesCache + " while attributes from db are: " + valuesDB + " the values belong to " + attributeDefinition);
+				}
+			}
+
+			return valuesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -4679,10 +5825,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Object> getAllUserValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.USER, attributeDefinition);
+		List<Object> valuesCache = null;
+
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) valuesCache = perun.getCacheManager().getAllValues(Holder.HolderType.USER, attributeDefinition);
 
 		try {
-			return jdbc.query("SELECT attr_value FROM user_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+			List<Object> valuesDB = jdbc.query("SELECT attr_value FROM user_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+
+			if (valuesCache != null) {
+				if (!valuesDB.equals(valuesCache)) {
+					log.error("values do not match, values from cache are: " + valuesCache + " while attributes from db are: " + valuesDB + " the values belong to " + attributeDefinition);
+				}
+			}
+
+			return valuesDB;
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {

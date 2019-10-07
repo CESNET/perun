@@ -121,7 +121,7 @@
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
 				<prop key="perun.allowedCorsDomains"></prop>
-				<prop key="perun.cacheEnabled">false</prop>
+				<prop key="perun.cacheEnabled">true</prop>
 				<prop key="perun.queryTimeout">-1</prop>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
