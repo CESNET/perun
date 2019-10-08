@@ -3602,19 +3602,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		//for each group set attributes for members synchronization, synchronize them and save the result
 		for (Group group: groupsForMemberSynchronization) {
-
-			if (!getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group).contains(source)) {
-				try {
-					getPerunBl().getExtSourcesManagerBl().addExtSource(sess, group, source);
-				} catch (ExtSourceAlreadyAssignedException e) {
-					log.info("ExtSource already assigned to group: {}", group);
-				}
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, group, extSourceNameAttr);
+			try {
+				getPerunBl().getExtSourcesManagerBl().addExtSource(sess, group, source);
+			} catch (ExtSourceAlreadyAssignedException e) {
+				log.info("ExtSource already assigned to group: {}", group);
 			}
 
 			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", group.getShortName()));
 
-			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute, synchronizationTimes));
+			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute, synchronizationTimes, extSourceNameAttr));
 		}
 
 	}
