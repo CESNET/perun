@@ -1370,10 +1370,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Deletes attribute definition from Perun.
-	 *
-	 * Deletion fails if any entity in Perun has
-	 * any value for this attribute set.
+	 * Deletes attribute definition from Perun including all values
+	 * set for any entity
 	 *
 	 * @param attribute int AttributeDefinition <code>id</code>
 	 */
@@ -1385,6 +1383,25 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 			ac.getAttributesManager().deleteAttribute(ac.getSession(),
 					ac.getAttributeDefinitionById(parms.readInt("attribute")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Deletes multiple attribute definitions from Perun including all values
+	 * set for any entity.
+	 *
+	 * @param attributes List<int> AttributeDefinition <code>id</code>
+	 */
+	deleteAttributes {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			List<Integer> attDefs = parms.readList("attributes", Integer.class);
+			for (Integer id : attDefs) {
+				ac.getAttributesManager().deleteAttribute(ac.getSession(),
+					ac.getAttributeDefinitionById(id));
+			}
 			return null;
 		}
 	},
