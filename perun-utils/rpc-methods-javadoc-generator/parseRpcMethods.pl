@@ -5,7 +5,10 @@ use Switch;
 use Getopt::Long qw(:config no_ignore_case);
 
 #constants
-our $OUTPUT_DIR="/var/www/perun-web";
+our $OUTPUT_DIR="./web-template";
+our $SOURCE_DIR="./perun/perun-rpc/src/main/java/cz/metacentrum/perun/rpc/methods";
+our @allVersions;
+our $versionLimit = 20;
 
 #INFO ABOUT STRUCTURE
 #     %MANAGERS
@@ -174,9 +177,9 @@ sub help {
   Generate HTML javadoc for Perun RPC
   ----------------------------------------
   Available options:
-  --directory  | -d path to directory with rpc methods
-  --output     | -o path to directory to write output files to
-  --help       | -h prints this help
+  --version      | -v tag (version) to build
+  --all-versions | -a builds all tags (versions)
+  --help         | -h prints this help
 
 };
 }
@@ -305,39 +308,45 @@ sub processFile {
 	close($handler);
 }
 
-#START OF MAIN PROGRAM
+sub buildVersion {
 
-# default options
-my $directory;
-GetOptions ("help|h" => sub {print help(); exit 0;},
-	"directory|d=s" => \$directory , "output|o=s" => \$OUTPUT_DIR) || die help();
+	my $ver = $_[0];
+	my $latest = $_[1];
+	`git -C ./perun/ checkout $ver`;
+	my $printVer = substr($ver,1);
+	my $importPathCss = "css";
+	my $importPathJs = "js";
+	my $importPathImg = "img";
 
-#if directory with methods is not set
-unless (defined($directory)) { die "ERROR: Path to directory where RPC methods are is required \n";}
+	#open input dir
+	opendir (DIR, $SOURCE_DIR) or die "Cannot open directory with files (with methods)!";
 
-#if directory with methods not exists
-unless (-d $directory) { die "ERROR: Directory " . $directory . " not exists!"; }
+	if ($latest) {
+		$OUTPUT_DIR = "./web-template/";
+	} else {
+		$OUTPUT_DIR = "./web-template/" . $printVer;
+		$importPathCss = "../css";
+		$importPathJs = "../js";
+		$importPathImg = "../img";
+	}
 
-#open input dir
-opendir (DIR, $directory) or die "Cannot open directory with files (with methods)!";
+	#create output dir if not exists yet
+	unless (-d $OUTPUT_DIR) {
+		mkdir $OUTPUT_DIR;
+		print $OUTPUT_DIR . " was created. \n";
+	}
 
-#create output dir if not exists yet
-unless (-d $OUTPUT_DIR) {
-	mkdir $OUTPUT_DIR;
-	print $OUTPUT_DIR . " was created. \n";
-}
+	#process all files in dir
+	while (my $file = readdir(DIR)) {
+		next if ($file =~ m/^\./);
+		processFile($file, $SOURCE_DIR)
+	}
 
-#process all files in dir
-while (my $file = readdir(DIR)) {
-	next if ($file =~ m/^\./);
-	processFile($file, $directory)
-}
+	# PRINT MAIN FILE
 
-# PRINT MAIN FILE
+	open FILE,">$OUTPUT_DIR/index.html" or die "Cannot open $OUTPUT_DIR/index.html: $! \n";
 
-open FILE,">$OUTPUT_DIR/index.html" or die "Cannot open $OUTPUT_DIR/index.html: $! \n";
-
-print FILE qq{
+	print FILE qq{
 <!DOCTYPE html>
 
 <html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -345,26 +354,26 @@ print FILE qq{
         <!--[if IE]>
             <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <![endif]-->
-        <title>RPC API documentation | Perun - Identity and Access Management System</title>
+        <title>RPC API documentation $printVer| Perun - Identity and Access Management System</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="css/fonts.css" type="text/css">
-        <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
-        <link rel="stylesheet" href="css/main.css" type="text/css">
-        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/fonts.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/bootstrap.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/main.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/style.css" type="text/css">
 
-        <link rel="shortcut icon" href="img/favicons/favicon.ico">
-	<link rel="icon" sizes="16x16 32x32 64x64" href="img/favicons/favicon.ico">
-	<link rel="icon" type="image/png" sizes="64x64" href="img/favicons/favicon-64.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32.png">
-	<link rel="apple-touch-icon" href="img/favicons/favicon-57.png">
-	<link rel="apple-touch-icon" sizes="144x144" href="img/favicons/favicon-144.png">
-	<meta name="msapplication-TileImage" content="img/favicons/favicon-white-144.png">
+        <link rel="shortcut icon" href="$importPathImg/favicons/favicon.ico">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="$importPathImg/favicons/favicon.ico">
+	<link rel="icon" type="image/png" sizes="64x64" href="$importPathImg/favicons/favicon-64.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="$importPathImg/favicons/favicon-32.png">
+	<link rel="apple-touch-icon" href="$importPathImg/favicons/favicon-57.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="$importPathImg/favicons/favicon-144.png">
+	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
         <meta name="msapplication-TileColor" content="#00569c">
 
-        <script src="js/jquery-1.10.2.min.js"></script>
-        <script src="js/bootstrap.js" type="text/javascript"></script>
+        <script src="$importPathJs/jquery-1.10.2.min.js"></script>
+        <script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 
 <body class="front-page">
@@ -377,23 +386,63 @@ print FILE qq{
 
 	<div class="container">
 
-	<h2>RPC API documentation</h2>
+	<h1>RPC API documentation $printVer</h1>
 
 	<div class="col-md-3 list-group">
-		<a style="color: #005b99;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
+		<a style="color: #005b99; text-align: right;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
+		<span class="list-group-item"><b>Version:&nbsp;</b><select id="versionSelect" style="width: 100%">
+
+		};
+
+	my $counter = 1;
+	for my $v (@allVersions) {
+		my $pv = substr($v, 1);
+		print FILE qq^<option value="$pv">$v</option>^;
+		$counter = $counter+1;
+		if ($counter > $versionLimit) {
+			last;
+		}
+	}
+
+	print FILE qq^
+		</select>
+		<script>
+		if (window.location.href.indexOf("$printVer")) {
+			\$('select#versionSelect').val("$printVer");
+		}
+        \$('select#versionSelect').on('change', function() {
+    		var version = \$('select#versionSelect').children("option:selected").val();
+    	^;
+
+	if ($latest) {
+		print FILE qq^    		window.location.assign(version+"/"+window.location.href.split("/").pop()); ^;
+	} else {
+		print FILE qq^
+    					if (("v"+version) == "$allVersions[0]") {
+    						window.location.assign("../"+window.location.href.split("/").pop());
+    					} else {
+    						window.location.assign("../"+version+"/"+window.location.href.split("/").pop());
+    					}
+    		    		^;
+	}
+
+	print FILE qq^
+    	});
+    	</script>
+		</span>
 		<span class="list-group-item"><b><u>General</u></b></span>
 		<a style="color: #005b99;" class="list-group-item" href="index.html"><b>How to use Perun RPC</b></a>
 		<span class="list-group-item"><b><u>Managers</u></b></span>
-};
+^;
 
-foreach my $manager (sort(keys %{$managers})) {
-	print FILE "<a class=\"list-group-item\" style=\"color: #005b99;\" href=\"rpc-javadoc-$manager.html\">$manager</a>"
-}
+	foreach my $manager (sort(keys %{$managers})) {
+		print FILE "<a class=\"list-group-item\" style=\"color: #005b99;\" href=\"rpc-javadoc-$manager.html\">$manager</a>"
+	}
 
-print FILE "</div><div class=\"col-md-9 pull-right\">";
+	print FILE "</div><div class=\"col-md-9 pull-right\">";
 
 
-print FILE qq{
+	print FILE qq{
 		<h2>How to use Perun RPC</h2>
 
 		<p class="well warning">Perun RPC is <b>not</b> using traditional REST API, so please read properly, how are your requests handled and what are expected responses.</p>
@@ -480,7 +529,7 @@ Response: call1(response);
 </div>
 };
 
-print FILE qq{
+	print FILE qq{
 <script type="text/javascript">
 	\$(document).ready(function() {
 		\$("#nav-documentation").addClass('active');
@@ -488,13 +537,13 @@ print FILE qq{
 </script>
 };
 
-close (FILE);
+	close (FILE);
 
-foreach my $manager (sort(keys %{$managers})) {
+	foreach my $manager (sort(keys %{$managers})) {
 
-	open FILE,">$OUTPUT_DIR/rpc-javadoc-$manager.html" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-$manager.html: $! \n";
+		open FILE,">$OUTPUT_DIR/rpc-javadoc-$manager.html" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-$manager.html: $! \n";
 
-	print FILE qq{
+		print FILE qq{
 <!DOCTYPE html>
 
 <html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -502,26 +551,26 @@ foreach my $manager (sort(keys %{$managers})) {
         <!--[if IE]>
             <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <![endif]-->
-        <title>RPC API documentation - $manager | Perun - Identity and Access Management System</title>
+        <title>RPC API documentation $printVer - $manager | Perun - Identity and Access Management System</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="css/fonts.css" type="text/css">
-        <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
-        <link rel="stylesheet" href="css/main.css" type="text/css">
-        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/fonts.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/bootstrap.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/main.css" type="text/css">
+        <link rel="stylesheet" href="$importPathCss/style.css" type="text/css">
 
-        <link rel="shortcut icon" href="img/favicons/favicon.ico">
-	<link rel="icon" sizes="16x16 32x32 64x64" href="img/favicons/favicon.ico">
-	<link rel="icon" type="image/png" sizes="64x64" href="img/favicons/favicon-64.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32.png">
-	<link rel="apple-touch-icon" href="img/favicons/favicon-57.png">
-	<link rel="apple-touch-icon" sizes="144x144" href="img/favicons/favicon-144.png">
-	<meta name="msapplication-TileImage" content="img/favicons/favicon-white-144.png">
+        <link rel="shortcut icon" href="$importPathImg/favicons/favicon.ico">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="$importPathImg/favicons/favicon.ico">
+	<link rel="icon" type="image/png" sizes="64x64" href="$importPathImg/favicons/favicon-64.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="$importPathImg/favicons/favicon-32.png">
+	<link rel="apple-touch-icon" href="$importPathImg/favicons/favicon-57.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="$importPathImg/favicons/favicon-144.png">
+	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
         <meta name="msapplication-TileColor" content="#00569c">
 
-        <script src="js/jquery-1.10.2.min.js"></script>
-         <script src="js/bootstrap.js" type="text/javascript"></script>
+        <script src="$importPathJs/jquery-1.10.2.min.js"></script>
+        <script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 
 <body class="front-page">
@@ -534,109 +583,149 @@ foreach my $manager (sort(keys %{$managers})) {
 
 	<div class="container">
 
-		<a id="$manager-title"></a><h2>RPC API documentation</h2>
+		<a id="$manager-title"></a><h1>RPC API documentation $printVer</h1>
 
 		<div class="col-md-3 list-group">
-		<a style="color: #005b99;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
+		<a style="color: #005b99; text-align: right;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
+		<span class="list-group-item"><b>Version:&nbsp;</b><select id="versionSelect" style="width: 100%">
+
+		};
+
+		my $counter = 1;
+		for my $v (@allVersions) {
+			my $pv = substr($v, 1);
+			print FILE qq^<option value="$pv">$v</option>^;
+			$counter = $counter+1;
+			if ($counter > $versionLimit) {
+				last;
+			}
+		}
+
+		print FILE qq^
+		</select>
+		<script>
+		if (window.location.href.indexOf("$printVer")) {
+			\$('select#versionSelect').val("$printVer");
+		}
+        \$('select#versionSelect').on('change', function() {
+    		var version = \$('select#versionSelect').children("option:selected").val();
+    	^;
+
+		if ($latest) {
+			print FILE qq^    		window.location.assign(version+"/"+window.location.href.split("/").pop()); ^;
+		} else {
+			print FILE qq^
+    					if (("v"+version) == "$allVersions[0]") {
+    						window.location.assign("../"+window.location.href.split("/").pop());
+    					} else {
+    						window.location.assign("../"+version+"/"+window.location.href.split("/").pop());
+    					}
+    		    		^;
+		}
+
+		print FILE qq^
+    	});
+    	</script>
+		</span>
 		<span class="list-group-item"><b><u>General</u></b></span>
 		<a class="list-group-item" style="color: #005b99;" href="index.html">How to use RPC</a>
 		<span class="list-group-item"><b><u>Managers</u></b></span>
-	};
+^;
 
-	foreach my $menuManager (sort(keys %{$managers})) {
+		foreach my $menuManager (sort(keys %{$managers})) {
 
-		my $activeLink = "";
-		if ($menuManager eq $manager) {
-			$activeLink = "<b>" . $menuManager . "</b>";
-		} else {
-			$activeLink = $menuManager;
+			my $activeLink = "";
+			if ($menuManager eq $manager) {
+				$activeLink = "<b>" . $menuManager . "</b>";
+			} else {
+				$activeLink = $menuManager;
+			}
+
+			print FILE qq{<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-$menuManager.html">$activeLink</a>};
+
 		}
 
-		print FILE qq{<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-$menuManager.html">$activeLink</a>};
+		print FILE "</div>";
 
-	}
+		#print FILE qq{<div class="panel-group" id="$manager">};
+		print FILE qq{<div class="col-md-9 pull-right">};
 
-	print FILE "</div>";
+		print FILE qq{<h2>$manager</h2>};
 
-	#print FILE qq{<div class="panel-group" id="$manager">};
-	print FILE qq{<div class="col-md-9 pull-right">};
+		my $methods = $managers->{$manager};
+		my $sortedMethods={};
 
-	print FILE qq{<h2>$manager</h2>};
+		#prepare sorted methods
+		foreach my $notSortedMethod (@{$methods}) {
+			#get names of methods
+			my $methodName = $notSortedMethod->{'name'};
+			my $javadocs = $notSortedMethod->{'javadocs'};
+			$sortedMethods->{$methodName}=$notSortedMethod->{'javadocs'};
+		}
 
-	my $methods = $managers->{$manager};
-	my $sortedMethods={};
+		#print sorted methods
+		foreach	my $sortedMethod (sort(keys %{$sortedMethods})) {
+			my $javadocs = $sortedMethods->{$sortedMethod};
 
-	#prepare sorted methods
-	foreach my $notSortedMethod (@{$methods}) {
-		#get names of methods
-		my $methodName = $notSortedMethod->{'name'};
-		my $javadocs = $notSortedMethod->{'javadocs'};
-		$sortedMethods->{$methodName}=$notSortedMethod->{'javadocs'};
-	}
+			#print info about javadocs
+			my $counter = 0;
+			foreach my $javadoc (@{$javadocs}) {
 
-	#print sorted methods
-	foreach	my $sortedMethod (sort(keys %{$sortedMethods})) {
-		my $javadocs = $sortedMethods->{$sortedMethod};
+				$counter++;
 
-		#print info about javadocs
-		my $counter = 0;
-		foreach my $javadoc (@{$javadocs}) {
+				my $throws = $javadoc->{'throws'};
+				my $return = $javadoc->{'return'};
+				my $params = $javadoc->{'params'};
+				my $texts = $javadoc->{'text'};
+				my $deprecated = $javadoc->{'deprecated'};
+				my $exampleResponse = $javadoc->{'exampleResponse'};
+				my $exampleParamsLocal = $javadoc->{'exampleParams'};
 
-			$counter++;
-
-			my $throws = $javadoc->{'throws'};
-			my $return = $javadoc->{'return'};
-			my $params = $javadoc->{'params'};
-			my $texts = $javadoc->{'text'};
-			my $deprecated = $javadoc->{'deprecated'};
-			my $exampleResponse = $javadoc->{'exampleResponse'};
-			my $exampleParamsLocal = $javadoc->{'exampleParams'};
-
-			# FILL MAP with example params
-			# $exampleParams{'param'}->"example_itself"
-			my %exampleParams = ();
-			foreach my $parameter (@$exampleParamsLocal) {
-				if (defined $parameter && $parameter ne "") {
-					my @rest = split(/ /, $parameter);
-					splice(@rest, 0, 1);
-					my $restPar = join(" ", @rest);
-					$exampleParams{(split(/ /, $parameter))[0]} = $restPar;
-				}
-			}
-
-			# CREATE ANNOTATION
-
-			my $methodAnnotation = "";
-			if (defined $params) {
-				foreach my $par (@$params) {
-					if (defined $par && $par ne "") {
-
-						my $par1 = (split(/ /, $par))[1];
-						$par1 =~ s/\Q<\E/&lt;/g;
-						$par1 =~ s/\Q>\E/&gt;/g;
-						unless($par1) {
-							print $sortedMethod . "\n";
-						}
-
-						$methodAnnotation .= $par1;
-						$methodAnnotation .= " ";
-						$methodAnnotation .= (split(/ /, $par))[0];
-						$methodAnnotation .= ", "
+				# FILL MAP with example params
+				# $exampleParams{'param'}->"example_itself"
+				my %exampleParams = ();
+				foreach my $parameter (@$exampleParamsLocal) {
+					if (defined $parameter && $parameter ne "") {
+						my @rest = split(/ /, $parameter);
+						splice(@rest, 0, 1);
+						my $restPar = join(" ", @rest);
+						$exampleParams{(split(/ /, $parameter))[0]} = $restPar;
 					}
 				}
-			}
-			if (length($methodAnnotation) >= 2) { $methodAnnotation = substr($methodAnnotation, 0, -2) }
 
-			# is deprecated ?
-			my $depr = "";
-			if (defined $deprecated) {
-				#$depr = "<span style=\"padding: 10px 20px; color: #005b99;\" class=\"pull-right\"><b>Deprecated</b></span>";
-				$depr = '<abbr class="pull-right" title="Method is NOT recommended for use, it can be removed in any time."><b>Deprecated</b></abbr>';
-			}
+				# CREATE ANNOTATION
 
-			# PRINT ANNOTATION
+				my $methodAnnotation = "";
+				if (defined $params) {
+					foreach my $par (@$params) {
+						if (defined $par && $par ne "") {
 
-			print FILE qq{
+							my $par1 = (split(/ /, $par))[1];
+							$par1 =~ s/\Q<\E/&lt;/g;
+							$par1 =~ s/\Q>\E/&gt;/g;
+							unless($par1) {
+								print $sortedMethod . "\n";
+							}
+
+							$methodAnnotation .= $par1;
+							$methodAnnotation .= " ";
+							$methodAnnotation .= (split(/ /, $par))[0];
+							$methodAnnotation .= ", "
+						}
+					}
+				}
+				if (length($methodAnnotation) >= 2) { $methodAnnotation = substr($methodAnnotation, 0, -2) }
+
+				# is deprecated ?
+				my $depr = "";
+				if (defined $deprecated) {
+					#$depr = "<span style=\"padding: 10px 20px; color: #005b99;\" class=\"pull-right\"><b>Deprecated</b></span>";
+					$depr = '<abbr class="pull-right" title="Method is NOT recommended for use, it can be removed in any time."><b>Deprecated</b></abbr>';
+				}
+
+				# PRINT ANNOTATION
+
+				print FILE qq{
 				<div class="panel panel-default" style="margin-bottom: 5px;">
 				<div class="panel-heading" style="background-color: white;">
 					<span class="panel-title">
@@ -650,159 +739,159 @@ foreach my $manager (sort(keys %{$managers})) {
                 <div class="panel-body">
 			};
 
-			# <i class="icon-chevron-left" style="margin-top: 4px; transition: all 0.2s ease-out 0s;"></i>
+				# <i class="icon-chevron-left" style="margin-top: 4px; transition: all 0.2s ease-out 0s;"></i>
 
-			# PRINT MAIN TEXT
-			print FILE "<p>";
-			print FILE join(" " , @{$texts});
+				# PRINT MAIN TEXT
+				print FILE "<p>";
+				print FILE join(" " , @{$texts});
 
-			# PRINT PARAM TABLE
+				# PRINT PARAM TABLE
 
-			if (@{$params}) {
+				if (@{$params}) {
 
-				print FILE "<table class=\"table\"><tr><th>Parameter name</th><th>Data type</th><th width=\"60%\">Description</th></tr>";
+					print FILE "<table class=\"table\"><tr><th>Parameter name</th><th>Data type</th><th width=\"60%\">Description</th></tr>";
 
-				#print params
-				foreach my $param (@{$params}) {
-					my @par = split(/ /, $param);
+					#print params
+					foreach my $param (@{$params}) {
+						my @par = split(/ /, $param);
 
-					$par[1] =~ s/\Q<\E/&lt;/g;
-					$par[1] =~ s/\Q>\E/&gt;/g;
+						$par[1] =~ s/\Q<\E/&lt;/g;
+						$par[1] =~ s/\Q>\E/&gt;/g;
 
-					print FILE '<tr><td>' . $par[0] . "</td><td>" . $par[1] . "</td><td>";
-					splice(@par, 0, 2);
-					print FILE join(" ", @par);
+						print FILE '<tr><td>' . $par[0] . "</td><td>" . $par[1] . "</td><td>";
+						splice(@par, 0, 2);
+						print FILE join(" ", @par);
+						print FILE "</td></tr>\n";
+					}
+
+					print FILE "</table>";
+				}
+
+				# PRINT THROWS TABLE
+
+				print FILE "<table class=\"table\"><tr><th>Thrown exception</th><th width=\"60%\">Description</th></tr>";
+
+				push (@{$throws}, "PrivilegeException When caller is not allowed to call this method. Result may vary based on caller identity and provided parameter values.");
+				push (@{$throws}, "InternalErrorException When unspecified error occur. See exception param <code>message</code> for explanation.");
+				push (@{$throws}, "RpcException Wrong usage of API (wrong url, missing param etc.). See exception params <code>message</code> and <code>type</code> for explanation.");
+
+				foreach my $throw (sort @{$throws}) {
+
+					my @tro = split(/ /, $throw);
+					splice(@tro, 0, 1);
+					my $restTro = join(" ", @tro);
+
+					print FILE "<tr><td>" . (split(/ /, $throw))[0] . "</td><td>" . $restTro . "</td></tr>"
+				}
+				#print FILE '<tr><td>PrivilegeException</td><td>When caller is not allowed to call this method. Result may vary based on caller identity and provided parameter values.</td></tr>';
+				#print FILE '<tr><td>InternalErrorException</td><td>When unspecified error occur. See exception <code>message</code> param for explanation.</td></tr>';
+				#print FILE '<tr><td>RpcException</td><td>When caller is using API wrong way (wrong url, missing param etc.). See exception <code>message</code> and <code>type</code> params for explanation.</td></tr>';
+
+				print FILE "</table>";
+
+				# PRINT RETURN TABLE
+
+				print FILE "<table class=\"table\"><tr><th>Return type</th><th width=\"60%\">Description</th></tr>";
+
+				if(defined $return) {
+
+					my @ret = split(/ /, $return);
+					# escape <> in return type
+					$ret[0] =~ s/\Q<\E/&lt;/g;
+					$ret[0] =~ s/\Q>\E/&gt;/g;
+
+					print FILE '<tr><td>' . $ret[0] . "</td><td>";
+					splice(@ret, 0, 1);
+					print FILE join(" ", @ret);
 					print FILE "</td></tr>\n";
+				} else {
+					print FILE '<tr><td>void</td><td></td></tr>';
 				}
 
 				print FILE "</table>";
-			}
 
-			# PRINT THROWS TABLE
+				# PRINT EXAMPLE URL
 
-			print FILE "<table class=\"table\"><tr><th>Thrown exception</th><th width=\"60%\">Description</th></tr>";
-
-			push (@{$throws}, "PrivilegeException When caller is not allowed to call this method. Result may vary based on caller identity and provided parameter values.");
-			push (@{$throws}, "InternalErrorException When unspecified error occur. See exception param <code>message</code> for explanation.");
-			push (@{$throws}, "RpcException Wrong usage of API (wrong url, missing param etc.). See exception params <code>message</code> and <code>type</code> for explanation.");
-
-			foreach my $throw (sort @{$throws}) {
-
-				my @tro = split(/ /, $throw);
-				splice(@tro, 0, 1);
-				my $restTro = join(" ", @tro);
-
-				print FILE "<tr><td>" . (split(/ /, $throw))[0] . "</td><td>" . $restTro . "</td></tr>"
-			}
-			#print FILE '<tr><td>PrivilegeException</td><td>When caller is not allowed to call this method. Result may vary based on caller identity and provided parameter values.</td></tr>';
-			#print FILE '<tr><td>InternalErrorException</td><td>When unspecified error occur. See exception <code>message</code> param for explanation.</td></tr>';
-			#print FILE '<tr><td>RpcException</td><td>When caller is using API wrong way (wrong url, missing param etc.). See exception <code>message</code> and <code>type</code> params for explanation.</td></tr>';
-
-			print FILE "</table>";
-
-			# PRINT RETURN TABLE
-
-			print FILE "<table class=\"table\"><tr><th>Return type</th><th width=\"60%\">Description</th></tr>";
-
-			if(defined $return) {
-
-				my @ret = split(/ /, $return);
-				# escape <> in return type
-				$ret[0] =~ s/\Q<\E/&lt;/g;
-				$ret[0] =~ s/\Q>\E/&gt;/g;
-
-				print FILE '<tr><td>' . $ret[0] . "</td><td>";
-				splice(@ret, 0, 1);
-				print FILE join(" ", @ret);
-				print FILE "</td></tr>\n";
-			} else {
-				print FILE '<tr><td>void</td><td></td></tr>';
-			}
-
-			print FILE "</table>";
-
-			# PRINT EXAMPLE URL
-
-			my $managerUrl = lcfirst($manager);
-			print FILE qq{
+				my $managerUrl = lcfirst($manager);
+				print FILE qq{
             	<p><b>Example URL</b><pre><code>https://[hostname]/krb/rpc/json/$managerUrl/$sortedMethod</code></pre>
             };
 
-			print FILE "<ul><li><a href=\"index.html#url-structure\"><i>see URL structure</i></a></li></ul>";
+				print FILE "<ul><li><a href=\"index.html#url-structure\"><i>see URL structure</i></a></li></ul>";
 
-			# PRINT EXAMPLE PARAMS
+				# PRINT EXAMPLE PARAMS
 
-			if (@{$params}) {
+				if (@{$params}) {
 
-				print FILE "<p><b>Example params</b><pre><code>{ ";
+					print FILE "<p><b>Example params</b><pre><code>{ ";
 
-				#print params
-				for (my $count = 0; $count < scalar @{$params}; $count++) {
+					#print params
+					for (my $count = 0; $count < scalar @{$params}; $count++) {
 
-					my $param = @{$params}[$count];
-					my @par = split(/ /, $param);
+						my $param = @{$params}[$count];
+						my @par = split(/ /, $param);
 
-					my $printPar = "{...}";
-					# If we have fixed example for param, use it
-					if (exists($exampleParams{$par[0]})) {
-						$printPar = $exampleParams{$par[0]};
-						# We don't have fixed example, use generic definition
-					} elsif ($par[1] eq "int") {
-						$printPar = int(rand(100));
-					} elsif ($par[1] eq "List") {
-						$printPar = "[ {...} , {...} ]";
-					} elsif ($par[1] eq "String[]" || $par[1] eq "List<String>") {
-						$printPar = "[ \"text\" , \"text\" ]";
-					} elsif ($par[1] eq "int[]" || $par[1] eq "List<Integer>") {
-						$printPar = "[ " . int(rand(100)) . " , " . int(rand(100)) ." ]";
-					} elsif (exists($objectExamples{$par[1]})) {
-						$printPar = $objectExamples{$par[1]};
+						my $printPar = "{...}";
+						# If we have fixed example for param, use it
+						if (exists($exampleParams{$par[0]})) {
+							$printPar = $exampleParams{$par[0]};
+							# We don't have fixed example, use generic definition
+						} elsif ($par[1] eq "int") {
+							$printPar = int(rand(100));
+						} elsif ($par[1] eq "List") {
+							$printPar = "[ {...} , {...} ]";
+						} elsif ($par[1] eq "String[]" || $par[1] eq "List<String>") {
+							$printPar = "[ \"text\" , \"text\" ]";
+						} elsif ($par[1] eq "int[]" || $par[1] eq "List<Integer>") {
+							$printPar = "[ " . int(rand(100)) . " , " . int(rand(100)) ." ]";
+						} elsif (exists($objectExamples{$par[1]})) {
+							$printPar = $objectExamples{$par[1]};
+						}
+
+						print FILE "\"" . $par[0] . "\" : " . $printPar;
+
+						if ($count < (scalar @{$params})-1) {
+							print FILE " , ";
+						}
+
 					}
 
-					print FILE "\"" . $par[0] . "\" : " . $printPar;
+					print FILE " }</code></pre>";
 
-					if ($count < (scalar @{$params})-1) {
-						print FILE " , ";
-					}
+					print FILE "<ul><li><a href=\"index.html#passing-parameters\"><i>see Passing params</i></a></li></ul>";
 
 				}
 
-				print FILE " }</code></pre>";
+				# PRINT EXAMPLE RESPONSE
 
-				print FILE "<ul><li><a href=\"index.html#passing-parameters\"><i>see Passing params</i></a></li></ul>";
-
-			}
-
-			# PRINT EXAMPLE RESPONSE
-
-			print FILE "<p><b>Example response</b><pre><code>";
-			if(defined $return) {
-				my @rt = split(/ /, $return);
-				if (defined $exampleResponse) {
-					print FILE $exampleResponse;
-				} elsif (exists($objectExamples{$rt[0]})) {
-					print FILE $objectExamples{$rt[0]};
-				} elsif ($rt[0] eq "int") {
-					print FILE int(rand(100));
+				print FILE "<p><b>Example response</b><pre><code>";
+				if(defined $return) {
+					my @rt = split(/ /, $return);
+					if (defined $exampleResponse) {
+						print FILE $exampleResponse;
+					} elsif (exists($objectExamples{$rt[0]})) {
+						print FILE $objectExamples{$rt[0]};
+					} elsif ($rt[0] eq "int") {
+						print FILE int(rand(100));
+					} else {
+						print FILE "{ ... TODO ... }";
+					}
 				} else {
-					print FILE "{ ... TODO ... }";
+					print FILE "null";
 				}
-			} else {
-				print FILE "null";
+				print FILE "</code></pre>";
+
+				print FILE "<ul><li><a href=\"index.html#return-values\"><i>see Return values</i></a></li><li><a href=\"index.html#http-return-codes\"><i>see HTTP return codes</i></a></li></ul>";
+
+				print FILE "</p></div></div></div>";
+
 			}
-			print FILE "</code></pre>";
-
-			print FILE "<ul><li><a href=\"index.html#return-values\"><i>see Return values</i></a></li><li><a href=\"index.html#http-return-codes\"><i>see HTTP return codes</i></a></li></ul>";
-
-			print FILE "</p></div></div></div>";
 
 		}
 
-	}
+		print FILE qq{</div>};
 
-	print FILE qq{</div>};
-
-	print FILE qq{
+		print FILE qq{
     <script type="text/javascript">
     	\$(document).ready(function() {
     		\$("#nav-documentation").addClass('active');
@@ -817,7 +906,56 @@ foreach my $manager (sort(keys %{$managers})) {
 
     };
 
-	close (FILE);
+		close (FILE);
+
+
+	}
+
+}
+
+#START OF MAIN PROGRAM
+
+my $version;
+my $buildAll;
+GetOptions ("help|h" => sub {print help(); exit 0;},
+	"version|v=s" => \$version ,
+	"all-versions|a" => \$buildAll ,
+) || die help();
+
+# clean and checkout perun sources
+unless (-d $SOURCE_DIR) {
+	print "Checking out latest perun...\n";
+	`git clone http://github.com/CESNET/perun.git perun`;
+} else {
+	print "Wiping-out previously checkouted perun sources...\n";
+	`rm -rf ./perun/`;
+	print "Checking out latest perun...\n";
+	`git clone http://github.com/CESNET/perun.git perun`;
+}
+
+# determine all possible versions
+@allVersions = `git -C ./perun/ tag --list`;
+chomp @allVersions;
+@allVersions = reverse @allVersions;
+
+if ($buildAll) {
+	# Build all versions
+	my $counter = 1;
+	for my $ver (@allVersions) {
+		buildVersion($ver, ($allVersions[0] eq $ver));
+		$counter = $counter+1;
+		if ($counter > $versionLimit) {
+			last;
+		}
+	}
+} else {
+	# Build specified or latest versions
+	unless (defined($version)) {
+		# latest version if no build version specified
+		$version = $allVersions[0];
+	}
+	print "Building version: $version\n";
+	buildVersion($version, ($allVersions[0] eq $version));
 }
 
 #END OF MAIN PROGRAM
