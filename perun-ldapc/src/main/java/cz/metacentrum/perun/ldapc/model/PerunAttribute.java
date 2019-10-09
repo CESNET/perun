@@ -103,6 +103,8 @@ public interface PerunAttribute<T extends PerunBean> {
 
 	public boolean isMultiValued();
 
+	public boolean isDeleted();
+
 	public String getName();
 
 	public String getName(AttributeDefinition attr);
