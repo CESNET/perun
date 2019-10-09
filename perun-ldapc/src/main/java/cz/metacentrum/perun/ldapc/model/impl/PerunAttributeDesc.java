@@ -14,13 +14,14 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 	private String name;
 	private Boolean required;
 	private Boolean multivalued;
+	private Boolean deleted = false;
 	private PerunAttribute.SingleValueExtractor<T> singleValueExtractor;
 	private PerunAttribute.MultipleValuesExtractor<T> multipleValuesExtractor;
 
 	public PerunAttributeDesc() {
 		super();
 	}
-	
+
 	public PerunAttributeDesc(String name, Boolean required, PerunAttribute.SingleValueExtractor<T> extractor) {
 		super();
 		this.name = name;
@@ -36,7 +37,7 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 		this.multivalued = true;
 		this.multipleValuesExtractor = extractor;
 	}
-	
+
 	@Override
 	public boolean isRequired() {
 		return getRequired();
@@ -45,6 +46,11 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 	@Override
 	public boolean isMultiValued() {
 		return getMultivalued();
+	}
+
+	@Override
+	public boolean isDeleted() {
+		return getDeleted();
 	}
 
 	@Override
@@ -107,6 +113,14 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 		return multivalued;
 	}
 
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
+	}
+
 	@Override
 	public PerunAttribute.SingleValueExtractor<T> getSingleValueExtractor() {
 		return singleValueExtractor;
@@ -132,10 +146,10 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 	@Override
 	public boolean requiresAttributeBean() {
 		if(isMultiValued()) {
-			return getMultipleValuesExtractor() instanceof AttributeValueExtractor; 
+			return getMultipleValuesExtractor() instanceof AttributeValueExtractor;
 		} else {
 			return getSingleValueExtractor() instanceof AttributeValueExtractor;
 		}
 	}
-	
+
 }
