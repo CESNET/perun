@@ -13,7 +13,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
@@ -31,20 +31,22 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 	private static final String A_F_D_accountExpirationTime = AttributesManager.NS_FACILITY_ATTR_DEF + ":accountExpirationTime";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
-		Integer accExpTime = (Integer) attribute.getValue();
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Integer accExpTime = attribute.valueAsInteger();
 
 		if (accExpTime == null) {
-			throw new WrongAttributeValueException("account expiration time shouldn't be null");
+			throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "account expiration time shouldn't be null");
 		}
 		Integer facilityAccExpTime;
+		Attribute facilityAccExpAttribute;
 		try {
-			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_D_accountExpirationTime).getValue();
+			facilityAccExpAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_D_accountExpirationTime);
+			facilityAccExpTime = facilityAccExpAttribute.valueAsInteger();
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 		if(accExpTime > facilityAccExpTime) {
-			throw new WrongAttributeValueException("this user_facility attribute cannot has higher value than same facility attribute");
+			throw new WrongReferenceAttributeValueException(attribute, facilityAccExpAttribute, user, facility, facility, null, "this user_facility attribute cannot has higher value than same facility attribute");
 		}
 	}
 

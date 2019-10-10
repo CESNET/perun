@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
@@ -117,7 +116,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 	 * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_shell.
 	 * with shell containing forbiden character.
 	 */
-	@Test(expected=WrongAttributeValueException.class)
+	@Test(expected=WrongReferenceAttributeValueException.class)
 	public void testCheckAttributeSemanticsWrongShellFormat() throws Exception {
 		System.out.println("testCheckAttributeSemanticsWrongShellFormat()");
 
@@ -132,7 +131,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		fail("Wrong shell format should have thrown an exception");
 	}
 
-	@Test(expected=WrongAttributeValueException.class)
+	@Test(expected=WrongReferenceAttributeValueException.class)
 	public void testCheckAttributeSemanticsWrongShellFormatInvalidCharacter() throws Exception {
 		System.out.println("testCheckAttributeSemanticsWrongShellFormatInvalidCharacter()");
 
@@ -147,7 +146,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		fail("Wrong shell format should have thrown an exception");
 	}
 
-	@Test(expected=WrongAttributeValueException.class)
+	@Test(expected=WrongReferenceAttributeValueException.class)
 	public void testCheckAttributeSemanticsWrongShellFormatShellIsDirectory() throws Exception {
 		System.out.println("testCheckAttributeSemanticsWrongShellFormatShellIsDirectory()");
 

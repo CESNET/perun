@@ -116,7 +116,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 
 	@Override
 	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, facility, "Attribute can't be null.");
+		if(attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Attribute can't be null.");
 		try {
 			Attribute defaultUnixGID = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
 			defaultUnixGID.setValue(attribute.getValue());

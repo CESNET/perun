@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGIDTest {
 
 		}
 
-		@Test ( expected = WrongAttributeValueException.class)
+		@Test ( expected = WrongReferenceAttributeValueException.class)
 		public void checkValueAttributeIsNotSetTest() throws Exception{
 				System.out.println("urn_perun_user_facility_attribute_def_def_basicDefaultGID.checkValueAttributeIsNotSetTest()");
 				//setup
@@ -95,7 +95,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGIDTest {
 				classInstance.checkAttributeSemantics(session, user, facility, basic);
 		}
 
-		@Test(expected = WrongAttributeValueException.class)
+		@Test(expected = WrongReferenceAttributeValueException.class)
 		public void checkValueAttributeIsSetWithoutAllowedResourcesTest() throws Exception{
 				System.out.println("urn_perun_user_facility_attribute_def_def_basicDefaultGID.checkValueAttributeIsSetWithoutAllowedResourcesTest()");
 				//setup
@@ -112,7 +112,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGIDTest {
 				classInstance.checkAttributeSemantics(session, user, facility, basic);
 		}
 
-		@Test(expected = WrongAttributeValueException.class)
+		@Test(expected = WrongReferenceAttributeValueException.class)
 		public void checkValueAttributeIsSetWithBadValueTest() throws Exception{
 				System.out.println("urn_perun_user_facility_attribute_def_def_basicDefaultGID.checkValueAttributeIsSetWithBadValueTest()");
 				//setup

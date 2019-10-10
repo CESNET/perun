@@ -153,7 +153,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 	 * Test of checkAttributeSemantics method, of class urn_perun_user_facility_attribute_def_def_homeMountPoint.
 	 * with empty attribute.
 	 */
-	@Test(expected = WrongAttributeValueException.class)
+	@Test(expected = WrongReferenceAttributeValueException.class)
 		public void testCheckAttributeSemanticsWithEmptyAttribute() throws Exception {
 			System.out.println("testCheckAttributeSemanticsWithEmptyAttribute()");
 
@@ -181,8 +181,8 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 	 * with homeMountPoint containing forbiden character.
 	 */
 	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeSemanticsWronghomeMountPointFormat() throws Exception {
-			System.out.println("testCheckAttributeSemanticsWronghomeMountPointFormat()");
+		public void testCheckAttributeSyntaxWrongHomeMountPointFormat() throws Exception {
+			System.out.println("testCheckAttributeSyntaxWrongHomeMountPointFormat()");
 
 			Attribute attributeToCheck = new Attribute();
 			attributeToCheck.setValue("/bin/\n/bash");
@@ -201,13 +201,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 			});
 			when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
-			classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
+			classInstance.checkAttributeSyntax(session, user, facility, attributeToCheck);
 			fail("Wrong homeMountPoint format should have thrown an exception");
 		}
 
 	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeSemanticsWronghomeMountPointFormatInvalidCharacter() throws Exception {
-			System.out.println("testCheckAttributeSemanticsWronghomeMountPointFormatInvalidCharacter()");
+		public void testCheckAttributeSyntaxWrongHomeMountPointFormatInvalidCharacter() throws Exception {
+			System.out.println("testCheckAttributeSyntaxWrongHomeMountPointFormatInvalidCharacter()");
 
 			Attribute attributeToCheck = new Attribute();
 			attributeToCheck.setValue("/ok/(&^%");
@@ -226,13 +226,13 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 			});
 			when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
-			classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck) ;
+			classInstance.checkAttributeSyntax(session, user, facility, attributeToCheck) ;
 			fail("Wrong homeMountPoint format should have thrown an exception");
 		}
 
-	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeSemanticsWronghomeMountPointFormathomeMountPointIsDirectory() throws Exception {
-			System.out.println("testCheckAttributeSemanticsWronghomeMountPointFormathomeMountPointIsDirectory()");
+	@Test(expected = WrongReferenceAttributeValueException.class)
+		public void testCheckAttributeSemanticsWrongHomeMountPointFormatHomeMountPointIsDirectory() throws Exception {
+			System.out.println("testCheckAttributeSemanticsWrongHomeMountPointFormatHomeMountPointIsDirectory()");
 
 			when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(new ArrayList<Resource>() {
 

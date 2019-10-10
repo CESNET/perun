@@ -45,7 +45,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 				uidAttribute.setValue(attribute.getValue());
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, user, uidAttribute);
 			} else {
-				throw new WrongReferenceAttributeValueException(attribute, (Attribute) null);
+				throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Required facility attribute uid-namespace value is null.");
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException(e);
