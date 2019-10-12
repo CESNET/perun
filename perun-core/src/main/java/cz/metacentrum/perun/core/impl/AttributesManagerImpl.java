@@ -5470,11 +5470,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		@Override
 		public List<AttributeRights> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
-			Map<Role, List<ActionType>> map = new HashMap<>();
+			Map<String, List<ActionType>> map = new HashMap<>();
 
 			while (rs.next()) {
 
-				Role role = Role.valueOf(rs.getString("role_name").toUpperCase());
+				String role = rs.getString("role_name").toUpperCase();
 				ActionType actionType = ActionType.valueOf(rs.getString("action_type").toUpperCase());
 
 				if (map.get(role) != null) {
@@ -5486,7 +5486,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			List<AttributeRights> rights = new ArrayList<>();
-			for (Role r : map.keySet()) {
+			for (String r : map.keySet()) {
 				rights.add(new AttributeRights(attributeId, r, map.get(r)));
 			}
 
@@ -5514,13 +5514,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 		boolean roleExists;
 
-		List<Role> listOfRoles = new ArrayList<>();
+		List<String> listOfRoles = new ArrayList<>();
 		listOfRoles.add(Role.FACILITYADMIN);
 		listOfRoles.add(Role.GROUPADMIN);
 		listOfRoles.add(Role.SELF);
 		listOfRoles.add(Role.VOADMIN);
 
-		for (Role roleToTry : listOfRoles) {
+		for (String roleToTry : listOfRoles) {
 			roleExists = false;
 
 			Iterator itr = rights.iterator();
@@ -5546,7 +5546,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			List<ActionType> dbActionTypes = jdbc.query("SELECT action_types.action_type AS action_type FROM attributes_authz JOIN action_types "
 							+ "ON attributes_authz.action_type_id=action_types.id WHERE attr_id=? AND "
 							+ "role_id=(SELECT id FROM roles WHERE name=?)",
-					(rs, rowNum) -> ActionType.valueOf(rs.getString("action_type").toUpperCase()), rights.getAttributeId(), rights.getRole().getRoleName());
+					(rs, rowNum) -> ActionType.valueOf(rs.getString("action_type").toUpperCase()), rights.getAttributeId(), rights.getRole().toLowerCase());
 
 			// inserting
 			List<ActionType> actionTypesToInsert = new ArrayList<>(rights.getRights());
@@ -5554,7 +5554,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			for (ActionType actionType : actionTypesToInsert) {
 				jdbc.update("INSERT INTO attributes_authz (attr_id, role_id, action_type_id) VALUES "
 								+ "(?, (SELECT id FROM roles WHERE name=?), (SELECT id FROM action_types WHERE action_type=?))",
-						rights.getAttributeId(), rights.getRole().getRoleName(), actionType.getActionType());
+						rights.getAttributeId(), rights.getRole().toLowerCase(), actionType.getActionType());
 			}
 			// deleting
 			List<ActionType> actionTypesToDelete = new ArrayList<>(dbActionTypes);
@@ -5562,9 +5562,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			for (ActionType actionType : actionTypesToDelete) {
 				if (0 == jdbc.update("DELETE FROM attributes_authz WHERE attr_id=? AND role_id=(SELECT id FROM roles WHERE name=?) AND "
 								+ "action_type_id=(SELECT id FROM action_types WHERE action_type=?)", rights.getAttributeId(),
-						rights.getRole().getRoleName(), actionType.getActionType())) {
+						rights.getRole().toLowerCase(), actionType.getActionType())) {
 					throw new ConsistencyErrorException("Trying to delete non existing row : AttributeRight={ attributeId="
-							+ rights.getAttributeId() + " role=" + rights.getRole().getRoleName() + " actionType=" + actionType.getActionType());
+							+ rights.getAttributeId() + " role=" + rights.getRole().toLowerCase() + " actionType=" + actionType.getActionType());
 				}
 			}
 		} catch (RuntimeException e) {

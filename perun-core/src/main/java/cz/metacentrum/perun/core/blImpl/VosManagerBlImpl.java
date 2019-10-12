@@ -532,7 +532,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession perunSession, Vo vo, Role role, boolean onlyDirectAdmins) throws InternalErrorException {
+	public List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws InternalErrorException {
 		if (onlyDirectAdmins) {
 			return getVosManagerImpl().getDirectAdmins(perunSession, vo, role);
 		} else {
@@ -541,7 +541,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, Role role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, vo, role, onlyDirectAdmins);
 		List<RichUser> richUsers;
 
@@ -558,7 +558,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, Role role) throws InternalErrorException {
+	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) throws InternalErrorException {
 		return getVosManagerImpl().getAdminGroups(perunSession, vo, role);
 	}
 
@@ -662,7 +662,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo, boolean checkGroups) throws InternalErrorException {
+	public boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo, boolean checkGroups) throws InternalErrorException {
 		if (AuthzResolverBlImpl.isUserInRoleForVo(session, user, role, vo)) return true;
 		if (checkGroups) {
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(session, user);
@@ -678,19 +678,19 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void handleUserLostVoRole(PerunSession sess, User user, Vo vo, Role role) throws InternalErrorException {
+	public void handleUserLostVoRole(PerunSession sess, User user, Vo vo, String role) throws InternalErrorException {
 		log.debug("handleUserLostVoRole(user={},vo={},role={})",user.getLastName(),vo.getShortName(),role);
 		switch (role) {
-			case SPONSOR:
+			case Role.SPONSOR:
 				removeSponsorFromSponsoredMembers(sess, vo, user);
 				break;
 		}
 	}
 
 	@Override
-	public void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, Role role) throws InternalErrorException {
+	public void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, String role) throws InternalErrorException {
 		switch (role) {
-			case SPONSOR:
+			case Role.SPONSOR:
 				//remove all group members as sponsors
 				UsersManagerBl um = getPerunBl().getUsersManagerBl();
 				for (Member groupMember : getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group)) {

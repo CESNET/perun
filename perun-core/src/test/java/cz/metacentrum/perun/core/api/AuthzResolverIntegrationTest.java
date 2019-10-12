@@ -356,7 +356,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		List<String> roleNames = cz.metacentrum.perun.core.api.AuthzResolver.getPrincipalRoleNames(ps);
 
-		assertTrue(roleNames.contains(Role.PERUNADMIN.getRoleName()));
+		assertTrue(roleNames.contains(Role.PERUNADMIN));
 	}
 
 	@Test
@@ -545,6 +545,16 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		assertThatExceptionOfType(PrivilegeException.class).isThrownBy(
 			() -> AuthzResolver.setRole(testSession, testUser, testGroup, Role.GROUPADMIN));
+	}
+
+	@Test
+	public void roleExistsForExistingRole() {
+		assertTrue(AuthzResolver.roleExists("PERUNADMIN"));
+	}
+
+	@Test
+	public void roleExistsForNotExistingRole() {
+		assertFalse(AuthzResolver.roleExists("RANDOMROLE"));
 	}
 
 	// private methods ==============================================================

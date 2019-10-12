@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -3975,8 +3976,9 @@ public interface AttributesManager {
 	 * @param sess   perun session
 	 * @param rights list of attribute rights
 	 * @throws AttributeNotExistsException when attribute IDs in rights don't refer to existing attributes
+	 * @throws RoleNotSupportedException when some of the AttributeRights does have a role which does not exist
 	 */
-	void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+	void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, RoleNotSupportedException;
 
 	/**
 	 * Converts attribute to unique.

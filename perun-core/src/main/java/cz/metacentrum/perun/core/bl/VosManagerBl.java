@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -175,7 +174,7 @@ public interface VosManagerBl {
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * @param perunSession
 	 * @param vo
@@ -186,12 +185,12 @@ public interface VosManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Vo vo, Role role, boolean onlyDirectAdmins) throws InternalErrorException;
+	List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws InternalErrorException;
 
 	/**
 	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * If "onlyDirectAdmins" is "true", return only direct users of the vo for supported role with specific attributes.
 	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -208,12 +207,12 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, Role role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * Get list of group administrators of the given VO.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * @param perunSession
 	 * @param vo
@@ -223,7 +222,7 @@ public interface VosManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, Role role) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) throws InternalErrorException;
 
 	/**
 	 * Get list of Vo administrators.
@@ -404,7 +403,7 @@ public interface VosManagerBl {
 	 * @return true if user is directly in role for the vo, or if "checkGroups" flag is set and at least one of the groups is in the role
 	 * @throws InternalErrorException exception
 	 */
-	boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo, boolean checkGroups) throws InternalErrorException;
+	boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo, boolean checkGroups) throws InternalErrorException;
 
 	/**
 	 * Handles a user that lost a role.
@@ -415,7 +414,7 @@ public interface VosManagerBl {
 	 * @param role role of user in VO
 	 * @throws InternalErrorException
 	 */
-	void handleUserLostVoRole(PerunSession sess, User user, Vo vo, Role role) throws InternalErrorException;
+	void handleUserLostVoRole(PerunSession sess, User user, Vo vo, String role) throws InternalErrorException;
 
 	/**
 	 * Handles a group that lost a role.
@@ -426,5 +425,5 @@ public interface VosManagerBl {
 	 * @param role role of group in VO
 	 * @throws InternalErrorException
 	 */
-	void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, Role role) throws InternalErrorException;
+	void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, String role) throws InternalErrorException;
 }

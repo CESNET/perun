@@ -371,10 +371,14 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession perunSession, Vo vo, Role role, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException {
+	public List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(role, "role");
 		vosManagerBl.checkVoExists(perunSession, vo);
+
+		if (!AuthzResolver.roleExists(role)) {
+			throw new RoleNotSupportedException("Role: "+ role +" does not exists.", role);
+		}
 
 		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
 		if(!role.equals(Role.TOPGROUPCREATOR) &&
@@ -394,10 +398,14 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, Role role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException, RoleNotSupportedException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException, RoleNotSupportedException {
 		Utils.notNull(perunSession, "perunSession");
 		Utils.notNull(role, "role");
 		vosManagerBl.checkVoExists(perunSession, vo);
+
+		if (!AuthzResolver.roleExists(role)) {
+			throw new RoleNotSupportedException("Role: "+ role +" does not exists.", role);
+		}
 
 		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
 		if(!role.equals(Role.TOPGROUPCREATOR) &&
@@ -418,10 +426,14 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, Role role) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException {
+	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(role, "role");
 		vosManagerBl.checkVoExists(perunSession, vo);
+
+		if (!AuthzResolver.roleExists(role)) {
+			throw new RoleNotSupportedException("Role: "+ role +" does not exists.", role);
+		}
 
 		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
 		if(!role.equals(Role.TOPGROUPCREATOR) &&

@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.Role;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,7 +27,7 @@ import static cz.metacentrum.perun.core.api.Role.VOOBSERVER;
  */
 public class Privileges {
 
-	private static Map<Role, Set<Role>> rolePrivileges = new HashMap<>();
+	private static Map<String, Set<String>> rolePrivileges = new HashMap<>();
 
 	static {
 		initialize();
@@ -95,13 +93,13 @@ public class Privileges {
 	 * @param role role
 	 * @return set of roles which can set the given role, null if no configuration is set for given role
 	 */
-	public static Set<Role> getRolesWhichCanManageRole(Role role) {
+	public static Set<String> getRolesWhichCanManageRole(String role) {
 		return rolePrivileges.get(role);
 	}
 	/**
 	 * Helper method for fluent code.
 	 */
-	private static RoleSet role(Role role) {
+	private static RoleSet role(String role) {
 		return new RoleSet(role);
 	}
 
@@ -111,9 +109,9 @@ public class Privileges {
 	 * Represents state of privileges configuration.
 	 */
 	private static class RoleSet {
-		private Role role;
+		private String role;
 
-		private RoleSet(Role role) {
+		private RoleSet(String role) {
 			this.role = role;
 		}
 
@@ -122,11 +120,11 @@ public class Privileges {
 		 *
 		 * @param allowedRoles roles that are allowed to set the previously specified role.
 		 */
-		private void canBeManagedBy(Role... allowedRoles) {
+		private void canBeManagedBy(String... allowedRoles) {
 			if (!rolePrivileges.containsKey(role)) {
 				rolePrivileges.put(role, new HashSet<>());
 			}
-			for (Role allowedRole : allowedRoles) {
+			for (String allowedRole : allowedRoles) {
 				rolePrivileges.get(role).add(allowedRole);
 			}
 		}

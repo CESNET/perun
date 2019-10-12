@@ -17,7 +17,7 @@ public class AlreadyAdminException extends PerunException {
 	private Group group;
 	private Group authorizedGroup;
 	private SecurityTeam securityTeam;
-	private Role role;
+	private String role;
 
 
 	/**
@@ -62,7 +62,7 @@ public class AlreadyAdminException extends PerunException {
 	 * @param vo the vo in which the user is already in the specific role
 	 * @param role the role in which the user already is
 	 */
-	public AlreadyAdminException(String message, Throwable cause, User user, Vo vo, Role role) {
+	public AlreadyAdminException(String message, Throwable cause, User user, Vo vo, String role) {
 		super(message, cause);
 		this.user = user;
 		this.vo = vo;
@@ -77,7 +77,7 @@ public class AlreadyAdminException extends PerunException {
 	 * @param resource resource in which the user is already in the specific role
 	 * @param role the role in which the user already is
 	 */
-	public AlreadyAdminException(String message, Throwable cause, User user, Resource resource, Role role) {
+	public AlreadyAdminException(String message, Throwable cause, User user, Resource resource, String role) {
 		super(message, cause);
 		this.user = user;
 		this.resource = resource;
@@ -163,7 +163,7 @@ public class AlreadyAdminException extends PerunException {
 	 * @param vo vo in which the group is already in the specific role
 	 * @param role the role in which the group already is
 	 */
-	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, Vo vo, Role role) {
+	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, Vo vo, String role) {
 		super(message, cause);
 		this.authorizedGroup = authorizedGroup;
 		this.vo = vo;
@@ -178,7 +178,7 @@ public class AlreadyAdminException extends PerunException {
 	 * @param resource resource in which the group is already in the specific role
 	 * @param role the role in which the group already is
 	 */
-	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, Resource resource, Role role) {
+	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, Resource resource, String role) {
 		super(message, cause);
 		this.authorizedGroup = authorizedGroup;
 		this.resource = resource;
@@ -376,7 +376,7 @@ public class AlreadyAdminException extends PerunException {
 	 * Getter for the role
 	 * @return the specific role in which the user/group already is
 	 */
-	public Role getRole() {
+	public String getRole() {
 		return role;
 	}
 }

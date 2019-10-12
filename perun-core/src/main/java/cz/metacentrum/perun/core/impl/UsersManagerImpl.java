@@ -675,7 +675,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id " +
 							" join members on groups_members.member_id=members.id where members.user_id=?) " +
 							" and authz.role_id=(select id from roles where roles.name=?))) ",
-					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.getRoleName());
+					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -691,7 +691,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id " +
 							" join members on groups_members.member_id=members.id where members.user_id=?) " +
 							" and authz.role_id=(select id from roles where roles.name=?))) and groups.vo_id=? ",
-					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.getRoleName(), vo.getId());
+					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.toLowerCase(), vo.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch(RuntimeException ex) {
@@ -706,7 +706,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
 					" left outer join members on members.id=groups_members.member_id " +
 					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?)",
-					VosManagerImpl.VO_MAPPER, user.getId(), user.getId(), Role.VOADMIN.getRoleName());
+					VosManagerImpl.VO_MAPPER, user.getId(), user.getId(), Role.VOADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -994,7 +994,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
-			int numberOfExistences = jdbc.queryForInt("select count(1) from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.getRoleName());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.toLowerCase());
 			if (numberOfExistences == 1) {
 				return true;
 			} else if (numberOfExistences > 1) {

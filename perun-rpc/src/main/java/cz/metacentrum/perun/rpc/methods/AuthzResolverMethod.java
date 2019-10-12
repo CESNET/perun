@@ -21,17 +21,25 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Returns list of caller's role names.
 	 *
+	 * Perun system uses role names in the upper case format.
+	 * However, for now, they are converted to the lower case format because of the compatibility with external systems.
+	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
 	 * @return List<String> List of roles
 	 */
 	getPrincipalRoleNames {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return cz.metacentrum.perun.core.api.AuthzResolver.getPrincipalRoleNames(ac.getSession());
+			List<String> roles = cz.metacentrum.perun.core.api.AuthzResolver.getPrincipalRoleNames(ac.getSession());
+			roles.replaceAll(String::toLowerCase);
+			return roles;
 		}
 	},
 	/*#
 	 * Returns list of user's role names.
+	 *
+	 * Perun system uses role names in the upper case format.
+	 * However, for now, they are converted to the lower case format because of the compatibility with external systems.
 	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
 	 * @return List<String> List of roles
@@ -39,7 +47,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	getUserRoleNames {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
-			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoleNames(ac.getSession(), ac.getUserById(parms.readInt("user")));
+			List<String> roles = cz.metacentrum.perun.core.api.AuthzResolver.getUserRoleNames(ac.getSession(), ac.getUserById(parms.readInt("user")));
+			roles.replaceAll(String::toLowerCase);
+			return roles;
 		}
 	},
 	/*#
@@ -58,13 +68,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Returns list of group's role names.
 	 *
+	 * Perun system uses role names in the upper case format.
+	 * However, for now, they are converted to the lower case format because of the compatibility with external systems.
+	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
 	 * @return List<String> List of roles
 	 */
 	getGroupRoleNames {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
-			return cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoleNames(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+			List<String> roles = cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoleNames(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+			roles.replaceAll(String::toLowerCase);
+			return roles;
 		}
 	},
 	/*#
@@ -83,7 +98,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all managers for complementaryObject and role with specified attributes.
 	 *
-	 * @param role String Expected Role to filter managers by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator)
+	 * @param role String Expected Role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR)
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
@@ -96,18 +111,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			//get role by name
 			String roleName = parms.readString("role");
-			Role role;
-			try {
-				role = Role.valueOf(roleName);
-			} catch (IllegalArgumentException ex) {
-				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+			if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
 			}
+			roleName = roleName.toUpperCase();
 
 			return cz.metacentrum.perun.core.api.AuthzResolver.getRichAdmins(ac.getSession(),
 							parms.readInt("complementaryObjectId"),
 							parms.readString("complementaryObjectName"),
 							parms.readList("specificAttributes", String.class),
-							role,
+							roleName,
 							parms.readBoolean("onlyDirectAdmins"),
 							parms.readBoolean("allUserAttributes"));
 		}
@@ -116,7 +129,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all groups of managers (authorizedGroups) for complementaryObject and role.
 	 *
-	 * @param role String Expected Role to filter authorizedGroups by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator)
+	 * @param role String Expected Role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR)
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get groups of managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @return List<Group> List of authorizedGroups for complementaryObject and role
@@ -126,17 +139,15 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 		//get role by name
 			String roleName = parms.readString("role");
-			Role role;
-			try {
-				role = Role.valueOf(roleName);
-			} catch (IllegalArgumentException ex) {
-				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+			if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
 			}
+			roleName = roleName.toUpperCase();
 
 			return cz.metacentrum.perun.core.api.AuthzResolver.getAdminGroups(ac.getSession(),
 							parms.readInt("complementaryObjectId"),
 							parms.readString("complementaryObjectName"),
-							role);
+							roleName);
 		}
 	},
 
@@ -230,24 +241,22 @@ public enum AuthzResolverMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 			//get role by name
 			String roleName = parms.readString("role");
-			Role role;
-			try {
-				role = Role.valueOf(roleName);
-			} catch (IllegalArgumentException ex) {
-				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+			if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
 			}
+			roleName = roleName.toUpperCase();
 
 			if(parms.contains("user")) {
 				if(parms.contains("complementaryObject")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
 								parms.readPerunBean("complementaryObject"),
-								role);
+								roleName);
 					return null;
 				} else if(parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
-								role,
+								roleName,
 								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
@@ -262,7 +271,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 					}
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								users,
-								role,
+								roleName,
 								parms.readPerunBean("complementaryObject"));
 					return null;
 				} else {
@@ -278,7 +287,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								groups,
 								parms.readPerunBean("complementaryObject"),
-								role);
+								roleName);
 					return null;
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "complementaryObject");
@@ -288,12 +297,12 @@ public enum AuthzResolverMethod implements ManagerMethod {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
 								parms.readPerunBean("complementaryObject"),
-								role);
+								roleName);
 					return null;
 				} else if(parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
-								role,
+								roleName,
 								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
@@ -395,24 +404,22 @@ public enum AuthzResolverMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 			//get role by name
 			String roleName = parms.readString("role");
-			Role role;
-			try {
-				role = Role.valueOf(roleName);
-			} catch (IllegalArgumentException ex) {
-				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+			if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
 			}
+			roleName = roleName.toUpperCase();
 
 			if(parms.contains("user")) {
 				if(parms.contains("complementaryObject")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
 								parms.readPerunBean("complementaryObject"),
-								role);
+								roleName);
 					return null;
 				} else if (parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
-								role,
+								roleName,
 								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
@@ -427,7 +434,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 					}
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 						users,
-						role,
+						roleName,
 						parms.readPerunBean("complementaryObject"));
 					return null;
 				} else {
@@ -443,7 +450,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 						groups,
 						parms.readPerunBean("complementaryObject"),
-						role);
+						roleName);
 					return null;
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "complementaryObject");
@@ -453,12 +460,12 @@ public enum AuthzResolverMethod implements ManagerMethod {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
 								parms.readPerunBean("complementaryObject"),
-								role);
+								roleName);
 					return null;
 				} else if (parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
-								role,
+								roleName,
 								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
@@ -472,14 +479,14 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 if User has VO manager role (voadmin) for specific VO defined by ID.
+	 * Returns 1 if User has VO manager role (VOADMIN) for specific VO defined by ID.
 	 *
 	 * @param vo int <code>id</code> of object VO
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
 	/*#
-	 * Returns 1 if User has VO manager role (voadmin).
+	 * Returns 1 if User has VO manager role (VOADMIN).
 	 *
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
@@ -499,14 +506,14 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 if User has Group manager role (groupadmin) for specific Group defined by ID.
+	 * Returns 1 if User has Group manager role (GROUPADMIN) for specific Group defined by ID.
 	 *
 	 * @param group int <code>id</code> of object Group
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
 	/*#
-	 * Returns 1 if User has Group manager role (groupadmin).
+	 * Returns 1 if User has Group manager role (GROUPADMIN).
 	 *
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
@@ -526,14 +533,14 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 if User has Facility manager role (facilityadmin) for specific Facility defined by ID.
+	 * Returns 1 if User has Facility manager role (FACILITYADMIN) for specific Facility defined by ID.
 	 *
 	 * @param facility int <code>id</code> of object Facility
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
 	/*#
-	 * Returns 1 if User has Facility manager role (facilityadmin).
+	 * Returns 1 if User has Facility manager role (FACILITYADMIN).
 	 *
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>

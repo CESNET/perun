@@ -408,7 +408,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 *
 	 * If onlyDirectAdmins is true, return only direct admins of the vo for supported role.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param role String supported role name
@@ -428,16 +428,15 @@ public enum VosManagerMethod implements ManagerMethod {
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("role")) {
 				String roleName = parms.readString("role");
-				Role role;
-				try {
-					role = Role.valueOf(roleName);
-				} catch (IllegalArgumentException ex) {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+				if (roleName == null) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
+				} else {
+					roleName = roleName.toUpperCase();
 				}
 
 				return ac.getVosManager().getAdmins(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")),
-					role, parms.readBoolean("onlyDirectAdmins"));
+					roleName, parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getVosManager().getAdmins(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")));
@@ -464,7 +463,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Get list of administrator groups of the given VO.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param role String Role name
@@ -483,15 +482,14 @@ public enum VosManagerMethod implements ManagerMethod {
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("role")) {
 				String roleName = parms.readString("role");
-				Role role;
-				try {
-					role = Role.valueOf(roleName);
-				} catch (IllegalArgumentException ex) {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+				if (roleName == null) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
+				} else {
+					roleName = roleName.toUpperCase();
 				}
 
 				return ac.getVosManager().getAdminGroups(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")), role);
+					ac.getVoById(parms.readInt("vo")), roleName);
 			} else {
 				return ac.getVosManager().getAdminGroups(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")));
@@ -502,7 +500,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * If "onlyDirectAdmins" is == true, return only direct admins of the vo for supported role with specific attributes.
 	 * If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -527,16 +525,15 @@ public enum VosManagerMethod implements ManagerMethod {
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("role")) {
 				String roleName = parms.readString("role");
-				Role role;
-				try {
-					role = Role.valueOf(roleName);
-				} catch (IllegalArgumentException ex) {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+				if (roleName == null) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Parameter role cannot be null.");
+				} else {
+					roleName = roleName.toUpperCase();
 				}
 
 				return ac.getVosManager().getRichAdmins(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")),
-					role, parms.readList("specificAttributes", String.class),
+					roleName, parms.readList("specificAttributes", String.class),
 					parms.readBoolean("allUserAttributes"),
 					parms.readBoolean("onlyDirectAdmins"));
 			} else {

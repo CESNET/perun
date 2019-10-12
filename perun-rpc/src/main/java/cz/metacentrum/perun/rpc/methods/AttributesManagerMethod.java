@@ -4158,7 +4158,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Gets AttributeRights for specified Attribute. Rights specify which Role can do particular actions
 	 * (read / write) with Attribute. Method always return rights for following roles:
-	 * voadmin, groupadmin, facilityadmin, self.
+	 * VOADMIN, GROUPADMIN, FACILITYADMIN, SELF.
 	 *
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return List<AttributeRights> all rights of the attribute
@@ -4174,7 +4174,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Sets all AttributeRights in the list given as a parameter. Allowed Roles to set
-	 * rights for are: voadmin, groupadmin, facilityadmin, self.
+	 * rights for are: VOADMIN, GROUPADMIN, FACILITYADMIN, SELF.
 	 *
 	 * @param rights List<AttributeRights> List of AttributeRights to set.
 	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
