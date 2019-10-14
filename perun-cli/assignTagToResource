@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+#use Data::Dumper;
+
+sub help {
+	return qq{
+	Assigns tag to the resource. Resource and Tag name  are required fields.
+	--------------------------------------
+	Available options:
+	--tagId       | -t tag id
+	--resourceId  | -r resource id
+	--batch       | -b batch
+	--help        | -h prints this help
+
+	};
+}
+
+my ($resourceId, $tagId, $batch);
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"resourceId|r=i"  => \$resourceId,
+	"tagId|t=i"       => \$tagId) || die help();
+
+# Check options
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
+unless (defined($tagId)) { die "ERROR: tagId is required \n";}
+
+my $agent = Perun::Agent->new();
+
+my $resourcesAgent = $agent->getResourcesAgent;
+
+my $resource = $resourcesAgent->getResourceById ( id => $resourceId);
+my $voId=$resource->getVoId;
+
+my $tag = Perun::beans::ResourceTag->new();
+$tag->setId($tagId) if defined $tagId;
+$tag->setVoId($voId);
+
+#print Dumper($tag);
+$resourcesAgent->assignResourceTagToResource( resource => $resourceId, resourceTag => $tag );
+
+printMessage("Tag: $tagId successfully assigned to the resource Id: $resourceId", $batch);

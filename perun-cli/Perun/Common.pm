@@ -46,6 +46,7 @@ use Perun::beans::BanOnResource;
 use Perun::beans::BanOnFacility;
 use Perun::beans::AttributeRights;
 use Perun::beans::ApplicationForm;
+use Perun::beans::ResourceTag;
 
 sub newEmptyBean
 {
