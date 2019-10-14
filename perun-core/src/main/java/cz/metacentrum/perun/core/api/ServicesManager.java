@@ -199,7 +199,7 @@ public interface ServicesManager {
 	 * @return true if it is possible, false if not
 	 *
 	 */
-	boolean forceServicePropagation(PerunSession perunSession, Service service);
+	boolean forceServicePropagation(PerunSession perunSession, Service service) throws PrivilegeException;
 
 	/**
 	 * Plans service propagation on defined facility.
@@ -220,7 +220,7 @@ public interface ServicesManager {
 	 * @return true if it is possible, false if not
 	 *
 	 */
-	boolean planServicePropagation(PerunSession perunSession, Service service);
+	boolean planServicePropagation(PerunSession perunSession, Service service) throws PrivilegeException;
 
 	/**
 	 * Return list of ServiceForGUI assigned on facility, (Service with "allowedOnFacility" property filled).

@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.dispatcher;
 
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.junit.Before;
@@ -24,9 +23,6 @@ public abstract class AbstractDispatcherTest {
 
 	@Autowired
 	PerunBl perun;
-
-	@Autowired
-	GeneralServiceManager generalServiceManager;
 
 	protected PerunSession sess;
 	protected Group group1;

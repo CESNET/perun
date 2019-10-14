@@ -31,8 +31,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,7 +40,7 @@ import java.util.List;
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
-public class ServicesManagerImpl extends JdbcDaoSupport implements ServicesManagerImplApi {
+public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 
 	final static Logger log = LoggerFactory.getLogger(ServicesManagerImpl.class);
@@ -198,12 +196,13 @@ public class ServicesManagerImpl extends JdbcDaoSupport implements ServicesManag
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void blockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException {
-		int newBanId = Utils.getNewId(this.getJdbcTemplate(), "service_denials_id_seq");
+		int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
 		try {
-			// jdbc template cannot be null
-			this.getJdbcTemplate().update("insert into service_denials(id, facility_id, service_id) values (?,?,?)", newBanId, facilityId, serviceId);
+			jdbc.update("insert into service_denials(id, facility_id, service_id) values (?,?,?)", newBanId, facilityId, serviceId);
 		} catch (DuplicateKeyException ex) {
 			throw new ServiceAlreadyBannedException(String.format("Service with id %d is already banned on the facility with id %d", serviceId, facilityId));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -211,47 +210,57 @@ public class ServicesManagerImpl extends JdbcDaoSupport implements ServicesManag
 	@Override
 	public void blockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
 		try {
-			int newBanId = Utils.getNewId(this.getJdbcTemplate(), "service_denials_id_seq");
-			// jdbc template cannot be null
-			this.getJdbcTemplate().update("insert into service_denials(id, destination_id, service_id) values (?,?,?)", newBanId, destinationId, serviceId);
+			int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
+			jdbc.update("insert into service_denials(id, destination_id, service_id) values (?,?,?)", newBanId, destinationId, serviceId);
 		} catch (DuplicateKeyException ex) {
 			throw new ServiceAlreadyBannedException(String.format("Service with id %d is already banned on the destination with id %d", serviceId, destinationId));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public List<Service> getServicesBlockedOnFacility(int facilityId) {
-		// jdbc template cannot be null
-		return getJdbcTemplate()
-			.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
-					" from services left join service_denials on service_denials.service_id = services.id where service_denials.facility_id = ?",
-				ServicesManagerImpl.SERVICE_MAPPER, facilityId);
+	public List<Service> getServicesBlockedOnFacility(int facilityId) throws InternalErrorException {
+		try {
+			return jdbc
+				.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
+						" from services left join service_denials on service_denials.service_id = services.id where service_denials.facility_id = ?",
+					ServicesManagerImpl.SERVICE_MAPPER, facilityId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public List<Service> getServicesBlockedOnDestination(int destinationId) {
-		// jdbc template cannot be null
-		return getJdbcTemplate()
-			.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
-					" from services left join service_denials on service_denials.service_id = services.id where service_denials.destination_id = ?",
+	public List<Service> getServicesBlockedOnDestination(int destinationId) throws InternalErrorException {
+		try {
+			return jdbc
+				.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
+						" from services left join service_denials on service_denials.service_id = services.id where service_denials.destination_id = ?",
+					ServicesManagerImpl.SERVICE_MAPPER, destinationId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Service> getServicesFromDestination(int destinationId) throws InternalErrorException {
+		try {
+			@SuppressWarnings("ConstantConditions")
+			List<Service> servicesFromDestination = jdbc.query("select distinct " + ServicesManagerImpl.serviceMappingSelectQuery +
+					" from services join facility_service_destinations on facility_service_destinations.service_id = services.id" +
+					" where facility_service_destinations.destination_id = ?",
 				ServicesManagerImpl.SERVICE_MAPPER, destinationId);
+			return servicesFromDestination;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@Override
-	public List<Service> getServicesFromDestination(int destinationId) {
-		// jdbc template cannot be null
-		@SuppressWarnings("ConstantConditions")
-		List<Service> servicesFromDestination = getJdbcTemplate().query("select distinct " + ServicesManagerImpl.serviceMappingSelectQuery +
-				" from services join facility_service_destinations on facility_service_destinations.service_id = services.id" +
-				" where facility_service_destinations.destination_id = ?",
-			ServicesManagerImpl.SERVICE_MAPPER, destinationId);
-		return servicesFromDestination;
-	}
-
-	@Override
-	public boolean isServiceBlockedOnFacility(int serviceId, int facilityId) {
+	public boolean isServiceBlockedOnFacility(int serviceId, int facilityId) throws InternalErrorException {
 		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and facility_id = ?", serviceId, facilityId);
 		if (denials > 0) {
 			return true;
@@ -260,7 +269,7 @@ public class ServicesManagerImpl extends JdbcDaoSupport implements ServicesManag
 	}
 
 	@Override
-	public boolean isServiceBlockedOnDestination(int serviceId, int destinationId) {
+	public boolean isServiceBlockedOnDestination(int serviceId, int destinationId) throws InternalErrorException {
 		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and destination_id = ?", serviceId, destinationId);
 		if (denials > 0) {
 			return true;
@@ -270,37 +279,52 @@ public class ServicesManagerImpl extends JdbcDaoSupport implements ServicesManag
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockAllServicesOnFacility(int facilityId) {
-		// jdbc template cannot be null
-		this.getJdbcTemplate().update("delete from service_denials where facility_id = ?", facilityId);
+	public void unblockAllServicesOnFacility(int facilityId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where facility_id = ?", facilityId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockAllServicesOnDestination(int destinationId) {
-		// jdbc template cannot be null
-		this.getJdbcTemplate().update("delete from service_denials where destination_id = ?", destinationId);
+	public void unblockAllServicesOnDestination(int destinationId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where destination_id = ?", destinationId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockServiceOnFacility(int serviceId, int facilityId) {
-		// jdbc template cannot be null
-		this.getJdbcTemplate().update("delete from service_denials where facility_id = ? and service_id = ?", facilityId, serviceId);
+	public void unblockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where facility_id = ? and service_id = ?", facilityId, serviceId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockServiceOnDestination(int serviceId, int destinationId) {
-		// jdbc template cannot be null
-		this.getJdbcTemplate().update("delete from service_denials where destination_id = ? and service_id = ?", destinationId, serviceId);
+	public void unblockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where destination_id = ? and service_id = ?", destinationId, serviceId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
-	private int queryForInt(String sql, Object... args) throws DataAccessException {
-		// jdbc template cannot be null
-		@SuppressWarnings("ConstantConditions")
-		Integer i = getJdbcTemplate().queryForObject(sql, args, Integer.class);
-		return (i != null ? i : 0);
+	private int queryForInt(String sql, Object... args) throws InternalErrorException, DataAccessException {
+		try {
+			@SuppressWarnings("ConstantConditions")
+			Integer i = jdbc.queryForObject(sql, args, Integer.class);
+			return (i != null ? i : 0);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 

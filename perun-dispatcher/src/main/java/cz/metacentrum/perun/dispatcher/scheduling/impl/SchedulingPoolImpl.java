@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.dispatcher.scheduling.impl;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
@@ -16,6 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
@@ -72,7 +72,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	private TaskManager taskManager;
 	private ResultManager resultManager;
 	private EngineMessageProducerPool engineMessageProducerPool;
-	private GeneralServiceManager generalServiceManager;
 	private Perun perun;
 
 	public SchedulingPoolImpl() {
@@ -151,15 +150,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Autowired
 	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
 		this.engineMessageProducerPool = engineMessageProducerPool;
-	}
-
-	public GeneralServiceManager getGeneralServiceManager() {
-		return generalServiceManager;
-	}
-
-	@Autowired
-	public void setGeneralServiceManager(GeneralServiceManager generalServiceManager) {
-		this.generalServiceManager = generalServiceManager;
 	}
 
 	public Perun getPerun() {
@@ -246,7 +236,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			log.error("[{}] {}", task.getId(), e);
 		}
 
-		if (!task.getService().isEnabled() || generalServiceManager.isServiceBlockedOnFacility(task.getService(), task.getFacility())) {
+		if (!task.getService().isEnabled() || ((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(task.getService(), task.getFacility())) {
 			log.error("[{}] Task NOT added to waiting queue, service is blocked: {}.", task.getId(), task);
 			// do not change Task status or any other data !
 			if (!removeTask) return;
@@ -258,7 +248,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				Iterator<Destination> iter = destinations.iterator();
 				while (iter.hasNext()) {
 					Destination dest = iter.next();
-					if (generalServiceManager.isServiceBlockedOnDestination(task.getService(), dest.getId())) {
+					if (((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(task.getService(), dest.getId())) {
 						iter.remove();
 					}
 				}

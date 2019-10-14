@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.engine;
 
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
@@ -32,7 +31,6 @@ import static org.mockito.Mockito.mock;
 public abstract class AbstractEngineTest {
 
 	@Autowired Properties propertiesBean;
-	@Autowired GeneralServiceManager controller;
 	@Autowired PerunBl perun;
 
 	/*

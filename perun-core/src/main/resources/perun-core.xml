@@ -465,10 +465,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
-	<bean id="serviceDenialDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ServiceDenialDaoJdbc">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-
 	<beans profile="trace">
 		<import resource="classpath:perun-core-trace-log.xml"/>
 	</beans>

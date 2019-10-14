@@ -326,16 +326,6 @@ sub getHostsAgent {
 	return $self->{_hostsAgent};
 }
 
-sub getGeneralServicesAgent {
-	my $self = shift;
-
-	if (!$self->{_generalServiceAgent}) {
-		$self->{_generalServiceAgent} = Perun::GeneralServiceAgent->new( $self );
-	}
-
-	return $self->{_generalServiceAgent};
-}
-
 sub getAuditMessagesAgent {
 	my $self = shift;
 

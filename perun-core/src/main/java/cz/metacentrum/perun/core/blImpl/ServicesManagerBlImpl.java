@@ -30,12 +30,10 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDe
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
@@ -76,13 +74,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,21 +97,18 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
 	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException {
 		getServicesManagerImpl().blockServiceOnFacility(service.getId(), facility.getId());
 		sess.getPerun().getAuditer().log(sess, new BanServiceOnFacility(service, facility));
 	}
 
 	@Override
-	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
 	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
 		getServicesManagerImpl().blockServiceOnDestination(service.getId(), destinationId);
 		sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
 	}
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
 	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException {
 		List<Service> services = getAssignedServices(sess, facility);
 		for (Service service : services) {
@@ -134,7 +122,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
 	public void blockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException {
 		List<Service> services = getServicesManagerImpl().getServicesFromDestination(destinationId);
 		for (Service service : services) {
@@ -240,8 +227,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException {
-
+	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws InternalErrorException {
 		// result list
 		List<ServiceForGUI> result = new ArrayList<>();
 		// get assigned services
@@ -253,7 +239,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			result.add(newService);
 		}
 		return result;
-
 	}
 
 	@Override

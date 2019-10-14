@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -58,7 +57,6 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 
 	private Properties dispatcherProperties;
 	private Perun perun;
-	private GeneralServiceManager generalServiceManager;
 
 	private PerunSession perunSession = null;
 
@@ -80,15 +78,6 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 	@Autowired
 	public void setPerun(Perun perun) {
 		this.perun = perun;
-	}
-
-	public GeneralServiceManager getGeneralServiceManager() {
-		return generalServiceManager;
-	}
-
-	@Autowired
-	public void setGeneralServiceManager(GeneralServiceManager generalServiceManager) {
-		this.generalServiceManager = generalServiceManager;
 	}
 
 	// ----- methods -------------------------------------

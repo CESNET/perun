@@ -1,17 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnDestination;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnFacility;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnFacilityAndService;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnService;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeAllDenialsOnDestination;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeAllDenialsOnFacility;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnDestination;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnFacility;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnFacilityAndService;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnService;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
@@ -51,8 +40,6 @@ import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -77,7 +64,6 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
 	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException, PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
@@ -87,10 +73,9 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
 	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException, FacilityNotExistsException {
-		Destination destination = getDestinationById(sess, destinationId);
-		List<Facility> destinationFacilities = perunBl.getFacilitiesManager().getFacilitiesByDestination(sess, destination.getDestination());
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		boolean isFacilityAdminAtLeastOnce = false;
 		for (Facility facility : destinationFacilities) {
@@ -105,7 +90,6 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
 	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 
 		// Authorization
@@ -116,10 +100,9 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
 	public void blockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, FacilityNotExistsException {
-		Destination destination = getDestinationById(sess, destinationId);
-		List<Facility> destinationFacilities = perunBl.getFacilitiesManager().getFacilitiesByDestination(sess, destination.getDestination());
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		boolean isFacilityAdminAtLeastOnce = false;
 		for (Facility facility : destinationFacilities) {
@@ -145,8 +128,8 @@ public class ServicesManagerEntry implements ServicesManager {
 
 	@Override
 	public List<Service> getServicesBlockedOnDestination(PerunSession sess, int destinationId) throws PrivilegeException, DestinationNotExistsException, FacilityNotExistsException {
-		Destination destination = getDestinationById(sess, destinationId);
-		List<Facility> destinationFacilities = perunBl.getFacilitiesManager().getFacilitiesByDestination(sess, destination.getDestination());
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		boolean isFacilityAdminAtLeastOnce = false;
 		for (Facility facility : destinationFacilities) {
@@ -172,8 +155,8 @@ public class ServicesManagerEntry implements ServicesManager {
 
 	@Override
 	public boolean isServiceBlockedOnDestination(PerunSession sess, Service service, int destinationId) throws PrivilegeException, DestinationNotExistsException, FacilityNotExistsException {
-		Destination destination = getDestinationById(sess, destinationId);
-		List<Facility> destinationFacilities = perunBl.getFacilitiesManager().getFacilitiesByDestination(sess, destination.getDestination());
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		boolean isFacilityAdminAtLeastOnce = false;
 		for (Facility facility : destinationFacilities) {
@@ -199,10 +182,10 @@ public class ServicesManagerEntry implements ServicesManager {
 
 	@Override
 	public void unblockAllServicesOnDestination(PerunSession sess, String destinationName) throws FacilityNotExistsException, PrivilegeException {
-		List<Destination> destinations = ((PerunBlImpl) sess.getPerun()).getServicesManagerBl().getDestinations(sess);
+		List<Destination> destinations = getServicesManagerBl().getDestinations(sess);
 		for(Destination destination: destinations) {
 			if(destination.getDestination().equals(destinationName)) {
-				List<Facility> destinationFacilities = perunBl.getFacilitiesManager().getFacilitiesByDestination(sess, destination.getDestination());
+				List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 				boolean isFacilityAdminAtLeastOnce = false;
 				for (Facility facility : destinationFacilities) {
 					if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
@@ -210,17 +193,18 @@ public class ServicesManagerEntry implements ServicesManager {
 					}
 				}
 				if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-					throw new PrivilegeException(sess, "unblockAllServicesOnDestination");
+					log.warn("Trying to unblock services on destination by a user who is neither perunadmin nor admin of the facility");
+					continue; //skip this one because of not authorized action
 				}
-				getServicesManagerBl().unblockAllServicesOnDestination(sess, destinationName);
+				getServicesManagerBl().unblockAllServicesOnDestination(sess, destination.getId());
 			}
 		}
 	}
 
 	@Override
 	public void unblockAllServicesOnDestination(PerunSession sess, int destinationId) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException {
-		Destination destination = getDestinationById(sess, destinationId);
-		List<Facility> destinationFacilities = perunBl.getFacilitiesManager().getFacilitiesByDestination(sess, destination.getDestination());
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		boolean isFacilityAdminAtLeastOnce = false;
 		for (Facility facility : destinationFacilities) {
@@ -245,8 +229,8 @@ public class ServicesManagerEntry implements ServicesManager {
 
 	@Override
 	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException {
-		Destination destination = getDestinationById(sess, destinationId);
-		List<Facility> destinationFacilities = perunBl.getFacilitiesManager().getFacilitiesByDestination(sess, destination.getDestination());
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		boolean isFacilityAdminAtLeastOnce = false;
 		for (Facility facility : destinationFacilities) {
@@ -264,15 +248,19 @@ public class ServicesManagerEntry implements ServicesManager {
 	public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) throws PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-			throw new PrivilegeException(sess, "unblockServiceOnFacility");
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			throw new PrivilegeException(sess, "forceServicePropagation");
 		}
 		return getServicesManagerBl().forceServicePropagation(sess, facility, service);
 	}
 
 	@Override
-	public boolean forceServicePropagation(PerunSession sess, Service service) {
-		//TODO what permissions does this and the other need?
+	public boolean forceServicePropagation(PerunSession sess, Service service) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			throw new PrivilegeException(sess, "forceServicePropagation");
+		}
 		return getServicesManagerBl().forceServicePropagation(sess, service);
 	}
 
@@ -280,14 +268,19 @@ public class ServicesManagerEntry implements ServicesManager {
 	public boolean planServicePropagation(PerunSession sess, Facility facility, Service service) throws PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-			throw new PrivilegeException(sess, "unblockServiceOnFacility");
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			throw new PrivilegeException(sess, "planServicePropagation");
 		}
 		return getServicesManagerBl().planServicePropagation(sess, facility, service);
 	}
 
 	@Override
-	public boolean planServicePropagation(PerunSession perunSession, Service service) {
+	public boolean planServicePropagation(PerunSession perunSession, Service service) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.ENGINE)) {
+			throw new PrivilegeException(perunSession, "planServicePropagation");
+		}
 		return getServicesManagerBl().planServicePropagation(perunSession, service);
 	}
 
@@ -296,7 +289,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
 			!AuthzResolver.isAuthorized(perunSession, Role.PERUNOBSERVER)) {
-			throw new PrivilegeException(perunSession, "unblockServiceOnFacility");
+			throw new PrivilegeException(perunSession, "getFacilityAssignedServicesForGUI");
 		}
 		return getServicesManagerBl().getFacilityAssignedServicesForGUI(perunSession, facility);
 	}
