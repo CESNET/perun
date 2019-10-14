@@ -163,4 +163,8 @@ sub copyResource {
 	return Perun::Common::callManagerMethod('copyResource', '', @_);
 }
 
+sub assignResourceTagToResource {
+	return Perun::Common::callManagerMethod('assignResourceTagToResource', '', @_);
+}
+
 1;
