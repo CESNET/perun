@@ -15,6 +15,7 @@
 # 23.03.2018 Reworked perun-engine init.d script for LDAPc
 # 17.04.2018 Respect $LAST_PROCESSED_ID is set in /etc/perun/perun-ldapc
 #            (specify where ldapc should start reading auditer log)
+# 14.10.2019 Do not chown PID file to "perun" since it won't start on Deb 10
 #
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun LDAPc"
@@ -71,12 +72,10 @@ do_start () {
 	PID_DIR="/var/run/perun";
 	if [ ! -d $PID_DIR ]; then
 		mkdir $PID_DIR;
-		chown $DAEMON_USER $PID_DIR;
 	fi
 
 	# Create empty pidfile
 	touch $PIDFILE;
-	chown $DAEMON_USER $PIDFILE;
 
 	# Start with output logging, but we need to create log-file first for perun:perun
 	start-stop-daemon --make-pidfile --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
