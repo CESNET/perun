@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.TestUtils.TestConsumer;
+import cz.metacentrum.perun.TestUtils.TestSupplier;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -15,6 +17,7 @@ import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -43,9 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -56,6 +59,10 @@ import static org.junit.Assert.assertTrue;
 public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private final static String CLASS_NAME = "UsersManager.";
+	private final static String ATTR_UES_O = "o";
+	private final static String ATTR_UES_CN = "cn";
+	private final static String URN_ATTR_UES_O = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_O;
+	private final static String URN_ATTR_UES_CN = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_CN;
 
 	private User user;           // our User
 	private User serviceUser1;
@@ -1238,8 +1245,101 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(jsonObject.getJSONArray(perun.getAttributesManager().NS_USER_ATTR + ":attribute").isNull(0));
 	}
 
+	@Test
+	public void getRichUserExtSourcesReturnsCorrectAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getRichUserExtSourcesReturnsCorrectAttributes");
+
+		testGetRichUserExtSourceAttributes(
+			() -> perun.getUsersManager().getRichUserExtSources(sess, user, Collections.singletonList(URN_ATTR_UES_CN)),
+			(rues) -> {
+				assertThat(rues).isNotNull();
+				assertThat(rues.getAttributes())
+					.anySatisfy(a -> assertThat(a.getFriendlyName()).isEqualTo(ATTR_UES_CN));
+			},
+			ATTR_UES_CN
+		);
+	}
+
+	@Test
+	public void getRichUserExtSourcesDoesNotReturnNotSpecifiedAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getRichUserExtSourcesDoesNotReturnNotSpecifiedAttribute");
+
+		testGetRichUserExtSourceAttributes(
+			() -> perun.getUsersManager().getRichUserExtSources(sess, user, Collections.singletonList(URN_ATTR_UES_O)),
+			(rues) -> {
+				assertThat(rues).isNotNull();
+				assertThat(rues.getAttributes())
+					.noneSatisfy(a -> assertThat(a.getFriendlyName()).isEqualTo(ATTR_UES_CN));
+			},
+			ATTR_UES_O
+		);
+	}
+
+	@Test
+	public void getRichUserExtSourcesReturnsAllAttributesForNull() throws Exception {
+		System.out.println(CLASS_NAME + "getRichUserExtSourcesReturnsAllAttributesForNull");
+
+		testGetRichUserExtSourceAttributes(
+			() -> perun.getUsersManagerBl().getRichUserExtSources(sess, user, null),
+			(rues) -> {
+				assertThat(rues).isNotNull();
+				assertThat(rues.getAttributes()).isNotEmpty();
+			},
+			ATTR_UES_O
+		);
+	}
+
+	@Test
+	public void getRichUserExtSourcesReturnsNoAttributesForEmpty() throws Exception {
+		System.out.println(CLASS_NAME + "getRichUserExtSourcesReturnsNoAttributesForEmpty");
+
+		testGetRichUserExtSourceAttributes(
+			() -> perun.getUsersManagerBl().getRichUserExtSources(sess, user, Collections.emptyList()),
+			(rues) -> {
+				assertThat(rues).isNotNull();
+				assertThat(rues.getAttributes()).isEmpty();
+			},
+			ATTR_UES_O
+		);
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
+	/**
+	 * This method is used to test attributes of returned richUserExtSource from given call.
+	 *
+	 * First, this method creates attributes for given names. Then the method executes
+	 * the given getRichUserExtSourceCall and finds the tested rues. Then calls the ruesValidation.
+	 *
+	 * @param getRichUserExtSourceCall call that returns richUserExtSources
+	 * @param ruesValidation validation of returned richUserExtSource
+	 * @param attrNamesToSetup names of ues attributes that will be set up for the tested ues
+	 * @throws Exception any exception
+	 */
+	private void testGetRichUserExtSourceAttributes(
+		TestSupplier<List<RichUserExtSource>> getRichUserExtSourceCall,
+		TestConsumer<RichUserExtSource> ruesValidation,
+		String... attrNamesToSetup
+	) throws Exception {
+
+		// set up ues attributes
+		for (String attrName : attrNamesToSetup) {
+			Attribute attribute = createUserExtSourceAttribute(attrName);
+			perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+		}
+
+		// get richUserExtSources and find the one with set attribute
+		RichUserExtSource desiredRues = null;
+		List<RichUserExtSource> richUserExtSources = getRichUserExtSourceCall.getThrows();
+		for (RichUserExtSource richUserExtSource : richUserExtSources) {
+			if (richUserExtSource.asUserExtSource().equals(userExtSource)) {
+				desiredRues = richUserExtSource;
+			}
+		}
+
+		// validate assertions
+		ruesValidation.acceptThrows(desiredRues);
+	}
 
 	private void setUpUser() throws Exception {
 
