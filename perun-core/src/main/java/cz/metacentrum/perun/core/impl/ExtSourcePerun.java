@@ -18,9 +18,11 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,8 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	private String perunUrl;
 	private String username;
 	private String password;
+	// this will allow us to keep session to other Perun instances on all subsequent synchronization calls
+	private static CookieStore cookieStore = new BasicCookieStore();
 
 	private String extSourceNameForLogin = null;
 	public static final Pattern attributePattern = Pattern.compile("[{](.+)[}]");
@@ -294,8 +298,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		//Prepare sending message
 		HttpResponse response;
 		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-		// just like cookie-policy: ignore cookies
-		httpClientBuilder.disableCookieManagement();
+		httpClientBuilder.setDefaultCookieStore(cookieStore);
 		HttpClient httpClient = httpClientBuilder.build();
 
 		String commandUrl = perunUrl + format + "/" + managerName + "/" + methodName;
