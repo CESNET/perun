@@ -42,6 +42,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	final static Logger log = LoggerFactory.getLogger(FacilitiesManagerImpl.class);
 
+	private PerunRolesLoader perunRolesLoader;
+
 	//http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private static JdbcPerunTemplate jdbc;
 
@@ -172,25 +174,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	public void initialize() throws InternalErrorException {
-
-		if(BeansUtils.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");
-
-		// Check if all roles defined in class Role exists in the DB
-		for (Role role: Role.values()) {
-			try {
-				if (0 == jdbc.queryForInt("select count(*) from roles where name=?", role.getRoleName())) {
-					//Skip creating not existing roles for read only Perun
-					if(BeansUtils.isPerunReadOnly()) {
-						throw new InternalErrorException("One of default roles not exists in DB - " + role);
-					} else {
-						int newId = Utils.getNewId(jdbc, "roles_id_seq");
-						jdbc.update("insert into roles (id, name) values (?,?)", newId, role.getRoleName());
-					}
-				}
-			} catch (RuntimeException e) {
-				throw new InternalErrorException(e);
-			}
-		}
+		this.perunRolesLoader.loadPerunRoles(jdbc);
 	}
 
 	public static Map<Role, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException {
@@ -746,4 +730,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	public void setPerunRolesLoader(PerunRolesLoader perunRolesLoader) {
+		this.perunRolesLoader = perunRolesLoader;
+	}
 }

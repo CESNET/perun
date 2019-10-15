@@ -375,6 +375,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	</bean>
 	<bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
+		<property name="perunRolesLoader" ref="perunRolesLoader"/>
 	</bean>
 	<bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
@@ -495,6 +496,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="auditer" ref="auditer"/>
 			<property name="cacheManager" ref="cacheManager"/>
 		</bean>
+
+		<!-- PerunRolesLoader implementation -->
+		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
+			<property name="configurationPath" value="file:@perun.conf@perun-roles.yml"/>
+		</bean>
 	</beans>
 
 	<beans profile="default">
@@ -503,6 +509,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<jdbc:script location="classpath:test-schema.sql"/>
 			<jdbc:script location="classpath:test-data.sql"/>
 		</jdbc:embedded-database>
+
+		<!-- PerunRolesLoader implementation -->
+		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
+			<property name="configurationPath" value="classpath:perun-roles.yml"/>
+		</bean>
 	</beans>
 
 </beans>
