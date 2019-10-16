@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -430,6 +431,29 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<UserExtSource> getUserExtSources(PerunSession perunSession, User user) throws InternalErrorException;
+
+	/**
+	 * Gets list of all user's external sources with attributes. If any of the attribute names is incorrect
+	 * then the value is silently skipped. If the attrsNames is null, then this method returns all ues attributes.
+	 *
+	 * @param sess session
+	 * @param user user for who should be the data returned
+	 * @param attrsNames list of attribute names that should be found, if null or empty return all
+	 * @return list of user's external sources with attributes
+	 * @throws InternalErrorException internal error
+	 */
+	List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames) throws InternalErrorException;
+
+	/**
+	 * From given list of {@link RichUserExtSource} removes the attributes which are not allowed for
+	 * the current principal. The attributes are removed from the given list and the list is also returned.
+	 *
+	 *
+	 * @param sess session
+	 * @param richUserExtSources richUserExtSources to be filtered
+	 * @return list of filtered richUserExtSources
+	 */
+	List<RichUserExtSource> filterOnlyAllowedAttributesForRichUserExtSources(PerunSession sess, List<RichUserExtSource> richUserExtSources);
 
 	/**
 	 * Get the user ext source by its id.

@@ -394,6 +394,32 @@ public interface UsersManager {
 	List<UserExtSource> getUserExtSources(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
+	 * Gets list of all user's external sources with attributes.
+	 *
+	 * @param perunSession session
+	 * @param user user for which should be returned rich ext sources
+	 * @return list of user's external sources with attributes
+	 * @throws InternalErrorException internal error
+	 * @throws UserNotExistsException if given user doesn't exist
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	List<RichUserExtSource> getRichUserExtSources(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+	/**
+	 * Gets list of all user's external sources with attributes. If any of the attribute names is incorrect
+	 * then the value is silently skipped. If the attrsNames is null, then this method returns all ues attributes.
+	 *
+	 * @param perunSession session
+	 * @param user user for which should be returned rich ext sources
+	 * @param attrsNames list of attribute names that should be found
+	 * @return list of user's external sources with attributes
+	 * @throws InternalErrorException internal error
+	 * @throws UserNotExistsException if given user doesn't exist
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	List<RichUserExtSource> getRichUserExtSources(PerunSession perunSession, User user, List<String> attrsNames) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+	/**
 	 * Get the user ext source by its id.
 	 *
 	 * @param sess

@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
@@ -106,6 +107,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * UsersManager business logic
@@ -637,6 +639,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException {
 		return getUsersManagerImpl().getUserExtSources(sess, user);
+	}
+
+	@Override
+	public List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames) throws InternalErrorException {
+		return getUserExtSources(sess, user).stream()
+			.map(ues -> new RichUserExtSource(ues,
+				attrsNames == null ? getPerunBl().getAttributesManagerBl().getAttributes(sess, ues)
+					: getPerunBl().getAttributesManagerBl().getAttributes(sess, ues, attrsNames)))
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<RichUserExtSource> filterOnlyAllowedAttributesForRichUserExtSources(PerunSession sess, List<RichUserExtSource> richUserExtSources) {
+		richUserExtSources.forEach(rues -> rues.setAttributes(
+			AuthzResolverBlImpl.filterNotAllowedAttributes(sess, rues.asUserExtSource(), rues.getAttributes())));
+		return richUserExtSources;
 	}
 
 	@Override

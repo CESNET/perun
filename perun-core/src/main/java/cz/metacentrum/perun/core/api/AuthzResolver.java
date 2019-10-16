@@ -161,6 +161,29 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Checks if the principal is authorized to do some action of PerunBean attribute.
+	 *
+	 * @param sess session
+	 * @param actionType action type
+	 * @param attrDef attr def
+	 * @param bean bean
+	 * @return true, if principal is authorized for attribute and action
+	 */
+	@SuppressWarnings("unused")
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, PerunBean bean) throws InternalErrorException {
+		if (bean instanceof Vo) return isAuthorizedForAttribute(sess, actionType, attrDef, (Vo)bean);
+		if (bean instanceof User) return isAuthorizedForAttribute(sess, actionType, attrDef, (User)bean);
+		if (bean instanceof Member) return isAuthorizedForAttribute(sess, actionType, attrDef, (Member)bean);
+		if (bean instanceof Group) return isAuthorizedForAttribute(sess, actionType, attrDef, (Group)bean);
+		if (bean instanceof Resource) return isAuthorizedForAttribute(sess, actionType, attrDef, (Resource)bean);
+		if (bean instanceof Facility) return isAuthorizedForAttribute(sess, actionType, attrDef, (Facility)bean);
+		if (bean instanceof Host) return isAuthorizedForAttribute(sess, actionType, attrDef, (Host)bean);
+		if (bean instanceof UserExtSource) return isAuthorizedForAttribute(sess, actionType, attrDef, (UserExtSource)bean);
+		throw new UnsupportedOperationException(
+			"method - isAuthorizedForAttribute - called with unsupported PerunBean type - " + bean.getBeanName());
+	}
+
+	/**
 	 * Checks if the principal is authorized to do some action of group attribute.
 	 *
 	 * @param sess perun session

@@ -1806,27 +1806,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(richMember.getUser() == null) throw new InternalErrorException("User cant be null in RichMember.");
 		//Filtering members attributes
 		if(richMember.getMemberAttributes() != null) {
-			List<Attribute> memberAttributes = richMember.getMemberAttributes();
-			List<Attribute> allowedMemberAttributes = new ArrayList<>();
-			for(Attribute membAttr: memberAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, richMember)) {
-					membAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, richMember));
-					allowedMemberAttributes.add(membAttr);
-				}
-			}
-			richMember.setMemberAttributes(allowedMemberAttributes);
+			richMember.setMemberAttributes(AuthzResolverBlImpl
+				.filterNotAllowedAttributes(sess, richMember, richMember.getMemberAttributes()));
 		}
 		//Filtering users attributes
 		if(richMember.getUserAttributes() != null) {
-			List<Attribute> userAttributes = richMember.getUserAttributes();
-			List<Attribute> allowedUserAttributes = new ArrayList<>();
-			for(Attribute userAttr: userAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richMember.getUser())) {
-					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richMember.getUser()));
-					allowedUserAttributes.add(userAttr);
-				}
-			}
-			richMember.setUserAttributes(allowedUserAttributes);
+			richMember.setUserAttributes(AuthzResolverBlImpl
+				.filterNotAllowedAttributes(sess, richMember.getUser(), richMember.getUserAttributes()));
 		}
 		return richMember;
 	}
