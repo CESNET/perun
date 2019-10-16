@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.User;
@@ -505,6 +506,32 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().checkUserExists(sess, user);
 
 		return getUsersManagerBl().getUserExtSources(sess, user);
+	}
+
+	@Override
+	public List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+		return getRichUserExtSources(sess, user, null);
+	}
+
+	@Override
+	public List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+			!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+			!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+			!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
+			!AuthzResolver.isAuthorized(sess, Role.RPC) &&
+			!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
+			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(sess, "getRichUserExtSources");
+		}
+
+		getUsersManagerBl().checkUserExists(sess, user);
+
+		return getUsersManagerBl().filterOnlyAllowedAttributesForRichUserExtSources(
+			sess,getUsersManagerBl().getRichUserExtSources(sess, user, attrsNames));
 	}
 
 	@Override

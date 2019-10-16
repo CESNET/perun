@@ -497,6 +497,35 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets list of all user's external sources with attributes.
+	 *
+	 * @param user int User <code>id</code>
+	 * @return List<UserExtSource> list of user's external sources with attributes
+	 */
+	/*#
+	 * Gets list of all user's external sources with specified attributes. If attrsNames is empty
+	 * return no attributes. If attrsNames is null, this methods returns all attributes.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param attrsNames List<String> Attribute names
+	 * @return List<UserExtSource> list of user's external sources with specified attributes
+	 */
+	getRichUserExtSources {
+
+		@Override
+		public List<RichUserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("attrsNames")) {
+				return ac.getUsersManager().getRichUserExtSources(ac.getSession(),
+						ac.getUserById(parms.readInt("user")),
+						parms.readList("attrsNames", String.class));
+			} else {
+				return ac.getUsersManager().getRichUserExtSources(ac.getSession(),
+						ac.getUserById(parms.readInt("user")));
+			}
+		}
+	},
+
+	/*#
 	 * Adds user's external sources.
 	 * @param user int User <code>id</code>
 	 * @param userExtSource UserExtSource JSON object

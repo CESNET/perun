@@ -2,7 +2,9 @@ package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
 import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -183,6 +185,29 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		return null;
+	}
+
+	/**
+	 * From given attributes filter out the ones which are not allowed for the current principal.
+	 *
+	 * @param sess session
+	 * @param bean perun bean
+	 * @param attributes attributes
+	 * @return list of attributes which can be accessed by current principal.
+	 */
+	public static List<Attribute> filterNotAllowedAttributes(PerunSession sess, PerunBean bean, List<Attribute> attributes) {
+		List<Attribute> allowedAttributes = new ArrayList<>();
+		for(Attribute attribute: attributes) {
+			try {
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, bean)) {
+					attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, bean));
+					allowedAttributes.add(attribute);
+				}
+			} catch (InternalErrorException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return allowedAttributes;
 	}
 
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
