@@ -17,7 +17,7 @@ public class AdminGroupRemovedFromGroup extends AuditEvent implements EngineIgno
 	public AdminGroupRemovedFromGroup(Group authorizedGroup, Group group) {
 		this.group = group;
 		this.authorizedGroup = authorizedGroup;
-		this.message = formatMessage("Group %s was removed from admins of %s.", authorizedGroup, group);
+		this.message = formatMessage("%s was removed from admins of %s.", authorizedGroup, group);
 	}
 
 	@Override

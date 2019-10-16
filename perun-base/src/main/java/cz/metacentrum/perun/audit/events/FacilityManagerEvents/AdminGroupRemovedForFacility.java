@@ -18,7 +18,7 @@ public class AdminGroupRemovedForFacility extends AuditEvent implements EngineIg
 	public AdminGroupRemovedForFacility(Group group, Facility facility) {
 		this.group = group;
 		this.facility = facility;
-		this.message = formatMessage("Group %s was removed from admins of %s.", group, facility);
+		this.message = formatMessage("%s was removed from admins of %s.", group, facility);
 	}
 
 	public Group getGroup() {

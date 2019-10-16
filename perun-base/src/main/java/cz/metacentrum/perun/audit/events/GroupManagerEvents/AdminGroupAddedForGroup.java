@@ -17,7 +17,7 @@ public class AdminGroupAddedForGroup extends AuditEvent implements EngineIgnoreE
 	public AdminGroupAddedForGroup(Group authorizedGroup, Group group) {
 		this.authorizedGroup = authorizedGroup;
 		this.group = group;
-		this.message = formatMessage("Group %s was added as admin of %s.", authorizedGroup, group);
+		this.message = formatMessage("%s was added as admin of %s.", authorizedGroup, group);
 	}
 
 	@Override
