@@ -18,7 +18,7 @@ public class AdminGroupAddedForVo extends AuditEvent implements EngineIgnoreEven
 	public AdminGroupAddedForVo(Group group, Vo vo) {
 		this.group = group;
 		this.vo = vo;
-		this.message = formatMessage("Group %s was added as admin of %s.", group, vo);
+		this.message = formatMessage("%s was added as admin of %s.", group, vo);
 	}
 
 	@Override

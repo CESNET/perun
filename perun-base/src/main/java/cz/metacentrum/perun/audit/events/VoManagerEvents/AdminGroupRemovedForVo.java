@@ -18,7 +18,7 @@ public class AdminGroupRemovedForVo extends AuditEvent implements EngineIgnoreEv
 	public AdminGroupRemovedForVo(Group group, Vo vo) {
 		this.vo = vo;
 		this.group = group;
-		this.message = formatMessage("Group %s was removed from admins of %s.", group, vo);
+		this.message = formatMessage("%s was removed from admins of %s.", group, vo);
 	}
 
 	@Override

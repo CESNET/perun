@@ -18,7 +18,7 @@ public class AdminGroupAddedForFacility extends AuditEvent implements EngineIgno
 	public AdminGroupAddedForFacility(Group group, Facility facility) {
 		this.group = group;
 		this.facility = facility;
-		this.message = formatMessage("Group %s was added as admin of %s.", group, facility);
+		this.message = formatMessage("%s was added as admin of %s.", group, facility);
 	}
 
 	public Group getGroup() {
