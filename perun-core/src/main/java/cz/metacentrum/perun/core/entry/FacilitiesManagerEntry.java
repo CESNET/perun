@@ -58,6 +58,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import org.slf4j.Logger;
@@ -800,7 +801,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		getFacilitiesManagerBl().addAdmin(sess, facility, user);
+		AuthzResolverBlImpl.setRole(sess, user, facility, Role.FACILITYADMIN);
 	}
 
 	@Override
@@ -815,7 +816,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		getFacilitiesManagerBl().addAdmin(sess, facility, group);
+		AuthzResolverBlImpl.setRole(sess, group, facility, Role.FACILITYADMIN);
 	}
 
 	@Override
@@ -829,7 +830,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "deleteAdmin");
 		}
 
-		getFacilitiesManagerBl().removeAdmin(sess, facility, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, facility, Role.FACILITYADMIN);
 
 	}
 
@@ -844,7 +845,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "deleteAdmin");
 		}
 
-		getFacilitiesManagerBl().removeAdmin(sess, facility, group);
+		AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
 
 	}
 

@@ -324,7 +324,7 @@ public class VosManagerEntry implements VosManager {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		vosManagerBl.addAdmin(sess, vo, user);
+		AuthzResolverBlImpl.setRole(sess, user, vo, Role.VOADMIN);
 	}
 
 
@@ -339,7 +339,7 @@ public class VosManagerEntry implements VosManager {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		vosManagerBl.addAdmin(sess, vo, group);
+		AuthzResolverBlImpl.setRole(sess, group, vo, Role.VOADMIN);
 	}
 
 	@Override
@@ -353,7 +353,7 @@ public class VosManagerEntry implements VosManager {
 			throw new PrivilegeException(sess, "deleteAdmin");
 		}
 
-		vosManagerBl.removeAdmin(sess, vo, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.VOADMIN);
 	}
 
 	@Override
@@ -367,7 +367,7 @@ public class VosManagerEntry implements VosManager {
 			throw new PrivilegeException(sess, "deleteAdmin");
 		}
 
-		vosManagerBl.removeAdmin(sess, vo, group);
+		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.VOADMIN);
 	}
 
 	@Override

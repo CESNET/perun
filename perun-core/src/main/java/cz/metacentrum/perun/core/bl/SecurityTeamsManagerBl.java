@@ -120,50 +120,6 @@ public interface SecurityTeamsManagerBl {
 	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
-	 * create security admin from given user and add him as security admin of given security team
-	 *
-	 * @param sess
-	 * @param securityTeam
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Create group as security admins group of given security team (all users in group will have security admin rights)
-	 *
-	 * @param sess
-	 * @param securityTeam
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Remove security admin role for given security team from user
-	 *
-	 * @param sess
-	 * @param securityTeam
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws UserNotAdminException
-	 */
-	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Remove security admin role for given security team from group
-	 *
-	 * @param sess
-	 * @param securityTeam
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws GroupNotAdminException
-	 */
-	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException;
-
-	/**
 	 * Blacklist user by given security team with description.
 	 *
 	 * Description can be null.

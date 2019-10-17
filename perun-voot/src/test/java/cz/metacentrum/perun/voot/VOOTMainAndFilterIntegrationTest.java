@@ -2,6 +2,7 @@ package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -209,9 +210,9 @@ public class VOOTMainAndFilterIntegrationTest extends AbstractVOOTTest {
 		member2OfUser1 = perun.getMembersManagerBl().createMember(session, vo2, user1);
 
 		perun.getGroupsManagerBl().addMember(session, group1OfVo1, member1OfUser1);
-		perun.getGroupsManagerBl().addAdmin(session, group1OfVo1, user1);
+		AuthzResolverBlImpl.setRole(session, user1, group1OfVo1, Role.GROUPADMIN);
 		perun.getGroupsManagerBl().addMember(session, group2OfVo1, member1OfUser1);
-		perun.getGroupsManagerBl().addAdmin(session, group2OfVo1, user1);
+		AuthzResolverBlImpl.setRole(session, user1, group2OfVo1, Role.GROUPADMIN);
 		perun.getGroupsManagerBl().addMember(session, group1OfVo2, member2OfUser1);
 
 		user2 = new User(2, "user2-firstName", "user2-lastName", null, null, null);
