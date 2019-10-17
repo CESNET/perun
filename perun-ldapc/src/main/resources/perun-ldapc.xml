@@ -627,6 +627,21 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	</bean>
 
 	<bean id="perunResource" class="cz.metacentrum.perun.ldapc.model.impl.PerunResourceImpl">
+		<property name="attributeDescriptions">
+			<!--  this list will be added to built-in defaultAttributeDescriptions -->
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="capabilities" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="capabilities" />
+							<property name="namespace" value="urn:perun:resource:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
 		<property name="attributeDescriptionsExt" ref="perunResourceAttributesExt" />
 	</bean>
 
