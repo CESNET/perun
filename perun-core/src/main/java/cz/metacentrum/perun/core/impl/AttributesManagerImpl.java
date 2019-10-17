@@ -1437,6 +1437,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled()) {
+			List<String> controlledAttrNames = new ArrayList<>();
+
+			for(String attributeName: attrNames) {
+				//check namespace
+				if(attributeName.startsWith(AttributesManager.NS_RESOURCE_ATTR)) controlledAttrNames.add(attributeName);
+			}
+
+			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(resource.getId(), Holder.HolderType.RESOURCE), null);
+			return this.setValuesOfAttributes(sess, attrs, resource, null);
+		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("rId", resource.getId());
@@ -1645,19 +1656,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
-		if(!CacheManager.isCacheDisabled()) {
-			String value = perun.getCacheManager().getEntitylessAttrValue(attrId, key);
-
-			if(value != null) return value;
-			else {
-				//If there is no such entityless attribute, create new one with null value and return null (insert is for transaction same like select for update)
-				Attribute attr = new Attribute(this.getAttributeDefinitionById(sess, attrId));
-				setAttributeCreatedAndModified(sess, attr);
-				self.setAttributeWithNullValue(sess, key, attr);
-				perun.getCacheManager().setEntitylessAttribute(attr, key);
-				return null;
-			}
-		}
+		// We do not want to use attribute cache here because cache does not lock values we are updating from changes from different sources.
 
 		try {
 			return jdbc.queryForObject("SELECT attr_value, attr_value_text FROM entityless_attr_values WHERE subject=? AND attr_id=? FOR UPDATE", ATTRIBUTE_VALUES_MAPPER, key, attrId);
@@ -1717,6 +1716,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<RichAttribute<User, Facility>> getAllUserFacilityRichAttributes(PerunSession sess, User user) throws InternalErrorException {
+		// We do not want to use attribute cache to retrieve RichAttributes because entities are not stored in cache.
+
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + ", " + UsersManagerImpl.userMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery + "   from attr_names " +
 							"left join    user_facility_attr_values     usr_fac      on attr_names.id=usr_fac.attr_id     and   usr_fac.user_id=? " +
