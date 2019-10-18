@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Adds an external source. External source name and type are required fields.
+
+	Example of Supported external source types. 
+	For full list see https://github.com/CESNET/perun/tree/master/perun-core/src/main/java/cz/metacentrum/perun/core/impl
+
+	cz.metacentrum.perun.core.impl.ExtSourceSql
+	cz.metacentrum.perun.core.impl.ExtSourceCSV
+	cz.metacentrum.perun.core.impl.ExtSourceIdp
+	cz.metacentrum.perun.core.impl.ExtSourceKerberos
+	cz.metacentrum.perun.core.impl.ExtSourceSql
+	cz.metacentrum.perun.core.impl.ExtSourceX509
+	
+	------------------------------------
+	Available options:
+	--extSourceName  | -E external source name
+	--extSourceType  | -t external source type (cz.metacentrum.perun.core.impl.ExtSourceSql)
+	--batch          | -b batch
+	--help           | -h prints this help
+	};
+}
+
+my ($extSourceName, $extSourceType, $batch);
+GetOptions ("help|h"     => sub {
+		print help();
+		exit 0;
+	}, 
+	"extSourceName|E=s" => \$extSourceName,
+	"extSourceType|t=s" => \$extSourceType, "batch|b" => \$batch) || die help();
+
+# Check options
+unless (defined($extSourceName)) { die "ERROR: extSourceName is required \n";}
+unless (defined($extSourceType)) { die "ERROR: extSourceType is required \n";}
+
+my $agent = Perun::Agent->new();
+my $extSourcesAgent = $agent->getExtSourcesAgent;
+
+my $extSource = Perun::beans::ExtSource->new;
+$extSource->setName( $extSourceName );
+$extSource->setType( $extSourceType );
+
+$extSourcesAgent->createExtSource( extSource => $extSource );
+
+printMessage("External Source: $extSourceName with type: $extSourceType created", $batch);
