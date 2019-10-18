@@ -4725,6 +4725,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, member, resource, attributes);
+			checkAttributesDependencies(sess, member, resource, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4809,6 +4810,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, member, group, attributes);
+			checkAttributesDependencies(sess, member, group, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
