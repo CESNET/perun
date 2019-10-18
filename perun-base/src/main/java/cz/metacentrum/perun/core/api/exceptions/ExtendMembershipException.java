@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checked version of ExtendMembershipException.
+ * Thrown when the membership could not be extended. The reason is sent as a parameter of the exception.
  *
  * @author Michal Prochazka
  */
@@ -15,6 +15,11 @@ public class ExtendMembershipException extends PerunException {
 	private Reason reason;
 	private String expirationDate;
 
+	/**
+	 * Constructor with the reason and the message
+	 * @param reason reason why the membership could not be extended
+	 * @param message message with details about the cause
+	 */
 	public ExtendMembershipException(Reason reason, String message) {
 		super(message);
 
@@ -23,6 +28,12 @@ public class ExtendMembershipException extends PerunException {
 		log.error("Internal Error Exception:", this);
 	}
 
+	/**
+	 * Constructor with the reason, expiration date and the message
+	 * @param reason reason why the membership could not be extended
+	 * @param expirationDate expiration date of the membership
+	 * @param message message with details about the cause
+	 */
 	public ExtendMembershipException(Reason reason, String expirationDate, String message) {
 		super(message);
 
@@ -32,12 +43,21 @@ public class ExtendMembershipException extends PerunException {
 		log.error("Internal Error Exception:", this);
 	}
 
+	/**
+	 * Constructor with a message and Throwable object
+	 * @param message message with details about the cause
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public ExtendMembershipException(String message, Throwable cause) {
 		super(message, cause);
 
 		log.error("Internal Error Exception:", this);
 	}
 
+	/**
+	 * Constructor with a Throwable object
+	 * @param cause Throwable that caused throwing of this exception
+	 */
 	public ExtendMembershipException(Throwable cause) {
 		super(cause);
 
