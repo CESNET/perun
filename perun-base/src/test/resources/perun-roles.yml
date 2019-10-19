@@ -20,4 +20,12 @@ perun_roles:
   - SECURITYADMIN
   - CABINETADMIN
   - UNKNOWN
+
+#A list of Perun policies that are loaded to the PerunPoliciesContainer.
+perun_policies:
+
+  default_policy:
+    policy_roles:
+      - PERUNADMIN:
+    include_policies: []
 ...
