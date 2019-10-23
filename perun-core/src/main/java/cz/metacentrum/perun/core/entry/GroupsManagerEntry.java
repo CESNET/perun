@@ -53,6 +53,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 
@@ -660,7 +661,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "addAdmin");
 				}
 
-		getGroupsManagerBl().addAdmin(sess, group, user);
+		AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
 	}
 
 	@Override
@@ -676,7 +677,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "addAdmin");
 				}
 
-		getGroupsManagerBl().addAdmin(sess, group, authorizedGroup);
+		AuthzResolverBlImpl.setRole(sess, authorizedGroup, group, Role.GROUPADMIN);
 	}
 
 	@Override
@@ -691,7 +692,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "removeAdmin");
 				}
 
-		getGroupsManagerBl().removeAdmin(sess, group, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, group, Role.GROUPADMIN);
 	}
 
 	@Override
@@ -706,7 +707,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "removeAdmin");
 				}
 
-		getGroupsManagerBl().removeAdmin(sess, group, authorizedGroup);
+		AuthzResolverBlImpl.unsetRole(sess, authorizedGroup, group, Role.GROUPADMIN);
 	}
 
 	@Override

@@ -154,30 +154,6 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException {
-		AuthzResolverBlImpl.addAdmin(sess, securityTeam, user);
-		getPerunBl().getAuditer().log(sess, new AdminAddedForSecurityTeam(user, securityTeam));
-	}
-
-	@Override
-	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, AlreadyAdminException {
-		AuthzResolverBlImpl.addAdmin(sess, securityTeam, group);
-		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForSecurityTeam(group, securityTeam));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException {
-		AuthzResolverBlImpl.removeAdmin(sess, securityTeam, user);
-		getPerunBl().getAuditer().log(sess, new AdminRemovedFromSecurityTeam(user, securityTeam));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException {
-		AuthzResolverBlImpl.removeAdmin(sess, securityTeam, group);
-		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedFromSecurityTeam(group, securityTeam));
-	}
-
-	@Override
 	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().addUserToBlacklist(sess, securityTeam, user, description);
 		getPerunBl().getAuditer().log(sess, new UserAddedToBlackListOfSecurityTeam(user, securityTeam, description));

@@ -823,62 +823,6 @@ public interface ResourcesManagerBl {
 	List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Add role resource admin to user for the selected resource.
-	 *
-	 * @param sess
-	 * @param resource
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
-	 * @throws PrivilegeException
-	 * @throws AlreadyAdminException
-	 * @throws ResourceNotExistsException
-	 */
-	void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Add role resource admin to group for the selected resource.
-	 *
-	 * @param sess
-	 * @param resource
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
-	 * @throws PrivilegeException
-	 * @throws AlreadyAdminException
-	 * @throws ResourceNotExistsException
-	 */
-	void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Remove role resource admin from user for the selected resource.
-	 *
-	 * @param sess
-	 * @param resource
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
-	 * @throws PrivilegeException
-	 * @throws AlreadyAdminException
-	 * @throws ResourceNotExistsException
-	 */
-	void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Remove role resource admin from group for the selected resource.
-	 *
-	 * @param sess
-	 * @param resource
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws GroupNotExistsException
-	 * @throws PrivilegeException
-	 * @throws GroupNotAdminException
-	 * @throws ResourceNotExistsException
-	 */
-	void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException;
-
-	/**
 	 * Set ban for member on resource
 	 *
 	 * @param sess

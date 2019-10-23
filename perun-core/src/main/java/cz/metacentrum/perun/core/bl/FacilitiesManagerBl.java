@@ -605,54 +605,6 @@ public interface FacilitiesManagerBl {
 	 */
 
 	/**
-	 * Adds user administrator to the Facility.
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Adds group administrator to the Facility.
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param group that will become a Facility administrator
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Removes a user administrator from the Facility.
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws UserNotAdminException
-	 */
-	void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Removes a group administrator from the Facility.
-	 *
-	 * @param sess
-	 * @param facility
-	 * @param group group that will lose a Facility administrator role
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws GroupNotAdminException
-	 */
-	void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException;
-
-	/**
 	 * Get list of all user administrators for supported role and given facility.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.

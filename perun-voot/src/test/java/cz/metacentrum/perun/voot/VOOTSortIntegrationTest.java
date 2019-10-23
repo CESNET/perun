@@ -2,6 +2,7 @@ package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
@@ -194,13 +195,13 @@ public class VOOTSortIntegrationTest extends AbstractVOOTTest {
 
 		perun.getGroupsManagerBl().addMember(session, group1, member1);
 		perun.getGroupsManagerBl().addMember(session, group2, member1);
-		perun.getGroupsManagerBl().addAdmin(session, group2, user1);
+		AuthzResolverBlImpl.setRole(session, user1, group2, Role.GROUPADMIN);
 		perun.getGroupsManagerBl().addMember(session, group3, member1);
-		perun.getGroupsManagerBl().addAdmin(session, group3, user1);
+		AuthzResolverBlImpl.setRole(session, user1, group3, Role.GROUPADMIN);
 
 		perun.getGroupsManagerBl().addMember(session, group1, member2);
 		perun.getGroupsManagerBl().addMember(session, group1, member3);
-		perun.getGroupsManagerBl().addAdmin(session, group1, user3);
+		AuthzResolverBlImpl.setRole(session, user3, group1, Role.GROUPADMIN);
 
 	}
 
