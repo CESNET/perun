@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -576,13 +577,17 @@ public class urn_perun_user_attribute_def_def_timezone extends UserAttributesMod
 	));
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Timezone must be set");
-		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, user, "Attribute value (timezone) is not String type.");
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+		if (attribute.getValue() == null) return;
 
-		String attributeValue = (String) attribute.getValue();
+		String attributeValue = attribute.valueAsString();
 
 		if (!(timezones.contains(attributeValue))) throw new WrongAttributeValueException(attribute, user, "Timezone is not in the correct form.");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Timezone must be set");
 	}
 
 	@Override

@@ -4,8 +4,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -29,37 +27,20 @@ public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends u
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_fedcloud.class);
 
 	/**
-	 * Checks if the user's login is unique in the namespace and pass the regular for UUID.
+	 * Checks if the user's login has correct format and if it's not already reserved in that namespace.
 	 *
 	 * @param sess PerunSession
-	 * @param user User to check attribute for
-	 * @param attribute Attribute to check value to
-	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
-	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
+	 * @param user user
+	 * @param attribute Attribute of the user
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-
-		String userLogin = (String) attribute.getValue();
-		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be null");
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute.valueAsString() == null) return;
 
 		//Check attribute regex
 		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
-
-		// Get all users who have set attribute urn:perun:user:attribute-def:def:login-namespace:[login-namespace], with the value.
-		List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
-
-		usersWithSameLogin.remove(user); //remove self
-		if (!usersWithSameLogin.isEmpty()) {
-			if(usersWithSameLogin.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated Login detected." +  attribute + " " + usersWithSameLogin);
-			throw new WrongAttributeValueException(attribute, user, "This login " + attribute.getValue() + " is already occupied.");
-		}
-
-		try {
-			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), userLogin);
-		} catch (AlreadyReservedLoginException ex) {
-			throw new WrongAttributeValueException(attribute, user, "Login in specific namespace already reserved.", ex);
-		}
 	}
 
 	/**

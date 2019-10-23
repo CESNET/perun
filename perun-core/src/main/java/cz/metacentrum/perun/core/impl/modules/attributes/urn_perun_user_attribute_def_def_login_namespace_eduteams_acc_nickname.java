@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickn
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickname.class);
 
 	/**
-	 * Checks if the user's login is unique in the namespace organization.
+	 * Check if the user's login is in the correct format and if it is permitted to use.
 	 * Check if maximum length is 20 chars
 	 *
 	 * @param sess PerunSession
@@ -29,17 +30,16 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickn
 	 * @param attribute Attribute to check value to
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
-	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
-		// check uniqueness
-		super.checkAttributeSemantics(sess, user, attribute);
+		// check syntax of attribute
+		super.checkAttributeSyntax(sess, user, attribute);
 
 		// plus check, that login is max 20 chars.
 		if (attribute.getValue() != null) {
-			if (((String)attribute.getValue()).length() > 20) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' exceeds 20 chars limit.");
+			if ((attribute.valueAsString()).length() > 20) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' exceeds 20 chars limit.");
 		}
 
 	}
@@ -104,7 +104,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickn
 				try {
 					checkAttributeSemantics(perunSession, user, filledAttribute);
 					return filledAttribute;
-				} catch (WrongAttributeValueException ex) {
+				} catch (WrongReferenceAttributeValueException ex) {
 					// continue in a WHILE cycle
 					iterator++;
 				}

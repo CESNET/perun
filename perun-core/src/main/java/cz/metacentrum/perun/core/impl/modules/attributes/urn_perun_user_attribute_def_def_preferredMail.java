@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
@@ -20,11 +21,9 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
 	private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		String attributeValue;
-
-		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "User preferred mail can't be set to null.");
-		else attributeValue = (String) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+		if(attribute.getValue() == null) return;
+		String attributeValue = attribute.valueAsString();
 
 		Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);
 		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");
@@ -51,6 +50,12 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
 		}
 		throw new WrongAttributeValueException("Attribute user preffered mail can be null (if no members mail exists) or one of the existing member's mails [" + possiblePrefferedMailValues.toString() + "]. " + attribute);
 		*/
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null)
+			throw new WrongReferenceAttributeValueException(attribute, null, user, null, "User preferred mail can't be set to null.");
 	}
 
 	/* Not needed now this funcionality

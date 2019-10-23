@@ -50,11 +50,11 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 	@Override
 	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-		String value = (String)attribute.getValue();
+		String value = attribute.valueAsString();
 		try {
 			Attribute eppns = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, A_U_eduPersonPrincipalNames);
 			if (eppns.getValue() != null) {
-				List<String> values = (List<String>)eppns.getValue();
+				List<String> values = eppns.valueAsList();
 				if (!values.contains(value)) {
 					// value is not allowed
 					throw new WrongReferenceAttributeValueException(attribute, eppns, user, null, user, null, "Value '"+value+"' is not allowed. Please use one of allowed.");

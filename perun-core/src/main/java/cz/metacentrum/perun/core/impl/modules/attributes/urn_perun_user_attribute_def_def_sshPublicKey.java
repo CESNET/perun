@@ -18,12 +18,12 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_sshPublicKey extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		//Null in value is ok here
 		if(attribute.getValue() == null) return;
 		
 		//Testing if some ssh key contains new line character
-		List<String> sshKeys = (ArrayList<String>) attribute.getValue();
+		List<String> sshKeys = attribute.valueAsList();
 		for(String sshKey: sshKeys) {
 			if(sshKey != null) {
 				if(sshKey.contains("\n")) throw new WrongAttributeValueException(attribute, user, "One of keys in attribute contains new line character. New line character is not allowed here.");

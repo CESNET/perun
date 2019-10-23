@@ -40,12 +40,12 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 	 * existing user and the new user is allowed.
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-		Integer uid = (Integer) attribute.getValue();
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+		Integer uid = attribute.valueAsInteger();
 		String uidNamespace = attribute.getFriendlyNameParameter();
 
 		if (uid == null) {
-			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
+			throw new WrongReferenceAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
 		}
 
 		Attribute minUidAttribute;
@@ -57,8 +57,8 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 			throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
 		}
 
-		Integer min = (Integer) minUidAttribute.getValue();
-		Integer max = (Integer) maxUidAttribute.getValue();
+		Integer min = minUidAttribute.valueAsInteger();
+		Integer max = maxUidAttribute.valueAsInteger();
 		if(min == null) {
 			throw new WrongReferenceAttributeValueException(attribute, minUidAttribute);
 		}
@@ -66,8 +66,12 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 			throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute);
 		}
 		//uid is in proper range
-		if (uid < min || uid > max) {
-			throw new WrongAttributeValueException(attribute, "UID " + uid + " is not proper range (" + min + "," + max +")");
+		if (uid < min) {
+			throw new WrongReferenceAttributeValueException(attribute, minUidAttribute, user, null, uidNamespace, null, "UID " + uid + " is lesser than min " + min);
+		}
+
+		if (uid > max) {
+			throw new WrongReferenceAttributeValueException(attribute, maxUidAttribute, user, null, uidNamespace, null, "UID " + uid + " is higher than max " + max);
 		}
 
 		// Get all users who have set attribute urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], with the value.
@@ -75,7 +79,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		usersWithUid.remove(user); //remove self
 		if (!usersWithUid.isEmpty()) {
 			if(usersWithUid.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated UID detected." +  attribute + " " + usersWithUid);
-			throw new WrongAttributeValueException(attribute, "UID " + attribute.getValue() + " is already occupied by " + usersWithUid.get(0)  + ". We can't set it for " + user + ".");
+			throw new WrongReferenceAttributeValueException(attribute, "UID " + attribute.getValue() + " is already occupied by " + usersWithUid.get(0)  + ". We can't set it for " + user + ".");
 		}
 	}
 

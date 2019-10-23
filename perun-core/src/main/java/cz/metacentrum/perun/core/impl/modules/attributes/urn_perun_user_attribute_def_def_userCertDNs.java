@@ -28,10 +28,9 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 	private static final Pattern certPattern = Pattern.compile("^/");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
-		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null");
-		Map<String, String> value = (Map) attribute.getValue();
-		if(value.isEmpty()) throw new WrongAttributeValueException(attribute, "This attribute value can't be empty");
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+		if(attribute.getValue() == null) return;
+		Map<String, String> value = attribute.valueAsMap();
 
 		Set<String> valueKeys = value.keySet();
 		for(String k: valueKeys) {
@@ -41,6 +40,12 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 			Matcher certValueOfKeyMatcher = certPattern.matcher(valueOfKey);
 			if(!certValueOfKeyMatcher.find()) throw new WrongAttributeValueException(attribute, "There is wrong value for key's value " + valueOfKey + " in hashMap of UserCertDns for key " + k);
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null)
+			throw new WrongReferenceAttributeValueException(attribute, null, user, null, "This attribute value can't be null");
 	}
 
 	@Override
