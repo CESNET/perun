@@ -310,7 +310,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		//set creator as Facility manager
 		if(sess.getPerunPrincipal().getUser() != null) {
 			try {
-				addAdmin(sess, facility, sess.getPerunPrincipal().getUser());
+				AuthzResolverBlImpl.setRole(sess, sess.getPerunPrincipal().getUser(), facility, Role.FACILITYADMIN);
 			} catch(AlreadyAdminException ex) {
 				throw new ConsistencyErrorException("Add manager to newly created Facility failed because there is particular manager already assigned", ex);
 			}
@@ -590,36 +590,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
-		AuthzResolverBlImpl.setRole(sess, user, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminAddedForFacility(user, facility));
-	}
-
-	@Override
-	public void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
-		List<Group> listOfAdmins = getAdminGroups(sess, facility);
-		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
-
-		AuthzResolverBlImpl.setRole(sess, group, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForFacility(group, facility));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
-		AuthzResolverBlImpl.unsetRole(sess, user, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminRemovedForFacility(user, facility));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
-		List<Group> listOfAdmins = getAdminGroups(sess, facility);
-		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
-
-		AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForFacility(group, facility));
-	}
-
-	@Override
 	public List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws InternalErrorException {
 		if(onlyDirectAdmins) {
 			return getFacilitiesManagerImpl().getDirectAdmins(perunSession, facility);
@@ -819,7 +789,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException {
 		for (User admin: getDirectAdmins(sess, sourceFacility)) {
 			try {
-				addAdmin(sess, destinationFacility, admin);
+				AuthzResolverBlImpl.setRole(sess, admin, destinationFacility, Role.FACILITYADMIN);
 			} catch (AlreadyAdminException ex) {
 				// we can ignore the exception in this particular case, user can be admin in both of the facilities
 			}
@@ -827,7 +797,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 		for (Group adminGroup: getAdminGroups(sess, sourceFacility)) {
 			try {
-				addAdmin(sess, destinationFacility, adminGroup);
+				AuthzResolverBlImpl.setRole(sess, adminGroup, destinationFacility, Role.FACILITYADMIN);
 			} catch (AlreadyAdminException ex) {
 				// we can ignore the exception in this particular case, group can be admin in both of the facilities
 			}

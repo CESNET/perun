@@ -456,7 +456,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Facility> facilitiesWhereGroupIsAdmin = getGroupsManagerImpl().getFacilitiesWhereGroupIsAdmin(sess, group);
 		for (Facility facility : facilitiesWhereGroupIsAdmin) {
 			try {
-				perunBl.getFacilitiesManagerBl().removeAdmin(sess, facility, group);
+				AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
 			} catch (GroupNotAdminException e) {
 				log.warn("Can't unset group {} as admin of facility {} due to group not admin exception {}.", group, facility, e);
 			}
@@ -465,7 +465,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Group> groupsWhereGroupIsAdmin = getGroupsManagerImpl().getGroupsWhereGroupIsAdmin(sess, group);
 		for (Group group1 : groupsWhereGroupIsAdmin) {
 			try {
-				removeAdmin(sess, group1, group);
+				AuthzResolverBlImpl.unsetRole(sess, group, group1, Role.GROUPADMIN);
 			} catch (GroupNotAdminException e) {
 				log.warn("Can't unset group {} as admin of group {} due to group not admin exception {}.", group, group1, e);
 			}
@@ -474,7 +474,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Resource> resourcesWhereGroupIsAdmin = getGroupsManagerImpl().getResourcesWhereGroupIsAdmin(sess, group);
 		for (Resource resource : resourcesWhereGroupIsAdmin) {
 			try {
-				perunBl.getResourcesManagerBl().removeAdmin(sess, resource, group);
+				AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
 			} catch (GroupNotAdminException e) {
 				log.warn("Can't unset group {} as admin of resource {} due to group not admin exception {}.", group, resource, e);
 			}
@@ -492,7 +492,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<SecurityTeam> securityTeamsWhereGroupIsAdmin = getGroupsManagerImpl().getSecurityTeamsWhereGroupIsAdmin(sess, group);
 		for (SecurityTeam securityTeam : securityTeamsWhereGroupIsAdmin) {
 			try {
-				perunBl.getSecurityTeamsManagerBl().removeAdmin(sess, securityTeam, group);
+				AuthzResolverBlImpl.unsetRole(sess, group, securityTeam, Role.SECURITYADMIN);
 			} catch (GroupNotAdminException e) {
 				log.warn("Can't unset group {} as admin of security team {} due to group not admin exception {}.", group, securityTeam, e);
 			}
@@ -501,7 +501,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Vo> vosWhereGroupIsAdmin = getGroupsManagerImpl().getVosWhereGroupIsAdmin(sess, group);
 		for (Vo vo1 : vosWhereGroupIsAdmin) {
 			try {
-				perunBl.getVosManagerBl().removeAdmin(sess, vo1, group);
+				AuthzResolverBlImpl.unsetRole(sess, group, vo1, Role.VOADMIN);
 			} catch (GroupNotAdminException e) {
 				log.warn("Can't unset group {} as admin of facility {} due to group not admin exception {}.", group, vo1, e);
 			}
@@ -1270,36 +1270,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public int getGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> members = this.getGroupMembers(sess, group);
 		return members.size();
-	}
-
-	@Override
-	public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
-		AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminAddedForGroup(user, group));
-	}
-
-	@Override
-	public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException {
-		List<Group> listOfAdmins = getAdminGroups(sess, group);
-		if (listOfAdmins.contains(authorizedGroup)) throw new AlreadyAdminException(authorizedGroup);
-
-		AuthzResolverBlImpl.setRole(sess, authorizedGroup, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForGroup(authorizedGroup, group));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
-		AuthzResolverBlImpl.unsetRole(sess, user, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminRemovedForGroup(user, group));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
-		List<Group> listOfAdmins = getAdminGroups(sess, group);
-		if (!listOfAdmins.contains(authorizedGroup)) throw new GroupNotAdminException(authorizedGroup);
-
-		AuthzResolverBlImpl.unsetRole(sess, authorizedGroup, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedFromGroup(authorizedGroup, group));
 	}
 
 	@Override

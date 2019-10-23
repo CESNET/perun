@@ -1,6 +1,26 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminAddedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminGroupAddedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminGroupRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminRemovedForFacility;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminAddedForGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupAddedForGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupRemovedFromGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminRemovedForGroup;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminGroupAddedForResource;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminGroupRemovedForResource;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminUserAddedForResource;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminUserRemovedForResource;
+import cz.metacentrum.perun.audit.events.SecurityTeamsManagerEvents.AdminAddedForSecurityTeam;
+import cz.metacentrum.perun.audit.events.SecurityTeamsManagerEvents.AdminGroupAddedForSecurityTeam;
+import cz.metacentrum.perun.audit.events.SecurityTeamsManagerEvents.AdminGroupRemovedFromSecurityTeam;
+import cz.metacentrum.perun.audit.events.SecurityTeamsManagerEvents.AdminRemovedFromSecurityTeam;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminAddedForVo;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminGroupAddedForVo;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminGroupRemovedForVo;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminRemovedForVo;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -1116,8 +1136,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				} else if (role.equals(Role.VOADMIN)) {
 					if (complementaryObject instanceof Vo) {
-						if (user != null) authzResolverImpl.addVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, user);
-						else authzResolverImpl.addVoRole(sess, Role.VOADMIN, (Vo) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.addVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminAddedForVo(user, (Vo) complementaryObject));
+						} else {
+							authzResolverImpl.addVoRole(sess, Role.VOADMIN, (Vo) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupAddedForVo(authorizedGroup, (Vo) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
 					}
@@ -1130,29 +1155,49 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				} else if (role.equals(Role.GROUPADMIN)) {
 					if (complementaryObject instanceof Group) {
-						if (user != null) authzResolverImpl.addAdmin(sess, (Group) complementaryObject, user);
-						else authzResolverImpl.addAdmin(sess, (Group) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.addAdmin(sess, (Group) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminAddedForGroup(user, (Group) complementaryObject));
+						} else {
+							authzResolverImpl.addAdmin(sess, (Group) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupAddedForGroup(authorizedGroup, (Group) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for GroupAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.FACILITYADMIN)) {
 					if (complementaryObject instanceof Facility) {
-						if (user != null) authzResolverImpl.addAdmin(sess, (Facility) complementaryObject, user);
-						else authzResolverImpl.addAdmin(sess, (Facility) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.addAdmin(sess, (Facility) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminAddedForFacility(user, (Facility) complementaryObject));
+						} else {
+							authzResolverImpl.addAdmin(sess, (Facility) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupAddedForFacility(authorizedGroup, (Facility) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.RESOURCEADMIN)) {
 					if (complementaryObject instanceof Resource) {
-						if (user != null) authzResolverImpl.addAdmin(sess, (Resource) complementaryObject, user);
-						else authzResolverImpl.addAdmin(sess, (Resource) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.addAdmin(sess, (Resource) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminUserAddedForResource(user, (Resource) complementaryObject));
+						} else {
+							authzResolverImpl.addAdmin(sess, (Resource) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupAddedForResource(authorizedGroup, (Resource) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for ResourceAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.SECURITYADMIN)) {
 					if (complementaryObject instanceof SecurityTeam) {
-						if (user != null) addAdmin(sess, (SecurityTeam) complementaryObject, user);
-						else addAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
+						if (user != null) {
+							addAdmin(sess, (SecurityTeam) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminAddedForSecurityTeam(user, (SecurityTeam) complementaryObject));
+						} else {
+							addAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupAddedForSecurityTeam(authorizedGroup, (SecurityTeam) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 					}
@@ -1197,8 +1242,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				} else if (role.equals(Role.VOADMIN)) {
 					if (complementaryObject instanceof Vo) {
-						if (user != null) authzResolverImpl.removeVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, user);
-						else authzResolverImpl.removeVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.removeVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminRemovedForVo(user, (Vo) complementaryObject));
+						} else {
+							authzResolverImpl.removeVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForVo(authorizedGroup, (Vo) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
 					}
@@ -1211,29 +1261,49 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				} else if (role.equals(Role.GROUPADMIN)) {
 					if (complementaryObject instanceof Group) {
-						if (user != null) authzResolverImpl.removeAdmin(sess, (Group) complementaryObject, user);
-						else authzResolverImpl.removeAdmin(sess, (Group) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.removeAdmin(sess, (Group) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminRemovedForGroup(user, (Group) complementaryObject));
+						} else {
+							authzResolverImpl.removeAdmin(sess, (Group) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupRemovedFromGroup(authorizedGroup, (Group) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for GroupAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.FACILITYADMIN)) {
 					if (complementaryObject instanceof Facility) {
-						if (user != null) authzResolverImpl.removeAdmin(sess, (Facility) complementaryObject, user);
-						else authzResolverImpl.removeAdmin(sess, (Facility) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.removeAdmin(sess, (Facility) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminRemovedForFacility(user, (Facility) complementaryObject));
+						} else {
+							authzResolverImpl.removeAdmin(sess, (Facility) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForFacility(authorizedGroup, (Facility) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.RESOURCEADMIN)) {
 					if (complementaryObject instanceof Resource) {
-						if (user != null) authzResolverImpl.removeAdmin(sess, (Resource) complementaryObject, user);
-						else authzResolverImpl.removeAdmin(sess, (Resource) complementaryObject, authorizedGroup);
+						if (user != null) {
+							authzResolverImpl.removeAdmin(sess, (Resource) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminUserRemovedForResource(user, (Resource) complementaryObject));
+						} else {
+							authzResolverImpl.removeAdmin(sess, (Resource) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForResource(authorizedGroup, (Resource) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for ResourceAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.SECURITYADMIN)) {
 					if (complementaryObject instanceof SecurityTeam) {
-						if (user != null) removeAdmin(sess, (SecurityTeam) complementaryObject, user);
-						else removeAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
+						if (user != null) {
+							removeAdmin(sess, (SecurityTeam) complementaryObject, user);
+							getPerunBl().getAuditer().log(sess, new AdminRemovedFromSecurityTeam(user, (SecurityTeam) complementaryObject));
+						} else {
+							removeAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
+							getPerunBl().getAuditer().log(sess, new AdminGroupRemovedFromSecurityTeam(authorizedGroup, (SecurityTeam) complementaryObject));
+						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoObserver: " + complementaryObject);
 					}

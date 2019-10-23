@@ -47,6 +47,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1085,7 +1086,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		getResourcesManagerBl().addAdmin(sess, resource, user);
+		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override
@@ -1099,7 +1100,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		getResourcesManagerBl().addAdmin(sess, resource, group);
+		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override
@@ -1113,7 +1114,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "removeAdmin");
 		}
 
-		getResourcesManagerBl().removeAdmin(sess, resource, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override
@@ -1127,8 +1128,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "removeAdmin");
 		}
 
-		getResourcesManagerBl().removeAdmin(sess, resource, group);
-
+		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override

@@ -171,51 +171,6 @@ public interface VosManagerBl {
 	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources) throws InternalErrorException;
 
 	/**
-	 * Add a user administrator to the VO.
-	 *
-	 * @param perunSession
-	 * @param vo
-	 * @param user user who will became an VO administrator
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession perunSession, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
-
-
-	/**
-	 * Add a group administrator to the VO.
-	 *
-	 * @param perunSession
-	 * @param vo
-	 * @param group group who will become a VO administrator
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Removes a user administrator from the VO.
-	 *
-	 * @param perunSession
-	 * @param vo
-	 * @param user user who will lose an VO administrator role
-	 * @throws InternalErrorException
-	 * @throws UserNotAdminException
-	 */
-	void removeAdmin(PerunSession perunSession, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Removes a group administrator from the VO.
-	 *
-	 * @param perunSession
-	 * @param vo
-	 * @param group group who will lose a VO administrator role
-	 * @throws InternalErrorException
-	 * @throws GroupNotAdminException
-	 */
-	void removeAdmin(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
-
-	/**
 	 * Get list of all user administrators for supported role and specific vo.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.

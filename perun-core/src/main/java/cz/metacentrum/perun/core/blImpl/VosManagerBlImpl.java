@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
@@ -186,10 +187,12 @@ public class VosManagerBlImpl implements VosManagerBl {
 		vo = getVosManagerImpl().createVo(sess, vo);
 		getPerunBl().getAuditer().log(sess, new VoCreated(vo));
 
+		User user = sess.getPerunPrincipal().getUser();
 		//set creator as VO manager
-		if (sess.getPerunPrincipal().getUser() != null) {
+		if (user != null) {
 			try {
-				addAdmin(sess, vo, sess.getPerunPrincipal().getUser());
+				AuthzResolverBlImpl.setRole(sess, user, vo, Role.VOADMIN);
+				log.debug("User {} added like administrator to VO {}", user, vo);
 			} catch (AlreadyAdminException ex) {
 				throw new ConsistencyErrorException("Add manager to newly created VO failed because there is a particular manager already assigned", ex);
 			}
@@ -526,42 +529,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 		}
 		return richUsers;
-	}
-
-	@Override
-	public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
-		List<User> adminsOfVo = this.getAdmins(sess, vo);
-		if (adminsOfVo.contains(user)) throw new AlreadyAdminException(user, vo);
-		AuthzResolverBlImpl.setRole(sess, user, vo, Role.VOADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminAddedForVo(user, vo));
-		log.debug("User {} added like administrator to VO {}", user, vo);
-	}
-
-	@Override
-	public void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
-		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
-		if (adminsOfVo.contains(group)) throw new AlreadyAdminException(group, vo);
-		AuthzResolverBlImpl.setRole(sess, group, vo, Role.VOADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForVo(group, vo));
-		log.debug("Group {} added like administrator to VO {}", group, vo);
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
-		List<User> adminsOfVo = this.getAdmins(sess, vo);
-		if (!adminsOfVo.contains(user)) throw new UserNotAdminException(user);
-		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.VOADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminRemovedForVo(user, vo));
-		log.debug("User {} deleted like administrator from VO {}", user, vo);
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
-		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
-		if (!adminsOfVo.contains(group)) throw new GroupNotAdminException(group);
-		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.VOADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForVo(group, vo));
-		log.debug("Group {} deleted like administrator from VO {}", group, vo);
 	}
 
 	@Override

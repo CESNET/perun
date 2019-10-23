@@ -714,54 +714,6 @@ public interface GroupsManagerBl {
 	List<Group> getAllSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException;
 
 	/**
-	 * Adds an administrator of the group.
-	 *
-	 * @param perunSession
-	 * @param group
-	 * @param user
-	 *
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession perunSession, Group group,  User user) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Adds a group administrator to the group.
-	 *
-	 * @param perunSession
-	 * @param group - group that will be assigned admins (users) from authorizedGroup
-	 * @param authorizedGroup - group that will be given the privilege
-	 *
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Removes an administrator form the group.
-	 *
-	 * @param perunSession
-	 * @param group
-	 * @param user
-	 *
-	 * @throws InternalErrorException
-	 * @throws UserNotAdminException
-	 */
-	void removeAdmin(PerunSession perunSession, Group group, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Removes a group administrator of the group.
-	 *
-	 * @param perunSession
-	 * @param group
-	 * @param authorizedGroup group that will be removed the privilege
-	 *
-	 * @throws InternalErrorException
-	 * @throws GroupNotAdminException
-	 */
-	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
-
-	/**
 	 * Get list of all user administrators for supported role and specific group.
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.

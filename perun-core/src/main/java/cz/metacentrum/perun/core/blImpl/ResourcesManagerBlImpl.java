@@ -838,36 +838,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
     }
 
 	@Override
-	public void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, AlreadyAdminException {
-		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminUserAddedForResource(user, resource));
-	}
-
-	@Override
-	public void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, AlreadyAdminException {
-		List<Group> listOfAdmins = getAdminGroups(sess, resource);
-		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
-
-		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForResource(group, resource));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotAdminException {
-		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminUserRemovedForResource(user, resource));
-	}
-
-	@Override
-	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException {
-		List<Group> listOfAdmins = getAdminGroups(sess, resource);
-		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
-
-		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForResource(group, resource));
-	}
-
-	@Override
 	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, BanAlreadyExistsException {
 		if(this.banExists(sess, banOnResource.getMemberId(), banOnResource.getResourceId())) throw new BanAlreadyExistsException(banOnResource);
 		banOnResource = getResourcesManagerImpl().setBan(sess, banOnResource);

@@ -242,7 +242,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		getSecurityTeamsManagerBl().addAdmin(sess, securityTeam, user);
+		AuthzResolverBlImpl.setRole(sess, user, securityTeam, Role.SECURITYADMIN);
 	}
 
 	@Override
@@ -257,7 +257,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
-		getSecurityTeamsManagerBl().addAdmin(sess, securityTeam, group);
+		AuthzResolverBlImpl.setRole(sess, group, securityTeam, Role.SECURITYADMIN);
 
 	}
 
@@ -274,7 +274,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		}
 
 
-		getSecurityTeamsManagerBl().removeAdmin(sess, securityTeam, user);
+		AuthzResolverBlImpl.unsetRole(sess, user, securityTeam, Role.SECURITYADMIN);
 	}
 
 	@Override
@@ -289,7 +289,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 			throw new PrivilegeException(sess, "removeAdmin");
 		}
 
-		getSecurityTeamsManagerBl().removeAdmin(sess, securityTeam, group);
+		AuthzResolverBlImpl.unsetRole(sess, group, securityTeam, Role.SECURITYADMIN);
 	}
 
 	@Override
