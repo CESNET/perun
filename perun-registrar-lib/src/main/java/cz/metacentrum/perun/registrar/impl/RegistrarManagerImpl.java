@@ -15,8 +15,6 @@ import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.MembershipExtend
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 import javax.sql.DataSource;
@@ -1079,7 +1077,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// try to verify (or even auto-approve) application
 		try {
-			tryToVerifyApplication(session, app);
+			boolean verified = tryToVerifyApplication(session, app);
+			if (verified) {
+				// try to APPROVE if auto approve
+				tryToAutoApproveApplication(session, app);
+			} else {
+				// send request validation notification
+				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
+			}
 			// refresh current session, if submission was successful,
 			// since user might have been created.
 			AuthzResolverBlImpl.refreshSession(session);
@@ -2531,7 +2536,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			int appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
 			jdbc.update("update application_data set assurance_level=1 where id = ?", appDataId);
 			Application app = getApplicationById(jdbc.queryForInt("select app_id from application_data where id = ?", appDataId));
-			tryToVerifyApplication(registrarSession, app);
+			boolean verified = tryToVerifyApplication(registrarSession, app);
+			if (verified) {
+				// try to APPROVE if auto approve
+				try {
+					tryToAutoApproveApplication(registrarSession, app);
+				} catch (PerunException ex) {
+					// when approval fails, we want this to be silently skipped, since for "user" called method did verified his mail address.
+					log.warn("We couldn't auto-approve application {}, because of error: {}", app, ex);
+				}
+			} else {
+				// send request validation notification
+				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
+			}
 			return true;
 		}
 		return false;
@@ -2654,6 +2671,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	/**
 	 * Set application to VERIFIED state if all it's
 	 * mails (VALIDATED_EMAIL) have assuranceLevel = "1".
+	 * Returns TRUE if succeeded, FALSE if some mail still waits for verification.
 	 *
 	 * @param sess user who try to verify application
 	 * @param app application to verify
@@ -2676,11 +2694,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// mark VERIFIED
 			markApplicationVerified(sess, app.getId());
 			app.setState(AppState.VERIFIED);
-			// try to APPROVE if auto approve
-			tryToAutoApproveApplication(sess, app);
-		} else {
-			// send request validation notification
-			getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
 		}
 
 		return allValidated;
