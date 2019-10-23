@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,10 +51,20 @@ public class urn_perun_user_attribute_def_def_userCertificatesTest {
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeSyntaxWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeSyntaxWithWrongValue()");
+	public void testCheckAttributeSyntaxWithWrongBase64Value() throws Exception {
+		System.out.println("testCheckAttributeSyntaxWithWrongBase64Value()");
 		Map<String, String> value = new LinkedHashMap<>();
 		value.put("bad_example", "bad_example");
+		attributeToCheck.setValue(value);
+
+		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+	}
+
+	@Test(expected = WrongAttributeValueException.class)
+	public void testCheckAttributeSyntaxWithWrongCertificateValue() throws Exception {
+		System.out.println("testCheckAttributeSyntaxWithWrongCertificateValue()");
+		Map<String, String> value = new LinkedHashMap<>();
+		value.put("bad_example", Base64.encodeBase64String("bad_example".getBytes()));
 		attributeToCheck.setValue(value);
 
 		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
