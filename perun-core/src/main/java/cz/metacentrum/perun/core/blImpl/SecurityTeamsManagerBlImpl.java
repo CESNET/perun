@@ -22,7 +22,9 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
@@ -31,6 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
+import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.implApi.SecurityTeamsManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +107,29 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
 	@Override
 	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws SecurityTeamNotExistsException, InternalErrorException, RelationExistsException {
+
+		//remove admins of this securityTeam
+		List<Group> adminGroups = getSecurityTeamsManagerImpl().getAdminGroups(sess, securityTeam);
+
+		for (Group adminGroup : adminGroups) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminGroup, securityTeam, Role.SECURITYADMIN);
+			} catch (GroupNotAdminException e) {
+				log.warn("When trying to unsetRole SecurityAdmin for group {} in the securityTeam {} the exception was thrown {}", adminGroup, securityTeam, e);
+				//skip and log as warning
+			}
+		}
+
+		List<User> adminUsers = getSecurityTeamsManagerImpl().getAdmins(sess, securityTeam);
+
+		for (User adminUser : adminUsers) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminUser, securityTeam, Role.SECURITYADMIN);
+			} catch (UserNotAdminException e) {
+				log.warn("When trying to unsetRole SecurityAdmin for user {} in the securityTeam {} the exception was thrown {}", adminUser, securityTeam, e);
+				//skip and log as warning
+			}
+		}
 
 		// remove all users from blacklist, which were blacklisted by this security team.
 		List<User> blacklist = getSecurityTeamsManagerImpl().getBlacklist(sess, Collections.singletonList(securityTeam));

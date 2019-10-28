@@ -340,6 +340,28 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			}
 		}
 
+		//remove admins of this facility
+		List<Group> adminGroups = getFacilitiesManagerImpl().getAdminGroups(sess, facility);
+		for (Group adminGroup : adminGroups) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminGroup, facility, Role.FACILITYADMIN);
+			} catch (GroupNotAdminException e) {
+				log.warn("When trying to unsetRole FacilityAdmin for group {} in the facility {} the exception was thrown {}", adminGroup, facility, e);
+				//skip and log as warning
+			}
+		}
+
+		List<User> adminUsers = getFacilitiesManagerImpl().getAdmins(sess, facility);
+
+		for (User adminUser : adminUsers) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminUser, facility, Role.FACILITYADMIN);
+			} catch (UserNotAdminException e) {
+				log.warn("When trying to unsetRole FacilityAdmin for user {} in the facility {} the exception was thrown {}", adminUser, facility, e);
+				//skip and log as warning
+			}
+		}
+
 		//remove hosts
 		List<Host> hosts = this.getHosts(sess, facility);
 		for (Host host: hosts) {
