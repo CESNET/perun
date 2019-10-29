@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage printTable getSortingFunction);
+
+sub help {
+	return qq{
+	Prints list of Groups where member is included.Member Id is required.
+	------------------------------------------
+	Available options:
+	--memberId    | -m  Members identifier
+	--orderById   | -i  order by group ID
+	--orderByName | -n  order by group name
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
+}
+
+
+our $batch;
+my ($memberId, $sortingFunction);
+GetOptions("help|h"   => sub {
+		print help;
+		exit 0;
+	},
+	"memberId|m=i"    => \$memberId,
+	"orderById|i"     => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"   => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"         => \$batch) || die help;
+
+#options check
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $memberId) { die "ERROR: Member specification required.\n"; }
+
+my $agent = Perun::Agent->new();
+my $groupsAgent = $agent->getGroupsAgent;
+
+my @groups = $groupsAgent->getMemberGroups( member => $memberId, pageSize => 0, pageNum => 0 );
+unless (@groups) {
+	printMessage "No Groups found", $batch;
+	exit 0;
+}
+
+#output
+printTable($sortingFunction, @groups);
