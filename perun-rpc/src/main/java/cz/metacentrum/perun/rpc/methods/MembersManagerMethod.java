@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public enum MembersManagerMethod implements ManagerMethod {
@@ -141,11 +142,26 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param sponsor int sponsor's ID
 	 * @return RichMember newly created sponsored member
 	 */
+	/*#
+	 * Creates a new sponsored member in a given VO and namespace.
+	 *
+	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
+	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
+	 *
+	 * @param firstName first name - mandatory
+	 * @param lastName last name - mandatory
+	 * @param titleBefore titles before the name - optionally
+	 * @param titleAfter titles after the name - optionally
+	 * @param password String password
+	 * @param vo int VO ID
+	 * @param namespace String namespace selecting remote system for storing the password
+	 * @param sponsor int sponsor's ID
+	 * @return RichMember newly created sponsored member
+	 */
 	createSponsoredMember {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
 			ac.stateChangingCheck();
-			String guestName = params.readString("guestName");
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
@@ -153,7 +169,18 @@ public enum MembersManagerMethod implements ManagerMethod {
 			if(params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
 			}
-			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, guestName, password, sponsor);
+			Map<String, String> name = new HashMap<>();
+			if (params.contains("guestName")) {
+				name.put("guestName", params.readString("guestName"));
+			} else if (params.contains("firstName") && params.contains("lastName")) {
+				name.put("firstName", params.readString("firstName"));
+				name.put("lastName", params.readString("lastName"));
+				if (params.contains("titleBefore")) name.put("titleBefore", params.readString("titleBefore"));
+				if (params.contains("titleAfter")) name.put("titleAfter", params.readString("titleAfter"));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
+			}
+			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, sponsor);
 		}
 	},
 

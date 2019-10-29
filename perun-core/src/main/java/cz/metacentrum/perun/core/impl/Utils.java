@@ -485,6 +485,18 @@ public class Utils {
 		return s.length() > limit ? s.substring(0, limit) : s;
 	}
 
+	public static User createUserFromNameMap(Map<String, String> name) throws InternalErrorException {
+		User user = new User();
+		if (name.get(FIRST_NAME) == null || name.get(LAST_NAME) == null || name.get(FIRST_NAME).isEmpty() || name.get(LAST_NAME).isEmpty()) {
+			throw new InternalErrorException("First name/last name is either empty or null when creating user");
+		}
+		user.setTitleBefore(limit(name.get(TITLE_BEFORE),40));
+		user.setFirstName(limit(name.get(FIRST_NAME),64));
+		user.setLastName(limit(name.get(LAST_NAME),64));
+		user.setTitleAfter(limit(name.get(TITLE_AFTER),40));
+		return user;
+	}
+
 	/**
 	 * Creates a new instance of User with names initialized from parsed rawName.
 	 * Imposes limit on leghts of fields.
@@ -494,12 +506,7 @@ public class Utils {
 	 */
 	public static User parseUserFromCommonName(String rawName) {
 		Map<String, String> m = parseCommonName(rawName);
-		User user = new User();
-		user.setTitleBefore(limit(m.get(TITLE_BEFORE),40));
-		user.setFirstName(limit(m.get(FIRST_NAME),64));
-		user.setLastName(limit(m.get(LAST_NAME),64));
-		user.setTitleAfter(limit(m.get(TITLE_AFTER),40));
-		return user;
+		return createUserFromNameMap(m);
 	}
 
 	/**
