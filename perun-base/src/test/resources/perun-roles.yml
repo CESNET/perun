@@ -1,0 +1,23 @@
+---
+# A list of Perun roles that are loaded to the database
+perun_roles:
+  - PERUNADMIN
+  - PERUNOBSERVER
+  - VOADMIN
+  - GROUPADMIN
+  - SELF
+  - FACILITYADMIN
+  - RESOURCEADMIN
+  - RESOURCESELFSERVICE
+  - REGISTRAR
+  - ENGINE
+  - RPC
+  - NOTIFICATIONS
+  - SERVICEUSER
+  - SPONSOR
+  - VOOBSERVER
+  - TOPGROUPCREATOR
+  - SECURITYADMIN
+  - CABINETADMIN
+  - UNKNOWN
+...
