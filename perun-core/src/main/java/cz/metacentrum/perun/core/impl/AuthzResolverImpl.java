@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -8,6 +7,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
@@ -757,7 +757,11 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
 	}
 
-	public static JsonNode getPerunPolicy(String policyName) throws PolicyNotExistsException {
+	public static PerunPolicy getPerunPolicy(String policyName) throws PolicyNotExistsException {
 		return perunPoliciesContainer.getPerunPolicy(policyName);
+	}
+
+	public static List<PerunPolicy> fetchPolicyWithAllIncludedPolicies(String policyName) throws PolicyNotExistsException {
+		return perunPoliciesContainer.fetchPolicyWithAllIncludedPolicies(policyName);
 	}
 }

@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunBeanNotSupportedException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -23,6 +24,19 @@ import java.util.List;
 import java.util.Set;
 
 public class AuthzResolver {
+
+	/**
+	 * Checks if the principal is authorized.
+	 *
+	 * @param sess PerunSession which contains the principal.
+	 * @param policyDefinition of policy which contains authorization rules.
+	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
+	 * @return true if the principal has particular rights, false otherwise.
+	 * @throws PolicyNotExistsException when the given policyDefinition does not exist in the PerunPoliciesContainer.
+	 */
+	public static boolean authorized(PerunSession sess, String policyDefinition, List<PerunBean> objects) throws PolicyNotExistsException {
+		return AuthzResolverBlImpl.authorized(sess, policyDefinition, objects);
+	}
 
 	/**
 	 * Checks if the principal is authorized.

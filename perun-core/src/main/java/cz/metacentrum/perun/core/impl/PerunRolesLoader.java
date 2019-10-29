@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import org.springframework.core.io.Resource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +29,7 @@ import java.util.Map;
  */
 public class PerunRolesLoader {
 
-	private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
+	private static final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
 	private Resource configurationPath;
 
@@ -36,7 +38,7 @@ public class PerunRolesLoader {
 		JsonNode rootNode = loadConfigurationFile();
 
 		JsonNode rolesNode = rootNode.get("perun_roles");
-		List<String> roles = new ObjectMapper().convertValue(rolesNode, new TypeReference<List<String>>() {});
+		List<String> roles = objectMapper.convertValue(rolesNode, new TypeReference<List<String>>() {});
 
 		// Check if all roles defined in class Role exists in the DB
 		for (String role : roles) {
@@ -56,26 +58,52 @@ public class PerunRolesLoader {
 		}
 	}
 
-	public Map<String, JsonNode> loadPerunPolicies() {
-		Map<String, JsonNode> policies = new HashMap<>();
+	/**
+	 * Load policies from the configuration file as list of PerunPolicies
+	 *
+	 * @return list of PerunPolicies
+	 */
+	public List<PerunPolicy> loadPerunPolicies() {
+		List<PerunPolicy> policies = new ArrayList<>();
 		JsonNode rootNode = loadConfigurationFile();
+		//Fetch all policies from the configuration file
 		JsonNode policiesNode = rootNode.get("perun_policies");
 
+		// For each policy node construct PerunPolicy and add it to the list
 		Iterator<String> policyNames = policiesNode.fieldNames();
 		while(policyNames.hasNext()) {
-			String policyname = policyNames.next();
-			policies.put(policyname, policiesNode.get(policyname));
+			String policyName = policyNames.next();
+			JsonNode policyNode = policiesNode.get(policyName);
+			List<Map<String, String>> perunRoles = new ArrayList<>();
+			JsonNode perunRolesNode = policyNode.get("policy_roles");
+
+			//Field policy_roles is saved as List of maps in the for loop
+			for (JsonNode perunRoleNode : perunRolesNode) {
+				Map<String, String> innerRoleMap = new HashMap<>();
+				Iterator<String> roleArrayKeys = perunRoleNode.fieldNames();
+				while (roleArrayKeys.hasNext()) {
+					String role = roleArrayKeys.next();
+					JsonNode roleObjectNode = perunRoleNode.get(role);
+					String object = roleObjectNode.isNull() ? null : roleObjectNode.textValue();
+					innerRoleMap.put(role, object);
+				}
+				perunRoles.add(innerRoleMap);
+			}
+
+			//Field include_policies is saved as List of Strings.
+			List<String> includePolicies = new ArrayList<>(objectMapper.convertValue(policyNode.get("include_policies"), new TypeReference<List<String>>() {}));
+
+			policies.add(new PerunPolicy(policyName, perunRoles, includePolicies));
 		}
 
 		return policies;
 	}
 
 	private JsonNode loadConfigurationFile() {
-		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 		JsonNode rootNode;
 		try (InputStream is = configurationPath.getInputStream()) {
-			rootNode = mapper.readTree(is);
+			rootNode = objectMapper.readTree(is);
 		} catch (FileNotFoundException e) {
 			throw new InternalErrorException("Configuration file not found for perun roles. It should be in: " + configurationPath, e);
 		} catch (IOException e) {
