@@ -3,3 +3,8 @@ root = true
 [*]
 indent_style = tab
 indent_size = 4
+
+# YAML Files
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
