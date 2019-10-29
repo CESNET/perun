@@ -47,7 +47,7 @@ public class urn_perun_user_attribute_def_def_userCertificatesTest {
 			"-----END CERTIFICATE-----");
 		attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
@@ -57,7 +57,7 @@ public class urn_perun_user_attribute_def_def_userCertificatesTest {
 		value.put("bad_example", "bad_example");
 		attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
@@ -67,6 +67,6 @@ public class urn_perun_user_attribute_def_def_userCertificatesTest {
 		value.put("bad_example", Base64.encodeBase64String("bad_example".getBytes()));
 		attributeToCheck.setValue(value);
 
-		classInstance.checkAttributeSyntax(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 	}
 }
