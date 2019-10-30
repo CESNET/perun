@@ -170,7 +170,7 @@ public class SearcherEntry implements Searcher {
 	}
 
 	@Override
-	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
@@ -178,7 +178,7 @@ public class SearcherEntry implements Searcher {
 			throw new PrivilegeException(sess, "getResources");
 		}
 
-		return searcherBl.getResources(sess, attributesWithSearchingValues);
+		return searcherBl.getResources(sess, attributesWithSearchingValues, allowPartialMatchForString);
 	}
 
 	@Override

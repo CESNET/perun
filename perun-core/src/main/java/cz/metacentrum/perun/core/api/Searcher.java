@@ -138,11 +138,12 @@ public interface Searcher {
 	 *
 	 * @param sess perun session
 	 * @param attributesWithSearchingValues map of attributes names
-	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
+	 *        when attribute is type String, so value is string and we are looking for exact or partial match based by parameter 'allowPartialMatchForString'
 	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
 	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element
 	 *        when attribute is type Map<String> so value is String in format "key=value" and we are looking total match of both or if is it "key" so we are looking for total match of key
 	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
+	 * @param allowPartialMatchForString if true, we are looking for partial match, if false, we are looking only for exact match (only for STRING type attributes)
 	 * @return list of resources that have attributes with specific values (behaviour above)
 	 *        if no such resource exists, returns empty list
 	 *
@@ -151,7 +152,7 @@ public interface Searcher {
 	 * @throws AttributeNotExistsException when specified attribute does not exist
 	 * @throws WrongAttributeAssignmentException wrong attribute assignment
 	 */
-	List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Return members with group expiration date set, which will expire on specified date

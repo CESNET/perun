@@ -144,7 +144,7 @@ public class SearcherBlImpl implements SearcherBl {
 	}
 
 	@Override
-	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
 			return perunBl.getResourcesManagerBl().getResources(sess);
 		}
@@ -166,8 +166,8 @@ public class SearcherBlImpl implements SearcherBl {
 			}
 		}
 
-		List<Resource> resourcesFromCoreAttributes = getResourcesForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues);
-		List<Resource> resourcesFromAttributes = getSearcherImpl().getResources(sess, mapOfAttrsWithValues);
+		List<Resource> resourcesFromCoreAttributes = getResourcesForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues, allowPartialMatchForString);
+		List<Resource> resourcesFromAttributes = getSearcherImpl().getResources(sess, mapOfAttrsWithValues, allowPartialMatchForString);
 		resourcesFromCoreAttributes.retainAll(resourcesFromAttributes);
 		return resourcesFromCoreAttributes;
 	}
@@ -189,7 +189,7 @@ public class SearcherBlImpl implements SearcherBl {
 				Attribute attrForFacility = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityFromIterator, attrDef.getName());
 
 				//One of attributes is not equal so remove him and continue with next facility
-				if (!isAttributeValueMatching(attrForFacility, value)) {
+				if (!isAttributeValueMatching(attrForFacility, value, false)) {
 					facilityIter.remove();
 					break;
 				}
@@ -203,12 +203,13 @@ public class SearcherBlImpl implements SearcherBl {
 	 *
 	 * @param sess session
 	 * @param coreAttributesWithSearchingValues attributes with values
+	 * @param allowPartialMatchForString if true, we are looking for partial matches, if false, we are looking only for total matches (only for STRING type attributes)
 	 * @return list of resources
 	 * @throws InternalErrorException internal error
 	 * @throws AttributeNotExistsException attribute not exist
 	 * @throws WrongAttributeAssignmentException wrong attribute assignment
 	 */
-	private List<Resource> getResourcesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<Resource> getResourcesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess);
 		if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
 			return resources;
@@ -225,7 +226,7 @@ public class SearcherBlImpl implements SearcherBl {
 				Attribute attrForResource = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceFromIterator, attrDef.getName());
 
 				//One of attributes is not equal so remove it and continue with next resource
-				if (!isAttributeValueMatching(attrForResource, value)) {
+				if (!isAttributeValueMatching(attrForResource, value, allowPartialMatchForString)) {
 					resourceIterator.remove();
 					break;
 				}
@@ -242,11 +243,13 @@ public class SearcherBlImpl implements SearcherBl {
 	 * value type, exception is risen.
 	 *
 	 * @param entityAttribute attribute
+	 * @param allowPartialMatchForString if true, we are looking for partial match without case sensitivity,
+	 *                                   if false, we are looking only for total matches with case sensitivity (only for STRING type attributes)
 	 * @param value value
 	 * @return true, if the given value corresponds with value of given attribute
 	 * @throws InternalErrorException internal error
 	 */
-	private boolean isAttributeValueMatching(Attribute entityAttribute, String value) throws InternalErrorException {
+	private boolean isAttributeValueMatching(Attribute entityAttribute, String value, boolean allowPartialMatchForString) throws InternalErrorException {
 		boolean shouldBeAccepted = true;
 
 		if(entityAttribute.getValue() == null) {
@@ -258,8 +261,10 @@ public class SearcherBlImpl implements SearcherBl {
 			//We need to compare those values, if they are equals,
 			if (entityAttribute.getValue() instanceof String) {
 				String attrValue = entityAttribute.valueAsString();
-				if (!attrValue.equals(value)) {
-					shouldBeAccepted = false;
+				if(allowPartialMatchForString) {
+					if (!attrValue.toLowerCase().contains(value.toLowerCase())) shouldBeAccepted = false;
+				} else {
+					if (!attrValue.equals(value)) shouldBeAccepted = false;
 				}
 			} else if (entityAttribute.getValue() instanceof Integer) {
 				Integer attrValue = entityAttribute.valueAsInteger();
@@ -300,7 +305,7 @@ public class SearcherBlImpl implements SearcherBl {
 				Attribute attrForUser = getPerunBl().getAttributesManagerBl().getAttribute(sess, userFromIterator, attrDef.getName());
 
 				//One of attributes is not equal so remove him and continue with next user
-				if(!isAttributeValueMatching(attrForUser, value)) {
+				if(!isAttributeValueMatching(attrForUser, value, false)) {
 					userIter.remove();
 					break;
 				}
