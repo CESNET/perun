@@ -701,11 +701,13 @@ public class MembersManagerEntry implements MembersManager {
 		Iterator<RichMember> richMemberIter = richMembers.iterator();
 		while (richMemberIter.hasNext()) {
 			RichMember richMember = richMemberIter.next();
+			//Vo object which will be used only for authorization contains only id of richMember's Vo.
+			Vo membersVo = new Vo(richMember.getVoId(), "", "");
 
 			//if voadmin or voobserver or groupadmin or perunobserver has right to this member, its ok
-			if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, richMember) ||
-					AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, richMember) ||
-					AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, richMember) ||
+			if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, membersVo) ||
+					AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, membersVo) ||
+					AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, membersVo) ||
 					AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) continue;
 
 			//if not, then try facility admin rights
