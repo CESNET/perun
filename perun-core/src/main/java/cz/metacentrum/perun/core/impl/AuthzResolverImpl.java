@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -18,6 +19,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import org.slf4j.Logger;
@@ -43,6 +45,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	final static Logger log = LoggerFactory.getLogger(FacilitiesManagerImpl.class);
 
 	private PerunRolesLoader perunRolesLoader;
+	private static PerunPoliciesContainer perunPoliciesContainer = new PerunPoliciesContainer();
 
 	//http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private static JdbcPerunTemplate jdbc;
@@ -175,6 +178,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	public void initialize() throws InternalErrorException {
 		this.perunRolesLoader.loadPerunRoles(jdbc);
+		perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
 	}
 
 	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException {
@@ -743,5 +747,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	public static JsonNode getPerunPolicy(String policyName) throws PolicyNotExistsException {
+		return perunPoliciesContainer.getPerunPolicy(policyName);
 	}
 }
