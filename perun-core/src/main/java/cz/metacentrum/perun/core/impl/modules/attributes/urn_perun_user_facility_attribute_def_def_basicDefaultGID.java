@@ -26,7 +26,7 @@ import java.util.List;
 public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		Attribute namespaceAttribute;
 			try {
 				namespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
@@ -36,7 +36,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
 		if (namespaceAttribute.getValue() == null) {
 			throw new WrongReferenceAttributeValueException(attribute, namespaceAttribute, "Reference attribute is null");
 		}
-		String namespaceName = (String) namespaceAttribute.getValue();
+		String namespaceName = namespaceAttribute.valueAsString();
 
 		Attribute resourceGidAttribute;
 		try {
@@ -49,14 +49,14 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
 		List<Resource> allowedResources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
 		List<Resource> resourcesWithSameGid = sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGidAttribute);
 		if (resourcesWithSameGid.isEmpty() && allowedResources.isEmpty() && resourceGidAttribute.getValue() == null) return;
-		if (resourcesWithSameGid.isEmpty() && resourceGidAttribute.getValue() != null) throw new WrongAttributeValueException(attribute, user, facility, "Resource with requiered unix GID doesn't exist.");
-		if (allowedResources.isEmpty()) throw new WrongAttributeValueException(attribute, user, "User has not access to required resource");
+		if (resourcesWithSameGid.isEmpty() && resourceGidAttribute.getValue() != null) throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Resource with requiered unix GID doesn't exist.");
+		if (allowedResources.isEmpty()) throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "User has not access to required resource");
 
 		resourcesWithSameGid.retainAll(allowedResources);
 
 		//We did not find at least one allowed resource with same gid as the user have => attribute is NOK
 		if (resourcesWithSameGid.isEmpty()) {
-			throw new WrongAttributeValueException(attribute, user, "User has not access to resource with required group id");
+			throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "User has not access to resource with required group id");
 		}
 	}
 

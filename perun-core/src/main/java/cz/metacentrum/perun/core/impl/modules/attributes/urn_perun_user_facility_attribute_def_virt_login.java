@@ -38,11 +38,11 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 			if (loginNamespaceAttribute.getValue() != null) {
 				loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess,
 						user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespaceAttribute.getValue());
-				if(attribute.getValue() == null) throw new WrongAttributeValueException(loginAttribute, user, facility, "Login can't be null");
+				if(attribute.getValue() == null) throw new WrongReferenceAttributeValueException(loginAttribute, null, user, facility, "Login can't be null");
 				loginAttribute.setValue(attribute.getValue());
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, user, loginAttribute);
 			} else {
-				throw new WrongAttributeValueException(loginNamespaceAttribute, user, facility, "Login-namespace for facility can not be empty.");
+				throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute, user, facility, facility, null, "Login-namespace for facility can not be empty.");
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException(e);

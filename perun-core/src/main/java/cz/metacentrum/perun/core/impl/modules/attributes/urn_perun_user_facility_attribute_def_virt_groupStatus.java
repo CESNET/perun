@@ -26,9 +26,9 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualA
 public class urn_perun_user_facility_attribute_def_virt_groupStatus extends UserFacilityVirtualAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
-		String status = (String) attribute.getValue();
+		String status = attribute.valueAsString();
 
 		if (status == null) return; // NULL is ok
 

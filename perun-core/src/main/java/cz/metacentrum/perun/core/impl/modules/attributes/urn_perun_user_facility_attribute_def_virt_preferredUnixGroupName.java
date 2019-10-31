@@ -38,7 +38,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 			if(facilityGroupNameNamespaceAttr.getValue() == null) {
 				throw new WrongReferenceAttributeValueException(attribute, facilityGroupNameNamespaceAttr, user, facility, facility, null, "GroupName-namespace for racility cannot be null.");
 			}
-			String namespace = (String) facilityGroupNameNamespaceAttr.getValue();
+			String namespace = facilityGroupNameNamespaceAttr.valueAsString();
 
 			Attribute preferredUnixGroupNameAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE + namespace);
 			if(attribute.getValue() != null) {

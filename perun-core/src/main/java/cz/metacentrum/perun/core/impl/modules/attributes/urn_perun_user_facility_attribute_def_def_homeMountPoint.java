@@ -34,10 +34,9 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$*");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-		List<Resource> usersResources;
-		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
+		List<Resource> usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
 
 		List<String> homeMntPointsOnAllResources = new ArrayList<>();
 		for (Resource res : usersResources) {
@@ -47,7 +46,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 			} catch (AttributeNotExistsException ex) {
 				throw new InternalErrorException("no homemountpoints found on underlying resources", ex);
 			}
-			List<String> homeMntPoint = (List<String>) resAttribute.getValue();
+			List<String> homeMntPoint = resAttribute.valueAsList();
 			if (homeMntPoint != null) {
 				homeMntPointsOnAllResources.addAll(homeMntPoint);
 			}
@@ -56,10 +55,15 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 			throw new WrongReferenceAttributeValueException("No homeMountPoints set on associated resources.");
 		}
 		if (!homeMntPointsOnAllResources.contains(attribute.valueAsString())) {
-			throw new WrongAttributeValueException(attribute, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
+			throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
 		}
+	}
 
-		Matcher match = pattern.matcher((String) attribute.getValue());
+	@Override
+	public void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute.getValue() == null) return;
+
+		Matcher match = pattern.matcher(attribute.valueAsString());
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, "Attribute has wrong format");
 		}

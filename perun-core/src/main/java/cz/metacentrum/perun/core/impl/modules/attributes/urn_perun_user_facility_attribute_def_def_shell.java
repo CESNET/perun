@@ -26,6 +26,15 @@ import java.util.List;
  */
 public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
+	@Override
+	public void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		String shell = attribute.valueAsString();
+
+		if (shell == null) return;
+
+		session.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
+	}
+
 	/**
 	 * Checks an attribute with shell for the user at the specified facility. There
 	 * must be at least some facilities allowed and also the user must have
@@ -33,12 +42,10 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 	 * in allowed shells and also need to have correct format.
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		String shell = (String) attribute.getValue();
+	public void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		String shell = attribute.valueAsString();
 
 		if (shell == null) return;
-
-		session.getPerunBl().getModulesUtilsBl().checkFormatOfShell(shell, attribute);
 
 		List<String> allowedShells = allShellsAtSpecifiedFacility(session, facility, user);
 
@@ -47,7 +54,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 		}
 
 		if (!allowedShells.contains(shell)) {
-			throw new WrongAttributeValueException(attribute, user, facility, "Such shell is not allowed at specified facility for the user.");
+			throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Such shell is not allowed at specified facility for the user.");
 		}
 	}
 
@@ -67,7 +74,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 				throw new InternalErrorException("Attribute with all shells of facility " + facility.getId() + " could not be obtained", ex);
 			}
 			if (resourceAttr.getValue() != null) {
-				allowedShells.addAll(((List<String>) resourceAttr.getValue()));
+				allowedShells.addAll((resourceAttr.valueAsList()));
 			}
 		}
 		return allowedShells;

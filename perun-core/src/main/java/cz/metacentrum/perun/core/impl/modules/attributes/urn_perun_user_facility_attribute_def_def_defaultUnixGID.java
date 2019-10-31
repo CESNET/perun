@@ -32,8 +32,8 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 	 * TODO Known issues: Can't detect if unixGid is not set on all resources and groups where user is allowed. This will be reported as WrongAttributeValueException, but it should be WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
-		Integer gid = (Integer) attribute.getValue();
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+		Integer gid = attribute.valueAsInteger();
 		if(gid == null) return;
 
 		Attribute namespaceAttribute;
@@ -42,8 +42,8 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
-		if(namespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, namespaceAttribute, "Reference attribute is null");
-		String namespaceName = (String) namespaceAttribute.getValue();
+		if(namespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, namespaceAttribute, user, facility, facility, null, "Reference attribute is null");
+		String namespaceName = namespaceAttribute.valueAsString();
 
 		Attribute unixGroupNameNamespace;
 		try {
@@ -52,7 +52,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 			throw new ConsistencyErrorException(ex);
 		}
 		if(unixGroupNameNamespace.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, unixGroupNameNamespace, user, facility, facility, null, "Reference attribute is null");
-		String unixGroupNameNamespaceName = (String) unixGroupNameNamespace.getValue();
+		String unixGroupNameNamespaceName = unixGroupNameNamespace.valueAsString();
 
 		Attribute resourceGidAttribute;
 		try {
@@ -77,14 +77,13 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 
 		List<Group> groupWithSameGid = sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGidAttribute);
 
-		List<Group> candidateGroups = groupWithSameGid;
-		candidateGroups.retainAll(sess.getPerunBl().getFacilitiesManagerBl().getAllowedGroups(sess, facility, null, null));
+		groupWithSameGid.retainAll(sess.getPerunBl().getFacilitiesManagerBl().getAllowedGroups(sess, facility, null, null));
 
-		for(Group group : candidateGroups) {
+		for(Group group : groupWithSameGid) {
 			//check if group has unix group name in namespace required by facility
 			try {
 				Attribute unixGroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceName);
-				if(unixGroupName.getValue() == null || ((String) unixGroupName.getValue()).isEmpty()) {
+				if(unixGroupName.getValue() == null || (unixGroupName.valueAsString()).isEmpty()) {
 					continue;
 				}
 			} catch(AttributeNotExistsException ex) {
@@ -97,7 +96,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 			}
 		}
 
-		throw new WrongAttributeValueException(attribute, user, facility, "User isn't allowed to have the default unix group which have this gid (" + gid + ") or such group doesn't exist.  " + user);
+		throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "User isn't allowed to have the default unix group which have this gid (" + gid + ") or such group doesn't exist.  " + user);
 
 	}
 

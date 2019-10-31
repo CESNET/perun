@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest
 		classInstance.checkAttributeSemantics(session, new User(), new Facility(), attributeToCheck);
 	}
 
-	@Test(expected = WrongAttributeValueException.class)
+	@Test(expected = WrongReferenceAttributeValueException.class)
 		public void testCheckAttributeSemanticsHigherValueThanFacilityTime() throws Exception {
 			System.out.println("testCheckAttributeSemanticsHigherValueThanFacilityTime()");
 			attributeToCheck.setValue(1000);

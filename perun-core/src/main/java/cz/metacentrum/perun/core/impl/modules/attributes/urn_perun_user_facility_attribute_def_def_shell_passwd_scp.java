@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
@@ -26,12 +27,17 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 	private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
-		String shell = (String) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+		String shell = attribute.valueAsString();
 
-		if(shell == null) throw new WrongAttributeValueException(attribute, "Value can't be null");
+		if(shell == null) return;
 		Matcher matcher = pattern.matcher(shell);
 		if(!matcher.matches()) throw new WrongAttributeValueException(attribute, "Wrong format. ^(/[-_.A-z0-9]+)+$ expected");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.valueAsString() == null) throw new WrongReferenceAttributeValueException(attribute, "Value can't be null");
 	}
 
 	@Override

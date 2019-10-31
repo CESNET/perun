@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -243,4 +244,20 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest {
 				assertEquals(testAttr, basicDefaultGID);
 		}
 
+	@Test(expected = WrongReferenceAttributeValueException.class)
+	public void testSemanticsWithoutReqAttribute() throws Exception {
+		System.out.println("testSemanticsWithoutReqAttribute()");
+		Attribute attributeToCheck = new Attribute();
+
+		classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
+	}
+
+	@Test
+	public void testSemanticsCorrect() throws Exception {
+		System.out.println("testSemanticsCorrect()");
+		Attribute attributeToCheck = new Attribute();
+		attributeToCheck.setValue(5);
+
+		classInstance.checkAttributeSemantics(session, user, facility, attributeToCheck);
+	}
 }
