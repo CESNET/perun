@@ -1668,7 +1668,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		List<String> roles = AuthzResolverBlImpl.getUserRoleNames(sess, user);
 
-		assertTrue(roles.contains("resourceselfservice"));
+		assertTrue(roles.contains("RESOURCESELFSERVICE"));
 	}
 
 	@Test
@@ -1686,7 +1686,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		List<String> roles = AuthzResolverBlImpl.getUserRoleNames(sess, user);
 
-		assertFalse(roles.contains("resourceselfservice"));
+		assertFalse(roles.contains("RESOURCESELFSERVICE"));
 	}
 
 	@Test
@@ -1704,7 +1704,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		List<String> roles = AuthzResolverBlImpl.getGroupRoleNames(sess, group);
 
-		assertTrue(roles.contains("resourceselfservice"));
+		assertTrue(roles.contains("RESOURCESELFSERVICE"));
 	}
 
 	@Test
@@ -1724,7 +1724,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		List<String> roles = AuthzResolverBlImpl.getGroupRoleNames(sess, group);
 
-		assertFalse(roles.contains("resourceselfservice"));
+		assertFalse(roles.contains("RESOURCESELFSERVICE"));
 	}
 
 	// PRIVATE METHODS -----------------------------------------------------------

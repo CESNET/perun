@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -379,7 +378,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addVoRole(PerunSession sess, Role role, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
+	void addVoRole(PerunSession sess, String role, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Adds role for group in a VO.
@@ -390,7 +389,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addVoRole(PerunSession sess, Role role, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
+	void addVoRole(PerunSession sess, String role, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Removes role from user in a VO.
@@ -401,7 +400,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
 	 */
-	void removeVoRole(PerunSession sess, Role role, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
+	void removeVoRole(PerunSession sess, String role, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
 
 	/**
 	 * Removes role from group in a VO.
@@ -412,7 +411,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
 	 */
-	void removeVoRole(PerunSession sess, Role role, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeVoRole(PerunSession sess, String role, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
 
 	/**
 	 * Checks whether the user is in role for Vo.
@@ -422,7 +421,7 @@ public interface AuthzResolverImplApi {
 	 * @param vo virtual organisation
 	 * @return true if user is in role for VO, otherwise false.
 	 */
-	boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo);
+	boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo);
 
 	/**
 	 * Checks whether the gruop is in role for Vo.
@@ -432,7 +431,7 @@ public interface AuthzResolverImplApi {
 	 * @param vo virtual organization
 	 * @return true if group is in role for VO, otherwise false.
 	 */
-	boolean isGroupInRoleForVo(PerunSession session, Group group, Role role, Vo vo);
+	boolean isGroupInRoleForVo(PerunSession session, Group group, String role, Vo vo);
 
 	/**
 	 * Gets list of VOs for which the group has the role.
@@ -442,7 +441,7 @@ public interface AuthzResolverImplApi {
 	 * @return list of VOs from which the group has the role
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, Role role) throws InternalErrorException;
+	List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, String role) throws InternalErrorException;
 
 	/**
 	 * Gets list of VOs for which the user has the role.
@@ -452,7 +451,7 @@ public interface AuthzResolverImplApi {
 	 * @return list of VOs for which the user has the role.
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, Role role) throws InternalErrorException;
+	List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, String role) throws InternalErrorException;
 
 	/**
 	 * Sets role to given user for given resource.
@@ -464,7 +463,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws AlreadyAdminException when already in role
 	 */
-	void addResourceRole(PerunSession sess, User user, Role role, Resource resource) throws InternalErrorException, AlreadyAdminException;
+	void addResourceRole(PerunSession sess, User user, String role, Resource resource) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Sets role to given group for given resource.
@@ -476,7 +475,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws AlreadyAdminException when already in role
 	 */
-	void addResourceRole(PerunSession sess, Group group, Role role, Resource resource) throws InternalErrorException, AlreadyAdminException;
+	void addResourceRole(PerunSession sess, Group group, String role, Resource resource) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Remove role to user for resource.
@@ -488,7 +487,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws UserNotAdminException user was not admin
 	 */
-	void removeResourceRole(PerunSession sess, Role role, Resource resource, User user) throws InternalErrorException, UserNotAdminException;
+	void removeResourceRole(PerunSession sess, String role, Resource resource, User user) throws InternalErrorException, UserNotAdminException;
 
 	/**
 	 * Remove role to group for resource.
@@ -500,5 +499,14 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws GroupNotAdminException group was not admin
 	 */
-	void removeResourceRole(PerunSession sess, Role role, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeResourceRole(PerunSession sess, String role, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException;
+
+	/**
+	 * Check if the given role exists in the database.
+	 * Check is case insensitive.
+	 *
+	 * @param role which will be checked
+	 * @return true if role exists, false otherwise.
+	 */
+	boolean roleExists(String role);
 }

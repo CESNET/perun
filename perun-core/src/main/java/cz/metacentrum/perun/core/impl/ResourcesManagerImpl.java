@@ -816,7 +816,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			// Direct admins
 			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 					"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
-				UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName()));
+				UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase()));
 
 			// Admins through a group
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, resource);
@@ -839,7 +839,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 							"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
-					UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName());
+					UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase());
 
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -853,7 +853,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
 							" where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
-					GroupsManagerImpl.GROUP_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName());
+					GroupsManagerImpl.GROUP_MAPPER, resource.getId(), Role.RESOURCEADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -869,7 +869,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 							" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
 							" left outer join members on members.id=groups_members.member_id " +
 							" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) ",
-					RESOURCE_MAPPER, user.getId(), user.getId(), Role.RESOURCEADMIN.getRoleName());
+					RESOURCE_MAPPER, user.getId(), user.getId(), Role.RESOURCEADMIN.toLowerCase());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -884,7 +884,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 							" left outer join members on members.id=groups_members.member_id " +
 							" where resources.facility_id=? and resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
 							" and authz.role_id=(select id from roles where name=?) "
-					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.getRoleName());
+					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -898,7 +898,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
 							" left outer join authz on authz.resource_id=resources.id " +
 							" where resources.facility_id=? and resources.vo_id=? and authz.authorized_group_id=? and authz.role_id=(select id from roles where name=?)"
-					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedGroup.getId(), Role.RESOURCEADMIN.getRoleName());
+					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedGroup.getId(), Role.RESOURCEADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

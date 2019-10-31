@@ -260,7 +260,7 @@ public interface VosManager {
 	 *
 	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * @param perunSession
 	 * @param vo
@@ -274,12 +274,12 @@ public interface VosManager {
 	 * @throws RoleNotSupportedException
 	 * @throws VoNotExistsException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Vo vo, Role role, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException;
+	List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException;
 
 	/**
 	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * If "onlyDirectAdmins" is "true", return only direct users of the vo for supported role with specific attributes.
 	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
@@ -299,12 +299,12 @@ public interface VosManager {
 	 * @throws RoleNotSupportedException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, Role role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException, UserNotExistsException;
 
 	/**
 	 * Get list of group administrators of the given VO.
 	 *
-	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
 	 *
 	 * @param perunSession
 	 * @param vo
@@ -317,7 +317,7 @@ public interface VosManager {
 	 * @throws PrivilegeException
 	 * @throws RoleNotSupportedException
 	 */
-	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, Role role) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException;
+	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException;
 
 	/**
 	 * Get list of Vo administrators.

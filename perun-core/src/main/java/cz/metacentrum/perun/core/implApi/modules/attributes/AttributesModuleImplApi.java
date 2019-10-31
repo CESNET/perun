@@ -4,7 +4,6 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichAttribute;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -37,7 +36,7 @@ public interface AttributesModuleImplApi {
 	 *
 	 * @return list of roles
 	 */
-	List<Role> getAuthorizedRoles();
+	List<String> getAuthorizedRoles();
 
 	/**
 	 * Return attributes definition which is represented by the module

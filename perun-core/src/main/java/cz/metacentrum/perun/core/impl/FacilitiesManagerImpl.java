@@ -559,7 +559,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			// direct admins
 			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 					"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
-				UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName()));
+				UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.toLowerCase()));
 
 			// admins through a group
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, facility);
@@ -582,7 +582,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 					"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
-					UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
+					UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -595,7 +595,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
 					" where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
-					GroupsManagerImpl.GROUP_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
+					GroupsManagerImpl.GROUP_MAPPER, facility.getId(), Role.FACILITYADMIN.toLowerCase());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -707,7 +707,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
 							" left outer join members on members.id=groups_members.member_id " +
 							" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) ",
-					FACILITY_MAPPER, user.getId(), user.getId(), Role.FACILITYADMIN.getRoleName());
+					FACILITY_MAPPER, user.getId(), user.getId(), Role.FACILITYADMIN.toLowerCase());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

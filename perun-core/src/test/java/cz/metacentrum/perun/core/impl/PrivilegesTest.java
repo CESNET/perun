@@ -14,7 +14,7 @@ public class PrivilegesTest {
 
 	@Test
 	public void testGetRolesWhichCanManageRole() {
-		Set<Role> allowedRoles = Privileges.getRolesWhichCanManageRole(Role.GROUPADMIN);
+		Set<String> allowedRoles = Privileges.getRolesWhichCanManageRole(Role.GROUPADMIN);
 
 		assertThat(allowedRoles).containsOnly(Role.GROUPADMIN, Role.VOADMIN);
 	}

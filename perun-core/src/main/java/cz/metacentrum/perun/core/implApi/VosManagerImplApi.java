@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -102,7 +101,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, Vo vo, String role) throws InternalErrorException;
 
 	/**
 	 * Get list of direct user administrators of specific vo for specific role.
@@ -116,7 +115,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getDirectAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession sess, Vo vo, String role) throws InternalErrorException;
 
 	/**
 	 * Get list of group administrators of the given VO for specific role.
@@ -126,7 +125,7 @@ public interface VosManagerImplApi {
 	 * @return List of groups, who are administrators of the Vo with specific role. Returns empty list if there is no such authorized group.
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAdminGroups(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession sess, Vo vo, String role) throws InternalErrorException;
 
 	/**
 	 * Get list of Vo administrators.

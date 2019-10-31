@@ -2,10 +2,11 @@ package cz.metacentrum.perun.core.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class represents rights of an attribute. The rights relates to an Attribute and
- * a Role. Object ActionType represents one right (READ or WRITE).
+ * a role. Object ActionType represents one right (READ or WRITE).
  *
  * @author Jiří Mauritz
  */
@@ -19,7 +20,7 @@ public class AttributeRights {
 	/**
 	 * Role, that specifies the users, who have the rights upon the attribute.
 	 */
-	private Role role;
+	private String role;
 
 	/**
 	 * List of all rights the role has upon the attribute.
@@ -28,9 +29,9 @@ public class AttributeRights {
 
 	public AttributeRights() {}
 
-	public AttributeRights(int attributeId, Role role, List<ActionType> rights) {
+	public AttributeRights(int attributeId, String role, List<ActionType> rights) {
 		this.attributeId = attributeId;
-		this.role = role;
+		this.role = role != null ? role.toUpperCase() : null;
 		if (rights == null) {
 			this.rights = new ArrayList<ActionType>();
 		} else {
@@ -42,7 +43,7 @@ public class AttributeRights {
 		return attributeId;
 	}
 
-	public Role getRole() {
+	public String getRole() {
 		return role;
 	}
 
@@ -54,8 +55,8 @@ public class AttributeRights {
 		this.attributeId = attributeId;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
+	public void setRole(String role) {
+		this.role = role != null ? role.toUpperCase() : null;
 	}
 
 	public void setRights(List<ActionType> rights) {
@@ -82,7 +83,7 @@ public class AttributeRights {
 		if (this.attributeId != other.attributeId) {
 			return false;
 		}
-		if (this.role != other.role) {
+		if (Objects.equals(role, other.role)) {
 			return false;
 		}
 		return true;

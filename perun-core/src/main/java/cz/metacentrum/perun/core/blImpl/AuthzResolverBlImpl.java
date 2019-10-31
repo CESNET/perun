@@ -97,7 +97,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
-	public static boolean isAuthorized(PerunSession sess, Role role, PerunBean complementaryObject) throws InternalErrorException {
+	public static boolean isAuthorized(PerunSession sess, String role, PerunBean complementaryObject) throws InternalErrorException {
 		log.trace("Entering isAuthorized: sess='" + sess + "', role='" + role + "', complementaryObject='" + complementaryObject + "'");
 		Utils.notNull(sess, "sess");
 
@@ -242,7 +242,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource, member);
@@ -295,7 +295,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group, resource);
@@ -329,7 +329,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user, facility);
@@ -405,7 +405,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member, group);
@@ -450,7 +450,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user);
@@ -511,7 +511,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, member);
@@ -558,7 +558,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, vo);
@@ -619,7 +619,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group);
@@ -674,7 +674,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource);
@@ -713,7 +713,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, facility);
@@ -773,7 +773,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, host);
@@ -800,7 +800,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 
 		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<String, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, ues);
@@ -858,7 +858,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param attrDef    attribute what principal want to work with
 	 * @return map of roles with allowed action types
 	 */
-	public static Map<Role, Set<ActionType>> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
+	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 		getPerunBl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
 		return cz.metacentrum.perun.core.impl.AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
@@ -872,7 +872,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
-	public static boolean isAuthorized(PerunSession sess, Role role) throws InternalErrorException {
+	public static boolean isAuthorized(PerunSession sess, String role) throws InternalErrorException {
 		return isAuthorized(sess, role, null);
 	}
 
@@ -883,7 +883,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param perunPrincipal acting person for whom the role is checked
 	 * @param role           role to be checked
 	 */
-	public static boolean hasRole(PerunPrincipal perunPrincipal, Role role) {
+	public static boolean hasRole(PerunPrincipal perunPrincipal, String role) {
 		return perunPrincipal.getRoles().hasRole(role);
 	}
 
@@ -891,14 +891,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Set role for user and <b>all</b> complementary objects.
 	 * <p>
 	 * If some complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary objects.
+	 * For role "PERUNADMIN" ignore complementary objects.
 	 *
 	 * @param sess                 perun session
 	 * @param user                 the user for setting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin | resourceselfservice | resourceAdmin )
+	 * @param role                 role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | SECURITYADMIN | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObjects objects for which role will be set
 	 */
-	public static void setRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
+	public static void setRole(PerunSession sess, User user, String role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
 		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
 			try {
 				manageRole(sess, SET_ROLE, null, user, role, null);
@@ -922,14 +922,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Set role for user and <b>one</b> complementary object.
 	 * <p>
 	 * If complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary object.
+	 * For role "PERUNADMIN" ignore complementary object.
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for setting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin | resourceselfservice | resourceAdmin )
+	 * @param role                role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | SECURITYADMIN | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObject object for which role will be set
 	 */
-	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
+	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, String role) throws InternalErrorException, AlreadyAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
 		complementaryObjects.add(complementaryObject);
 		AuthzResolverBlImpl.setRole(sess, user, role, complementaryObjects);
@@ -939,14 +939,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Set role for auhtorizedGroup and <b>all</b> complementary objects.
 	 * <p>
 	 * If some complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary objects.
+	 * For role "PERUNADMIN" ignore complementary objects.
 	 *
 	 * @param sess                 perun session
 	 * @param authorizedGroup      the group for setting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
+	 * @param role                 role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObjects objects for which role will be set
 	 */
-	public static void setRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
+	public static void setRole(PerunSession sess, Group authorizedGroup, String role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
 		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
 			try {
 				manageRole(sess, SET_ROLE, authorizedGroup, null, role, null);
@@ -970,14 +970,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Set role for authorizedGroup and <b>one</b> complementary object.
 	 * <p>
 	 * If complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary object.
+	 * For role "PERUNADMIN" ignore complementary object.
 	 *
 	 * @param sess                perun session
 	 * @param authorizedGroup     the group for setting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
+	 * @param role                role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObject object for which role will be set
 	 */
-	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
+	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, String role) throws InternalErrorException, AlreadyAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
 		complementaryObjects.add(complementaryObject);
 		AuthzResolverBlImpl.setRole(sess, authorizedGroup, role, complementaryObjects);
@@ -987,14 +987,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Unset role for user and <b>all</b> complementary objects
 	 * <p>
 	 * If some complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary objects.
+	 * For role "PERUNADMIN" ignore complementary objects.
 	 *
 	 * @param sess                 perun session
 	 * @param user                 the user for unsetting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
+	 * @param role                 role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObjects objects for which role will be unset
 	 */
-	public static void unsetRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, UserNotAdminException {
+	public static void unsetRole(PerunSession sess, User user, String role, List<PerunBean> complementaryObjects) throws InternalErrorException, UserNotAdminException {
 		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
 			try {
 				manageRole(sess, UNSET_ROLE, null, user, role, null);
@@ -1018,14 +1018,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Unset role for user and <b>one</b> complementary object.
 	 * <p>
 	 * If complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary object.
+	 * For role "PERUNADMIN" ignore complementary object.
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for unsetting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
+	 * @param role                role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObject object for which role will be unset
 	 */
-	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, UserNotAdminException {
+	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, String role) throws InternalErrorException, UserNotAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
 		complementaryObjects.add(complementaryObject);
 		AuthzResolverBlImpl.unsetRole(sess, user, role, complementaryObjects);
@@ -1035,14 +1035,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Unset role for group and <b>all</b> complementary objects
 	 * <p>
 	 * If some complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary objects.
+	 * For role "PERUNADMIN" ignore complementary objects.
 	 *
 	 * @param sess                 perun session
 	 * @param authorizedGroup      the group for unsetting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
+	 * @param role                 role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObjects objects for which role will be unset
 	 */
-	public static void unsetRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, GroupNotAdminException {
+	public static void unsetRole(PerunSession sess, Group authorizedGroup, String role, List<PerunBean> complementaryObjects) throws InternalErrorException, GroupNotAdminException {
 		if (complementaryObjects == null || complementaryObjects.isEmpty()) {
 			try {
 				manageRole(sess, UNSET_ROLE, authorizedGroup, null, role, null);
@@ -1066,21 +1066,21 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Unset role for group and <b>one</b> complementary object
 	 * <p>
 	 * If some complementary object is wrong for the role, throw an exception.
-	 * For role "perunadmin" ignore complementary object.
+	 * For role "PERUNADMIN" ignore complementary object.
 	 *
 	 * @param sess                perun session
 	 * @param authorizedGroup     the group for unsetting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
+	 * @param role                role of user in a session ( PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCESELFSERVICE | RESOURCEADMIN )
 	 * @param complementaryObject object for which role will be unset
 	 */
-	public static void unsetRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, GroupNotAdminException {
+	public static void unsetRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, String role) throws InternalErrorException, GroupNotAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
 		complementaryObjects.add(complementaryObject);
 		AuthzResolverBlImpl.unsetRole(sess, authorizedGroup, role, complementaryObjects);
 	}
 
 	/**
-	 * Make user to be perunAdmin!
+	 * Make user to be PERUNADMIN!
 	 *
 	 * @param sess
 	 * @param user which will get role "PERUNADMIN" in the system
@@ -1095,7 +1095,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Set or unset role for user or authorized group and complementary object
 	 * <p>
 	 * If user and authorizedGroup are null, throw exception. Only one can be filled at once, if both, throw exception.
-	 * If complementaryObject is null, throw an exception if the role is not PerunAdmin.
+	 * If complementaryObject is null, throw an exception if the role is not PERUNADMIN.
 	 * <p>
 	 * <b>IMPORTANT:</b> refresh authz only if user in session is affected
 	 *
@@ -1106,7 +1106,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param role                role to set
 	 * @param complementaryObject object for setting role on it
 	 */
-	private static void manageRole(PerunSession sess, String operation, Group authorizedGroup, User user, Role role, PerunBean complementaryObject) throws InternalErrorException, AlreadyAdminException, UserNotAdminException, GroupNotAdminException {
+	private static void manageRole(PerunSession sess, String operation, Group authorizedGroup, User user, String role, PerunBean complementaryObject) throws InternalErrorException, AlreadyAdminException, UserNotAdminException, GroupNotAdminException {
 		if (authorizedGroup == null && user == null)
 			throw new InternalErrorException("There is no object for setting role (user or authorizedGroup).");
 		if (authorizedGroup != null && user != null)
@@ -1436,10 +1436,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Get all principal role names. Role is defined as a name, translation table is in Role class.
+	 * Get all principal role names.
 	 *
 	 * @param sess perun session
-	 * @return list of integers, which represents role from enum Role.
+	 * @return list of roles.
 	 */
 	public static List<String> getPrincipalRoleNames(PerunSession sess) throws InternalErrorException {
 		// We need to load the principals roles
@@ -1451,11 +1451,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Get all User's roles. Role is defined as a name, translation table is in Role class.
+	 * Get all User's roles.
 	 *
 	 * @param sess perun session
 	 * @param user User
-	 * @return list of integers, which represents role from enum Role.
+	 * @return list of roles.
 	 */
 	public static List<String> getUserRoleNames(PerunSession sess,User user) throws InternalErrorException {
 
@@ -1476,11 +1476,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Get all Group's roles. Role is defined as a name, translation table is in Role class.
+	 * Get all Group's roles.
 	 *
 	 * @param sess perun session
 	 * @param group Group
-	 * @return list of integers, which represents role from enum Role.
+	 * @return list of roles.
 	 */
 	public static List<String> getGroupRoleNames(PerunSession sess,Group group) throws InternalErrorException {
 
@@ -1538,7 +1538,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param role to get object for
 	 * @return list of complementary objects
 	 */
-	public static List<PerunBean> getComplementaryObjectsForRole(PerunSession sess, Role role) throws InternalErrorException {
+	public static List<PerunBean> getComplementaryObjectsForRole(PerunSession sess, String role) throws InternalErrorException {
 		return AuthzResolverBlImpl.getComplementaryObjectsForRole(sess, role, null);
 	}
 
@@ -1550,7 +1550,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param perunBeanClass particular class ( Vo | Group | ... )
 	 * @return list of complementary objects
 	 */
-	public static List<PerunBean> getComplementaryObjectsForRole(PerunSession sess, Role role, Class perunBeanClass) throws InternalErrorException {
+	public static List<PerunBean> getComplementaryObjectsForRole(PerunSession sess, String role, Class perunBeanClass) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sess.getPerunPrincipal(), "sess.getPerunPrincipal()");
 
@@ -1757,7 +1757,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		authzResolverImpl.removeAllAuthzForVo(sess, vo);
 	}
 
-	static List<Vo> getVosForGroupInRole(PerunSession sess, Group group, Role role) throws InternalErrorException {
+	static List<Vo> getVosForGroupInRole(PerunSession sess, Group group, String role) throws InternalErrorException {
 		List<Vo> vos = new ArrayList<>();
 		for (Integer voId : authzResolverImpl.getVoIdsForGroupInRole(sess, group, role)) {
 			try {
@@ -1829,6 +1829,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		authzResolverImpl.removeAdmin(sess, securityTeam, group);
 	}
 
+	public static boolean roleExists(String role) {
+		return authzResolverImpl.roleExists(role);
+	}
+
 	/**
 	 * Checks whether the user is in role for Vo.
 	 *
@@ -1838,7 +1842,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param vo virtual organization
 	 * @return true if user is in role for VO, false otherwise
 	 */
-	static boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo) {
+	static boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo) {
 		return authzResolverImpl.isUserInRoleForVo(session, user, role, vo);
 	}
 
@@ -1851,7 +1855,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param vo virtual organization
 	 * @return true if group is in role for VO, false otherwise
 	 */
-	static boolean isGroupInRoleForVo(PerunSession session, Group group, Role role, Vo vo) {
+	static boolean isGroupInRoleForVo(PerunSession session, Group group, String role, Vo vo) {
 		return authzResolverImpl.isGroupInRoleForVo(session, group, role, vo);
 	}
 
@@ -1872,7 +1876,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Prepare service roles to session AuthzRoles (perunadmin, service, rpc, engine etc.)
+	 * Prepare service roles to session AuthzRoles (PERUNADMIN, SERVICE, RPC, ENGINE etc.)
 	 *
 	 * @param sess use session to add roles
 	 */

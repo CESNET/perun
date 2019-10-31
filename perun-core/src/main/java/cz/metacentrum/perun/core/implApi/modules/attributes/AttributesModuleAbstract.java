@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -24,8 +23,8 @@ public abstract class AttributesModuleAbstract implements AttributesModuleImplAp
 		return dependecies;
 	}
 
-	public List<Role> getAuthorizedRoles() {
-		List<Role> roles = new ArrayList<>();
+	public List<String> getAuthorizedRoles() {
+		List<String> roles = new ArrayList<>();
 		return roles;
 	}
 
