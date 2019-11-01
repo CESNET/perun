@@ -79,14 +79,14 @@ public class AuthzRoles extends HashMap<String, Map<String, Set<Integer>>> {
 	public boolean hasRole(String role, PerunBean perunBean) {
 		//Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same like Group for this purpose
 		String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBean.getBeanName());
-		return this.get(role).containsKey(convertedBeanName)
+		return this.containsKey(role) && this.get(role).containsKey(convertedBeanName)
 			&& this.get(role).get(convertedBeanName).contains(perunBean.getId());
 	}
 
 	public boolean hasRole(String role, String perunBeanName, int id) {
 		//Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same like Group for this purpose
 		String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBeanName);
-		return this.get(role).containsKey(convertedBeanName)
+		return this.containsKey(role) && this.get(role).containsKey(convertedBeanName)
 			&& this.get(role).get(convertedBeanName).contains(id);
 	}
 
