@@ -213,7 +213,7 @@ sub processFile {
 	my @params = ();
 	my @textLines = ();
 	my @throws = ();
-	my $deprecated = 0;
+	my $deprecated = undef;
 	my $exampleResponse;
 	my @exampleParams = ();
 	my $return;
@@ -240,7 +240,7 @@ sub processFile {
 				} elsif($line =~ m/^\s*\*\s*[@]exampleParam\s*(.*)/) {
 					push @exampleParams, $1;
 				} elsif($line =~ m/^\s*\*\s*[@]deprecated\s*(.*)/) {
-					$deprecated=1;
+					$deprecated="$1";
 				} elsif($line =~ m/^\s*\*\s*[@]throw\s*(.*)/) {
 					push @throws, $1;
 				} elsif($line =~ m/^\s*\*\//) {
@@ -257,7 +257,7 @@ sub processFile {
 					$javadoc->{'return'} = $return;
 					$javadoc->{'exampleResponse'} = $exampleResponse;
 					$javadoc->{'exampleParams'} = \@localExampleParams;
-					if ($deprecated == 1) {
+					if (defined $deprecated) {
 						$javadoc->{'deprecated'} = $deprecated;
 					}
 					$javadoc->{'text'} = \@localTextLines;
@@ -269,7 +269,7 @@ sub processFile {
 					@exampleParams=();
 					undef $return;
 					undef $exampleResponse;
-					$deprecated=0;
+					$deprecated=undef;
 					$javadoc=();
 				} elsif($line =~ m/^\s*\*\s*(.*)/) {
 					push @textLines, $1;
@@ -313,7 +313,11 @@ sub buildVersion {
 	my $ver = $_[0];
 	my $latest = $_[1];
 	`git -C ./perun/ checkout $ver`;
-	my $printVer = substr($ver,1);
+	my $idx = index($ver, "v3.");
+	my $printVer = $ver;
+	if ($idx > 0) {
+		$printVer = substr($ver,1);
+	}
 	my $importPathCss = "css";
 	my $importPathJs = "js";
 	my $importPathImg = "img";
@@ -350,35 +354,35 @@ sub buildVersion {
 <!DOCTYPE html>
 
 <html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta charset="utf-8">
-        <!--[if IE]>
-            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <![endif]-->
-        <title>RPC API documentation $printVer| Perun - Identity and Access Management System</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+		<meta charset="utf-8">
+		<!--[if IE]>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<![endif]-->
+		<title>RPC API documentation $printVer| Perun - Identity and Access Management System</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="$importPathCss/fonts.css" type="text/css">
-        <link rel="stylesheet" href="$importPathCss/bootstrap.css" type="text/css">
-        <link rel="stylesheet" href="$importPathCss/main.css" type="text/css">
-        <link rel="stylesheet" href="$importPathCss/style.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/fonts.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/bootstrap.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/main.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/style.css" type="text/css">
 
-        <link rel="shortcut icon" href="$importPathImg/favicons/favicon.ico">
+		<link rel="shortcut icon" href="$importPathImg/favicons/favicon.ico">
 	<link rel="icon" sizes="16x16 32x32 64x64" href="$importPathImg/favicons/favicon.ico">
 	<link rel="icon" type="image/png" sizes="64x64" href="$importPathImg/favicons/favicon-64.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="$importPathImg/favicons/favicon-32.png">
 	<link rel="apple-touch-icon" href="$importPathImg/favicons/favicon-57.png">
 	<link rel="apple-touch-icon" sizes="144x144" href="$importPathImg/favicons/favicon-144.png">
 	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
-        <meta name="msapplication-TileColor" content="#00569c">
+		<meta name="msapplication-TileColor" content="#00569c">
 
-        <script src="$importPathJs/jquery-1.10.2.min.js"></script>
-        <script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
+		<script src="$importPathJs/jquery-1.10.2.min.js"></script>
+		<script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 
 <body class="front-page">
 
-    <div id="wrap">
+	<div id="wrap">
 
 <div class="techspec content">
 
@@ -396,7 +400,12 @@ sub buildVersion {
 
 	my $counter = 1;
 	for my $v (@allVersions) {
-		my $pv = substr($v, 1);
+
+		my $idx = index $v, "v3.";
+		my $pv = $v;
+		if ($idx > 0) {
+			$pv = substr($v, 1);
+		}
 		print FILE qq^<option value="$pv">$v</option>^;
 		$counter = $counter+1;
 		if ($counter > $versionLimit) {
@@ -410,25 +419,27 @@ sub buildVersion {
 		if (window.location.href.indexOf("$printVer")) {
 			\$('select#versionSelect').val("$printVer");
 		}
-        \$('select#versionSelect').on('change', function() {
-    		var version = \$('select#versionSelect').children("option:selected").val();
-    	^;
+		\$('select#versionSelect').on('change', function() {
+			var version = \$('select#versionSelect').children("option:selected").val();
+		^;
 
 	if ($latest) {
 		print FILE qq^    		window.location.assign(version+"/"+window.location.href.split("/").pop()); ^;
 	} else {
 		print FILE qq^
-    					if (("v"+version) == "$allVersions[0]") {
-    						window.location.assign("../"+window.location.href.split("/").pop());
-    					} else {
-    						window.location.assign("../"+version+"/"+window.location.href.split("/").pop());
-    					}
-    		    		^;
+						if (("v"+version) == "$allVersions[0]") {
+							window.location.assign("../"+window.location.href.split("/").pop());
+						} else if (version == "$allVersions[0]") {
+							window.location.assign("../"+window.location.href.split("/").pop());
+						} else {
+							window.location.assign("../"+version+"/"+window.location.href.split("/").pop());
+						}
+						^;
 	}
 
 	print FILE qq^
-    	});
-    	</script>
+		});
+		</script>
 		</span>
 		<span class="list-group-item"><b><u>General</u></b></span>
 		<a style="color: #005b99;" class="list-group-item" href="index.html"><b>How to use Perun RPC</b></a>
@@ -547,35 +558,35 @@ Response: call1(response);
 <!DOCTYPE html>
 
 <html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta charset="utf-8">
-        <!--[if IE]>
-            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <![endif]-->
-        <title>RPC API documentation $printVer - $manager | Perun - Identity and Access Management System</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+		<meta charset="utf-8">
+		<!--[if IE]>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<![endif]-->
+		<title>RPC API documentation $printVer - $manager | Perun - Identity and Access Management System</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="$importPathCss/fonts.css" type="text/css">
-        <link rel="stylesheet" href="$importPathCss/bootstrap.css" type="text/css">
-        <link rel="stylesheet" href="$importPathCss/main.css" type="text/css">
-        <link rel="stylesheet" href="$importPathCss/style.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/fonts.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/bootstrap.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/main.css" type="text/css">
+		<link rel="stylesheet" href="$importPathCss/style.css" type="text/css">
 
-        <link rel="shortcut icon" href="$importPathImg/favicons/favicon.ico">
+		<link rel="shortcut icon" href="$importPathImg/favicons/favicon.ico">
 	<link rel="icon" sizes="16x16 32x32 64x64" href="$importPathImg/favicons/favicon.ico">
 	<link rel="icon" type="image/png" sizes="64x64" href="$importPathImg/favicons/favicon-64.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="$importPathImg/favicons/favicon-32.png">
 	<link rel="apple-touch-icon" href="$importPathImg/favicons/favicon-57.png">
 	<link rel="apple-touch-icon" sizes="144x144" href="$importPathImg/favicons/favicon-144.png">
 	<meta name="msapplication-TileImage" content="$importPathImg/favicons/favicon-white-144.png">
-        <meta name="msapplication-TileColor" content="#00569c">
+		<meta name="msapplication-TileColor" content="#00569c">
 
-        <script src="$importPathJs/jquery-1.10.2.min.js"></script>
-        <script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
+		<script src="$importPathJs/jquery-1.10.2.min.js"></script>
+		<script src="$importPathJs/bootstrap.js" type="text/javascript"></script>
 </head>
 
 <body class="front-page">
 
-    <div id="wrap">
+	<div id="wrap">
 
 <div class="techspec content">
 
@@ -593,7 +604,11 @@ Response: call1(response);
 
 		my $counter = 1;
 		for my $v (@allVersions) {
-			my $pv = substr($v, 1);
+			my $idx = index $v, "v3.";
+			my $pv = $v;
+			if ($idx > 0) {
+				$pv = substr($v, 1);
+			}
 			print FILE qq^<option value="$pv">$v</option>^;
 			$counter = $counter+1;
 			if ($counter > $versionLimit) {
@@ -607,25 +622,27 @@ Response: call1(response);
 		if (window.location.href.indexOf("$printVer")) {
 			\$('select#versionSelect').val("$printVer");
 		}
-        \$('select#versionSelect').on('change', function() {
-    		var version = \$('select#versionSelect').children("option:selected").val();
-    	^;
+		\$('select#versionSelect').on('change', function() {
+			var version = \$('select#versionSelect').children("option:selected").val();
+		^;
 
 		if ($latest) {
 			print FILE qq^    		window.location.assign(version+"/"+window.location.href.split("/").pop()); ^;
 		} else {
 			print FILE qq^
-    					if (("v"+version) == "$allVersions[0]") {
-    						window.location.assign("../"+window.location.href.split("/").pop());
-    					} else {
-    						window.location.assign("../"+version+"/"+window.location.href.split("/").pop());
-    					}
-    		    		^;
+						if (("v"+version) == "$allVersions[0]") {
+							window.location.assign("../"+window.location.href.split("/").pop());
+						}  else if (version == "$allVersions[0]") {
+							window.location.assign("../"+window.location.href.split("/").pop());
+						} else {
+							window.location.assign("../"+version+"/"+window.location.href.split("/").pop());
+						}
+						^;
 		}
 
 		print FILE qq^
-    	});
-    	</script>
+		});
+		</script>
 		</span>
 		<span class="list-group-item"><b><u>General</u></b></span>
 		<a class="list-group-item" style="color: #005b99;" href="index.html">How to use RPC</a>
@@ -719,8 +736,12 @@ Response: call1(response);
 				# is deprecated ?
 				my $depr = "";
 				if (defined $deprecated) {
-					#$depr = "<span style=\"padding: 10px 20px; color: #005b99;\" class=\"pull-right\"><b>Deprecated</b></span>";
-					$depr = '<abbr class="pull-right" title="Method is NOT recommended for use, it can be removed in any time."><b>Deprecated</b></abbr>';
+					if (length $deprecated > 0) {
+						$depr = qq^<abbr class="pull-right" title="^ . $deprecated . qq^"><b>Deprecated</b></abbr>^;
+					} else {
+						#$depr = "<span style=\"padding: 10px 20px; color: #005b99;\" class=\"pull-right\"><b>Deprecated</b></span>";
+						$depr = qq^<abbr class="pull-right" title="Method is NOT recommended for use, it can be removed in any time."><b>Deprecated</b></abbr>^;
+					}
 				}
 
 				# PRINT ANNOTATION
@@ -736,7 +757,7 @@ Response: call1(response);
 					</span>
 				</div>
 				<div id="$manager$sortedMethod$counter" class="panel-collapse collapse">
-                <div class="panel-body">
+				<div class="panel-body">
 			};
 
 				# <i class="icon-chevron-left" style="margin-top: 4px; transition: all 0.2s ease-out 0s;"></i>
@@ -814,8 +835,8 @@ Response: call1(response);
 
 				my $managerUrl = lcfirst($manager);
 				print FILE qq{
-            	<p><b>Example URL</b><pre><code>https://[hostname]/krb/rpc/json/$managerUrl/$sortedMethod</code></pre>
-            };
+				<p><b>Example URL</b><pre><code>https://[hostname]/krb/rpc/json/$managerUrl/$sortedMethod</code></pre>
+			};
 
 				print FILE "<ul><li><a href=\"index.html#url-structure\"><i>see URL structure</i></a></li></ul>";
 
@@ -892,19 +913,19 @@ Response: call1(response);
 		print FILE qq{</div>};
 
 		print FILE qq{
-    <script type="text/javascript">
-    	\$(document).ready(function() {
-    		\$("#nav-documentation").addClass('active');
-    	});
+	<script type="text/javascript">
+		\$(document).ready(function() {
+			\$("#nav-documentation").addClass('active');
+		});
 
 		var url = document.location.toString();
 		if ( url.match('#') ) {
 			\$('#'+url.split('#')[1]).addClass('in');
 		}
 
-    </script>
+	</script>
 
-    };
+	};
 
 		close (FILE);
 
@@ -917,9 +938,11 @@ Response: call1(response);
 
 my $version;
 my $buildAll;
+my $commit;
 GetOptions ("help|h" => sub {print help(); exit 0;},
 	"version|v=s" => \$version ,
 	"all-versions|a" => \$buildAll ,
+	"commit|c=s" => \$commit ,
 ) || die help();
 
 # clean and checkout perun sources
@@ -937,8 +960,13 @@ unless (-d $SOURCE_DIR) {
 @allVersions = `git -C ./perun/ tag --list`;
 chomp @allVersions;
 @allVersions = reverse @allVersions;
-
 if ($buildAll) {
+
+	if (defined($commit)) {
+		# we add specific commit to the top
+		unshift @allVersions, $commit;
+	}
+
 	# Build all versions
 	my $counter = 1;
 	for my $ver (@allVersions) {
@@ -948,14 +976,27 @@ if ($buildAll) {
 			last;
 		}
 	}
+
 } else {
-	# Build specified or latest versions
-	unless (defined($version)) {
-		# latest version if no build version specified
-		$version = $allVersions[0];
+
+	if (defined($commit)) {
+
+		print "Building version: $commit\n";
+		# add commit to all versions
+		unshift @allVersions, $commit;
+		buildVersion($commit, 1);
+
+	} else {
+
+		# Build specified or latest versions
+		unless (defined($version)) {
+			# latest version if no build version specified
+			$version = $allVersions[0];
+		}
+		print "Building version: $version\n";
+		buildVersion($version, ($allVersions[0] eq $version));
+
 	}
-	print "Building version: $version\n";
-	buildVersion($version, ($allVersions[0] eq $version));
 }
 
 #END OF MAIN PROGRAM
