@@ -193,6 +193,28 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		//Get facility for audit messages
 		Facility facility = this.getFacility(sess, resource);
 
+		//remove admins of this resource
+		List<Group> adminGroups = getResourcesManagerImpl().getAdminGroups(sess, resource);
+		for (Group adminGroup : adminGroups) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminGroup, resource, Role.RESOURCEADMIN);
+			} catch (GroupNotAdminException e) {
+				log.warn("When trying to unsetRole ResourceAdmin for group {} in the resource {} the exception was thrown {}", adminGroup, resource, e);
+				//skip and log as warning
+			}
+		}
+
+		List<User> adminUsers = getResourcesManagerImpl().getAdmins(sess, resource);
+
+		for (User adminUser : adminUsers) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminUser, resource, Role.RESOURCEADMIN);
+			} catch (UserNotAdminException e) {
+				log.warn("When trying to unsetRole ResourceAdmin for user {} in the resource {} the exception was thrown {}", adminUser, resource, e);
+				//skip and log as warning
+			}
+		}
+
 		// Remove binding between resource and service
 		List<Service> services = getAssignedServices(sess, resource);
 		for (Service service: services) {

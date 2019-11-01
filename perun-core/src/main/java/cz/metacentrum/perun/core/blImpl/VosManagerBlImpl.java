@@ -90,6 +90,29 @@ public class VosManagerBlImpl implements VosManagerBl {
 		log.debug("Deleting vo {}", vo);
 
 		try {
+			//remove admins of this vo
+			List<Group> adminGroups = getVosManagerImpl().getAdminGroups(sess, vo);
+
+			for (Group adminGroup : adminGroups) {
+				try {
+					AuthzResolverBlImpl.unsetRole(sess, adminGroup, vo, Role.VOADMIN);
+				} catch (GroupNotAdminException e) {
+					log.warn("When trying to unsetRole VoAdmin for group {} in the vo {} the exception was thrown {}", adminGroup, vo, e);
+					//skip and log as warning
+				}
+			}
+
+			List<User> adminUsers = getVosManagerImpl().getAdmins(sess, vo);
+
+			for (User adminUser : adminUsers) {
+				try {
+					AuthzResolverBlImpl.unsetRole(sess, adminUser, vo, Role.VOADMIN);
+				} catch (UserNotAdminException e) {
+					log.warn("When trying to unsetRole VoAdmin for user {} in the vo {} the exception was thrown {}", adminUser, vo, e);
+					//skip and log as warning
+				}
+			}
+
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 
 			log.debug("Deleting vo {} members", vo);

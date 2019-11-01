@@ -362,6 +362,29 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 				}
 
+				//remove admins of this group
+				List<Group> adminSubGroups = getGroupsManagerImpl().getGroupAdmins(sess, subGroup);
+
+				for (Group adminSubGroup : adminSubGroups) {
+					try {
+						AuthzResolverBlImpl.unsetRole(sess, adminSubGroup, subGroup, Role.GROUPADMIN);
+					} catch (GroupNotAdminException e) {
+						log.warn("When trying to unsetRole GroupAdmin for group {} in the group {} the exception was thrown {}", adminSubGroup, subGroup, e);
+						//skip and log as warning
+					}
+				}
+
+				List<User> adminSubUsers = getGroupsManagerImpl().getAdmins(sess, subGroup);
+
+				for (User adminSubUser : adminSubUsers) {
+					try {
+						AuthzResolverBlImpl.unsetRole(sess, adminSubUser, subGroup, Role.GROUPADMIN);
+					} catch (UserNotAdminException e) {
+						log.warn("When trying to unsetRole GroupAdmin for user {} in the group {} the exception was thrown {}", adminSubUser, subGroup, e);
+						//skip and log as warning
+					}
+				}
+
 				// Deletes also all direct and indirect members of the group
 				getGroupsManagerImpl().deleteGroup(sess, vo, subGroup);
 
@@ -504,6 +527,29 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				AuthzResolverBlImpl.unsetRole(sess, group, vo1, Role.VOADMIN);
 			} catch (GroupNotAdminException e) {
 				log.warn("Can't unset group {} as admin of facility {} due to group not admin exception {}.", group, vo1, e);
+			}
+		}
+
+		//remove admins of this group
+		List<Group> adminGroups = getGroupsManagerImpl().getGroupAdmins(sess, group);
+
+		for (Group adminGroup : adminGroups) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminGroup, group, Role.GROUPADMIN);
+			} catch (GroupNotAdminException e) {
+				log.warn("When trying to unsetRole GroupAdmin for group {} in the group {} the exception was thrown {}", adminGroup, group, e);
+				//skip and log as warning
+			}
+		}
+
+		List<User> adminUsers = getGroupsManagerImpl().getAdmins(sess, group);
+
+		for (User adminUser : adminUsers) {
+			try {
+				AuthzResolverBlImpl.unsetRole(sess, adminUser, group, Role.GROUPADMIN);
+			} catch (UserNotAdminException e) {
+				log.warn("When trying to unsetRole GroupAdmin for user {} in the group {} the exception was thrown {}", adminUser, group, e);
+				//skip and log as warning
 			}
 		}
 
