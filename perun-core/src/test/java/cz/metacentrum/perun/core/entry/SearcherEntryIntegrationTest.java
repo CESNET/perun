@@ -30,6 +30,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests of Searcher
@@ -589,20 +590,24 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Facility facility = setUpFacility("testFacility");
 
 		Resource resource1 = setUpResource("testResource01", vo, facility);
-		setUpResource("testResource02", vo, facility);
-		setUpResource("testResource03", vo, facility);
+		Resource resource2 = setUpResource("testResource02", vo, facility);
+		Resource resource3 = setUpResource("testResource03", vo, facility);
 
 		Map<String, String> searchParams = new HashMap<>();
+		//exact string match
 		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_CORE + ":name", resource1.getName());
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams, false);
 
-		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+		assertThat(foundResources).containsOnlyOnce(resource1);
 
-		assertEquals("Found resource number of resources", 1, foundResources.size());
-		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
+		//partial string match
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_CORE + ":name", "testResource");
+		foundResources = searcherBl.getResources(sess, searchParams, true);
+		assertThat(foundResources).containsOnlyOnce(resource1, resource2, resource3);
 	}
 
 	@Test
-	public void getResourcesByStringAttributeValue() throws Exception {
+	public void getResourcesByStringAttributeValueAndExactMatch() throws Exception {
 		System.out.println(CLASS_NAME + "getResourcesByStringAttributeValue");
 
 		Facility facility = setUpFacility("testFacility");
@@ -628,11 +633,41 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Map<String, String> searchParams = new HashMap<>();
 		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, searchedValue);
 
-		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams, false);
 
-		assertEquals("Found invalid number of resources", 2, foundResources.size());
-		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
-		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource4));
+		assertThat(foundResources).containsOnlyOnce(resource1, resource4);
+	}
+
+	@Test
+	public void getResourcesByStringAttributeValueAndPartialMatch() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByStringAttributeValue");
+
+		Facility facility = setUpFacility("testFacility");
+
+		Resource resource1 = setUpResource("testResource01", vo, facility);
+		Resource resource2 = setUpResource("testResource02", vo, facility);
+		Resource resource3 = setUpResource("testResource03", vo, facility);
+		Resource resource4 = setUpResource("testResource04", vo, facility);
+
+		String searchedValue = "searchedValue";
+		String otherValue = "otherValue";
+		String attributeName = "testAttribute";
+
+		AttributeDefinition ad = setUpResourceAttribute(attributeName, String.class.getName());
+		Attribute searchedAttribute = new Attribute(ad, searchedValue);
+		Attribute otherAttribute = new Attribute(ad, otherValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, searchedAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource4, searchedAttribute);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, "value");
+
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams, true);
+
+		assertThat(foundResources).containsOnlyOnce(resource1, resource2, resource3, resource4);
 	}
 
 	@Test
@@ -666,7 +701,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName1, searchedValue1);
 		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName2, searchedValue2);
 
-		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams, false);
 
 		assertEquals("Found invalid number of resources", 1, foundResources.size());
 		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource4));
@@ -699,7 +734,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Map<String, String> searchParams = new HashMap<>();
 		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, String.valueOf(searchedValue));
 
-		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams, false);
 
 		assertEquals("Found invalid number of resources", 2, foundResources.size());
 		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
@@ -747,7 +782,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Map<String, String> searchParams = new HashMap<>();
 		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, searchedString);
 
-		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams, false);
 
 		assertEquals("Found invalid number of resources", 2, foundResources.size());
 		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
@@ -798,7 +833,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Map<String, String> searchParams = new HashMap<>();
 		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, searchedKeyString + "=" + searchedString);
 
-		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams, false);
 
 		assertEquals("Found invalid number of resources", 2, foundResources.size());
 		assertTrue("Found resources did not contain resources it should.", foundResources.contains(resource1));
