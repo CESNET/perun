@@ -72,7 +72,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 	protected List<Map<String, String>> querySource(String query, String base, int maxResults) throws InternalErrorException {
 		List<Map<String, String>> subjects = new ArrayList<>();
 		NamingEnumeration<SearchResult> results = null;
-		
+
 		if(base == null || base.isEmpty()) {
 			base = "ou=People,dc=egi,dc=eu";
 		}
@@ -91,7 +91,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 				SearchResult searchResult = results.next();
 				subjects.add(processResultToSubject(searchResult));
 			}
-			
+
 			log.trace("Returning [{}] subjects", subjects.size());
 
 		} catch (NamingException e) {
@@ -177,7 +177,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 			}
 
 			Process p;
-			p = new ProcessBuilder("openssl", "x509", "-in", byteFile.getAbsolutePath(), "-subject", "-issuer", "-noout", "-inform", "DER")
+			p = new ProcessBuilder("openssl", "x509", "-in", byteFile.getAbsolutePath(), "-nameopt", "compat", "-subject", "-issuer", "-noout", "-inform", "DER")
 					.inheritIO()
 					.redirectOutput(infoFile)
 					.redirectErrorStream(true)
@@ -197,10 +197,10 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 			try(BufferedReader br = new BufferedReader(new FileReader(infoFile))) {
 				String line;
 				while((line = br.readLine()) != null) {
-					if(line.matches("^issuer= .*")) {
-						certIssuer = line.replaceAll("^issuer= ", "");
-					} else if(line.matches("^subject= .*")) {
-						certSubj = line.replaceAll("^subject= ", "");
+					if(line.matches("^issuer=.*")) {
+						certIssuer = line.replaceAll("^issuer=", "");
+					} else if(line.matches("^subject=.*")) {
+						certSubj = line.replaceAll("^subject=", "");
 					}
 				}
 			}
