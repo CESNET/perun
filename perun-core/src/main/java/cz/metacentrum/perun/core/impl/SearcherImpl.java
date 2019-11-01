@@ -53,7 +53,7 @@ public class SearcherImpl implements SearcherImplApi {
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 
-		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "user_attr_values", "user", "users", attributesWithSearchingValues);
+		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "user_attr_values", "user", "users", attributesWithSearchingValues, false);
 
 		try {
 			return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
@@ -117,7 +117,7 @@ public class SearcherImpl implements SearcherImplApi {
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 
-		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "facility_attr_values", "facility", "facilities", attributesWithSearchingValues);
+		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "facility_attr_values", "facility", "facilities", attributesWithSearchingValues, false);
 
 		try {
 			return jdbc.query(query.toString(), parameters, FacilitiesManagerImpl.FACILITY_MAPPER);
@@ -129,13 +129,13 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
+	public List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException {
 		StringBuilder query = new StringBuilder();
 		query.append("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources ");
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 
-		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "resource_attr_values", "resource", "resources", attributesWithSearchingValues);
+		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "resource_attr_values", "resource", "resources", attributesWithSearchingValues, allowPartialMatchForString);
 
 		try {
 			return jdbc.query(query.toString(), parameters, ResourcesManagerImpl.RESOURCE_MAPPER);
@@ -153,12 +153,13 @@ public class SearcherImpl implements SearcherImplApi {
 	 * @param query output where are the generated clauses appended
 	 * @param parameters output where are added objects used in where clauses
 	 * @param attributesWithSearchingValues attributes with values used for generating WHERE clauses
+	 * @param allowPartialMatchForString if false, search only by exact match, if true, search also by partial match (for String values only!)
 	 * @throws InternalErrorException internal error
 	 */
 	@SuppressWarnings("ConstantConditions")
 	private void insertWhereClausesAndQueryParametersFromAttributes(StringBuilder query, MapSqlParameterSource parameters,
 	                                                                String attrValueTableName, String entityName, String entityTableName,
-	                                                                Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
+	                                                                Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException {
 		List<String> whereClauses = new ArrayList<>();
 		int counter = 0;
 		for(Attribute key: attributesWithSearchingValues.keySet()) {
@@ -185,13 +186,21 @@ public class SearcherImpl implements SearcherImplApi {
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
 				} else if (key.getType().equals(String.class.getName())) {
 					key.setValue(value);
-					whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" + Compatibility.convertToAscii(":v" + counter) + ") ");
+					if(allowPartialMatchForString) {
+						whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ") LIKE CONCAT('%', CONCAT(lower(" + Compatibility.convertToAscii(":v" + counter) + "), '%')) ");
+					} else {
+						whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" + Compatibility.convertToAscii(":v" + counter) + ") ");
+					}
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, String.class.getName());
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
 				} else if (key.getType().equals(BeansUtils.largeStringClassName)) {
 					key.setValue(value);
-					whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value_text") + ") LIKE lower(" + Compatibility.convertToAscii(":v" + counter) + ") ");
+					if(allowPartialMatchForString) {
+						whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value_text") + ") LIKE CONCAT('%', CONCAT(lower(" + Compatibility.convertToAscii(":v" + counter) + "), '%')) ");
+					} else {
+						whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value_text") + ")=lower(" + Compatibility.convertToAscii(":v" + counter) + ") ");
+					}
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, BeansUtils.largeStringClassName);
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
