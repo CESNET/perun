@@ -8,6 +8,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,41 +39,44 @@ public class urn_perun_facility_attribute_def_def_homeMountPointsTest {
 	 * with all properly set
 	 */
 	@Test
-	public void testCheckAttributeSemantics() throws Exception {
-		System.out.println("testCheckAttributeSemantics()");
+	public void testCheckAttributeSyntaxCorrect() throws Exception {
+		System.out.println("testCheckAttributeSyntaxCorrect()");
 
 		ArrayList<String> homeMountPts= new ArrayList<>();
 		homeMountPts.add("/mnt/mymountpoint1");
 		homeMountPts.add("/mnt/mymountpoint2");
 		attribute.setValue(homeMountPts);
 
-		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
+		classInstance.checkAttributeSyntax(session, new Facility(), attribute);
 
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
+	public void testCheckAttributeSyntaxBadFormat() throws Exception {
+		System.out.println("testCheckAttributeSyntaxBadFormat");
+		ArrayList<String> homeMountPts= new ArrayList<>();
+		homeMountPts.add("/mnt/mymountpoint/");
+		homeMountPts.add("/mnt/mymountpoin@@t2\n");
+		attribute.setValue(homeMountPts);
+
+		classInstance.checkAttributeSyntax(session, new Facility(), attribute);
+	}
+
+	@Test(expected= WrongReferenceAttributeValueException.class)
 	public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
 		System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
 
 		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
 	}
 
-	@Test(expected=WrongAttributeValueException.class)
-	public void testCheckAttributeSemanticsBadFormat() throws Exception {
-		System.out.println("testCheckAttributeSemanticsBadFormat");
+	@Test
+	public void testCheckAttributeSemanticsCorrect() throws Exception {
+		System.out.println("testCheckAttributeSemanticsCorrect()");
+
 		ArrayList<String> homeMountPts= new ArrayList<>();
-		homeMountPts.add("/mnt/mymountpoint/");
-		homeMountPts.add("/mnt/mymountpoin@@t2\n");
+		homeMountPts.add("/mnt/mymountpoint1");
 		attribute.setValue(homeMountPts);
 
-		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
-	}
-
-	@Test(expected=WrongAttributeValueException.class)
-	public void testCheckAttributeSemanticsNoHomeMountPointsSet() throws Exception {
-		System.out.println("testCheckAttributeSemanticsNoHomeMountPointsSet()");
-
-		attribute.setValue(new ArrayList<String>());
 		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
 	}
 }

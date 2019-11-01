@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
@@ -26,20 +27,19 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
 	 * e.g. corretct unix path.
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
-		List<String> shells = (List<String>) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+		List<String> shells = attribute.valueAsList();
 
-		if (shells == null) {
-			throw new WrongAttributeValueException(attribute, "This attribute cannot be null.");
-		}
+		if (shells == null) return;
 
-		if (!shells.isEmpty()) {
-			for (String st : shells) {
-				perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
-			}
-		} else {
-			throw new WrongAttributeValueException(attribute);
+		for (String st : shells) {
+			perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, "This attribute cannot be null.");
 	}
 
 	/**

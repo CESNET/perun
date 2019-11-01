@@ -33,8 +33,8 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 		try {
 			Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
 			if(gidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, gidNamespaceAttribute, "There is missing GID namespace on the facility.");
-			Attribute namespaceGIDRangesAttribute = getNamespaceGIDRangesAttribute(sess, (String) gidNamespaceAttribute.getValue());
-			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, (String) gidNamespaceAttribute.getValue(), namespaceGIDRangesAttribute);
+			Attribute namespaceGIDRangesAttribute = getNamespaceGIDRangesAttribute(sess, gidNamespaceAttribute.valueAsString());
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, gidNamespaceAttribute.valueAsString(), namespaceGIDRangesAttribute);
 		} catch(WrongReferenceAttributeValueException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, ex.getReferenceAttribute());
 		}
