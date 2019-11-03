@@ -32,7 +32,6 @@ public class PerunRolesLoader {
 	private Resource configurationPath;
 
 	public void loadPerunRoles(JdbcPerunTemplate jdbc) {
-		if (BeansUtils.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");
 
 		JsonNode rootNode = loadConfigurationFile();
 

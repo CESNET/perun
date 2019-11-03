@@ -1833,6 +1833,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return authzResolverImpl.roleExists(role);
 	}
 
+	public static void loadAuthorizationComponents() { authzResolverImpl.loadAuthorizationComponents(); }
+
 	/**
 	 * Checks whether the user is in role for Vo.
 	 *

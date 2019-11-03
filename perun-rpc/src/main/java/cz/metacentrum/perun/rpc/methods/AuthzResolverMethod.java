@@ -611,6 +611,17 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return "OK";
 		}
-	};
+	},
 
+	/*#
+	 * Load perun roles and policies from the configuration file perun-roles.yml.
+	 * Roles are loaded to the database and policies are loaded to the PerunPoliciesContainer.
+	 */
+	loadAuthorizationComponents {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			cz.metacentrum.perun.core.api.AuthzResolver.loadAuthorizationComponents(ac.getSession());
+			return null;
+		}
+	};
 }
