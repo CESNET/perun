@@ -959,4 +959,15 @@ public class AuthzResolver {
 	public static boolean roleExists(String role) {
 		return AuthzResolverBlImpl.roleExists(role);
 	}
+
+	/**
+	 * Load perun roles and policies from the configuration file perun-roles.yml.
+	 * Roles are loaded to the database and policies are loaded to the PerunPoliciesContainer.
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	public static void loadAuthorizationComponents(PerunSession sess) throws PrivilegeException {
+		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException(sess, "loadAuthorizationComponents");
+		AuthzResolverBlImpl.loadAuthorizationComponents();
+	}
 }

@@ -509,4 +509,10 @@ public interface AuthzResolverImplApi {
 	 * @return true if role exists, false otherwise.
 	 */
 	boolean roleExists(String role);
+
+	/**
+	 * Load perun roles and policies from the configuration file perun-roles.yml.
+	 * Roles are loaded to the database and policies are loaded to the PerunPoliciesContainer.
+	 */
+	void loadAuthorizationComponents();
 }

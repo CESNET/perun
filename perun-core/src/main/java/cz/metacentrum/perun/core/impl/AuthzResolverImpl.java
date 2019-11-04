@@ -177,6 +177,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	public void initialize() throws InternalErrorException {
+		if (BeansUtils.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");
+
 		this.perunRolesLoader.loadPerunRoles(jdbc);
 		perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
 	}
@@ -747,6 +749,12 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public void loadAuthorizationComponents() {
+		this.perunRolesLoader.loadPerunRoles(jdbc);
+		perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
 	}
 
 	public static JsonNode getPerunPolicy(String policyName) throws PolicyNotExistsException {
