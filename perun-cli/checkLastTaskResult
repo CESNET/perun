@@ -9,7 +9,7 @@ use Perun::Common qw(printMessage getSortingFunction printTable);
 # NEEDED AGENTS
 my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
-my $propagationStatsReaderAgent = $agent->getPropagationStatsReaderAgent;
+my $tasksAgent = $agent->getTasksAgent;
 
 # Constants
 my $CORRECT_STATUS = "DONE";
@@ -70,7 +70,7 @@ if(defined $serviceId) {
 }
 
 my @destinations = ( $destinationName );
-my @taskResults = $propagationStatsReaderAgent->getTaskResultsForDestinations( destinations => \@destinations );
+my @taskResults = $tasksAgent->getTaskResultsForDestinations( destinations => \@destinations );
 unless (@taskResults) {
 	die "Can't found any task for combination of service=$serviceName and destination=$destinationName\n";
 }

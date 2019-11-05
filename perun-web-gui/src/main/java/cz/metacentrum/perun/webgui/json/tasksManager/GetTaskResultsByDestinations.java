@@ -1,12 +1,9 @@
-package cz.metacentrum.perun.webgui.json.propagationStatsReader;
+package cz.metacentrum.perun.webgui.json.tasksManager;
 
-import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -21,56 +18,51 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.TaskResult;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
-import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Ajax query to ger RichTaskResults by Task
+ * Ajax query to ger RichTaskResults by Destinations
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable<TaskResult>, JsonCallbackOracle<TaskResult> {
-
-	private static final int ERROR_MESSAGE_LIMIT = 150;
-	private static final int STANDARD_MESSAGE_LIMIT = 40;
+public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackTable<TaskResult> {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	static private final String JSON_URL = "propagationStatsReader/getTaskResultsForGUIByTaskOnlyNewest";
+	static private final String JSON_URL = "tasksManager/getTaskResultsForDestinations";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// data providers
 	private ListDataProvider<TaskResult> dataProvider = new ListDataProvider<TaskResult>();
 	private ArrayList<TaskResult> list = new ArrayList<TaskResult>();
 	private PerunTable<TaskResult> table;
-	private FieldUpdater<TaskResult, String> fieldUpdater;
 	// Selection model
 	final MultiSelectionModel<TaskResult> selectionModel = new MultiSelectionModel<TaskResult>(new GeneralKeyProvider<TaskResult>());
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	private int taskId = 0;
+	private ArrayList<String> destinations;
 
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
-	private ArrayList<TaskResult> fullBackup = new ArrayList<TaskResult>();
 
 	/**
 	 * New instance of get tasks results
+	 *
+	 * @param destinations
 	 */
-	public GetRichTaskResultsByTask(int taskId) {
-		this.taskId = taskId;
+	public GetTaskResultsByDestinations(ArrayList<String> destinations) {
+		this.destinations = destinations;
 	}
 
 	/**
 	 * New instance of get tasks results with external events
 	 *
+	 * @param destinations
 	 * @param events external events
 	 */
-	public GetRichTaskResultsByTask(int taskId, JsonCallbackEvents events) {
-		this.taskId = taskId;
+	public GetTaskResultsByDestinations(ArrayList<String> destinations, JsonCallbackEvents events) {
+		this.destinations = destinations;
 		this.events = events;
 	}
 
@@ -82,19 +74,8 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	public CellTable<TaskResult> getTable() {
 
 		retrieveData();
-		return getEmptyTable();
+		return getTableDefinition();
 
-	}
-
-	/**
-	 * Return table with task results and start callback
-	 *
-	 * @return table
-	 */
-	public CellTable<TaskResult> getTable(FieldUpdater<TaskResult, String> fieldUpdater) {
-		this.fieldUpdater = fieldUpdater;
-		retrieveData();
-		return getEmptyTable();
 	}
 
 	/**
@@ -102,7 +83,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	 *
 	 * @return table widget
 	 */
-	public CellTable<TaskResult> getEmptyTable() {
+	public CellTable<TaskResult> getTableDefinition() {
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<TaskResult>(list);
@@ -123,114 +104,127 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		loaderImage.setEmptyResultMessage("No propagation results found.");
+		loaderImage.setEmptyResultMessage("No propagation results found for this destination.");
 
-		table.addIdColumn("Result Id", fieldUpdater, 85);
+		table.addIdColumn("Result Id", null, 85);
 
 		// destination column
-		Column<TaskResult, String> destinationColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getDestination().getDestination()), fieldUpdater);
+		TextColumn<TaskResult> destinationColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getDestination().getDestination());
+			}
+		};
 
 		destinationColumn.setSortable(true);
-
-		columnSortHandler.setComparator(destinationColumn, (o1, o2) ->
-				TableSorter.smartCompare(o1.getDestination().getDestination(), o2.getDestination().getDestination()));
+		columnSortHandler.setComparator(destinationColumn, new Comparator<TaskResult>(){
+			public int compare(TaskResult o1, TaskResult o2) {
+				return o1.getDestination().getDestination().compareToIgnoreCase((o2.getDestination().getDestination()));
+			}
+		});
 
 		// Type column
-		Column<TaskResult, String> typeColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getDestination().getType().toUpperCase()), fieldUpdater);
+		TextColumn<TaskResult> typeColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getDestination().getType());
+			}
+		};
 
 		typeColumn.setSortable(true);
 		columnSortHandler.setComparator(typeColumn, new Comparator<TaskResult>(){
 			public int compare(TaskResult o1, TaskResult o2) {
-				int comp = o1.getDestination().getType().compareToIgnoreCase((o2.getDestination().getType()));
-				if (comp == 0) {
-					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
-				}
-				return comp;
+				return o1.getDestination().getType().compareToIgnoreCase(o2.getDestination().getType());
 			}
 		});
 
-		Column<TaskResult, String> servColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getService().getName()), fieldUpdater);
-
+		TextColumn<TaskResult> servColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult taskResult) {
+				return taskResult.getService().getName();
+			}
+		};
 		servColumn.setSortable(true);
 		columnSortHandler.setComparator(servColumn, new Comparator<TaskResult>() {
 			public int compare(TaskResult o1, TaskResult o2) {
-				int comp = o1.getService().getName().compareToIgnoreCase((o2.getService().getName()));
-				if (comp == 0) {
-					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
-				}
-				return comp;
+				return o1.getService().getName().compareToIgnoreCase(o2.getService().getName());
 			}
 		});
 
 		// status column
-		Column<TaskResult, String> statusColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getStatus()), fieldUpdater);
+		TextColumn<TaskResult> statusColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getStatus());
+			}
+		};
 
 		statusColumn.setSortable(true);
 		columnSortHandler.setComparator(statusColumn, new Comparator<TaskResult>(){
 			public int compare(TaskResult o1, TaskResult o2) {
-				int comp = o1.getStatus().compareToIgnoreCase(o2.getStatus());
-				if (comp == 0) {
-					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
-				}
-				return comp;
+				return o1.getStatus().compareToIgnoreCase(o2.getStatus());
 			}
 		});
 
 		// time column
-		Column<TaskResult, String> timeColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getTimestamp()), fieldUpdater);
+		TextColumn<TaskResult> timeColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return object.getTimestamp();
+			}
+		};
 
 		timeColumn.setSortable(true);
 		columnSortHandler.setComparator(timeColumn, new Comparator<TaskResult>(){
 			public int compare(TaskResult o1, TaskResult o2) {
-				return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				return o1.getTimestamp().compareToIgnoreCase(o2.getTimestamp());
 			}
 		});
 
 		// returnCode column
-		Column<TaskResult, String> returnCodeColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getReturnCode()), fieldUpdater);
+		TextColumn<TaskResult> returnCodeColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getReturnCode());
+			}
+		};
 
 		// standardMessageCode column
-		Column<TaskResult, TaskResult> standardMessageColumn = JsonUtils.addCustomCellColumn(new AbstractCell<TaskResult>() {
-			@Override
-			public void render(Context context, TaskResult taskResult, SafeHtmlBuilder safeHtmlBuilder) {
-				if (taskResult != null) {
-					if (taskResult.getStandardMessage().length() > STANDARD_MESSAGE_LIMIT) {
-						safeHtmlBuilder.appendEscapedLines(taskResult.getStandardMessage().substring(0, STANDARD_MESSAGE_LIMIT) + "…");
-					} else {
-						safeHtmlBuilder.appendEscapedLines(taskResult.getStandardMessage());
-					}
-				}
-			}
-		}, null);
-
-		// errorMessageCode column
-		Column<TaskResult, TaskResult> errorMessageColumn = JsonUtils.addCustomCellColumn(new AbstractCell<TaskResult>() {
+		TextColumn<TaskResult> standardMessageColumn = new TextColumn<TaskResult>() {
 			@Override
 			public void render(Context context, TaskResult object, SafeHtmlBuilder sb) {
 				if (object != null) {
-					if (object.getErrorMessage().length() > ERROR_MESSAGE_LIMIT) {
-						sb.appendEscapedLines(object.getErrorMessage().substring(0, ERROR_MESSAGE_LIMIT) + "…");
-					} else {
-						sb.appendEscapedLines(object.getErrorMessage());
-					}
+					sb.appendEscapedLines(object.getStandardMessage());
 				}
 			}
-		}, null);
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getStandardMessage());
+			}
+		};
+
+		// errorMessageCode column
+		TextColumn<TaskResult> errorMessageColumn = new TextColumn<TaskResult>() {
+			@Override
+			public void render(Context context, TaskResult object, SafeHtmlBuilder sb) {
+				if (object != null) {
+					sb.appendEscapedLines(object.getErrorMessage());
+				}
+			}
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getErrorMessage());
+			}
+		};
 
 		// Add the other columns.
-		table.addColumn(destinationColumn, "Destination");
+		//table.addColumn(destinationColumn, "Destination");
 		table.addColumn(typeColumn, "Type");
 		table.addColumn(servColumn, "Service");
 		table.addColumn(statusColumn, "Status");
 		table.addColumn(timeColumn, "Time");
 		table.addColumn(returnCodeColumn, "Return code");
-		table.addColumn(standardMessageColumn, "Standard Message");
+		//table.addColumn(standardMessageColumn, "Standard Message");
 		table.addColumn(errorMessageColumn, "Error Message");
 
 		// set row styles based on task state
@@ -263,14 +257,28 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	 */
 	public void retrieveData() {
 		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, "task="+taskId, this);
+
+		String params = "";
+		// serialize parameters
+		if (destinations != null && !destinations.isEmpty()) {
+			// parse lists
+			for (int i=0; i<destinations.size(); i++) {
+				if (i != destinations.size()-1) {
+					params += "destinations[]=" + destinations.get(i) + "&";
+				} else {
+					params += "destinations[]=" + destinations.get(i);
+				}
+			}
+		}
+
+		js.retrieveData(JSON_URL, params, this);
 	}
 
 	/**
 	 * Sorts table by objects date
 	 */
 	public void sortTable() {
-		list = new TableSorter<TaskResult>().sortByDestination(getList());
+		list = new TableSorter<TaskResult>().sortByRichTaskResultService(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -282,7 +290,6 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	 */
 	public void addToTable(TaskResult object) {
 		list.add(object);
-		oracle.add(object.getDestination().getDestination());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -305,7 +312,6 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	public void clearTable(){
 		loaderImage.loadingStart();
 		list.clear();
-		oracle.clear();
 		selectionModel.clear();
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -358,7 +364,6 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 	public void insertToTable(int index, TaskResult object) {
 		list.add(index, object);
-		oracle.add(object.getDestination().getDestination());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -374,53 +379,12 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	public void setList(ArrayList<TaskResult> list) {
 		clearTable();
 		this.list.addAll(list);
-		for (TaskResult r : list) {
-			oracle.add(r.getDestination().getDestination());
-		}
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
 
 	public ArrayList<TaskResult> getList() {
 		return this.list;
-	}
-
-	@Override
-	public void filterTable(String filter) {
-
-		// store list only for first time
-		if (fullBackup.isEmpty() || fullBackup == null) {
-			fullBackup.addAll(list);
-		}
-
-		// always clear selected items
-		selectionModel.clear();
-		list.clear();
-
-		if (filter.equalsIgnoreCase("")) {
-			list.addAll(fullBackup);
-		} else {
-			for (TaskResult result : fullBackup){
-				if (result.getDestination().getDestination().toLowerCase().startsWith(filter)) {
-					list.add(result);
-				}
-			}
-		}
-
-		dataProvider.flush();
-		dataProvider.refresh();
-		loaderImage.loadingFinished();
-
-	}
-
-	@Override
-	public UnaccentMultiWordSuggestOracle getOracle() {
-		return oracle;
-	}
-
-	@Override
-	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
-		this.oracle = oracle;
 	}
 
 }

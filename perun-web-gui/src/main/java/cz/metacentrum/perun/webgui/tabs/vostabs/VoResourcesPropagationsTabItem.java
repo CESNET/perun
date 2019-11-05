@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetAllResourcesState;
+import cz.metacentrum.perun.webgui.json.tasksManager.GetAllResourcesState;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;

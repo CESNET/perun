@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.propagationStatsReader;
+package cz.metacentrum.perun.webgui.json.tasksManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
@@ -21,7 +21,7 @@ public class DeleteTask {
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Json URL
-	static private final String JSON_URL = "propagationStatsReader/deleteTask";
+	static private final String JSON_URL = "tasksManager/deleteTask";
 	// ID
 	private int taskId = 0;
 

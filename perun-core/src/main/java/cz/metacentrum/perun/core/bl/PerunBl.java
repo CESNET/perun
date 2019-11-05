@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
 import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.ServicesManager;
+import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -129,6 +130,12 @@ public interface PerunBl extends Perun {
 	Searcher getSearcher();
 
 	/**
+	 * Gets a TasksManager
+	 * @return TasksManager
+	 */
+	TasksManager getTasksManager();
+
+	/**
 	 * Gets a AuditMessages manager business logic.
 	 * @return groups manager
 	 */
@@ -223,4 +230,10 @@ public interface PerunBl extends Perun {
 	 * @return  ModulesUtilsBl
 	 */
 	ModulesUtilsBl getModulesUtilsBl();
+
+	/**
+	 * Gets a TasksManagerBl
+	 * @return TasksManagerBl
+	 */
+	TasksManagerBl getTasksManagerBl();
 }
