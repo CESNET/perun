@@ -34,12 +34,18 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
-
-		Integer isSystemUnixGroup = (Integer) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		Integer isSystemUnixGroup = attribute.valueAsInteger();
 		if(isSystemUnixGroup == null) return; //isSystemUnixGroup can be null. It is equivalent to 0.
 
 		if(isSystemUnixGroup != 0 && isSystemUnixGroup != 1) throw new WrongAttributeValueException(attribute, "Attribute isSystemUnixGroup should not other number than 0 or 1.");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+
+		Integer isSystemUnixGroup = attribute.valueAsInteger();
+		if(isSystemUnixGroup == null) return; //isSystemUnixGroup can be null. It is equivalent to 0.
 
 		Attribute sysUnixGroupName;
 		Attribute sysUnixGID;
@@ -58,16 +64,12 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 
 			try {
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, resource, group, sysUnixGroupName);
-			} catch(WrongAttributeValueException ex) {
-				throw new WrongReferenceAttributeValueException("Bad value in sysUnixGroupName attribute.",ex);
 			} catch (GroupResourceMismatchException ex) {
 				throw new InternalErrorException(ex);
 			}
 
 			try {
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, resource, group, sysUnixGID);
-			} catch(WrongAttributeValueException ex) {
-				throw new WrongReferenceAttributeValueException("Bad value in sysUnixGID.",ex);
 			} catch (GroupResourceMismatchException ex) {
 				throw new InternalErrorException(ex);
 			}

@@ -38,21 +38,20 @@ public class urn_perun_group_resource_attribute_def_def_adName extends GroupReso
 	private static final Pattern pattern = Pattern.compile("(\\w|-|\\.)*");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		String attributeValue;
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//Attribute can be null
+		if (attribute.getValue() == null) return;
 
+		if (!pattern.matcher(attribute.valueAsString()).matches()) {
+			throw new WrongAttributeValueException(attribute, "Invalid attribute adName value. It should contain only letters, digits, hyphens, underscores or dots.");
+		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//Attribute can be null
 		if(attribute.getValue() == null) {
 			return;
-		}
-
-		if(attribute.getValue() instanceof String) {
-			attributeValue = (String) attribute.getValue();
-			if (!pattern.matcher(attributeValue).matches()) {
-				throw new WrongAttributeValueException(attribute, "Invalid attribute adName value. It should contain only letters, digits, hyphens, underscores or dots.");
-			}
-		} else {
-			throw new WrongAttributeValueException(attribute, "Attribute adName value must be a String.");
 		}
 
 		Attribute resourceAdOuName;

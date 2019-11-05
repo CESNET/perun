@@ -26,7 +26,7 @@ import java.util.List;
 public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupResourceVirtualAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 		Attribute gidAttribute;
 		try {
@@ -36,10 +36,9 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 		}
 		gidAttribute.setValue(attribute.getValue());
 		try {
+			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSyntax(sess, group, gidAttribute);
 			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSemantics(sess, group, gidAttribute);
-		} catch(WrongAttributeValueException ex) {
-			throw new WrongAttributeValueException(attribute, ex.getMessage(), ex);
-		} catch(WrongReferenceAttributeValueException ex) {
+		} catch(WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, ex.getAttribute(), ex);
 		}
 	}
@@ -62,6 +61,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 		}
 
 		try {
+			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSyntax(sess, group, gidAttribute);
 			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSemantics(sess, group, gidAttribute);
 			//check passed, we can use value from this physical attribute
 			attribute.setValue(gidAttribute.getValue());

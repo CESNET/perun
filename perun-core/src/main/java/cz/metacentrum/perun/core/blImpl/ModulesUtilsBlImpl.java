@@ -1134,6 +1134,39 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return convertedRanges;
 	}
 
+	/**
+	 * Returns pair of number (BigDecimal) and unit (String) from given string. Returns default value Pair<0, "G"> if parsing fails.
+	 * E.g.: "5T" -> Pair<5, "T">
+	 *
+	 * @param attributeValue string to parse
+	 * @return pair of number and unit
+	 */
+	public static Pair<BigDecimal, String> getNumberAndUnitFromString(String attributeValue) {
+		String numberString = "0";
+		String unit = "G";
+
+		if (attributeValue != null) {
+			Matcher numberMatcher = numberPattern.matcher(attributeValue);
+			Matcher letterMatcher = letterPattern.matcher(attributeValue);
+			numberMatcher.find();
+			letterMatcher.find();
+			try {
+				numberString = attributeValue.substring(numberMatcher.start(), numberMatcher.end());
+			} catch (IllegalStateException ex) {
+				log.debug("No number could be parsed from given string.", ex);
+			}
+			try {
+				unit = attributeValue.substring(letterMatcher.start(), letterMatcher.end());
+			} catch (IllegalStateException ex) {
+				log.debug("No unit could be parsed from given string.", ex);
+			}
+		}
+
+		BigDecimal number = new BigDecimal(numberString.replace(',', '.'));
+
+		return new Pair<>(number, unit);
+	}
+
 	public PerunBl getPerunBl() {
 		return this.perunBl;
 	}

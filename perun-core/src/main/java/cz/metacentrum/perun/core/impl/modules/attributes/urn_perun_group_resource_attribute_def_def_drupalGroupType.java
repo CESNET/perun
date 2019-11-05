@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
@@ -22,18 +23,20 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 	private final static org.slf4j.Logger log = LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_drupalGroupType.class);
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		String attributeValue;
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+		if(attribute.getValue() == null) return;
 
-		if(attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute, resource, group, "Type of drupal group can't be null.");
-		}
-		else {
-			attributeValue = (String) attribute.getValue();
-		}
+		String attributeValue = attribute.valueAsString();
 
 		if(!(attributeValue.equals("public") || attributeValue.equals("private"))) {
 			throw new WrongAttributeValueException(attribute, resource, group, "Type of drupal group is not in correct form. It can be either 'public' or 'private'.");
+		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) {
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, group, "Type of drupal group can't be null.");
 		}
 	}
 
@@ -46,8 +49,9 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 			filledAttribute.setValue("public");
 		} else {
 			try {
+				checkAttributeSyntax(session, group, resource, filledAttribute);
 				checkAttributeSemantics(session, group, resource, filledAttribute);
-			} catch (WrongAttributeValueException ex) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				log.error("Type of drupal group can be either 'public' or 'private'.", ex);
 			}
 		}

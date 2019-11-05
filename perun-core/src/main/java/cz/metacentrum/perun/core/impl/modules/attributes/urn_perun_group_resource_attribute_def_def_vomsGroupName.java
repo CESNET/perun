@@ -23,23 +23,15 @@ public class urn_perun_group_resource_attribute_def_def_vomsGroupName extends Gr
     private static final Pattern pattern = Pattern.compile("^[^<>&=]*$");
 
     @Override
-    public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-        String vomsGroupName;
+    public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+        String vomsGroupName = attribute.valueAsString();
 
-        if(attribute.getValue() == null) {
-            return;
-        }
-
-        if(!(attribute.getValue() instanceof String)) {
-            throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
-        }
-
-        vomsGroupName = (String) attribute.getValue();
+        if(vomsGroupName == null) return;
 
         Matcher matcher = pattern.matcher(vomsGroupName);
 
         if(!matcher.matches()) {
-            throw new WrongAttributeValueException(attribute, "Bad format of attribute vomsGroupName. It should not contain '<>&=' characters.");
+            throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute vomsGroupName. It should not contain '<>&=' characters.");
         }
     }
 

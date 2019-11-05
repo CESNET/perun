@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
@@ -32,9 +33,8 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 	private static final String A_UF_V_login = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login";
 	private static final Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
-		String ownerLogin = (String) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		String ownerLogin = attribute.valueAsString();
 		if (ownerLogin == null) return;
 
 		Matcher match = pattern.matcher(ownerLogin);
@@ -42,6 +42,12 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectOwnerLogin (expected something like 'alois25').");
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		String ownerLogin = attribute.valueAsString();
+		if (ownerLogin == null) return;
 
 		//Get Facility from resource
 		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
@@ -60,7 +66,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 			if (ownerLogin.equals(userLogin.getValue())) return;
 		}
 
-		throw new WrongAttributeValueException(attribute, group, resource, "There is no user with this login:'" + ownerLogin);
+		throw new WrongReferenceAttributeValueException(attribute, null, group, resource, "There is no user with this login:'" + ownerLogin);
 	}
 
 	@Override

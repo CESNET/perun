@@ -26,7 +26,7 @@ import java.util.List;
 public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends GroupResourceVirtualAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 		Attribute groupNameAttribute;
 		try {
@@ -36,10 +36,9 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends G
 		}
 		groupNameAttribute.setValue(attribute.getValue());
 		try {
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSyntax(sess, group, groupNameAttribute);
 			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, group, groupNameAttribute);
-		} catch(WrongAttributeValueException ex) {
-			throw new WrongAttributeValueException(attribute, ex.getMessage(), ex);
-		} catch(WrongReferenceAttributeValueException ex) {
+		} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, ex.getAttribute(), ex);
 		}
 

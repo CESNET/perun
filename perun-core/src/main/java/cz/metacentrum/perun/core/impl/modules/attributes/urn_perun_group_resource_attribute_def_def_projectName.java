@@ -36,8 +36,8 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		String name = (String) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		String name = attribute.valueAsString();
 		if (name == null) return;
 
 		Matcher match = pattern.matcher(name);
@@ -45,6 +45,12 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectName (expected something like 'project_name-24').");
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		String name = attribute.valueAsString();
+		if (name == null) return;
 
 		//Prepare this resource projectsBasePath
 		Attribute thisResourceProjectsBasePath;
@@ -57,7 +63,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 		//Prepare value of this resource projectsBasePath
 		String thisResourceProjectBasePathValue;
 		if(thisResourceProjectsBasePath.getValue() != null) {
-			thisResourceProjectBasePathValue = (String) thisResourceProjectsBasePath.getValue();
+			thisResourceProjectBasePathValue = thisResourceProjectsBasePath.valueAsString();
 		} else {
 			throw new WrongReferenceAttributeValueException(attribute, thisResourceProjectsBasePath, group, resource, resource, null, "Resource must have set projectsBasePath if attribute projectName for it's group need to be set.");
 		}
@@ -79,7 +85,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 			}
 
 			if(otherResourceProjectsBasePath.getValue() != null) {
-				String otherResourceProjectsBasePathValue = (String) otherResourceProjectsBasePath.getValue();
+				String otherResourceProjectsBasePathValue = otherResourceProjectsBasePath.valueAsString();
 				if(!thisResourceProjectBasePathValue.equals(otherResourceProjectsBasePathValue)) iterator.remove();
 			} else {
 				//If projectsBasePath is null, also remove resource
@@ -90,7 +96,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 		//For all resources with the same project_base_path look for groups with the same projectName
 		for(Resource r: resources) {
 			List<Group> groups = sess.getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, r);
-			//Our group may aslo be part of assigned Group, need to be removed
+			//Our group may also be part of assigned Group, so it needs to be removed
 			groups.remove(group);
 			for(Group g: groups) {
 				Attribute groupProjectName;
@@ -104,7 +110,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 
 				String groupProjectNameValue = null;
 				if(groupProjectName.getValue() != null) {
-					groupProjectNameValue = (String) groupProjectName.getValue();
+					groupProjectNameValue = groupProjectName.valueAsString();
 				}
 
 				//If the name is somewhere same, exception must be thrown

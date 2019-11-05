@@ -26,20 +26,17 @@ public class urn_perun_group_resource_attribute_def_def_vomsRoles extends GroupR
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) {
 			return;
 		}
-		try {
-			List<String> vomRoles = (List<String>) attribute.getValue();
-			for (String vomRole : vomRoles) {
-				Matcher matcher = pattern.matcher(vomRole);
-				if(!matcher.matches()) {
-					throw new WrongAttributeValueException(attribute, "Bad group vomsRoles value. It should not contain '<>&' characters.");
-				}
+		List<String> vomRoles = attribute.valueAsList();
+
+		for (String vomRole : vomRoles) {
+			Matcher matcher = pattern.matcher(vomRole);
+			if(!matcher.matches()) {
+				throw new WrongAttributeValueException(attribute, "Bad group vomsRoles value. It should not contain '<>&' characters.");
 			}
-		} catch (ClassCastException e) {
-			throw new WrongAttributeValueException(attribute, "Value should be a list of Strings.");
 		}
 	}
 
