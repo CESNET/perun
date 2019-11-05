@@ -747,8 +747,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
-	 * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
-	 * @param onlyDirectAdmins int if == true, get only direct facility administrators (if false, get both direct and indirect)
+	 * @param allUserAttributes boolean if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins boolean if == true, get only direct facility administrators (if false, get both direct and indirect)
 	 *
 	 * @return List<RichUser> list of RichUser administrators for the facility and supported role with attributes
 	 */
