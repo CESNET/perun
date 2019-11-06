@@ -1269,7 +1269,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor)
+	public RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor)
 			throws InternalErrorException, PrivilegeException, AlreadyMemberException,
 			LoginNotExistsException, PasswordCreationFailedException,
 		ExtendMembershipException,
@@ -1277,9 +1277,14 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");
-		Utils.notNull(guestName, "guestName");
+		if (name.get("guestName") == null) {
+			Utils.notNull(name.get("firstName"), "firstName");
+			Utils.notNull(name.get("lastName"), "lastName");
+		}
 		Utils.notNull(password, "password");
-		log.info("createSponsoredMember(vo={},namespace='{}',guestName='{}',sponsor={}", vo.getShortName(), namespace, guestName, sponsor == null ? "null" : sponsor.getId());
+
+		String nameForLog = name.containsKey("guestName") ? name.get("guestName") : name.get("firstName") + " " + name.get("lastName");
+		log.info("createSponsoredMember(vo={},namespace='{}',guestName='{}',sponsor={}", vo.getShortName(), namespace, nameForLog, sponsor == null ? "null" : sponsor.getId());
 
 		if (sponsor == null) {
 			//sponsor is the caller
@@ -1291,7 +1296,7 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 		//create the sponsored member
-		return membersManagerBl.getRichMember(session, membersManagerBl.createSponsoredMember(session, vo, namespace, guestName, password, sponsor, true));
+		return membersManagerBl.getRichMember(session, membersManagerBl.createSponsoredMember(session, vo, namespace, name, password, sponsor, true));
 	}
 
 	@Override

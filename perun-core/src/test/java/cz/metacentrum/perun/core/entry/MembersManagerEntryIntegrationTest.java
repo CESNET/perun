@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
@@ -134,7 +135,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		//no sponsored member has been created yet
 		assertTrue(perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo).size() == 0);
 
-		Member sponsoredMember1 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", "Ing. Petr Draxler", "secret", sponsorUser, false);
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Petr Draxler");
+		Member sponsoredMember1 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
 
 		//should contain one sponsored member
 		List<Member> sponsoredMembers = perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo);
@@ -142,7 +145,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue(sponsoredMembers.size() == 1);
 		assertTrue(sponsoredMembers.contains(sponsoredMember1));
 
-		Member sponsoredMember2 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", "Miloš Zeman", "password", sponsorUser, false);
+		Map<String, String> nameOfUser2 = new HashMap<>();
+		nameOfUser2.put("guestName", "Miloš Zeman");
+		Member sponsoredMember2 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser2, "password", sponsorUser, false);
 
 		sponsoredMembers = perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo);
 
@@ -1394,7 +1399,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		//create guest
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", "Ing. Jiří Novák, CSc.", "secret", sponsorUser, false);
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Jiří Novák, CSc.");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
 		assertNotNull("sponsored member must not be null",sponsoredMember);
 		assertTrue("sponsored memer must have flag 'sponsored' set",sponsoredMember.isSponsored());
 		assertTrue("sponsored member should have status VALID",sponsoredMember.getStatus()==Status.VALID);
@@ -1404,6 +1411,80 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		sponsoredMember = perun.getMembersManagerBl().getMemberById(sess,sponsoredMember.getId());
 		assertTrue("sponsored member without sponsors should still have flag sponsored",sponsoredMember.isSponsored());
 		assertTrue("sponsored member without sponsors must be expired",sponsoredMember.getStatus()==Status.EXPIRED);
+	}
+
+	@Test
+	public void createSponsoredMemberUsingSeparatedName() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMemberUsingSeparatedName");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+		//create guest
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("firstName", "Arthur");
+		nameOfUser1.put("lastName", "Morgan");
+		nameOfUser1.put("titleBefore", "prof. RNDr.");
+		nameOfUser1.put("titleAfter", "Ph.D.");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", sponsorUser, false);
+		assertNotNull("sponsored member must not be null",sponsoredMember);
+		assertTrue("sponsored member must have flag 'sponsored' set",sponsoredMember.isSponsored());
+		assertTrue("sponsored member should have status VALID",sponsoredMember.getStatus()==Status.VALID);
+		RichMember richSponsoredMember = perun.getMembersManagerBl().getRichMember(sess, sponsoredMember);
+		assertTrue(nameOfUser1.get("firstName").equals(richSponsoredMember.getUser().getFirstName()));
+		assertTrue(nameOfUser1.get("lastName").equals(richSponsoredMember.getUser().getLastName()));
+		assertTrue(nameOfUser1.get("titleBefore").equals(richSponsoredMember.getUser().getTitleBefore()));
+		assertTrue(nameOfUser1.get("titleAfter").equals(richSponsoredMember.getUser().getTitleAfter()));
+	}
+
+	@Test
+	public void createSponsoredMemberUsingSeparatedName2() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMemberUsingSeparatedName");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+		//create guest
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("firstName", "Arthur");
+		nameOfUser1.put("lastName", "Morgan");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", sponsorUser, false);
+		assertNotNull("sponsored member must not be null",sponsoredMember);
+		assertTrue("sponsored member must have flag 'sponsored' set",sponsoredMember.isSponsored());
+		assertTrue("sponsored member should have status VALID",sponsoredMember.getStatus()==Status.VALID);
+		RichMember richSponsoredMember = perun.getMembersManagerBl().getRichMember(sess, sponsoredMember);
+		assertTrue(nameOfUser1.get("firstName").equals(richSponsoredMember.getUser().getFirstName()));
+		assertTrue(nameOfUser1.get("lastName").equals(richSponsoredMember.getUser().getLastName()));
+		assertTrue(nameOfUser1.get("titleBefore") == null);
+		assertTrue(nameOfUser1.get("titleAfter") == null);
+	}
+
+
+	@Test(expected=InternalErrorException.class)
+	public void createSponsoredMemberUsingSeparatedNameMissingFirstNameFail() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMemberUsingSeparatedName");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+		//create guest
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("lastName", "Morgan");
+		nameOfUser1.put("titleBefore", "prof. RNDr.");
+		nameOfUser1.put("titleAfter", "Ph.D.");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", sponsorUser, false);
 	}
 
 	@Test
@@ -1446,7 +1527,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		User notsponsorUser = perun.getUsersManagerBl().getUserByMember(sess, setUpNotSponsor(createdVo));
 		assertFalse("user must not have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, notsponsorUser, Role.SPONSOR, createdVo, true));
 		//create sponsored member
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", "Ing. Jiří Novák, CSc.", "secret", sponsorUser, false);
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Jiří Novák, CSc.");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
 		assertNotNull("sponsored member must not be null", sponsoredMember);
 		assertTrue("sponsored memer must have flag 'sponsored' set", sponsoredMember.isSponsored());
 		assertTrue("sponsored member should have status VALID", sponsoredMember.getStatus() == Status.VALID);
