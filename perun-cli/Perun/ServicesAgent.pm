@@ -24,11 +24,6 @@ sub listServices {
 }
 
 #service => $serviceId
-sub deleteService {
-	return Perun::Common::callManagerMethod('deleteService', '', @_);
-}
-
-#service => $serviceId
 sub getService {
 	return Perun::Common::callManagerMethod('getService', 'Service', @_);
 }
@@ -236,7 +231,7 @@ sub removeAllRequiredAttributes
 #( id => $destinationId)
 sub getDestinationById
 {
-	return Perun::Common::callManagerMethod('getDestinationById', 'Destination', @_); 
+	return Perun::Common::callManagerMethod('getDestinationById', 'Destination', @_);
 }
 
 #( service => $serviceId, facility => $facilityId)
