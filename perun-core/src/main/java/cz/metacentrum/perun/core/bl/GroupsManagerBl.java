@@ -1764,4 +1764,34 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	boolean hasGroupSynchronizedChild(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 *  Get list of groups where the given group is given the admin role.
+	 *  
+	 * @param perunSession
+	 * @param Group with the admin role.
+	 * @return List of administered groups.
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWhereGroupIsAdmin(PerunSession perunSession, Group group);
+
+	/**
+	 *  Get list of VOs where the given group is given the admin role.
+	 *  
+	 * @param perunSession
+	 * @param Group with the admin role.
+	 * @return List of administered VOs.
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosWhereGroupIsAdmin(PerunSession perunSession, Group group);
+
+	/**
+	 *  Get list of facilities where the given group is given the admin role.
+	 *  
+	 * @param perunSession
+	 * @param Group with the admin role.
+	 * @return List of administered facilities.
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession perunSession, Group group);
 }

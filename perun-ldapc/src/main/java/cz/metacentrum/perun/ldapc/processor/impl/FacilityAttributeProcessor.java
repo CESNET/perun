@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class FacilityAttributeProcessor extends AbstractAttributeProcessor {

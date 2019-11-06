@@ -4871,4 +4871,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		return mappingStructure;
 	}
+
+	@Override
+	public List<Group> getGroupsWhereGroupIsAdmin(PerunSession perunSession, Group group) throws InternalErrorException {
+		return this.getGroupsManagerImpl().getGroupsWhereGroupIsAdmin(perunSession, group);
+	}
+
+	@Override
+	public List<Vo> getVosWhereGroupIsAdmin(PerunSession perunSession, Group group) throws InternalErrorException {
+		return this.getGroupsManagerImpl().getVosWhereGroupIsAdmin(perunSession, group);
+	}
+
+	@Override
+	public List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession perunSession, Group group) throws InternalErrorException {
+		return this.getGroupsManagerImpl().getFacilitiesWhereGroupIsAdmin(perunSession, group);
+	}
 }

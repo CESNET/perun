@@ -2,11 +2,11 @@ package cz.metacentrum.perun.ldapc.model;
 
 import java.util.List;
 
-import javax.naming.directory.ModificationItem;
-
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 public interface PerunGroup extends PerunEntry<Group> {
@@ -85,10 +85,24 @@ public interface PerunGroup extends PerunEntry<Group> {
 	@Deprecated
 	public List<String> getAllUniqueMembersInGroup(int groupId, int voId);
 
-	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources) throws InternalErrorException;
+	public void addAsVoAdmin(Group group, Vo vo);
+	
+	public void removeFromVoAdmins(Group group, Vo vo);
+	
+	public void addAsGroupAdmin(Group group, Group group2);
+	
+	public void removeFromGroupAdmins(Group group, Group group2);
+	
+	public void addAsFacilityAdmin(Group group, Facility facility);
+	
+	public void removeFromFacilityAdmins(Group group, Facility facility);
+	
+	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources, 
+			List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException;
 	
 	public void synchronizeMembers(Group group, List<Member> members);
 
 	public void synchronizeResources(Group group, List<Resource> resources);
 
+	public void synchronizeAdminRoles(Group group, List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities);
 }

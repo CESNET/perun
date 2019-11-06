@@ -337,7 +337,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	abstract protected Name buildDN(T bean);
-
+	
 	abstract protected void mapToContext(T bean, DirContextOperations context) throws InternalErrorException;
 
 	/**
