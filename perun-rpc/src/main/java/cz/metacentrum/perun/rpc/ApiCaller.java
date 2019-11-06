@@ -16,7 +16,6 @@ import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -87,7 +86,6 @@ public class ApiCaller {
 	private ResourcesManager resourcesManager = null;
 	private AttributesManager attributesManager = null;
 	private OwnersManager ownersManager = null;
-	private GeneralServiceManager generalServiceManager;
 	private RTMessagesManager rtMessagesManager = null;
 	private SecurityTeamsManager securityTeamsManager = null;
 	private PropagationStatsReader propagationStatsReader;
@@ -206,10 +204,6 @@ public class ApiCaller {
 			ownersManager = rpcSession.getPerun().getOwnersManager();
 		}
 		return ownersManager;
-	}
-
-	public GeneralServiceManager getGeneralServiceManager() {
-		return generalServiceManager;
 	}
 
 	public PropagationStatsReader getPropagationStatsReader() {
@@ -432,9 +426,6 @@ public class ApiCaller {
 
 		PerunPrincipal rpcPrincipal = new PerunPrincipal(RPCPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		this.rpcSession = perun.getPerunSession(rpcPrincipal, new PerunClient());
-
-		// Initialize serviceManager
-		this.generalServiceManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("generalServiceManager", GeneralServiceManager.class);
 
 		// Initialize PropagationStatsReader
 		this.propagationStatsReader = WebApplicationContextUtils.getWebApplicationContext(context).getBean("propagationStatsReader", PropagationStatsReader.class);

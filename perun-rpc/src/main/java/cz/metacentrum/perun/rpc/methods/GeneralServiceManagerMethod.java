@@ -15,13 +15,15 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Bans service on a facility.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @throw ServiceAlreadyBannedException When service is already banned on facility.
 	 */
 	blockServiceOnFacility {
 	    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-		ac.getGeneralServiceManager().blockServiceOnFacility(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+
+			ac.getServicesManager().blockServiceOnFacility(ac.getSession(), ac.getServiceById(parms.readInt("service")),
 		ac.getFacilityById(parms.readInt("facility")));
 		return null;
 	    }
@@ -30,12 +32,14 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Bans Service on a destination.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param destination int Destination <code>id</code>
 	 */
 	/*#
 	 * Bans Service on a destination.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param destinationName String Destination name (like hostnames)
 	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
@@ -44,9 +48,9 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			if (parms.contains("destination")) {
-				ac.getGeneralServiceManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")),parms.readInt("destination"));
+				ac.getServicesManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")),parms.readInt("destination"));
 			} else {
-				ac.getGeneralServiceManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+				ac.getServicesManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
 			}
 			return null;
 		}
@@ -56,11 +60,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * Block all services currently assigned on this facility.
 	 * Newly assigned services are still allowed for propagation.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param facility int Facility <code>id</code>
 	 */
 	blockAllServicesOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().blockAllServicesOnFacility(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+			ac.getServicesManager().blockAllServicesOnFacility(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 			return null;
 		}
 	},
@@ -69,21 +74,23 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * Block all services currently assigned on this destination.
 	 * Newly assigned services are still allowed for propagation.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param destination int Destination <code>id</code>
 	 */
 	/*#
 	 * Block all services currently assigned on this destination.
 	 * Newly assigned services are still allowed for propagation.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param destinationName String Destination name (like hostnames)
 	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
 	 */
 	blockAllServicesOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("destination")) {
-				ac.getGeneralServiceManager().blockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
+				ac.getServicesManager().blockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
 			} else {
-				ac.getGeneralServiceManager().blockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+				ac.getServicesManager().blockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
 			}
 			return null;
 		}
@@ -92,12 +99,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of denials for a facility.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param facility int Facility <code>id</code>
 	 * @return List<Service> Services
 	 */
 	getServicesBlockedOnFacility {
 		public List<Service> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGeneralServiceManager().getServicesBlockedOnFacility(ac.getSession(),
+			return ac.getServicesManager().getServicesBlockedOnFacility(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
 		}
 	},
@@ -105,18 +113,20 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of denials for a destination.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param destination int Destination <code>id</code>
 	 * @return List<Service> Services
 	 */
 	getServicesBlockedOnDestination {
 		public List<Service> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGeneralServiceManager().getServicesBlockedOnDestination(ac.getSession(),parms.readInt("destination"));
+			return ac.getServicesManager().getServicesBlockedOnDestination(ac.getSession(),parms.readInt("destination"));
 		}
 	},
 
 	/*#
 	 * Is this Service denied on the facility?
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @exampleResponse 1
@@ -124,7 +134,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	isServiceBlockedOnFacility {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (ac.getGeneralServiceManager().isServiceBlockedOnFacility(ac.getServiceById(parms.readInt("service")),
+			if (ac.getServicesManager().isServiceBlockedOnFacility(ac.getSession(), ac.getServiceById(parms.readInt("service")),
 						ac.getFacilityById(parms.readInt("facility"))))
 				return 1;
 			else return 0;
@@ -134,6 +144,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Is this Service denied on the destination?
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param destination int Destination <code>id</code>
 	 * @exampleResponse 1
@@ -141,7 +152,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	isServiceBlockedOnDestination {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (ac.getGeneralServiceManager().isServiceBlockedOnDestination(ac.getServiceById(parms.readInt("service")),parms.readInt("destination")))
+			if (ac.getServicesManager().isServiceBlockedOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")),parms.readInt("destination")))
 				return 1;
 			else return 0;
 		}
@@ -150,11 +161,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Erase all the possible denials on this facility.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param facility int Facility <code>id</code>
 	 */
 	unblockAllServicesOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().unblockAllServicesOnFacility(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+			ac.getServicesManager().unblockAllServicesOnFacility(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 			return null;
 		}
 	},
@@ -162,23 +174,25 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Erase all the possible denials on this destination.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param destination int Destination <code>id</code>
 	 */
 	/*#
 	 * Erase all the possible denials on this destination.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param destinationName String Destination name (like hostnames)
 	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
 	 */
 	unblockAllServicesOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("destination")) {
-				ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
+				ac.getServicesManager().unblockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
 			} else if (parms.contains("destinationName")) {
 				if(parms.contains("destinationType")) {
-					ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+					ac.getServicesManager().unblockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
 				} else {
-					ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), parms.readString("destinationName"));
+					ac.getServicesManager().unblockAllServicesOnDestination(ac.getSession(), parms.readString("destinationName"));
 				}
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "destination (id) or destinationName (text)");
@@ -192,12 +206,13 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * on this facility, it will be freed. In case the Service was not banned on
 	 * this facility, nothing will happen.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 */
 	unblockServiceOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().unblockServiceOnFacility(ac.getSession(), ac.getServiceById(parms.readInt("service")),
+			ac.getServicesManager().unblockServiceOnFacility(ac.getSession(), ac.getServiceById(parms.readInt("service")),
 					ac.getFacilityById(parms.readInt("facility")));
 			return null;
 		}
@@ -208,6 +223,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * this destination, it will be freed. In case the Service was not banned on this
 	 * destination, nothing will happen.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param destination int Destination <code>id</code>
 	 */
@@ -216,6 +232,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * this destination, it will be freed. In case the Service was not banned on this
 	 * destination, nothing will happen.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param destinationName String Destination name (like hostnames)
 	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
@@ -223,9 +240,9 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	unblockServiceOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("destination")) {
-				ac.getGeneralServiceManager().unblockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), parms.readInt("destination"));
+				ac.getServicesManager().unblockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), parms.readInt("destination"));
 			} else {
-				ac.getGeneralServiceManager().unblockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+				ac.getServicesManager().unblockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
 			}
 			return null;
 		}
@@ -234,6 +251,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Forces service propagation on defined facility.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @return int 1 = true if it is possible, 0 = false if not
@@ -241,19 +259,20 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Forces service propagation on defined facility.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @return int 1 = true if it is possible, 0 = false if not
 	 */
 	forceServicePropagation {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility")) {
-				if(ac.getGeneralServiceManager().forceServicePropagation(
+				if(ac.getServicesManager().forceServicePropagation(
 							ac.getSession(),
 							ac.getFacilityById(parms.readInt("facility")),
 							ac.getServiceById(parms.readInt("service")))) return 1;
 				else return 0;
 			} else {
-				if(ac.getGeneralServiceManager().forceServicePropagation(
+				if(ac.getServicesManager().forceServicePropagation(
 							ac.getSession(),
 							ac.getServiceById(parms.readInt("service")))) return 1;
 				else return 0;
@@ -264,6 +283,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Plans service propagation on defined facility.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @return int 1 = true if it is possible, 0 = false if not
@@ -271,19 +291,20 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	/*#
 	 * Plans service propagation on defined facility.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param service int Service <code>id</code>
 	 * @return int 1 = true if it is possible, 0 = false if not
 	 */
 	planServicePropagation {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility")) {
-				if(ac.getGeneralServiceManager().planServicePropagation(
+				if(ac.getServicesManager().planServicePropagation(
 						ac.getSession(),
 						ac.getFacilityById(parms.readInt("facility")),
 						ac.getServiceById(parms.readInt("service")))) return 1;
 				else return 0;
 			} else {
-				if(ac.getGeneralServiceManager().planServicePropagation(
+				if(ac.getServicesManager().planServicePropagation(
 						ac.getSession(),
 						ac.getServiceById(parms.readInt("service")))) return 1;
 				else return 0;
@@ -295,13 +316,14 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * Return list of ServiceForGUI assigned on facility, (Service with "allowedOnFacility" property filled).
 	 * 1 - allowed / 0 - service is service is denied.
 	 *
+	 * @deprecated Method was moved to ServicesManager
 	 * @param facility int Facility <code>id</code>
 	 * @return List<ServiceForGUI> list of assigned services with allowed property
 	 */
 	getFacilityAssignedServicesForGUI {
 		public List<ServiceForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getGeneralServiceManager().getFacilityAssignedServicesForGUI(ac.getSession(), ac.getFacilityById(parms.readInt("id")));
+			return ac.getServicesManager().getFacilityAssignedServicesForGUI(ac.getSession(), ac.getFacilityById(parms.readInt("id")));
 
 		}
 	};

@@ -11,10 +11,10 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled;
-import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
@@ -57,7 +57,6 @@ public class TaskScheduler extends AbstractRunner {
 	private Perun perun;
 	private Properties dispatcherProperties;
 	private EngineMessageProducerPool engineMessageProducerPool;
-	private ServiceDenialDao serviceDenialDao;
 	private DelayQueue<TaskSchedule> waitingTasksQueue;
 	private DelayQueue<TaskSchedule> waitingForcedTasksQueue;
 	private TaskManager taskManager;
@@ -98,15 +97,6 @@ public class TaskScheduler extends AbstractRunner {
 	@Autowired
 	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
 		this.engineMessageProducerPool = engineMessageProducerPool;
-	}
-
-	public ServiceDenialDao getServiceDenialDao() {
-		return serviceDenialDao;
-	}
-
-	@Autowired
-	public void setServiceDenialDao(ServiceDenialDao serviceDenialDao) {
-		this.serviceDenialDao = serviceDenialDao;
 	}
 
 	public DelayQueue<TaskSchedule> getWaitingTasksQueue() {
@@ -303,7 +293,7 @@ public class TaskScheduler extends AbstractRunner {
 		}
 
 		try {
-			if (!serviceDenialDao.isServiceBlockedOnFacility(service.getId(), facility.getId())) {
+			if (!((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnFacility(service, facility)) {
 				log.debug("[{}] Service {} is allowed on Facility {}.", task.getId(), service.getId(), facility.getId());
 			} else {
 				log.debug("[{}] Service {} is blocked on Facility {}.", task.getId(), service.getId(), facility.getId());
@@ -351,7 +341,7 @@ public class TaskScheduler extends AbstractRunner {
 			Iterator<Destination> iter = destinations.iterator();
 			while (iter.hasNext()) {
 				Destination dest = iter.next();
-				if (serviceDenialDao.isServiceBlockedOnDestination(service.getId(), dest.getId())) {
+				if (((PerunBl) perun).getServicesManagerBl().isServiceBlockedOnDestination(service, dest.getId())) {
 
 					// create fake task result to let admin know about the block
 					TaskResult result = new TaskResult();

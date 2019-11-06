@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
@@ -24,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
@@ -34,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +61,237 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	public ServicesManagerEntry() {
+	}
+
+	@Override
+	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "blockServiceOnFacility");
+		}
+		getServicesManagerBl().blockServiceOnFacility(sess, service, facility);
+	}
+
+	@Override
+	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException, FacilityNotExistsException {
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
+
+		boolean isFacilityAdminAtLeastOnce = false;
+		for (Facility facility : destinationFacilities) {
+			if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				isFacilityAdminAtLeastOnce = true;
+			}
+		}
+		if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "blockServiceOnDestination");
+		}
+		getServicesManagerBl().blockServiceOnDestination(sess, service, destinationId);
+	}
+
+	@Override
+	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "blockAllServicesOnFacility");
+		}
+		getServicesManagerBl().blockAllServicesOnFacility(sess, facility);
+	}
+
+	@Override
+	public void blockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, FacilityNotExistsException {
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
+
+		boolean isFacilityAdminAtLeastOnce = false;
+		for (Facility facility : destinationFacilities) {
+			if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				isFacilityAdminAtLeastOnce = true;
+			}
+		}
+		if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "blockAllServicesOnDestination");
+		}
+		getServicesManagerBl().blockAllServicesOnDestination(sess, destinationId);
+	}
+
+	@Override
+	public List<Service> getServicesBlockedOnFacility(PerunSession perunSession, Facility facility) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(perunSession, "getServicesBlockedOnFacility");
+		}
+		return getServicesManagerBl().getServicesBlockedOnFacility(perunSession, facility);
+	}
+
+	@Override
+	public List<Service> getServicesBlockedOnDestination(PerunSession sess, int destinationId) throws PrivilegeException, DestinationNotExistsException, FacilityNotExistsException {
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
+
+		boolean isFacilityAdminAtLeastOnce = false;
+		for (Facility facility : destinationFacilities) {
+			if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				isFacilityAdminAtLeastOnce = true;
+			}
+		}
+		if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(sess, "getServicesBlockedOnDestination");
+		}
+		return getServicesManagerBl().getServicesBlockedOnDestination(sess, destinationId);
+	}
+
+	@Override
+	public boolean isServiceBlockedOnFacility(PerunSession sess, Service service, Facility facility) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(sess, "isServiceBlockedOnFacility");
+		}
+		return getServicesManagerBl().isServiceBlockedOnFacility(service, facility);
+	}
+
+	@Override
+	public boolean isServiceBlockedOnDestination(PerunSession sess, Service service, int destinationId) throws PrivilegeException, DestinationNotExistsException, FacilityNotExistsException {
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
+
+		boolean isFacilityAdminAtLeastOnce = false;
+		for (Facility facility : destinationFacilities) {
+			if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				isFacilityAdminAtLeastOnce = true;
+			}
+		}
+		if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(sess, "isServiceBlockedOnDestination");
+		}
+
+		return getServicesManagerBl().isServiceBlockedOnDestination(service, destinationId);
+	}
+
+	@Override
+	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "unblockAllServicesOnFacility");
+		}
+		getServicesManagerBl().unblockAllServicesOnFacility(sess, facility);
+	}
+
+	@Override
+	public void unblockAllServicesOnDestination(PerunSession sess, String destinationName) throws FacilityNotExistsException, PrivilegeException {
+		List<Destination> destinations = getServicesManagerBl().getDestinations(sess);
+		for(Destination destination: destinations) {
+			if(destination.getDestination().equals(destinationName)) {
+				List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
+				boolean isFacilityAdminAtLeastOnce = false;
+				for (Facility facility : destinationFacilities) {
+					if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+						isFacilityAdminAtLeastOnce = true;
+					}
+				}
+				if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+					log.warn("Trying to unblock services on destination by a user who is neither perunadmin nor admin of the facility");
+					continue; //skip this one because of not authorized action
+				}
+				getServicesManagerBl().unblockAllServicesOnDestination(sess, destination.getId());
+			}
+		}
+	}
+
+	@Override
+	public void unblockAllServicesOnDestination(PerunSession sess, int destinationId) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException {
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
+
+		boolean isFacilityAdminAtLeastOnce = false;
+		for (Facility facility : destinationFacilities) {
+			if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				isFacilityAdminAtLeastOnce = true;
+			}
+		}
+		if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "unblockAllServicesOnDestination");
+		}
+		getServicesManagerBl().unblockAllServicesOnDestination(sess, destinationId);
+	}
+
+	@Override
+	public void unblockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "unblockServiceOnFacility");
+		}
+		getServicesManagerBl().unblockServiceOnFacility(sess, service, facility);
+	}
+
+	@Override
+	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws PrivilegeException, FacilityNotExistsException, DestinationNotExistsException {
+		Destination destination = getServicesManagerBl().getDestinationById(sess, destinationId);
+		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
+
+		boolean isFacilityAdminAtLeastOnce = false;
+		for (Facility facility : destinationFacilities) {
+			if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				isFacilityAdminAtLeastOnce = true;
+			}
+		}
+		if (!isFacilityAdminAtLeastOnce && !AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "unblockServiceOnDestination");
+		}
+		getServicesManagerBl().unblockServiceOnDestination(sess, service, destinationId);
+	}
+
+	@Override
+	public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			throw new PrivilegeException(sess, "forceServicePropagation");
+		}
+		return getServicesManagerBl().forceServicePropagation(sess, facility, service);
+	}
+
+	@Override
+	public boolean forceServicePropagation(PerunSession sess, Service service) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			throw new PrivilegeException(sess, "forceServicePropagation");
+		}
+		return getServicesManagerBl().forceServicePropagation(sess, service);
+	}
+
+	@Override
+	public boolean planServicePropagation(PerunSession sess, Facility facility, Service service) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			throw new PrivilegeException(sess, "planServicePropagation");
+		}
+		return getServicesManagerBl().planServicePropagation(sess, facility, service);
+	}
+
+	@Override
+	public boolean planServicePropagation(PerunSession perunSession, Service service) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.ENGINE)) {
+			throw new PrivilegeException(perunSession, "planServicePropagation");
+		}
+		return getServicesManagerBl().planServicePropagation(perunSession, service);
+	}
+
+	@Override
+	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
+			!AuthzResolver.isAuthorized(perunSession, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(perunSession, "getFacilityAssignedServicesForGUI");
+		}
+		return getServicesManagerBl().getFacilityAssignedServicesForGUI(perunSession, facility);
 	}
 
 	@Override

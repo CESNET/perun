@@ -54,9 +54,9 @@ if (defined($facilityId) or (defined($facilityName))) {
 	$params{facility} = $facilityId;
 }
 
-my $generelServicesAgent = $agent->getGeneralServicesAgent;
+my $servicesAgent = $agent->getServicesAgent;
 
-$generelServicesAgent->forceServicePropagation( %params );
+$servicesAgent->forceServicePropagation( %params );
 
 printMessage(
 	"Service Id:$serviceId  propagation is planed ".($facilityId ? "on the facility Id:$facilityId" : "on all facilities where it's defined.")

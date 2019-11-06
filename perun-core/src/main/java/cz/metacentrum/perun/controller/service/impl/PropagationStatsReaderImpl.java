@@ -4,7 +4,6 @@ import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.FacilityState.FacilityPropagationState;
 import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
@@ -50,8 +49,6 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	private TaskDao taskDao;
 	@Autowired
 	private TaskResultDao taskResultDao;
-	@Autowired
-	private GeneralServiceManager generalServiceManager;
 	@Autowired
 	protected PerunBl perun;
 	@Autowired
@@ -258,14 +255,6 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		return taskResultDao;
 	}
 
-	public GeneralServiceManager getGeneralServiceManager() {
-		return generalServiceManager;
-	}
-
-	public void setGeneralServiceManager(GeneralServiceManager generalServiceManager) {
-		this.generalServiceManager = generalServiceManager;
-	}
-
 	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException {
 
 		//FIXME check privileges, probably only some monitoring system can request these data
@@ -306,7 +295,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		for (Service service : perun.getServicesManagerBl().getAssignedServices(sess, facility)) {
 
 			serviceStates.put(service, new ServiceState(service, facility));
-			serviceStates.get(service).setBlockedOnFacility(getGeneralServiceManager().isServiceBlockedOnFacility(service, facility));
+			serviceStates.get(service).setBlockedOnFacility(perun.getServicesManagerBl().isServiceBlockedOnFacility(service, facility));
 
 			// service has destination on facility
 			serviceStates.get(service).setHasDestinations(!perun.getServicesManagerBl().getDestinations(sess, service, facility).isEmpty());
@@ -331,7 +320,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
 			// fill service state
 			serviceState.setTask(task);
-			serviceStates.get(taskService).setBlockedOnFacility(getGeneralServiceManager().isServiceBlockedOnFacility(task.getService(), facility));
+			serviceStates.get(taskService).setBlockedOnFacility(perun.getServicesManagerBl().isServiceBlockedOnFacility(task.getService(), facility));
 
 		}
 

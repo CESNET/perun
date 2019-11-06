@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -25,11 +26,11 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -191,6 +192,141 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 		return new RichDestination(destination, facility, service);
 	};
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public void blockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException {
+		int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
+		try {
+			jdbc.update("insert into service_denials(id, facility_id, service_id) values (?,?,?)", newBanId, facilityId, serviceId);
+		} catch (DuplicateKeyException ex) {
+			throw new ServiceAlreadyBannedException(String.format("Service with id %d is already banned on the facility with id %d", serviceId, facilityId));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public void blockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
+		try {
+			int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
+			jdbc.update("insert into service_denials(id, destination_id, service_id) values (?,?,?)", newBanId, destinationId, serviceId);
+		} catch (DuplicateKeyException ex) {
+			throw new ServiceAlreadyBannedException(String.format("Service with id %d is already banned on the destination with id %d", serviceId, destinationId));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public List<Service> getServicesBlockedOnFacility(int facilityId) throws InternalErrorException {
+		try {
+			return jdbc
+				.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
+						" from services left join service_denials on service_denials.service_id = services.id where service_denials.facility_id = ?",
+					ServicesManagerImpl.SERVICE_MAPPER, facilityId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public List<Service> getServicesBlockedOnDestination(int destinationId) throws InternalErrorException {
+		try {
+			return jdbc
+				.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
+						" from services left join service_denials on service_denials.service_id = services.id where service_denials.destination_id = ?",
+					ServicesManagerImpl.SERVICE_MAPPER, destinationId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Service> getServicesFromDestination(int destinationId) throws InternalErrorException {
+		try {
+			@SuppressWarnings("ConstantConditions")
+			List<Service> servicesFromDestination = jdbc.query("select distinct " + ServicesManagerImpl.serviceMappingSelectQuery +
+					" from services join facility_service_destinations on facility_service_destinations.service_id = services.id" +
+					" where facility_service_destinations.destination_id = ?",
+				ServicesManagerImpl.SERVICE_MAPPER, destinationId);
+			return servicesFromDestination;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public boolean isServiceBlockedOnFacility(int serviceId, int facilityId) throws InternalErrorException {
+		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and facility_id = ?", serviceId, facilityId);
+		if (denials > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isServiceBlockedOnDestination(int serviceId, int destinationId) throws InternalErrorException {
+		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and destination_id = ?", serviceId, destinationId);
+		if (denials > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public void unblockAllServicesOnFacility(int facilityId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where facility_id = ?", facilityId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public void unblockAllServicesOnDestination(int destinationId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where destination_id = ?", destinationId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public void unblockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where facility_id = ? and service_id = ?", facilityId, serviceId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	@Override
+	public void unblockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where destination_id = ? and service_id = ?", destinationId, serviceId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	private int queryForInt(String sql, Object... args) throws InternalErrorException, DataAccessException {
+		try {
+			@SuppressWarnings("ConstantConditions")
+			Integer i = jdbc.queryForObject(sql, args, Integer.class);
+			return (i != null ? i : 0);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 
 	@Override
 	public Service createService(PerunSession sess, Service service) throws InternalErrorException {
