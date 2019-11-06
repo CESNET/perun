@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.generalServiceManager;
+package cz.metacentrum.perun.webgui.json.servicesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
@@ -21,7 +21,7 @@ public class ForceServicePropagation {
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Json URL
-	static private final String JSON_URL = "generalServiceManager/forceServicePropagation";
+	static private final String JSON_URL = "servicesManager/forceServicePropagation";
 	// IDS
 	private int serviceId = 0;
 	private int facilityId = 0;

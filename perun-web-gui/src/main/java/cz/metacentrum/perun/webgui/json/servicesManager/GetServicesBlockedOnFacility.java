@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.generalServiceManager;
+package cz.metacentrum.perun.webgui.json.servicesManager;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -33,7 +33,7 @@ public class GetServicesBlockedOnFacility implements JsonCallback, JsonCallbackT
 	// facility ID
 	private int facilityId = 0;
 	// JSON URL
-	private static final String JSON_URL = "generalServiceManager/getServicesBlockedOnFacility";
+	private static final String JSON_URL = "servicesManager/getServicesBlockedOnFacility";
 	// Selection model for the table
 	final MultiSelectionModel<Service> selectionModel = new MultiSelectionModel<Service>(new GeneralKeyProvider<Service>());
 	// Table data provider.

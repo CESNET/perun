@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.generalServiceManager;
+package cz.metacentrum.perun.webgui.json.servicesManager;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -30,7 +30,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	static private final String JSON_URL = "generalServiceManager/getFacilityAssignedServicesForGUI";
+	static private final String JSON_URL = "servicesManager/getFacilityAssignedServicesForGUI";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Table field updater

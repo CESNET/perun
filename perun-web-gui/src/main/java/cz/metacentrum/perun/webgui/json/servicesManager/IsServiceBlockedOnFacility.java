@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.generalServiceManager;
+package cz.metacentrum.perun.webgui.json.servicesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -23,7 +23,7 @@ public class IsServiceBlockedOnFacility implements JsonCallback {
 	// returned object
 	private BasicOverlayType bot;
 	// JSON URL
-	private static final String JSON_URL = "generalServiceManager/isServiceBlockedOnFacility";
+	private static final String JSON_URL = "servicesManager/isServiceBlockedOnFacility";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
