@@ -4,7 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * Service extension to provide GUI more info. Returned from:
- * GeneralServiceManager.getFacilityAssignedServicesForGUI()
+ * ServicesManager.getFacilityAssignedServicesForGUI()
  *
  * @author Pavel Zlámal <256627@mail.muni.cz>
  */

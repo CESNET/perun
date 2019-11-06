@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.generalServiceManager;
+package cz.metacentrum.perun.webgui.json.servicesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
@@ -10,17 +10,17 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
- * Ajax query to free denial of selected service on facility
+ * Ajax query to ban selected service on facility
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
-public class UnblockServiceOnFacility {
+public class BlockServiceOnFacility {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// URL to call
-	final String JSON_URL = "generalServiceManager/unblockServiceOnFacility";
+	final String JSON_URL = "servicesManager/blockServiceOnFacility";
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// ids
@@ -30,19 +30,19 @@ public class UnblockServiceOnFacility {
 	/**
 	 * Creates a new request
 	 *
-	 * @param facilityId facility ID
+	 * @param facilityId ID of Facility
 	 */
-	public UnblockServiceOnFacility(int facilityId) {
+	public BlockServiceOnFacility(int facilityId) {
 		this.facilityId = facilityId;
 	}
 
 	/**
 	 * Creates a new request with custom events
 	 *
-	 * @param facilityId facility ID
+	 * @param facilityId ID of Facility
 	 * @param events Custom events
 	 */
-	public UnblockServiceOnFacility(int facilityId, JsonCallbackEvents events) {
+	public BlockServiceOnFacility(int facilityId, JsonCallbackEvents events) {
 		this.facilityId = facilityId;
 		this.events = events;
 	}
@@ -58,12 +58,12 @@ public class UnblockServiceOnFacility {
 		String errorMsg = "";
 
 		if(facilityId == 0){
-			errorMsg += "Wrong parameter 'Facility ID'.\n";
+			errorMsg += "Wrong parameter Facility ID'.\n";
 			result = false;
 		}
 
 		if(serviceId == 0){
-			errorMsg += "Wrong parameter 'Service ID'.\n";
+			errorMsg += "Wrong parameter Service ID'.\n";
 			result = false;
 		}
 
@@ -75,22 +75,22 @@ public class UnblockServiceOnFacility {
 	}
 
 	/**
-	 * Attempts to free denial of selected service for specified facility
+	 * Attempts to ban selected service for specified facility
 	 *
 	 * @param serviceId
 	 * @param facilityId
 	 */
-	public void unblockService(int serviceId, int facilityId){
+	public void blockService(int serviceId, int facilityId){
 		this.facilityId = facilityId;
-		unblockService(serviceId);
-	};
+		blockService(serviceId);
+	}
 
 	/**
-	 * Attempts to free denial of selected service on facility
+	 * Attempts to ban selected service on facility
 	 *
 	 * @param serviceId
 	 */
-	public void unblockService(final int serviceId){
+	public void blockService(final int serviceId){
 
 		this.serviceId = serviceId;
 
@@ -102,12 +102,12 @@ public class UnblockServiceOnFacility {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Allowing of service "+ serviceId +" failed.");
+				session.getUiElements().setLogErrorText("Blocking service "+ serviceId +" failed.");
 				events.onError(error);
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Service " + serviceId + " allowed on facility.");
+				session.getUiElements().setLogSuccessText("Exec service " + serviceId + " blocked on facility.");
 				events.onFinished(jso);
 			};
 
