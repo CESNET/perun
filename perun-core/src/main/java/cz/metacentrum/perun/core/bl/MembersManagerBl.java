@@ -1453,7 +1453,7 @@ public interface MembersManagerBl {
 	 * @param session perun session
 	 * @param vo virtual organization
 	 * @param namespace used for selecting external system in which guest user account will be created
-	 * @param guestName full name or other designation
+	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password password
 	 * @param sponsor sponsoring user
 	 * @param asyncValidation
@@ -1468,7 +1468,7 @@ public interface MembersManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException if the member is not in required role
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
 
 	/**
 	 * Links sponsored member and sponsoring user.

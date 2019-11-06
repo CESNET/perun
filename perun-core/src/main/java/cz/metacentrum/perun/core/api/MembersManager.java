@@ -1154,7 +1154,7 @@ public interface MembersManager {
 	 * @param session actor
 	 * @param vo virtual organization  for the member
 	 * @param namespace namespace for selecting password module
-	 * @param guestName a designation, usually a full name
+	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password  password
 	 * @param sponsor sponsoring user or null for the caller
 	 * @return new Member in the Vo
@@ -1169,7 +1169,7 @@ public interface MembersManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException
 	 */
-	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor) throws InternalErrorException, PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
+	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor) throws InternalErrorException, PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
