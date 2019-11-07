@@ -120,7 +120,7 @@ public class SendCollector extends AbstractRunner {
 				log.error("[{}] Error occurred while sending Task to destination {}", task.getId(), e.getDestination());
 
 			} catch (Throwable ex) {
-				log.error("Unexpected exception in SendCollector thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later. {}", ex);
+				log.error("Unexpected exception in SendCollector thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later.", ex);
 				continue;
 			}
 

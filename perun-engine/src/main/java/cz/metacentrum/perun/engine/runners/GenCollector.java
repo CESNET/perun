@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.engine.runners;
 
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.engine.exceptions.TaskExecutionException;
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
@@ -94,6 +95,14 @@ public class GenCollector extends AbstractRunner {
 
 					task.setStatus(GENERROR);
 
+					for (Destination dest : task.getDestinations()) {
+						try {
+							jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(task.getId(), dest.getId(), e.getStderr(), e.getStdout(), e.getReturnCode(), task.getService()));
+						} catch (JMSException ex) {
+							log.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(), dest, ex);
+						}
+					}
+
 					try {
 						jmsQueueManager.reportTaskStatus(task.getId(), GENERROR, System.currentTimeMillis());
 					} catch (JMSException e1) {
@@ -108,7 +117,7 @@ public class GenCollector extends AbstractRunner {
 				}
 
 			} catch (Throwable ex) {
-				log.error("Unexpected exception in GenCollector thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later. {}", ex);
+				log.error("Unexpected exception in GenCollector thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later.", ex);
 			}
 		}
 	}

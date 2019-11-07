@@ -80,7 +80,7 @@ public class GenPlanner extends AbstractRunner {
 				throw new RuntimeException(errorStr, e);
 
 			} catch (Throwable ex) {
-				log.error("Unexpected exception in GenPlanner thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later {}.", ex);
+				log.error("Unexpected exception in GenPlanner thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later.", ex);
 			}
 		}
 	}
