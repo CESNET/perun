@@ -1232,8 +1232,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 	canBeMember {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
 			if (ac.getMembersManager().canBeMember(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.read("user", User.class) , parms.readString("loa"))) {
 				return 1;
 			} else {
@@ -1256,8 +1254,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 	canBeMemberWithReason {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
 			if (ac.getMembersManager().canBeMemberWithReason(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.read("user", User.class) , parms.readString("loa"))) {
 				return 1;
 			} else {
@@ -1276,8 +1272,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 	canExtendMembership {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
 			if (ac.getMembersManager().canExtendMembership(ac.getSession(), ac.getMemberById(parms.readInt("member")))) {
 				return 1;
 			} else {
