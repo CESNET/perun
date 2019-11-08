@@ -207,17 +207,6 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	@Override
 	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
-		// New Candidate
-		Candidate candidate = new Candidate();
-
-		// Prepare userExtSource object
-		UserExtSource userExtSource = new UserExtSource();
-		userExtSource.setExtSource(source);
-		userExtSource.setLogin(login);
-
-		// Set the userExtSource
-		candidate.setUserExtSource(userExtSource);
-
 		// Get the subject from the extSource
 		Map<String, String> subject;
 		try {
@@ -230,60 +219,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			throw new CandidateNotExistsException("Candidate with login [" + login + "] not exists");
 		}
 
-		//If first name of candidate is not in format of name, set null instead
-		candidate.setFirstName(subject.get("firstName"));
-		if(candidate.getFirstName() != null) {
-			Matcher name = namePattern.matcher(candidate.getFirstName());
-			if(!name.matches()) candidate.setFirstName(null);
-		}
-		// If last name of candidate is not in format of name, set null instead
-		candidate.setLastName(subject.get("lastName"));
-		if(candidate.getLastName()!= null) {
-			Matcher name = namePattern.matcher(candidate.getLastName());
-			if(!name.matches()) candidate.setLastName(null);
-		}
-		candidate.setMiddleName(subject.get("middleName"));
-		candidate.setTitleAfter(subject.get("titleAfter"));
-		candidate.setTitleBefore(subject.get("titleBefore"));
-
-		//Set service user
-		if(subject.get("isServiceUser") == null) {
-			candidate.setServiceUser(false);
-		} else {
-			String isServiceUser = subject.get("isServiceUser");
-			if(isServiceUser.equals("true")) {
-				candidate.setServiceUser(true);
-			} else {
-				candidate.setServiceUser(false);
-			}
-		}
-
-		// Set sponsored user
-		if(subject.get("isSponsoredUser") == null) {
-			candidate.setSponsoredUser(false);
-		} else {
-			String isSponsoredUser = subject.get("isSponsoredUser");
-			if(isSponsoredUser.equals("true")) {
-				candidate.setSponsoredUser(true);
-			} else {
-				candidate.setSponsoredUser(false);
-			}
-		}
-
-		// Filter attributes
-		Map<String, String> attributes = new HashMap<>();
-		for (String attrName: subject.keySet()) {
-			// Allow only users and members attributes
-			// FIXME volat metody z attributesManagera nez kontrolovat na zacatek jmena
-			if (attrName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attrName.startsWith(AttributesManager.NS_USER_ATTR)) {
-				attributes.put(attrName, subject.get(attrName));
-			}
-		}
-		List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subject);
-		candidate.setAdditionalUserExtSources(additionalUserExtSources);
-		candidate.setAttributes(attributes);
-
-		return candidate;
+		return this.getCandidate(sess, subject, source, login);
 	}
 
 	@Override

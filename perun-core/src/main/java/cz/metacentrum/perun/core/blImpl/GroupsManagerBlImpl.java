@@ -1732,7 +1732,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				//Get subjects from extSource
 				List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
 				//Convert subjects to candidates
-				List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, skippedMembers);
+				List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, actualGroupMembers, skippedMembers);
 
 				categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
 			}
@@ -2784,11 +2784,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			if (user == null) {
 				//If not find, get more information about him from member extSource
 				List<Map<String, String>> subjectToConvert = Collections.singletonList(subjectFromLoginSource);
-				List<Candidate> converetedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, skippedMembers);
+				List<Candidate> convertedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, groupMembers, skippedMembers);
 				//Empty means not found (skipped)
-				if(!converetedCandidatesList.isEmpty()) {
+				if(!convertedCandidatesList.isEmpty()) {
 					//We add one subject so we take the one converted candidate
-					candidate = converetedCandidatesList.get(0);
+					candidate = convertedCandidatesList.get(0);
 				}
 			}
 
@@ -2836,12 +2836,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		candidatesToAdd.addAll(candidates);
 		membersToRemove.addAll(groupMembers);
 		//mapping structure for more efficient searching
-		Map<UserExtSource, RichMember> mappingStructure = new HashMap<>();
-		for(RichMember rm: groupMembers) {
-			for(UserExtSource ues: rm.getUserExtSources()) {
-				mappingStructure.put(ues, rm);
-			}
-		}
+		Map<UserExtSource, RichMember> mappingStructure = this.createMappingStructure(groupMembers);
 
 		//try to find already existing candidates between members in group
 		for(Candidate candidate: candidates) {
@@ -3035,14 +3030,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param subjects list of subjects from ExtSource (at least login should be here)
 	 * @param membersSource optional member ExtSource (if members attributes are from other source then their logins)
 	 * @param source default group ExtSource
+	 * @param actualGroupMembers actual members of synchronized group
 	 * @param skippedMembers not successfully synchronized members are skipped and information about it should be added here
 	 *
 	 * @return list of successfully created candidates from subjects
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private List<Candidate> convertSubjectsToCandidates(PerunSession sess, List<Map<String, String>> subjects, ExtSource membersSource, ExtSource source, List<String> skippedMembers) throws InternalErrorException {
+	private List<Candidate> convertSubjectsToCandidates(PerunSession sess, List<Map<String, String>> subjects, ExtSource membersSource, ExtSource source, List<RichMember> actualGroupMembers, List<String> skippedMembers) throws InternalErrorException {
 		List<Candidate> candidates = new ArrayList<>();
+
+		//mapping structure for more efficient searching of actual group members
+		Map<UserExtSource, RichMember> mappingStructure = this.createMappingStructure(actualGroupMembers);
+
 		for (Map<String, String> subject: subjects) {
 			String login = subject.get("login");
 			// Skip subjects, which doesn't have login
@@ -3071,7 +3071,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			} catch (CandidateNotExistsException e) {
 				log.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
-				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because candidate can't be found by login:'" + login + "' in extSource " + membersSource);
+				//If member can't be find in the member's extSource (we are missing other attributes) we can try find him in the group
+				UserExtSource subjectUserExtSource = new UserExtSource(membersSource, login);
+				//If member is in the group, we can create a simple object from him to preserve his existence in the group
+				if(mappingStructure.containsKey(subjectUserExtSource)) {
+					RichMember richMember = mappingStructure.get(subjectUserExtSource);
+					//convert richMember to simple candidate object (to prevent wrong attribute updating)
+					candidates.add(BeansUtils.convertRichMemberToCandidate(richMember, subjectUserExtSource));
+					skippedMembers.add("MemberEntry:[" + richMember + "] was skipped from updating in the group, because he can't be found by login:'" + login + "' in extSource " + membersSource);
+				} else {
+					skippedMembers.add("MemberEntry:[" + subject + "] was skipped from adding to the group because he can't be found by login:'" + login + "' in extSource " + membersSource);
+				}
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because extSource " + membersSource + " not support method getCandidate");
@@ -4953,5 +4963,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			if (allowedStatus.equals(member.getGroupStatus())) filteredMembers.add(member);
 		}
 		return filteredMembers;
+	}
+
+	/**
+	 * Convert list of RichMembers to map where keys are UserExtSources and value is RichMember with such UserExtSource.
+	 * This will help to find a RichMember who has specific UserExtSource.
+	 *
+	 * @param richMembers list of richMembers with userExtSources
+	 * @return map of RichMembers mapped on UserExtSources
+	 */
+	private Map<UserExtSource, RichMember> createMappingStructure(List<RichMember> richMembers) {
+
+		Map<UserExtSource, RichMember> mappingStructure = new HashMap<>();
+		for (RichMember rm : richMembers) {
+			for (UserExtSource ues : rm.getUserExtSources()) {
+				mappingStructure.put(ues, rm);
+			}
+		}
+		return mappingStructure;
 	}
 }
