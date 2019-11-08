@@ -1157,6 +1157,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, member) &&
 				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "extendMembership");
@@ -1173,6 +1174,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, member) &&
 				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "canExtendMembershipWithReason");
@@ -1182,18 +1184,34 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, VoNotExistsException {
+	public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(sess, "canBeMember");
+		}
 
 		return getMembersManagerBl().canBeMember(sess, vo, user, loa);
 	}
 
 	@Override
 	public boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException,
-		VoNotExistsException, ExtendMembershipException {
+			VoNotExistsException, ExtendMembershipException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(sess, "canBeMemberWithReason");
+		}
 
 		return getMembersManagerBl().canBeMemberWithReason(sess, vo, user, loa);
 	}
