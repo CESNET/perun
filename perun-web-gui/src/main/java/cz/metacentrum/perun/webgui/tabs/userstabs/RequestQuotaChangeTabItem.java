@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -21,6 +22,8 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextArea;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
+
+import java.util.Map;
 
 /**
  * Inner tab item for quota change
@@ -56,15 +59,15 @@ public class RequestQuotaChangeTabItem implements TabItem {
 		this.resource = resource;
 		this.user = user;
 
-		if (oldQuota.equalsIgnoreCase("null")) {
+		if (oldQuota.isEmpty()) {
 			this.oldQuota = "Using default";
 		}  else {
-			this.oldQuota = oldQuota;
+			this.oldQuota = oldQuota.toString();
 		}
-		if (defaultQuota.equalsIgnoreCase("null")) {
+		if (defaultQuota.isEmpty()) {
 			this.defaultQuota = "Not set";
 		} else {
-			this.defaultQuota = defaultQuota;
+			this.defaultQuota = defaultQuota.toString();
 		}
 
 	}
