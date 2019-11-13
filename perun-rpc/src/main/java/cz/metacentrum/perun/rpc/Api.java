@@ -543,8 +543,8 @@ public class Api extends HttpServlet {
 					throw new RpcException(RpcException.Type.NO_PATHINFO);
 				}
 
-				fcm = req.getPathInfo().substring(1).split("/", 3);
-				if (fcm.length != 3 || fcm[2].isEmpty()) {
+				fcm = req.getPathInfo().substring(1).split("/");
+				if (fcm.length < 3 || fcm[0].isEmpty() || fcm[1].isEmpty() || fcm[2].isEmpty()) {
 					throw new RpcException(RpcException.Type.INVALID_URL, req.getPathInfo());
 				}
 				manager = fcm[1];
