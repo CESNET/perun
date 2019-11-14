@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_lifescienceid_persistent_shadow.class);
-	private final static String extSourceNamelifescienceid = "https://saml.pilot.lifescienceid.org/proxy/saml2/idp/metadata.php";
+	private final static String extSourceNamelifescienceid = "https://proxy.lifescienceid.org/proxy";
 	private final static String domainNamelifescienceid = "@lifescienceid.org";
 	private final static String attrNamelifescienceid = "login-namespace:lifescienceid-persistent-shadow";
 
