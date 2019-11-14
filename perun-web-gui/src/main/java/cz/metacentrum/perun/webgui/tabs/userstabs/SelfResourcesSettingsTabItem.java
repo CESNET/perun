@@ -7,6 +7,7 @@ import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
@@ -424,7 +425,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 							}
 						}
 						for (final Attribute a : attrs) {
-							if (a.getFriendlyName().equalsIgnoreCase("dataLimit")) {
+							if (a.getFriendlyName().equalsIgnoreCase("dataQuotas") && !a.getValueAsMap().isEmpty()) {
 								final int rowDataLimit = row;
 								final CustomButton quotaChangeButton = new CustomButton("Request change…", SmallIcons.INSTANCE.databaseIcon());
 
@@ -436,14 +437,14 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 								ids.put("resource", resource.getId());
 								GetAttributes defaultAttr = new GetAttributes(new JsonCallbackEvents(){
 									public void onError(PerunError error) {
-										if (a.getValue().equalsIgnoreCase("null")) {
+										if (a.getValueAsMap().isEmpty()) {
 											layoutx.setHTML(rowDataLimit, 1, "Using default (default: error while loading)");
 										} else {
-											layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: error while loading)");
+											layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString(convertMapToNiceString(a.getValueAsMap())).asString()+" (default: error while loading)");
 										}
 										quotaChangeButton.addClickHandler(new ClickHandler() {
 											public void onClick(ClickEvent event) {
-												session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.DATA, a.getValue(), "error while loading"));
+												session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.DATA, convertMapToNiceString(a.getValueAsMap()), convertMapToNiceString(new HashMap<String, JSONValue>())));
 											}
 										});
 									}
@@ -451,32 +452,32 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 										ArrayList<Attribute> attrs = JsonUtils.jsoAsList(jso);
 										boolean empty = true;
 										for (final Attribute resAttr : attrs) {
-											if (resAttr.getFriendlyName().equalsIgnoreCase("defaultDataLimit")) {
-												if (a.getValue().equalsIgnoreCase("null")) {
+											if (resAttr.getFriendlyName().equalsIgnoreCase("defaultDataQuotas")) {
+												if (a.getValueAsMap().isEmpty()) {
 													// null private + default
-													layoutx.setHTML(rowDataLimit, 1, "Using default (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
+													layoutx.setHTML(rowDataLimit, 1, "Using default (default: "+SafeHtmlUtils.fromString(convertMapToNiceString(resAttr.getValueAsMap())).asString()+")");
 												} else {
 													// private - default
-													layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
+													layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString(convertMapToNiceString(a.getValueAsMap())).asString()+" (default: "+SafeHtmlUtils.fromString(convertMapToNiceString(resAttr.getValueAsMap())).asString()+")");
 												}
 												empty = false;
 												quotaChangeButton.addClickHandler(new ClickHandler() {
 													public void onClick(ClickEvent event) {
-														session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.DATA, a.getValue(), resAttr.getValue()));
+														session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.DATA, convertMapToNiceString(a.getValueAsMap()), convertMapToNiceString(resAttr.getValueAsMap())));
 													}
 												});
 											}
 										}
 										// if no default found, write down at least private
 										if (empty) {
-											if (a.getValue().equalsIgnoreCase("null")) {
+											if (a.getValueAsMap().isEmpty()) {
 												layoutx.setHTML(rowDataLimit, 1, "Using default (default: Not set)");
 											} else {
-												layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: Not set)");
+												layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString(convertMapToNiceString(a.getValueAsMap())).asString()+" (default: Not set)");
 											}
 											quotaChangeButton.addClickHandler(new ClickHandler() {
 												public void onClick(ClickEvent event) {
-													session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.DATA, a.getValue(), "Not set"));
+													session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.DATA, convertMapToNiceString(a.getValueAsMap()), convertMapToNiceString(new HashMap<String, JSONValue>())));
 												}
 											});
 										}
@@ -487,11 +488,18 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 								empty = false;
 								layoutx.setWidget(row, 2, quotaChangeButton);
 								row++;
+
+
+								layoutx.setHTML(row, 1, "Quotas are using \"soft limit : hard limit\" notation and are bound to specific volume.");
+								layoutx.getFlexCellFormatter().setStyleName(row, 1, "inputFormInlineComment");
+								layoutx.getFlexCellFormatter().setColSpan(row, 1, 2);
+								row++;
+
 								break;
 							}
 						}
 						for (final Attribute a : attrs) {
-							if (a.getFriendlyName().equalsIgnoreCase("filesLimit")) {
+							if (a.getFriendlyName().equalsIgnoreCase("filesQuotas") && !a.getValueAsMap().isEmpty()) {
 								layoutx.setHTML(row, 0, "<strong>Files quota: </strong>");
 								final int rowFilesQuota = row;
 								// get default
@@ -502,14 +510,14 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 
 								GetAttributes defaultAttr = new GetAttributes(new JsonCallbackEvents(){
 									public void onError(PerunError error) {
-										if (a.getValue().equalsIgnoreCase("null")) {
+										if (a.getValueAsMap().isEmpty()) {
 											layoutx.setHTML(rowFilesQuota, 1, "Using default (default: error while loading)");
 										} else {
-											layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: error while loading)");
+											layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString(convertMapToNiceString(a.getValueAsMap())).asString()+" (default: error while loading)");
 										}
 										quotaChangeButton.addClickHandler(new ClickHandler() {
 											public void onClick(ClickEvent event) {
-												session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.FILES, a.getValue(), "Error while loading"));
+												session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.FILES, convertMapToNiceString(a.getValueAsMap()), convertMapToNiceString(new HashMap<String,JSONValue>())));
 											}
 										});
 									}
@@ -517,32 +525,32 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 										ArrayList<Attribute> attrs = JsonUtils.jsoAsList(jso);
 										boolean empty = true;
 										for (final Attribute resAttr : attrs) {
-											if (resAttr.getFriendlyName().equalsIgnoreCase("defaultFilesLimit")) {
-												if (a.getValue().equalsIgnoreCase("null")) {
+											if (resAttr.getFriendlyName().equalsIgnoreCase("defaultFilesQuotas")) {
+												if (a.getValueAsMap().isEmpty()) {
 													// null private + default
-													layoutx.setHTML(rowFilesQuota, 1, "Using default (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
+													layoutx.setHTML(rowFilesQuota, 1, "Using default (default: "+SafeHtmlUtils.fromString(convertMapToNiceString(resAttr.getValueAsMap())).asString()+")");
 												} else {
 													// private + default
-													layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
+													layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString(convertMapToNiceString(a.getValueAsMap())).asString()+" (default: "+SafeHtmlUtils.fromString(convertMapToNiceString(resAttr.getValueAsMap())).asString()+")");
 												}
 												empty = false;
 												quotaChangeButton.addClickHandler(new ClickHandler() {
 													public void onClick(ClickEvent event) {
-														session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.FILES, a.getValue(), resAttr.getValue()));
+														session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.FILES, convertMapToNiceString(a.getValueAsMap()), convertMapToNiceString(resAttr.getValueAsMap())));
 													}
 												});
 											}
 										}
 										// if no default found, write down at least private
 										if (empty) {
-											if (a.getValue().equalsIgnoreCase("null")) {
+											if (a.getValueAsMap().isEmpty()) {
 												layoutx.setHTML(rowFilesQuota, 1, "Using default (default: Not set)");
 											} else {
-												layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: Not set)");
+												layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString(convertMapToNiceString(a.getValueAsMap())).asString()+" (default: Not set)");
 											}
 											quotaChangeButton.addClickHandler(new ClickHandler() {
 												public void onClick(ClickEvent event) {
-													session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.FILES, a.getValue(), "Not set"));
+													session.getTabManager().addTabToCurrentTab(new RequestQuotaChangeTabItem(resource, user, QuotaType.FILES, convertMapToNiceString(a.getValueAsMap()), convertMapToNiceString(new HashMap<String,JSONValue>())));
 												}
 											});
 										}
@@ -554,6 +562,12 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 								defaultAttr.retrieveData();
 								empty = false;
 								row++;
+
+								layoutx.setHTML(row, 1, "Quotas are using \"soft limit : hard limit\" notation and are bound to specific volume.");
+								layoutx.getFlexCellFormatter().setStyleName(row, 1, "inputFormInlineComment");
+								layoutx.getFlexCellFormatter().setColSpan(row, 1, 2);
+								row++;
+
 								break;
 							}
 						}
@@ -630,6 +644,21 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 		});
 
 		return settings;
+
+	}
+
+	private String convertMapToNiceString(Map<String,JSONValue> quotaMap) {
+
+		StringBuilder result = new StringBuilder();
+		for (String key : quotaMap.keySet()) {
+			String val = quotaMap.get(key).toString();
+			val = val.replaceAll("\"","").replaceAll(":", " : ");
+			val = val.replaceAll("K", " KiB").replaceAll("M", " MiB").replaceAll("G", " GiB").replaceAll("T", " TiB").replaceAll("E", " EiB");
+			result.append(val).append(" ");
+			// FIXME - will we have multiple volumes per facility ??
+			//result.append(val).append(" at ").append(key).append(" ");
+		}
+		return result.toString();
 
 	}
 
