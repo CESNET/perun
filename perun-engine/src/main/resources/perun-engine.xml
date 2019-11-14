@@ -78,6 +78,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<prop key="engine.thread.sendtasks.max">150</prop>
 				<prop key="engine.genscript.path">gen</prop>
 				<prop key="engine.sendscript.path">send</prop>
+				<prop key="engine.propagation.timeout">180</prop>
 			</props>
 		</property>
 	</bean>

@@ -33,7 +33,12 @@ import javax.annotation.Resource;
 public class PropagationMaintainer extends AbstractRunner {
 
 	private final static Logger log = LoggerFactory.getLogger(PropagationMaintainer.class);
-	private final static int rescheduleTime = 190;
+
+	/**
+	 * After how many minutes is processing Task considered as stuck and re-scheduled.
+	 * Should be above same property for "Engine", which is by default 180.
+	 */
+	private int rescheduleTime = 190;
 
 	private PerunSession perunSession;
 
@@ -79,6 +84,13 @@ public class PropagationMaintainer extends AbstractRunner {
 	@Resource(name="dispatcherPropertiesBean")
 	public void setDispatcherProperties(Properties dispatcherProperties) {
 		this.dispatcherProperties = dispatcherProperties;
+		if (dispatcherProperties != null) {
+			try {
+				rescheduleTime = Integer.parseInt(dispatcherProperties.getProperty("dispatcher.propagation.timeout", "190"));
+			} catch (NumberFormatException ex) {
+				rescheduleTime = 190;
+			}
+		}
 	}
 
 	public TaskManager getTaskManager() {
