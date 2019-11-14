@@ -85,6 +85,15 @@ public class ExtSource extends Auditable implements Comparable<PerunBean>{
 		return result;
 	}
 
+	/*
+	 * Overriding this, since implementation of each ExtSource returned their class name
+	 * instead of required unified "ExtSource" value.
+	 */
+	@Override
+	public String getBeanName() {
+		return ExtSource.class.getSimpleName();
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
