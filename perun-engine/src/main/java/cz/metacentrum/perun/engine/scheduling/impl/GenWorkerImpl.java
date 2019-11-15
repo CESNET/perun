@@ -75,10 +75,10 @@ public class GenWorkerImpl extends AbstractWorker<Task> implements GenWorker {
 
 		} catch (IOException e) {
 			log.error("[{}] GEN worker failed for Task. IOException: {}.",  task.getId(), e);
-			throw new TaskExecutionException(task, e);
+			throw new TaskExecutionException(task, 2, "", e.getMessage());
 		} catch (InterruptedException e) {
 			log.warn("[{}] GEN worker failed for Task. Execution was interrupted {}.", task.getId(), e);
-			throw new TaskExecutionException(task, e);
+			throw new TaskExecutionException(task, 1, "", e.getMessage());
 		}
 
 	}

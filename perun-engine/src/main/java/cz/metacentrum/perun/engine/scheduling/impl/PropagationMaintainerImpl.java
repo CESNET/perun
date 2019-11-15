@@ -21,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.Future;
 
@@ -32,12 +33,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	/**
 	 * After how many minutes is processing Task considered as stuck and re-scheduled.
 	 */
-	private final static int rescheduleTime = 180;
+	private int rescheduleTime = 180;
 
 	private BlockingGenExecutorCompletionService generatingTasks;
 	private BlockingSendExecutorCompletionService sendingSendTasks;
 	private SchedulingPool schedulingPool;
 	private JMSQueueManager jmsQueueManager;
+	private Properties propertiesBean;
 
 	// ----- setters ------------------------------
 
@@ -75,6 +77,22 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	@Autowired
 	public void setSendingSendTasks(BlockingSendExecutorCompletionService sendingSendTasks) {
 		this.sendingSendTasks = sendingSendTasks;
+	}
+
+	public Properties getPropertiesBean() {
+		return propertiesBean;
+	}
+
+	@Autowired
+	public void setPropertiesBean(Properties propertiesBean) {
+		this.propertiesBean = propertiesBean;
+		if (propertiesBean != null) {
+			try {
+				rescheduleTime = Integer.parseInt(propertiesBean.getProperty("engine.propagation.timeout", "180"));
+			} catch (NumberFormatException ex) {
+				rescheduleTime = 180;
+			}
+		}
 	}
 
 	// ----- methods ------------------------------
