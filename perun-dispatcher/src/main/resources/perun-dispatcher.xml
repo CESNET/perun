@@ -77,6 +77,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 				<prop key="dispatcher.task.delay.time">30000</prop>
 				<prop key="dispatcher.task.delay.count">4</prop>
 				<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
+				<prop key="dispatcher.propagation.timeout">190</prop>
 			</props>
 		</property>
 	</bean>
