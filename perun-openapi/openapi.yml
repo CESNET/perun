@@ -1,0 +1,2013 @@
+openapi: 3.0.2
+info:
+  version: 3.9.0
+  title: Perun RPC API
+  description: Perun Remote Procedure Calls Application Programming Interface
+
+servers:
+  - url: 'https://perun.cesnet.cz/krb/rpc'
+    description: CESNET Perun with Kerberos or Basic auth
+  - url: 'https://perun.elixir-czech.cz/krb/rpc'
+    description: ELIXIR Perun with Kerberos or Basic auth
+  - url: 'https://idm.ics.muni.cz/krb/rpc'
+    description: MUNI Perun with Kerberos or Basic auth
+
+security:
+  - BasicAuth: []
+  - BearerAuth: []
+
+components:
+  #############################################
+  #                                           #
+  # SECURITY SCHEMES - ways of authentication #
+  #                                           #
+  #############################################
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+    OpenID:
+      type: openIdConnect
+      openIdConnectUrl: https://login.cesnet.cz/oidc/.well-known/openid-configuration
+
+  #############################################
+  #                                           #
+  # SCHEMAS - data objects definitions        #
+  #                                           #
+  #############################################
+  schemas:
+    PerunException:
+      type: object
+      properties:
+        errorId: { type: string }
+        name: { type: string }
+        message: { type: string }
+
+    PerunBean:
+      type: object
+      properties:
+        id: { type: integer }
+        beanName: { type: string }
+      required:
+        - id
+        - beanName
+      discriminator:
+        propertyName: beanName
+
+    Auditable:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            createdAt: { type: string }
+            createdBy: { type: string }
+            modifiedAt: { type: string }
+            modifiedBy: { type: string }
+            createdByUid: { type: integer }
+            modifiedByUid: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+    User:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            firstName: { type: string }
+            lastName: { type: string }
+            middleName: { type: string }
+            titleBefore: { type: string }
+            titleAfter: { type: string }
+            serviceUser: { type: boolean }
+            sponsoredUser: { type: boolean }
+            specificUser: { type: boolean }
+            majorSpecificType:  { type: string }
+      discriminator:
+        propertyName: beanName
+
+    RichUser:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - properties:
+            userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
+            userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+          required:
+            - userExtSources
+            - userAttributes
+      discriminator:
+        propertyName: beanName
+
+    Member:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            userId: { type: integer }
+            voId: { type: integer }
+            status: { type: string }
+            membershipType: { type: string }
+            sourceGroupId: { type: integer }
+            sponsored: { type: boolean }
+            suspendedTo: { type: string }
+            suspended: { type: boolean }
+            groupStatus:  { type: string }
+            groupStatuses:
+              type: object
+              additionalProperties:
+                type: string
+      discriminator:
+        propertyName: beanName
+
+    RichMember:
+      allOf:
+        - $ref: '#/components/schemas/Member'
+        - properties:
+            user: { $ref: '#/components/schemas/User' }
+            userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
+            userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+            memberAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+          required:
+            - user
+            - userExtSources
+      discriminator:
+        propertyName: beanName
+
+    UserExtSource:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            login: { type: string }
+            userId: { type: integer }
+            loa: { type: integer }
+            persistent: { type: boolean }
+            lastAccess: { type: string }
+            extSource: { $ref: '#/components/schemas/ExtSource' }
+          required:
+            - login
+            - extSource
+      discriminator:
+        propertyName: beanName
+
+    ExtSource:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            type: { type: string }
+      discriminator:
+        propertyName: beanName
+        mapping:
+          ExtSource: '#/components/schemas/ExtSource'
+          ExtSourceLdap: '#/components/schemas/ExtSource'
+          ExtSourceSql: '#/components/schemas/ExtSource'
+          ExtSourceKerberos: '#/components/schemas/ExtSource'
+          ExtSourceX509: '#/components/schemas/ExtSource'
+          ExtSourceIdp: '#/components/schemas/ExtSource'
+          ExtSourceEGISSO: '#/components/schemas/ExtSource'
+          ExtSourceTCS: '#/components/schemas/ExtSource'
+          ExtSourceVOOT: '#/components/schemas/ExtSource'
+          ExtSourceSqlComplex: '#/components/schemas/ExtSource'
+          ExtSourceXML: '#/components/schemas/ExtSource'
+          ExtSourceISMU: '#/components/schemas/ExtSource'
+          ExtSourceInternal: '#/components/schemas/ExtSource'
+          ExtSourcePerun: '#/components/schemas/ExtSource'
+          ExtSourceINET: '#/components/schemas/ExtSource'
+          ExtSourceISXML: '#/components/schemas/ExtSource'
+
+    AttributeDefinition:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            friendlyName: { type: string }
+            namespace: { type: string }
+            description: { type: string }
+            type: { type: string }
+            displayName: { type: string }
+            writable: { type: boolean }
+            unique: { type: boolean }
+      discriminator:
+        propertyName: beanName
+
+    Attribute:
+      allOf:
+        - $ref: '#/components/schemas/AttributeDefinition'
+        - properties:
+            valueCreatedAt: { type: string }
+            valueCreatedBy: { type: string }
+            valueModifiedAt: { type: string }
+            valueModifiedBy: { type: string }
+            value: {}
+      discriminator:
+        propertyName: beanName
+
+    Facility:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            description: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    RichFacility:
+      allOf:
+        - $ref: '#/components/schemas/Facility'
+        - properties:
+            facilityOwners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
+          required:
+            - facilityOwners
+      discriminator:
+        propertyName: beanName
+
+    Owner:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            contact: { type: string }
+            type:
+              type: string
+              enum: [ technical, administrative ]
+      discriminator:
+        propertyName: beanName
+
+    Group:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            shortName: { type: string }
+            description: { type: string }
+            voId: { type: integer }
+            parentGroupId: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+    Resource:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            description: { type: string }
+            voId: { type: integer }
+            facilityId: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+    RichResource:
+      allOf:
+        - $ref: '#/components/schemas/Resource'
+        - properties:
+            vo: { $ref: '#/components/schemas/Vo' }
+            facility: { $ref: '#/components/schemas/Facility' }
+            resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
+      discriminator:
+        propertyName: beanName
+
+    ResourceTag:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            tagName: { type: string }
+            voId: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+    Vo:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            shortName: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    ApplicationForm:
+      type: object
+      properties:
+        id: { type: integer }
+        vo: { $ref: '#/components/schemas/Vo' }
+        group: { $ref: '#/components/schemas/Group' }
+        automaticApproval: { type: boolean }
+        automaticApprovalExtension: { type: boolean }
+        moduleClassName: {type: string }
+
+    PerunPrincipal:
+      type: object
+      required:
+        - userId
+        - user
+      properties:
+        actor: { type: string }
+        extSourceName: { type: string }
+        extSourceType: { type: string }
+        extSourceLoa: { type: integer }
+        user: { $ref: "#/components/schemas/User" }
+        authzInitialized: { type: boolean }
+        additionalInformations:
+          type: object
+          additionalProperties: { type: string }
+        userId: { type: integer }
+        # Map<String, Map<String, List<Integer>>>
+        roles:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                type: integer
+
+  #################################################
+  #                                               #
+  # RESPONSES - type definitions of return values #
+  #                                               #
+  #################################################
+  responses:
+    ExceptionResponse:
+      description: exception occured
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PerunException"
+
+    IntegerResponse:
+      description: "returns Integer"
+      content:
+        application/json:
+          schema:
+            type: integer
+
+    LongResponse:
+      description: "returns Long"
+      content:
+        application/json:
+          schema:
+            type: integer
+            format: int64
+
+    BooleanResponse:
+      description: "returns Boolean"
+      content:
+        application/json:
+          schema:
+            type: boolean
+
+    StringResponse:
+      description: "returns String"
+      content:
+        application/json:
+          schema:
+            type: string
+
+    ListOfStringsResponse:
+      description: "returns List<String>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+
+    MapStringStringResponse:
+      description: "returns Map<String,String>"
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+                type: string
+
+    UserResponse:
+      description: returns User
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+
+    ListOfUsersResponse:
+      description: "returns List<User>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/User"
+
+    RichUserResponse:
+      description: returns RichUser
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RichUser"
+
+    MemberResponse:
+      description: returns Member
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Member"
+
+    ListOfMembersResponse:
+      description: "returns List<Member>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Member"
+
+    RichMemberResponse:
+      description: returns RichMember
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RichMember"
+
+    FacilityResponse:
+      description: "returns Facility"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Facility"
+
+    ListOfFacilitiesResponse:
+      description: "returns List<Facility>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Facility"
+
+    ListOfRichFacilitiesResponse:
+      description: "returns List<RichFacility>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichFacility"
+
+    OwnerResponse:
+      description: "returns Owner"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Owner"
+
+    ListOfOwnersResponse:
+      description: "returns List<Owner>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Owner"
+
+    AttributeDefinitionResponse:
+      description: "returns AttributeDefinition"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AttributeDefinition"
+
+    AttributeResponse:
+      description: "returns Attribute"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Attribute"
+
+    ListOfAttributesResponse:
+      description: "returns List<Attribute>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Attribute"
+
+    GroupResponse:
+      description: "returns Group"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Group"
+
+    ListOfGroupsResponse:
+      description: "returns List<Group>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Group"
+
+    ResourceResponse:
+      description: "returns Resource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Resource"
+
+    ListOfResourcesResponse:
+      description: "returns List<Resource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Resource"
+
+    RichResourceResponse:
+      description: "returns RichResource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RichResource"
+
+    ListOfRichResourcesResponse:
+      description: "returns List<RichResource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichResource"
+
+    VoResponse:
+      description: "returns Vo"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Vo"
+
+    ListOfVosResponse:
+      description: "returns List<Vo>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Vo"
+
+    ExtSourceResponse:
+      description: "returns ExtSource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ExtSource"
+
+    ListOfExtSourcesResponse:
+      description: "returns List<ExtSource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ExtSource"
+
+    ListOfUserExtSourcesResponse:
+      description: "returns List<UserExtSource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/UserExtSource"
+
+    ApplicationFormResponse:
+      description: "returns ApplicationForm"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApplicationForm"
+
+  #####################################################
+  #                                                   #
+  # PARAMETERS - definitions of often used parameters #
+  #                                                   #
+  #####################################################
+  parameters:
+    id:
+      name: id
+      description: numeric id
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    attributeId:
+      name: attributeId
+      description: "id of AttributeDefinition"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    attributeName:
+      name: attributeName
+      description: "full name of attribute definition (namespace + ':' + friendlyName)"
+      schema:
+        type: string
+      in: query
+      required: true
+
+    attributeValue:
+      name: attributeValue
+      description: "string value of Attribute"
+      schema:
+        type: string
+      in: query
+      required: true
+
+    facilityId:
+      name: facility
+      description: "id of Facility"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    attrNames:
+      name: "attrNames[]"
+      description: "list of attribute names List<String>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+
+    userId:
+      name: user
+      description: "id of User"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    memberId:
+      name: member
+      description: "id of Member"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    voId:
+      name: vo
+      description: "id of Vo"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    groupId:
+      name: group
+      description: "id of Group"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    resourceId:
+      name: resource
+      description: "id of Resource"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    userExtSourceId:
+      name: userExtSource
+      description: "id of UserExtSource"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    hostId:
+      name: host
+      description: "id of Host"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+
+#################################################
+#                                               #
+# TAGS - documentation for groups of operations #
+#                                               #
+#################################################
+
+tags:
+  - name: AuthzResolver
+    description: AuthzResolver RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AuthzResolver.html
+  - name: UsersManager
+    description: UsersManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-UsersManager.html
+  - name: MembersManager
+    description: MembersManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-MembersManager.html
+  - name: FacilitiesManager
+    description: FacilitiesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-FacilitiesManager.html
+  - name: OwnersManager
+    description: OwnersManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-OwnersManager.html
+  - name: AttributesManager
+    description: AttributesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html
+  - name: GroupsManager
+    description: GroupsManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-GroupsManager.html
+  - name: ResourcesManager
+    description: ResourcesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-ResourcesManager.html
+  - name: VosManager
+    description: VosManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-VosManager.html
+
+
+#################################################
+#                                               #
+# PATHS - URLs of RPC operations                #
+#                                               #
+#################################################
+paths:
+
+  /:
+    get:
+      tags:
+        - Utils
+      operationId: getPerunRPCVersion
+      summary: Gets Perun runtime status
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OK! Version: 3.8.6, User: makub@META, extSource: META"
+
+  #################################################
+  #                                               #
+  # Utils                                         #
+  #                                               #
+  #################################################
+
+  /json/utils/getPerunStatus:
+    get:
+      tags:
+        - Utils
+      operationId: getPerunStatus
+      summary: Gets Perun runtime status
+      description: |
+        Returns list of strings which looks like this
+        "Version of Perun: 3.8.6",
+        "Version of PerunDB: 3.1.55",
+        "Version of Servlet: Apache Tomcat/9.0.16 (Debian)",
+        "Version of DB-driver: PostgreSQL JDBC Driver-42.2.8",
+        "Version of DB: PostgreSQL-12.0 (Debian 12.0-2.pgdg100+1)",
+        "Version of Java platform: 11.0.5",
+        "AuditerConsumer: '127.0.0.1:6071' with last processed id='23463958'",
+        "AuditerConsumer: 'ldapcConsumer' with last processed id='23463958'",
+        "AuditerConsumer: 'notifications' with last processed id='23463952'",
+        "LastMessageId: 23463958",
+        "Timestamp: 2019-11-14 10:12:30.99"
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/utils/getPerunStatistics:
+    get:
+      tags:
+        - Utils
+      operationId: getPerunStatistics
+      summary: Gets Perun runtime statistics
+      description: |
+        Returns list of strings which looks like this
+        "Timestamp: '2019-11-14 10:46:39.613'",
+        "USERS: '39927'",
+        "FACILITIES: '552'",
+        "DESTINATIONS: '2568'",
+        "VOS: '341'",
+        "RESOURCES: '2560'",
+        "GROUPS: '2300'",
+        "AUDITMESSAGES: '7333237'"
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/utils/getPerunSystemTimeInMillis:
+    get:
+      tags:
+        - Utils
+      operationId: getPerunSystemTimeInMillis
+      summary: Gets Perun system time in milliseconds since the epoch
+      responses:
+        200:
+          $ref: '#/components/responses/LongResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/utils/getGuiConfiguration:
+    get:
+      tags:
+        - Utils
+      operationId: getGuiConfiguration
+      summary: Gets perun-web-gui.properties as Map<String,String>
+      responses:
+        200:
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # AuthzResolver                                 #
+  #                                               #
+  #################################################
+
+  /json/authzResolver/getPerunPrincipal:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getPerunPrincipal
+      summary: Gets current user
+      description: Returns object representing the currently authenticated user.
+      responses:
+        200:
+          description: successfully returned authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerunPrincipal"
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # AttributesManager                             #
+  #                                               #
+  #################################################
+
+  /json/attributesManager/getAttributeDefinition:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeDefinition
+      summary: Returns an AttributeDefinition by its name.
+      parameters:
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeDefinitionResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-facility:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getFacilityAttributeByName
+      summary: Returns a facility Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for facility and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-facility:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getFacilityAttributeById
+      summary: Returns a facility Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for facility and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-user:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserAttributeByName
+      summary: Returns a user Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for user and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-user:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserAttributeById
+      summary: Returns a user Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for user and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-user_facility:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserFacilityAttributeByName
+      summary: Returns a user_facility Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for user, facility and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-user_facility:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserFacilityAttributeById
+      summary: Returns a user_facility Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for user, facility and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-vo:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getVoAttributeByName
+      summary: Returns a Vo Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for virtual organization and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-vo:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getVoAttributeById
+      summary: Returns a Vo Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for virtual organization and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-member:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberAttributeByName
+      summary: Returns a member Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for member and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-member:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberAttributeById
+      summary: Returns a member Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for member and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-group:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getGroupAttributeByName
+      summary: Returns a group Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for group and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-group:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getGroupAttributeById
+      summary: Returns a group Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for group and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-resource:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceAttributeByName
+      summary: Returns a resource Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for resource and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-resource:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceAttributeById
+      summary: Returns a resource Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for resource and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-member-group:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberGroupAttributeByName
+      summary: Returns a member_group Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for member, group and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-member-group:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberGroupAttributeById
+      summary: Returns a member_group Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for member, group and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-member-resource:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberResourceAttributeByName
+      summary: Returns a member_resource Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for member, resource and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-member-resource:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberResourceAttributeById
+      summary: Returns a member_resource Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for member, resource and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-group-resource:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getGroupResourceAttributeByName
+      summary: Returns a group_resource Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for group, resource and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-group-resource:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getGroupResourceAttributeById
+      summary: Returns a group_resource Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for group, resource and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-ues:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserExtSourceAttributeByName
+      summary: Returns a UserExtSource Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for UserExtSource and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-ues:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserExtSourceAttributeById
+      summary: Returns a UserExtSource Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for UserExtSource and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-host:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getHostAttributeByName
+      summary: Returns a host Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for host and attribute name.
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/id-host:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getHostAttributeById
+      summary: Returns a host Attribute by its id.
+      description: This is an overloaded method getAttribute, specialized for host and attribute id.
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/name-entityless:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getEntitylessAttributeByName
+      summary: Returns an entityless Attribute by its name.
+      description: This is an overloaded method getAttribute, specialized for entityless key and attribute name.
+      parameters:
+        - { name: key, description: "key for entityless attribute", schema: { type: string },  in: query, required: true }
+        - $ref: '#/components/parameters/attributeName'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttribute/any:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttribute
+      summary: Returns an Attribute by its name or id.
+      description: |
+        This method cannot be fully described correctly in OpenID, because it cannot describe allowed combinations of parameters.
+        One of attributeName, attributeId is required.
+        The other parameters specify ids that can be combined in the following ways:
+         (facility), (user), (user,facility), (vo), (member), (group), (resource),
+         (member,group), (member,resource), (group,resource),(userExtSource), (host), (key)
+        Use the specialized methods getFacilityAttributeByName(), getMemberResourceAttributeById() etc.
+      externalDocs:
+        url:  https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html
+      parameters:
+        - { name: attributeName, description: "full name of attribute (namespace + ':' + friendlyName)", schema: { type: string },  in: query }
+        - { name: attributeId, description: "id of attribute", schema: { type: integer },  in: query }
+        - { name: facility, description: "id of Facility", schema: { type: integer },  in: query }
+        - { name: user, description: "id of User", schema: { type: integer },  in: query }
+        - { name: vo, description: "id of Vo", schema: { type: integer },  in: query }
+        - { name: resource, description: "id of Resource", schema: { type: integer },  in: query }
+        - { name: member, description: "id of Member", schema: { type: integer },  in: query }
+        - { name: group, description: "id of Group", schema: { type: integer },  in: query }
+        - { name: host, description: "id of Host", schema: { type: integer },  in: query }
+        - { name: userExtSource, description: "id of UserExtSource", schema: { type: integer },  in: query }
+        - { name: key, description: "key for entityless attribute", schema: { type: string },  in: query }
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO this is heavily overloaded method, create methods for other parameter combinations
+  /json/attributesManager/getAttributes:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getFacilityAttributes
+      summary: Returns all specified Facility attributes for selected Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # DatabaseManager                               #
+  #                                               #
+  #################################################
+
+  /json/databaseManager/getCurrentDatabaseVersion:
+    get:
+      tags:
+        - DatabaseManager
+      operationId: getCurrentDatabaseVersion
+      summary: Returns current database version, e.g. "3.1.55"
+      responses:
+        200:
+          $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/databaseManager/getDatabaseDriverInformation:
+    get:
+      tags:
+        - DatabaseManager
+      operationId: getDatabaseDriverInformation
+      summary: Returns current database driver info, e.g. "PostgreSQL JDBC Driver-42.2.8"
+      responses:
+        200:
+          $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/databaseManager/getDatabaseInformation:
+    get:
+      tags:
+        - DatabaseManager
+      operationId: getDatabaseInformation
+      summary: Returns current database info, e.g. "PostgreSQL-12.0 (Debian 12.0-2.pgdg100+1)"
+      responses:
+        200:
+          $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # ExtSourcesManager                             #
+  #                                               #
+  #################################################
+
+  /json/extSourcesManager/getExtSources:
+    get:
+      tags:
+        - ExtSourcesManager
+      operationId: getExtSources
+      summary: Returns the list of all external sources.
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/extSourcesManager/getExtSourceById:
+    get:
+      tags:
+        - ExtSourcesManager
+      operationId: getExtSourceById
+      summary: Returns an external source by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/ExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # UsersManager                                  #
+  #                                               #
+  #################################################
+
+  /json/usersManager/getUserById:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserById
+      summary: Returns user by its id
+      description: Returns object representing the User
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/UserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUserByExtSourceNameAndExtLogin:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserByExtSourceNameAndExtLogin
+      summary: Returns user by its ExtSourceName and ExtLogin.
+      description: Returns User found by its authentication data
+      parameters:
+        - name: extLogin
+          description: external login of user, e.g. john
+          schema:
+            type: string
+          in: query
+          required: true
+        - name: extSourceName
+          description: external source name, e.g. IdP entityId
+          schema:
+            type: string
+          in: query
+          required: true
+      responses:
+        200:
+          $ref: '#/components/responses/UserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getRichUserWithAttributes:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichUserWithAttributes
+      summary: Returns user with attributes
+      description: Returns object representing the User with attributes
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/RichUserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUserExtSources:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserExtSources
+      summary: Gets list of all user's external sources.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getGroupsWhereUserIsActive/facility:
+    get:
+      tags:
+        - UsersManager
+      operationId: getGroupsForFacilityWhereUserIsActive
+      summary: Get list of groups of user on specified facility where use is active.
+      description: |
+        That means User is a VALID in the VO and the Group and groups are assigned to the facility.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getGroupsWhereUserIsActive/resource:
+    get:
+      tags:
+        - UsersManager
+      operationId: getGroupsForResourceWhereUserIsActive
+      summary: Get list of groups of user on specified resource where use is active.
+      description: |
+        That means User is a VALID in the VO and the Group and groups are assigned to the resource.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # MembersManager                                #
+  #                                               #
+  #################################################
+
+  /json/membersManager/getMemberById:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMemberById
+      summary: Returns Member by its id.
+      description: Gets Member
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getRichMember:
+    get:
+      tags:
+        - MembersManager
+      operationId: getRichMember
+      summary: Returns RichMember by member id.
+      description: Get RichMember without attributes
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/RichMemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getRichMemberWithAttributes:
+    get:
+      tags:
+        - MembersManager
+      operationId: getRichMemberWithAttributes
+      summary: Returns Member by its id.
+      description: Get richMember with member/user attributes
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/RichMemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMemberByUser:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMemberByUser
+      summary: Returns a Member specified by VO id and User id.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMembersByUser:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMembersByUser
+      summary: Returns members for a user.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  #################################################
+  #                                               #
+  # FacilitiesManager                             #
+  #                                               #
+  #################################################
+  /json/facilitiesManager/getFacilityById:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityById
+      summary: Returns Facility with specified id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilityByName:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityByName
+      summary: Returns Facility with specified name.
+      parameters:
+        - { name: name, description: "name of Facility", schema: { type: string }, in: query, required: true}
+      responses:
+        200:
+          $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedUsers:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedUsers
+      summary: Lists all users assigned to facility containing resources where service is assigned.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - name: service
+          description: "id of Service"
+          schema:
+            type: integer
+          in: query
+          required: false
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getRichFacilities:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getRichFacilities
+      summary: Gets all possible rich facilities with all their owners.
+      parameters: []
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfRichFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilitiesByAttribute:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByAttribute
+      summary: Returns all facilities that have the attribute 'attributeName' with the string value 'attributeValue'.
+      description: Searching only def and opt attributes. Large attributes are not supported.
+      parameters:
+        - $ref: '#/components/parameters/attributeName'
+        - $ref: '#/components/parameters/attributeValue'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilitiesByDestination:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByDestination
+      summary: Searches for the Facilities by theirs destination.
+      parameters:
+        - name: destination
+          description: "destination"
+          schema:
+            type: string
+          in: query
+          required: true
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilities:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllFacilities
+      summary: Get all facilities.
+      parameters: []
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilitiesCount:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesCount
+      summary: Gets count of all facilities.
+      parameters: []
+      responses:
+        200:
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getOwners:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityOwners
+      summary: Returns owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfOwnersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAllowedGroups:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedGroups
+      summary: Get all assigned groups on Facility, optionally filtered by Vo or Service or both.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
+        - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # OwnersManager                                 #
+  #                                               #
+  #################################################
+
+  /json/ownersManager/createOwner:
+    post:
+      tags:
+        - OwnersManager
+      operationId: createOwner
+      summary: Creates a new owner.
+      responses:
+        200:
+          $ref: '#/components/responses/OwnerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: NewOwner
+              description: "input to createOwner, no id, numeric ownerType instead of string type"
+              type: object
+              required:
+                - name
+                - contact
+                - ownerType
+              properties:
+                name: { type: string, description: "name of contact, e.g. John Doe or NSA"}
+                contact: { type: string, description: "email address"}
+                ownerType:
+                  type: integer
+                  enum: [0, 1]
+                  description: "0 - technical, 1 - administrative"
+
+  /urlinjsonout/ownersManager/deleteOwner:
+    post:
+      tags:
+        - OwnersManager
+      operationId: deleteOwner
+      summary: Deletes Owner specified by id. Returns null.
+      responses:
+        200:
+          $ref: '#/components/responses/OwnerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      parameters:
+        - { name: owner, description: "id of Owner", schema: { type: integer }, in: query, required: true }
+
+  /json/ownersManager/getOwnerById:
+    get:
+      tags:
+        - OwnersManager
+      operationId: getOwnerById
+      summary: Returns Owner by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/OwnerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/ownersManager/getOwners:
+    get:
+      tags:
+        - OwnersManager
+      operationId: getAllOwners
+      summary: Returns all owners.
+      parameters: []
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfOwnersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  #################################################
+  #                                               #
+  # GroupsManager                                 #
+  #                                               #
+  #################################################
+
+  /json/groupsManager/getGroupById:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupById
+      summary: Returns a group by id.
+      description: Throws GroupNotExistsException when the group doesn't exist.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/isGroupMember:
+    get:
+      tags:
+        - GroupsManager
+      operationId: isGroupMember
+      summary: Return true if Member is member of the Group.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        200:
+          $ref: '#/components/responses/BooleanResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getMemberGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getMemberGroups
+      summary: Returns groups for a member.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # ResourceManager                               #
+  #                                               #
+  #################################################
+
+  /json/resourcesManager/getResourceById:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourceById
+      summary: Returns a resource by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/ResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getRichResourceById:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getRichResourceById
+      summary: Returns RichResource by id (also containing facility and VO inside).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/RichResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # VosManager                                    #
+  #                                               #
+  #################################################
+
+  /json/vosManager/getVoById:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoById
+      summary: Returns a virtual organization by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getAllVos:
+    get:
+      tags:
+        - VosManager
+      operationId: getAllVos
+      summary: Return list of all VOs in Perun.
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getVoByShortName:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoByShortName
+      summary: Returns a VO by its short name.
+      parameters:
+        - { name: shortName, description: "short name of Vo", schema: { type: string },  in: query }
+      responses:
+        200:
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # RegistrarManager                              #
+  #                                               #
+  #################################################
+
+  /json/registrarManager/getApplicationForm/vo:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getVoApplicationForm
+      summary: Gets an application form for a given VO.
+      description: |
+        There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
+        just the form items are marked whether the should be present in one, the other, or both types of application.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        200:
+          $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getApplicationForm/group:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getGroupApplicationForm
+      summary: Gets an application form for a given Group.
+      description: |
+        There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
+        just the form items are marked whether the should be present in one, the other, or both types of application.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        200:
+          $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
