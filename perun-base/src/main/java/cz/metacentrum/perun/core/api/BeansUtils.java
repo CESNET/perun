@@ -830,4 +830,38 @@ public class BeansUtils {
 
 	}
 
+	/**
+	 * Convert object richMember to object candidate.
+	 * PrimaryUserExtSource is used as the main userExtSource for candidate object
+	 *
+	 * @param richMember
+	 * @param primaryUserExtSource main userExtSource for candidate object
+	 *
+	 * @return converted object candidate from richMember
+	 */
+	public static Candidate convertRichMemberToCandidate(RichMember richMember, UserExtSource primaryUserExtSource) {
+		if(richMember == null) throw new InternalErrorException("RichMember can't be null when converting to Candidate.");
+		if(primaryUserExtSource == null) throw new InternalErrorException("PrimaryUserExtSource can't be null when converting to Candidate.");
+
+		//Prepare additional userExtSources
+		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
+		if(richMember.getUserExtSources() != null) additionalUserExtSources.addAll(richMember.getUserExtSources());
+		//remove primaryUserExtSource from additional userExtSources
+		additionalUserExtSources.remove(primaryUserExtSource);
+
+		//Prepare attributes
+		List<Attribute> allAttributes = new ArrayList<>();
+		if(richMember.getMemberAttributes() != null) allAttributes.addAll(richMember.getMemberAttributes());
+		if(richMember.getUserAttributes() != null) allAttributes.addAll(richMember.getUserAttributes());
+		Map<String, String> candidateAttributes = new HashMap<>();
+		for(Attribute attribute: allAttributes) {
+			candidateAttributes.put(attribute.getName(), attributeValueToString(attribute));
+		}
+
+		Candidate candidate = new Candidate(richMember.getUser(), primaryUserExtSource);
+		candidate.setAdditionalUserExtSources(additionalUserExtSources);
+		candidate.setAttributes(candidateAttributes);
+
+		return candidate;
+	}
 }
