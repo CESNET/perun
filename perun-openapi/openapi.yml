@@ -3,14 +3,25 @@ info:
   version: 3.9.0
   title: Perun RPC API
   description: Perun Remote Procedure Calls Application Programming Interface
+  contact:
+    url: https://perun-aai.org
+    email: perun@cesnet.cz
 
 servers:
-  - url: 'https://perun.cesnet.cz/krb/rpc'
-    description: CESNET Perun with Kerberos or Basic auth
-  - url: 'https://perun.elixir-czech.cz/krb/rpc'
-    description: ELIXIR Perun with Kerberos or Basic auth
-  - url: 'https://idm.ics.muni.cz/krb/rpc'
-    description: MUNI Perun with Kerberos or Basic auth
+  - url: 'https://{server}/{authentication}/rpc'
+    description: Perun RPC server
+    variables:
+      server:
+        default: perun.cesnet.cz
+        description: DNS name of a Perun server
+      authentication:
+        default: krb
+        description: way of authentication
+        enum:
+          - krb
+          - cert
+          - oidc
+          - fed
 
 security:
   - BasicAuth: []
