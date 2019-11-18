@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,30 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	private static final String CLASS_NAME = "AuthzResolver.";
 	final ExtSource extSource = new ExtSource(0, "AuthzResolverExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
 	private int userLoginSequence = 0;
+
+	@Test
+	public void unauthorizedPerunAdmin() throws Exception {
+		assertFalse(AuthzResolver.authorized(new PerunSessionImpl(
+			perun,
+			new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+			new PerunClient()
+		), "default_policy",
+			Collections.emptyList()));
+	}
+
+	@Test
+	public void authorizedPerunAdmin() throws Exception {
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, null, Role.PERUNADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		assertTrue(AuthzResolver.authorized(session, "default_policy", Collections.emptyList()));
+	}
 
 	@Test
 	public void isAuthorizedInvalidPrincipal() throws Exception {

@@ -32,9 +32,14 @@ import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.ResourceTag;
+import cz.metacentrum.perun.core.api.RichGroup;
+import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
@@ -49,6 +54,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -67,10 +73,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -87,6 +97,37 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private static final String SET_ROLE = "SET";
 
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+
+	/**
+	 * Prepare necessary structures and resolve access rights for the session's principal.
+	 *
+	 * @param sess perunSession which contains the principal.
+	 * @param policyDefinition is a definition of a policy which will define authorization rules.
+	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
+	 * @return true if the principal has particular rights, false otherwise.
+	 * @throws PolicyNotExistsException when the given policyDefinition does not exist in the PerunPoliciesContainer.
+	 */
+	public static boolean authorized(PerunSession sess, String policyDefinition, List<PerunBean> objects) throws PolicyNotExistsException {
+		// We need to load additional information about the principal
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		// If the user has no roles, deny access
+		if (sess.getPerunPrincipal().getRoles() == null) {
+			return false;
+		}
+
+		List<PerunPolicy> allPolicies = AuthzResolverImpl.fetchPolicyWithAllIncludedPolicies(policyDefinition);
+
+		List<Map<String, String>> policyRoles = new ArrayList<>();
+		for (PerunPolicy policy : allPolicies) policyRoles.addAll(policy.getPerunRoles());
+
+		//Fetch super objects like Vo for group etc.
+		Map <String, Set<Integer>> mapOfBeans = fetchAllRelatedObjects(objects);
+
+		return resolveAuthorization(sess, policyRoles, mapOfBeans);
+	}
 
 	/**
 	 * Checks if the principal is authorized.
@@ -861,7 +902,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 		getPerunBl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
-		return cz.metacentrum.perun.core.impl.AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		return AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 	}
 
 	/**
@@ -1922,6 +1963,162 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
 
 			log.trace("AuthzResolver.init: Perun Registrar {} loaded", perunRegistrars);
+		}
+	}
+
+	/**
+	 * Decide whether a principal has sufficient rights according the the given roles and objects.
+	 *
+	 * @param sess perunSession which contains the principal.
+	 * @param policyRoles is a list of maps where each map entry consists from a role name as a key and a role object as a value.
+	 *                    Relation between each map in the list is logical OR and relation between each entry in the map is logical AND.
+	 *                    Example list - (Map1, Map2...)
+	 *                    Example map - key: VOADMIN ; value: Vo
+	 *                                 key: GROUPADMIN ; value: Group
+	 * @param mapOfBeans is a map of objects against which will be authorization done.
+	 *                    Example map entry - key: Member ; values: (10,15,26)
+	 * @return true if the principal has particular rights, false otherwise.
+	 */
+	private static boolean resolveAuthorization(PerunSession sess, List<Map<String, String>> policyRoles, Map <String, Set<Integer>> mapOfBeans) {
+		//Traverse through outer role list which works like logical OR
+		for (Map<String, String> roleArray: policyRoles) {
+
+			boolean authorized = true;
+			//Traverse through inner role list which works like logical AND
+			Set<String> roleArrayKeys = roleArray.keySet();
+			for (String role : roleArrayKeys) {
+
+				//fetch the object which is connected with the role
+				String roleObject = roleArray.get(role);
+
+				// If policy role is not connected to any object
+				if (roleObject == null) {
+					//If principal does not have the role, this inner list's result is false
+					if (!sess.getPerunPrincipal().getRoles().hasRole(role)) authorized = false;
+				//If there is no corresponding type of object in the perunBeans map
+				} else if (!mapOfBeans.containsKey(roleObject)) {
+					authorized = false;
+				// If policy role is connected to some object, like VOADMIN->Vo
+				} else {
+					//traverse all related objects from perun which are relevant for the authorized method
+					for (Integer objectId : mapOfBeans.get(roleObject)) {
+						//If the principal does not have rights on role-object, this inner list's result is false
+						if (!sess.getPerunPrincipal().getRoles().hasRole(role, roleObject, objectId)) {
+							authorized = false;
+							break;
+						}
+					}
+				}
+				//Some inner role check failed so jump out of the while loop
+				if (!authorized) break;
+			}
+			// If all checks for inner role list pass, return true. Otherwise proceed to another inner role list
+			if (authorized) return true;
+		}
+		//If no check passed, return false. The principal doesn't have sufficient rights.
+		return false;
+	}
+
+	/**
+	 * Fetch all possible PerunBeans for each of the objects from the list according to the id of the bean in the object.
+	 *
+	 * @param objects for which will be related objects fetched.
+	 * @return all related objects together with the objects from the input as a map of PerunBean names and ids.
+	 */
+	private static Map<String, Set<Integer>> fetchAllRelatedObjects(List<PerunBean> objects) {
+		List<PerunBean> relatedObjects = new ArrayList<>();
+		//Create a map from objects for easier manipulation and duplicity prevention
+		Map<String, Set<Integer>> mapOfBeans = new HashMap<>();
+
+		for (PerunBean object: objects) {
+			relatedObjects.add(object);
+			List<PerunBean> retrievedObjects = RelatedObjectsResolver.getValue(object.getBeanName()).apply(object);
+			relatedObjects.addAll(retrievedObjects);
+		}
+
+		//Fill map with PerunBean names as keys and a set of unique ids as value for each bean name
+		for (PerunBean object : relatedObjects) {
+			if (!mapOfBeans.containsKey(object.getBeanName())) mapOfBeans.put(object.getBeanName(), new HashSet<>());
+			mapOfBeans.get(object.getBeanName()).add(object.getId());
+		}
+
+		return mapOfBeans;
+	}
+
+	/**
+	 * Enum defines PerunBean's name and action. The action retrieves all related objects for the object with that name.
+	 */
+	private enum RelatedObjectsResolver implements Function<PerunBean, List<PerunBean>> {
+		Member((object) -> {
+			User user = new User();
+			user.setId(((Member) object).getUserId());
+			Vo vo = new Vo();
+			vo.setId(((Member) object).getVoId());
+			return Arrays.asList(user,vo);
+		}),
+		Group((object) -> {
+			Vo vo = new Vo();
+			vo.setId(((Group) object).getVoId());
+			return Collections.singletonList(vo);
+		}),
+		Resource((object) -> {
+			Vo vo = new Vo();
+			vo.setId(((Resource) object).getVoId());
+			Facility facility = new Facility();
+			facility.setId(((Resource) object).getFacilityId());
+			return Arrays.asList(vo, facility);
+		}),
+		ResourceTag((object) -> {
+			Vo vo = new Vo();
+			vo.setId(((ResourceTag) object).getVoId());
+			return Collections.singletonList(vo);
+		}),
+		RichMember((object) -> {
+			User user = new User();
+			user.setId(((RichMember) object).getUserId());
+			Vo vo = new Vo();
+			vo.setId(((Member) object).getVoId());
+			return Arrays.asList(user,vo);
+		}),
+		RichGroup((object) -> {
+			Vo vo = new Vo();
+			vo.setId(((RichGroup) object).getVoId());
+			return Collections.singletonList(vo);
+		}),
+		RichResource((object) -> {
+			Vo vo = new Vo();
+			vo.setId(((RichResource) object).getVoId());
+			Facility facility = new Facility();
+			facility.setId(((Resource) object).getFacilityId());
+			return Arrays.asList(vo, facility);
+		}),
+		Default((object) -> {
+			return Collections.emptyList();
+		});
+
+		private Function<PerunBean, List<PerunBean>> function;
+
+		RelatedObjectsResolver(final Function<PerunBean, List<PerunBean>> function) {
+			this.function = function;
+		}
+
+		/**
+		 * Get RelatedObjectsResolver value by the given name or default value if the name does not exist.
+		 *
+		 * @param name of the value which will be retrieved if exists.
+		 * @return RelatedObjectsResolver value.
+		 */
+		public static RelatedObjectsResolver getValue(String name) {
+			try {
+				return RelatedObjectsResolver.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return RelatedObjectsResolver.Default;
+			}
+		}
+
+		@Override
+		public List<PerunBean> apply(PerunBean object) {
+			return function.apply(object);
 		}
 	}
 }
