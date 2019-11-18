@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>perun</artifactId>
+		<groupId>cz.metacentrum</groupId>
+		<version>3.9.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>cz.metacentrum.perun</groupId>
+	<artifactId>perun-java-cli</artifactId>
+	<packaging>jar</packaging>
+
+	<name>perun-java-cli</name>
+	<description>
+		Java implementation of command-line tools for Perun using OpenAPI specification of Perun RPC API
+	</description>
+
+	<properties>
+		<start-class>cz.metacentrum.perun.cli.PerunCLI</start-class>
+	</properties>
+
+	<build>
+		<plugins>
+			<!-- Package JAR with Main class and all libraries -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<!-- Main-Class taken from property ${start-class} -->
+				<configuration>
+					<finalName>${project.name}</finalName>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-openapi</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>${commons-cli.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>

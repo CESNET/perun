@@ -35,6 +35,8 @@
 		<module>perun-voot</module>
 		<module>perun-web-gui</module>
 		<module>perun-scim</module>
+		<module>perun-openapi</module>
+		<module>perun-java-cli</module>
 	</modules>
 
 	<!-- common environmental and version properties-->
@@ -74,6 +76,7 @@
 		<jdom.version>1.0</jdom.version>
 		<json.version>20190722</json.version>
 		<oracle.version>12.2.0.1.0</oracle.version>
+		<reflections.version>0.9.11</reflections.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
@@ -428,6 +431,12 @@
 						<groupId>org.bouncycastle</groupId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>org.reflections</groupId>
+				<artifactId>reflections</artifactId>
+				<version>${reflections.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
