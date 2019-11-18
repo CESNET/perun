@@ -210,7 +210,8 @@ public class VosManagerEntry implements VosManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
+				!AuthzResolver.isAuthorized(sess, Role.SELF) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getVoById");
 				}
 
@@ -298,8 +299,8 @@ public class VosManagerEntry implements VosManager {
 		Vo vo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 
 		// Authorization
-		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) ||
+				AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 
 			// null the vo so users are searched in whole perun
