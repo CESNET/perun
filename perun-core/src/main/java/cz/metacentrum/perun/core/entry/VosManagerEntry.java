@@ -76,20 +76,15 @@ public class VosManagerEntry implements VosManager {
 				tempVos.removeIf(vo -> {
 					try {
 						return !AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-								!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo);
+								!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
+								!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo);
 					} catch (InternalErrorException e) {
 						// if we can't determine authorization prevent returning it
 						return true;
 					}
 				});
-				Set<Vo> vos = new HashSet<>(tempVos);
 
-				// Get Vos where user is VO Observer
-				for (PerunBean vo: AuthzResolver.getComplementaryObjectsForRole(sess, Role.VOOBSERVER, Vo.class)) {
-					vos.add((Vo) vo);
-				}
-
-				return new ArrayList<>(vos);
+				return tempVos;
 			} else {
 				throw new PrivilegeException(sess, "getVos");
 			}
@@ -278,6 +273,7 @@ public class VosManagerEntry implements VosManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getCompleteCandidates");
 		}
@@ -300,6 +296,7 @@ public class VosManagerEntry implements VosManager {
 
 		// Authorization
 		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) ||
+				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) ||
 				AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 
