@@ -18,7 +18,7 @@ public class AdminRemovedForFacility extends AuditEvent implements EngineIgnoreE
 	public AdminRemovedForFacility(User user, Facility facility) {
 		this.user = user;
 		this.facility = facility;
-		this.message = formatMessage("%s was removed from admin of %s.", user, facility);
+		this.message = formatMessage("%s was removed from admins of %s.", user, facility);
 	}
 
 	public User getUser() {
