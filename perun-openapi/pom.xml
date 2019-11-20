@@ -39,6 +39,8 @@
 							<verbose>false</verbose>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<generateApiDocumentation>false</generateApiDocumentation>
+							<generateModelDocumentation>false</generateModelDocumentation>
 							<configOptions>
 								<dateLibrary>java8</dateLibrary>
 								<library>resttemplate</library>
@@ -96,17 +98,6 @@
 			<groupId>org.openapitools</groupId>
 			<artifactId>jackson-databind-nullable</artifactId>
 			<version>0.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security.kerberos</groupId>
-			<artifactId>spring-security-kerberos-client</artifactId>
-			<version>1.0.1.RELEASE</version>
-			<exclusions>
-				<exclusion>
-					<groupId>aopalliance</groupId>
-					<artifactId>aopalliance</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>

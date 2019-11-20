@@ -8,4 +8,7 @@
     <root level="warn">
         <appender-ref ref="APP"/>
     </root>
+
+	<logger name="org.apache.http.impl.client.TargetAuthenticationStrategy" level="error"/>
+
 </configuration>
