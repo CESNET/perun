@@ -11,6 +11,7 @@ import org.apache.commons.cli.ParseException;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.kerberos.client.KerberosRestTemplate;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -95,18 +96,19 @@ public class PerunCLI {
 			user = commandLine.getOptionValue(PERUN_USER_OPTION);
 		}
 
+		PerunRPC perunRPC;
 		if (user == null) {
-			System.err.println("specify username and password with option " + PERUN_USER_OPTION + " or env variable " + PERUN_USER_VARIABLE + " in the format 'username/password'");
-			System.exit(1);
+			perunRPC = new PerunRPC(perunUrl, null, null, new KerberosRestTemplate(null, "-"));
+		} else {
+			int slash = user.indexOf('/');
+			if (slash == -1) {
+				System.err.println("the username and password must be separated by the '/' character");
+				System.exit(1);
+			}
+			String username = user.substring(0, slash);
+			String password = user.substring(slash + 1);
+			perunRPC = new PerunRPC(perunUrl, username, password);
 		}
-		int slash = user.indexOf('/');
-		if (slash == -1) {
-			System.err.println("the username and password must be separated by the '/' character");
-			System.exit(1);
-		}
-		String username = user.substring(0, slash);
-		String password = user.substring(slash + 1);
-		PerunRPC perunRPC = new PerunRPC(perunUrl, username, password);
 
 		//execute the command
 		command.executeCommand(new CommandContext(perunRPC, commandLine));

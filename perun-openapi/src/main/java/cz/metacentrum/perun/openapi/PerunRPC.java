@@ -48,6 +48,7 @@ public class PerunRPC {
 		}
 		//HTTP connection pooling and cookie reuse (PerunSession is created only for the first request)
 		apiClient = new ApiClient(restTemplate);
+		apiClient.setUserAgent("Perun OpenAPI Java client");
 		//all the managers share the ApiClient and thus the connection pool and cookies
 		attributesManager = new AttributesManagerApi(apiClient);
 		authzResolver = new AuthzResolverApi(apiClient);
@@ -73,7 +74,6 @@ public class PerunRPC {
 		apiClient.setBasePath(perunURL);
 		apiClient.setUsername(username);
 		apiClient.setPassword(password);
-		apiClient.setUserAgent("Perun OpenAPI Java client");
 	}
 
     /**
