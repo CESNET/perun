@@ -342,6 +342,9 @@ components:
           schema:
             $ref: "#/components/schemas/PerunException"
 
+    VoidResponse:
+      description: "returns nothing"
+
     IntegerResponse:
       description: "returns Integer"
       content:
@@ -707,6 +710,24 @@ components:
       in: query
       required: true
 
+    destinationName:
+      name: destination
+      description: "string name of destination"
+      schema:
+        type: string
+      in: query
+      required: true
+
+    ownerId:
+      name: owner
+      description: "id of Owner"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+
+
 
 #################################################
 #                                               #
@@ -760,6 +781,12 @@ tags:
 #################################################
 paths:
 
+  #################################################
+  #                                               #
+  # Utils                                         #
+  #                                               #
+  #################################################
+
   /:
     get:
       tags:
@@ -774,12 +801,6 @@ paths:
               schema:
                 type: string
                 example: "OK! Version: 3.8.6, User: makub@META, extSource: META"
-
-  #################################################
-  #                                               #
-  # Utils                                         #
-  #                                               #
-  #################################################
 
   /json/utils/getPerunStatus:
     get:
@@ -1683,6 +1704,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getFacilitiesByDestination:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByDestination
+      summary: Searches for the Facilities by theirs destination.
+      parameters:
+        - $ref: '#/components/parameters/destinationName'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /json/facilitiesManager/getFacilitiesByAttribute:
     get:
       tags:
@@ -1693,25 +1729,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/attributeName'
         - $ref: '#/components/parameters/attributeValue'
-      responses:
-        200:
-          $ref: '#/components/responses/ListOfFacilitiesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/facilitiesManager/getFacilitiesByDestination:
-    get:
-      tags:
-        - FacilitiesManager
-      operationId: getFacilitiesByDestination
-      summary: Searches for the Facilities by theirs destination.
-      parameters:
-        - name: destination
-          description: "destination"
-          schema:
-            type: string
-          in: query
-          required: true
       responses:
         200:
           $ref: '#/components/responses/ListOfFacilitiesResponse'
@@ -1757,6 +1774,22 @@ paths:
           $ref: '#/components/responses/ListOfOwnersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwner:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwner
+      summary: Adds owner of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   /json/facilitiesManager/getAllowedGroups:
     get:

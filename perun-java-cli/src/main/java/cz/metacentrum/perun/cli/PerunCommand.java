@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.cli;
 
 import org.apache.commons.cli.Options;
+import org.springframework.web.client.RestClientException;
+
+import java.io.IOException;
 
 /**
  * Empty command.
@@ -24,6 +27,6 @@ public abstract class PerunCommand {
 	public void addOptions(Options options) {
 	}
 
-	public abstract void executeCommand(PerunCLI.CommandContext ctx);
+	public abstract void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException;
 
 }

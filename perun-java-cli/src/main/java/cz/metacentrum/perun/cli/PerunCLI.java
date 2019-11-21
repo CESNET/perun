@@ -2,6 +2,7 @@ package cz.metacentrum.perun.cli;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import cz.metacentrum.perun.openapi.PerunException;
 import cz.metacentrum.perun.openapi.PerunRPC;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -14,6 +15,8 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.kerberos.client.KerberosRestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -72,6 +75,7 @@ public class PerunCLI {
 		new HelpFormatter().printHelp(command.getName(), options);
 		System.exit(1);
 	}
+
 	private static void call(PerunCommand command, String[] cliArgs) throws ParseException {
 		//prepare CLI options
 		//first options common to all commands
@@ -92,12 +96,12 @@ public class PerunCLI {
 			return;
 		}
 
-		if(commandLine.hasOption(HELP_OPTION)) {
+		if (commandLine.hasOption(HELP_OPTION)) {
 			printHelp(command, options);
 			return;
 		}
 
-		if(commandLine.hasOption(VERBOSE_OPTION)) {
+		if (commandLine.hasOption(VERBOSE_OPTION)) {
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 			rootLogger.setLevel(Level.DEBUG);
@@ -131,7 +135,26 @@ public class PerunCLI {
 		}
 
 		//execute the command
-		command.executeCommand(new CommandContext(perunRPC, commandLine));
+		HttpClientErrorException hce = null;
+		try {
+			command.executeCommand(new CommandContext(perunRPC, commandLine));
+		} catch (HttpClientErrorException e1) {
+			//normal RestTemplate throws this exception on status 400
+			hce = e1;
+		} catch (RestClientException e2) {
+			if (e2.getCause() instanceof HttpClientErrorException) {
+				// KerberosRestTemplate throws the exception wrapped
+				hce = (HttpClientErrorException) e2.getCause();
+			} else {
+				// something other went wrong
+				throw e2;
+			}
+		}
+		if (hce != null) {
+			PerunException pe = PerunException.to(hce);
+			System.err.println(pe.getMessage());
+			System.exit(1);
+		}
 	}
 
 	public static class CommandContext {
