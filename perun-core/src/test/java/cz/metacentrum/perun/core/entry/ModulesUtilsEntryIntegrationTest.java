@@ -668,7 +668,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute fileQuotasAttribute = getFileQuotasAttribute();
 		Attribute maxFileQuotasAttribute = getMaxFileQuotasAttribute();
-		((LinkedHashMap<String,String>) maxFileQuotasAttribute.getValue()).put("/var/log/test/", "1000:2000");
+		((LinkedHashMap<String,String>) maxFileQuotasAttribute.getValue()).put("/var/log/test", "1000:2000");
 		modulesUtilsBl.checkIfQuotasIsInLimit(
 				modulesUtilsBl.checkAndTransferQuotas(fileQuotasAttribute, resource, null, false),
 				modulesUtilsBl.checkAndTransferQuotas(maxFileQuotasAttribute, resource, null, false));
@@ -679,7 +679,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "QuotaNotInAllowedLimitException");
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute dataQuotasAttribute = getDataQuotasAttribute();
-		((LinkedHashMap<String,String>) dataQuotasAttribute.getValue()).put("/var/log/test/", "1G:0");
+		((LinkedHashMap<String,String>) dataQuotasAttribute.getValue()).put("/var/log/test", "1G:0");
 		Attribute maxDataQuotasAttribute = getMaxDataQuotasAttribute();
 		modulesUtilsBl.checkIfQuotasIsInLimit(
 				modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true),
@@ -701,7 +701,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "checkQuotasErrorInMetric");
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute dataQuotasAttribute = getDataQuotasAttribute();
-		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path/", "1Z:1");
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path", "1Z:1");
 		modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true);
 	}
 
@@ -710,7 +710,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "WrongAttributeValueException");
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute dataQuotasAttribute = getDataQuotasAttribute();
-		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path/", "b20:1");
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path", "b20:1");
 		modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true);
 	}
 
@@ -719,7 +719,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "checkIfQuotasContainsDifferentPathThanMaxQuotas");
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute dataQuotasAttribute = getDataQuotasAttribute();
-		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path/", "1:1");
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path", "1:1");
 		Attribute maxDataQuotasAttribute = getMaxDataQuotasAttribute();
 		modulesUtilsBl.checkIfQuotasIsInLimit(
 				modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true),
@@ -755,7 +755,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 						modulesUtilsBl.checkAndTransferQuotas(fileQuotasOverrideAttribute, resource, null, false)),
 				false );
 		Map<String, String> expectedResult = new HashMap<>((HashMap<String,String>) memberResourceFileQuotasAttribute.getValue());
-		expectedResult.put("/var/log/test/","1:0");
+		expectedResult.put("/var/log/test","1:0");
 		assertEquals(expectedResult, mergedMapOfQuotas);
 	}
 
@@ -773,12 +773,12 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		countOfQuotas.add(modulesUtilsBl.checkAndTransferQuotas(fileQuotasOverrideAttribute, resource, null, false));
 		Map<String, String> result = modulesUtilsBl.transferQuotasBackToAttributeValue(modulesUtilsBl.countUserFacilityQuotas(countOfQuotas), false);
 		Map<String, String> expectedResult = new HashMap<>();
-		expectedResult.put("/var/log/test/", "3001:0");
-		expectedResult.put("/etc/test/", "11000:110000");
-		expectedResult.put("/usr/test/", "300:0");
-		expectedResult.put("/home/test/", "0:0");
-		expectedResult.put("/tmp/test/", "2:3");
-		expectedResult.put("/dev/zero/", "0:0");
+		expectedResult.put("/var/log/test", "3001:0");
+		expectedResult.put("/etc/test", "11000:110000");
+		expectedResult.put("/usr/test", "300:0");
+		expectedResult.put("/home/test", "0:0");
+		expectedResult.put("/tmp/test", "2:3");
+		expectedResult.put("/dev/zero", "0:0");
 		assertEquals(expectedResult, result);
 	}
 
@@ -787,7 +787,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private Attribute getOverrideFileQuotasAttribute() {
 		Attribute attribute = new Attribute((new urn_perun_member_resource_attribute_def_def_fileQuotasOverride()).getAttributeDefinition());
 		Map<String, String> value = new LinkedHashMap<>();
-		String path1 = "/var/log/test/";
+		String path1 = "/var/log/test";
 		String value1 = "1:0";
 		String path2 = "/dev/zero";
 		String value2 = "0:0";
@@ -800,7 +800,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private Attribute getOverrideDataQuotasAttribute() {
 		Attribute attribute = new Attribute((new urn_perun_member_resource_attribute_def_def_dataQuotasOverride()).getAttributeDefinition());
 		Map<String, String> value = new LinkedHashMap<>();
-		String path1 = "/var/log/test/";
+		String path1 = "/var/log/test";
 		String value1 = "1:0";
 		String path2 = "/dev/zero";
 		String value2 = "0:0";
@@ -813,10 +813,10 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private Attribute getFileQuotasAttribute() {
 		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_defaultFileQuotas()).getAttributeDefinition());
 		Map<String, String> value = new LinkedHashMap<>();
-		String path1 = "/var/log/test/";
-		String path2 = "/etc/test/";
-		String path3 = "/usr/test/";
-		String path4 = "/home/test/";
+		String path1 = "/var/log/test";
+		String path2 = "/etc/test";
+		String path3 = "/usr/test";
+		String path4 = "/home/test";
 		String value1 = "1000:10000";
 		String value2 = "5000:50000";
 		String value3 = "100:0";
@@ -832,11 +832,11 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private Attribute getMaxFileQuotasAttribute() {
 		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_maxUserFileQuotas()).getAttributeDefinition());
 		Map<String, String> value = new LinkedHashMap<>();
-		String path1 = "/var/log/test/";
-		String path2 = "/etc/test/";
-		String path3 = "/usr/test/";
-		String path4 = "/home/test/";
-		String path5 = "/tmp/test/";
+		String path1 = "/var/log/test";
+		String path2 = "/etc/test";
+		String path3 = "/usr/test";
+		String path4 = "/home/test";
+		String path5 = "/tmp/test";
 		String value1 = "2000:11000";
 		String value2 = "6000:60000";
 		String value3 = "200:0";
@@ -854,10 +854,10 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private Attribute getDataQuotasAttribute() {
 		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_defaultDataQuotas()).getAttributeDefinition());
 		Map<String, String> value = new LinkedHashMap<>();
-		String path1 = "/var/log/test/";
-		String path2 = "/etc/test/";
-		String path3 = "/usr/test/";
-		String path4 = "/home/test/";
+		String path1 = "/var/log/test";
+		String path2 = "/etc/test";
+		String path3 = "/usr/test";
+		String path4 = "/home/test";
 		String value1 = "1G:10G";
 		String value2 = "5G:50G";
 		String value3 = "100K:0";
@@ -873,11 +873,11 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private Attribute getMaxDataQuotasAttribute() {
 		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_maxUserDataQuotas()).getAttributeDefinition());
 		Map<String, String> value = new LinkedHashMap<>();
-		String path1 = "/var/log/test/";
-		String path2 = "/etc/test/";
-		String path3 = "/usr/test/";
-		String path4 = "/home/test/";
-		String path5 = "/tmp/test/";
+		String path1 = "/var/log/test";
+		String path2 = "/etc/test";
+		String path3 = "/usr/test";
+		String path4 = "/home/test";
+		String path5 = "/tmp/test";
 		String value1 = "2G:11G";
 		String value2 = "6G:51G";
 		String value3 = "101K:0";

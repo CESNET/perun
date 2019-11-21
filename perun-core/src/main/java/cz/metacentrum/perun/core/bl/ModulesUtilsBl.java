@@ -369,6 +369,8 @@ public interface ModulesUtilsBl {
 	 *
 	 * Example of suitable format: key=/path/to/volume, softQuota=50000000000000, hradQuota=0
 	 *
+	 * The key is always a path tested as checked valid URI without '/' on the end (except the path "/", which is also valid)
+	 *
 	 * Left part of value is softQuota, right part after delimeter ':' is hardQuota.
 	 * SoftQuota must be less or equals to hardQuota. '0' means unlimited.
 	 *
