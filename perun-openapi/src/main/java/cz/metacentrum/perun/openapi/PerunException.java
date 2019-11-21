@@ -22,13 +22,16 @@ public class PerunException extends Exception {
      *
      * @param ex HttpClientErrorException containing
      * @return PerunException
-     * @throws IOException if parsing of reponseBody fails
      */
-    public static PerunException to(HttpClientErrorException ex) throws IOException {
-        cz.metacentrum.perun.openapi.model.PerunException pe = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .readValue(ex.getResponseBodyAsByteArray(), cz.metacentrum.perun.openapi.model.PerunException.class);
-        return new PerunException(pe.getName() + ": " + pe.getMessage(), ex, pe.getName(), pe.getErrorId());
+    public static PerunException to(HttpClientErrorException ex) {
+    	try {
+			cz.metacentrum.perun.openapi.model.PerunException pe = new ObjectMapper()
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+				.readValue(ex.getResponseBodyAsByteArray(), cz.metacentrum.perun.openapi.model.PerunException.class);
+			return new PerunException(pe.getName() + ": " + pe.getMessage(), ex, pe.getName(), pe.getErrorId());
+		} catch (IOException ioe) {
+    		return new PerunException("cannot parse remote Exception", ex, "", "");
+		}
     }
 
     /**

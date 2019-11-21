@@ -21,22 +21,18 @@ public class GetRichUser extends PerunCommand {
 
 	@Override
 	public String getCommandDescription() {
-		return "Gets user with its attributes";
+		return "gets user with its attributes";
 	}
 
 	@Override
 	public void addOptions(Options options) {
-		options.addOption(Option.builder("id").required(true).hasArg().longOpt("user").desc("user's identifier").build());
+		options.addOption(Option.builder("id").required(true).hasArg(true).longOpt("user").desc("user's identifier").build());
 	}
 
 	@Override
 	public void executeCommand(PerunCLI.CommandContext ctx) {
 		int id = Integer.parseInt(ctx.getCommandLine().getOptionValue("id"));
 		RichUser richUser = ctx.getPerunRPC().getUsersManager().getRichUserWithAttributes(id);
-		System.out.println();
-		System.out.println("RichUser");
-		System.out.println("========");
-		System.out.println();
 		System.out.println("         id: " + richUser.getId());
 		System.out.println("titleBefore: " + richUser.getTitleBefore());
 		System.out.println("  firstName: " + richUser.getFirstName());
@@ -47,7 +43,6 @@ public class GetRichUser extends PerunCommand {
 		System.out.println("  createdBy: " + richUser.getCreatedBy());
 		System.out.println(" modifiedAt: " + richUser.getModifiedAt());
 		System.out.println(" modifiedBy: " + richUser.getModifiedBy());
-
 		System.out.println();
 		System.out.println(" UserExtSources:");
 		System.out.println();
@@ -56,7 +51,6 @@ public class GetRichUser extends PerunCommand {
 		for (UserExtSource ues : userExtSources) {
 			System.out.println("(" +ues.getLastAccess()+") " + ues.getLogin()+" "+ues.getExtSource().getName());
 		}
-
 		System.out.println();
 		System.out.println(" user attributes:");
 		System.out.println();

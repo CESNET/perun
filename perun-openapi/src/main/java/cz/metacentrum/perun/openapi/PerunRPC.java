@@ -41,6 +41,7 @@ public class PerunRPC {
     final private UsersManagerApi usersManager;
     final private UtilsApi utils;
     final private VosManagerApi vosManager;
+    final private ServicesManagerApi servicesManager;
 
     public PerunRPC(RestTemplate restTemplate) {
     	if(restTemplate==null) {
@@ -63,6 +64,7 @@ public class PerunRPC {
 		usersManager = new UsersManagerApi(apiClient);
 		utils = new UtilsApi(apiClient);
 		vosManager = new VosManagerApi(apiClient);
+		servicesManager = new ServicesManagerApi(apiClient);
 	}
 
     public PerunRPC() {
@@ -152,4 +154,8 @@ public class PerunRPC {
     public VosManagerApi getVosManager() {
         return vosManager;
     }
+
+	public ServicesManagerApi getServicesManager() {
+		return servicesManager;
+	}
 }
