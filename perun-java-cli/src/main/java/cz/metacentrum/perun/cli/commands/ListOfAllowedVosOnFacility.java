@@ -6,6 +6,7 @@ import cz.metacentrum.perun.openapi.model.Vo;
 import org.apache.commons.cli.Options;
 import org.springframework.web.client.RestClientException;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -24,14 +25,14 @@ public class ListOfAllowedVosOnFacility extends PerunCommand {
 	@Override
 	public void addOptions(Options options) {
 		this.addFacilityOptions(options);
-		this.addVoSortingOptions(options);
+		this.addSortingOptions(options, "order by vo short name");
 	}
 
 	@Override
 	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
-		int facilityId = this.getFacilityId(ctx);
+		int facilityId = this.getFacilityId(ctx, true);
 		List<Vo> vos = ctx.getPerunRPC().getFacilitiesManager().getAllowedVos(facilityId);
-		this.sortVos(ctx, vos);
+		this.sort(ctx, vos, Comparator.comparing(Vo::getShortName));
 		for (Vo vo : vos) {
 			System.out.println(vo.getId() + "\t" + vo.getShortName());
 		}

@@ -259,6 +259,14 @@ components:
       discriminator:
         propertyName: beanName
 
+    RichGroup:
+      allOf:
+        - $ref: '#/components/schemas/Group'
+        - properties:
+            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+      discriminator:
+        propertyName: beanName
+
     Resource:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -295,6 +303,19 @@ components:
         - properties:
             name: { type: string }
             shortName: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    Service:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            description: { type: string }
+            delay: { type: integer }
+            recurrence: { type: integer }
+            enabled: { type: boolean }
+            script: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -514,6 +535,13 @@ components:
           schema:
             $ref: "#/components/schemas/Group"
 
+    RichGroupResponse:
+      description: "returns RichGroup"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RichGroup"
+
     ListOfGroupsResponse:
       description: "returns List<Group>"
       content:
@@ -522,6 +550,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Group"
+
+    ListOfRichGroupsResponse:
+      description: "returns List<RichGroup>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichGroup"
 
     ResourceResponse:
       description: "returns Resource"
@@ -602,6 +639,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ApplicationForm"
+
+    ServiceResponse:
+      description: "returns Service"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Service"
 
   #####################################################
   #                                                   #
@@ -726,6 +770,14 @@ components:
     ownerId:
       name: owner
       description: "id of Owner"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    serviceId:
+      name: service
+      description: "id of Service"
       schema:
         type: integer
       in: query
@@ -1840,6 +1892,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAllowedRichGroupsWithAttributes:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedRichGroupsWithAttributes
+      summary: Get all assigned RichGroups on Facility with specified set of attributes, optionally filtered by Vo or Service or both.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNames'
+        - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
+        - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # OwnersManager                                 #
@@ -2086,5 +2155,44 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # ServicesManager                               #
+  #                                               #
+  #################################################
+
+  /json/servicesManager/getServiceById:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServiceById
+      summary: Returns a service by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/ServiceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getServiceByName:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServiceByName
+      summary: Returns a service by its name.
+      parameters:
+        - name: name
+          description: name of service
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/ServiceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'

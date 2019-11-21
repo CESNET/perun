@@ -32,7 +32,7 @@ public class PerunCLI {
 	private static final String PERUN_URL_VARIABLE = "PERUN_URL";
 	private static final String PERUN_USER_OPTION = "P";
 	private static final String PERUN_USER_VARIABLE = "PERUN_USER";
-	private static final String VERBOSE_OPTION = "v";
+	private static final String DEBUG_OPTION = "D";
 	private static final String HELP_OPTION = "h";
 
 	public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ParseException {
@@ -82,7 +82,7 @@ public class PerunCLI {
 		Options options = new Options();
 		options.addOption(Option.builder(PERUN_URL_OPTION).required(false).hasArg().longOpt(PERUN_URL_VARIABLE).desc("Perun base URL").build());
 		options.addOption(Option.builder(PERUN_USER_OPTION).required(false).hasArg().longOpt(PERUN_USER_VARIABLE).desc("HTTP Basic Auth user/password").build());
-		options.addOption(Option.builder(VERBOSE_OPTION).required(false).hasArg(false).longOpt("verbose").desc("debugging output").build());
+		options.addOption(Option.builder(DEBUG_OPTION).required(false).hasArg(false).longOpt("debug").desc("debugging output").build());
 		options.addOption(Option.builder(HELP_OPTION).required(false).hasArg(false).longOpt("help").desc("print options").build());
 		//then options specific to the command
 		command.addOptions(options);
@@ -101,7 +101,7 @@ public class PerunCLI {
 			return;
 		}
 
-		if (commandLine.hasOption(VERBOSE_OPTION)) {
+		if (commandLine.hasOption(DEBUG_OPTION)) {
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 			rootLogger.setLevel(Level.DEBUG);

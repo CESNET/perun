@@ -27,7 +27,7 @@ public class AddFacilityOwner extends PerunCommand {
 
 	@Override
 	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
-		int facilityId = this.getFacilityId(ctx);
+		int facilityId = this.getFacilityId(ctx, true);
 		int ownerId = Integer.parseInt(ctx.getCommandLine().getOptionValue("o"));
 		ctx.getPerunRPC().getFacilitiesManager().addFacilityOwner(facilityId, ownerId);
 		System.out.println("OK");

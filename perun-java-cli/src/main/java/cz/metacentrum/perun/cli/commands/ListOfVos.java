@@ -5,7 +5,9 @@ import cz.metacentrum.perun.cli.PerunCommand;
 import cz.metacentrum.perun.openapi.model.Vo;
 import org.apache.commons.cli.Options;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Prints list of all VOs.
@@ -22,15 +24,15 @@ public class ListOfVos extends PerunCommand {
 
 	@Override
 	public void addOptions(Options options) {
-		this.addVoSortingOptions(options);
+		this.addSortingOptions(options, "order by vo short name");
 	}
 
 	@Override
 	public void executeCommand(PerunCLI.CommandContext ctx) {
 		List<Vo> vos = ctx.getPerunRPC().getVosManager().getAllVos();
-		this.sortVos(ctx, vos);
+		this.sort(ctx, vos, Comparator.comparing(Vo::getShortName));
 		for (Vo vo : vos) {
-			System.out.println(vo.getId() + "\t" + vo.getShortName() + "\tcreated: " + vo.getCreatedAt());
+			System.out.println(vo.getId() + "\t" + vo.getShortName() + "\t\"" + vo.getName() +"\"");
 		}
 	}
 
