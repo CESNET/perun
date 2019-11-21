@@ -9,8 +9,12 @@ import org.apache.commons.cli.Options;
  */
 public abstract class PerunCommand {
 
-	public abstract String getCommandDescription();
+	public String getName() {
+		String s = getClass().getSimpleName();
+		return s.substring(0, 1).toLowerCase() + s.substring(1);
+	}
 
+	public abstract String getCommandDescription();
 
 	/**
 	 * Adds command-line options.
