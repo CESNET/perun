@@ -26,6 +26,7 @@ servers:
 security:
   - BasicAuth: []
   - BearerAuth: []
+  - ApiKeyAuth: []
 
 components:
   #############################################
@@ -40,6 +41,10 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
     OpenID:
       type: openIdConnect
       openIdConnectUrl: https://login.cesnet.cz/oidc/.well-known/openid-configuration
@@ -207,7 +212,7 @@ components:
             valueCreatedBy: { type: string }
             valueModifiedAt: { type: string }
             valueModifiedBy: { type: string }
-            value: {}
+            value: { type: object }
       discriminator:
         propertyName: beanName
 
@@ -254,6 +259,14 @@ components:
       discriminator:
         propertyName: beanName
 
+    RichGroup:
+      allOf:
+        - $ref: '#/components/schemas/Group'
+        - properties:
+            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+      discriminator:
+        propertyName: beanName
+
     Resource:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -290,6 +303,19 @@ components:
         - properties:
             name: { type: string }
             shortName: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    Service:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            description: { type: string }
+            delay: { type: integer }
+            recurrence: { type: integer }
+            enabled: { type: boolean }
+            script: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -341,6 +367,9 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/PerunException"
+
+    VoidResponse:
+      description: "returns nothing"
 
     IntegerResponse:
       description: "returns Integer"
@@ -506,6 +535,13 @@ components:
           schema:
             $ref: "#/components/schemas/Group"
 
+    RichGroupResponse:
+      description: "returns RichGroup"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RichGroup"
+
     ListOfGroupsResponse:
       description: "returns List<Group>"
       content:
@@ -514,6 +550,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Group"
+
+    ListOfRichGroupsResponse:
+      description: "returns List<RichGroup>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichGroup"
 
     ResourceResponse:
       description: "returns Resource"
@@ -594,6 +639,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ApplicationForm"
+
+    ServiceResponse:
+      description: "returns Service"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Service"
 
   #####################################################
   #                                                   #
@@ -707,6 +759,32 @@ components:
       in: query
       required: true
 
+    destinationName:
+      name: destination
+      description: "string name of destination"
+      schema:
+        type: string
+      in: query
+      required: true
+
+    ownerId:
+      name: owner
+      description: "id of Owner"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    serviceId:
+      name: service
+      description: "id of Service"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+
+
 
 #################################################
 #                                               #
@@ -760,6 +838,12 @@ tags:
 #################################################
 paths:
 
+  #################################################
+  #                                               #
+  # Utils                                         #
+  #                                               #
+  #################################################
+
   /:
     get:
       tags:
@@ -774,12 +858,6 @@ paths:
               schema:
                 type: string
                 example: "OK! Version: 3.8.6, User: makub@META, extSource: META"
-
-  #################################################
-  #                                               #
-  # Utils                                         #
-  #                                               #
-  #################################################
 
   /json/utils/getPerunStatus:
     get:
@@ -1683,6 +1761,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getFacilitiesByDestination:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByDestination
+      summary: Searches for the Facilities by theirs destination.
+      parameters:
+        - $ref: '#/components/parameters/destinationName'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /json/facilitiesManager/getFacilitiesByAttribute:
     get:
       tags:
@@ -1693,25 +1786,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/attributeName'
         - $ref: '#/components/parameters/attributeValue'
-      responses:
-        200:
-          $ref: '#/components/responses/ListOfFacilitiesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/facilitiesManager/getFacilitiesByDestination:
-    get:
-      tags:
-        - FacilitiesManager
-      operationId: getFacilitiesByDestination
-      summary: Searches for the Facilities by theirs destination.
-      parameters:
-        - name: destination
-          description: "destination"
-          schema:
-            type: string
-          in: query
-          required: true
       responses:
         200:
           $ref: '#/components/responses/ListOfFacilitiesResponse'
@@ -1758,6 +1832,50 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addOwner:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwner
+      summary: Adds owner of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeOwner:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwner
+      summary: Removes owner from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/getAllowedVos:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedVos
+      summary: Return all VO which can use a facility. (VO must have the resource which belongs to this facility.)
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getAllowedGroups:
     get:
       tags:
@@ -1771,6 +1889,23 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAllowedRichGroupsWithAttributes:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedRichGroupsWithAttributes
+      summary: Get all assigned RichGroups on Facility with specified set of attributes, optionally filtered by Vo or Service or both.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNames'
+        - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
+        - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -2020,5 +2155,44 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # ServicesManager                               #
+  #                                               #
+  #################################################
+
+  /json/servicesManager/getServiceById:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServiceById
+      summary: Returns a service by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/ServiceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getServiceByName:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServiceByName
+      summary: Returns a service by its name.
+      parameters:
+        - name: name
+          description: name of service
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/ServiceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.cli;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import cz.metacentrum.perun.openapi.PerunException;
 import cz.metacentrum.perun.openapi.PerunRPC;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -12,6 +15,8 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.kerberos.client.KerberosRestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -27,40 +32,48 @@ public class PerunCLI {
 	private static final String PERUN_URL_VARIABLE = "PERUN_URL";
 	private static final String PERUN_USER_OPTION = "P";
 	private static final String PERUN_USER_VARIABLE = "PERUN_USER";
+	private static final String DEBUG_OPTION = "D";
+	private static final String HELP_OPTION = "h";
 
 	public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ParseException {
 		//find all classes implementing commands and put them into the "commands" variable
 		log.debug("finding available commands...");
 		Reflections reflections = new Reflections("cz.metacentrum.perun.cli.commands");
 		List<Class<? extends PerunCommand>> classes = new ArrayList<>(reflections.getSubTypesOf(PerunCommand.class));
-		classes.sort(Comparator.comparing(Class::getSimpleName));
 		List<PerunCommand> commands = new ArrayList<>(classes.size());
 		for (Class<? extends PerunCommand> aClass : classes) {
 			commands.add(aClass.getDeclaredConstructor().newInstance());
 		}
+		commands.sort(Comparator.comparing(PerunCommand::getName));
 
 		//if no arguments specified, print list of available commands
 		if (args.length == 0) {
 			System.err.println();
 			System.err.println("Usage: <command> <options>");
 			System.err.println();
-			System.err.println("run a command without options to see a list of its available options");
+			System.err.println("run a command with -h or --help to see a list of its available options");
 			System.err.println();
 			System.err.println("available commands:");
 			for (PerunCommand command : commands) {
-				System.err.println("  " + command.getClass().getSimpleName() + " ... " + command.getCommandDescription());
+				System.err.println("  " + command.getName() + " ... " + command.getCommandDescription());
 			}
 			System.exit(1);
 		}
 		//call the command from class specified as first argument
 		String[] options = args.length == 1 ? new String[]{} : Arrays.copyOfRange(args, 1, args.length);
 		for (PerunCommand command : commands) {
-			if (command.getClass().getSimpleName().equals(args[0])) {
+			if (command.getName().equals(args[0])) {
 				call(command, options);
 				return;
 			}
 		}
 		System.err.println("Command not recognized: " + args[0]);
+	}
+
+	private static void printHelp(PerunCommand command, Options options) {
+		System.err.println();
+		new HelpFormatter().printHelp(command.getName(), options);
+		System.exit(1);
 	}
 
 	private static void call(PerunCommand command, String[] cliArgs) throws ParseException {
@@ -69,6 +82,8 @@ public class PerunCLI {
 		Options options = new Options();
 		options.addOption(Option.builder(PERUN_URL_OPTION).required(false).hasArg().longOpt(PERUN_URL_VARIABLE).desc("Perun base URL").build());
 		options.addOption(Option.builder(PERUN_USER_OPTION).required(false).hasArg().longOpt(PERUN_USER_VARIABLE).desc("HTTP Basic Auth user/password").build());
+		options.addOption(Option.builder(DEBUG_OPTION).required(false).hasArg(false).longOpt("debug").desc("debugging output").build());
+		options.addOption(Option.builder(HELP_OPTION).required(false).hasArg(false).longOpt("help").desc("print options").build());
 		//then options specific to the command
 		command.addOptions(options);
 
@@ -77,10 +92,19 @@ public class PerunCLI {
 		try {
 			commandLine = new DefaultParser().parse(options, cliArgs);
 		} catch (MissingOptionException ex) {
-			System.err.println();
-			new HelpFormatter().printHelp(command.getClass().getSimpleName(), options);
-			System.exit(1);
+			printHelp(command, options);
 			return;
+		}
+
+		if (commandLine.hasOption(HELP_OPTION)) {
+			printHelp(command, options);
+			return;
+		}
+
+		if (commandLine.hasOption(DEBUG_OPTION)) {
+			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+			ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
+			rootLogger.setLevel(Level.DEBUG);
 		}
 
 		// find URL
@@ -111,7 +135,26 @@ public class PerunCLI {
 		}
 
 		//execute the command
-		command.executeCommand(new CommandContext(perunRPC, commandLine));
+		HttpClientErrorException hce = null;
+		try {
+			command.executeCommand(new CommandContext(perunRPC, commandLine));
+		} catch (HttpClientErrorException e1) {
+			//normal RestTemplate throws this exception on status 400
+			hce = e1;
+		} catch (RestClientException e2) {
+			if (e2.getCause() instanceof HttpClientErrorException) {
+				// KerberosRestTemplate throws the exception wrapped
+				hce = (HttpClientErrorException) e2.getCause();
+			} else {
+				// something other went wrong
+				throw e2;
+			}
+		}
+		if (hce != null) {
+			PerunException pe = PerunException.to(hce);
+			System.err.println(pe.getMessage());
+			System.exit(1);
+		}
 	}
 
 	public static class CommandContext {
