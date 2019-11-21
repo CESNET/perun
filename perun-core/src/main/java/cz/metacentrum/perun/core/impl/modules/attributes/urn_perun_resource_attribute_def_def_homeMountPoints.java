@@ -52,20 +52,36 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 		toReturn.setValue(facilityAttr.getValue());
 		return toReturn;
 	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//null value is ok here
+		if (attribute.getValue() == null) return;
+
+		List<String> homeMountPoints = attribute.valueAsList();
+		if (!homeMountPoints.isEmpty()) {
+			for (String st : homeMountPoints) {
+				Matcher match = pattern.matcher(st);
+				if (!match.matches()) {
+					throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
+				}
+			}
+		}
+	}
+
 	/**
 	 * Allows only homeMountPoints which are contained in underlying facility
 	 * @param perunSession
 	 * @param resource
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if (attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute);
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute cannot be null!");
 		}
 		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
 
@@ -76,19 +92,10 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 			throw new InternalErrorException(ex);
 		}
 
-		if(facilityAttr.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, facilityAttr, "Reference attribute have null value.");
+		if(facilityAttr.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, facilityAttr, resource, null, facility, null, "Reference attribute has null value.");
 
-		if (!((List<String>) facilityAttr.getValue()).containsAll((List<String>) attribute.getValue())) {
-			throw new WrongAttributeValueException(attribute);
-		}
-		List<String> homeMountPoints = (List<String>) attribute.getValue();
-		if (!homeMountPoints.isEmpty()) {
-			for (String st : homeMountPoints) {
-				Matcher match = pattern.matcher(st);
-				if (!match.matches()) {
-					throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
-				}
-			}
+		if (!(facilityAttr.valueAsList()).containsAll(attribute.valueAsList())) {
+			throw new WrongReferenceAttributeValueException(attribute, facilityAttr, resource, null, facility, null, "Facility does not contain all of the attribute homeMountPoints!");
 		}
 	}
 

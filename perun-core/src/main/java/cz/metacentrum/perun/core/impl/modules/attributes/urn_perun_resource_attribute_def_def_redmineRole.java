@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -19,17 +20,21 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 public class urn_perun_resource_attribute_def_def_redmineRole extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		String role = (String)attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+		String role = attribute.valueAsString();
 
-		if (role == null) {
+		if (role == null) return;
+
+		if (!role.equals("Manager") && !role.equals("Reporter") && !role.equals("Developer")) {
 			throw new WrongAttributeValueException(attribute, resource, "Attribute value is invalid. The role can be either Manager, Reporter or Developer");
 		}
-		else if (!role.equals("Manager") && !role.equals("Reporter") && !role.equals("Developer")) {
-			throw new WrongAttributeValueException(attribute, resource, "Attribute value is invalid. The role can be either Manager, Reporter or Developer");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) {
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value is invalid. The role can be either Manager, Reporter or Developer");
 		}
-
-
 	}
 
 	@Override

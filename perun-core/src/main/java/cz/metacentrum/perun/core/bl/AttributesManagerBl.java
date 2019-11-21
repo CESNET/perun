@@ -2652,11 +2652,10 @@ public interface AttributesManagerBl {
 	 * @param attribute attribute to check
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 *  Batch version of checkAttributeSemantics
@@ -3210,6 +3209,18 @@ public interface AttributesManagerBl {
 	void forceCheckAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Check if value of this resource attribute has valid syntax no matter if attribute is required or not.
+	 *
+	 * @param sess perun session
+	 * @param resource resource for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void forceCheckAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
 	 * Check if value of this resource attribute has valid semantics no matter if attribute is required or not.
 	 *
 	 * @param sess perun session
@@ -3217,11 +3228,10 @@ public interface AttributesManagerBl {
 	 * @param attribute attribute to check
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void forceCheckAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void forceCheckAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 
 	/**

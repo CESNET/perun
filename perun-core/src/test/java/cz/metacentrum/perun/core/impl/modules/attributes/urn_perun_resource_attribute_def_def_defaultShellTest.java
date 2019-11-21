@@ -116,7 +116,7 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
 	}
 
-	@Test(expected=WrongAttributeValueException.class)
+	@Test(expected=WrongReferenceAttributeValueException.class)
 	public void checkAttributeWithoutValue() throws Exception {
 		System.out.println("checkAttributeWithoutValue()");
 		defShellAttr.checkAttributeSemantics(ps, new Resource(), new Attribute());

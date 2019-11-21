@@ -37,24 +37,28 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Integer accExpTime = (Integer) attribute.getValue();
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Integer accExpTime = attribute.valueAsInteger();
 		if(accExpTime == null) {
-			throw new WrongAttributeValueException("Attribute value shouldnt be null");
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value shouldn't be null");
 		}
 		Facility fac = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
-		Integer facilityAccExpTime;
+
+		Attribute facilityAccExpTimeAttribute;
 		try {
 			//FIXME this can't work (different namespace!!)
-			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, fac, A_F_accountExpirationTime).getValue();
+			facilityAccExpTimeAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, fac, A_F_accountExpirationTime);
+
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
+
+		Integer facilityAccExpTime = facilityAccExpTimeAttribute.valueAsInteger();
 		if(facilityAccExpTime == null) {
-			throw new WrongReferenceAttributeValueException("cant determine attribute value on underlying facility");
+			throw new WrongReferenceAttributeValueException(attribute, facilityAccExpTimeAttribute, resource, null, fac, null, "cant determine attribute value on underlying facility");
 		}
 		if(facilityAccExpTime < accExpTime) {
-			throw new WrongAttributeValueException("value can be higher than same facility attribute");
+			throw new WrongReferenceAttributeValueException(attribute, facilityAccExpTimeAttribute, resource, null, fac, null, "value can be higher than same facility attribute");
 		}
 	}
 

@@ -53,12 +53,11 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
 	 *
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong / illegal
 	 * @throws WrongReferenceAttributeValueException if an referenced attribute against
 	 *         the parameter one is to be compared is not available
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

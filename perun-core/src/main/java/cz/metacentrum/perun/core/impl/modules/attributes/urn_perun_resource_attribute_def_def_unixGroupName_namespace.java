@@ -30,24 +30,28 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 	private static final String A_G_unixGID_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace";
 	private static final String A_G_unixGroupName_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace";
 
-
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
-		//prepare namespace and groupName value variables
-		String groupName = null;
-		if(attribute.getValue() != null) groupName = (String) attribute.getValue();
-		String groupNameNamespace = attribute.getFriendlyNameParameter();
-
-		if(groupName == null) {
-			// if this is resource, its not ok
-			throw new WrongAttributeValueException(attribute, "Attribute groupName-namespace for resourece can't be null.");
-		}
+	public void checkAttributeSyntax(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if(attribute.getValue() == null) return;
 
 		//Check attribute regex
 		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[-_.a-zA-Z0-9]+$");
 
 		//Check reserved unix group names
 		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+		//prepare namespace and groupName value variables
+		String groupName = null;
+		if(attribute.getValue() != null) groupName = attribute.valueAsString();
+		String groupNameNamespace = attribute.getFriendlyNameParameter();
+
+		if(groupName == null) {
+			// if this is resource, its not ok
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute groupName-namespace for resourece can't be null.");
+		}
 
 		try {
 			//prepare attributes group and resource unixGroupName
@@ -68,7 +72,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 
 			//First need to know that i have right to write any of duplicit groupName-namespace attribute
 			boolean haveRights = sess.getPerunBl().getModulesUtilsBl().haveRightToWriteAttributeInAnyGroupOrResource(sess, groupsWithSameGroupNameInTheSameNamespace, resourcesWithSameGroupNameInTheSameNamespace, groupUnixGroupName, resourceUnixGroupName);
-			if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, "This groupName is already used for other group or resource and user has no rights to use it.");
+			if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "This groupName is already used for other group or resource and user has no rights to use it.");
 
 			//Now if rights are ok, prepare lists of UnixGIDs attributes of this group (also equivalent resource GID)
 			List<Attribute> resourceUnixGIDs = sess.getPerunBl().getAttributesManagerBl().getAllAttributesStartWithNameWithoutNullValue(sess, resource, A_R_unixGID_namespace + ":");
@@ -82,7 +86,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 						compare = sess.getPerunBl().getModulesUtilsBl().haveTheSameAttributeWithTheSameNamespace(sess, g, a);
 
 						if(compare > 0) {
-							throw new WrongReferenceAttributeValueException(attribute, a, "One of the group GIDs is from the same namespace like other group GID but with different values.");
+							throw new WrongReferenceAttributeValueException(attribute, a, resource, null, g, null, "One of the group GIDs is from the same namespace like other group GID but with different values.");
 						}
 					}
 				}
@@ -96,7 +100,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 						compare = sess.getPerunBl().getModulesUtilsBl().haveTheSameAttributeWithTheSameNamespace(sess, r, a);
 
 						if(compare > 0) {
-							throw new WrongReferenceAttributeValueException(attribute, a, "One of the group GIDs is from the same namespace like other resource GIDs but with different values.");
+							throw new WrongReferenceAttributeValueException(attribute, a, resource, null, r, null, "One of the group GIDs is from the same namespace like other resource GIDs but with different values.");
 						}
 					}
 				}
@@ -142,11 +146,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 							throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace, ex);
 						}
 					} else {
-						try {
-							session.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(session, resource, resourceUnixGIDNamespace);
-						} catch (WrongAttributeValueException ex) {
-							throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace, ex);
-						}
+						session.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(session, resource, resourceUnixGIDNamespace);
 					}
 				}
 

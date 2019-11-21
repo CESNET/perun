@@ -24,17 +24,16 @@ public class urn_perun_resource_attribute_def_def_vomsRoles extends ResourceAttr
 	private static final Pattern pattern = Pattern.compile("^[^<>&]*$");
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) {
 			return;
 		}
 		try {
-			List<String> vomRoles = (List<String>) attribute.getValue();
+			List<String> vomRoles = attribute.valueAsList();
 			for (String vomRole : vomRoles) {
 				Matcher matcher = pattern.matcher(vomRole);
 				if(!matcher.matches()) {
-					throw new WrongAttributeValueException(attribute, "Bad resource vomsRoles value. It should not contain '<>&' characters.");
+					throw new WrongAttributeValueException(attribute, resource, "Bad resource vomsRoles value. It should not contain '<>&' characters.");
 				}
 			}
 		} catch (ClassCastException e) {
