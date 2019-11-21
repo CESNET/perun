@@ -736,7 +736,8 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			String canonicalPath;
 			try {
 				canonicalPath = new URI(path).normalize().getPath();
-				if(!canonicalPath.endsWith("/")) canonicalPath = canonicalPath.concat("/");
+				//path should not end on '/' (problem with some systems as GPFS)
+				if(!canonicalPath.equals("/") && canonicalPath.endsWith("/")) canonicalPath = canonicalPath.substring(0, canonicalPath.length() - 1);
 			} catch (URISyntaxException ex) {
 				throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Path '" + path + "' is not correct form.");
 			}
