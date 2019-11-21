@@ -26,6 +26,7 @@ servers:
 security:
   - BasicAuth: []
   - BearerAuth: []
+  - ApiKeyAuth: []
 
 components:
   #############################################
@@ -40,6 +41,10 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
     OpenID:
       type: openIdConnect
       openIdConnectUrl: https://login.cesnet.cz/oidc/.well-known/openid-configuration
@@ -207,7 +212,7 @@ components:
             valueCreatedBy: { type: string }
             valueModifiedAt: { type: string }
             valueModifiedBy: { type: string }
-            value: {}
+            value: { type: object }
       discriminator:
         propertyName: beanName
 
@@ -1790,6 +1795,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeOwner:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwner
+      summary: Removes owner from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/getAllowedVos:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedVos
+      summary: Return all VO which can use a facility. (VO must have the resource which belongs to this facility.)
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/facilitiesManager/getAllowedGroups:
     get:

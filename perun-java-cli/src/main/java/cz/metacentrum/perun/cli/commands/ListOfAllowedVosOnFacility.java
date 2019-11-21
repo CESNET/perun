@@ -2,35 +2,39 @@ package cz.metacentrum.perun.cli.commands;
 
 import cz.metacentrum.perun.cli.PerunCLI;
 import cz.metacentrum.perun.cli.PerunCommand;
-import org.apache.commons.cli.Option;
+import cz.metacentrum.perun.openapi.model.Vo;
 import org.apache.commons.cli.Options;
 import org.springframework.web.client.RestClientException;
 
+import java.util.List;
+
 /**
- * Adds an Owner to a Facility.
+ * Prints list of VOs which are allowed to use Facility. Facility id or name and owner id are required.
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
 @SuppressWarnings("unused")
-public class AddFacilityOwner extends PerunCommand {
+public class ListOfAllowedVosOnFacility extends PerunCommand {
 
 	@Override
 	public String getCommandDescription() {
-		return "adds an Owner to a Facility specified by id or name";
+		return "prints list of VOs which have a Resource on a Facility";
 	}
 
 	@Override
 	public void addOptions(Options options) {
 		this.addFacilityOptions(options);
-		options.addOption(Option.builder("o").required(true).hasArg(true).longOpt("ownerId").desc("owner id").build());
+		this.addVoSortingOptions(options);
 	}
 
 	@Override
 	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
 		int facilityId = this.getFacilityId(ctx);
-		int ownerId = Integer.parseInt(ctx.getCommandLine().getOptionValue("o"));
-		ctx.getPerunRPC().getFacilitiesManager().addFacilityOwner(facilityId, ownerId);
-		System.out.println("OK");
+		List<Vo> vos = ctx.getPerunRPC().getFacilitiesManager().getAllowedVos(facilityId);
+		this.sortVos(ctx, vos);
+		for (Vo vo : vos) {
+			System.out.println(vo.getId() + "\t" + vo.getShortName());
+		}
 	}
 
 }

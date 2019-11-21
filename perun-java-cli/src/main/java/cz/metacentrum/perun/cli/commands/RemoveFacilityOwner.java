@@ -7,16 +7,16 @@ import org.apache.commons.cli.Options;
 import org.springframework.web.client.RestClientException;
 
 /**
- * Adds an Owner to a Facility.
+ * Removes selected owner from the facility. Facility id or name and owner id are required.
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
 @SuppressWarnings("unused")
-public class AddFacilityOwner extends PerunCommand {
+public class RemoveFacilityOwner extends PerunCommand {
 
 	@Override
 	public String getCommandDescription() {
-		return "adds an Owner to a Facility specified by id or name";
+		return "removes an Owner from a Facility specified by id or name";
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class AddFacilityOwner extends PerunCommand {
 	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
 		int facilityId = this.getFacilityId(ctx);
 		int ownerId = Integer.parseInt(ctx.getCommandLine().getOptionValue("o"));
-		ctx.getPerunRPC().getFacilitiesManager().addFacilityOwner(facilityId, ownerId);
+		ctx.getPerunRPC().getFacilitiesManager().removeFacilityOwner(facilityId, ownerId);
 		System.out.println("OK");
 	}
 

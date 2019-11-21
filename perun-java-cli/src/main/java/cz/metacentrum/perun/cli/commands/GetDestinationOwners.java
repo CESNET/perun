@@ -17,7 +17,7 @@ public class GetDestinationOwners extends PerunCommand {
 
 	@Override
 	public String getCommandDescription() {
-		return "Prints owners of facilities having the specified destination";
+		return "prints owners of facilities having the specified destination";
 	}
 
 	@Override
