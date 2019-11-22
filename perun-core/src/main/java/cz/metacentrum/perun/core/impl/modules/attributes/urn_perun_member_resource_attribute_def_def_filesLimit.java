@@ -32,7 +32,13 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 	private static final String A_F_readyForNewQuotas = AttributesManager.NS_FACILITY_ATTR_DEF + ":readyForNewQuotas";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		Integer filesLimit = attribute.valueAsInteger();
+		if (filesLimit != null && filesLimit < 0) throw new WrongAttributeValueException(attribute, resource, member, attribute + " cannot be less than 0.");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrFilesQuota;
 		Integer filesQuota = null;
 		Integer filesLimit = null;
@@ -48,7 +54,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 
 		//Get FilesLimit value
 		if(attribute.getValue() != null) {
-			filesLimit = (Integer) attribute.getValue();
+			filesLimit = attribute.valueAsInteger();
 		} else {
 			try {
 				attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesLimit);
@@ -56,14 +62,14 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 				throw new ConsistencyErrorException("Attribute with defaultFilesLimit from resource " + resource.getId() + " could not obtained.", ex);
 			}
 			if(attribute != null && attribute.getValue() != null) {
-				filesLimit = (Integer) attribute.getValue();
+				filesLimit = attribute.valueAsInteger();
+				if (filesLimit < 0) throw new WrongReferenceAttributeValueException(attribute, null, resource, member, attribute + " cannot be less than 0.");
 			}
 		}
-		if(filesLimit != null && filesLimit < 0) throw new WrongAttributeValueException(attribute, resource, member, attribute + " cannot be less than 0.");
 
 		//Get FilesQuota value
 		if(attrFilesQuota != null &&  attrFilesQuota.getValue() != null) {
-			filesQuota = (Integer) attrFilesQuota.getValue();
+			filesQuota = attrFilesQuota.valueAsInteger();
 		} else {
 			try {
 				attrFilesQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesQuota);
@@ -71,7 +77,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 				throw new ConsistencyErrorException("Attribute with defaultFilesQuota from resource " + resource.getId() + " could not obtained.", ex);
 			}
 			if(attrFilesQuota != null && attrFilesQuota.getValue() != null) {
-				filesQuota = (Integer) attrFilesQuota.getValue();
+				filesQuota = attrFilesQuota.valueAsInteger();
 			}
 		}
 		if(filesQuota != null && filesQuota < 0) throw new ConsistencyErrorException(attrFilesQuota + " cannot be less than 0.");

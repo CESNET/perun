@@ -42,12 +42,11 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 *
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException if an referenced attribute against
 	 *         the parameter is to be compared is not available
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method MAY fill Member's attributes at a specified resource.
