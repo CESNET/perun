@@ -224,6 +224,14 @@ components:
       discriminator:
         propertyName: beanName
 
+    Host:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            hostname: { type: string }
+      discriminator:
+        propertyName: beanName
+
     Owner:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -501,6 +509,15 @@ components:
           schema:
             $ref: "#/components/schemas/AttributeDefinition"
 
+    ListOfAttributeDefinitionsResponse:
+      description: "returns List<Attribute>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/AttributeDefinition"
+
     AttributeResponse:
       description: "returns Attribute"
       content:
@@ -636,6 +653,22 @@ components:
           schema:
             $ref: "#/components/schemas/Service"
 
+    HostResponse:
+      description: "returns Host"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Host"
+
+    ListOfHostsResponse:
+      description: "returns List<Host>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Host"
+
   #####################################################
   #                                                   #
   # PARAMETERS - definitions of often used parameters #
@@ -658,6 +691,32 @@ components:
       in: query
       required: true
 
+    attributeInteger:
+      name: attribute
+      description: "id of AttributeDefinition"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    attributeDefinitionId:
+      name: attributeDefinition
+      description: "id of AttributeDefinition"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    attributes:
+      name: "attributes[]"
+      description: "list of attribute ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     attributeName:
       name: attributeName
       description: "full name of attribute definition (namespace + ':' + friendlyName)"
@@ -665,6 +724,24 @@ components:
         type: string
       in: query
       required: true
+
+    attrName:
+      name: attrName
+      description: "full name of attribute definition (namespace + ':' + friendlyName)"
+      schema:
+        type: string
+      in: query
+      required: true
+
+    attrNames:
+      name: "attrNames[]"
+      description: "list of attribute names List<String>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
 
     attributeValue:
       name: attributeValue
@@ -681,16 +758,6 @@ components:
         type: integer
       in: query
       required: true
-
-    attrNames:
-      name: "attrNames[]"
-      description: "list of attribute names List<String>"
-      in: query
-      required: true
-      schema:
-        type: array
-        items:
-          type: string
 
     userId:
       name: user
@@ -948,19 +1015,51 @@ paths:
   #                                               #
   #################################################
 
-  /json/attributesManager/getAttributeDefinition:
+  #TODO this is heavily overloaded method, create methods for other parameter combinations
+  /json/attributesManager/getAttributes:
     get:
       tags:
         - AttributesManager
-      operationId: getAttributeDefinition
-      summary: Returns an AttributeDefinition by its name.
+      operationId: getFacilityAttributes
+      summary: Returns all specified Facility attributes for selected Facility.
       parameters:
-        - $ref: '#/components/parameters/attributeName'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNames'
       responses:
         200:
-          $ref: '#/components/responses/AttributeDefinitionResponse'
+          $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getEntitylessAttributes:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getEntitylessAttributes
+      summary: Returns all entityless attributes with attrName.
+      parameters:
+        - $ref: '#/components/parameters/attrName'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getEntitylessKeys:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getEntitylessKeys
+      summary: Returns list of Keys which fits the attributeDefinition.
+      parameters:
+        - $ref: '#/components/parameters/attributeDefinitionId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+#TODO setAttributes
 
   /json/attributesManager/getAttribute/name-facility:
     get:
@@ -1403,21 +1502,506 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO this is heavily overloaded method, create methods for other parameter combinations
-  /json/attributesManager/getAttributes:
+  /json/attributesManager/getAttributeDefinition:
     get:
       tags:
         - AttributesManager
-      operationId: getFacilityAttributes
-      summary: Returns all specified Facility attributes for selected Facility.
+      operationId: getAttributeDefinitionByName
+      summary: Returns an AttributeDefinition by its name.
       parameters:
-        - $ref: '#/components/parameters/facilityId'
-        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/attributeName'
       responses:
         200:
-          $ref: '#/components/responses/ListOfAttributesResponse'
+          $ref: '#/components/responses/AttributeDefinitionResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributesDefinition:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAllAttributeDefinitions
+      summary: Returns all AttributeDefinitions.
+      parameters: []
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributeDefinitionById:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeDefinitionById
+      summary: Returns an AttributeDefinition by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeDefinitionResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributesDefinitionByNamespace:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeDefinitionsByNamespace
+      summary: Returns all AttributeDefinitions in a namespace.
+      parameters: []
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+#TODO getAttributesDefinitionWithRights
+
+##
+# combinations:
+#  (facility), (user), (user,facility), (vo), (member), (group), (resource),
+#  (member,group), (member,resource), (group,resource),(userExtSource), (host), (key)
+
+  /json/attributesManager/setAttribute/facility:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setFacilityAttribute
+      summary: Sets Attribute for Facility.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetFacilityAttribute
+              description: "input to setFacilityAttribute"
+              type: object
+              required:
+                - facility
+                - attribute
+              properties:
+                facility: { type: integer, description: "facility id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/user:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setUserAttribute
+      summary: Sets Attribute for User.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetUserAttribute
+              description: "input to setUserAttribute"
+              type: object
+              required:
+                - user
+                - attribute
+              properties:
+                user: { type: integer, description: "user id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/facility-user:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setUserFacilityAttribute
+      summary: Sets Attribute for User and Facility.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetUserFacilityAttribute
+              description: "input to setUserFacilityAttribute"
+              type: object
+              required:
+                - user
+                - facility
+                - attribute
+              properties:
+                user: { type: integer, description: "user id" }
+                facility: { type: integer, description: "facility id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/vo:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setVoAttribute
+      summary: Sets Attribute for Vo.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetVoAttribute
+              description: "input to setVoAttribute"
+              type: object
+              required:
+                - vo
+                - attribute
+              properties:
+                vo: { type: integer, description: "vo id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/member:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberAttribute
+      summary: Sets Attribute for Member.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberAttribute
+              description: "input to setMemberAttribute"
+              type: object
+              required:
+                - member
+                - attribute
+              properties:
+                member: { type: integer, description: "member id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/group:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setGroupAttribute
+      summary: Sets Attribute for Group.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetGroupAttribute
+              description: "input to setGroupAttribute"
+              type: object
+              required:
+                - group
+                - attribute
+              properties:
+                group: { type: integer, description: "group id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/resource:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setResourceAttribute
+      summary: Sets Attribute for Resource.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetResourceAttribute
+              description: "input to setResourceAttribute"
+              type: object
+              required:
+                - resource
+                - attribute
+              properties:
+                resource: { type: integer, description: "resource id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/member-group:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberGroupAttribute
+      summary: Sets Attribute for Member and Group.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberGroupAttribute
+              description: "input to setMemberGroupAttribute"
+              type: object
+              required:
+                - member
+                - group
+                - attribute
+              properties:
+                member: { type: integer, description: "member id" }
+                group: { type: integer, description: "group id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/member-resource:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberResourceAttribute
+      summary: Sets Attribute for Member and Resource.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberResourceAttribute
+              description: "input to setMemberResourceAttribute"
+              type: object
+              required:
+                - member
+                - resource
+                - attribute
+              properties:
+                member: { type: integer, description: "member id" }
+                resource: { type: integer, description: "resource id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/group-resource:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setGroupResourceAttribute
+      summary: Sets Attribute for Group and Resource.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetGroupResourceAttribute
+              description: "input to setGroupResourceAttribute"
+              type: object
+              required:
+                - group
+                - resource
+                - attribute
+              properties:
+                group: { type: integer, description: "group id" }
+                resource: { type: integer, description: "resource id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/userExtSource:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setUserExtSourceAttribute
+      summary: Sets Attribute for UserExtSource.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetUserExtSourceAttribute
+              description: "input to setUserExtSourceAttribute"
+              type: object
+              required:
+                - userExtSource
+                - attribute
+              properties:
+                userExtSource: { type: integer, description: "userExtSource id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/host:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setHostAttribute
+      summary: Sets Attribute for Host.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetHostAttribute
+              description: "input to setHostAttribute"
+              type: object
+              required:
+                - host
+                - attribute
+              properties:
+                host: { type: integer, description: "host id" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttribute/entityless:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setEntitylessAttribute
+      summary: Sets entityless Attribute.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputEntitylessAttribute
+              description: "input to setEntitylessAttribute"
+              type: object
+              required:
+                - key
+                - attribute
+              properties:
+                key: { type: string, description: "key for entityless attribute" }
+                attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/createAttribute:
+    post:
+      tags:
+        - AttributesManager
+      operationId: createAttributeDefinition
+      summary: Creates AttributeDefinition.
+      responses:
+        200:
+          $ref: '#/components/responses/AttributeDefinitionResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateAttributeDefinition
+              description: "input to createAttributeDefinition"
+              type: object
+              required:
+                - attribute
+              properties:
+                attribute: { $ref: '#/components/schemas/AttributeDefinition' }
+
+  /urlinjsonout/attributesManager/deleteAttribute:
+    post:
+      tags:
+        - AttributesManager
+      operationId: deleteAttributeDefinition
+      summary: Deletes attribute definition from Perun including all values set for any entity.
+      parameters:
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/deleteAttributes:
+    post:
+      tags:
+        - AttributesManager
+      operationId: deleteAttributeDefinitions
+      summary: Deletes attribute definitions from Perun including all values set for any entity.
+      parameters:
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+#TODO getRequiredAttributes
+
+#TODO getRequiredAttributesDefinition
+
+#TODO getResourceRequiredAttributes
+
+#TODO fillAttribute
+
+#TODO fillAttributes
+
+#TODO checkAttributeValue
+
+#TODO checkAttributeSyntax
+
+#TODO checkAttributeSemantics
+
+#TODO checkAttributesValue
+
+#TODO checkAttributesSemantics
+
+#TODO checkAttributesSyntax
+
+#TODO removeAttributes
+
+#TODO removeAttribute
+
+#TODO removeAllAttributes
+
+#TODO getLogins
+
+#TODO updateAttributeDefinition
+
+#TODO doTheMagic
+
+#TODO getAttributeRights
+
+#TODO setAttributeRights
+
+#TODO convertAttributeToUnique
+
+#TODO getAttributeModulesDependenciesGraphText
 
   #################################################
   #                                               #
@@ -1898,6 +2482,173 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAssignedResources:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityAssignedResources
+      summary: Returns all resources assigned to a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedRichResources:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityAssignedRichResources
+      summary: Returns all rich resources assigned to a facility with VO property filled.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/createFacility:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: createFacility
+      summary: Creates a facility. Caller is automatically set as facility manager.
+      parameters:
+        - { name: name, required: true, in: query, schema: { type: string }, description: "name of a facility - can contain only a-Z0-9.-_ and space characters" }
+        - { name: description, required: false, in: query, schema: { type: string }, description: "optional description of a facility" }
+      responses:
+        200:
+          $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/deleteFacility:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: deleteFacility
+      summary: Deletes a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/updateFacility:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: updateFacility
+      summary: Updates a facility.
+      responses:
+        200:
+          $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateFacility
+              description: "input to updateFacility"
+              type: object
+              required:
+                - facility
+              properties:
+                facility: { $ref: '#/components/schemas/Facility' }
+
+  /json/facilitiesManager/getOwnerFacilities:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getOwnerFacilities
+      summary: Returns list of all facilities owned by the owner.
+      parameters:
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getHosts:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getHosts
+      summary: Returns Hosts of a Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfHostsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getHostById:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getHostById
+      summary: Returns a host by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/HostResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getHostsByHostname:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getHostsByHostname
+      summary: Returns hosts by hostname. (from all facilities)
+      parameters:
+        - { name: hostname, required: true, in: query, schema: { type: string }, description: "name of a host" }
+      responses:
+        200:
+          $ref: '#/components/responses/HostResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilityForHost:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityForHost
+      summary: Return facility which has the host.
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+      responses:
+        200:
+          $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getHostsCount:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getHostsCount
+      summary: Count hosts of Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+#TODO remaining methods in FacilitiesManagerMethod
+
   #################################################
   #                                               #
   # OwnersManager                                 #
@@ -1920,7 +2671,7 @@ paths:
         content:
           application/json:
             schema:
-              title: NewOwner
+              title: InputCreateOwner
               description: "input to createOwner, no id, numeric ownerType instead of string type"
               type: object
               required:
