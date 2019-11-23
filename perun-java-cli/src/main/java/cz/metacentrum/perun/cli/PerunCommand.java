@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.cli;
 
+import cz.metacentrum.perun.openapi.model.Facility;
 import cz.metacentrum.perun.openapi.model.PerunBean;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -32,64 +33,98 @@ public abstract class PerunCommand {
 
 	public abstract void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException;
 
-	protected void addFacilityOptions(Options options) {
-		options.addOption(Option.builder("f").required(false).hasArg(true).longOpt("facilityId").desc("facility id").build());
-		options.addOption(Option.builder("F").required(false).hasArg(true).longOpt("facilityName").desc("facility name").build());
+
+	private void addEntityOptions(Options options, String entity, String idOption, String nameOption,  String nameType) {
+		options.addOption(Option.builder(idOption).required(false).hasArg(true).longOpt(entity+"Id").desc(entity+" id").build());
+		options.addOption(Option.builder(nameOption).required(false).hasArg(true).longOpt(entity+"Name").desc(entity+" "+nameType+" name").build());
 	}
 
-	protected Integer getFacilityId(PerunCLI.CommandContext ctx, boolean required) {
-		if (ctx.getCommandLine().hasOption("F")) {
-			String facilityName = ctx.getCommandLine().getOptionValue("F");
-			return ctx.getPerunRPC().getFacilitiesManager().getFacilityByName(facilityName).getId();
-		} else if (ctx.getCommandLine().hasOption("f")) {
-			return Integer.parseInt(ctx.getCommandLine().getOptionValue("f"));
+	@FunctionalInterface
+	private interface EntityIdByNameGetter {
+		Integer get(String entityName);
+	}
+
+	@FunctionalInterface
+	private interface EntityByNameGetter<T> {
+		T get(String entityName);
+	}
+
+	@FunctionalInterface
+	private interface EntityByIdGetter<T> {
+		T get(int entityId);
+	}
+	private Integer getEntityId(PerunCLI.CommandContext ctx, boolean required, String entity, String idOption, String nameOption, EntityIdByNameGetter eg) {
+		if (ctx.getCommandLine().hasOption(nameOption)) {
+			String entityName = ctx.getCommandLine().getOptionValue(nameOption);
+			return eg.get(entityName);
+		} else if (ctx.getCommandLine().hasOption(idOption)) {
+			return Integer.parseInt(ctx.getCommandLine().getOptionValue(idOption));
 		} else if(required){
-			System.err.println("ERROR: facilityId or facilityName is required");
+			System.err.println("ERROR: "+entity+"Id or "+entity+"Name is required");
 			System.exit(1);
 			return 0;
 		} else {
 			return null;
 		}
+	}
+
+	private <T> T getEntity(PerunCLI.CommandContext ctx, boolean required, String entity, String idOption, String nameOption, EntityByNameGetter<T> gn, EntityByIdGetter<T> gi) {
+		if (ctx.getCommandLine().hasOption(nameOption)) {
+			return gn.get(ctx.getCommandLine().getOptionValue(nameOption));
+		} else if (ctx.getCommandLine().hasOption(idOption)) {
+			return gi.get(Integer.parseInt(ctx.getCommandLine().getOptionValue(idOption)));
+		} else if(required){
+			System.err.println("ERROR: "+entity+"Id or "+entity+"Name is required");
+			System.exit(1);
+			return null;
+		} else {
+			return null;
+		}
+	}
+
+	protected void addFacilityOptions(Options options) {
+		addEntityOptions(options,  "facility","f", "F", "");
+	}
+
+	@SuppressWarnings("SameParameterValue")
+	protected Integer getFacilityId(PerunCLI.CommandContext ctx, boolean required) {
+		return getEntityId(ctx, required, "facility", "f", "F",
+			facilityName -> ctx.getPerunRPC().getFacilitiesManager().getFacilityByName(facilityName).getId());
+	}
+
+	protected Facility getFacility(PerunCLI.CommandContext ctx, boolean required) {
+		return getEntity(ctx, required, "facility", "f", "F",
+			facilityName -> ctx.getPerunRPC().getFacilitiesManager().getFacilityByName(facilityName),
+			facilityId -> ctx.getPerunRPC().getFacilitiesManager().getFacilityById(facilityId));
 	}
 
 	protected void addVoOptions(Options options) {
-		options.addOption(Option.builder("v").required(false).hasArg(true).longOpt("voId").desc("VO id").build());
-		options.addOption(Option.builder("V").required(false).hasArg(true).longOpt("voName").desc("VO short name").build());
+		addEntityOptions(options,  "vo","v", "V", "short");
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	protected Integer getVoId(PerunCLI.CommandContext ctx, boolean required) {
-		if (ctx.getCommandLine().hasOption("V")) {
-			String voShortName = ctx.getCommandLine().getOptionValue("V");
-			return ctx.getPerunRPC().getVosManager().getVoByShortName(voShortName).getId();
-		} else if (ctx.getCommandLine().hasOption("v")) {
-			return Integer.parseInt(ctx.getCommandLine().getOptionValue("v"));
-		} else if(required){
-			System.err.println("ERROR: voId or voName is required");
-			System.exit(1);
-			return 0;
-		} else {
-			return null;
-		}
+		return getEntityId(ctx, required, "vo", "v", "V",
+			voShortName -> ctx.getPerunRPC().getVosManager().getVoByShortName(voShortName).getId());
+	}
+
+	protected void addAttributeDefinitionOptions(Options options) {
+		addEntityOptions(options,  "attribute","a", "A", "");
+	}
+
+	protected Integer getAttributeDefinitionId(PerunCLI.CommandContext ctx, boolean required) {
+		return getEntityId(ctx, required, "attribute", "a", "A",
+			attributeName -> ctx.getPerunRPC().getAttributesManager().getAttributeDefinitionByName(attributeName).getId());
 	}
 
 	protected void addServiceOptions(Options options) {
-		options.addOption(Option.builder("s").required(false).hasArg(true).longOpt("serviceId").desc("service id").build());
-		options.addOption(Option.builder("S").required(false).hasArg(true).longOpt("serviceName").desc("service name").build());
+		addEntityOptions(options,  "service","s", "S", "");
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	protected Integer getServiceId(PerunCLI.CommandContext ctx, boolean required) {
-		if (ctx.getCommandLine().hasOption("S")) {
-			String serviceName = ctx.getCommandLine().getOptionValue("S");
-			return ctx.getPerunRPC().getServicesManager().getServiceByName(serviceName).getId();
-		} else if (ctx.getCommandLine().hasOption("s")) {
-			return Integer.parseInt(ctx.getCommandLine().getOptionValue("s"));
-		} else if(required){
-			System.err.println("ERROR: serviceId or serviceName is required");
-			System.exit(1);
-			return 0;
-		} else {
-			return null;
-		}
+		return getEntityId(ctx, required, "service", "s", "S",
+			serviceName -> ctx.getPerunRPC().getServicesManager().getServiceByName(serviceName).getId());
 	}
 
 	protected void addSortingOptions(Options options, String orderByNameDescription) {
