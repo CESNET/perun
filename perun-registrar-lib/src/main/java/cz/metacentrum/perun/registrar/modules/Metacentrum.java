@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
@@ -61,14 +62,14 @@ public class Metacentrum implements RegistrarModule {
 	public Application approveApplication(PerunSession session, Application app) throws PrivilegeException, InternalErrorException, VoNotExistsException, GroupNotExistsException, UserNotExistsException, MemberNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, RegistrarException {
 
 		// get perun from session
-		Perun perun = session.getPerun();
+		PerunBl perun = (PerunBl)session.getPerun();
 
 		if (Application.AppType.INITIAL.equals(app.getType())) {
 
 			Vo vo = app.getVo();
 			User user = app.getUser();
-			Group group = perun.getGroupsManager().getGroupByName(session, vo, "storage");
-			Member mem = perun.getMembersManager().getMemberByUser(session, vo, user);
+			Group group = perun.getGroupsManagerBl().getGroupByName(session, vo, "storage");
+			Member mem = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
 
 			try  {
 				perun.getGroupsManager().addMember(session, group, mem);
@@ -91,22 +92,22 @@ public class Metacentrum implements RegistrarModule {
 		if (statisticGroupName != null && !statisticGroupName.isEmpty()) {
 			Group group;
 			try {
-				group = perun.getGroupsManager().getGroupByName(session, app.getVo(), statisticGroupName);
+				group = perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), statisticGroupName);
 			} catch (GroupNotExistsException | InternalErrorException ex) {
 				// user filled non existing group, just skip adding OR wrong group name
 				return app;
 			}
 
 
-			Attribute isStatisticGroup = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroup");
-			Attribute isStatisticGroupAutoFill = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroupAutoFill");
+			Attribute isStatisticGroup = perun.getAttributesManagerBl().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroup");
+			Attribute isStatisticGroupAutoFill = perun.getAttributesManagerBl().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroupAutoFill");
 
 			boolean statisticGroup = (isStatisticGroup.getValue() != null) ? (Boolean)isStatisticGroup.getValue() : false;
 			boolean statisticGroupAutoFill = (isStatisticGroupAutoFill.getValue() != null) ? (Boolean)isStatisticGroupAutoFill.getValue() : false;
 
 			if (statisticGroup && statisticGroupAutoFill) {
 				try  {
-					Member mem = perun.getMembersManager().getMemberByUser(session, app.getVo(), app.getUser());
+					Member mem = perun.getMembersManagerBl().getMemberByUser(session, app.getVo(), app.getUser());
 					perun.getGroupsManager().addMember(session, group, mem);
 				} catch (AlreadyMemberException ex) {
 

@@ -59,6 +59,7 @@ import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 
+import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
 
 /**
@@ -461,8 +462,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		try {
 
 			// GET VO
-			vo = vosManager.getVoByShortName(registrarSession, voShortName);
-			List<Attribute> list = attrManager.getAttributes(registrarSession, vo,
+			vo = vosManager.getVoByShortName(sess, voShortName);
+			List<Attribute> list = attrManager.getAttributes(sess, vo,
 					Arrays.asList(AttributesManager.NS_VO_ATTR_DEF+":contactEmail",
 							AttributesManager.NS_VO_ATTR_DEF+":voLogoURL"));
 
@@ -522,7 +523,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// GET GROUP IF RELEVANT
 			if (groupName != null && !groupName.isEmpty()) {
 
-				group = groupsManager.getGroupByName(registrarSession, vo, groupName);
+				group = groupsManager.getGroupByName(sess, vo, groupName);
 				result.put("group", group);
 				result.put("groupForm", getFormForGroup(group));
 
@@ -696,13 +697,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form1.setModuleClassName(resultSet.getString("module_name"));
 				try {
-					form1.setVo(vosManager.getVoById(registrarSession, resultSet.getInt("vo_id")));
+					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
 				try {
 					if (resultSet.getInt("group_id") != 0)
-						form1.setGroup(groupsManager.getGroupById(registrarSession, resultSet.getInt("group_id")));
+						form1.setGroup(groupsManager.getGroupById(sess, resultSet.getInt("group_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
@@ -744,13 +745,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form1.setModuleClassName(resultSet.getString("module_name"));
 				try {
-					form1.setVo(vosManager.getVoById(registrarSession, resultSet.getInt("vo_id")));
+					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
 				try {
 					if (resultSet.getInt("group_id") != 0)
-						form1.setGroup(groupsManager.getGroupById(registrarSession, resultSet.getInt("group_id")));
+						form1.setGroup(groupsManager.getGroupById(sess, resultSet.getInt("group_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
@@ -1206,11 +1207,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					String pass; // filled later
 					// Get login namespace
 					String dstAttr = loginItem.getFormItem().getPerunDestinationAttribute();
-					AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(registrarSession, dstAttr);
+					AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(session, dstAttr);
 					String loginNamespace = loginAttribute.getFriendlyNameParameter();
 
 					// try to book new login in namespace if the application hasn't been approved yet
-					if (usersManager.isLoginAvailable(registrarSession, loginNamespace, login)) {
+					if (usersManager.isLoginAvailable(session, loginNamespace, login)) {
 						try {
 							// Reserve login
 							jdbc.update("insert into application_reserved_logins(login,namespace,app_id,created_by,created_at) values(?,?,?,?,?)",
@@ -1453,7 +1454,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("User specified by the data in application was not found. If you tried to approve application for the Group, try to check, if user already has approved application in the VO. Application to the VO must be approved first.", ex);
 		}
 
-		Member member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
+		Member member = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
 
 		try {
 
@@ -1614,7 +1615,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// update titles before/after users name if part of application !! USER MUST EXISTS !!
 				updateUserNameTitles(app);
 
-				// FIXME - entry performed check on same VO and synchro enabled
+				// Perform checks since we moved from entry to BL
+				// Check if the group is externally synchronized
+				Attribute attrSynchronizeEnabled = attrManager.getAttribute(sess, app.getGroup(), GROUPSYNCHROENABLED_ATTRNAME);
+				if ("true".equals(attrSynchronizeEnabled.getValue()) || groupsManager.isGroupInStructureSynchronizationTree(sess, app.getGroup())) {
+					throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
+				}
+
 				groupsManager.addMember(registrarSession, app.getGroup(), member);
 
 				log.debug("[REGISTRAR] Member {} added to Group {}.",member, app.getGroup());
@@ -2218,14 +2225,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			Map<String, Attribute> map = new HashMap<>();
 
 			// process user attributes
-			List<Attribute> userAttributes = attrManager.getAttributes(registrarSession, user);
+			List<Attribute> userAttributes = attrManager.getAttributes(sess, user);
 			for (Attribute att : userAttributes) {
 				map.put(att.getName(), att);
 			}
 			// process member attributes
 			try {
-				Member member = membersManager.getMemberByUser(registrarSession, vo, user);
-				List<Attribute> memberAttributes = attrManager.getAttributes(registrarSession, member);
+				Member member = membersManager.getMemberByUser(sess, vo, user);
+				List<Attribute> memberAttributes = attrManager.getAttributes(sess, member);
 				for (Attribute att : memberAttributes) {
 					map.put(att.getName(), att);
 				}
@@ -2234,12 +2241,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 			// get also vo/group attributes for extended pre-fill !!
-			List<Attribute> voAttributes = attrManager.getAttributes(registrarSession, vo);
+			List<Attribute> voAttributes = attrManager.getAttributes(sess, vo);
 			for (Attribute att : voAttributes) {
 				map.put(att.getName(), att);
 			}
 			if (group != null) {
-				List<Attribute> groupAttributes = attrManager.getAttributes(registrarSession, group);
+				List<Attribute> groupAttributes = attrManager.getAttributes(sess, group);
 				for (Attribute att : groupAttributes) {
 					map.put(att.getName(), att);
 				}
@@ -2643,7 +2650,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
-		Vo fromVO = vosManager.getVoById(registrarSession, fromGroup.getVoId());
+		Vo fromVO = vosManager.getVoById(sess, fromGroup.getVoId());
 
 		if ((!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)
 				&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, fromVO)) ||
@@ -2758,16 +2765,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			try {
 				if (app.getUser() == null) {
-					User u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					User u = usersManager.getUserByExtSourceNameAndExtLogin(sess, app.getExtSourceName(), app.getCreatedBy());
 					if (u != null) {
-						membersManager.getMemberByUser(registrarSession, app.getVo(), u);
+						membersManager.getMemberByUser(sess, app.getVo(), u);
 					} else {
 						// user not found or null, hence can't be member of VO -> do not approve.
 						return;
 					}
 				} else {
 					// user known, but maybe not member of a vo
-					membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
+					membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
 				}
 			} catch (MemberNotExistsException ex) {
 				return;
