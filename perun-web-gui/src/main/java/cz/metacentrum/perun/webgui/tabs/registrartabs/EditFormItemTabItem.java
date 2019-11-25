@@ -459,7 +459,7 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("IdP Category", "md_entityCategory");
 		federationAttributes.addItem("IdP Affiliation", "affiliation");
 		federationAttributes.addItem("EduPersonScopedAffiliation", "eduPersonScopedAffiliation");
-		federationAttributes.addItem("Forwarded Affiliation from Proxy", "forwardedScopedAffiliation");
+		federationAttributes.addItem("Forwarded Affiliation from Proxy", "voPersonExternalAffiliation");
 		federationAttributes.addItem("schacHomeOrganization", "schacHomeOrganization");
 		federationAttributes.addItem("Login", "uid");
 		federationAttributes.addItem("Alternative login name", "alternativeLoginName");
