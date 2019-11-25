@@ -42,6 +42,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void unauthorizedPerunAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedPerunAdmin");
 		assertFalse(AuthzResolver.authorized(new PerunSessionImpl(
 			perun,
 			new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
@@ -52,6 +53,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void authorizedPerunAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedPerunAdmin");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
 		final Member createdMember = createSomeMember(createdVo);
 		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -62,6 +64,387 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		AuthzResolver.refreshAuthz(session);
 
 		assertTrue(AuthzResolver.authorized(session, "default_policy", Collections.emptyList()));
+	}
+
+	@Test
+	public void authorizedVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedVoAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_authorized_vo_admin",  Arrays.asList(createdVo)));
+	}
+
+	@Test
+	public void unauthorizedVoAdminCycleAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedVoAdminCycleAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_cycle_voadmin",  Arrays.asList(createdVo)));
+	}
+
+	@Test
+	public void authorizedGroupOrVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedGroupOrVoAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_authorized_group_admin",  Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void authorizedGroupOrVoAdmin2() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedGroupOrVoAdmin2");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_authorized_group_admin",  Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void unauthorizedGroupOrVoAdmin3() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedGroupOrVoAdmin3");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Vo createdVo2 = perun.getVosManager().createVo(sess, new Vo(1,"test123444444","test123444444"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo2, Role.VOADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_authorized_group_admin", Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void authorizedGroupAndVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedGroupAndVoAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+		AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void unauthorizedGroupAndVoAdmin2() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedGroupAndVoAdmin2");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void unauthorizedGroupAndVoAdmin3() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedGroupAndVoAdmin3");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void authorizedResourceAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedResourceAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		Facility createdFacility = setUpFacility();
+		Resource createdResource = setUpResource(createdVo, createdFacility);
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_resource_admin", Arrays.asList(createdResource)));
+
+	}
+
+	@Test
+	public void authorizedTransitive() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedTransitive");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		Facility createdFacility = setUpFacility();
+		Resource createdResource = setUpResource(createdVo, createdFacility);
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_transitive_one", Arrays.asList(createdResource)));
+
+	}
+
+	@Test
+	public void authorizedResourceAdminAndFacilityAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedResourceAdminAndFacilityAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		Facility createdFacility = setUpFacility();
+		Resource createdResource = setUpResource(createdVo, createdFacility);
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEADMIN);
+		AuthzResolver.setRole(sess, createdUser, createdFacility, Role.FACILITYADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+
+	}
+
+	@Test
+	public void unauthorizedResourceAdminAndFacilityAdmin2() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedResourceAdminAndFacilityAdmin2");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		Facility createdFacility = setUpFacility();
+		Resource createdResource = setUpResource(createdVo, createdFacility);
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdResource, Role.RESOURCEADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+
+	}
+
+	@Test
+	public void unauthorizedResourceAdminAndFacilityAdmin3() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedResourceAdminAndFacilityAdmin3");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		Facility createdFacility = setUpFacility();
+		Resource createdResource = setUpResource(createdVo, createdFacility);
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdFacility, Role.FACILITYADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+
+	}
+
+	@Test
+	public void unauthorizedResourceAdminAndFacilityAdmin4() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedResourceAdminAndFacilityAdmin4");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		Facility createdFacility = setUpFacility();
+		Resource createdResource = setUpResource(createdVo, createdFacility);
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+
+	}
+
+	@Test
+	public void authorizedGroupAdminOrVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedGroupAdminOrVoAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void authorizedGroupAdminOrVoAdmin2() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedGroupAdminOrVoAdmin2");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOADMIN);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void unauthorizedGroupAdminOrVoAdmin3() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedGroupAdminOrVoAdmin3");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
+	}
+
+	@Test
+	public void authorizedSecurityTeamAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedSecurityTeamAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		SecurityTeam team = new SecurityTeam();
+		team.setName("a");
+		SecurityTeam createdTeam = perun.getSecurityTeamsManager().createSecurityTeam(sess, team);
+		perun.getSecurityTeamsManager().addAdmin(sess, createdTeam, createdUser);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_security_admin", Arrays.asList(createdTeam)));
+
+	}
+
+	@Test
+	public void unauthorizedEmptyList() throws Exception {
+		System.out.println(CLASS_NAME + "unauthorizedEmptyList");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		SecurityTeam team = new SecurityTeam();
+		team.setName("a");
+		SecurityTeam createdTeam = perun.getSecurityTeamsManager().createSecurityTeam(sess, team);
+		perun.getSecurityTeamsManager().addAdmin(sess, createdTeam, createdUser);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+		assertFalse(AuthzResolver.authorized(session, "test_security_admin", Arrays.asList()));
+
+	}
+
+	@Test
+	public void authorizedVoobserverAndTopgroupcreator() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedVoobserverAndTopgroupcreator");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.TOPGROUPCREATOR);
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.VOOBSERVER);
+
+
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_voobserver_and_topgroupcreator", Arrays.asList(createdVo)));
+	}
+
+	@Test
+	public void authorizedCabinetAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedCabinetAdmin");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.setRole(sess, createdUser, null, Role.CABINETADMIN);
+
+
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_cabinet", Arrays.asList()));
+	}
+
+	@Test
+	public void authorizedSelf() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedSelf");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		PerunSession session = getHisSession(createdMember);
+
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_self", Arrays.asList(createdUser)));
+	}
+
+
+	@Test
+	public void authorizedSponsor() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedSponsor");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		PerunSession session = getHisSession(createdMember);
+
+		AuthzResolver.setRole(sess, createdUser, createdVo, Role.SPONSOR);
+
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_sponsor", Arrays.asList(createdVo,createdMember)));
+	}
+
+	@Test
+	public void authorizedResourceselfservice() throws Exception {
+		System.out.println(CLASS_NAME + "authorizedResourceselfservice");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+
+		final Member createdMember = createSomeMember(createdVo);
+		Group createdGroup = setUpGroup(createdVo, createdMember);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.setRole(sess, createdUser, createdGroup, Role.GROUPADMIN);
+
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(createdVo, facility);
+
+		perun.getResourcesManager().addResourceSelfServiceGroup(sess, resource, createdGroup);
+
+		AuthzResolver.refreshAuthz(session);
+		assertTrue(AuthzResolver.authorized(session, "test_resourceselfservice", Arrays.asList(resource, createdGroup)));
 	}
 
 	@Test
