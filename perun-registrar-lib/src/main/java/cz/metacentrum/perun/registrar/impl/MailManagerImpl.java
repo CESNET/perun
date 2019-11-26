@@ -23,6 +23,10 @@ import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSending;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSentForApplication;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
@@ -81,10 +85,10 @@ public class MailManagerImpl implements MailManager {
 	private PerunSession registrarSession;
 	private JdbcPerunTemplate jdbc;
 	private MailSender mailSender;
-	private AttributesManager attrManager;
-	private MembersManager membersManager;
-	private UsersManager usersManager;
-	private GroupsManager groupsManager;
+	private AttributesManagerBl attrManager;
+	private MembersManagerBl membersManager;
+	private UsersManagerBl usersManager;
+	private GroupsManagerBl groupsManager;
 
 	// Spring setters
 
@@ -106,10 +110,10 @@ public class MailManagerImpl implements MailManager {
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
 		registrarSession = perun.getPerunSession(pp, new PerunClient());
 
-		this.attrManager = perun.getAttributesManager();
-		this.membersManager = perun.getMembersManager();
-		this.usersManager = perun.getUsersManager();
-		this.groupsManager = perun.getGroupsManager();
+		this.attrManager = perun.getAttributesManagerBl();
+		this.membersManager = perun.getMembersManagerBl();
+		this.usersManager = perun.getUsersManagerBl();
+		this.groupsManager = perun.getGroupsManagerBl();
 		this.mailSender = BeansUtils.getDefaultMailSender();
 
 	}
@@ -970,10 +974,10 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 
-			Member m = membersManager.getMemberByUser(registrarSession, vo, user);
+			Member m = membersManager.getMemberByUser(sess, vo, user);
 			// is member, is invite to group ?
 			if (group != null) {
-				List<Group> g = groupsManager.getMemberGroups(registrarSession, m);
+				List<Group> g = groupsManager.getMemberGroups(sess, m);
 				if (g.contains(group)) {
 					// user is member of group - can't invite him
 					throw new RegistrarException("User to invite is already member of your group: "+group.getShortName());

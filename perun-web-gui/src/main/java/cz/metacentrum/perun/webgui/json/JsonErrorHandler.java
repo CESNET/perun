@@ -252,6 +252,10 @@ public class JsonErrorHandler {
 
 			return ApplicationMessages.INSTANCE.errorWhileCreatingApplication();
 
+		} else if ("AlreadyProcessingException".equalsIgnoreCase(errorName)) {
+
+			return "Operation is already running";
+
 		}
 
 		// default caption
@@ -390,7 +394,11 @@ public class JsonErrorHandler {
 			// TODO - this exception must contain user first !!
 			return "User is already member of VO / Group.";
 
-		} else if ("AlreadyReservedLoginException".equalsIgnoreCase(errorName)) {
+		} else if ("AlreadyProcessingException".equalsIgnoreCase(errorName)) {
+
+			return "<p>" + error.getErrorInfo() + "<p>It was probably started by on of the other administrators. If this problem persist, please contact support.";
+
+		}else if ("AlreadyReservedLoginException".equalsIgnoreCase(errorName)) {
 
 			String text = "";
 			if (error.getLogin() != null) {

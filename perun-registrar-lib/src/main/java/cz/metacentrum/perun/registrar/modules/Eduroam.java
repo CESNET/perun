@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -46,14 +47,14 @@ public class Eduroam implements RegistrarModule {
 		// Add new member to groups eduroam-admin and eduroam-announce just if its initial application form
 		if (Application.AppType.INITIAL.equals(app.getType())) {
 			// Get perun and beans from session
-			Perun perun = session.getPerun();
+			PerunBl perun = (PerunBl)session.getPerun();
 			Vo vo = app.getVo();
 			User user = app.getUser();
-			Member member = perun.getMembersManager().getMemberByUser(session, vo, user);
+			Member member = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
 
 			// Get the groups in which the new member of VO will be automatically added
-			Group eduroamAdmin = perun.getGroupsManager().getGroupByName(session, vo, "eduroam-admin");
-			Group eduroamAnnounce = perun.getGroupsManager().getGroupByName(session, vo, "eduroam-announce");
+			Group eduroamAdmin = perun.getGroupsManagerBl().getGroupByName(session, vo, "eduroam-admin");
+			Group eduroamAnnounce = perun.getGroupsManagerBl().getGroupByName(session, vo, "eduroam-announce");
 
 			// Add member to these groups
 			perun.getGroupsManager().addMember(session, eduroamAdmin, member);

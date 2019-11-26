@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
@@ -71,10 +72,10 @@ public class BBMRICollections implements RegistrarModule {
 	@Override
 	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, InternalErrorException, RegistrarException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, ExternallyManagedException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
 		// get perun and beans from session
-		Perun perun = session.getPerun();
+		PerunBl perun = (PerunBl)session.getPerun();
 		Vo vo = app.getVo();
 		User user = app.getUser();
-		Member member = perun.getMembersManager().getMemberByUser(session, vo, user);
+		Member member = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
 
 		// get the field of application with the collections
 		Set<String> collectionIDsInApplication = getCollectionIDsFromApplication(session, app);
@@ -126,7 +127,7 @@ public class BBMRICollections implements RegistrarModule {
 	 */
 	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 		// get perun and beans from session
-		Perun perun = session.getPerun();
+		PerunBl perun = (PerunBl)session.getPerun();
 		Vo vo = app.getVo();
 
 		// get all collection IDs from Perun
@@ -185,18 +186,18 @@ public class BBMRICollections implements RegistrarModule {
 	 *
 	 * @return Map of collection IDs to group.
 	 */
-	private Map<String, Group> getCollectionIDsToGroupsMap (PerunSession session, Perun perun, Group directoryGroup)
+	private Map<String, Group> getCollectionIDsToGroupsMap (PerunSession session, PerunBl perun, Group directoryGroup)
 			throws GroupNotExistsException, WrongAttributeAssignmentException, InternalErrorException,
 			AttributeNotExistsException, PrivilegeException {
 		Map<String, Group> collectionIDsToGroupMap = new HashMap<>();
 
-		List<Group> collectionGroups = perun.getGroupsManager().getSubGroups(session, directoryGroup);
+		List<Group> collectionGroups = perun.getGroupsManagerBl().getSubGroups(session, directoryGroup);
 
 		for (Group collectionGroup : collectionGroups) {
-			List<Group> representativesGroups = perun.getGroupsManager().getSubGroups(session, collectionGroup);
+			List<Group> representativesGroups = perun.getGroupsManagerBl().getSubGroups(session, collectionGroup);
 			for (Group representativesGroup: representativesGroups) {
 				if (REPRESENTATIVES_GROUP_NAME.equals(representativesGroup.getShortName())) {
-					Attribute collectionIDAttr = perun.getAttributesManager()
+					Attribute collectionIDAttr = perun.getAttributesManagerBl()
 							.getAttribute(session, representativesGroup, COLLECTION_ID_ATTR_NAME);
 
 					if (collectionIDAttr == null || Strings.isNullOrEmpty(collectionIDAttr.valueAsString())) {
@@ -214,7 +215,7 @@ public class BBMRICollections implements RegistrarModule {
 		return collectionIDsToGroupMap;
 	}
 
-	private Set<String> getCollectionIDs(PerunSession session, Perun perun, Group collectionsGroup)
+	private Set<String> getCollectionIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
 			throws InternalErrorException, PrivilegeException, WrongAttributeAssignmentException,
 			AttributeNotExistsException, GroupNotExistsException {
 		return getCollectionIDsToGroupsMap(session, perun, collectionsGroup).keySet();

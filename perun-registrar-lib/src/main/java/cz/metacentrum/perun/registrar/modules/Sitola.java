@@ -54,8 +54,8 @@ public class Sitola implements RegistrarModule {
 
 		if (user != null) {
 
-			Attribute eduroamIdentities = perun.getAttributesManager().getAttribute(session, user, "urn:perun:user:attribute-def:def:eduroamIdentities");
-			Attribute loginMu = perun.getAttributesManager().getAttribute(session, user, "urn:perun:user:attribute-def:def:login-namespace:mu");
+			Attribute eduroamIdentities = perun.getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:eduroamIdentities");
+			Attribute loginMu = perun.getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:login-namespace:mu");
 
 			if (eduroamIdentities.getValue() == null) {
 

@@ -14,6 +14,8 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
@@ -97,7 +99,7 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 			throw new CantBeApprovedException("This module can be set only for registration to Group.");
 		}
 
-		AttributesManager am = session.getPerun().getAttributesManager();
+		AttributesManagerBl am = ((PerunBl)session.getPerun()).getAttributesManagerBl();
 		Attribute attestation;
 		try {
 			attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
@@ -131,7 +133,7 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 		if (user == null) {
 			throw new CantBeSubmittedException("This module can be set only for registration to Group.");
 		}
-		AttributesManager am = session.getPerun().getAttributesManager();
+		AttributesManagerBl am = ((PerunBl)session.getPerun()).getAttributesManagerBl();
 
 		Attribute affiliations = am.getAttribute(session, user, A_U_D_userEduPersonScopedAffiliations);
 
