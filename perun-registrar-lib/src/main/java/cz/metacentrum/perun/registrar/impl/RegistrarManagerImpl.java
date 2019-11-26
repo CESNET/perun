@@ -19,6 +19,11 @@ import java.util.*;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
@@ -54,6 +59,7 @@ import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 
+import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
 
 /**
@@ -150,11 +156,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private PerunSession registrarSession;
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedJdbc;
-	private AttributesManager attrManager;
-	private MembersManager membersManager;
-	private GroupsManager groupsManager;
-	private UsersManager usersManager;
-	private VosManager vosManager;
+	private AttributesManagerBl attrManager;
+	private MembersManagerBl membersManager;
+	private GroupsManagerBl groupsManager;
+	private UsersManagerBl usersManager;
+	private VosManagerBl vosManager;
 
 	// federation attribute name constants
 	private String shibDisplayNameVar = "displayName";
@@ -164,6 +170,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private String shibLoAVar = "loa";
 
 	private final Set<String> runningCreateApplication = new HashSet<>();
+	private final Set<Integer> runningApproveApplication = new HashSet<>();
+	private final Set<Integer> runningRejectApplication = new HashSet<>();
+	private final Set<Integer> runningDeleteApplication = new HashSet<>();
 
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new JdbcPerunTemplate(dataSource);
@@ -209,11 +218,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		registrarSession = perun.getPerunSession(pp, new PerunClient());
 
 		// set managers
-		this.attrManager = perun.getAttributesManager();
-		this.membersManager = perun.getMembersManager();
-		this.groupsManager = perun.getGroupsManager();
-		this.usersManager = perun.getUsersManager();
-		this.vosManager = perun.getVosManager();
+		this.attrManager = perun.getAttributesManagerBl();
+		this.membersManager = perun.getMembersManagerBl();
+		this.groupsManager = perun.getGroupsManagerBl();
+		this.usersManager = perun.getUsersManagerBl();
+		this.vosManager = perun.getVosManagerBl();
 
 		// check necessary attributes
 		try {
@@ -439,7 +448,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		List<Attribute> list = attrManager.getAttributes(registrarSession, vo);
 		// load group info if needed
 		if (groupName != null && !groupName.isEmpty()) {
-			Group group = perun.getGroupsManager().getGroupByName(registrarSession, vo, groupName);
+			Group group = groupsManager.getGroupByName(registrarSession, vo, groupName);
 			list.addAll(attrManager.getAttributes(registrarSession, group));
 		}
 		return list;
@@ -456,8 +465,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		try {
 
 			// GET VO
-			vo = vosManager.getVoByShortName(registrarSession, voShortName);
-			List<Attribute> list = attrManager.getAttributes(registrarSession, vo,
+			vo = vosManager.getVoByShortName(sess, voShortName);
+			List<Attribute> list = attrManager.getAttributes(sess, vo,
 					Arrays.asList(AttributesManager.NS_VO_ATTR_DEF+":contactEmail",
 							AttributesManager.NS_VO_ATTR_DEF+":voLogoURL"));
 
@@ -517,7 +526,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// GET GROUP IF RELEVANT
 			if (groupName != null && !groupName.isEmpty()) {
 
-				group = perun.getGroupsManager().getGroupByName(registrarSession, vo, groupName);
+				group = groupsManager.getGroupByName(sess, vo, groupName);
 				result.put("group", group);
 				result.put("groupForm", getFormForGroup(group));
 
@@ -691,13 +700,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form1.setModuleClassName(resultSet.getString("module_name"));
 				try {
-					form1.setVo(vosManager.getVoById(registrarSession, resultSet.getInt("vo_id")));
+					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
 				try {
 					if (resultSet.getInt("group_id") != 0)
-						form1.setGroup(perun.getGroupsManager().getGroupById(registrarSession, resultSet.getInt("group_id")));
+						form1.setGroup(groupsManager.getGroupById(sess, resultSet.getInt("group_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
@@ -739,13 +748,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				form1.setAutomaticApprovalExtension(resultSet.getBoolean("automatic_approval_extension"));
 				form1.setModuleClassName(resultSet.getString("module_name"));
 				try {
-					form1.setVo(vosManager.getVoById(registrarSession, resultSet.getInt("vo_id")));
+					form1.setVo(vosManager.getVoById(sess, resultSet.getInt("vo_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
 				try {
 					if (resultSet.getInt("group_id") != 0)
-						form1.setGroup(perun.getGroupsManager().getGroupById(registrarSession, resultSet.getInt("group_id")));
+						form1.setGroup(groupsManager.getGroupById(sess, resultSet.getInt("group_id")));
 				} catch (Exception ex) {
 					// we don't care, shouldn't happen for internal identity.
 				}
@@ -1039,15 +1048,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// lock to prevent multiple submission of same application on server side
-
-		String key = application.getType().toString() +
-				application.getVo().getShortName() +
-				((application.getGroup() != null) ? application.getGroup().getName() : "nogroup") +
-				application.getCreatedBy()+application.getExtSourceName()+application.getExtSourceType();
+		String key = getLockKeyForApplication(application);
 
 		synchronized(runningCreateApplication) {
 			if (runningCreateApplication.contains(key)) {
-				throw new AlreadyProcessingException("You application submission is being processed already.");
+				throw new AlreadyProcessingException("Your application submission is being processed already.");
 			} else {
 				runningCreateApplication.add(key);
 			}
@@ -1201,11 +1206,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					String pass; // filled later
 					// Get login namespace
 					String dstAttr = loginItem.getFormItem().getPerunDestinationAttribute();
-					AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(registrarSession, dstAttr);
+					AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(session, dstAttr);
 					String loginNamespace = loginAttribute.getFriendlyNameParameter();
 
 					// try to book new login in namespace if the application hasn't been approved yet
-					if (perun.getUsersManagerBl().isLoginAvailable(registrarSession, loginNamespace, login)) {
+					if (usersManager.isLoginAvailable(session, loginNamespace, login)) {
 						try {
 							// Reserve login
 							jdbc.update("insert into application_reserved_logins(login,namespace,app_id,created_by,created_at) values(?,?,?,?,?)",
@@ -1220,7 +1225,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 										pass = passItem.getValue();
 										try {
 											// reserve password
-											perun.getUsersManagerBl().reservePassword(registrarSession, login, loginNamespace, pass);
+											usersManager.reservePassword(registrarSession, login, loginNamespace, pass);
 											log.debug("[REGISTRAR] Password for login: {} in namespace: {} successfully reserved in external system.", login, loginNamespace);
 										} catch (Exception ex) {
 											// login reservation fail must cause rollback !!
@@ -1303,33 +1308,52 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
-		if (AppState.NEW.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) {
-
-			// Try to get reservedLogin and reservedNamespace before deletion
-			List<Pair<String, String>> logins;
-			try {
-				logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?", (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), app.getId());
-			} catch (EmptyResultDataAccessException e) {
-				// set empty logins
-				logins = new ArrayList<>();
+		// lock to prevent concurrent runs
+		synchronized(runningDeleteApplication) {
+			if (runningDeleteApplication.contains(app.getId())) {
+				throw new AlreadyProcessingException("Application deletion is already processing.");
+			} else {
+				runningDeleteApplication.add(app.getId());
 			}
-			// delete passwords in KDC
-			for (Pair<String,String> login : logins) {
-				// delete LOGIN in NAMESPACE
-				perun.getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
-			}
-
-			// free any login from reservation when application is rejected
-			jdbc.update("delete from application_reserved_logins where app_id=?", app.getId());
-
-			// delete application and data on cascade
-			jdbc.update("delete from application where id=?", app.getId());
-
-		} else {
-			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
-			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
-		perun.getAuditer().log(sess, new ApplicationDeleted(app));
+
+		try {
+
+			if (AppState.NEW.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) {
+
+				// Try to get reservedLogin and reservedNamespace before deletion
+				List<Pair<String, String>> logins;
+				try {
+					logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?", (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), app.getId());
+				} catch (EmptyResultDataAccessException e) {
+					// set empty logins
+					logins = new ArrayList<>();
+				}
+				// delete passwords in KDC
+				for (Pair<String, String> login : logins) {
+					// delete LOGIN in NAMESPACE
+					usersManager.deletePassword(sess, login.getRight(), login.getLeft());
+				}
+
+				// free any login from reservation when application is rejected
+				jdbc.update("delete from application_reserved_logins where app_id=?", app.getId());
+
+				// delete application and data on cascade
+				jdbc.update("delete from application where id=?", app.getId());
+
+			} else {
+				if (AppState.VERIFIED.equals(app.getState()))
+					throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
+				if (AppState.APPROVED.equals(app.getState()))
+					throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
+			}
+			perun.getAuditer().log(sess, new ApplicationDeleted(app));
+
+		} finally {
+			synchronized (runningDeleteApplication) {
+				runningDeleteApplication.remove(app.getId());
+			}
+		}
 
 	}
 
@@ -1381,58 +1405,87 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("Application is already rejected. Try to refresh the view to see changes.");
 		}
 
-		// mark as rejected
-		int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.REJECTED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
-		if (result == 0) {
-			throw new RegistrarException("Application with ID="+appId+" not found.");
-		} else if (result > 1) {
-			throw new ConsistencyErrorException("More than one application is stored under ID="+appId+".");
-		}
-		// set back as rejected
-		app.setState(AppState.REJECTED);
-		log.info("Application {} marked as REJECTED.", appId);
-
-		// get all reserved logins
-		List<Pair<String, String>> logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
-				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
-
-		// delete passwords for reserved logins
-		for (Pair<String, String> login : logins) {
-			try {
-				// left = namespace / right = login
-				usersManager.deletePassword(registrarSession, login.getRight(), login.getLeft());
-			} catch (LoginNotExistsException ex) {
-				log.error("[REGISTRAR] Login: {} not exists while deleting passwords in rejected application: {}", login.getLeft(), appId);
+		// lock to prevent concurrent runs
+		synchronized(runningRejectApplication) {
+			if (runningRejectApplication.contains(appId)) {
+				throw new AlreadyProcessingException("Application rejection is already processing.");
+			} else {
+				runningRejectApplication.add(appId);
 			}
 		}
-		// free any login from reservation when application is rejected
-		jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 
-		// log
-		perun.getAuditer().log(sess, new ApplicationRejected(app));
+		try {
 
-		// call registrar module
-		RegistrarModule module;
-		if (app.getGroup() != null) {
-			module = getRegistrarModule(getFormForGroup(app.getGroup()));
-		} else {
-			module = getRegistrarModule(getFormForVo(app.getVo()));
+			// mark as rejected
+			int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.REJECTED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
+			if (result == 0) {
+				throw new RegistrarException("Application with ID=" + appId + " not found.");
+			} else if (result > 1) {
+				throw new ConsistencyErrorException("More than one application is stored under ID=" + appId + ".");
+			}
+			// set back as rejected
+			app.setState(AppState.REJECTED);
+			log.info("Application {} marked as REJECTED.", appId);
+
+			// get all reserved logins
+			List<Pair<String, String>> logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
+					(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
+
+			// delete passwords for reserved logins
+			for (Pair<String, String> login : logins) {
+				try {
+					// left = namespace / right = login
+					usersManager.deletePassword(registrarSession, login.getRight(), login.getLeft());
+				} catch (LoginNotExistsException ex) {
+					log.error("[REGISTRAR] Login: {} not exists while deleting passwords in rejected application: {}", login.getLeft(), appId);
+				}
+			}
+			// free any login from reservation when application is rejected
+			jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+
+			// log
+			perun.getAuditer().log(sess, new ApplicationRejected(app));
+
+			// call registrar module
+			RegistrarModule module;
+			if (app.getGroup() != null) {
+				module = getRegistrarModule(getFormForGroup(app.getGroup()));
+			} else {
+				module = getRegistrarModule(getFormForVo(app.getVo()));
+			}
+			if (module != null) {
+				module.rejectApplication(sess, app, reason);
+			}
+
+			// send mail
+			getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
+
+			perun.getAuditer().log(sess, new ApplicationRejected(app));
+
+			// return updated application
+			return app;
+
+		} finally {
+
+			// always release lock
+			synchronized (runningRejectApplication) {
+				runningRejectApplication.remove(appId);
+			}
+
 		}
-		if (module != null) {
-			module.rejectApplication(sess, app, reason);
-		}
-
-		// send mail
-		getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
-
-		perun.getAuditer().log(sess, new ApplicationRejected(app));
-		// return updated application
-		return app;
 
 	}
 
 	@Override
 	public Application approveApplication(PerunSession sess, int appId) throws PerunException {
+
+		synchronized(runningApproveApplication) {
+			if (runningApproveApplication.contains(appId)) {
+				throw new AlreadyProcessingException("Application approval is already processing.");
+			} else {
+				runningApproveApplication.add(appId);
+			}
+		}
 
 		Application app;
 		try {
@@ -1446,9 +1499,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("To approve application user must already be member of Group.", ex);
 		} catch (UserNotExistsException | UserExtSourceNotExistsException | ExtSourceNotExistsException ex) {
 			throw new RegistrarException("User specified by the data in application was not found. If you tried to approve application for the Group, try to check, if user already has approved application in the VO. Application to the VO must be approved first.", ex);
+		} finally {
+			synchronized (runningApproveApplication) {
+				runningApproveApplication.remove(appId);
+			}
 		}
 
-		Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
+		Member member = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
 
 		try {
 
@@ -1465,7 +1522,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 
 				try {
-					perun.getMembersManagerBl().validateMember(registrarSession, member);
+					membersManager.validateMember(registrarSession, member);
 				} catch (InternalErrorException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 					log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
 				}
@@ -1484,6 +1541,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
 		}
 		perun.getAuditer().log(sess, new ApplicationApproved(app));
+
+		synchronized (runningApproveApplication) {
+			runningApproveApplication.remove(appId);
+		}
 
 		return app;
 	}
@@ -1603,13 +1664,20 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				for (Pair<String, String> pair : logins) {
 					// LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
 					// left = namespace, right = login
-					perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+					usersManager.validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
 				}
 
 				// update titles before/after users name if part of application !! USER MUST EXISTS !!
 				updateUserNameTitles(app);
 
-				perun.getGroupsManager().addMember(registrarSession, app.getGroup(), member);
+				// Perform checks since we moved from entry to BL
+				// Check if the group is externally synchronized
+				Attribute attrSynchronizeEnabled = attrManager.getAttribute(sess, app.getGroup(), GROUPSYNCHROENABLED_ATTRNAME);
+				if ("true".equals(attrSynchronizeEnabled.getValue()) || groupsManager.isGroupInStructureSynchronizationTree(sess, app.getGroup())) {
+					throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
+				}
+
+				groupsManager.addMember(registrarSession, app.getGroup(), member);
 
 				log.debug("[REGISTRAR] Member {} added to Group {}.",member, app.getGroup());
 
@@ -1686,6 +1754,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// create member and user
 				log.debug("[REGISTRAR] Trying to make member from candidate {}", candidate);
 
+				// added duplicit check, since we switched from entry to bl call of createMember()
+				Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+				Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
 				member = membersManager.createMember(sess, app.getVo(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), app.getCreatedBy(), candidate);
 				User u = usersManager.getUserById(registrarSession, member.getUserId());
 
@@ -1697,7 +1769,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} else {
 					// user originally not known -> set UserExtSource attributes from source identity for new User and UES
 					ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, app.getExtSourceName());
-					UserExtSource ues = perun.getUsersManagerBl().getUserExtSourceByExtLogin(sess, es, app.getCreatedBy());
+					UserExtSource ues = usersManager.getUserExtSourceByExtLogin(sess, es, app.getCreatedBy());
 					// we have historical data in "fedInfo" item, hence we must safely ignore any parsing errors.
 					try {
 						LinkedHashMap<String, String> additionalAttributes = (LinkedHashMap<String, String>)BeansUtils.stringToAttributeValue(app.getFedInfo(), LinkedHashMap.class.getName());
@@ -1727,7 +1799,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				for (Pair<String, String> pair : logins) {
 					// LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
 					// left = namespace, right = login
-					perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, u, pair.getRight(), pair.getLeft());
+					usersManager.validatePasswordAndSetExtSources(registrarSession, u, pair.getRight(), pair.getLeft());
 				}
 
 				// log
@@ -1777,7 +1849,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// validate purely new logins in KDC
 			for (Pair<String, String> pair : logins) {
 				// left = namespace, right = login
-				perun.getUsersManagerBl().validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+				usersManager.validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
 			}
 
 			// update titles before/after users name if part of application !! USER MUST EXISTS !!
@@ -2208,14 +2280,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			Map<String, Attribute> map = new HashMap<>();
 
 			// process user attributes
-			List<Attribute> userAttributes = attrManager.getAttributes(registrarSession, user);
+			List<Attribute> userAttributes = attrManager.getAttributes(sess, user);
 			for (Attribute att : userAttributes) {
 				map.put(att.getName(), att);
 			}
 			// process member attributes
 			try {
-				Member member = membersManager.getMemberByUser(registrarSession, vo, user);
-				List<Attribute> memberAttributes = attrManager.getAttributes(registrarSession, member);
+				Member member = membersManager.getMemberByUser(sess, vo, user);
+				List<Attribute> memberAttributes = attrManager.getAttributes(sess, member);
 				for (Attribute att : memberAttributes) {
 					map.put(att.getName(), att);
 				}
@@ -2224,12 +2296,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 			// get also vo/group attributes for extended pre-fill !!
-			List<Attribute> voAttributes = attrManager.getAttributes(registrarSession, vo);
+			List<Attribute> voAttributes = attrManager.getAttributes(sess, vo);
 			for (Attribute att : voAttributes) {
 				map.put(att.getName(), att);
 			}
 			if (group != null) {
-				List<Attribute> groupAttributes = attrManager.getAttributes(registrarSession, group);
+				List<Attribute> groupAttributes = attrManager.getAttributes(sess, group);
 				for (Attribute att : groupAttributes) {
 					map.put(att.getName(), att);
 				}
@@ -2386,7 +2458,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					Member m = membersManager.getMemberByUser(registrarSession, vo, user);
 					if (group != null) {
 						// get members groups
-						List<Group> g = perun.getGroupsManager().getMemberGroups(registrarSession, m);
+						List<Group> g = groupsManager.getMemberGroups(registrarSession, m);
 						if (g.contains(group)) {
 							// user is member of group - can't post more initial applications
 							throw new AlreadyRegisteredException("You are already member of group "+group.getName()+".");
@@ -2633,7 +2705,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
-		Vo fromVO = perun.getVosManagerBl().getVoById(registrarSession, fromGroup.getVoId());
+		Vo fromVO = vosManager.getVoById(sess, fromGroup.getVoId());
 
 		if ((!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)
 				&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, fromVO)) ||
@@ -2748,16 +2820,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			try {
 				if (app.getUser() == null) {
-					User u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					User u = usersManager.getUserByExtSourceNameAndExtLogin(sess, app.getExtSourceName(), app.getCreatedBy());
 					if (u != null) {
-						membersManager.getMemberByUser(registrarSession, app.getVo(), u);
+						membersManager.getMemberByUser(sess, app.getVo(), u);
 					} else {
 						// user not found or null, hence can't be member of VO -> do not approve.
 						return;
 					}
 				} else {
 					// user known, but maybe not member of a vo
-					membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
+					membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
 				}
 			} catch (MemberNotExistsException ex) {
 				return;
@@ -3133,7 +3205,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			for (Attribute a : loginAttrs) {
 				if (pair.getLeft().equals(a.getFriendlyNameParameter())) {
 					// old login found in same namespace => unreserve new login from KDC
-					perun.getUsersManagerBl().deletePassword(registrarSession, pair.getRight(), pair.getLeft());
+					usersManager.deletePassword(registrarSession, pair.getRight(), pair.getLeft());
 					log.debug("[REGISTRAR] Unreserving new login: {} in namespace: {} since user already have login: {} in same namespace."
 							, pair.getRight(), pair.getLeft(), a.getValue());
 					found = true;
@@ -3197,6 +3269,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 		}
+
+	}
+
+	/**
+	 * Return string representation (key) of application used for locking main operations like "create/verify/approve/reject".
+	 *
+	 * @param application Application to get key for
+	 * @return Key for Application
+	 */
+	private String getLockKeyForApplication(Application application) {
+
+		return application.getType().toString() +
+				application.getVo().getShortName() +
+				((application.getGroup() != null) ? application.getGroup().getName() : "nogroup") +
+				application.getCreatedBy()+application.getExtSourceName()+application.getExtSourceType();
 
 	}
 

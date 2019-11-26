@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
@@ -71,7 +72,7 @@ public class EduTEAMS implements RegistrarModule {
 				Attribute loginAttribute;
 				try {
 					loginAttribute =
-							sess.getPerun().getAttributesManager().getAttribute(sess, user, A_U_D_EDUTEAMS_NICKNAME);
+							((PerunBl)sess.getPerun()).getAttributesManagerBl().getAttribute(sess, user, A_U_D_EDUTEAMS_NICKNAME);
 				} catch (AttributeNotExistsException e) {
 					// do not set the login if the attribute does not exist
 					return application;
@@ -79,7 +80,7 @@ public class EduTEAMS implements RegistrarModule {
 
 				loginAttribute.setValue(nickName);
 
-				sess.getPerun().getAttributesManager().setAttribute(sess, user, loginAttribute);
+				((PerunBl)sess.getPerun()).getAttributesManagerBl().setAttribute(sess, user, loginAttribute);
 			}
 		}
 

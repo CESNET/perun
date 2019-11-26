@@ -144,7 +144,7 @@ public class Vsup implements RegistrarModule {
 
 			if (changed) {
 				// update manual expiration attribute
-				perun.getAttributesManager().setAttribute(session, user, manualExpirationAttr);
+				perun.getAttributesManagerBl().setAttribute(session, user, manualExpirationAttr);
 			}
 
 		}

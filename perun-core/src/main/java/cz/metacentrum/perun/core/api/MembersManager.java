@@ -1076,7 +1076,7 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 */
-	boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, VoNotExistsException;
+	boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, VoNotExistsException, PrivilegeException;
 
 	/**
 	 * Checks if the user can apply membership to the VO, it decides based on extendMembershipRules on the doNotAllowLoa key
@@ -1089,7 +1089,7 @@ public interface MembersManager {
 	 * @throws VoNotExistsException
 	 * @throws ExtendMembershipException
 	 */
-	boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, VoNotExistsException, ExtendMembershipException;
+	boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, VoNotExistsException, ExtendMembershipException, PrivilegeException;
 
 	/**
 	 * Get member by extSourceName, extSourceLogin and Vo
