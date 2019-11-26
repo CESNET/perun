@@ -20,6 +20,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetGroupMembersCount;
 import cz.metacentrum.perun.webgui.json.groupsManager.RemoveMember;
+import cz.metacentrum.perun.webgui.json.groupsManager.RemoveMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
@@ -211,16 +212,8 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 				UiElements.showDeleteConfirm(membersForRemoving, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i = 0; i < membersForRemoving.size(); i++) {
-							RemoveMember request;
-							if (i == membersForRemoving.size() - 1) {
-								request = new RemoveMember(JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvent));
-							} else {
-								request = new RemoveMember(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.removeMemberFromGroup(group, membersForRemoving.get(i));
-						}
+						RemoveMembers request = new RemoveMembers(JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvent));
+						request.removeMembersFromGroup(group, membersForRemoving);
 					}
 				});
 			}
