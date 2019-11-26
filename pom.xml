@@ -36,7 +36,7 @@
 		<module>perun-web-gui</module>
 		<module>perun-scim</module>
 		<module>perun-openapi</module>
-		<module>perun-java-cli</module>
+		<module>perun-cli-java</module>
 	</modules>
 
 	<!-- common environmental and version properties-->

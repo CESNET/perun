@@ -11,10 +11,10 @@
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-java-cli</artifactId>
+	<artifactId>perun-cli-java</artifactId>
 	<packaging>jar</packaging>
 
-	<name>perun-java-cli</name>
+	<name>perun-cli-java</name>
 	<description>
 		Java implementation of command-line tools for Perun using OpenAPI specification of Perun RPC API
 	</description>
