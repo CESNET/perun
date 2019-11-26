@@ -170,6 +170,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private String shibLoAVar = "loa";
 
 	private final Set<String> runningCreateApplication = new HashSet<>();
+	private final Set<Integer> runningApproveApplication = new HashSet<>();
+	private final Set<Integer> runningRejectApplication = new HashSet<>();
+	private final Set<Integer> runningDeleteApplication = new HashSet<>();
 
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new JdbcPerunTemplate(dataSource);
@@ -1045,15 +1048,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// lock to prevent multiple submission of same application on server side
-
-		String key = application.getType().toString() +
-				application.getVo().getShortName() +
-				((application.getGroup() != null) ? application.getGroup().getName() : "nogroup") +
-				application.getCreatedBy()+application.getExtSourceName()+application.getExtSourceType();
+		String key = getLockKeyForApplication(application);
 
 		synchronized(runningCreateApplication) {
 			if (runningCreateApplication.contains(key)) {
-				throw new AlreadyProcessingException("You application submission is being processed already.");
+				throw new AlreadyProcessingException("Your application submission is being processed already.");
 			} else {
 				runningCreateApplication.add(key);
 			}
@@ -1309,33 +1308,52 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
-		if (AppState.NEW.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) {
-
-			// Try to get reservedLogin and reservedNamespace before deletion
-			List<Pair<String, String>> logins;
-			try {
-				logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?", (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), app.getId());
-			} catch (EmptyResultDataAccessException e) {
-				// set empty logins
-				logins = new ArrayList<>();
+		// lock to prevent concurrent runs
+		synchronized(runningDeleteApplication) {
+			if (runningDeleteApplication.contains(app.getId())) {
+				throw new AlreadyProcessingException("Application deletion is already processing.");
+			} else {
+				runningDeleteApplication.add(app.getId());
 			}
-			// delete passwords in KDC
-			for (Pair<String,String> login : logins) {
-				// delete LOGIN in NAMESPACE
-				usersManager.deletePassword(sess, login.getRight(), login.getLeft());
-			}
-
-			// free any login from reservation when application is rejected
-			jdbc.update("delete from application_reserved_logins where app_id=?", app.getId());
-
-			// delete application and data on cascade
-			jdbc.update("delete from application where id=?", app.getId());
-
-		} else {
-			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
-			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
-		perun.getAuditer().log(sess, new ApplicationDeleted(app));
+
+		try {
+
+			if (AppState.NEW.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) {
+
+				// Try to get reservedLogin and reservedNamespace before deletion
+				List<Pair<String, String>> logins;
+				try {
+					logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?", (resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), app.getId());
+				} catch (EmptyResultDataAccessException e) {
+					// set empty logins
+					logins = new ArrayList<>();
+				}
+				// delete passwords in KDC
+				for (Pair<String, String> login : logins) {
+					// delete LOGIN in NAMESPACE
+					usersManager.deletePassword(sess, login.getRight(), login.getLeft());
+				}
+
+				// free any login from reservation when application is rejected
+				jdbc.update("delete from application_reserved_logins where app_id=?", app.getId());
+
+				// delete application and data on cascade
+				jdbc.update("delete from application where id=?", app.getId());
+
+			} else {
+				if (AppState.VERIFIED.equals(app.getState()))
+					throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
+				if (AppState.APPROVED.equals(app.getState()))
+					throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
+			}
+			perun.getAuditer().log(sess, new ApplicationDeleted(app));
+
+		} finally {
+			synchronized (runningDeleteApplication) {
+				runningDeleteApplication.remove(app.getId());
+			}
+		}
 
 	}
 
@@ -1387,58 +1405,87 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("Application is already rejected. Try to refresh the view to see changes.");
 		}
 
-		// mark as rejected
-		int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.REJECTED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
-		if (result == 0) {
-			throw new RegistrarException("Application with ID="+appId+" not found.");
-		} else if (result > 1) {
-			throw new ConsistencyErrorException("More than one application is stored under ID="+appId+".");
-		}
-		// set back as rejected
-		app.setState(AppState.REJECTED);
-		log.info("Application {} marked as REJECTED.", appId);
-
-		// get all reserved logins
-		List<Pair<String, String>> logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
-				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
-
-		// delete passwords for reserved logins
-		for (Pair<String, String> login : logins) {
-			try {
-				// left = namespace / right = login
-				usersManager.deletePassword(registrarSession, login.getRight(), login.getLeft());
-			} catch (LoginNotExistsException ex) {
-				log.error("[REGISTRAR] Login: {} not exists while deleting passwords in rejected application: {}", login.getLeft(), appId);
+		// lock to prevent concurrent runs
+		synchronized(runningRejectApplication) {
+			if (runningRejectApplication.contains(appId)) {
+				throw new AlreadyProcessingException("Application rejection is already processing.");
+			} else {
+				runningRejectApplication.add(appId);
 			}
 		}
-		// free any login from reservation when application is rejected
-		jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 
-		// log
-		perun.getAuditer().log(sess, new ApplicationRejected(app));
+		try {
 
-		// call registrar module
-		RegistrarModule module;
-		if (app.getGroup() != null) {
-			module = getRegistrarModule(getFormForGroup(app.getGroup()));
-		} else {
-			module = getRegistrarModule(getFormForVo(app.getVo()));
+			// mark as rejected
+			int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.REJECTED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
+			if (result == 0) {
+				throw new RegistrarException("Application with ID=" + appId + " not found.");
+			} else if (result > 1) {
+				throw new ConsistencyErrorException("More than one application is stored under ID=" + appId + ".");
+			}
+			// set back as rejected
+			app.setState(AppState.REJECTED);
+			log.info("Application {} marked as REJECTED.", appId);
+
+			// get all reserved logins
+			List<Pair<String, String>> logins = jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
+					(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
+
+			// delete passwords for reserved logins
+			for (Pair<String, String> login : logins) {
+				try {
+					// left = namespace / right = login
+					usersManager.deletePassword(registrarSession, login.getRight(), login.getLeft());
+				} catch (LoginNotExistsException ex) {
+					log.error("[REGISTRAR] Login: {} not exists while deleting passwords in rejected application: {}", login.getLeft(), appId);
+				}
+			}
+			// free any login from reservation when application is rejected
+			jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+
+			// log
+			perun.getAuditer().log(sess, new ApplicationRejected(app));
+
+			// call registrar module
+			RegistrarModule module;
+			if (app.getGroup() != null) {
+				module = getRegistrarModule(getFormForGroup(app.getGroup()));
+			} else {
+				module = getRegistrarModule(getFormForVo(app.getVo()));
+			}
+			if (module != null) {
+				module.rejectApplication(sess, app, reason);
+			}
+
+			// send mail
+			getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
+
+			perun.getAuditer().log(sess, new ApplicationRejected(app));
+
+			// return updated application
+			return app;
+
+		} finally {
+
+			// always release lock
+			synchronized (runningRejectApplication) {
+				runningRejectApplication.remove(appId);
+			}
+
 		}
-		if (module != null) {
-			module.rejectApplication(sess, app, reason);
-		}
-
-		// send mail
-		getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
-
-		perun.getAuditer().log(sess, new ApplicationRejected(app));
-		// return updated application
-		return app;
 
 	}
 
 	@Override
 	public Application approveApplication(PerunSession sess, int appId) throws PerunException {
+
+		synchronized(runningApproveApplication) {
+			if (runningApproveApplication.contains(appId)) {
+				throw new AlreadyProcessingException("Application approval is already processing.");
+			} else {
+				runningApproveApplication.add(appId);
+			}
+		}
 
 		Application app;
 		try {
@@ -1452,6 +1499,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("To approve application user must already be member of Group.", ex);
 		} catch (UserNotExistsException | UserExtSourceNotExistsException | ExtSourceNotExistsException ex) {
 			throw new RegistrarException("User specified by the data in application was not found. If you tried to approve application for the Group, try to check, if user already has approved application in the VO. Application to the VO must be approved first.", ex);
+		} finally {
+			synchronized (runningApproveApplication) {
+				runningApproveApplication.remove(appId);
+			}
 		}
 
 		Member member = membersManager.getMemberByUser(sess, app.getVo(), app.getUser());
@@ -1490,6 +1541,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
 		}
 		perun.getAuditer().log(sess, new ApplicationApproved(app));
+
+		synchronized (runningApproveApplication) {
+			runningApproveApplication.remove(appId);
+		}
 
 		return app;
 	}
@@ -3214,6 +3269,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 		}
+
+	}
+
+	/**
+	 * Return string representation (key) of application used for locking main operations like "create/verify/approve/reject".
+	 *
+	 * @param application Application to get key for
+	 * @return Key for Application
+	 */
+	private String getLockKeyForApplication(Application application) {
+
+		return application.getType().toString() +
+				application.getVo().getShortName() +
+				((application.getGroup() != null) ? application.getGroup().getName() : "nogroup") +
+				application.getCreatedBy()+application.getExtSourceName()+application.getExtSourceType();
 
 	}
 
