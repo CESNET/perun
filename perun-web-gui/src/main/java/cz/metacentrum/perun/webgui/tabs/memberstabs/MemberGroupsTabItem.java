@@ -95,7 +95,8 @@ public class MemberGroupsTabItem implements TabItem {
 		}
 		menu.addWidget(addButton);
 
-		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove member from selected group(s)", new ClickHandler() {
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove member from selected group(s)");
+		removeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				final ArrayList<Group> list = groupsCall.getTableSelectedList();
@@ -103,16 +104,8 @@ public class MemberGroupsTabItem implements TabItem {
 				UiElements.showDeleteConfirm(list, confirmText, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						// TODO - should have only one callback to core
-						for (int i=0; i<list.size(); i++) {
-							if (i == list.size()-1) {
-								RemoveMember request = new RemoveMember(JsonCallbackEvents.refreshTableEvents(groupsCall));
-								request.removeMemberFromGroup(list.get(i), member);
-							} else {
-								RemoveMember request = new RemoveMember();
-								request.removeMemberFromGroup(list.get(i), member);
-							}
-						}
+						RemoveMember request = new RemoveMember(JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.refreshTableEvents(groupsCall)));
+						request.removeMemberFromGroups(member, list);
 					}
 				});
 			}
