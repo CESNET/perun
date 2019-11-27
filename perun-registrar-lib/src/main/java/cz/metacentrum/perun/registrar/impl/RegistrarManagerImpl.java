@@ -2352,7 +2352,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						continue;
 					}
 					itemW.setPrefilledValue(s);
-					itemW.setAssuranceLevel(federValues.get(shibLoAVar));
+					itemW.setAssuranceLevel(String.valueOf(extSourceLoa));
 				}
 
 				// TRY TO CONSTRUCT THE VALUE FROM PARTIAL FED-INFO
