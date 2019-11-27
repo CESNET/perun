@@ -859,8 +859,21 @@ components:
       in: query
       required: true
 
+    workWithUserAttributes:
+      name: workWithUserAttributes
+      description: "flag to work with user attributes"
+      schema:
+        type: boolean
+      in: query
+      required: true
 
-
+    workWithGroupAttributes:
+      name: workWithGroupAttributes
+      description: "flag to work with group attributes"
+      schema:
+        type: boolean
+      in: query
+      required: true
 
 #################################################
 #                                               #
@@ -1035,16 +1048,557 @@ paths:
   #                                               #
   #################################################
 
-  #TODO this is heavily overloaded method, create methods for other parameter combinations
-  /json/attributesManager/getAttributes:
+
+  /json/attributesManager/getAttributes/f-r-u-m:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getFacilityResourceUserMemberAttributes
+      summary: Get all non-empty member, user, member-resource and user-facility attributes.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/f-u:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getFacilityUserAttributes
+      summary: Get all non-empty attributes associated with the user on the facility.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes1
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/f-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getFacilityAttributesByNames
+      summary: Returns all specified Facility attributes for selected Facility.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes3
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/f:
     get:
       tags:
         - AttributesManager
       operationId: getFacilityAttributes
-      summary: Returns all specified Facility attributes for selected Facility.
+      summary: Returns all non-empty Facility attributes for selected Facility.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes2
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/vo-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getVoAttributesByNames
+      summary: Get all attributes associated with the vo which have name in list attrNames (empty too).
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes5
+      parameters:
+        - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/vo:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getVoAttributes
+      summary: Get all attributes associated with the vo.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes4
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-r-names-wu:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberResourceAndUserFacilityAttributesByNames
+      description: |
+        Gets selected non-empty attributes associated with the member and the resource.
+        It returns member and member-resource attributes and also user and user-facility attributes if
+        workWithUserAttributes is true.
+        Attributes are selected by list of attr_names. Empty list means all attributes.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes9
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/workWithUserAttributes'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-r-wu:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberResourceAndUserFacilityAttributes
+      description: |
+        Gets all non-empty attributes associated with the member on the resource and if workWithUserAttributes is
+        true, gets also all non-empty user, user-facility and member attributes.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes8
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/workWithUserAttributes'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/r-g-m-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceGroupMemberAttributesByNames
+      description: |
+        Get all attributes by the list of attrNames if they are in one of these namespaces:
+        - member
+        - group
+        - member-group
+        - resource
+        - member-resource
+        - group-resource
+        - user (get from member object)
+        - facility (get from resource object)
+        - user-facility
+        Returns all attributes even if they are empty or virtual.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes11
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-r:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberResourceAttributes
+      summary: Get all non-empty attributes associated with the member on the resource.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes10
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/r-g-names-wg:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceGroupAndGroupAttributesByNames
+      description: |
+        Get all attributes associated with the group and the resource which have their name in list attrNames (empty too).
+        Virtual attributes too.
+        If workWithGroupAttributes is true, return also all group attributes in list of attrNames (with virtual attributes too).
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes14
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/workWithGroupAttributes'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/r-g-wg:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceGroupAndGroupAttributes
+      description: |
+        Get all non-empty attributes associated with the group and resource. Virtual attributes too.
+        If workWithGroupAttributes is true, return also all group attributes.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes13
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/workWithGroupAttributes'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/r-g:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceGroupAttributes
+      summary: Get all non-empty attributes associated with the group on resource.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes12
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/r-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceAttributesByNames
+      description: |
+        Get all attributes associated with the resource which have name in list attrNames (empty too).
+        Virtual attributes too.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes16
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/r:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getResourceAttributes
+      summary: Get all non-empty attributes associated with the resource.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes15
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-g-names-wu:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberGroupAndUserAttributesByNames
+      description: |
+        Get all attributes associated with the member in the group which have name in list attrNames (empty too).
+        If workWithUserAttribute is true, return also all user attributes in list of attrNames (with virtual attributes too).
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes17
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/workWithUserAttributes'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-names-wu:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberAndUserAttributesByNames
+      description: |
+        Get all attributes associated with the member which have name in list attrNames (empty too).
+        Virtual attributes too.
+        If workWithUserAttribute is true, return also all user attributes in list of attrNames (with virtual attributes too).
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/workWithUserAttributes'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-wu:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberAndUserAttributes
+      description: |
+        Get all non-empty attributes associated with the member and if workWithUserAttributes is
+        true, get all non-empty attributes associated with user, who is this member.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes19
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/workWithUserAttributes'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-g-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberGroupAttributesByNames
+      description: |
+        Get all attributes (empty and virtual too)associated with the member in the group which have name in list attrNames.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes20
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberAttributesByNames
+      description: |
+        Get all attributes associated with the member which have name in list attrNames (empty too).
+        Virtual attribute too.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes21
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m-g:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberGroupAttributes
+      description: |
+        Get all non-empty attributes associated with the member in the group.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes22
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/m:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getMemberAttributes
+      description: |
+        Get all non-empty attributes associated with the member.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes18
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/u-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserAttributesByNames
+      description: |
+        Get all attributes associated with the user which have name in list attrNames (empty too).
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes24
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/u:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserAttributes
+      description: |
+        Get all non-empty attributes associated with the user.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes23
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/g-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getGroupAttributesByNames
+      description: |
+        Get all attributes associated with the group which have name in list attrNames (empty too).
+        Virtual attribute too.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes26
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/g:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getGroupAttributes
+      description: |
+        Get all non-empty attributes associated with the group.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes25
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/h:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getHostAttributes
+      description: |
+        Get all non-empty attributes associated with the host.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes27
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/key:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getEntitylessAttributesByKey
+      description: |
+        Get all entityless attributes with subject equaled String key.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes28
+      parameters:
+        - { name: key, description: "key for entityless attributes", schema: { type: string },  in: query, required: true }
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/ues-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserExtSourceAttributesByNames
+      description: |
+        Get all attributes associated with the userExtSource which have name in list attrNames (empty too).
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes7
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/ues:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserExtSourceAttributes
+      description: |
+        Get all non-empty attributes associated with the UserExtSource.
+      externalDocs:
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html#AttributesManagergetAttributes6
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
       responses:
         200:
           $ref: '#/components/responses/ListOfAttributesResponse'
@@ -1055,7 +1609,7 @@ paths:
     get:
       tags:
         - AttributesManager
-      operationId: getEntitylessAttributes
+      operationId: getEntitylessAttributesByName
       summary: Returns all entityless attributes with attrName.
       parameters:
         - $ref: '#/components/parameters/attrName'
@@ -1079,7 +1633,601 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-#TODO setAttributes
+  /json/attributesManager/setAttributes/f-r-g-u-m:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setFacilityResourceGroupUserMemberAttributes
+      description: |
+        Store the member, user, member-group, member-resource and user-facility attributes.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+        Group and group-resource attributes are not supported in this context.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetFacilityResourceGroupUserMemberAttributes
+              description: "input to setFacilityResourceGroupUserMemberAttributes"
+              type: object
+              required:
+                - facility
+                - resource
+                - group
+                - user
+                - member
+                - attributes
+              properties:
+                facility: { type: integer, description: "facility id", nullable: false }
+                resource: { type: integer, description: "resource id", nullable: false }
+                group: { type: integer, description: "group id", nullable: false }
+                user: { type: integer, description: "user id", nullable: false }
+                member: { type: integer, description: "member id", nullable: false }
+                attributes:
+                 type: array
+                 nullable: false
+                 items:
+                   $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/f-r-u-m:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setFacilityResourceUserMemberAttributes
+      description: |
+        Store the member, user, member-resource and user-facility attributes.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetFacilityResourceUserMemberAttributes
+              description: "input to setFacilityResourceUserMemberAttributes"
+              type: object
+              properties:
+                facility: { type: integer, description: "facility id", nullable: false }
+                resource: { type: integer, description: "resource id", nullable: false }
+                user: { type: integer, description: "user id", nullable: false }
+                member: { type: integer, description: "member id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/f-u:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setFacilityUserAttributes
+      description: |
+        Store the attributes associated with the facility and user combination.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetFacilityUserAttributes
+              description: "input to setFacilityUserAttributes"
+              type: object
+              properties:
+                facility: { type: integer, description: "facility id", nullable: false }
+                user: { type: integer, description: "user id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/f:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setFacilityAttributes
+      description: |
+        Store the attributes associated with the facility.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetFacilityAttributes
+              description: "input to setFacilityAttributes"
+              type: object
+              properties:
+                facility: { type: integer, description: "facility id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/vo:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setVoAttributes
+      description: |
+        Store the attributes associated with the vo.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetVoAttributes
+              description: "input to setVoAttributes"
+              type: object
+              properties:
+                vo: { type: integer, description: "vo id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/m-r-wu:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberResourceAndUserAttributes
+      description: |
+        Store the attributes associated with the resource and member combination.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+        If workWithUserAttributes is true, the method stores also the attributes associated with user, user-facility and member.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberResourceAndUserAttributes
+              description: "input to setMemberResourceAndUserAttributes"
+              type: object
+              required:
+                - member
+                - resource
+                - attributes
+                - workWithUserAttributes
+              properties:
+                member: { type: integer, description: "member id", nullable: false }
+                resource: { type: integer, description: "resource id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+                workWithUserAttributes: { type: boolean }
+
+  /json/attributesManager/setAttributes/m-r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberResourceAttributes
+      description: |
+        Store the attributes associated with the resource and member combination.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberResourceAttributes
+              description: "input to setMemberResourceAttributes"
+              type: object
+              required:
+                - member
+                - resource
+                - attributes
+              properties:
+                member: { type: integer, description: "member id", nullable: false }
+                resource: { type: integer, description: "resource id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/r-g-wg:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setResourceGroupWithGroupAttributes
+      description: |
+        Store the attributes associated with group and resource, if workWithUserAttributes is true then also from group itself.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetResourceGroupWithGroupAttributes
+              description: "input to setResourceGroupWithGroupAttributes"
+              type: object
+              required:
+                - resource
+                - group
+                - attributes
+                - workWithGroupAttributes
+              properties:
+                resource: { type: integer, description: "resource id", nullable: false }
+                group: { type: integer, description: "group id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+                workWithGroupAttributes: { type: boolean }
+
+  /json/attributesManager/setAttributes/r-g:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setResourceGroupAttributes
+      description: |
+        Store the attributes associated with the group on resource.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetResourceGroupAttributes
+              description: "input to setResourceGroupAttributes"
+              type: object
+              required:
+                - resource
+                - group
+                - attributes
+              properties:
+                resource: { type: integer, description: "resource id", nullable: false }
+                group: { type: integer, description: "group id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setResourceAttributes
+      description: |
+        Store the attributes associated with the resource.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetResourceAttributes
+              description: "input to setResourceAttributes"
+              type: object
+              required:
+                - resource
+                - attributes
+              properties:
+                resource: { type: integer, description: "resource id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/m-g-wu:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberGroupWithUserAttributes
+      description: |
+        Store the attributes associated with the member and group combination.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+        If workWithUserAttributes is true, the method stores also the attributes associated with user and member.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberGroupWithUserAttributes
+              description: "input to setMemberGroupWithUserAttributes"
+              type: object
+              required:
+                - member
+                - group
+                - attributes
+                - workWithUserAttributes
+              properties:
+                member: { type: integer, description: "member id", nullable: false }
+                group: { type: integer, description: "group id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+                workWithUserAttributes: { type: boolean }
+
+  /json/attributesManager/setAttributes/m-wu:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberWithUserAttributes
+      description: |
+        Store the attributes associated with member and user (which we get from this member) if workWithUserAttributes is true.
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberWithUserAttributes
+              description: "input to setMemberWithUserAttributes"
+              type: object
+              required:
+                - member
+                - attributes
+                - workWithUserAttributes
+              properties:
+                member: { type: integer, description: "member id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+                workWithUserAttributes: { type: boolean }
+
+  /json/attributesManager/setAttributes/m-g:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberGroupAttributes
+      description: |
+        Store the attributes associated with the member and group combination.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberGroupAttributes
+              description: "input to setMemberGroupAttributes"
+              type: object
+              required:
+                - member
+                - group
+                - attributes
+              properties:
+                member: { type: integer, description: "member id", nullable: false }
+                group: { type: integer, description: "group id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/m:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setMemberAttributes
+      description: |
+        Store the attributes associated with the member.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetMemberAttributes
+              description: "input to setMemberAttributes"
+              type: object
+              required:
+                - member
+                - attributes
+              properties:
+                member: { type: integer, description: "member id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/u:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setUserAttributes
+      description: |
+        Store the attributes associated with the user.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetUserAttributes
+              description: "input to setUserAttributes"
+              type: object
+              required:
+                - user
+                - attributes
+              properties:
+                user: { type: integer, description: "user id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/g:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setGroupAttributes
+      description: |
+        Store the attributes associated with the group.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetGroupAttributes
+              description: "input to setGroupAttributes"
+              type: object
+              required:
+                - group
+                - attributes
+              properties:
+                group: { type: integer, description: "group id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/h:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setHostAttributes
+      description: |
+        Store the attributes associated with the host.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetHostAttributes
+              description: "input to setHostAttributes"
+              type: object
+              required:
+                - host
+                - attributes
+              properties:
+                host: { type: integer, description: "host id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
+
+  /json/attributesManager/setAttributes/ues:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setUserExtSourceAttributes
+      description: |
+        Store the attributes associated with the UserExtSource.
+        If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetUserExtSourceAttributes
+              description: "input to setUserExtSourceAttributes"
+              type: object
+              required:
+                - userExtSource
+                - attributes
+              properties:
+                userExtSource: { type: integer, description: "userExtSource id", nullable: false }
+                attributes:
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
 
   /json/attributesManager/getAttribute/name-facility:
     get:
