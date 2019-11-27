@@ -347,6 +347,46 @@ components:
       discriminator:
         propertyName: beanName
 
+    DestinationType:
+      type: string
+      description: 'type of destination, i.e. way of delivery of service settings'
+      enum:
+        - "host"
+        - "email"
+        - "semail"
+        - "url"
+        - "user@host"
+        - "user@host:port"
+        - "service-specific"
+        - "user@host-windows"
+        - "host-windows-proxy"
+
+    DestinationPropagationType:
+      type: string
+      description: 'type of propagation of service settings to a destination'
+      enum: ['PARALLEL', 'SERIAL', 'DUMMY' ]
+
+    Destination:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            destination: { type: string }
+            type: { $ref: '#/components/schemas/DestinationType' }
+            propagationType: { $ref: '#/components/schemas/DestinationPropagationType' }
+            beanName: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    RichDestination:
+      allOf:
+        - $ref: '#/components/schemas/Destination'
+        - properties:
+            service: { $ref: '#/components/schemas/Service' }
+            facility: { $ref: '#/components/schemas/Facility' }
+            beanName: { type: string }
+      discriminator:
+        propertyName: beanName
+
     ApplicationForm:
       type: object
       properties:
@@ -684,6 +724,15 @@ components:
           schema:
             $ref: "#/components/schemas/Service"
 
+    ListOfServicesResponse:
+      description: "returns List<Service>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Service"
+
     HostResponse:
       description: "returns Host"
       content:
@@ -699,6 +748,31 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Host"
+
+    DestinationResponse:
+      description: "returns Destination"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Destination"
+
+    ListOfDestinationsResponse:
+      description: "returns List<Destination>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Destination"
+
+    ListOfRichDestinationsResponse:
+      description: "returns List<RichDestination>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichDestination"
 
   #####################################################
   #                                                   #
@@ -841,6 +915,14 @@ components:
     hostId:
       name: host
       description: "id of Host"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    destinationId:
+      name: destination
+      description: "id of Destination"
       schema:
         type: integer
       in: query
@@ -4083,6 +4165,42 @@ paths:
   #                                               #
   #################################################
 
+  #TODO blockServiceOnFacility
+
+  #TODO blockServiceOnDestination
+
+  #TODO blockAllServicesOnFacility
+
+  #TODO blockAllServicesOnDestination
+
+  #TODO getServicesBlockedOnFacility
+
+  #TODO getServicesBlockedOnDestination
+
+  #TODO isServiceBlockedOnFacility
+
+  #TODO isServiceBlockedOnDestination
+
+  #TODO unblockAllServicesOnFacility
+
+  #TODO unblockAllServicesOnDestination
+
+  #TODO unblockServiceOnFacility
+
+  #TODO unblockServiceOnDestination
+
+  #TODO forceServicePropagation
+
+  #TODO planServicePropagation
+
+  #TODO getFacilityAssignedServicesForGUI
+
+  #TODO createService
+
+  #TODO deleteService
+
+  #TODO updateService
+
   /json/servicesManager/getServiceById:
     get:
       tags:
@@ -4113,5 +4231,252 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/ServiceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO getServices
+
+  #TODO getServicesByAttributeDefinition
+
+  #TODO getHierarchicalData
+
+  #TODO getFlatData
+
+  #TODO getDataWithGroups
+
+  #TODO getDataWithVos
+
+  #TODO getServicesPackages
+
+  #TODO getServicesPackageById
+
+  #TODO getServicesPackageByName
+
+  #TODO createServicesPackage
+
+  #TODO deleteServicesPackage
+
+  #TODO updateServicesPackage
+
+  #TODO addServiceToServicesPackage
+
+  #TODO removeServiceFromServicesPackage
+
+  #TODO getServicesFromServicesPackage
+
+  #TODO addRequiredAttribute
+
+  #TODO addRequiredAttributes
+
+  #TODO removeRequiredAttribute
+
+  #TODO removeRequiredAttributes
+
+  #TODO removeAllRequiredAttributes
+
+  /json/servicesManager/getDestinationById:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getDestinationById
+      summary: Returns a destination by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/DestinationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getDestinations/s-f:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getDestinations
+      summary: Returns list of all destinations defined for the service and facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getDestinations/all:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getAllDestinations
+      summary: Get list of all destinations.
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  /json/servicesManager/getAllRichDestinations/s:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getRichDestinationsForService
+      summary: Returns list of all rich destinations defined for the service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfRichDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getAllRichDestinations/f:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getRichDestinationsForFacility
+      summary: Returns list of all rich destinations defined for the facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfRichDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getRichDestinations:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getRichDestinations
+      summary: Returns list of all rich destinations defined for the service and facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfRichDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/addDestination:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addDestination
+      summary: Adds an destination for a facility and service. If destination doesn't exist it will be created.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: destination, description: "Destination's destination, usually a DNS name", schema: { type: string },  in: query, required: true }
+        - { name: type, description: "Destination's type", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
+        - { name: propagationType, description: "Destination's propagationType", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: true }
+      responses:
+        200:
+          $ref: '#/components/responses/DestinationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/addDestination:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addDestinationToMultipleServices
+      description: Adds an destination for a facility and list of services. If destination doesn't exist it will be created.
+      responses:
+        200:
+          $ref: '#/components/responses/DestinationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddDestinationToMultipleServices
+              description: "input to addDestinationToMultipleServices"
+              type: object
+              required:
+                - services
+                - facility
+                - destination
+                - type
+                - propagationType
+              properties:
+                services:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Service'
+                facility: { type: integer }
+                destination: { type: string }
+                type: { $ref: '#/components/schemas/DestinationType' }
+                propagationType: { $ref: '#/components/schemas/DestinationPropagationType' }
+
+
+  #TODO addDestinationsForAllServicesOnFacility
+
+  #TODO addDestinationsDefinedByHostsOnFacility
+
+  /urlinjsonout/servicesManager/removeDestination:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeDestination
+      summary: Removes the specified destination from the facility and service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: destination, description: "Destination's destination", schema: { type: string },  in: query, required: true }
+        - { name: type, description: "Destination's type", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/removeAllDestinations:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeAllDestinations
+      summary: Removes all destinations from a facility and service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO getFacilitiesDestinations
+
+  #TODO getDestinationsCount
+
+  /json/servicesManager/getAssignedServices:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getAssignedServices
+      summary: List all services associated with the facility (via resource).
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getAssignedResources:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getAssignedResources
+      summary: Lists resources assigned to service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
