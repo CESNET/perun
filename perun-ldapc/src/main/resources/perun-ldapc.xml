@@ -663,7 +663,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="multipleValuesExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
 							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
-							<property name="name" value="eduPersonOrcid" />
+							<property name="name" value="eduPersonORCID" />
 						</bean>
 					</property>
 				</bean>
