@@ -65,6 +65,9 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
 			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<>(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceUnixGroupName));
 			//Remove self from the list of groups with the same namespace
+			//FIXME This behavior is not correct, because there are two possible situations:
+			// - This is the Check right after setting a new value (correct behavior), we need to skip this value from checking
+			// - This is the Check without setting a new value (not correct), and if this group is the only one with the value, we will lose the right for it
 			groupsWithSameGroupNameInTheSameNamespace.remove(group);
 
 			//If there is no group or resource with same GroupNameInTheSameNamespace, its ok
