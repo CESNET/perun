@@ -161,7 +161,7 @@ components:
             userId: { type: integer }
             loa: { type: integer }
             persistent: { type: boolean }
-            lastAccess: { type: string }
+            lastAccess: { type: string, format: timestamp, description: 'SQL timestamp', example: '2012-01-01 00:00:00.100000' }
             extSource: { $ref: '#/components/schemas/ExtSource' }
             beanName: { type: string }
           required:
@@ -179,23 +179,6 @@ components:
             beanName: { type: string }
       discriminator:
         propertyName: beanName
-        mapping:
-          ExtSource: '#/components/schemas/ExtSource'
-          ExtSourceLdap: '#/components/schemas/ExtSource'
-          ExtSourceSql: '#/components/schemas/ExtSource'
-          ExtSourceKerberos: '#/components/schemas/ExtSource'
-          ExtSourceX509: '#/components/schemas/ExtSource'
-          ExtSourceIdp: '#/components/schemas/ExtSource'
-          ExtSourceEGISSO: '#/components/schemas/ExtSource'
-          ExtSourceTCS: '#/components/schemas/ExtSource'
-          ExtSourceVOOT: '#/components/schemas/ExtSource'
-          ExtSourceSqlComplex: '#/components/schemas/ExtSource'
-          ExtSourceXML: '#/components/schemas/ExtSource'
-          ExtSourceISMU: '#/components/schemas/ExtSource'
-          ExtSourceInternal: '#/components/schemas/ExtSource'
-          ExtSourcePerun: '#/components/schemas/ExtSource'
-          ExtSourceINET: '#/components/schemas/ExtSource'
-          ExtSourceISXML: '#/components/schemas/ExtSource'
 
     AttributeDefinition:
       allOf:
@@ -332,6 +315,14 @@ components:
             beanName: { type: string }
       discriminator:
         propertyName: beanName
+
+    VoAdminRoles:
+      type: string
+      description: 'admin roles for a Vo'
+      enum:
+        - "VOOBSERVER"
+        - "TOPGROUPCREATOR"
+        - "VOADMIN"
 
     Service:
       allOf:
@@ -919,6 +910,26 @@ components:
         type: integer
       in: query
       required: true
+
+    hostnames:
+      name: "hostnames[]"
+      description: "list of host names List<String>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+
+    listOfHostIds:
+      name: "hosts[]"
+      description: "list of host ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
 
     destinationId:
       name: destination
@@ -3532,8 +3543,9 @@ paths:
   #################################################
   #                                               #
   # FacilitiesManager                             #
-  #                                               #
+  #  (complete with TODOs)                        #
   #################################################
+
   /json/facilitiesManager/getFacilityById:
     get:
       tags:
@@ -3747,7 +3759,7 @@ paths:
     get:
       tags:
         - FacilitiesManager
-      operationId: getFacilityAssignedResources
+      operationId: getAssignedResourcesForFacility
       summary: Returns all resources assigned to a facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
@@ -3761,7 +3773,7 @@ paths:
     get:
       tags:
         - FacilitiesManager
-      operationId: getFacilityAssignedRichResources
+      operationId: getAssignedRichResourcesForFacility
       summary: Returns all rich resources assigned to a facility with VO property filled.
       parameters:
         - $ref: '#/components/parameters/facilityId'
@@ -3778,7 +3790,7 @@ paths:
       operationId: createFacility
       summary: Creates a facility. Caller is automatically set as facility manager.
       parameters:
-        - { name: name, required: true, in: query, schema: { type: string }, description: "name of a facility - can contain only a-Z0-9.-_ and space characters" }
+        - { name: name, required: true, in: query, schema: { type: string, pattern: '[a-zA-Z0-9.-_ ]+' }, description: "name of a facility - can contain only a-Z0-9.-_ and space characters" }
         - { name: description, required: false, in: query, schema: { type: string }, description: "optional description of a facility" }
       responses:
         200:
@@ -3908,12 +3920,220 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-#TODO remaining methods in FacilitiesManagerMethod
+  /urlinjsonout/facilitiesManager/addHosts:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addHosts
+      summary: Adds hosts to the Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/hostnames'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfHostsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeHosts:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeHosts
+      summary: Remove hosts from a Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/listOfHostIds'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addHost:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addHost
+      summary: Adds a host to the Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: hostname, description: "DNS name of host", schema: { type: string },  in: query, required: true }
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfHostsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeHost:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeHost
+      summary: Removes a host.
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO getAssignedFacilities
+
+  /urlinjsonout/facilitiesManager/addAdmin/user:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityAdminUser
+      summary: Adds a user as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addAdmin/group:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityAdminGroup
+      summary: Adds a group as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  /urlinjsonout/facilitiesManager/removeAdmin/user:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityAdminUser
+      summary: Removes a user as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeAdmin/group:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityAdminGroup
+      summary: Removes a group as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  /json/facilitiesManager/getAdmins:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityAdminUsers
+      description: |
+          Get list of all facility administrators for supported role and given facility.
+          If onlyDirectAdmins is true, return only direct admins of the group for supported role.
+          Supported roles: FacilityAdmin
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)"}
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAdminGroups:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityAdminGroups
+      summary: Get all Facility group admins.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  #TODO getRichAdmins
+
+  #TODO getRichAdminsWithAttributes
+
+  #TODO getRichAdminsWithSpecificAttributes
+
+  #TODO getDirectRichAdminsWithSpecificAttributes
+
+  #TODO getFacilitiesWhereUserIsAdmin
+
+  #TODO getFacilitiesByHostName
+
+  #TODO getAllowedUsers
+
+  #TODO copyOwners
+
+  #TODO copyManagers
+
+  #TODO copyAttributes
+
+  #TODO getFacilityContactGroups
+
+  #TODO getFacilityContactGroup
+
+  #TODO getAllContactGroupNames
+
+  #TODO addFacilityContacts
+
+  #TODO addFacilityContact
+
+  #TODO removeFacilityContacts
+
+  #TODO removeFacilityContact
+
+  #TODO getAssignedSecurityTeams
+
+  #TODO assignSecurityTeam
+
+  #TODO removeSecurityTeam
+
+  #TODO setBan
+
+  #TODO getBanById
+
+  #TODO getBan
+
+  #TODO getBansForUser
+
+  #TODO getBansForFacility
+
+  #TODO updateBan
+
+  #TODO removeBan
 
   #################################################
   #                                               #
   # OwnersManager                                 #
-  #                                               #
+  #  (completely described)                       #
   #################################################
 
   /json/ownersManager/createOwner:
@@ -3959,7 +4179,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
       parameters:
-        - { name: owner, description: "id of Owner", schema: { type: integer }, in: query, required: true }
+        - $ref: '#/components/parameters/ownerId'
 
   /json/ownersManager/getOwnerById:
     get:
@@ -4004,6 +4224,24 @@ paths:
       description: Throws GroupNotExistsException when the group doesn't exist.
       parameters:
         - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroupByName:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupByName
+      description: |
+        Returns a group by VO and Group name.
+        IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
+        Throws GroupNotExistsException when the group doesn't exist.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: name, schema: { type: string }, in: query, required: true, description: 'full group name' }
       responses:
         200:
           $ref: '#/components/responses/GroupResponse'
@@ -4076,20 +4314,18 @@ paths:
   #################################################
   #                                               #
   # VosManager                                    #
-  #                                               #
+  #  (complete with TODOs)                        #
   #################################################
 
-  /json/vosManager/getVoById:
+  /json/vosManager/getVos:
     get:
       tags:
         - VosManager
-      operationId: getVoById
-      summary: Returns a virtual organization by id.
-      parameters:
-        - $ref: '#/components/parameters/id'
+      operationId: getMyVos
+      summary: Return list of all VOs the caller is associated with.
       responses:
         200:
-          $ref: '#/components/responses/VoResponse'
+          $ref: '#/components/responses/ListOfVosResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -4105,6 +4341,12 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  #TODO deleteVo
+
+  #TODO createVo
+
+  #TODO updateVo
+
   /json/vosManager/getVoByShortName:
     get:
       tags:
@@ -4118,6 +4360,130 @@ paths:
           $ref: '#/components/responses/VoResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getVoById:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoById
+      summary: Returns a virtual organization by id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO findCandidates
+
+  #TODO getCompleteCandidates
+
+  #TODO getVosCount
+
+  /urlinjsonout/vosManager/addAdmin/user:
+    post:
+      tags:
+        - VosManager
+      operationId: addVoAdminUser
+      summary: Adds a user as a Vo admin.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/addAdmin/group:
+    post:
+      tags:
+        - VosManager
+      operationId: addVoAdminGroup
+      summary: Adds a group as a Vo admin.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO addSponsorRole
+
+  /urlinjsonout/vosManager/removeAdmin/user:
+    post:
+      tags:
+        - VosManager
+      operationId: removeVoAdminUser
+      summary: Removes a user as a Vo admin.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/removeAdmin/group:
+    post:
+      tags:
+        - VosManager
+      operationId: removeVoAdminGroup
+      summary: Removes a group as a Vo admin.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+      responses:
+        200:
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO removeSponsorRole
+
+  /json/vosManager/getAdmins:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoAdminUsers
+      description: |
+        Get list of all vo administrators for supported role and specific vo.
+        If onlyDirectAdmins is true, return only direct admins of the vo for supported role.
+        Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name'}
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "get only direct administrators (if false, get both direct and indirect)"}
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getAdminGroups:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoAdminGroups
+      description: |
+        Get list of administrator groups of the given VO.
+        Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name'}
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  #TODO getRichAdmins
+
 
   #################################################
   #                                               #
@@ -4162,7 +4528,7 @@ paths:
   #################################################
   #                                               #
   # ServicesManager                               #
-  #                                               #
+  #  (complete with TODOs)                        #
   #################################################
 
   #TODO blockServiceOnFacility
@@ -4467,7 +4833,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/servicesManager/getAssignedResources:
+  /json/servicesManager/getAssignedResourcesForService:
     get:
       tags:
         - ServicesManager
