@@ -9,8 +9,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.History;
@@ -23,8 +21,6 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
-import cz.metacentrum.perun.webgui.json.attributesManager.GetEntitylessAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttribute;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
@@ -48,7 +44,6 @@ import cz.metacentrum.perun.webgui.widgets.CantLogAsServiceUserWidget;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
 
-import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -360,7 +355,8 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 									if (error != null) {
 										loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
 									} else {
-										loadingFailedBox = session.getUiElements().perunLoadingFailedBox("GDPR check failed");
+										String checkFailed = session.getConfiguration().getGDPRproperty("check_failed");
+										loadingFailedBox = session.getUiElements().perunLoadingFailedBox(checkFailed);
 									}
 									loadingFailedBox.show();
 
@@ -710,7 +706,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("gdprAdminEnabled");
 			if (value != null && !value.isEmpty() && "true".equalsIgnoreCase(value) && session.getUser() != null) {
 
-				final String currentVersion = PerunWebSession.getInstance().getConfiguration().getCustomProperty("gdprAdminLastVersion");
+				final String currentVersion = PerunWebSession.getInstance().getConfiguration().getGDPRproperty("version");
 
 				if (currentVersion != null && !currentVersion.isEmpty()) {
 
@@ -722,6 +718,11 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 						public void onFinished(JavaScriptObject jso) {
 
 							List<Attribute> response = JsonUtils.<Attribute>jsoAsList(jso);
+							if (response.isEmpty()) {
+								// attribute for storing approved versions doesn't exists or user is not allowed to read it - continue loading UI
+								finishEvents.onFinished(null);
+								return;
+							}
 							for (Attribute a : response) {
 								if (a != null && "gdprAdminApprovedVersions".equalsIgnoreCase(a.getFriendlyName())) {
 									Map<String, String> approvedAdminGDPR = a.getValueAsMapString();
@@ -761,11 +762,16 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 
 	private void showCurrentGDPRApproval(Map<String, Integer> ids, Attribute a, Map<String, String> approvedAdminGDPR, String currentVersion, JsonCallbackEvents finishEvents) {
 
-		TextArea area = new TextArea();
-		area.setSize("500px", "800px");
-		area.setText(session.getConfiguration().getCustomProperty("gdprAdminText"));
+		String gdprApprovalText = session.getConfiguration().getGDPRproperty("text");
+		String agreeButtonText = session.getConfiguration().getGDPRproperty("agree");
+		String disagreeButtonText = session.getConfiguration().getGDPRproperty("disagree");
+		String disagreeResult = session.getConfiguration().getGDPRproperty("disagree_result");
+		String title = session.getConfiguration().getGDPRproperty("title");
+		String backToGdprConfirm = session.getConfiguration().getGDPRproperty("disagree_back");
 
-		Confirm gdprConfirm = new Confirm("GDPR approval", area, new ClickHandler() {
+		HTML html = new HTML("<div height=\"500\" width=\"420\">" + gdprApprovalText + "</div>");
+
+		Confirm gdprConfirm = new Confirm(title, html, new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 
@@ -792,11 +798,23 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 		}, new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PerunError error = (PerunError)PerunError.createObject();
-				error.setErrorInfo("In order to use GUI as administrator you must approve latest version of GDPR.");
-				finishEvents.onError(error);
+
+				Confirm disagreeConfirm = new Confirm(title, new HTML(disagreeResult), false);
+				disagreeConfirm.setNonScrollable(true);
+				disagreeConfirm.setAutoHide(false);
+				disagreeConfirm.setOkButtonText(backToGdprConfirm);
+				disagreeConfirm.setOkClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						finishEvents.onError(null);
+						Window.Location.reload();
+					}
+				});
+				disagreeConfirm.show();
 			}
-		}, "Approve", "Reject", true);
+		}, agreeButtonText, disagreeButtonText, true);
+		gdprConfirm.setNonScrollable(true);
+		gdprConfirm.setAutoHide(false);
 		gdprConfirm.show();
 
 	}

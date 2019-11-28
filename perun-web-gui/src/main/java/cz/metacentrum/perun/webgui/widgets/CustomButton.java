@@ -126,7 +126,7 @@ public class CustomButton extends Button {
 	 * @param clickHandler
 	 */
 	public CustomButton(String text, String title, ImageResource imgres, ClickHandler clickHandler){
-		this(text, new Image(imgres), clickHandler);
+		this(text, (imgres != null) ? new Image(imgres) : null, clickHandler);
 		this.setTitle(title);
 	}
 
