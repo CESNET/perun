@@ -388,7 +388,7 @@ public class MailManagerImpl implements MailManager {
 			// different behavior based on mail type
 			switch (mail.getMailType()) {
 				case APP_CREATED_USER:
-					appCreatedUser(app, mail, data, reason, exceptions);
+					sendUserMessage(app, mail, data, reason, exceptions, MailType.APP_CREATED_USER);
 					break;
 				case APP_CREATED_VO_ADMIN:
 					appCreatedVoAdmin(app, mail, data, reason, exceptions);
@@ -397,10 +397,10 @@ public class MailManagerImpl implements MailManager {
 					mailValidation(app, mail, data, reason, exceptions);
 					break;
 				case APP_APPROVED_USER:
-					appApprovedUser(app, mail, data, reason, exceptions);
+					sendUserMessage(app, mail, data, reason, exceptions, MailType.APP_APPROVED_USER);
 					break;
 				case APP_REJECTED_USER:
-					appRejectedUser(app, mail, data, reason, exceptions);
+					sendUserMessage(app, mail, data, reason, exceptions, MailType.APP_REJECTED_USER);
 					break;
 				case APP_ERROR_VO_ADMIN:
 					appErrorVoAdmin(app, mail, data, reason, exceptions);
@@ -518,79 +518,10 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 
-		ApplicationForm form = getForm(vo, group);
-		ApplicationMail mail = getMail(form, AppType.INITIAL, MailType.USER_INVITE);
+		Application app = getFakeApplication(vo, group);
+		SimpleMailMessage message = getInvitationMessage(vo, group, language, email, app, name, null);
 
-		if (language == null) {
-			language = LANG_EN;
-			if (group == null) {
-				try {
-					Attribute a = attrManager.getAttribute(registrarSession, vo, URN_VO_LANGUAGE_EMAIL);
-					if (a != null && a.getValue() != null) {
-						String possibleLang = BeansUtils.attributeValueToString(a);
-						if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-							language = possibleLang;
-						}
-					}
-				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Exception thrown when getting preferred language of notification for VO={}: {}", vo, ex);
-				}
-			} else {
-				try {
-					Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_LANGUAGE_EMAIL);
-					if (a != null && a.getValue() != null) {
-						String possibleLang = BeansUtils.attributeValueToString(a);
-						if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-							language = possibleLang;
-						}
-					}
-				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Exception thrown when getting preferred language of notification for Group={}: {}", group, ex);
-				}
-			}
-		}
-
-		// get language
-		Locale lang = new Locale(language);
-		// get localized subject and text
-		MailText mt = mail.getMessage(lang);
-		String mailText = EMPTY_STRING;
-		String mailSubject = EMPTY_STRING;
-		if (mt.getText() != null && !mt.getText().isEmpty()) {
-			mailText = mt.getText();
-		}
-		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
-			mailSubject = mt.getSubject();
-		}
-
-		SimpleMailMessage message = new SimpleMailMessage();
-
-		// fake app to get "from" address
-		Application app = new Application();
-		app.setVo(vo);
-		app.setGroup(group);
-		// get from
-		setFromMailAddress(message, app);
-
-		message.setTo(email);
-
-		mailText = substituteCommonStringsForInvite(vo, group, null, name, mailText);
-		mailSubject = substituteCommonStringsForInvite(vo, group, null, name, mailSubject);
-
-		message.setSubject(mailSubject);
-		message.setText(mailText);
-
-		try {
-			mailSender.send(message);
-			User sendingUser = sess.getPerunPrincipal().getUser();
-			AuditEvent event = new InvitationSentEvent(sendingUser, email, language, group, vo);
-			sess.getPerun().getAuditer().log(sess, event);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}",
-				message.getTo(), app.getVo(), app.getGroup());
-		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
-			throw new RegistrarException("Unable to send e-mail.", ex);
-		}
+		sendInvitationMail(sess, vo, group, email, language, message, app);
 	}
 
 	@Override
@@ -625,80 +556,6 @@ public class MailManagerImpl implements MailManager {
 			log.error("[MAIL MANAGER] Exception throw when getting member by {} from {}: {}", user, vo.toString(), ex);
 		}
 
-		// get form
-		ApplicationForm form;
-		if (group != null) {
-			form = registrarManager.getFormForGroup(group);
-		} else {
-			form = registrarManager.getFormForVo(vo);
-		}
-
-		// get mail definition
-		ApplicationMail mail = getMail(form, AppType.INITIAL, MailType.USER_INVITE);
-
-		String language = LANG_EN;
-
-		try {
-			Attribute a = attrManager.getAttribute(registrarSession, user, URN_USER_PREFERRED_LANGUAGE);
-			if (a != null && a.getValue() != null) {
-				String possibleLang = BeansUtils.attributeValueToString(a);
-				if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-					language = possibleLang;
-				}
-			}
-		} catch (Exception ex) {
-			log.error("[MAIL MANAGER] Exception thrown when getting preferred language for USER={}: {}", user, ex);
-		}
-
-		if (group == null) {
-			try {
-				Attribute a = attrManager.getAttribute(registrarSession, vo, URN_VO_LANGUAGE_EMAIL);
-				if (a != null && a.getValue() != null) {
-					String possibleLang = BeansUtils.attributeValueToString(a);
-					if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-						language = possibleLang;
-					}
-				}
-			} catch (Exception ex) {
-				log.error("[MAIL MANAGER] Exception thrown when getting preferred language of notification for VO={}: {}", vo, ex);
-			}
-		} else {
-			try {
-				Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_LANGUAGE_EMAIL);
-				if (a != null && a.getValue() != null) {
-					String possibleLang = BeansUtils.attributeValueToString(a);
-					if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-						language = possibleLang;
-					}
-				}
-			} catch (Exception ex) {
-				log.error("[MAIL MANAGER] Exception thrown when getting preferred language of notification for Group={}: {}", group, ex);
-			}
-
-		}
-
-		// get language
-		Locale lang = new Locale(language);
-		// get localized subject and text
-		MailText mt = mail.getMessage(lang);
-		String mailText = EMPTY_STRING;
-		String mailSubject = EMPTY_STRING;
-		if (mt.getText() != null && !mt.getText().isEmpty()) {
-			mailText = mt.getText();
-		}
-		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
-			mailSubject = mt.getSubject();
-		}
-
-		SimpleMailMessage message = new SimpleMailMessage();
-
-		// fake app to get "from" address
-		Application app = new Application();
-		app.setVo(vo);
-		app.setGroup(group);
-		// get from
-		setFromMailAddress(message, app);
-
 		String email = EMPTY_STRING;
 		try {
 			Attribute a = attrManager.getAttribute(registrarSession, user, URN_USER_PREFERRED_MAIL);
@@ -709,25 +566,14 @@ public class MailManagerImpl implements MailManager {
 			log.error("[MAIL MANAGER] Exception thrown when getting preferred language of notification for Group={}: {}", group, ex);
 		}
 
-		message.setTo(email != null ? email : EMPTY_STRING);
+		String language = LANG_EN;
+		language = getLanguageForUser(user, language);
 
-		mailText = substituteCommonStringsForInvite(vo, group, user, null, mailText);
-		mailSubject = substituteCommonStringsForInvite(vo, group, user, null, mailSubject);
+		Application app = getFakeApplication(vo, group);
 
-		message.setSubject(mailSubject);
-		message.setText(mailText);
+		SimpleMailMessage message = getInvitationMessage(vo, group, language, email, app, null, user);
 
-		try {
-			mailSender.send(message);
-			User sendingUser = sess.getPerunPrincipal().getUser();
-			AuditEvent event = new InvitationSentEvent(sendingUser, email, language, group, vo);
-			sess.getPerun().getAuditer().log(sess, event);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}",
-				message.getTo(), app.getVo(), app.getGroup());
-		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
-			throw new RegistrarException("Unable to send e-mail.", ex);
-		}
+		sendInvitationMail(sess, vo, group, email, language, message, app);
 	}
 
 	@Override
@@ -932,24 +778,13 @@ public class MailManagerImpl implements MailManager {
 
 		// get proper value from attribute
 		try {
-			Attribute attrSenderEmail;
-
-			if (app.getGroup() == null) {
-				attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_FROM_EMAIL);
-			} else {
-				attrSenderEmail = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_FROM_EMAIL);
-				// use VO as backup
-				if (attrSenderEmail == null || attrSenderEmail.getValue() == null) {
-					attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_FROM_EMAIL);
-				}
-			}
+			Attribute attrSenderEmail = getMailFromVoAndGroupAttrs(app, URN_VO_FROM_EMAIL, URN_GROUP_FROM_EMAIL);
 
 			if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
-				String possibleTo = BeansUtils.attributeValueToString(attrSenderEmail);
-				if (possibleTo != null && !possibleTo.trim().isEmpty()) {
-					message.setReplyTo(possibleTo);
-				} else {
-					message.setReplyTo(EMPTY_STRING);
+				String possibleFrom = BeansUtils.attributeValueToString(attrSenderEmail);
+				if (possibleFrom != null && !possibleFrom.trim().isEmpty()) {
+					message.setFrom(possibleFrom);
+					message.setReplyTo(possibleFrom);
 				}
 			}
 		} catch (Exception ex) {
@@ -977,16 +812,7 @@ public class MailManagerImpl implements MailManager {
 
 		// get proper value from attribute
 		try {
-			Attribute attrToEmail;
-			if (app.getGroup() == null) {
-				attrToEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_TO_EMAIL);
-			} else {
-				attrToEmail = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_TO_EMAIL);
-				// use VO as backup
-				if (attrToEmail == null || attrToEmail.getValue() == null) {
-					attrToEmail = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_TO_EMAIL);
-				}
-			}
+			Attribute attrToEmail = getMailFromVoAndGroupAttrs(app, URN_VO_TO_EMAIL, URN_GROUP_TO_EMAIL);
 
 			if (attrToEmail != null && attrToEmail.getValue() != null) {
 				ArrayList<String> value = attrToEmail.valueAsList();
@@ -1137,11 +963,11 @@ public class MailManagerImpl implements MailManager {
 	private String buildInviteURL(Vo vo, Group group, String text) {
 		if (text == null || text.isEmpty()) return EMPTY_STRING;
 
-		text += "?vo=" + getEncodedString(vo.getShortName());
+		text += "?vo=" + getUrlEncodedString(vo.getShortName());
 
 		if (group != null) {
 			// application for group too
-			text += "&group="+getEncodedString(group.getName());
+			text += "&group="+ getUrlEncodedString(group.getName());
 		}
 
 		return text;
@@ -1622,10 +1448,10 @@ public class MailManagerImpl implements MailManager {
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
 				text += "registrar/";
-				text += "?vo=" + getEncodedString(vo.getShortName()) + "&page=apps";
+				text += "?vo=" + getUrlEncodedString(vo.getShortName()) + "&page=apps";
 			}
 			if (group != null) {
-				text += "&group="+getEncodedString(group.getName());
+				text += "&group="+ getUrlEncodedString(group.getName());
 			}
 			mailText = mailText.replace("{appGuiUrl}", text != null ? text : EMPTY_STRING);
 		}
@@ -1652,8 +1478,8 @@ public class MailManagerImpl implements MailManager {
 					if (newValue != null && !newValue.isEmpty()) {
 						if (!newValue.endsWith("/")) newValue += "/";
 						newValue += namespace + "/registrar/";
-						newValue += "?vo="+getEncodedString(vo.getShortName());
-						newValue += ((group != null) ? "&group="+getEncodedString(group.getName()) : EMPTY_STRING);
+						newValue += "?vo="+ getUrlEncodedString(vo.getShortName());
+						newValue += ((group != null) ? "&group="+ getUrlEncodedString(group.getName()) : EMPTY_STRING);
 						newValue += "&page=apps";
 					}
 				}
@@ -1744,7 +1570,7 @@ public class MailManagerImpl implements MailManager {
 	 * @param s String to encode
 	 * @return URL Encoded string
 	 */
-	private static String getEncodedString(String s) {
+	private static String getUrlEncodedString(String s) {
 		try {
 			return URLEncoder.encode(s, "UTF-8");
 		} catch (UnsupportedEncodingException ex) {
@@ -1765,95 +1591,24 @@ public class MailManagerImpl implements MailManager {
 		}
 	}
 
-	private void appCreatedUser(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		// set FROM
-		setFromMailAddress(message, app);
-		// set TO
-		setUsersMailAsTo(message, app, data);
-
-		// get language
-		Locale lang = new Locale(getLanguageFromAppData(app, data));
-		// get localized subject and text
-		MailText mt = mail.getMessage(lang);
-		String mailText = EMPTY_STRING;
-		String mailSubject = EMPTY_STRING;
-		if (mt.getText() != null && !mt.getText().isEmpty()) {
-			mailText = mt.getText();
-		}
-		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
-			mailSubject = mt.getSubject();
-		}
-		// substitute common strings
-		mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
-		mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-
-		// set subject and text
-		message.setSubject(mailSubject);
-		message.setText(mailText);
+	private void sendUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions, MailType type) {
+		SimpleMailMessage message = getUserMessage(app, mail, data, reason, exceptions);
 
 		try {
 			// send mail
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: {} / {} / {}"
-				, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
+			log.info("[MAIL MANAGER] Sending mail: {} to: {} / appID: {} / {} / {}",
+					type, message.getTo(), app.getId(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception.", ex);
+			log.error("[MAIL MANAGER] Sending mail: {} failed because of exception.", type, ex);
 		}
 	}
 
 	private void appCreatedVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
-
-		// set FROM
-		setFromMailAddress(message, app);
-
-		// set language independent on user's preferred language.
-		Locale lang = new Locale(LANG_EN);
-		try {
-			if (app.getGroup() == null) {
-				// VO
-				Attribute a = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_LANGUAGE_EMAIL);
-				if (a != null && a.getValue() != null) {
-					String possibleLang = BeansUtils.attributeValueToString(a);
-					if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-						lang = new Locale(possibleLang);
-					}
-				}
-			} else {
-				Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_LANGUAGE_EMAIL);
-				if (a != null && a.getValue() != null) {
-					String possibleLang = BeansUtils.attributeValueToString(a);
-					if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-						lang = new Locale(possibleLang);
-					}
-				}
-			}
-		} catch (Exception ex) {
-			log.error("Error when resolving notification default language.", ex);
-		}
-
-		MailText mt2 = mail.getMessage(lang);
-		String mailText2 = EMPTY_STRING;
-		String mailSubject2 = EMPTY_STRING;
-		if (mt2.getText() != null && !mt2.getText().isEmpty()) {
-			mailText2 = mt2.getText();
-		}
-		if (mt2.getSubject() != null && !mt2.getSubject().isEmpty()) {
-			mailSubject2 = mt2.getSubject();
-		}
-
-		// substitute common strings
-		mailText2 = substituteCommonStrings(app, data, mailText2, reason, exceptions);
-		mailSubject2 = substituteCommonStrings(app, data, mailSubject2, reason, exceptions);
-
-		// set subject and text
-		message.setSubject(mailSubject2);
-		message.setText(mailText2);
+		SimpleMailMessage message = getAdminMessage(app, mail, data, reason, exceptions);
 
 		// send a message to all VO or Group admins
 		List<String> toEmail = getToMailAddresses(app);
-
 		for (String email : toEmail) {
 			message.setTo(email);
 			try {
@@ -1877,24 +1632,9 @@ public class MailManagerImpl implements MailManager {
 		// get language
 		Locale lang = new Locale(getLanguageFromAppData(app, data));
 		// get localized subject and text
-		MailText mt = mail.getMessage(lang);
-		String mailText = EMPTY_STRING;
-		String mailSubject = EMPTY_STRING;
-		if (mt.getText() != null && !mt.getText().isEmpty()) {
-			mailText = mt.getText();
-		}
-		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
-			mailSubject = mt.getSubject();
-		}
-		mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
-		mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-
-
-		// substitute common strings
-		mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
-		mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-
-		// set subject and text
+		String mailText = getMailText(mail, lang, app, data, reason, exceptions);
+		message.setText(mailText);
+		String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
 		message.setSubject(mailSubject);
 
 		// send to all emails, which needs to be validated
@@ -1933,8 +1673,8 @@ public class MailManagerImpl implements MailManager {
 								if (newValue != null && !newValue.isEmpty()) {
 									if (!newValue.endsWith("/")) newValue += "/";
 									newValue += namespace + "/registrar/";
-									newValue += "?vo="+getEncodedString(app.getVo().getShortName());
-									newValue += ((app.getGroup() != null) ? "&group="+getEncodedString(app.getGroup().getName()) : EMPTY_STRING);
+									newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
+									newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
 									try {
 										newValue += "&i=" + URLEncoder.encode(i, "UTF-8") + "&m=" + URLEncoder.encode(m, "UTF-8");
 									} catch (UnsupportedEncodingException ex) {
@@ -1953,10 +1693,10 @@ public class MailManagerImpl implements MailManager {
 						if (url != null && !url.isEmpty()) {
 							if (!url.endsWith("/")) url += "/";
 							url += "registrar/";
-							url = url + "?vo=" + getEncodedString(app.getVo().getShortName());
+							url = url + "?vo=" + getUrlEncodedString(app.getVo().getShortName());
 							if (app.getGroup() != null) {
 								// append group name for
-								url += "&group=" + getEncodedString(app.getGroup().getName());
+								url += "&group=" + getUrlEncodedString(app.getGroup().getName());
 							}
 
 							// construct whole url
@@ -2000,145 +1740,73 @@ public class MailManagerImpl implements MailManager {
 		}
 	}
 
-	private void appApprovedUser(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		// set FROM
-		setFromMailAddress(message, app);
-
-		// set TO
-		setUsersMailAsTo(message, app, data);
-
-		// get language
-		Locale lang = new Locale(getLanguageFromAppData(app, data));
-		// get localized subject and text
-		MailText mt = mail.getMessage(lang);
-		String mailText = EMPTY_STRING;
-		String mailSubject = EMPTY_STRING;
-		if (mt.getText() != null && !mt.getText().isEmpty()) {
-			mailText = mt.getText();
-		}
-		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
-			mailSubject = mt.getSubject();
-		}
-		// substitute common strings
-		mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
-		mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-
-		// set subject and text
-		message.setSubject(mailSubject);
-		message.setText(mailText);
-
-		try {
-			// send mail
-			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {} / appID: {} / {} / {}",
-				message.getTo(), app.getId(), app.getVo(), app.getGroup());
-		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception.", ex);
-		}
-	}
-
-	private void appRejectedUser(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		// set FROM
-		setFromMailAddress(message, app);
-
-		// set TO
-		setUsersMailAsTo(message, app, data);
-
-		// get language
-		Locale lang = new Locale(getLanguageFromAppData(app, data));
-		// get localized subject and text
-		MailText mt = mail.getMessage(lang);
-		String mailText = EMPTY_STRING;
-		String mailSubject = EMPTY_STRING;
-		if (mt.getText() != null && !mt.getText().isEmpty()) {
-			mailText = mt.getText();
-		}
-		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
-			mailSubject = mt.getSubject();
-		}
-
-		// substitute common strings
-		mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
-		mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
-
-		// set subject and text
-		message.setSubject(mailSubject);
-		message.setText(mailText);
-
-		try {
-			// send mail
-			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: {} / {} / {}",
-				message.getTo(), app.getId(), app.getVo(), app.getGroup());
-		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception.", ex);
-		}
-	}
-
 	private void appErrorVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
+		SimpleMailMessage message = getAdminMessage(app, mail, data, reason, exceptions);
 
-		// set FROM
-		setFromMailAddress(message, app);
-
-		// set language independent on user's preferred language.
-		Locale lang = new Locale(LANG_EN);
-		try {
-			if (app.getGroup() == null) {
-				// VO
-				Attribute a = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_LANGUAGE_EMAIL);
-				if (a != null && a.getValue() != null) {
-					String possibleLang = BeansUtils.attributeValueToString(a);
-					if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-						lang = new Locale(possibleLang);
-					}
-				}
-			} else {
-				Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_LANGUAGE_EMAIL);
-				if (a != null && a.getValue() != null) {
-					String possibleLang = BeansUtils.attributeValueToString(a);
-					if (possibleLang != null && !possibleLang.trim().isEmpty()) {
-						lang = new Locale(possibleLang);
-					}
-				}
-			}
-		} catch (Exception ex) {
-			log.error("Error when resolving notification default language.", ex);
-		}
-
-		MailText mt2 = mail.getMessage(lang);
-		String mailText2 = EMPTY_STRING;
-		String mailSubject2 = EMPTY_STRING;
-		if (mt2.getText() != null && !mt2.getText().isEmpty()) {
-			mailText2 = mt2.getText();
-		}
-		if (mt2.getSubject() != null && !mt2.getSubject().isEmpty()) {
-			mailSubject2 = mt2.getSubject();
-		}
-
-		// substitute common strings
-		mailText2 = substituteCommonStrings(app, data, mailText2, reason, exceptions);
-		mailSubject2 = substituteCommonStrings(app, data, mailSubject2, reason, exceptions);
-
-		// set subject and text
-		message.setSubject(mailSubject2);
-		message.setText(mailText2);
-
-		// send message to all VO or Group admins
+		// send a message to all VO or Group admins
 		List<String> toEmail = getToMailAddresses(app);
 
 		for (String email : toEmail) {
 			message.setTo(email);
 			try {
 				mailSender.send(message);
-				log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: {} / {} / {}"
-					, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
+				log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: {} / {} / {}",
+						message.getTo(), app.getId(), app.getVo(), app.getGroup());
 			} catch (MailException ex) {
 				log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception.", ex);
 			}
 		}
+	}
+
+	private String getMailText(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
+							   String reason, List<Exception> exceptions) {
+		MailText mt = mail.getMessage(lang);
+
+		String mailText = EMPTY_STRING;
+		if (mt.getText() != null && !mt.getText().isEmpty()) {
+			mailText = mt.getText();
+			mailText = substituteCommonStrings(app, data, mailText, reason, exceptions);
+		}
+
+		return mailText;
+	}
+
+	private String getMailSubject(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
+								  String reason, List<Exception> exceptions) {
+		MailText mt = mail.getMessage(lang);
+
+		String mailSubject = EMPTY_STRING;
+		if (mt.getText() != null && !mt.getText().isEmpty()) {
+			mailSubject = mt.getSubject();
+			mailSubject = substituteCommonStrings(app, data, mailSubject, reason, exceptions);
+		}
+
+		// substitute common strings
+		return mailSubject;
+	}
+
+	private String getMailSubjectInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group, User user, String name) {
+		MailText mt = mail.getMessage(lang);
+		String mailSubject = EMPTY_STRING;
+
+		if (mt.getSubject() != null && !mt.getSubject().isEmpty()) {
+			mailSubject = mt.getSubject();
+			mailSubject = substituteCommonStringsForInvite(vo, group, user, name, mailSubject);
+		}
+
+		return mailSubject;
+	}
+
+	private String getMailTextInvitation(ApplicationMail mail, Locale lang, Vo vo, Group group, User user, String name) {
+		MailText mt = mail.getMessage(lang);
+		String mailText = EMPTY_STRING;
+
+		if (mt.getText() != null && !mt.getText().isEmpty()) {
+			mailText = mt.getText();
+			mailText = substituteCommonStringsForInvite(vo, group, user, name, mailText);
+		}
+
+		return mailText;
 	}
 
 	private ApplicationForm getForm(Application app) throws FormNotExistsException {
@@ -2162,6 +1830,208 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		return mail;
+	}
+
+	/**
+	 * Send invitation email to one user
+	 */
+	private void sendInvitationMail(PerunSession sess, Vo vo, Group group, String email, String language,
+									SimpleMailMessage message, Application app) throws RegistrarException {
+		try {
+			mailSender.send(message);
+			User sendingUser = sess.getPerunPrincipal().getUser();
+			AuditEvent event = new InvitationSentEvent(sendingUser, email, language, group, vo);
+			sess.getPerun().getAuditer().log(sess, event);
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}",
+					message.getTo(), app.getVo(), app.getGroup());
+		} catch (MailException ex) {
+			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
+			throw new RegistrarException("Unable to send e-mail.", ex);
+		}
+	}
+
+	/**
+	 * Get lang preferred by USER. If value of attribute is null or empty, defaultLanguage (passed as param) is returned.
+	 */
+	private String getLanguageForUser(User user, String defaultLanguage) {
+		String language = defaultLanguage;
+		try {
+			Attribute a = attrManager.getAttribute(registrarSession, user, URN_USER_PREFERRED_LANGUAGE);
+			if (a != null && a.getValue() != null) {
+				String possibleLang = BeansUtils.attributeValueToString(a);
+				if (possibleLang != null && !possibleLang.trim().isEmpty()) {
+					language = possibleLang;
+				}
+			}
+		} catch (Exception ex) {
+			log.error("[MAIL MANAGER] Exception thrown when getting preferred language for USER={}: {}", user, ex);
+		}
+
+		return language;
+	}
+
+	/**
+	 * Get language from VO and GROUP attributes. If possible, returns lang from GROUP, then tries VO. If both are null
+	 * or empty, defaultLanguage (passed as param) is returned.
+	 */
+	private String getLanguageFromVoAndGroupAttrs(Vo vo, Group group, String defaultLanguage) {
+		String language = defaultLanguage;
+
+		if (group == null) {
+			try {
+				language = getLanguageForVo(vo, defaultLanguage);
+			} catch (Exception ex) {
+				log.error("[MAIL MANAGER] Exception thrown when getting preferred language of notification for VO={}: {}", vo, ex);
+			}
+		} else {
+			try {
+				language = getLanguageForGroup(group, defaultLanguage);
+			} catch (Exception ex) {
+				log.error("[MAIL MANAGER] Exception thrown when getting preferred language of notification for Group={}: {}", group, ex);
+			}
+		}
+
+		return language;
+	}
+
+	/**
+	 * Get language from a GROUP attribute. If value is null or empty, defaultLanguage (passed as param) is returned.
+	 */
+	private String getLanguageForGroup(Group group, String defaultLanguage) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+		Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_LANGUAGE_EMAIL);
+		return getLocaleFromAttr(a, defaultLanguage);
+	}
+
+	/**
+	 * Get language from a VO attribute. If value is null or empty, defaultLanguage (passed as param) is returned.
+	 */
+	private String getLanguageForVo(Vo vo, String defaultLanguage) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+		Attribute a = attrManager.getAttribute(registrarSession, vo, URN_VO_LANGUAGE_EMAIL);
+		return getLocaleFromAttr(a, defaultLanguage);
+	}
+
+	/**
+	 * Get language from an attribute. If value is null or empty, defaultLanguage (passed as param) is returned.
+	 */
+	private String getLocaleFromAttr(Attribute a, String defaultLanguage) {
+		String language = defaultLanguage;
+
+		if (a != null && a.getValue() != null) {
+			String possibleLang = BeansUtils.attributeValueToString(a);
+			if (possibleLang != null && !possibleLang.trim().isEmpty()) {
+				language = possibleLang;
+			}
+		}
+
+		return language;
+	}
+
+	/**
+	 * Get FROM field as email attribute from VO and GROUP. If group is NULL or doesn't have the attribute, VO is used as fallback.
+	 */
+	private Attribute getMailFromVoAndGroupAttrs(Application app, String voEmailAttr, String groupEmailAttr)
+			throws AttributeNotExistsException, WrongAttributeAssignmentException {
+		Attribute attrSenderEmail;
+
+		if (app.getGroup() == null) {
+			attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), voEmailAttr);
+		} else {
+			attrSenderEmail = attrManager.getAttribute(registrarSession, app.getGroup(), groupEmailAttr);
+			// use VO as backup
+			if (attrSenderEmail == null || attrSenderEmail.getValue() == null) {
+				attrSenderEmail = attrManager.getAttribute(registrarSession, app.getVo(), voEmailAttr);
+			}
+		}
+
+		return attrSenderEmail;
+	}
+
+	/**
+	 * Initialize SimpleMailMessage that will be sent to manager(admin). Initialization takes care of following:
+	 * - set FROM, set TEXT, set SUBJECT
+	 */
+	private SimpleMailMessage getAdminMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
+		SimpleMailMessage message = new SimpleMailMessage();
+
+		// set FROM
+		setFromMailAddress(message, app);
+
+		// set language independent on user's preferred language.
+		String language = LANG_EN;
+		language = getLanguageFromVoAndGroupAttrs(app.getVo(), app.getGroup(), language);
+		Locale lang = new Locale(language);
+
+		// get localized subject and text
+		String mailText = getMailText(mail, lang, app, data, reason, exceptions);
+		message.setText(mailText);
+		String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
+		message.setSubject(mailSubject);
+
+		return message;
+	}
+
+	/**
+	 * Initialize SimpleMailMessage that will be sent to user. Initialization takes care of following:
+	 * - set FROM, set TO, set TEXT, set SUBJECT
+	 */
+	private SimpleMailMessage getUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		// set FROM
+		setFromMailAddress(message, app);
+
+		// set TO
+		setUsersMailAsTo(message, app, data);
+
+		// get language
+		Locale lang = new Locale(getLanguageFromAppData(app, data));
+
+		// get localized subject and text
+		String mailText = getMailText(mail, lang, app, data, reason, exceptions);
+		message.setText(mailText);
+		String mailSubject = getMailSubject(mail, lang, app, data, reason, exceptions);
+		message.setSubject(mailSubject);
+
+		return message;
+	}
+
+	/**
+	 * Create fake application. Can be used to set FROM field.
+	 */
+	private Application getFakeApplication(Vo vo, Group group) {
+		Application app = new Application();
+		app.setVo(vo);
+		app.setGroup(group);
+
+		return app;
+	}
+
+	/**
+	 * Initialize SimpleMailMessage for invitation, that will be sent to user. Initialization takes care of following:
+	 * - set FROM, set TO, set TEXT, set SUBJECT
+	 */
+	private SimpleMailMessage getInvitationMessage(Vo vo, Group group, String language, String to, Application app, String name, User user)
+			throws FormNotExistsException, RegistrarException {
+		if (language == null) {
+			language = LANG_EN;
+			language = getLanguageFromVoAndGroupAttrs(vo, group, language);
+		}
+
+		ApplicationForm form = getForm(vo, group);
+		ApplicationMail mail = getMail(form, AppType.INITIAL, MailType.USER_INVITE);
+		SimpleMailMessage message = new SimpleMailMessage();
+
+		setFromMailAddress(message, app);
+		message.setTo(to);
+
+		// get language
+		Locale lang = new Locale(language);
+		// get localized subject and text
+		String mailText = getMailTextInvitation(mail, lang, vo, group, user, name);
+		message.setText(mailText);
+		String mailSubject = getMailSubjectInvitation(mail, lang, vo, group, user, name);
+		message.setSubject(mailSubject);
+
+		return message;
 	}
 
 }
