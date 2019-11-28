@@ -998,7 +998,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Adds an destination for a facility and service. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
+	 * Adds an destination for a facility and service. If destination doesn't exist it will be created.
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
@@ -1007,7 +1007,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @return Destination Created destination.
 	 */
 	/*#
-	 * Adds an destination for a facility and list of services. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
+	 * Adds an destination for a facility and list of services. If destination doesn't exist it will be created.
 	 *
 	 * @param services List<Service> Services
 	 * @param facility int Facility <code>id</code>
@@ -1016,7 +1016,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @return Destination Created destination.
 	 */
 	/*#
-	 * Adds an destination for a facility and service. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
+	 * Adds an destination for a facility and service. If destination doesn't exist it will be created.
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
@@ -1026,7 +1026,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @return Destination Created destination.
 	 */
 	/*#
-	 * Adds an destination for a facility and list of services. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
+	 * Adds an destination for a facility and list of services. If destination doesn't exist it will be created.
 	 *
 	 * @param services List<Service> Services
 	 * @param facility int Facility <code>id</code>
