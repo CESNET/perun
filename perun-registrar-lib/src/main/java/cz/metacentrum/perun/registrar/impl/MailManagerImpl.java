@@ -10,6 +10,10 @@ import java.util.regex.Pattern;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
@@ -40,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +69,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String MAILS_SELECT_BY_PARAMS = "select id,app_type,form_id,mail_type,send from application_mails where form_id=? and app_type=? and mail_type=?";
 	private static final String MAIL_TEXTS_SELECT_BY_MAIL_ID= "select locale,subject,text from application_mail_texts where mail_id=?";
 
+	private static final String URN_VO_FROM_NAME_EMAIL = "urn:perun:vo:attribute-def:def:fromNameEmail";
 	private static final String URN_VO_FROM_EMAIL = "urn:perun:vo:attribute-def:def:fromEmail";
 	private static final String URN_VO_TO_EMAIL = "urn:perun:vo:attribute-def:def:toEmail";
 	private static final String URN_VO_MAIL_FOOTER = "urn:perun:vo:attribute-def:def:mailFooter";
@@ -75,6 +79,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_GROUP_REGISTRATION_URL = "urn:perun:group:attribute-def:def:registrarURL";
 	private static final String URN_GROUP_TO_EMAIL = "urn:perun:group:attribute-def:def:toEmail";
 	private static final String URN_GROUP_FROM_EMAIL = "urn:perun:group:attribute-def:def:fromEmail";
+	private static final String URN_GROUP_FROM_NAME_EMAIL = "urn:perun:group:attribute-def:def:fromNameEmail";
 	private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
 	static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
 	private static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
@@ -519,7 +524,12 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		Application app = getFakeApplication(vo, group);
-		SimpleMailMessage message = getInvitationMessage(vo, group, language, email, app, name, null);
+		MimeMessage message;
+		try {
+			message = getInvitationMessage(vo, group, language, email, app, name, null);
+		} catch (MessagingException e) {
+			throw new RegistrarException("[MAIL MANAGER] Exception thrown when getting invitation message", e);
+		}
 
 		sendInvitationMail(sess, vo, group, email, language, message, app);
 	}
@@ -571,7 +581,12 @@ public class MailManagerImpl implements MailManager {
 
 		Application app = getFakeApplication(vo, group);
 
-		SimpleMailMessage message = getInvitationMessage(vo, group, language, email, app, null, user);
+		MimeMessage message = null;
+		try {
+			message = getInvitationMessage(vo, group, language, email, app, null, user);
+		} catch (MessagingException e) {
+			throw new RegistrarException("[MAIL MANAGER] Exception thrown when getting invitation message", e);
+		}
 
 		sendInvitationMail(sess, vo, group, email, language, message, app);
 	}
@@ -706,8 +721,8 @@ public class MailManagerImpl implements MailManager {
 	 * @param app application
 	 * @param data application data
 	 */
-	private void setUsersMailAsTo(SimpleMailMessage message, Application app, List<ApplicationFormItemData> data) {
-		message.setTo(EMPTY_STRING);
+	private void setUsersMailAsTo(MimeMessage message, Application app, List<ApplicationFormItemData> data) throws MessagingException {
+		setRecipient(message, null);
 
 		try {
 			// get TO param from VALIDATED_EMAIL form items (it's best fit)
@@ -716,7 +731,7 @@ public class MailManagerImpl implements MailManager {
 				String value = d.getValue();
 				if (ApplicationFormItem.Type.VALIDATED_EMAIL.equals(item.getType())) {
 					if (value != null && !value.isEmpty()) {
-						message.setTo(d.getValue());
+						setRecipient(message, value);
 						return;// use first mail address
 					}
 				}
@@ -727,7 +742,7 @@ public class MailManagerImpl implements MailManager {
 				String value = d.getValue();
 				if (URN_USER_PREFERRED_MAIL.equalsIgnoreCase(item.getPerunDestinationAttribute())) {
 					if (value != null && !value.isEmpty()) {
-						message.setTo(d.getValue());
+						setRecipient(message, value);
 						return;// use first mail address
 					}
 				}
@@ -738,7 +753,7 @@ public class MailManagerImpl implements MailManager {
 				String value = d.getValue();
 				if (URN_MEMBER_MAIL.equalsIgnoreCase(item.getPerunDestinationAttribute())) {
 					if (value != null && !value.isEmpty()) {
-						message.setTo(d.getValue());
+						setRecipient(message, value);
 						return;// use first mail address
 					}
 				}
@@ -750,9 +765,7 @@ public class MailManagerImpl implements MailManager {
 				if (a != null && a.getValue() != null) {
 					String possibleTo = BeansUtils.attributeValueToString(a);
 					if (possibleTo != null && !possibleTo.trim().isEmpty()) {
-						message.setTo(possibleTo);
-					} else {
-						message.setTo(EMPTY_STRING);
+						setRecipient(message, possibleTo);
 					}
 				}
 			}
@@ -771,22 +784,29 @@ public class MailManagerImpl implements MailManager {
 	 * @param message message to set param FROM
 	 * @param app application to decide if it's VO or Group application
 	 */
-	private void setFromMailAddress(SimpleMailMessage message, Application app) {
-		// set backup
-		message.setFrom(getPropertyFromConfiguration("backupFrom"));
-		message.setReplyTo(getPropertyFromConfiguration("backupFrom"));
+	private void setFromMailAddress(MimeMessage message, Application app) {
+		String fromMail = getPropertyFromConfiguration("backupFrom");
+		String fromName = getPropertyFromConfiguration("backupFromName");
 
 		// get proper value from attribute
 		try {
+			Attribute attrSenderName = getMailFromVoAndGroupAttrs(app, URN_VO_FROM_NAME_EMAIL, URN_GROUP_FROM_NAME_EMAIL);
 			Attribute attrSenderEmail = getMailFromVoAndGroupAttrs(app, URN_VO_FROM_EMAIL, URN_GROUP_FROM_EMAIL);
+
+			if (attrSenderName != null && attrSenderName.getValue() != null) {
+				String possibleFrom = BeansUtils.attributeValueToString(attrSenderName);
+				if (possibleFrom != null && !possibleFrom.trim().isEmpty()) {
+					fromName = possibleFrom;
+				}
+			}
 
 			if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
 				String possibleFrom = BeansUtils.attributeValueToString(attrSenderEmail);
 				if (possibleFrom != null && !possibleFrom.trim().isEmpty()) {
-					message.setFrom(possibleFrom);
-					message.setReplyTo(possibleFrom);
+					fromMail = possibleFrom;
 				}
 			}
+			setFromAndReplyTo(message, fromName, fromMail);
 		} catch (Exception ex) {
 			// we don't care about exceptions here - we have backup TO/FROM address
 			if (app.getGroup() == null) {
@@ -794,6 +814,16 @@ public class MailManagerImpl implements MailManager {
 			} else {
 				log.error("[MAIL MANAGER] Exception thrown when getting FROM email from an attribute {}. Ex: {}", URN_GROUP_FROM_EMAIL, ex);
 			}
+		}
+	}
+
+	private void setFromAndReplyTo(MimeMessage message, String fromName, String fromMail) throws UnsupportedEncodingException, MessagingException {
+		if (fromName != null) {
+			message.setFrom(new InternetAddress(fromMail, fromName));
+			message.setReplyTo(new InternetAddress[]{new InternetAddress(fromMail, fromName)});
+		} else {
+			message.setFrom(new InternetAddress(fromMail));
+			message.setReplyTo(new InternetAddress[]{new InternetAddress(fromMail)});
 		}
 	}
 
@@ -1591,43 +1621,43 @@ public class MailManagerImpl implements MailManager {
 		}
 	}
 
-	private void sendUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions, MailType type) {
-		SimpleMailMessage message = getUserMessage(app, mail, data, reason, exceptions);
+	private void sendUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions, MailType type) throws MessagingException {
+		MimeMessage message = getUserMessage(app, mail, data, reason, exceptions);
 
 		try {
 			// send mail
 			mailSender.send(message);
 			log.info("[MAIL MANAGER] Sending mail: {} to: {} / appID: {} / {} / {}",
-					type, message.getTo(), app.getId(), app.getVo(), app.getGroup());
-		} catch (MailException ex) {
+					type, message.getAllRecipients(), app.getId(), app.getVo(), app.getGroup());
+		} catch (MailException | MessagingException ex) {
 			log.error("[MAIL MANAGER] Sending mail: {} failed because of exception.", type, ex);
 		}
 	}
 
-	private void appCreatedVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = getAdminMessage(app, mail, data, reason, exceptions);
+	private void appCreatedVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) throws MessagingException {
+		MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions);
 
 		// send a message to all VO or Group admins
 		List<String> toEmail = getToMailAddresses(app);
 		for (String email : toEmail) {
-			message.setTo(email);
+			setRecipient(message, email);
 			try {
 				mailSender.send(message);
 				log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: {} / {} / {}",
-					message.getTo(), app.getId(), app.getVo(), app.getGroup());
-			} catch (MailException ex) {
+					message.getAllRecipients(), app.getId(), app.getVo(), app.getGroup());
+			} catch (MailException | MessagingException ex) {
 				log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception.", ex);
 			}
 		}
 	}
 
-	private void mailValidation(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
+	private void mailValidation(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) throws MessagingException {
+		MimeMessage message = mailSender.createMimeMessage();
 		// set FROM
 		setFromMailAddress(message, app);
 
 		// set TO
-		message.setTo(EMPTY_STRING); // empty = not sent
+		message.setRecipient(Message.RecipientType.TO, null); // empty = not sent
 
 		// get language
 		Locale lang = new Locale(getLanguageFromAppData(app, data));
@@ -1645,7 +1675,7 @@ public class MailManagerImpl implements MailManager {
 			if (ApplicationFormItem.Type.VALIDATED_EMAIL.equals(item.getType()) && !"1".equals(d.getAssuranceLevel())) {
 				if (value != null && !value.isEmpty()) {
 					// set TO
-					message.setTo(value);
+					message.setRecipients(Message.RecipientType.TO, new InternetAddress[] {new InternetAddress(value)});
 
 					// get validation link params
 					String i = Integer.toString(d.getId(), Character.MAX_RADIX);
@@ -1728,7 +1758,7 @@ public class MailManagerImpl implements MailManager {
 					try {
 						mailSender.send(message);
 						log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: {} / {} / {}",
-							message.getTo(), app.getId(), app.getVo(), app.getGroup());
+							message.getAllRecipients(), app.getId(), app.getVo(), app.getGroup());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception.", ex);
 					}
@@ -1740,23 +1770,31 @@ public class MailManagerImpl implements MailManager {
 		}
 	}
 
-	private void appErrorVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = getAdminMessage(app, mail, data, reason, exceptions);
+	private void appErrorVoAdmin(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) throws MessagingException {
+		MimeMessage message = getAdminMessage(app, mail, data, reason, exceptions);
 
 		// send a message to all VO or Group admins
 		List<String> toEmail = getToMailAddresses(app);
 
 		for (String email : toEmail) {
-			message.setTo(email);
+			setRecipient(message, email);
 			try {
 				mailSender.send(message);
 				log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: {} / {} / {}",
-						message.getTo(), app.getId(), app.getVo(), app.getGroup());
+						message.getAllRecipients(), app.getId(), app.getVo(), app.getGroup());
 			} catch (MailException ex) {
 				log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception.", ex);
 			}
 		}
 	}
+
+	private void setRecipient(MimeMessage message, String email) throws MessagingException {
+		message.setRecipient(Message.RecipientType.TO, null);
+		if (email != null) {
+			message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));
+		}
+	}
+
 
 	private String getMailText(ApplicationMail mail, Locale lang, Application app, List<ApplicationFormItemData> data,
 							   String reason, List<Exception> exceptions) {
@@ -1836,15 +1874,15 @@ public class MailManagerImpl implements MailManager {
 	 * Send invitation email to one user
 	 */
 	private void sendInvitationMail(PerunSession sess, Vo vo, Group group, String email, String language,
-									SimpleMailMessage message, Application app) throws RegistrarException {
+									MimeMessage message, Application app) throws RegistrarException {
 		try {
 			mailSender.send(message);
 			User sendingUser = sess.getPerunPrincipal().getUser();
 			AuditEvent event = new InvitationSentEvent(sendingUser, email, language, group, vo);
 			sess.getPerun().getAuditer().log(sess, event);
 			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}",
-					message.getTo(), app.getVo(), app.getGroup());
-		} catch (MailException ex) {
+					message.getAllRecipients(), app.getVo(), app.getGroup());
+		} catch (MailException | MessagingException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
 		}
@@ -1947,11 +1985,11 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Initialize SimpleMailMessage that will be sent to manager(admin). Initialization takes care of following:
+	 * Initialize MimeMessage that will be sent to manager(admin). Initialization takes care of following:
 	 * - set FROM, set TEXT, set SUBJECT
 	 */
-	private SimpleMailMessage getAdminMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
+	private MimeMessage getAdminMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) throws MessagingException {
+		MimeMessage message = mailSender.createMimeMessage();
 
 		// set FROM
 		setFromMailAddress(message, app);
@@ -1971,11 +2009,11 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Initialize SimpleMailMessage that will be sent to user. Initialization takes care of following:
+	 * Initialize MimeMessage that will be sent to user. Initialization takes care of following:
 	 * - set FROM, set TO, set TEXT, set SUBJECT
 	 */
-	private SimpleMailMessage getUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) {
-		SimpleMailMessage message = new SimpleMailMessage();
+	private MimeMessage getUserMessage(Application app, ApplicationMail mail, List<ApplicationFormItemData> data, String reason, List<Exception> exceptions) throws MessagingException {
+		MimeMessage message = mailSender.createMimeMessage();
 		// set FROM
 		setFromMailAddress(message, app);
 
@@ -2006,11 +2044,11 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Initialize SimpleMailMessage for invitation, that will be sent to user. Initialization takes care of following:
+	 * Initialize MimeMessage for invitation, that will be sent to user. Initialization takes care of following:
 	 * - set FROM, set TO, set TEXT, set SUBJECT
 	 */
-	private SimpleMailMessage getInvitationMessage(Vo vo, Group group, String language, String to, Application app, String name, User user)
-			throws FormNotExistsException, RegistrarException {
+	private MimeMessage getInvitationMessage(Vo vo, Group group, String language, String to, Application app, String name, User user)
+			throws FormNotExistsException, RegistrarException, MessagingException {
 		if (language == null) {
 			language = LANG_EN;
 			language = getLanguageFromVoAndGroupAttrs(vo, group, language);
@@ -2018,10 +2056,10 @@ public class MailManagerImpl implements MailManager {
 
 		ApplicationForm form = getForm(vo, group);
 		ApplicationMail mail = getMail(form, AppType.INITIAL, MailType.USER_INVITE);
-		SimpleMailMessage message = new SimpleMailMessage();
+		MimeMessage message = mailSender.createMimeMessage();
 
 		setFromMailAddress(message, app);
-		message.setTo(to);
+		setRecipient(message, to);
 
 		// get language
 		Locale lang = new Locale(language);
