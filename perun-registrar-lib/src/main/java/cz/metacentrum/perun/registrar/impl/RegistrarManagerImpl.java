@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -1153,28 +1154,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				// Check if mails needs to be validated
 				if (itemType == VALIDATED_EMAIL) {
-					// default = mail not same as pre-filled
-					itemData.setAssuranceLevel("");
-					// If mail is contained in pre-filled value, then it can be validated automatically
-					// We must use contains, because IdP can send more than one email, emails are separated by semi-colon
-					if (itemData.getPrefilledValue() != null && itemData.getValue() != null && !itemData.getValue().isEmpty()) {
-						if (itemData.getPrefilledValue().toLowerCase().contains(itemData.getValue().toLowerCase())) {
-							itemData.setAssuranceLevel("1");
-						}
-					}
-					// If "mail" NOT REQUIRED and value is empty or null, set 1 to skip validation of application
-					// it's save, empty attributes are not set to DB nor any notification is sent
-					if (!itemData.getFormItem().isRequired() && (itemData.getValue() == null || itemData.getValue().isEmpty())) {
-						itemData.setAssuranceLevel("1");
-					}
+					handleLoaForValidatedMail(session, itemData);
 				}
 
 				try {
 					itemData.setId(Utils.getNewId(jdbc, "APPLICATION_DATA_ID_SEQ"));
 					jdbc.update("insert into application_data(id,app_id,item_id,shortname,value,assurance_level) values (?,?,?,?,?,?)",
 							itemData.getId(), appId, itemData.getFormItem().getId(), itemData
-									.getFormItem().getShortname(), itemData.getValue(), itemData
-									.getAssuranceLevel());
+									.getFormItem().getShortname(), itemData.getValue(), ((StringUtils.isBlank(itemData
+									.getAssuranceLevel())) ? null : itemData.getAssuranceLevel()));
 				} catch (Exception ex) {
 					// log and store exception so vo manager could see error in notification.
 					log.error("[REGISTRAR] Storing form item {} caused exception {}", itemData, ex);
@@ -2352,7 +2340,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						continue;
 					}
 					itemW.setPrefilledValue(s);
-					itemW.setAssuranceLevel(federValues.get(shibLoAVar));
+					itemW.setAssuranceLevel(String.valueOf(extSourceLoa));
 				}
 
 				// TRY TO CONSTRUCT THE VALUE FROM PARTIAL FED-INFO
@@ -2742,7 +2730,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	/**
 	 * Set application to VERIFIED state if all it's
-	 * mails (VALIDATED_EMAIL) have assuranceLevel = "1".
+	 * mails (VALIDATED_EMAIL) have assuranceLevel >= 1 and have non-empty value (there is anything to validate).
 	 * Returns TRUE if succeeded, FALSE if some mail still waits for verification.
 	 *
 	 * @param sess user who try to verify application
@@ -2752,14 +2740,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 */
 	private boolean tryToVerifyApplication(PerunSession sess, Application app) throws PerunException {
 
-		// test all fields that may need to be validated on a required level
-		List<String> loas = jdbc.query("select d.assurance_level from application a, application_form_items i, application_data d " +
-						"where d.app_id=a.id and d.item_id=i.id and a.id=? and i.type=?",
-				new SingleColumnRowMapper<>(String.class), app.getId(), Type.VALIDATED_EMAIL.toString());
+		// test all fields that may need to be validated and are not empty !!
+		List<Integer> loas = jdbc.query("select d.assurance_level"+Compatibility.castToInteger()+" from application a, application_form_items i, application_data d " +
+						"where d.app_id=a.id and d.item_id=i.id and a.id=? and i.type=? and d.value is not null",
+				new SingleColumnRowMapper<>(Integer.class), app.getId(), Type.VALIDATED_EMAIL.toString());
 
 		boolean allValidated = true;
-		for (String loa : loas) {
-			if (!"1".equals(loa)) allValidated = false;
+		for (Integer loa : loas) {
+			// check on null only for backward compatibility, we now always set some value
+			if (loa == null || loa < 1) {
+				allValidated = false;
+				break;
+			}
 		}
 
 		if (allValidated) {
@@ -3284,6 +3276,54 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				application.getVo().getShortName() +
 				((application.getGroup() != null) ? application.getGroup().getName() : "nogroup") +
 				application.getCreatedBy()+application.getExtSourceName()+application.getExtSourceType();
+
+	}
+
+	/**
+	 * If user provided value is the same as was pre-filled from Perun, then we set LOA=2
+	 * If user provided value is between those provided by Federation, then we keep provided LOA (0 will require mail validation, >0 will skip it).
+	 * If user provided value is not between any of pre-filled values, then we set LOA=0 to require validation.
+	 *
+	 * @param session
+	 * @param itemData
+	 */
+	private void handleLoaForValidatedMail(PerunSession session, ApplicationFormItemData itemData) {
+
+		// all mails from federation (lowercased)
+		List<String> mailsFromFed = new ArrayList<>();
+		String mailsFed = session.getPerunPrincipal().getAdditionalInformations().get("mail");
+		if (StringUtils.isNotBlank(mailsFed)) {
+			mailsFromFed.addAll(Arrays.stream(mailsFed.split(";")).map(String::toLowerCase).collect(Collectors.toList()));
+		}
+
+		// all prefilled mails (lowercased)
+		List<String> prefilledValues = new ArrayList<>();
+		if (StringUtils.isNotBlank(itemData.getPrefilledValue())) {
+			prefilledValues.addAll(Arrays.stream(itemData.getPrefilledValue().split(";")).map(String::toLowerCase).collect(Collectors.toList()));
+		}
+
+		// value(s) pre-filled from perun
+		List<String> valuesFromPerun = new ArrayList<>(prefilledValues);
+		for (String fromFed : mailsFromFed) {
+			valuesFromPerun.remove(fromFed);
+		}
+
+		String actualValue = (StringUtils.isNotBlank(itemData.getValue())) ? itemData.getValue().toLowerCase() : null;
+
+		if (valuesFromPerun.contains(actualValue)) {
+			// override incoming LOA, since it was from perun
+			itemData.setAssuranceLevel("2");
+		} else if (!prefilledValues.contains(actualValue)) {
+			// clearing LoA to 0, since value is a new
+			itemData.setAssuranceLevel("0");
+		}
+
+		// or else keep incoming LoA since it was one of pre-filled values from Federation.
+
+		// normalize empty value
+		if (StringUtils.isBlank(itemData.getValue())) {
+			itemData.setValue(null);
+		}
 
 	}
 

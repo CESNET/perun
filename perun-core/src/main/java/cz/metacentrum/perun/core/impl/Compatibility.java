@@ -125,7 +125,7 @@ public class Compatibility {
 		}
 	}
 
-	static String castToInteger() {
+	public static String castToInteger() {
 		switch (getDbType()) {
 			case "oracle":
 				return "";
