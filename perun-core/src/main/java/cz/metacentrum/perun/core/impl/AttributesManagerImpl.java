@@ -2738,7 +2738,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		try {
-
+			// unique attributes get deleted by deletion from entity_attr_values
 			jdbc.update("DELETE FROM "+ attributeToTablePrefix(attribute)+"_attr_values WHERE attr_id=?", attribute.getId());
 			jdbc.update("DELETE FROM attr_names WHERE id=?", attribute.getId());
 			if(!CacheManager.isCacheDisabled()) perun.getCacheManager().deleteAttribute(attribute.getId(), sess, this);
