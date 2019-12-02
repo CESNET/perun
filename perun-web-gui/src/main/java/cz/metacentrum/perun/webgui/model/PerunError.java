@@ -466,6 +466,12 @@ public class PerunError extends JavaScriptObject {
 		return this.status;
 	}-*/;
 
+	public final native ApplicationMail getApplicationMail() /*-{
+		if (!this.mail)
+			return null;
+		return this.mail;
+	}-*/;
+
     /**
      * Compares to another object
      *
