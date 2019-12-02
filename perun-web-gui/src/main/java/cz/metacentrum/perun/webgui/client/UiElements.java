@@ -1801,7 +1801,7 @@ public class UiElements {
 		VerticalPanel vp = new VerticalPanel();
 		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-		vp.add(new HTML("<h2 class=\"serverResponseLabelError\">" + "Authentication failed: " + error + "</h2>"));
+		vp.add(new HTML("<h2 class=\"serverResponseLabelError\">" + error + "</h2>"));
 
 		box.add(vp);
 		box.setModal(true);

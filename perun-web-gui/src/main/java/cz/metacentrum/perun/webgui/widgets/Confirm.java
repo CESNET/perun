@@ -379,7 +379,7 @@ public class Confirm {
 					// build without icons
 				} else {
 
-					okButton = new CustomButton(this.okButtonText, "", null, new ClickHandler() {
+					okButton = new CustomButton(this.okButtonText, "", new ClickHandler() {
 						public void onClick(ClickEvent event) {
 							value = true;
 							okClickHandler.onClick(event);

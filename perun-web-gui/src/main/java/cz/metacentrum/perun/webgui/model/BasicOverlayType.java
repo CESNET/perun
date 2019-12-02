@@ -80,5 +80,32 @@ public class BasicOverlayType extends JavaScriptObject {
 		return this[property];
 	}-*/;
 
+	public final native String getGDPRproperty(String property) /*-{
+		if (property === "version") {
+			return $wnd.GDPR_VERSION;
+		}
+		if (property === "text") {
+			return $wnd.GDPR_TEXT;
+		}
+		if (property === "agree") {
+			return $wnd.GDPR_AGREE;
+		}
+		if (property === "disagree") {
+			return $wnd.GDPR_DISAGREE;
+		}
+		if (property === "disagree_result") {
+			return $wnd.GDPR_DISAGREE_RESULT;
+		}
+		if (property === "title") {
+			return $wnd.GDPR_TITLE;
+		}
+		if (property === "check_failed") {
+			return $wnd.GDPR_FAILED;
+		}
+		if (property === "disagree_back") {
+			return $wnd.GDPR_DISAGREE_RESULT_BACK;
+		}
+		return null;
+	}-*/;
 
 }
