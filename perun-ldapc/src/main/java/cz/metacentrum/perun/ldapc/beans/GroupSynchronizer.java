@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.beans;
 
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
@@ -7,7 +8,10 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.naming.Name;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +78,14 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 							log.debug("Synchronizing {} resources assigned to group {}", resources.size(), group.getId());
 							//perunGroup.synchronizeResources(group, resources);
 
-							perunGroup.synchronizeGroup(group, members, resources);
+							GroupsManagerBl groupsManager = perun.getGroupsManagerBl();
+							List<Group> admin_groups =  groupsManager.getGroupsWhereGroupIsAdmin(ldapcManager.getPerunSession(), group);
+							List<Vo> admin_vos = groupsManager.getVosWhereGroupIsAdmin(ldapcManager.getPerunSession(), group);
+							List<Facility> admin_facilities = groupsManager.getFacilitiesWhereGroupIsAdmin(ldapcManager.getPerunSession(), group);
+
+							log.debug("Synchronizing group {} as admin of {} groups, {} VOs and {} facilities", group.getId(), admin_groups.size(), admin_vos.size(), admin_facilities.size());
+
+							perunGroup.synchronizeGroup(group, members, resources, admin_groups, admin_vos, admin_facilities);
 
 						} catch (PerunRuntimeException e) {
 							log.error("Error synchronizing group", e);

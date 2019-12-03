@@ -264,6 +264,66 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="pattern" value=" changed for User:\[.*\]"/>
 					<property name="handlerMethodName" value="processVirtualAttributeChanged"/>
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value="User:\[.*\] was added as admin of Vo:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value="User:\[.*\] was added as admin of Group:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value="User:\[.*\] was added as admin of Facility:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value="User:\[.*\] was removed from admins of Vo:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value="User:\[.*\] was removed from admins of Group:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value="User:\[.*\] was removed from admins of Facility:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminRemoved" />
+				</bean>
 			</list>
 		</property>
 	</bean>
@@ -450,10 +510,68 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended #" />
 					<property name="handlerMethodName" value="processMemberInvalidated" />
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] was added as admin of Vo:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] was added as admin of Group:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] was added as admin of Facility:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] was removed from admins of Vo:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] was removed from admins of Group:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] was removed from admins of Facility:\[.*\]" />
+					<property name="handlerMethodName" value="processAdminRemoved" />
+				</bean>
 			</list>
 		</property>
 	</bean>
-
+	
 	<bean id="perunUser" class="cz.metacentrum.perun.ldapc.model.impl.PerunUserImpl" scope="prototype">
 		<property name="attributeDescriptions">
 			<!--  this list will be added to built-in defaultAttributeDescriptions -->

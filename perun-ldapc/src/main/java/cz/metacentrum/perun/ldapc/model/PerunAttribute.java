@@ -65,7 +65,10 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrGroupNames = perunAttrGroupNames;
 		public static final String ldapAttrInstitutionsCountries = perunAttrInstitutionsCountries;
 		public static final String ldapAttrPerunFacilityDn = "perunFacilityDn";
-
+		public static final String ldapAttrAdminOfVo = "adminOfVo";
+		public static final String ldapAttrAdminOfGroup = "adminOfGroup";
+		public static final String ldapAttrAdminOfFacility = "adminOfFacility";
+		
 		//LDAP OBJECT CLASSES
 		public static final String objectClassTop = "top";
 		public static final String objectClassPerunResource = "perunResource";
