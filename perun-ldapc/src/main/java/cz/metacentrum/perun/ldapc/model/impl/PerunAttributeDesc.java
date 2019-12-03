@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
 
-import java.util.ArrayList;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunBean;

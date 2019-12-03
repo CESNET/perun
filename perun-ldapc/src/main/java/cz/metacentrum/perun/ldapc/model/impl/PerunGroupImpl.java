@@ -10,24 +10,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.naming.Name;
-import javax.naming.directory.ModificationItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
+import cz.metacentrum.perun.ldapc.model.PerunFacility;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
-import cz.metacentrum.perun.ldapc.model.PerunResource;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
 import cz.metacentrum.perun.ldapc.model.PerunVO;
 
@@ -41,7 +41,9 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	@Lazy
 	private PerunUser user;
 	@Autowired
-	private PerunResource perunResource;
+	private PerunVO perunVO;
+	@Autowired
+	private PerunFacility perunFacility;
 
 	@Override
 	protected List<String> getDefaultUpdatableAttributes() {
@@ -168,6 +170,54 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 		ldapTemplate.modifyAttributes(userEntry);
 	}
 
+	@Override
+	public void addAsVoAdmin(Group group, Vo vo) {
+		DirContextOperations entry = findByDN(buildDN(group));
+		Name voDN = addBaseDN(perunVO.getEntryDN(String.valueOf(vo.getId())));
+		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfVo, voDN.toString());
+		ldapTemplate.modifyAttributes(entry);
+	}
+
+	@Override
+	public void removeFromVoAdmins(Group group, Vo vo) {
+		DirContextOperations entry = findByDN(buildDN(group));
+		Name voDN = addBaseDN(perunVO.getEntryDN(String.valueOf(vo.getId())));
+		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfVo, voDN.toString());
+		ldapTemplate.modifyAttributes(entry);
+	}
+
+	@Override
+	public void addAsGroupAdmin(Group group, Group group2) {
+		DirContextOperations entry = findByDN(buildDN(group));
+		Name groupDN = addBaseDN(getEntryDN(String.valueOf(group2.getVoId()), String.valueOf(group2.getId())));
+		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfGroup, groupDN.toString());
+		ldapTemplate.modifyAttributes(entry);
+	}
+
+	@Override
+	public void removeFromGroupAdmins(Group group, Group group2) {
+		DirContextOperations entry = findByDN(buildDN(group));
+		Name groupDN = addBaseDN(getEntryDN(String.valueOf(group2.getVoId()), String.valueOf(group2.getId())));
+		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfGroup, groupDN.toString());
+		ldapTemplate.modifyAttributes(entry);
+	}
+
+	@Override
+	public void addAsFacilityAdmin(Group group, Facility facility) {
+		DirContextOperations entry = findByDN(buildDN(group));
+		Name facilityDN = addBaseDN(perunFacility.getEntryDN(String.valueOf(facility.getId())));
+		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfFacility, facilityDN.toString());
+		ldapTemplate.modifyAttributes(entry);
+	}
+
+	@Override
+	public void removeFromFacilityAdmins(Group group, Facility facility) {
+		DirContextOperations entry = findByDN(buildDN(group));
+		Name facilityDN = addBaseDN(perunFacility.getEntryDN(String.valueOf(facility.getId())));
+		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfFacility, facilityDN.toString());
+		ldapTemplate.modifyAttributes(entry);
+	}
+
 	protected void doSynchronizeMembers(DirContextOperations groupEntry, List<Member> members) {
 		List<Name> memberList = new ArrayList<Name>(members.size());
 		for (Member member: members) {
@@ -180,11 +230,31 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 		groupEntry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAssignedToResourceId, resources.stream().map( resource -> String.valueOf(resource.getId())).toArray(String[]::new));
 	}
 	
+	private void doSynchronizeAdminRoles(DirContextOperations entry, List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) {
+		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfGroup, 
+				admin_groups.stream()
+					.map(group -> addBaseDN(getEntryDN(String.valueOf(group.getVoId()), String.valueOf(group.getId()))))
+					.toArray(Name[]::new)
+					);
+		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfVo, 
+				admin_vos.stream()
+					.map(vo -> addBaseDN(perunVO.getEntryDN(String.valueOf(vo.getId()))))
+					.toArray(Name[]::new)
+					);
+		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfFacility, 
+				admin_facilities.stream()
+					.map(facility -> addBaseDN(perunFacility.getEntryDN(String.valueOf(facility.getId()))))
+					.toArray(Name[]::new)
+					);
+	}
+
 	@Override
-	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources) throws InternalErrorException {
+	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources,
+			List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException {
 		SyncOperation syncOp = beginSynchronizeEntry(group);
 		doSynchronizeMembers(syncOp.getEntry(), members);
 		doSynchronizeResources(syncOp.getEntry(), resources);
+		doSynchronizeAdminRoles(syncOp.getEntry(), admin_groups, admin_vos, admin_facilities);
 		commitSyncOperation(syncOp);
 	}
 
@@ -200,6 +270,13 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	public void synchronizeResources(Group group, List<Resource> resources) {
 		DirContextOperations groupEntry = findByDN(buildDN(group));
 		doSynchronizeResources(groupEntry, resources);
+		ldapTemplate.modifyAttributes(groupEntry);
+	}
+
+	@Override
+	public void synchronizeAdminRoles(Group group, List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) {
+		DirContextOperations groupEntry = findByDN(buildDN(group));
+		doSynchronizeAdminRoles(groupEntry, admin_groups, admin_vos, admin_facilities);
 		ldapTemplate.modifyAttributes(groupEntry);
 	}
 

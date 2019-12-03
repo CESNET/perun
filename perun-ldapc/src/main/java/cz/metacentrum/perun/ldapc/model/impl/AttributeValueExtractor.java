@@ -3,7 +3,6 @@ package cz.metacentrum.perun.ldapc.model.impl;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 

@@ -2,8 +2,6 @@ package cz.metacentrum.perun.ldapc.model;
 
 import java.util.List;
 
-import javax.naming.Name;
-import javax.naming.directory.ModificationItem;
 
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;

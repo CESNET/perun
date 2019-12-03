@@ -1,11 +1,13 @@
 package cz.metacentrum.perun.ldapc.beans;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -46,14 +48,29 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 		public Set<Integer> voIds;
 		public List<Group> groups;
 		List<UserExtSource> userExtSources;
+		List<Group> admin_groups;
+		List<Vo> admin_vos;
+		List<Facility> admin_facilities;
 
-		public SyncUsersWorker(int poolIndex, User user, List<Attribute> attrs, Set<Integer> voIds, List<Group> groups, List<UserExtSource> userExtSources) {
+		public SyncUsersWorker(
+				int poolIndex, 
+				User user, 
+				List<Attribute> attrs, 
+				Set<Integer> voIds, 
+				List<Group> groups, 
+				List<UserExtSource> userExtSources,
+				List<Group> admin_groups,
+				List<Vo> admin_vos,
+				List<Facility> admin_facilities) {
 			this.poolIndex = poolIndex;
 			this.user = user;
 			this.attrs = attrs;
 			this.voIds = voIds;
 			this.groups = groups;
 			this.userExtSources = userExtSources;
+			this.admin_groups = admin_groups;
+			this.admin_vos = admin_vos;
+			this.admin_facilities = admin_facilities;
 		}
 
 		public void run() {
@@ -64,7 +81,8 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				//perunUser[poolIndex].synchronizeMembership(user, voIds, groups);
 				log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
 				//perunUser[poolIndex].synchronizePrincipals(user, userExtSources);
-				perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources);
+				log.debug("Synchronizing user {} as admin of {} groups, {} VOs and {} facilities", user.getId(), admin_groups.size(), admin_vos.size(), admin_facilities.size());
+				perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos, admin_facilities);				
 			} catch (PerunRuntimeException e) {
 				log.error("Error synchronizing user", e);
 				UserSynchronizer.wasThreadException = true;
@@ -154,10 +172,14 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 					log.debug("Getting list of extSources for user {}", user.getId());
 					List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(ldapcManager.getPerunSession(), user);
 
+					List<Group> admin_groups =  perun.getUsersManagerBl().getGroupsWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+					List<Vo> admin_vos = perun.getUsersManagerBl().getVosWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+					List<Facility> admin_facilities = perun.getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+					
 					//log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
 					//perunUser.synchronizePrincipals(user, userExtSources);
 
-					syncExecutor.execute(new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources));
+					syncExecutor.execute(new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos, admin_facilities));
 					taskCount.incrementAndGet();
 
 				} catch (PerunRuntimeException e) {
