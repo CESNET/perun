@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.cli;
 
+import cz.metacentrum.perun.openapi.model.ExtSource;
 import cz.metacentrum.perun.openapi.model.Facility;
 import cz.metacentrum.perun.openapi.model.PerunBean;
 import org.apache.commons.cli.Option;
@@ -125,6 +126,16 @@ public abstract class PerunCommand {
 	protected Integer getServiceId(PerunCLI.CommandContext ctx, boolean required) {
 		return getEntityId(ctx, required, "service", "s", "S",
 			serviceName -> ctx.getPerunRPC().getServicesManager().getServiceByName(serviceName).getId());
+	}
+
+	protected void addExtSourceOptions(Options options) {
+		addEntityOptions(options,  "extSource","e", "E", "");
+	}
+
+	protected ExtSource getExtSource(PerunCLI.CommandContext ctx, boolean required) {
+		return getEntity(ctx, required, "extSource", "e", "E",
+			extSourceName -> ctx.getPerunRPC().getExtSourcesManager().getExtSourceByName(extSourceName),
+			extSourceId -> ctx.getPerunRPC().getExtSourcesManager().getExtSourceById(extSourceId));
 	}
 
 	protected void addSortingOptions(Options options, String orderByNameDescription) {

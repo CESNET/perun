@@ -3367,17 +3367,9 @@ paths:
   #                                               #
   #################################################
 
-  /json/extSourcesManager/getExtSources:
-    get:
-      tags:
-        - ExtSourcesManager
-      operationId: getExtSources
-      summary: Returns the list of all external sources.
-      responses:
-        200:
-          $ref: '#/components/responses/ListOfExtSourcesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
+  #TODO createExtSource
+  
+  #TODO deleteExtSource
 
   /json/extSourcesManager/getExtSourceById:
     get:
@@ -3393,6 +3385,42 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/extSourcesManager/getExtSourceByName:
+    get:
+      tags:
+        - ExtSourcesManager
+      operationId: getExtSourceByName
+      summary: Returns an external source by its name.
+      parameters:
+        - { name: name, in: query, required: true, schema: { type: string}, description: "ExtSource Name", example: "https://login.cesnet.cz/idp/" }
+      responses:
+        200:
+          $ref: '#/components/responses/ExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+  
+  #TODO getVoExtSources
+  
+  #TODO getGroupExtSources
+  
+  /json/extSourcesManager/getExtSources:
+    get:
+      tags:
+        - ExtSourcesManager
+      operationId: getExtSources
+      summary: Returns the list of all external sources.
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO addExtSource
+  
+  #TODO removeExtSource
+  
+  #TODO loadExtSourcesDefinitions
+  
   #################################################
   #                                               #
   # UsersManager                                  #
