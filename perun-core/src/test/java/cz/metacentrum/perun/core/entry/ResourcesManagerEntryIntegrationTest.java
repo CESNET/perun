@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -1637,6 +1638,47 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		assertNotNull(resources);
 		assertTrue(resources.contains(resource));
+	}
+
+	@Test
+	public void getResourcesSpecifiedByVoWhereUserIsAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesSpecifiedByVoWhereUserIsAdmin");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		facility = setUpFacility();
+		Facility facility2 = new Facility();
+		facility2.setName("ResourcesManagerTestFacility2");
+		facility2 = perun.getFacilitiesManager().createFacility(sess, facility2);
+		resource = setUpResource();
+		Resource resource2 = new Resource();
+		resource2.setName("name");
+		resource2 = resourcesManager.createResource(sess, resource2, vo, facility2);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.addAdmin(sess, resource, u);
+		resourcesManager.addAdmin(sess, resource2, u);
+		List<Resource> resources = resourcesManager.getResourcesWhereUserIsAdmin(sess, vo, u);
+
+		assertNotNull(resources);
+		assertThat(resources).containsOnly(resource, resource2);
+	}
+
+	@Test
+	public void getResourcesSpecifiedByVoWhereUserIsNotAdminButHisGroupIs() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesSpecifiedByVoWhereUserIsNotAdminButHisGroupIs");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup(vo, member);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.addAdmin(sess, resource, group);
+		List<Resource> resources = resourcesManager.getResourcesWhereUserIsAdmin(sess, vo, u);
+
+		assertNotNull(resources);
+		assertThat(resources).containsOnly(resource);
 	}
 
 	@Test
