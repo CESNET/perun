@@ -447,6 +447,17 @@ public interface CabinetManager {
 	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException;
 
 	/**
+	 * Return Publications of author (optionally limited by years range). Empty list if nothing is found.
+	 *
+	 * @param userId ID of Author (User) to get publications for
+	 * @param yearSince to filter results if > 0
+	 * @param yearTill to filter results if > 0
+	 * @return Publications by their category ID
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException;
+
+	/**
 	 * Return PublicationForGUI by its ID.
 	 *
 	 * @param id ID of PublicationForGUI

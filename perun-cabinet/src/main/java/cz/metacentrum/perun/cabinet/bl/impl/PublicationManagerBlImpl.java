@@ -244,6 +244,16 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 	@Override
+	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException {
+		List<Publication> publications = getPublicationManagerDao().getPublicationsByFilter(userId, yearSince, yearTill);
+		for (Publication pub : publications) {
+			pub.setAuthors(getAuthorshipManagerBl().getAuthorsByPublicationId(pub.getId()));
+		}
+		return publications;
+	}
+
+
+	@Override
 	public void lockPublications(boolean lockState, List<Publication> publications) throws InternalErrorException {
 		getPublicationManagerDao().lockPublications(lockState, publications);
 	}

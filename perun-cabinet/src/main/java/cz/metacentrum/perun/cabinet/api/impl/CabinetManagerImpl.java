@@ -404,6 +404,17 @@ public class CabinetManagerImpl implements CabinetManager {
 	}
 
 	@Override
+	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException {
+		if (userId < 1) {
+			throw new InternalErrorException("ID of publication author must be > 0.");
+		}
+		if (yearSince > 0 && yearTill > 0) {
+			if (yearSince > yearTill) throw new InternalErrorException("yearSince must be before yearTill");
+		}
+		return getPublicationManagerBl().getPublicationsByFilter(userId, yearSince, yearTill);
+	}
+
+	@Override
 	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException {
 		return getPublicationManagerBl().getRichPublicationById(id);
 	}
