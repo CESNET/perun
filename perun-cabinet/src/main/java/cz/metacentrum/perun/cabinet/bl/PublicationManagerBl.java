@@ -123,6 +123,16 @@ public interface PublicationManagerBl {
 	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException;
 
 	/**
+	 * Return Publication for specified author and optionally years range.
+	 *
+	 * @param userId ID of Author/User to search publications for
+	 * @param yearSince return those with year >= yearSince
+	 * @param yearTill return those with year <= yearTill
+	 * @return publication with everything set
+	 */
+	List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException;
+
+	/**
 	 * (Un)Lock passed Publications for changes.
 	 *
 	 * @param lockState TRUE (lock) / FALSE (unlock)

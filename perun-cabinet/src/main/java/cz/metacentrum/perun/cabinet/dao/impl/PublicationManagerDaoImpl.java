@@ -356,6 +356,57 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
+	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException {
+
+		String select = "select " + PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
+				" left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships.publicationId" +
+				" left outer join users on cabinet_authorships.userId = users.id" +
+				" where ";
+
+		List<Object> params = new ArrayList<Object>() {};
+		boolean first = true;
+
+		// only year since
+		if (yearSince > 0 && yearTill < 1) {
+			if (!first) select = select + " and ";
+			select = select + "cabinet_publications.year >= ?";
+			params.add(yearSince);
+			first = false;
+		}
+		// only year till
+		if (yearTill > 0 && yearSince < 1) {
+			if (!first) select = select + " and ";
+			select = select + "cabinet_publications.year <= ?";
+			params.add(yearTill);
+			first = false;
+		}
+		// both dates
+		if (yearSince > 0 && yearTill > 0) {
+			if (!first) select = select + " and ";
+			select = select + "(cabinet_publications.year between ? and ?)";
+			params.add(yearSince);
+			params.add(yearTill);
+			first = false;
+		}
+
+		if (userId > 0) {
+			if (!first) select = select + " and ";
+			select = select + "users.id = ?";
+			params.add(userId);
+			first = false;
+		}
+
+		if (first) select = select + " 1=1 ";
+
+		try {
+			return jdbc.query(select + " order by cabinet_publications.year DESC", PUBLICATION_ROW_MAPPER, params.toArray());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
+
+	@Override
 	public void lockPublications(boolean lockState, List<Publication> pubs) throws InternalErrorException {
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();

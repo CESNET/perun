@@ -124,6 +124,16 @@ public interface PublicationManagerDao {
 	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException;
 
 	/**
+	 * Return Publications for specified author and optionally years range.
+	 *
+	 * @param userId ID of Author/User to search publications for
+	 * @param yearSince year range
+	 * @param yearTill year range
+	 * @return publications
+	 */
+	List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException;
+
+	/**
 	 * (Un)Lock passed Publications for changes.
 	 *
 	 * @param lockState TRUE (lock) / FALSE (unlock)

@@ -419,6 +419,33 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Finds publications in Cabinet by filter.
+	 *
+	 * @param yearSince int Year since (use <1 to disable this filter)
+	 * @param yearTill int Year till (use <1 to disable this filter)
+	 * @param userId int Author/User <code>id</code>
+	 * @return List<Publication> Found publications
+	 */
+	findPublicationsByFilter {
+		public List<Publication> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
+
+			// set filter
+			int yearSince = 0;
+			int yearTill = 0;
+
+			if (parms.contains("yearSince")) {
+				yearSince = parms.readInt("yearSince");
+			}
+			if (parms.contains("yearTill")) {
+				yearTill = parms.readInt("yearTill");
+			}
+
+			return ac.getCabinetManager().getPublicationsByFilter(parms.readInt("userId"), yearSince, yearTill);
+
+		}
+	},
+
+	/*#
 	 * (Un)Lock passed Publications for changes.
 	 *
 	 * @param lock boolean TRUE (lock) / FALSE (unlock)
