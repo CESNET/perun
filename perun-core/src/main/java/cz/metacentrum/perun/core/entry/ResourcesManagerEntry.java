@@ -1038,6 +1038,29 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) throws InternalErrorException, PrivilegeException, UserNotExistsException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, authorizedUser);
+
+		List<Resource> resources = getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, vo, authorizedUser);
+
+		//Vo manager of the vo, perunobserver and voobserver can see all returned resources
+		if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) ||
+			AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) ||
+			AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)){
+			return resources;
+		}
+
+		//Resource manager can see only resources where he has role resource manager (filter them)
+		if(AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN)) {
+			return filterNotAuthorizedResource(sess, resources);
+		} else {
+			throw new PrivilegeException(sess, "getResourcesWhereUserIsAdmin");
+		}
+	}
+
+	@Override
 	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, FacilityNotExistsException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);

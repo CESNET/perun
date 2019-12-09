@@ -850,6 +850,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) throws InternalErrorException {
+		return getResourcesManagerImpl().getResourcesWhereUserIsAdmin(sess, vo, authorizedUser);
+	}
+
+	@Override
 	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) throws InternalErrorException {
 		return getResourcesManagerImpl().getResourcesWhereGroupIsAdmin(sess, facility, vo, authorizedGroup);
 	}

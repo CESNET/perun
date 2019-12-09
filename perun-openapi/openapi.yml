@@ -4601,7 +4601,66 @@ paths:
 
   #TODO getRichAdmins
 
-  #TODO getResourcesWhereUserIsAdmin
+  /json/resourcesManager/getResourcesWhereUserIsAdmin:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourcesWhereUserIsAdmin
+      summary: Returns list of Resources for specified VO and Facility, where the user is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getResourcesWhereUserIsAdmin/group:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourcesWhereGroupIsAdmin
+      summary: Returns list of Resources for specified VO and Facility, where the group is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getResourcesWhereUserIsAdmin/fromVo:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourcesFromVoWhereUserIsAdmin
+      summary: Returns list of Resources for specified VO, where the user is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getResourcesWhereUserIsAdmin/all:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAllResourcesWhereUserIsAdmin
+      summary: Returns list of Resources, where the user is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/resourcesManager/assignService:
     post:
