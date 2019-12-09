@@ -607,6 +607,19 @@ public interface ResourcesManagerImplApi {
 	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) throws InternalErrorException;
 
 	/**
+	 * Return all resources for the vo where user is authorized as resource manager.
+	 * Including resources, where the user is a member of authorized group.
+	 *
+	 * @param sess
+	 * @param vo the vo to which resources should be assigned to
+	 * @param authorizedUser user with resource manager role for all those resources
+	 * @return list of defined resources where user has role resource manager
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) throws InternalErrorException;
+
+	/**
 	 * Return all resources for the facility and the vo where the group is authorized as resource manager.
 	 *
 	 * @param sess

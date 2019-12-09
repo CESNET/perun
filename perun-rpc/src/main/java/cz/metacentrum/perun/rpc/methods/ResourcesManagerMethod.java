@@ -626,6 +626,13 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * @return List<Resource> Found Resources
 	 */
 	/*#
+	 * Returns list of Resources for specified VO, where the user is an Administrator.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @return List<Resource> Found Resources
+	 */
+	/*#
 	 * Returns list of all Resources, where the user is an Administrator.
 	 *
 	 * @param user int User <code>id</code>
@@ -648,6 +655,10 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "group or user");
 				}
+			} else if (parms.contains("user") && parms.contains("vo")) {
+				return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						ac.getUserById(parms.readInt("user")));
 			} else if (parms.contains("user")) {
 				return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
 						ac.getUserById(parms.readInt("user")));
