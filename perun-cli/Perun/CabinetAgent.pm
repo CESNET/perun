@@ -23,6 +23,11 @@ sub findPublicationsByGUIFilter
 	return Perun::Common::callManagerMethod('findPublicationsByGUIFilter', '[]Publication', @_);
 }
 
+sub findPublicationsByFilter
+{
+	return Perun::Common::callManagerMethod('findPublicationsByFilter', '[]Publication', @_);
+}
+
 sub getPublicationById
 {
 	return Perun::Common::callManagerMethod('findPublicationById', 'Publication', @_);
