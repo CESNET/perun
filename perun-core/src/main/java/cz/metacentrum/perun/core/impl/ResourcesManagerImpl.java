@@ -901,7 +901,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" left outer join members on members.id=groups_members.member_id " +
 					" where resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
 					" and authz.role_id=(select id from roles where name=?) "
-				,RESOURCE_MAPPER, vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.toLowerCase());
+				,RESOURCE_MAPPER, vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
