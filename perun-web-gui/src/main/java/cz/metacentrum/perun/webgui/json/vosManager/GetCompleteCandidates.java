@@ -512,7 +512,7 @@ public class GetCompleteCandidates implements JsonCallback, JsonCallbackTable<Me
 
 		String logins = candidate.getCandidate().getLogins();
 		if (logins == null || logins.isEmpty()) {
-			candidate.getCandidate().getUserExtSource().getLogin();
+			logins = candidate.getCandidate().getUserExtSource().getLogin();
 		}
 		return logins;
 
