@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.Map;
 public class PerunRolesLoader {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+	private static final Logger log = LoggerFactory.getLogger(PerunRolesLoader.class);
 
 	private Resource configurationPath;
 
@@ -40,9 +42,15 @@ public class PerunRolesLoader {
 			JsonNode rolesNode = rootNode.get("perun_roles");
 			List<String> roles = objectMapper.convertValue(rolesNode, new TypeReference<List<String>>() {});
 
+			List<String> databaseRoles = new ArrayList<>(jdbc.query("select name from roles", new SingleColumnRowMapper<>(String.class)));
+			databaseRoles.forEach(dbRole -> {
+				if (!roles.contains(dbRole.toUpperCase()))
+					log.debug("Role {} exists in the database but it is missing in the configuration file", dbRole);
+			});
+
 			// Check if all roles defined in class Role exists in the DB
 			for (String role : roles) {
-				if (0 == jdbc.queryForInt("select count(*) from roles where name=?", role.toLowerCase())) {
+				if (!databaseRoles.contains(role.toLowerCase())) {
 					//Skip creating not existing roles for read only Perun
 					if (BeansUtils.isPerunReadOnly()) {
 						throw new InternalErrorException("One of default roles not exists in DB - " + role);
