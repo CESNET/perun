@@ -53,14 +53,12 @@
 		<perun.conf>/etc/perun/</perun.conf>
 		<perun.jdbc>file:${perun.conf}jdbc.properties</perun.jdbc>
 		<perun.ldapc>file:${perun.conf}perun-ldapc.properties</perun.ldapc>
-		<perun.log>/var/log/perun/</perun.log>
 
 		<!-- by default we run perun in memory -->
 		<spring.profiles.default>default</spring.profiles.default>
 
 		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
 		<tomcat.version>8.5.34</tomcat.version>
-		<hikaricp.version>3.3.1</hikaricp.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.4</commons-cli.version>
