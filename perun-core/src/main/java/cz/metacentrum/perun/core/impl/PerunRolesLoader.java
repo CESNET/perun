@@ -34,15 +34,14 @@ public class PerunRolesLoader {
 	private Resource configurationPath;
 
 	public void loadPerunRoles(JdbcPerunTemplate jdbc) {
+		try {
+			JsonNode rootNode = loadConfigurationFile();
 
-		JsonNode rootNode = loadConfigurationFile();
+			JsonNode rolesNode = rootNode.get("perun_roles");
+			List<String> roles = objectMapper.convertValue(rolesNode, new TypeReference<List<String>>() {});
 
-		JsonNode rolesNode = rootNode.get("perun_roles");
-		List<String> roles = objectMapper.convertValue(rolesNode, new TypeReference<List<String>>() {});
-
-		// Check if all roles defined in class Role exists in the DB
-		for (String role : roles) {
-			try {
+			// Check if all roles defined in class Role exists in the DB
+			for (String role : roles) {
 				if (0 == jdbc.queryForInt("select count(*) from roles where name=?", role.toLowerCase())) {
 					//Skip creating not existing roles for read only Perun
 					if (BeansUtils.isPerunReadOnly()) {
@@ -52,9 +51,9 @@ public class PerunRolesLoader {
 						jdbc.update("insert into roles (id, name) values (?,?)", newId, role.toLowerCase());
 					}
 				}
-			} catch (RuntimeException e) {
-				throw new InternalErrorException(e);
 			}
+		} catch(RuntimeException e) {
+			throw new InternalErrorException("The configuration file " + configurationPath.getFilename() + " has invalid syntax.", e);
 		}
 	}
 
@@ -65,35 +64,41 @@ public class PerunRolesLoader {
 	 */
 	public List<PerunPolicy> loadPerunPolicies() {
 		List<PerunPolicy> policies = new ArrayList<>();
-		JsonNode rootNode = loadConfigurationFile();
-		//Fetch all policies from the configuration file
-		JsonNode policiesNode = rootNode.get("perun_policies");
 
-		// For each policy node construct PerunPolicy and add it to the list
-		Iterator<String> policyNames = policiesNode.fieldNames();
-		while(policyNames.hasNext()) {
-			String policyName = policyNames.next();
-			JsonNode policyNode = policiesNode.get(policyName);
-			List<Map<String, String>> perunRoles = new ArrayList<>();
-			JsonNode perunRolesNode = policyNode.get("policy_roles");
+		try {
+			JsonNode rootNode = loadConfigurationFile();
+			//Fetch all policies from the configuration file
+			JsonNode policiesNode = rootNode.get("perun_policies");
 
-			//Field policy_roles is saved as List of maps in the for loop
-			for (JsonNode perunRoleNode : perunRolesNode) {
-				Map<String, String> innerRoleMap = new HashMap<>();
-				Iterator<String> roleArrayKeys = perunRoleNode.fieldNames();
-				while (roleArrayKeys.hasNext()) {
-					String role = roleArrayKeys.next();
-					JsonNode roleObjectNode = perunRoleNode.get(role);
-					String object = roleObjectNode.isNull() ? null : roleObjectNode.textValue();
-					innerRoleMap.put(role, object);
+			// For each policy node construct PerunPolicy and add it to the list
+			Iterator<String> policyNames = policiesNode.fieldNames();
+			while (policyNames.hasNext()) {
+				String policyName = policyNames.next();
+				JsonNode policyNode = policiesNode.get(policyName);
+				List<Map<String, String>> perunRoles = new ArrayList<>();
+				JsonNode perunRolesNode = policyNode.get("policy_roles");
+
+				//Field policy_roles is saved as List of maps in the for loop
+				for (JsonNode perunRoleNode : perunRolesNode) {
+					Map<String, String> innerRoleMap = new HashMap<>();
+					Iterator<String> roleArrayKeys = perunRoleNode.fieldNames();
+					while (roleArrayKeys.hasNext()) {
+						String role = roleArrayKeys.next();
+						JsonNode roleObjectNode = perunRoleNode.get(role);
+						String object = roleObjectNode.isNull() ? null : roleObjectNode.textValue();
+						innerRoleMap.put(role, object);
+					}
+					perunRoles.add(innerRoleMap);
 				}
-				perunRoles.add(innerRoleMap);
+
+				//Field include_policies is saved as List of Strings.
+				List<String> includePolicies = new ArrayList<>(objectMapper.convertValue(policyNode.get("include_policies"), new TypeReference<List<String>>() {
+				}));
+
+				policies.add(new PerunPolicy(policyName, perunRoles, includePolicies));
 			}
-
-			//Field include_policies is saved as List of Strings.
-			List<String> includePolicies = new ArrayList<>(objectMapper.convertValue(policyNode.get("include_policies"), new TypeReference<List<String>>() {}));
-
-			policies.add(new PerunPolicy(policyName, perunRoles, includePolicies));
+		} catch(RuntimeException e) {
+			throw new InternalErrorException("The configuration file " + configurationPath.getFilename() + " has invalid syntax.", e);
 		}
 
 		return policies;
