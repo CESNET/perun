@@ -168,6 +168,42 @@ perun_policies:
     include_policies:
       - test_resource_admin
 
+  #AuditMessagesManagerEntry
+  pollConsumerMessages_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  pollConsumerMessages_String_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  pollConsumerEvents_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  pollConsumerEvents_String_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  createAuditerConsumer_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  log_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  setLastProcessedId_String_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:
