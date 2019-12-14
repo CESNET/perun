@@ -74,23 +74,23 @@ perun_policies:
 
   test_resourceselfservice:
     policy_roles:
-       - RESOURCESELFSERVICE: Resource
-         GROUPADMIN: Group
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
     include_policies: []
 
   test_sponsor:
     policy_roles:
-       - SPONSOR: Vo
+      - SPONSOR: Vo
     include_policies: []
 
   test_cabinet:
     policy_roles:
-       - CABINETADMIN:
+      - CABINETADMIN:
     include_policies: []
 
   test_self:
     policy_roles:
-       - SELF: User
+      - SELF: User
     include_policies: []
 
   test_voobserver_and_topgroupcreator:
@@ -289,6 +289,44 @@ perun_policies:
   getAttributes_ExtSource_policy:
     policy_roles:
       - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  #OwnersManagerEntry
+  createOwner_Owner_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteOwner_Owner_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteOwner_Owner_boolean_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getOwnerById_int_policy:
+    policy_roles:
+      - SELF:
+      - VOADMIN:
+      - VOOBSERVER:
+      - GROUPADMIN:
+      - FACILITYADMIN:
+      - RPC:
+    include_policies:
+      - default_policy
+
+  getOwners_policy:
+    policy_roles:
+      - SELF:
+      - VOADMIN:
+      - VOOBSERVER:
+      - GROUPADMIN:
+      - FACILITYADMIN:
+      - ENGINE:
     include_policies:
       - default_policy
 ...

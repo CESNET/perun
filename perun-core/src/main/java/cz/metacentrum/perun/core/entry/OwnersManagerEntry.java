@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
@@ -17,6 +16,7 @@ import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,9 +52,8 @@ public class OwnersManagerEntry implements OwnersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(sess, "createOwner_Owner_policy"))
 			throw new PrivilegeException(sess, "createOwner");
-		}
 
 		Utils.notNull(owner, "owner");
 
@@ -66,9 +65,8 @@ public class OwnersManagerEntry implements OwnersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_policy", Collections.singletonList(owner)))
 			throw new PrivilegeException(sess, "deleteOwner");
-		}
 
 		getOwnersManagerBl().checkOwnerExists(sess, owner);
 
@@ -80,9 +78,8 @@ public class OwnersManagerEntry implements OwnersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", Collections.singletonList(owner)))
 			throw new PrivilegeException(sess, "deleteOwner");
-		}
 
 		getOwnersManagerBl().checkOwnerExists(sess, owner);
 
@@ -94,14 +91,8 @@ public class OwnersManagerEntry implements OwnersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getOwnerById_int_policy"))
 			throw new PrivilegeException(sess, "getOwnerById");
-				}
 
 		return getOwnersManagerBl().getOwnerById(sess, id);
 	}
@@ -111,14 +102,8 @@ public class OwnersManagerEntry implements OwnersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getOwners_policy"))
 			throw new PrivilegeException(sess, "getOwners");
-				}
 
 		return getOwnersManagerBl().getOwners(sess);
 	}
