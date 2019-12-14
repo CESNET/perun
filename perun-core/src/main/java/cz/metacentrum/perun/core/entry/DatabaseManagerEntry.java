@@ -3,7 +3,6 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
@@ -30,7 +29,8 @@ public class DatabaseManagerEntry implements DatabaseManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getCurrentDatabaseVersion");
+		if (!AuthzResolver.authorizedInternal(sess, "getCurrentDatabaseVersion_policy"))
+			throw new PrivilegeException(sess, "getCurrentDatabaseVersion");
 
 		return getDatabaseManagerBl().getCurrentDatabaseVersion();
 	}
@@ -40,7 +40,8 @@ public class DatabaseManagerEntry implements DatabaseManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getDatabaseDriverInformation");
+		if (!AuthzResolver.authorizedInternal(sess, "getDatabaseDriverInformation_policy"))
+			throw new PrivilegeException(sess, "getDatabaseDriverInformation");
 
 		return getDatabaseManagerBl().getDatabaseDriverInformation();
 	}
@@ -50,7 +51,8 @@ public class DatabaseManagerEntry implements DatabaseManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getDatabaseInformation");
+		if (!AuthzResolver.authorizedInternal(sess, "getDatabaseInformation_policy"))
+			throw new PrivilegeException(sess, "getDatabaseInformation");
 
 		return getDatabaseManagerBl().getDatabaseInformation();
 	}
@@ -60,7 +62,8 @@ public class DatabaseManagerEntry implements DatabaseManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getTimeOfQueryPerformance");
+		if (!AuthzResolver.authorizedInternal(sess, "getTimeOfQueryPerformance_policy"))
+			throw new PrivilegeException(sess, "getTimeOfQueryPerformance");
 
 		return getDatabaseManagerBl().getTimeOfQueryPerformance();
 	}

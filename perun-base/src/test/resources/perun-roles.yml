@@ -167,4 +167,30 @@ perun_policies:
       - PERUNOBSERVER:
     include_policies:
       - test_resource_admin
+
+  #DatabaseManagerEntry
+  getCurrentDatabaseVersion_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+  getDatabaseDriverInformation_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+  getDatabaseInformation_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+  getTimeOfQueryPerformance_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
 ...
