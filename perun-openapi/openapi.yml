@@ -72,7 +72,6 @@ components:
             modifiedBy: { type: string }
             createdByUid: { type: integer }
             modifiedByUid: { type: integer }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -89,7 +88,6 @@ components:
             sponsoredUser: { type: boolean }
             specificUser: { type: boolean }
             majorSpecificType:  { type: string }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -99,7 +97,6 @@ components:
         - properties:
             userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
             userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-            beanName: { type: string }
           required:
             - userExtSources
             - userAttributes
@@ -123,7 +120,6 @@ components:
               type: object
               additionalProperties:
                 type: string
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -135,7 +131,6 @@ components:
             userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
             userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
             memberAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-            beanName: { type: string }
           required:
             - user
             - userExtSources
@@ -152,7 +147,6 @@ components:
             persistent: { type: boolean }
             lastAccess: { type: string, format: timestamp, description: 'SQL timestamp', example: '2012-01-01 00:00:00.100000' }
             extSource: { $ref: '#/components/schemas/ExtSource' }
-            beanName: { type: string }
           required:
             - login
             - extSource
@@ -165,7 +159,6 @@ components:
         - properties:
             name: { type: string }
             type: { type: string }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -180,7 +173,6 @@ components:
             displayName: { type: string }
             writable: { type: boolean }
             unique: { type: boolean }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -193,7 +185,6 @@ components:
             valueModifiedAt: { type: string }
             valueModifiedBy: { type: string }
             value: { type: object }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -203,7 +194,6 @@ components:
         - properties:
             name: { type: string }
             description: { type: string }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -212,7 +202,6 @@ components:
         - $ref: '#/components/schemas/Facility'
         - properties:
             facilityOwners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
-            beanName: { type: string }
           required:
             - facilityOwners
       discriminator:
@@ -223,7 +212,6 @@ components:
         - $ref: '#/components/schemas/Auditable'
         - properties:
             hostname: { type: string }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -236,7 +224,6 @@ components:
             type:
               type: string
               enum: [ technical, administrative ]
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -249,7 +236,6 @@ components:
             description: { type: string }
             voId: { type: integer }
             parentGroupId: { type: integer }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -258,7 +244,6 @@ components:
         - $ref: '#/components/schemas/Group'
         - properties:
             attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -270,7 +255,6 @@ components:
             description: { type: string }
             voId: { type: integer }
             facilityId: { type: integer }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -281,7 +265,6 @@ components:
             vo: { $ref: '#/components/schemas/Vo' }
             facility: { $ref: '#/components/schemas/Facility' }
             resourceTags: { type: array, items: { $ref: '#/components/schemas/ResourceTag' } }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -291,7 +274,6 @@ components:
         - properties:
             tagName: { type: string }
             voId: { type: integer }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -301,7 +283,6 @@ components:
         - properties:
             name: { type: string }
             shortName: { type: string }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -323,7 +304,6 @@ components:
             recurrence: { type: integer }
             enabled: { type: boolean }
             script: { type: string }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -353,7 +333,6 @@ components:
             destination: { type: string }
             type: { $ref: '#/components/schemas/DestinationType' }
             propagationType: { $ref: '#/components/schemas/DestinationPropagationType' }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -363,7 +342,6 @@ components:
         - properties:
             service: { $ref: '#/components/schemas/Service' }
             facility: { $ref: '#/components/schemas/Facility' }
-            beanName: { type: string }
       discriminator:
         propertyName: beanName
 
