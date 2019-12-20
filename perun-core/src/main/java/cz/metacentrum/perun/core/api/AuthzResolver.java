@@ -27,6 +27,7 @@ public class AuthzResolver {
 
 	/**
 	 * Checks if the principal is authorized.
+	 * This method should be accessed through external components.
 	 *
 	 * @param sess PerunSession which contains the principal.
 	 * @param policyDefinition of policy which contains authorization rules.
@@ -34,8 +35,25 @@ public class AuthzResolver {
 	 * @return true if the principal has particular rights, false otherwise.
 	 * @throws PolicyNotExistsException when the given policyDefinition does not exist in the PerunPoliciesContainer.
 	 */
-	public static boolean authorized(PerunSession sess, String policyDefinition, List<PerunBean> objects) throws PolicyNotExistsException {
+	public static boolean authorizedExternal(PerunSession sess, String policyDefinition, List<PerunBean> objects) throws PolicyNotExistsException {
 		return AuthzResolverBlImpl.authorized(sess, policyDefinition, objects);
+	}
+
+	/**
+	 * Checks if the principal is authorized.
+	 * This method should be used in the internal code.
+	 *
+	 * @param sess PerunSession which contains the principal.
+	 * @param policyDefinition of policy which contains authorization rules.
+	 * @param objects as list of PerunBeans on which will be authorization provided. (e.g. groups, Vos, etc...)
+	 * @return true if the principal has particular rights, false otherwise.
+	 */
+	public static boolean authorizedInternal(PerunSession sess, String policyDefinition, List<PerunBean> objects) {
+		try {
+			return AuthzResolverBlImpl.authorized(sess, policyDefinition, objects);
+		} catch (PolicyNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**
