@@ -193,4 +193,102 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #ExtSourcesManagerEntry
+  createExtSource_ExtSource_Map<String_String>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteExtSource_ExtSource_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getExtSourceById_int_policy:
+    policy_roles:
+      - RPC:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getExtSourceByName_String_policy:
+    policy_roles:
+      - RPC:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getVoExtSources_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getGroupExtSources_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getExtSources_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  addExtSource_Vo_ExtSource_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  addExtSource_Group_ExtSource_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeExtSource_Vo_ExtSource_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeExtSource_Group_ExtSource_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getInvalidUsers_ExtSource_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  loadExtSourcesDefinitions_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getCandidate_ExtSource_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getCandidate_Map<String_String>_ExtSource_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAttributes_ExtSource_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
 ...
