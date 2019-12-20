@@ -43,7 +43,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	@Test
 	public void unauthorizedPerunAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "unauthorizedPerunAdmin");
-		assertFalse(AuthzResolver.authorized(new PerunSessionImpl(
+		assertFalse(AuthzResolver.authorizedInternal(new PerunSessionImpl(
 			perun,
 			new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 			new PerunClient()
@@ -63,7 +63,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
 
-		assertTrue(AuthzResolver.authorized(session, "default_policy", Collections.emptyList()));
+		assertTrue(AuthzResolver.authorizedInternal(session, "default_policy", Collections.emptyList()));
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_authorized_vo_admin",  Arrays.asList(createdVo)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_authorized_vo_admin",  Arrays.asList(createdVo)));
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_cycle_voadmin",  Arrays.asList(createdVo)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_cycle_voadmin",  Arrays.asList(createdVo)));
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_authorized_group_admin",  Arrays.asList(createdVo, createdGroup)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_authorized_group_admin",  Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_authorized_group_admin",  Arrays.asList(createdVo, createdGroup)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_authorized_group_admin",  Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -135,7 +135,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_authorized_group_admin", Arrays.asList(createdVo, createdGroup)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_authorized_group_admin", Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -152,7 +152,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -184,7 +184,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_groupadmin_voadmin", Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -200,7 +200,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_resource_admin", Arrays.asList(createdResource)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_resource_admin", Arrays.asList(createdResource)));
 
 	}
 
@@ -217,7 +217,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_transitive_one", Arrays.asList(createdResource)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_transitive_one", Arrays.asList(createdResource)));
 
 	}
 
@@ -235,7 +235,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
 
 	}
 
@@ -252,7 +252,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
 
 	}
 
@@ -269,7 +269,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
 
 	}
 
@@ -284,7 +284,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_resource_and_facility_admin", Arrays.asList(createdResource, createdFacility)));
 
 	}
 
@@ -301,7 +301,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -317,7 +317,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -330,7 +330,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_group_or_vo", Arrays.asList(createdVo, createdGroup)));
 	}
 
 	@Test
@@ -346,7 +346,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_security_admin", Arrays.asList(createdTeam)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_security_admin", Arrays.asList(createdTeam)));
 
 	}
 
@@ -363,7 +363,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorized(session, "test_security_admin", Arrays.asList()));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_security_admin", Arrays.asList()));
 
 	}
 
@@ -380,7 +380,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_voobserver_and_topgroupcreator", Arrays.asList(createdVo)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_voobserver_and_topgroupcreator", Arrays.asList(createdVo)));
 	}
 
 	@Test
@@ -395,7 +395,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_cabinet", Arrays.asList()));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_cabinet", Arrays.asList()));
 	}
 
 	@Test
@@ -408,7 +408,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSession session = getHisSession(createdMember);
 
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_self", Arrays.asList(createdUser)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_self", Arrays.asList(createdUser)));
 	}
 
 
@@ -424,7 +424,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		AuthzResolver.setRole(sess, createdUser, createdVo, Role.SPONSOR);
 
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_sponsor", Arrays.asList(createdVo,createdMember)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_sponsor", Arrays.asList(createdVo,createdMember)));
 	}
 
 	@Test
@@ -444,7 +444,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		perun.getResourcesManager().addResourceSelfServiceGroup(sess, resource, createdGroup);
 
 		AuthzResolver.refreshAuthz(session);
-		assertTrue(AuthzResolver.authorized(session, "test_resourceselfservice", Arrays.asList(resource, createdGroup)));
+		assertTrue(AuthzResolver.authorizedInternal(session, "test_resourceselfservice", Arrays.asList(resource, createdGroup)));
 	}
 
 	@Test
