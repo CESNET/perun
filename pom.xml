@@ -93,7 +93,6 @@
 
 		<!-- Common plugin settings is inherited by child modules -->
 		<pluginManagement>
-
 			<plugins>
 
 				<!-- mvn clean - cleans output folder (target) -->
