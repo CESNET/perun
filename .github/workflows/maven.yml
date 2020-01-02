@@ -1,0 +1,52 @@
+name: Maven build
+on: [ pull_request ]
+jobs:
+  test:
+    name: JDK ${{ matrix.java }} build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '8', '11' ]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java }}
+    - uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-jdk${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-jdk${{ matrix.java }}-
+    - name: Build with Maven
+      run: mvn -B clean install
+    - name: Notify slack fail
+      if: failure()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        channel: github
+        status: FAILED
+        color: danger
+
+ # Slack Notify Build action, see https://github.com/marketplace/actions/slack-notify-build
+ # 1) create a Slack bot token as described in https://github.com/marketplace/actions/post-slack-message
+ # 2) create a new GitHub repo secret named SLACK_BOT_TOKEN at https://github.com/<user>/<repo>/settings/secrets
+ # 3) invite the App to the desired channel
+
+  notify_slack:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notify slack success
+      if: success()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        channel: github
+        status: OK
+        color: good
+
