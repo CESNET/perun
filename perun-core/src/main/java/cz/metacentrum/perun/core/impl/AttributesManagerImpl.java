@@ -5862,7 +5862,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			Collections.sort(attributesDB);
 			Collections.sort(attributesCache);
 			if (!attributesDB.equals(attributesCache)) {
-				log.error(message, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
+				log.error(message, attributesCache, attributesDB, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
 			}
 		}
 	}
@@ -5870,7 +5870,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private void compareAttributeDefinitionFromCacheAndDB(AttributeDefinition attributesCache, AttributeDefinition attributesDB, Object entity, Object entity2) {
 		if (attributesCache != null) {
 			if (!attributesDB.equals(attributesCache)) {
-				log.error(message, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
+				log.error(message, attributesCache, attributesDB, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
 			}
 		}
 	}
@@ -5878,7 +5878,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private void compareAttributeFromCacheAndDB(Attribute attributesCache, Attribute attributesDB, Object entity, Object entity2) {
 		if (attributesCache != null) {
 			if (!attributesDB.equals(attributesCache)) {
-				log.error(message, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
+				log.error(message, attributesCache, attributesDB, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
 			}
 		}
 	}
@@ -5886,7 +5886,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private void compareAttributesFromCacheAndDB(Map attributesCache, Map attributesDB, Object entity, Object entity2) {
 		if (attributesCache != null) {
 			if (!attributesDB.equals(attributesCache)) {
-				log.error(message, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
+				log.error(message, attributesCache, attributesDB, entity, entity2, Arrays.toString(Thread.currentThread().getStackTrace()));
 			}
 		}
 	}
