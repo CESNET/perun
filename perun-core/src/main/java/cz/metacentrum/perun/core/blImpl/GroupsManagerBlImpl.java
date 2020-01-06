@@ -671,11 +671,41 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new GroupMoveNotAllowedException("There is already group union between moving group: " + movingGroup + " and destination group: " + destinationGroup + ".", movingGroup, destinationGroup);
 			}
 
+			//prevent existence forbidden unions between groups after moving
+			//example: there are groups "A", "A:B" and "C", where "C" is included into "A" (there is a union), if we move "C" under "A:B", existing union will change to forbidden one
+			//Get all unions for moving group and all of its subgroups
+			Set<Group> movingGroupStructureUnions = new HashSet<>();
+			movingGroupStructureUnions.addAll(getGroupUnions(sess, movingGroup, true));
+			for(Group subGroup: getAllSubGroups(sess, movingGroup)) {
+				movingGroupStructureUnions.addAll(getGroupUnions(sess, subGroup, true));
+			}
+			//remove direct relationship from moving group to it's parent group (if exists)
+			//prevent wrong exception in situation like "A", "A:B", "A:C" and moving "A:C" under "A:B", which is correct
+			if(movingGroup.getParentGroupId() != null) {
+				try {
+					Group parentGroupOfMovingGroup = getParentGroup(sess, movingGroup);
+					movingGroupStructureUnions.remove(parentGroupOfMovingGroup);
+				} catch (ParentGroupNotExistsException ex) {
+					throw new InternalErrorException("Can't find parentGroup for " + movingGroup);
+				}
+			}
+
+			//Get all group stucture of destination group (destination group and all its parent groups)
+			Set<Group> destinationGroupStructure = new HashSet<>();
+			destinationGroupStructure.add(destinationGroup);
+			destinationGroupStructure.addAll(getParentGroups(sess, destinationGroup));
+
+			movingGroupStructureUnions.retainAll(destinationGroupStructure);
+			if(!movingGroupStructureUnions.isEmpty()) {
+				throw new GroupMoveNotAllowedException("After moving of moving group: " + movingGroup + " under destination group: " + destinationGroup + " there will exist forbidden indirect relationship.", movingGroup, destinationGroup);
+			}
+
 			processRelationsWhileMovingGroup(sess, destinationGroup, movingGroup);
 
 			// We have to set group attributes so we can update it in database
 			movingGroup.setParentGroupId(destinationGroup.getId());
-			movingGroup.setName(destinationGroup.getName() + ":" + movingGroup.getShortName());
+			String finalGroupName = destinationGroup.getName() + ":" + movingGroup.getShortName();
+			movingGroup.setName(finalGroupName);
 
 		} else {
 
@@ -4109,7 +4139,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// check if there is already a record of these two groups
 		if (this.groupsManagerImpl.isRelationBetweenGroups(resultGroup, operandGroup)) {
 			throw new GroupRelationAlreadyExists("There is already a relation defined between result group " + resultGroup +
-					" and operand group " + operandGroup + " or they are in hierarchical structure.");
+					" and operand group " + operandGroup + " or they are in direct hierarchical structure.");
+		}
+
+		// check indirect relationships (for example "A" with "A:B:C" are in indirect relationship using "A:B")
+		// looking for situation where result group is predecessor of operand group (by name) but not a parent of it (which is ok)
+		if(!parentFlag && operandGroup.getName().startsWith(resultGroup.getName())) {
+			throw new GroupRelationNotAllowed("There is an indirect relationship between result group " + resultGroup +
+					" and operand group " + operandGroup);
 		}
 
 		// check cycle between groups
