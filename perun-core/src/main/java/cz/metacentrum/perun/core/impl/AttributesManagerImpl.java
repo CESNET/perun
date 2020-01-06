@@ -3557,6 +3557,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					map.get(mem).add(attribute);
 				}
 			}
+
+			// FIXME - sort resulting attributes for the purpose of comparing attribute cache results - remove on production
+			for (Member key : map.keySet()) {
+				Collections.sort(map.get(key));
+			}
+
 			return map;
 		}
 	}
@@ -3610,6 +3616,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					map.get(user).add(attribute);
 				}
 			}
+
+			// FIXME - sort resulting attributes for the purpose of comparing attribute cache results - remove on production
+			for (User key : map.keySet()) {
+				Collections.sort(map.get(key));
+			}
+
 			return map;
 		}
 	}
@@ -3625,6 +3637,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, member, resource);
 				// as DB value extractor we must not put member in the result if no attributes are present
+				Collections.sort(setAttrs);
 				if (!setAttrs.isEmpty()) hashMap.put(member, setAttrs);
 			}
 		}
@@ -3666,6 +3679,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, member, null);
 				// as DB value extractor we must not put member in the result if no attributes are present
+				Collections.sort(setAttrs);
 				if (!setAttrs.isEmpty()) hashMap.put(member, setAttrs);
 			}
 		}
@@ -3707,6 +3721,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, facility);
 				// as DB value extractor we must not put user in the result if no attributes are present
+				Collections.sort(setAttrs);
 				if (!setAttrs.isEmpty()) hashMap.put(user, setAttrs);
 			}
 		}
@@ -3748,6 +3763,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, null);
 				// as DB value extractor we must not put user in the result if no attributes are present
+				Collections.sort(setAttrs);
 				if (!setAttrs.isEmpty()) hashMap.put(user, setAttrs);
 			}
 		}
