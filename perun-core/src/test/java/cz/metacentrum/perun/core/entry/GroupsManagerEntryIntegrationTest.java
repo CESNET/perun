@@ -245,6 +245,46 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.EXPIRED);
 	}
 
+	@Test (expected=GroupRelationNotAllowed.class)
+	public void createGroupUnionForIndirectRelationship() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupUnionForIndirectRelationship");
+
+		Vo vo = setUpVo();
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, group2, group3);
+		groupsManagerBl.createGroup(sess, group3, group4);
+
+		groupsManagerBl.createGroupUnion(sess, group2, group4, false);
+	}
+
+	@Test (expected=GroupMoveNotAllowedException.class)
+	public void moveGroupIsForbiddenWhenIndirectRelationshipExists1() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupIsForbiddenWhenIndirectRelationshipExists");
+
+		Vo vo = setUpVo();
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, group2, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+
+		groupsManagerBl.createGroupUnion(sess, group2, group4, false);
+
+		groupsManagerBl.moveGroup(sess, group3, group4);
+	}
+
+	@Test (expected=GroupMoveNotAllowedException.class)
+	public void moveGroupIsForbiddenWhenIndirectRelationshipExists2() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupIsForbiddenWhenIndirectRelationshipExists");
+
+		Vo vo = setUpVo();
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, group3, group4);
+
+		groupsManagerBl.createGroupUnion(sess, group2, group4, false);
+
+		groupsManagerBl.moveGroup(sess, group2, group3);
+	}
+
 	@Test
 	public void validateMemberRecursively() throws Exception {
 		System.out.println(CLASS_NAME + "validateMemberRecursively");
