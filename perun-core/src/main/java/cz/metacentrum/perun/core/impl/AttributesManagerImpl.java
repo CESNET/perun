@@ -3624,7 +3624,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			for (Member member: members) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, member, resource);
-				hashMap.put(member, setAttrs);
+				// as DB value extractor we must not put member in the result if no attributes are present
+				if (!setAttrs.isEmpty()) hashMap.put(member, setAttrs);
 			}
 		}
 
@@ -3664,7 +3665,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			for (Member member: members) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, member, null);
-				hashMap.put(member, setAttrs);
+				// as DB value extractor we must not put member in the result if no attributes are present
+				if (!setAttrs.isEmpty()) hashMap.put(member, setAttrs);
 			}
 		}
 
@@ -3704,7 +3706,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			for (User user: users) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, facility);
-				hashMap.put(user, setAttrs);
+				// as DB value extractor we must not put user in the result if no attributes are present
+				if (!setAttrs.isEmpty()) hashMap.put(user, setAttrs);
 			}
 		}
 
@@ -3744,7 +3747,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			for (User user: users) {
 				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
 				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, null);
-				hashMap.put(user, setAttrs);
+				// as DB value extractor we must not put user in the result if no attributes are present
+				if (!setAttrs.isEmpty()) hashMap.put(user, setAttrs);
 			}
 		}
 
