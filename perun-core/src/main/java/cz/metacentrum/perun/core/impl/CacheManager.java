@@ -1747,7 +1747,7 @@ public class CacheManager implements CacheManagerApi {
 
 		List<AttributeHolders> attrs = jdbc.query("select " + AttributesManagerImpl.getAttributeMappingSelectQuery(tableName) +
 						", "+ primHolder +"_id as primary_holder_id , " + secHolder + "_id as secondary_holder_id from attr_names " +
-						"join " + tableName + " on id=attr_id where (attr_id < 10 and attr_value is not null or attr_value_text is not null)",
+						"join " + tableName + " on id=attr_id where (attr_value is not null or attr_value_text is not null)",
 				new AttributesManagerImpl.AttributeHoldersRowMapper(sess, attrManagerImpl, primHolderType, secHolderType));
 
 		this.setAttributes(attrs);

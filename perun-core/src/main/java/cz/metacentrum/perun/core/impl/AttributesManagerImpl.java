@@ -2348,12 +2348,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
-		String tableName;
-		String namespace;
-		Integer identificator1;
-		Integer identificator2;
-		Holder holder1;
-		Holder holder2;
 
 		// get bean names
 		String name1 = bean1.getBeanName().toLowerCase();
@@ -2366,14 +2360,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			name2 = name2.replaceFirst("rich", "");
 		}
 		// get namespace of the perun bean
-		namespace = BEANS_TO_NAMESPACES_MAP.get(name1 + "_" + name2);
-		identificator1 = bean1.getId();
-		identificator2 = bean2.getId();
-		holder1 = createHolderTypeByStringAndId(identificator1, name1);
-		holder2 = createHolderTypeByStringAndId(identificator2, name2);
-
+		String namespace = BEANS_TO_NAMESPACES_MAP.get(name1 + "_" + name2);
+		int identificator1 = bean1.getId();
+		int identificator2 = bean2.getId();
 		if (namespace == null) {
-			// swap the names and beans and try again
+			// swap the names and beans/ids and try again
 			String nameTmp = name1;
 			name1 = name2;
 			name2 = nameTmp;
@@ -2385,7 +2376,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			// the combination of perun beans is not in the namespace map
 			throw new InternalErrorException(new IllegalArgumentException("Setting attribute for perun bean " + bean1 + " and " + bean2 + " is not allowed."));
 		}
-		tableName = name1 + "_" + name2 + "_attr_values";
+		Holder holder1 = createHolderTypeByStringAndId(identificator1, name1);
+		Holder holder2 = createHolderTypeByStringAndId(identificator2, name2);
+		String tableName = name1 + "_" + name2 + "_attr_values";
 
 		// check that given object is consistent with the attribute
 		checkNamespace(sess, attribute, namespace);
