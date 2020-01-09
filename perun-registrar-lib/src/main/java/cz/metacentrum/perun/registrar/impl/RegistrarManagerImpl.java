@@ -432,8 +432,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setDisplayName("VO logo's URL");
 			attrDef.setFriendlyName("voLogoURL");
 			attrDef.setNamespace("urn:perun:vo:attribute-def:def");
-			attrDef.setDescription("Full URL of the VO's logo image (including http://).");
-			attrDef.setType(String.class.getName());
+			attrDef.setDescription("Full URL of the VO's logo image (including https://) or base64 encoded data like: 'data:image/png;base64,....'");
+			attrDef.setType(BeansUtils.largeStringClassName);
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
 			List<AttributeRights> rights = new ArrayList<>();
