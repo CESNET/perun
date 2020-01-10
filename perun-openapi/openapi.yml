@@ -1077,7 +1077,7 @@ paths:
       operationId: getPerunRPCVersion
       summary: Gets Perun runtime status
       responses:
-        200:
+        '200':
           description: OK
           content:
             text/plain:
@@ -1105,7 +1105,7 @@ paths:
         "LastMessageId: 23463958",
         "Timestamp: 2019-11-14 10:12:30.99"
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfStringsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1127,7 +1127,7 @@ paths:
         "GROUPS: '2300'",
         "AUDITMESSAGES: '7333237'"
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfStringsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1139,7 +1139,7 @@ paths:
       operationId: getPerunSystemTimeInMillis
       summary: Gets Perun system time in milliseconds since the epoch
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/LongResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1151,7 +1151,7 @@ paths:
       operationId: getGuiConfiguration
       summary: Gets perun-web-gui.properties as Map<String,String>
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/MapStringStringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1170,7 +1170,7 @@ paths:
       summary: Gets current user
       description: Returns object representing the currently authenticated user.
       responses:
-        200:
+        '200':
           description: successfully returned authenticated user
           content:
             application/json:
@@ -1198,7 +1198,7 @@ paths:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/memberId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1215,7 +1215,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1232,7 +1232,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1248,7 +1248,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1265,7 +1265,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1281,7 +1281,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1304,7 +1304,7 @@ paths:
         - $ref: '#/components/parameters/attrNames'
         - $ref: '#/components/parameters/workWithUserAttributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1324,7 +1324,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/workWithUserAttributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1354,7 +1354,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1371,7 +1371,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1393,7 +1393,7 @@ paths:
         - $ref: '#/components/parameters/attrNames'
         - $ref: '#/components/parameters/workWithGroupAttributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1413,7 +1413,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/workWithGroupAttributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1430,7 +1430,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/groupId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1449,7 +1449,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1465,7 +1465,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1486,7 +1486,7 @@ paths:
         - $ref: '#/components/parameters/attrNames'
         - $ref: '#/components/parameters/workWithUserAttributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1505,7 +1505,7 @@ paths:
         - $ref: '#/components/parameters/attrNames'
         - $ref: '#/components/parameters/workWithUserAttributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1524,7 +1524,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/workWithUserAttributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1543,7 +1543,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1562,7 +1562,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1580,7 +1580,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/groupId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1597,7 +1597,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/memberId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1615,7 +1615,7 @@ paths:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1632,7 +1632,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1651,7 +1651,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1668,7 +1668,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1685,7 +1685,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/hostId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1702,7 +1702,7 @@ paths:
       parameters:
         - { name: key, description: "key for entityless attributes", schema: { type: string },  in: query, required: true }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1720,7 +1720,7 @@ paths:
         - $ref: '#/components/parameters/userExtSourceId'
         - $ref: '#/components/parameters/attrNames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1737,7 +1737,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userExtSourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1751,7 +1751,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/attrName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1765,7 +1765,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/attributeDefinitionId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfStringsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1780,7 +1780,7 @@ paths:
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
         Group and group-resource attributes are not supported in this context.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1820,7 +1820,7 @@ paths:
         Store the member, user, member-resource and user-facility attributes.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1852,7 +1852,7 @@ paths:
         Store the attributes associated with the facility and user combination.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1882,7 +1882,7 @@ paths:
         Store the attributes associated with the facility.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1911,7 +1911,7 @@ paths:
         Store the attributes associated with the vo.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1941,7 +1941,7 @@ paths:
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
         If workWithUserAttributes is true, the method stores also the attributes associated with user, user-facility and member.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -1977,7 +1977,7 @@ paths:
         Store the attributes associated with the resource and member combination.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2011,7 +2011,7 @@ paths:
         Store the attributes associated with group and resource, if workWithUserAttributes is true then also from group itself.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2046,7 +2046,7 @@ paths:
       description: |
         Store the attributes associated with the group on resource.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2079,7 +2079,7 @@ paths:
       description: |
         Store the attributes associated with the resource.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2112,7 +2112,7 @@ paths:
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
         If workWithUserAttributes is true, the method stores also the attributes associated with user and member.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2147,7 +2147,7 @@ paths:
       description: |
         Store the attributes associated with member and user (which we get from this member) if workWithUserAttributes is true.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2181,7 +2181,7 @@ paths:
         Store the attributes associated with the member and group combination.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2215,7 +2215,7 @@ paths:
         Store the attributes associated with the member.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2247,7 +2247,7 @@ paths:
         Store the attributes associated with the user.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2279,7 +2279,7 @@ paths:
         Store the attributes associated with the group.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2311,7 +2311,7 @@ paths:
         Store the attributes associated with the host.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2343,7 +2343,7 @@ paths:
         Store the attributes associated with the UserExtSource.
         If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2377,7 +2377,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2393,7 +2393,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2409,7 +2409,7 @@ paths:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2425,7 +2425,7 @@ paths:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2442,7 +2442,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2459,7 +2459,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2475,7 +2475,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2491,7 +2491,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2507,7 +2507,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2523,7 +2523,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2539,7 +2539,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2555,7 +2555,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2571,7 +2571,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2587,7 +2587,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2604,7 +2604,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2621,7 +2621,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2638,7 +2638,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2655,7 +2655,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2672,7 +2672,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2689,7 +2689,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2705,7 +2705,7 @@ paths:
         - $ref: '#/components/parameters/userExtSourceId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2721,7 +2721,7 @@ paths:
         - $ref: '#/components/parameters/userExtSourceId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2737,7 +2737,7 @@ paths:
         - $ref: '#/components/parameters/hostId'
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2753,7 +2753,7 @@ paths:
         - $ref: '#/components/parameters/hostId'
         - $ref: '#/components/parameters/attributeId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2769,7 +2769,7 @@ paths:
         - { name: key, description: "key for entityless attribute", schema: { type: string },  in: query, required: true }
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2802,7 +2802,7 @@ paths:
         - { name: userExtSource, description: "id of UserExtSource", schema: { type: integer },  in: query }
         - { name: key, description: "key for entityless attribute", schema: { type: string },  in: query }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2816,7 +2816,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/attributeName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeDefinitionResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2829,7 +2829,7 @@ paths:
       summary: Returns all AttributeDefinitions.
       parameters: []
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2843,7 +2843,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeDefinitionResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2856,7 +2856,7 @@ paths:
       summary: Returns all AttributeDefinitions in a namespace.
       parameters: []
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2875,7 +2875,7 @@ paths:
       operationId: setFacilityAttribute
       summary: Sets Attribute for Facility.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2901,7 +2901,7 @@ paths:
       operationId: setUserAttribute
       summary: Sets Attribute for User.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2927,7 +2927,7 @@ paths:
       operationId: setUserFacilityAttribute
       summary: Sets Attribute for User and Facility.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2955,7 +2955,7 @@ paths:
       operationId: setVoAttribute
       summary: Sets Attribute for Vo.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -2981,7 +2981,7 @@ paths:
       operationId: setMemberAttribute
       summary: Sets Attribute for Member.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3007,7 +3007,7 @@ paths:
       operationId: setGroupAttribute
       summary: Sets Attribute for Group.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3033,7 +3033,7 @@ paths:
       operationId: setResourceAttribute
       summary: Sets Attribute for Resource.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3059,7 +3059,7 @@ paths:
       operationId: setMemberGroupAttribute
       summary: Sets Attribute for Member and Group.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3087,7 +3087,7 @@ paths:
       operationId: setMemberResourceAttribute
       summary: Sets Attribute for Member and Resource.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3115,7 +3115,7 @@ paths:
       operationId: setGroupResourceAttribute
       summary: Sets Attribute for Group and Resource.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3143,7 +3143,7 @@ paths:
       operationId: setUserExtSourceAttribute
       summary: Sets Attribute for UserExtSource.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3169,7 +3169,7 @@ paths:
       operationId: setHostAttribute
       summary: Sets Attribute for Host.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3195,7 +3195,7 @@ paths:
       operationId: setEntitylessAttribute
       summary: Sets entityless Attribute.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3221,7 +3221,7 @@ paths:
       operationId: createAttributeDefinition
       summary: Creates AttributeDefinition.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/AttributeDefinitionResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3247,7 +3247,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/attributeInteger'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3261,7 +3261,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/attributes'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3321,7 +3321,7 @@ paths:
       operationId: getCurrentDatabaseVersion
       summary: Returns current database version, e.g. "3.1.55"
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3333,7 +3333,7 @@ paths:
       operationId: getDatabaseDriverInformation
       summary: Returns current database driver info, e.g. "PostgreSQL JDBC Driver-42.2.8"
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3345,7 +3345,7 @@ paths:
       operationId: getDatabaseInformation
       summary: Returns current database info, e.g. "PostgreSQL-12.0 (Debian 12.0-2.pgdg100+1)"
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3369,7 +3369,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ExtSourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3383,7 +3383,7 @@ paths:
       parameters:
         - { name: name, in: query, required: true, schema: { type: string}, description: "ExtSource Name", example: "https://login.cesnet.cz/idp/" }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ExtSourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3399,7 +3399,7 @@ paths:
       operationId: getExtSources
       summary: Returns the list of all external sources.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfExtSourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3426,7 +3426,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/UserResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3452,7 +3452,7 @@ paths:
           in: query
           required: true
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/UserResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3467,7 +3467,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/RichUserResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3481,7 +3481,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfUserExtSourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3498,7 +3498,7 @@ paths:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3515,7 +3515,7 @@ paths:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3536,7 +3536,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/MemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3551,7 +3551,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/RichMemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3566,7 +3566,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/RichMemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3581,7 +3581,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/MemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3595,7 +3595,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3610,7 +3610,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - { name: searchString, schema: { type: string }, required: true, in: query, description: 'string to search by'}
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3630,7 +3630,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/FacilityResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3644,7 +3644,7 @@ paths:
       parameters:
         - { name: name, description: "name of Facility", schema: { type: string }, in: query, required: true}
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/FacilityResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3664,7 +3664,7 @@ paths:
           in: query
           required: false
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3677,7 +3677,7 @@ paths:
       summary: Gets all possible rich facilities with all their owners.
       parameters: []
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfRichFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3691,7 +3691,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/destinationName'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3708,7 +3708,7 @@ paths:
         - $ref: '#/components/parameters/attributeName'
         - $ref: '#/components/parameters/attributeValue'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3721,7 +3721,7 @@ paths:
       summary: Get all facilities.
       parameters: []
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3734,7 +3734,7 @@ paths:
       summary: Gets count of all facilities.
       parameters: []
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/IntegerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3748,7 +3748,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfOwnersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3763,7 +3763,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/ownerId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3778,7 +3778,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/ownerId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3792,7 +3792,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfVosResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3808,7 +3808,7 @@ paths:
         - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
         - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3825,7 +3825,7 @@ paths:
         - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
         - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfRichGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3839,7 +3839,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3853,7 +3853,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfRichResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3868,7 +3868,7 @@ paths:
         - { name: name, required: true, in: query, schema: { type: string, pattern: '[a-zA-Z0-9.-_ ]+' }, description: "name of a facility - can contain only a-Z0-9.-_ and space characters" }
         - { name: description, required: false, in: query, schema: { type: string }, description: "optional description of a facility" }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/FacilityResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3882,7 +3882,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3894,7 +3894,7 @@ paths:
       operationId: updateFacility
       summary: Updates a facility.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/FacilityResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3920,7 +3920,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ownerId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3934,7 +3934,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfHostsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3948,7 +3948,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/HostResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3962,7 +3962,7 @@ paths:
       parameters:
         - { name: hostname, required: true, in: query, schema: { type: string }, description: "name of a host" }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/HostResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3976,7 +3976,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/hostId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/FacilityResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -3990,7 +3990,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/IntegerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4005,7 +4005,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/hostnames'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfHostsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4020,7 +4020,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/listOfHostIds'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4035,7 +4035,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - { name: hostname, description: "DNS name of host", schema: { type: string },  in: query, required: true }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfHostsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4049,7 +4049,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/hostId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4066,7 +4066,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4081,7 +4081,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4097,7 +4097,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4112,7 +4112,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4131,7 +4131,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)"}
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4145,7 +4145,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4218,7 +4218,7 @@ paths:
       operationId: createOwner
       summary: Creates a new owner.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/OwnerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4249,7 +4249,7 @@ paths:
       operationId: deleteOwner
       summary: Deletes Owner specified by id. Returns null.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/OwnerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4265,7 +4265,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/OwnerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4278,7 +4278,7 @@ paths:
       summary: Returns all owners.
       parameters: []
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfOwnersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4300,7 +4300,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/GroupResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4318,7 +4318,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - { name: name, schema: { type: string }, in: query, required: true, description: 'full group name' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/GroupResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4333,7 +4333,7 @@ paths:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/groupId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/BooleanResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4347,7 +4347,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/memberId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4367,7 +4367,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ResourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4383,7 +4383,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - { name: name, schema: { type: string }, in: query, required: true, description: 'resource name' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ResourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4397,7 +4397,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/RichResourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4414,7 +4414,7 @@ paths:
         - { name: name, schema: { type: string }, in: query, required: true, description: 'resource name' }
         - { name: description, schema: { type: string }, in: query, required: false, description: 'optional resource description' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ResourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4428,7 +4428,7 @@ paths:
       operationId: updateResource
       summary: Updates a resource.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4454,7 +4454,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4477,7 +4477,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4492,7 +4492,7 @@ paths:
         - $ref: '#/components/parameters/groupIds'
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4507,7 +4507,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceIds'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4522,7 +4522,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4537,7 +4537,7 @@ paths:
         - $ref: '#/components/parameters/groupIds'
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4552,7 +4552,7 @@ paths:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/resourceIds'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4567,7 +4567,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - { name: member, required: false, schema: { type: integer}, in: query, description: 'optional member id' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4601,7 +4601,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4617,7 +4617,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/groupId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4632,7 +4632,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4646,7 +4646,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4661,7 +4661,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/serviceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4676,7 +4676,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/servicesPackageId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4691,7 +4691,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/serviceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4706,7 +4706,7 @@ paths:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/servicesPackageId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4736,7 +4736,7 @@ paths:
       operationId: assignResourceTagToResource
       summary: Assigns ResourceRag to resource. The ResourceTag must contain its id, voId and tagName.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4762,7 +4762,7 @@ paths:
       operationId: removeResourceTagFromResource
       summary: Removes ResourceRag from a resource. The ResourceTag must contain its id, voId and tagName.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4790,7 +4790,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4802,7 +4802,7 @@ paths:
       operationId: getAllResourcesByResourceTag
       summary: Get all resources with the specific tag assigned.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4829,7 +4829,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourceTagsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4843,7 +4843,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/resourceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourceTagsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4886,7 +4886,7 @@ paths:
       operationId: getMyVos
       summary: Return list of all VOs the caller is associated with.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfVosResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4898,7 +4898,7 @@ paths:
       operationId: getAllVos
       summary: Return list of all VOs in Perun.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfVosResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4918,7 +4918,7 @@ paths:
       parameters:
         - { name: shortName, description: "short name of Vo", schema: { type: string },  in: query }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4932,7 +4932,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4953,7 +4953,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4968,7 +4968,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -4985,7 +4985,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/userId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5000,7 +5000,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5021,7 +5021,7 @@ paths:
         - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name'}
         - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "get only direct administrators (if false, get both direct and indirect)"}
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5038,7 +5038,7 @@ paths:
         - $ref: '#/components/parameters/voId'
         - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name'}
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5065,7 +5065,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ApplicationFormResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5082,7 +5082,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ApplicationFormResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5138,7 +5138,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ServiceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5157,7 +5157,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ServiceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5211,7 +5211,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/DestinationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5226,7 +5226,7 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfDestinationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5238,7 +5238,7 @@ paths:
       operationId: getAllDestinations
       summary: Get list of all destinations.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfDestinationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5253,7 +5253,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfRichDestinationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5267,7 +5267,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfRichDestinationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5282,7 +5282,7 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfRichDestinationsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5300,7 +5300,7 @@ paths:
         - { name: type, description: "Destination's type", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
         - { name: propagationType, description: "Destination's propagationType", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: true }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/DestinationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5312,7 +5312,7 @@ paths:
       operationId: addDestinationToMultipleServices
       description: Adds an destination for a facility and list of services. If destination doesn't exist it will be created.
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/DestinationResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5357,7 +5357,7 @@ paths:
         - { name: destination, description: "Destination's destination", schema: { type: string },  in: query, required: true }
         - { name: type, description: "Destination's type", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5372,7 +5372,7 @@ paths:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5390,7 +5390,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfServicesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
@@ -5404,7 +5404,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/serviceId'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
