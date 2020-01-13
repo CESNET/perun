@@ -32,7 +32,14 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuotas extends Reso
 	public static final String A_R_maxUserDataQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserDataQuotas";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute.getValue() == null) return;
+
+		perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, true);
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//attribute can be null, it means there are no default settings on resource
 		if (attribute.getValue() == null) {
 			return;
@@ -40,7 +47,12 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuotas extends Reso
 
 		//Check if every part of this map has the right pattern
 		//And also check if every quota part has right settings (softQuota<=hardQuota)
-		Map<String, Pair<BigDecimal, BigDecimal>> defaultDataQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, true);
+		Map<String, Pair<BigDecimal, BigDecimal>> defaultDataQuotasForResource;
+		try {
+			defaultDataQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, true);
+		} catch (WrongAttributeValueException e) {
+			throw new ConsistencyErrorException("Final counted quotas on " + resource + " are in bad format.", e);
+		}
 
 		//If there are no values after converting quota, we can skip testing against maxUserDataQuota attribute, because there is nothing to check
 		if (defaultDataQuotasForResource == null || defaultDataQuotasForResource.isEmpty()) return;

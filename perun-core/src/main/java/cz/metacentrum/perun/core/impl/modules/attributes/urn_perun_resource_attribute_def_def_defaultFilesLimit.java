@@ -28,7 +28,17 @@ public class urn_perun_resource_attribute_def_def_defaultFilesLimit extends Reso
 	private static final String A_F_readyForNewQuotas = AttributesManager.NS_FACILITY_ATTR_DEF + ":readyForNewQuotas";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//null value is ok
+		if(attribute.getValue() == null) {
+			return;
+		}
+
+		if (attribute.valueAsInteger() < 0) throw new WrongAttributeValueException(attribute, resource, attribute + " cannot be less than 0.");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrDefaultFilesQuota;
 		Integer defaultFilesQuota = null;
 		Integer defaultFilesLimit = null;
@@ -42,13 +52,12 @@ public class urn_perun_resource_attribute_def_def_defaultFilesLimit extends Reso
 
 		//get defaultFilesLimit value
 		if(attribute.getValue() != null) {
-			defaultFilesLimit = (Integer) attribute.getValue();
+			defaultFilesLimit = attribute.valueAsInteger();
 		}
-		if(defaultFilesLimit != null && defaultFilesLimit < 0) throw new WrongAttributeValueException(attribute, resource, attribute + " cannot be less than 0.");
 
 		//get defaultFilesQuota value
 		if(attrDefaultFilesQuota != null &&  attrDefaultFilesQuota.getValue() != null) {
-			defaultFilesQuota = (Integer) attrDefaultFilesQuota.getValue();
+			defaultFilesQuota = attrDefaultFilesQuota.valueAsInteger();
 		}
 		if(defaultFilesQuota != null && defaultFilesQuota < 0) throw new ConsistencyErrorException(attrDefaultFilesQuota + " cannot be less than 0.");
 

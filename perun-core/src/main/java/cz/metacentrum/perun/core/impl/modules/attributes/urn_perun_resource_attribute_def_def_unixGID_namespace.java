@@ -94,26 +94,30 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		try{
 			String gidNamespace = attribute.getFriendlyNameParameter();
 
 			//Special behaviour if gid is null
 			Integer attrValue;
 			if(attribute.getValue() == null) {
-				throw new WrongAttributeValueException(attribute, resource, "Unix GID must be set");
+				throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Unix GID must be set");
 			} else {
-				attrValue = (Integer) attribute.getValue();
+				attrValue = attribute.valueAsInteger();
 			}
 
 			//Check if GID is within allowed range
-			sess.getPerunBl().getModulesUtilsBl().checkIfGIDIsWithinRange(sess, attribute);
+			try {
+				sess.getPerunBl().getModulesUtilsBl().checkIfGIDIsWithinRange(sess, attribute);
+			} catch (WrongAttributeValueException ex) {
+				throw new WrongReferenceAttributeValueException(ex);
+			}
 
 			//check if gid is not already depleted
 			Attribute usedGids = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_usedGids);
 			//null in value means there is no depleted or used gids
 			if(usedGids.getValue() != null) {
-				Map<String, String> usedGidsValue = (Map<String,String>) usedGids.getValue();
+				Map<String, String> usedGidsValue = usedGids.valueAsMap();
 				//Dx, where x is GID means depleted value for GID x
 				if(usedGidsValue.containsKey("D" + attrValue.toString())) {
 					throw new WrongReferenceAttributeValueException(attribute, usedGids, resource, null, gidNamespace, null, "This GID is already depleted.");

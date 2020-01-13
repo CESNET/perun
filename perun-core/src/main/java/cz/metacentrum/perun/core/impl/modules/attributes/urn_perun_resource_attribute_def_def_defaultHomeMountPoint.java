@@ -33,8 +33,27 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
 
 	/**
+	 * Checks syntax of attribute value, allows valid unix paths only.
+	 *
+	 * @param perunSession perun session
+	 * @param resource     resource for which you want to check validity of attribute
+	 * @param attribute    attribute to check
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 */
+	@Override
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute.getValue() == null) return;
+
+		Matcher match = pattern.matcher(attribute.valueAsString());
+		if (!match.matches()) {
+			throw new WrongAttributeValueException(attribute, "Wrong def. mount point format");
+		}
+	}
+
+	/**
 	 * Checks if the homemountpoint is contained in list of homemountpoint at underlying facility
-	 * Allows valid unix paths
+	 *
 	 * @param perunSession
 	 * @param resource
 	 * @param attribute
@@ -44,10 +63,10 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		if (attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute);
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value cannot be null.");
 		}
 
 		Attribute resourceAttribute;
@@ -57,18 +76,12 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 			throw new InternalErrorException(ex);
 		}
 
-		if(resourceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(resourceAttribute);
+		if(resourceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, resourceAttribute, resource, null, resource, null, "HomeMountPoints attribute cannot be null.");
 
-		List<?> homeMntPoints = (List<?>) resourceAttribute.getValue();
+		List<?> homeMntPoints = resourceAttribute.valueAsList();
 		if (!homeMntPoints.contains(attribute.getValue())) {
-			throw new WrongAttributeValueException(attribute, "Attribute value ins't defined in underlying resource. Attribute name=" + A_R_homeMountPoints);
+			throw new WrongReferenceAttributeValueException(attribute, resourceAttribute, resource, null, resource, null, "Attribute value ins't defined in underlying resource. Attribute name=" + A_R_homeMountPoints);
 		}
-
-		Matcher match = pattern.matcher((String) attribute.getValue());
-		if (!match.matches()) {
-			throw new WrongAttributeValueException(attribute, "Wrong def. mount point format");
-		}
-
 	}
 
 	@Override

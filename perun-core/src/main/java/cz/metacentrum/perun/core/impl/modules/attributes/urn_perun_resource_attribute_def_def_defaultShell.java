@@ -59,9 +59,9 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 	 * new default shell must be included at specified resource.
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if (attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute, "Attribute value is null.");
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value is null.");
 		}
 
 		Attribute resourceAttr;
@@ -72,15 +72,12 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 		}
 
 		if (resourceAttr.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(resourceAttr);
-		} else {
-			List<String> shells = (List<String>) resourceAttr.getValue();
-			if (shells.isEmpty()) {
-				throw new WrongAttributeValueException(resourceAttr);
-			}
-			if (!shells.contains(attribute.valueAsString())) {
-				throw new WrongAttributeValueException("Shell " + attribute.getValue() + " is not at specified resource (" + resource + ")");
-			}
+			throw new WrongReferenceAttributeValueException(resourceAttr, null, resource, null, "Attribute with list of shells from resource has null value.");
+		}
+		List<String> shells = resourceAttr.valueAsList();
+
+		if (!shells.contains(attribute.valueAsString())) {
+			throw new WrongReferenceAttributeValueException(attribute, resourceAttr, resource, null, resource, null, "Shell " + attribute.getValue() + " is not at specified resource (" + resource + ")");
 		}
 	}
 

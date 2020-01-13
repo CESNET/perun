@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,40 +75,9 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
 
 	/**
 	 * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
-	 * with shell containing forbiden characters.
-	 */
-	@Test(expected=WrongAttributeValueException.class)
-	public void testCheckAttributeSemanticsWrongShellFormat() throws Exception {
-		System.out.println("testCheckAttributeSemanticsWrongShellFormat()");
-
-		Attribute attributeToCheck = new Attribute();
-		attributeToCheck.setValue(new ArrayList<String>() {{add("\n");}});
-
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
-
-		classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
-		fail("Shell attribute with inappropriate format was approved.");
-	}
-
-	@Test(expected=WrongAttributeValueException.class)
-	public void testCheckAttributeSemanticsWrongShellFormatShellIsDirectory() throws Exception {
-		System.out.println("testCheckAttributeSemanticsWrongShellFormatShellIsDirectory()");
-
-		Attribute attributeToCheck = new Attribute();
-		attributeToCheck.setValue(new ArrayList<String>() {{add("/bin/bash/");}});
-
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(listOfShells);
-
-		classInstance.checkAttributeSemantics(session, new Resource(), attributeToCheck);
-		fail("Shell attribute with inappropriate format was approved.");
-	}
-
-
-	/**
-	 * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
 	 * with empty attribute.
 	 */
-	@Test(expected=WrongAttributeValueException.class)
+	@Test(expected= WrongReferenceAttributeValueException.class)
 	public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
 		System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
 
@@ -122,7 +91,7 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
 	 * Test of checkAttributeSemantics method, of class urn_perun_resource_attribute_def_def_shells.
 	 * attempting to set shell which is not available at that particular resource.
 	 */
-	@Test(expected=WrongAttributeValueException.class)
+	@Test(expected=WrongReferenceAttributeValueException.class)
 	public void testCheckAttributeSemanticsUnknownShell() throws Exception {
 		System.out.println("testCheckAttributeSemanticsUnknownShell()");
 

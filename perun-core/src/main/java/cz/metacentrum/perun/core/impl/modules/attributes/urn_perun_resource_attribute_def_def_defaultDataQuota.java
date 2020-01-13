@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -11,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -29,8 +31,6 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 
 	private static final String A_R_defaultDataLimit = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataLimit";
 	private static final String A_F_readyForNewQuotas = AttributesManager.NS_FACILITY_ATTR_DEF + ":readyForNewQuotas";
-	private static final Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
-	private static final Pattern letterPattern = Pattern.compile("[A-Z]");
 	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
 	//Definition of K = KB, M = MB etc.
@@ -42,21 +42,33 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 	final long E = P * 1024;
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrDefaultDataLimit;
-		String defaultDataQuota;
-		String defaultDataLimit = null;
-
-		String defaultDataQuotaNumber = null;
-		String defaultDataQuotaLetter = null;
-		String defaultDataLimitNumber = null;
-		String defaultDataLimitLetter = null;
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		String defaultDataQuotaNumber = attribute.valueAsString();
 
 		//Check if attribute value has the right exp pattern (can be null)
-		if(attribute.getValue() != null) {
-			Matcher testMatcher = testingPattern.matcher((String) attribute.getValue());
-			if(!testMatcher.find()) throw new WrongAttributeValueException(attribute, resource, "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
+		if (defaultDataQuotaNumber == null) return;
+
+		Matcher testMatcher = testingPattern.matcher(attribute.valueAsString());
+		if (!testMatcher.find())
+			throw new WrongAttributeValueException(attribute, resource, "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
+
+		//Get DefaultDataQuota value
+		BigDecimal quotaNumber = ModulesUtilsBlImpl.getNumberAndUnitFromString(defaultDataQuotaNumber).getLeft();
+
+		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+			throw new WrongAttributeValueException(attribute, resource, null, attribute + " can't be less than 0.");
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Attribute attrDefaultDataLimit;
+		String defaultDataLimit = null;
+
+		//Get DefaultDataQuota value
+		Pair<BigDecimal, String> quotaNumberAndLetter = ModulesUtilsBlImpl.getNumberAndUnitFromString(attribute.valueAsString());
+		BigDecimal quotaNumber = quotaNumberAndLetter.getLeft();
+		String defaultDataQuotaLetter = quotaNumberAndLetter.getRight();
 
 		//Get DefaultDataLimit attribute
 		try {
@@ -65,52 +77,12 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 			throw new ConsistencyErrorException("Attribute with defaultDataLimit from resource " + resource.getId() + " could not obtained.", ex);
 		}
 
-		//Get DefaultDataQuota value
-		if (attribute.getValue() != null) {
-			defaultDataQuota = (String) attribute.getValue();
-			Matcher numberMatcher = numberPattern.matcher(defaultDataQuota);
-			Matcher letterMatcher = letterPattern.matcher(defaultDataQuota);
-			numberMatcher.find();
-			letterMatcher.find();
-			try {
-				defaultDataQuotaNumber = defaultDataQuota.substring(numberMatcher.start(), numberMatcher.end());
-			} catch (IllegalStateException ex) {
-				defaultDataQuotaNumber = null;
-			}
-			try {
-				defaultDataQuotaLetter = defaultDataQuota.substring(letterMatcher.start(), letterMatcher.end());
-			} catch (IllegalStateException ex) {
-				defaultDataQuotaLetter = "G";
-			}
-		}
-		BigDecimal quotaNumber;
-		if(defaultDataQuotaNumber != null) quotaNumber = new BigDecimal(defaultDataQuotaNumber.replace(',', '.'));
-		else quotaNumber = new BigDecimal("0");
-		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
-			throw new WrongAttributeValueException(attribute, resource, null, attribute + " can't be less than 0.");
-		}
+		if (attrDefaultDataLimit != null) defaultDataLimit = attrDefaultDataLimit.valueAsString();
 
 		//Get DefaultDataLimit value
-		if (attrDefaultDataLimit != null && attrDefaultDataLimit.getValue() != null) {
-			defaultDataLimit = (String) attrDefaultDataLimit.getValue();
-			Matcher numberMatcher = numberPattern.matcher(defaultDataLimit);
-			Matcher letterMatcher = letterPattern.matcher(defaultDataLimit);
-			numberMatcher.find();
-			letterMatcher.find();
-			try {
-				defaultDataLimitNumber = defaultDataLimit.substring(numberMatcher.start(), numberMatcher.end());
-			} catch (IllegalStateException ex) {
-				defaultDataLimitNumber = null;
-			}
-			try {
-				defaultDataLimitLetter = defaultDataLimit.substring(letterMatcher.start(), letterMatcher.end());
-			} catch (IllegalStateException ex) {
-				defaultDataLimitLetter = "G";
-			}
-		}
-		BigDecimal limitNumber;
-		if(defaultDataLimitNumber != null) limitNumber = new BigDecimal(defaultDataLimitNumber.replace(',', '.'));
-		else limitNumber = new BigDecimal("0");
+		Pair<BigDecimal, String> limitNumberAndLetter = ModulesUtilsBlImpl.getNumberAndUnitFromString(defaultDataLimit);
+		BigDecimal limitNumber = limitNumberAndLetter.getLeft();
+		String defaultDataLimitLetter = limitNumberAndLetter.getRight();
 
 		if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataLimit, resource, null, resource, null, attrDefaultDataLimit + " cant be less than 0.");
@@ -119,9 +91,9 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 		//Compare DefaultDataQuota with DefaultDataLimit
 		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
 			if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
-				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataLimit, resource, null, resource, null, "Try to set unlimited quota, but limit is still " + defaultDataLimitNumber + defaultDataLimitLetter);
+				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataLimit, resource, null, resource, null, "Try to set unlimited quota, but limit is still " + limitNumber + defaultDataLimitLetter);
 			}
-		} else if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0 && defaultDataLimitLetter != null && defaultDataQuotaLetter != null) {
+		} else if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
 
 			switch (defaultDataLimitLetter) {
 				case "K":

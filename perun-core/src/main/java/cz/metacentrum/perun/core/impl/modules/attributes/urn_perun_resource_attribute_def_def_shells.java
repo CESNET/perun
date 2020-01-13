@@ -47,21 +47,26 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 		return atr;
 	}
 
+	@Override
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		List<String> shells = attribute.valueAsList();
+
+		if (shells == null) return;
+
+		for (String st : shells) {
+			perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
+		}
+	}
+
 	/**
 	 * Checks the attribute with all available shells from resource's facility
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		List<String> shells = (List<String>) attribute.getValue();
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		List<String> shells = attribute.valueAsList();
 
 		if (shells == null) {
-			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
-		}
-
-		if (!shells.isEmpty()) {
-			for (String st : shells) {
-				perunSession.getPerunBl().getModulesUtilsBl().checkFormatOfShell(st, attribute);
-			}
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute cannot be null.");
 		}
 
 		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
@@ -74,11 +79,10 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 
 
 		if (allShellsPerFacility.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(attribute, allShellsPerFacility);
-		} else {
-			if (!((List<String>) allShellsPerFacility.getValue()).containsAll(shells)) {
-				throw new WrongAttributeValueException(attribute, "Some shells from specified resource are not at home facility " + facility.getId());
-			}
+			throw new WrongReferenceAttributeValueException(attribute, allShellsPerFacility, resource, null, facility, null, "Attribute with list of shells from facility cannot be null.");
+		}
+		if (!(allShellsPerFacility.valueAsList()).containsAll(shells)) {
+			throw new WrongReferenceAttributeValueException(attribute, allShellsPerFacility, resource, null, facility, null, "Some shells from specified resource are not at home facility " + facility.getId());
 		}
 	}
 

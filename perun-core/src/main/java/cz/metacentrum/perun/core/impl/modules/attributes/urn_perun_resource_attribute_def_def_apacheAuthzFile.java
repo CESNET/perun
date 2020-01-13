@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -23,17 +24,21 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFile extends Resour
 	private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9.?*+$%]+)+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		if (attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute, resource, null, "Attribute value can not be null.");
-		}
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+		if (attribute.getValue() == null) return;
 
 		//checks for valid unix file path in attribute based on pattern
-		Matcher match = pattern.matcher((String) attribute.getValue());
+		Matcher match = pattern.matcher(attribute.valueAsString());
 
 		if(!match.matches()) {
 			throw new WrongAttributeValueException(attribute, resource, null, "Wrong file path format in attribute (should be like '/dir1/dir2').");
 		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null)
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value can not be null.");
 	}
 
 	@Override

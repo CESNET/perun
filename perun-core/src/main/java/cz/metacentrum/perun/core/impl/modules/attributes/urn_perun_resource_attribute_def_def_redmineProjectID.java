@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -23,16 +24,21 @@ public class urn_perun_resource_attribute_def_def_redmineProjectID extends Resou
 	private static final Pattern pattern = Pattern.compile("^[a-z][-_a-z0-9]+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		String id = (String) attribute.getValue();
-		if (id == null) {
-			throw new WrongAttributeValueException(attribute, resource, "Attribute can't be empty. It can start with a-z and then a-z, 0-9, _ or -");
-		}
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+		String id = attribute.valueAsString();
+		if (id == null) return;
 
 		Matcher match = pattern.matcher(id);
 
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, resource, "Bad format of attribute redmineProjectID. It can start with a-z and then a-z, 0-9, _ or -");
+		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) {
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute can't be empty. It can start with a-z and then a-z, 0-9, _ or -");
 		}
 	}
 
