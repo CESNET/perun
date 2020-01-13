@@ -69,9 +69,9 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
-		if (message instanceof UserExtSourceAddedToUser && ((UserExtSourceAddedToUser) message).getUserExtSource().getExtSource() instanceof ExtSourceX509) {
+		if (message instanceof UserExtSourceAddedToUser && ExtSourcesManager.EXTSOURCE_X509.equals(((UserExtSourceAddedToUser) message).getUserExtSource().getExtSource().getType())) {
 			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceAddedToUser) message).getUser()));
-		} else if (message instanceof UserExtSourceRemovedFromUser && ((UserExtSourceRemovedFromUser) message).getUserExtSource().getExtSource() instanceof ExtSourceX509) {
+		} else if (message instanceof UserExtSourceRemovedFromUser && ExtSourcesManager.EXTSOURCE_X509.equals(((UserExtSourceRemovedFromUser) message).getUserExtSource().getExtSource().getType())) {
 			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceRemovedFromUser) message).getUser()));
 		}
 
