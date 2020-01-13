@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.rtMessagesManager.SendMessageToRt;
+import cz.metacentrum.perun.webgui.model.ApplicationMail;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
@@ -255,6 +256,18 @@ public class JsonErrorHandler {
 		} else if ("AlreadyProcessingException".equalsIgnoreCase(errorName)) {
 
 			return "Operation is already running";
+
+		} else if ("ApplicationMailAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+
+			return "Application mail was already removed";
+
+		} else if ("ApplicationMailNotExistsException".equalsIgnoreCase(errorName)) {
+
+			return "Application mail does not exist";
+
+		} else if ("ApplicationMailExistsException".equalsIgnoreCase(errorName)) {
+
+			return "Application mail already exists";
 
 		}
 
@@ -966,6 +979,24 @@ public class JsonErrorHandler {
 			String result = "Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.";
 
 			return result;
+
+		} else if ("ApplicationMailAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+
+			return "Application mail was already removed.";
+
+		} else if ("ApplicationMailNotExistsException".equalsIgnoreCase(errorName)) {
+
+			ApplicationMail mail = error.getApplicationMail();
+			if (mail != null)
+				return "Application mail with template "+ mail.getMailType() + " and id " + mail.getId() + " does not exist.";
+			return "Application mail does not exist.";
+
+		} else if ("ApplicationMailExistsException".equalsIgnoreCase(errorName)) {
+
+			ApplicationMail mail = error.getApplicationMail();
+			if (mail != null)
+				return "Application mail with template "+ mail.getMailType() + " and id " + mail.getId() + " already exists.";
+			return "Application mail already exists.";
 
 		}
 
