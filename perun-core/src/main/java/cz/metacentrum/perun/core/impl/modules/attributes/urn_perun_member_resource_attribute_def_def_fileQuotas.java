@@ -33,7 +33,14 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Memb
 	public static final String A_R_maxUserFileQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserFileQuotas";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if(attribute.getValue() == null) return;
+
+		perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, member, false);
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//attribute can be null, it means there are no default settings on resource
 		if(attribute.getValue() == null) {
 			return;
@@ -41,7 +48,12 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Memb
 
 		//Check if every part of this map has the right pattern
 		//And also check if every quota part has right settings (softQuota<=hardQuota)
-		Map<String, Pair<BigDecimal, BigDecimal>> fileQuotasForMemberOnResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, member, false);
+		Map<String, Pair<BigDecimal, BigDecimal>> fileQuotasForMemberOnResource;
+		try {
+			fileQuotasForMemberOnResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, member, false);
+		} catch (WrongAttributeValueException e) {
+			throw new ConsistencyErrorException("Quotas on " + resource + " for member " + member + " are in bad format.", e);
+		}
 
 		//If there are no values after converting quota, we can skip testing against maxUserFileQuota attribute, because there is nothing to check
 		if (fileQuotasForMemberOnResource == null || fileQuotasForMemberOnResource.isEmpty()) return;

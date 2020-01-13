@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleImplApi;
@@ -33,8 +35,8 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Membe
 	private static final String A_R_defaultDataQuota = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataQuota";
 	private static final String A_MR_dataLimit = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataLimit";
 	private static final String A_F_readyForNewQuotas = AttributesManager.NS_FACILITY_ATTR_DEF + ":readyForNewQuotas";
-	private static final Pattern numberPattern = Pattern.compile("[0-9]+([.,])?[0-9]*");
-	private static final Pattern letterPattern = Pattern.compile("[A-Z]");
+	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
+
 	final long K = 1024;
 	final long M = K * 1024;
 	final long G = M * 1024;
@@ -43,15 +45,18 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Membe
 	final long E = P * 1024;
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrDataLimit;
-		String dataQuota;
-		String dataLimit;
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute.getValue() == null) return;
 
-		String dataQuotaNumber = null;
-		String dataQuotaLetter = null;
-		String dataLimitNumber = null;
-		String dataLimitLetter = null;
+		Matcher testMatcher = testingPattern.matcher(attribute.valueAsString());
+		if (!testMatcher.find())
+			throw new WrongAttributeValueException(attribute, member, resource, "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Attribute attrDataLimit;
+		String dataLimit = null;
 
 		//Get attrDataLimit attribute
 		try {
@@ -70,29 +75,13 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Membe
 				throw new ConsistencyErrorException("Attribute with defaultDataQuota from resource " + resource.getId() + " could not obtained.", ex);
 			}
 		}
-		if (attribute.getValue() != null) {
-			dataQuota = (String) attribute.getValue();
-			Matcher numberMatcher = numberPattern.matcher(dataQuota);
-			Matcher letterMatcher = letterPattern.matcher(dataQuota);
-			numberMatcher.find();
-			letterMatcher.find();
-			try {
-				dataQuotaNumber = dataQuota.substring(numberMatcher.start(), numberMatcher.end());
-			} catch (IllegalStateException ex) {
-				dataQuotaNumber = null;
-			}
-			try {
-				dataQuotaLetter = dataQuota.substring(letterMatcher.start(), letterMatcher.end());
-			} catch (IllegalStateException ex) {
-				dataQuotaLetter = "G";
-			}
-		}
-		BigDecimal quotaNumber;
-		if(dataQuotaNumber != null) quotaNumber = new BigDecimal(dataQuotaNumber.replace(',', '.'));
-		else quotaNumber = new BigDecimal("0");
+
+		Pair<BigDecimal, String> quotaNumberAndLetter = ModulesUtilsBlImpl.getNumberAndUnitFromString(attribute.valueAsString());
+		BigDecimal quotaNumber = quotaNumberAndLetter.getLeft();
+		String dataQuotaLetter = quotaNumberAndLetter.getRight();
 
 		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
-			throw new WrongAttributeValueException(attribute, resource, member, attribute + " cant be less than 0.");
+			throw new WrongReferenceAttributeValueException(attribute, null, resource, member, attribute + " cant be less than 0.");
 		}
 
 		//Get dataLimit value
@@ -103,26 +92,12 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Membe
 				throw new ConsistencyErrorException("Attribute with defaultDataLimit from resource " + resource.getId() + " could not obtained.", ex);
 			}
 		}
-		if (attrDataLimit != null && attrDataLimit.getValue() != null) {
-			dataLimit = (String) attrDataLimit.getValue();
-			Matcher numberMatcher = numberPattern.matcher(dataLimit);
-			Matcher letterMatcher = letterPattern.matcher(dataLimit);
-			numberMatcher.find();
-			letterMatcher.find();
-			try {
-				dataLimitNumber = dataLimit.substring(numberMatcher.start(), numberMatcher.end());
-			} catch (IllegalStateException ex) {
-				dataLimitNumber = null;
-			}
-			try {
-				dataLimitLetter = dataLimit.substring(letterMatcher.start(), letterMatcher.end());
-			} catch (IllegalStateException ex) {
-				dataLimitLetter = "G";
-			}
-		}
-		BigDecimal limitNumber;
-		if(dataLimitNumber != null) limitNumber = new BigDecimal(dataLimitNumber.replace(',', '.'));
-		else limitNumber = new BigDecimal("0");
+
+		if (attrDataLimit != null) dataLimit = attrDataLimit.valueAsString();
+
+		Pair<BigDecimal, String> limitNumberAndLetter = ModulesUtilsBlImpl.getNumberAndUnitFromString(dataLimit);
+		BigDecimal limitNumber = limitNumberAndLetter.getLeft();
+		String dataLimitLetter = limitNumberAndLetter.getRight();
 
 		if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongReferenceAttributeValueException(attribute, attrDataLimit, resource, member, resource, null, attrDataLimit + " cant be less than 0.");
@@ -131,7 +106,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Membe
 		//Compare dataQuota with dataLimit
 		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
 			if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
-				throw new WrongReferenceAttributeValueException(attribute, attrDataLimit, resource, member, resource, null, "Try to set unlimited quota, but limit is still " + dataLimitNumber + dataLimitLetter);
+				throw new WrongReferenceAttributeValueException(attribute, attrDataLimit, resource, member, resource, null, "Try to set unlimited quota, but limit is still " + limitNumber + dataLimitLetter);
 			}
 		} else if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0 && dataLimitLetter != null && dataQuotaLetter != null) {
 
