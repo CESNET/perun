@@ -6,7 +6,9 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
@@ -14,7 +16,6 @@ import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
-import org.springframework.dao.DuplicateKeyException;
 
 public interface MailManager {
 
@@ -26,10 +27,10 @@ public interface MailManager {
 	 * @param form for authz
 	 * @param mail ApplicationMail to be stored
 	 * @return ApplicationMail with ID property set returned from DB (null on error)
-	 * @throws PerunException
-	 * @throws DuplicateKeyException When mail definition already exists.
+	 * @throws PrivilegeException when caller is not VOADMIN or GROUPADMIN
+	 * @throws ApplicationMailExistsException when mail definition already exists.
 	 */
-	Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException, DuplicateKeyException;
+	Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws ApplicationMailExistsException, PrivilegeException;
 
 	/**
 	 * Delete mail notification from DB based on ID property.
@@ -37,9 +38,11 @@ public interface MailManager {
 	 * @param sess PerunSession for authz
 	 * @param form for authz
 	 * @param id ID of ApplicationMail to delete from DB
-	 * @throws PerunException
+	 * @throws PrivilegeException when caller is not authorized
+	 * @throws ApplicationMailNotExistsException
+	 * @throws ApplicationMailAlreadyRemovedException
 	 */
-	void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws PerunException;
+	void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws ApplicationMailAlreadyRemovedException, PrivilegeException, ApplicationMailNotExistsException;
 
 	/**
 	 * Update notification parameters (including message texts)
@@ -49,9 +52,9 @@ public interface MailManager {
 	 * @param mail ApplicationMail to update to
 	 * @throws FormNotExistsException When application form related to the mail template not exists
 	 * @throws PrivilegeException When caller is not authorized
-	 * @throws InternalErrorException When implementation fails
+	 * @throws ApplicationMailNotExistsException When application mail does not exist
 	 */
-	void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, InternalErrorException, PrivilegeException;
+	void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException;
 
 	/**
 	 * Enable or disable sending for list of mail definitions
@@ -69,10 +72,9 @@ public interface MailManager {
 	 * @param id of mail definition to get
 	 * @param sess for authz
 	 * @return mail
-	 * @throws InternalErrorException when mail definition doesn't exists
-	 * @throws PrivilegeException if not VO admin
+	 * @throws ApplicationMailNotExistsException when application mail does not exist
 	 */
-	ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException;
+	ApplicationMail getMailById(PerunSession sess, Integer id) throws ApplicationMailNotExistsException;
 
 	/**
 	 * Return all mail notifications related to specific app form (vo/group)

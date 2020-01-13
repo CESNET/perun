@@ -28,6 +28,9 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailAlreadyRemovedException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailExistsException;
+import cz.metacentrum.perun.registrar.exceptions.ApplicationMailNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.audit.events.MailManagerEvents.InvitationSentEvent;
@@ -120,7 +123,7 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException, DuplicateKeyException {
+	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws ApplicationMailExistsException, PrivilegeException {
 
 		if (form.getGroup() != null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
@@ -135,12 +138,20 @@ public class MailManagerImpl implements MailManager {
 		int id = Utils.getNewId(jdbc, "APPLICATION_MAILS_ID_SEQ");
 		mail.setId(id);
 
-		jdbc.update("insert into application_mails(id, form_id, app_type, mail_type, send) values (?,?,?,?,?)",
+		try {
+			jdbc.update("insert into application_mails(id, form_id, app_type, mail_type, send) values (?,?,?,?,?)",
 				mail.getId(), form.getId(), mail.getAppType().toString(), mail.getMailType().toString(), mail.getSend() ? "1" : "0");
+		} catch (DuplicateKeyException e) {
+			throw new ApplicationMailExistsException("Application mail already exists.", mail);
+		}
 
 		for (Locale loc : mail.getMessage().keySet()) {
-			jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
-					mail.getId(), loc.toString(), mail.getMessage(loc).getSubject(), mail.getMessage(loc).getText());
+			try {
+				jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
+						mail.getId(), loc.toString(), mail.getMessage(loc).getSubject(), mail.getMessage(loc).getText());
+			} catch (DuplicateKeyException e) {
+				throw new ApplicationMailExistsException("Application mail already exists.", mail);
+			}
 		}
 
 		log.info("[MAIL MANAGER] Mail notification definition created: {}", mail);
@@ -156,7 +167,7 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
-	public void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws PerunException {
+	public void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws ApplicationMailAlreadyRemovedException, PrivilegeException, ApplicationMailNotExistsException {
 
 		if (form.getGroup() != null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
@@ -171,7 +182,7 @@ public class MailManagerImpl implements MailManager {
 		ApplicationMail mail = getMailById(sess, id);
 
 		int result = jdbc.update("delete from application_mails where id=?", id);
-		if (result == 0) throw new InternalErrorException("Mail notification with id="+id+" doesn't exists!");
+		if (result == 0) throw new ApplicationMailAlreadyRemovedException("Mail notification with id="+id+" doesn't exists!");
 		if (result == 1) log.info("[MAIL MANAGER] Mail notification with id={} deleted", id);
 		if (result > 1) throw new ConsistencyErrorException("There is more than one mail notification with id="+id);
 
@@ -184,7 +195,7 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
-	public ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException {
+	public ApplicationMail getMailById(PerunSession sess, Integer id) throws ApplicationMailNotExistsException {
 
 		// TODO authz
 		ApplicationMail mail;
@@ -196,13 +207,13 @@ public class MailManagerImpl implements MailManager {
 					resultSet.getInt("form_id"), MailType.valueOf(resultSet.getString("mail_type")),
 					resultSet.getBoolean("send")), id);
 			// set
-			if (mails.size() != 1) {
+			if (mails.size() > 1) {
 				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: {}.", mails.size());
-				throw new InternalErrorException("Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
+				throw new ConsistencyErrorException("Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
 			}
 			mail = mails.get(0);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new InternalErrorException("Mail definition with ID="+id+" doesn't exists.");
+			throw new ApplicationMailNotExistsException("Mail definition with ID="+id+" doesn't exists.");
 		}
 
 		List<MailText> texts;
@@ -223,9 +234,13 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	@Transactional(rollbackFor=Exception.class)
-	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, InternalErrorException, PrivilegeException {
+	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, ApplicationMailNotExistsException, PrivilegeException {
 
 		ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
+
+		int numberOfExistences = jdbc.queryForInt("select count(1) from application_mails where id=?", mail.getId());
+		if (numberOfExistences < 1) throw new ApplicationMailNotExistsException("Application mail does not exist.", mail);
+		if (numberOfExistences > 1) throw new ConsistencyErrorException("There is more than one mail with id = " + mail.getId());
 
 		// update sending (enabled / disabled)
 		jdbc.update("update application_mails set send=? where id=?", mail.getSend() ? "1" : "0", mail.getId());
@@ -256,9 +271,15 @@ public class MailManagerImpl implements MailManager {
 		for (ApplicationMail mail : mails) {
 			// update sending (enabled / disabled)
 			if (Compatibility.isPostgreSql()) {
-				jdbc.update("update application_mails set send=? where id=?", (enabled) ? "1" : "0", mail.getId());
+				try {
+					int existence = jdbc.update("update application_mails set send=? where id=?", (enabled) ? "1" : "0", mail.getId());
+					if (existence < 1) throw new ApplicationMailNotExistsException("Application mail does not exist.", mail);
+				} catch (RuntimeException e) {
+					throw new InternalErrorException(e);
+				}
 			} else {
-				jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
+				int existence = jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
+				if (existence < 1) throw new ApplicationMailNotExistsException("Application mail does not exist.", mail);
 			}
 
 			perun.getAuditer().log(sess, new MailSending(mail, enabled));
@@ -299,7 +320,7 @@ public class MailManagerImpl implements MailManager {
 			// to start transaction
 			try {
 				registrarManager.getMailManager().addMail(sess, formTo, mail);
-			} catch (DuplicateKeyException ex) {
+			} catch (ApplicationMailExistsException ex) {
 				log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
 			}
 		}
@@ -327,7 +348,7 @@ public class MailManagerImpl implements MailManager {
 				// to start transaction
 				try {
 					registrarManager.getMailManager().addMail(sess, voForm, mail);
-				} catch (DuplicateKeyException ex) {
+				} catch (ApplicationMailExistsException ex) {
 					log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
 				}
 			}
@@ -343,7 +364,7 @@ public class MailManagerImpl implements MailManager {
 				// to start transaction
 				try {
 					registrarManager.getMailManager().addMail(sess, groupForm, mail);
-				} catch (DuplicateKeyException ex) {
+				} catch (ApplicationMailExistsException ex) {
 					log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
 				}
 			}
@@ -374,7 +395,7 @@ public class MailManagerImpl implements MailManager {
 			// to start transaction
 			try {
 				registrarManager.getMailManager().addMail(sess, formTo, mail);
-			} catch (DuplicateKeyException ex) {
+			} catch (ApplicationMailExistsException ex) {
 				log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
 			}
 		}
