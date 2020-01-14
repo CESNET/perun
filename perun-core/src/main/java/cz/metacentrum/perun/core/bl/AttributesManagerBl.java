@@ -2813,7 +2813,7 @@ public interface AttributesManagerBl {
 	 * @throws GroupResourceMismatchException
 	 */
 
-	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * batch version of checkAttributeSemantics
@@ -3195,6 +3195,19 @@ public interface AttributesManagerBl {
 	void checkAttributesSyntax(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
+	 * Check if value of this group attribute has valid syntax no matter if attribute is required or not.
+	 *
+	 * @param sess perun session
+	 * @param group group for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if attribute isn't group attribute
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void forceCheckAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
 	 * Check if value of this group attribute has valid semantics no matter if attribute is required or not.
 	 *
 	 * @param sess perun session
@@ -3206,7 +3219,7 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void forceCheckAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void forceCheckAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this resource attribute has valid syntax no matter if attribute is required or not.

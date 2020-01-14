@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -12,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
@@ -30,8 +32,6 @@ import java.util.regex.Pattern;
 public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
 	private static final String A_GR_projectDataQuota = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectDataQuota";
-	private static final Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
-	private static final Pattern letterPattern = Pattern.compile("[A-Z]");
 	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
 	//Definition of K = KB, M = MB etc.
@@ -43,21 +43,32 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 	final long E = P * 1024;
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrProjectDataQuota;
-		String projectDataQuota;
-		String projectDataLimit;
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute.getValue() == null) return;
 
-		String projectDataQuotaNumber = null;
-		String projectDataQuotaLetter = null;
-		String projectDataLimitNumber;
-		String projectDataLimitLetter;
+		Matcher testMatcher = testingPattern.matcher(attribute.valueAsString());
+		if (!testMatcher.find())
+			throw new WrongAttributeValueException(attribute, resource, group, "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
+
+		BigDecimal limitNumber = ModulesUtilsBlImpl.getNumberAndUnitFromString(attribute.valueAsString()).getLeft();
+
+		if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+			throw new WrongAttributeValueException(attribute, attribute + " can't be less than 0.");
+		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		Attribute attrProjectDataQuota;
+		String projectDataQuota = null;
 
 		//Check if attribute value has the right exp pattern (can be null)
-		if(attribute.getValue() != null) {
-			Matcher testMatcher = testingPattern.matcher(attribute.valueAsString());
-			if(!testMatcher.find()) throw new WrongAttributeValueException(attribute, resource, group, "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
-		} else return;
+		if(attribute.getValue() == null) return;
+
+		//Get ProjectDataLimit value
+		Pair<BigDecimal, String> limitNumberAndLetter = ModulesUtilsBlImpl.getNumberAndUnitFromString(attribute.valueAsString());
+		BigDecimal limitNumber = limitNumberAndLetter.getLeft();
+		String projectDataLimitLetter = limitNumberAndLetter.getRight();
 
 		//Get ProjectDataQuota attribute
 		try {
@@ -68,51 +79,12 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 			throw new InternalErrorException(ex);
 		}
 
-		//Get ProjectDataLimit value
-		projectDataLimit = attribute.valueAsString();
-		Matcher numberMatcher = numberPattern.matcher(projectDataLimit);
-		Matcher letterMatcher = letterPattern.matcher(projectDataLimit);
-		numberMatcher.find();
-		letterMatcher.find();
-		try {
-			projectDataLimitNumber = projectDataLimit.substring(numberMatcher.start(), numberMatcher.end());
-		} catch (IllegalStateException ex) {
-			projectDataLimitNumber = null;
-		}
-		try {
-			projectDataLimitLetter = projectDataLimit.substring(letterMatcher.start(), letterMatcher.end());
-		} catch (IllegalStateException ex) {
-			projectDataLimitLetter = "G";
-		}
-
-		BigDecimal limitNumber;
-		if(projectDataLimitNumber != null) limitNumber = new BigDecimal(projectDataLimitNumber.replace(',', '.'));
-		else limitNumber = new BigDecimal("0");
-		if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
-			throw new WrongAttributeValueException(attribute, attribute + " can't be less than 0.");
-		}
+		if (attrProjectDataQuota != null) projectDataQuota = attrProjectDataQuota.valueAsString();
 
 		//Get ProjectDataQuota value
-		if (attrProjectDataQuota != null && attrProjectDataQuota.getValue() != null) {
-			projectDataQuota = (String) attrProjectDataQuota.getValue();
-			numberMatcher = numberPattern.matcher(projectDataQuota);
-			letterMatcher = letterPattern.matcher(projectDataQuota);
-			numberMatcher.find();
-			letterMatcher.find();
-			try {
-				projectDataQuotaNumber = projectDataQuota.substring(numberMatcher.start(), numberMatcher.end());
-			} catch (IllegalStateException ex) {
-				projectDataQuotaNumber = null;
-			}
-			try {
-				projectDataQuotaLetter = projectDataQuota.substring(letterMatcher.start(), letterMatcher.end());
-			} catch (IllegalStateException ex) {
-				projectDataQuotaLetter = "G";
-			}
-		}
-		BigDecimal quotaNumber;
-		if(projectDataQuotaNumber != null) quotaNumber = new BigDecimal(projectDataQuotaNumber.replace(',', '.'));
-		else quotaNumber = new BigDecimal("0");
+		Pair<BigDecimal, String> quotaNumberAndLetter = ModulesUtilsBlImpl.getNumberAndUnitFromString(projectDataQuota);
+		BigDecimal quotaNumber = quotaNumberAndLetter.getLeft();
+		String projectDataQuotaLetter = quotaNumberAndLetter.getRight();
 
 		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongReferenceAttributeValueException(attribute, attrProjectDataQuota, attrProjectDataQuota + " cant be less than 0.");
@@ -168,7 +140,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 			}
 
 			if (limitNumber.compareTo(quotaNumber) < 0) {
-				throw new WrongReferenceAttributeValueException(attribute, attrProjectDataQuota, attribute + " must be more than or equals to " + attrProjectDataQuota);
+				throw new WrongReferenceAttributeValueException(attribute, attrProjectDataQuota, group, resource, group, resource, attribute + " must be more than or equals to " + attrProjectDataQuota);
 			}
 		}
 	}

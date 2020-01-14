@@ -25,15 +25,13 @@ public class urn_perun_group_resource_attribute_def_def_projectDirPermissions ex
 	private static final Pattern pattern = Pattern.compile("^[01234567]{3}$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		Integer permissions = (Integer) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+		Integer permissions = attribute.valueAsInteger();
 		//Permissions can be null (if null, it means DEFAULT 750)
 		if (permissions == null) return;
 
-		String perm = permissions.toString();
-
 		//Only 3 consecutive numbers with value >=0 and <=7 are allowed
-		Matcher match = pattern.matcher(perm);
+		Matcher match = pattern.matcher(permissions.toString());
 
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, group, resource, "Bad format of attribute projectDirPermissions (expected something like '750').");

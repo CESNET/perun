@@ -39,9 +39,19 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		String groupName = attribute.valueAsString();
+		if (groupName == null) return;
 
-		String groupName = (String) attribute.getValue();
+		Matcher matcher = pattern.matcher(groupName);
+		if (!matcher.matches())
+			throw new WrongAttributeValueException(attribute, group, resource, "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+
+		String groupName = attribute.valueAsString();
 		Attribute isSystemGroup;
 
 		if(groupName==null) {
@@ -54,17 +64,11 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 				throw new InternalErrorException(ex);
 			}
 
-			if(isSystemGroup.getValue() != null && (Integer) isSystemGroup.getValue()==1) {
-				throw new WrongReferenceAttributeValueException(attribute, "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
+			if(isSystemGroup.getValue() != null && isSystemGroup.valueAsInteger()==1) {
+				throw new WrongReferenceAttributeValueException(attribute, isSystemGroup, group, resource, "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
 			}
 			
 			return;
-		}
-
-		if (groupName != null) {
-			Matcher matcher = pattern.matcher(groupName);
-			if (!matcher.matches())
-				throw new WrongAttributeValueException(attribute, "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
 		}
 
 		//Get facility for the resource
@@ -99,7 +103,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 				}
 
 				if(facilityForTest.equals(facility) && (group1GID.getValue() != null ? (! group1GID.getValue().equals(group2GID.getValue())) : group2GID != null)) {
-					throw new WrongAttributeValueException(attribute, "Group name " + groupName + "is allready used by another group-resource and these have not the same GID and GroupName.  " + p.getLeft() + " " + p.getRight());
+					throw new WrongReferenceAttributeValueException(attribute, attribute, group, resource, "Group name " + groupName + "is already used by another group-resource and these have not the same GID and GroupName.  " + p.getLeft() + " " + p.getRight());
 				}
 			}
 		}

@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
@@ -54,19 +55,11 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 	static final String ADNAME_ATTRIBUTE = NAMESPACE + ":adName";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
-		log.trace("checkAttributeSemantics(resource={},group={},attribute={})", resource, group, attribute);
-		ArrayList<String> emails;
-		//get values
-		Object value = attribute.getValue();
-		if (value == null) {
-			emails = new ArrayList<>();
-		} else if (value instanceof List) {
-			//noinspection unchecked
-			emails = (ArrayList<String>) value;
-		} else {
-			throw new WrongAttributeValueException(attribute, resource, group, "is of type " + value.getClass() + ", but should be ArrayList");
-		}
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		log.trace("checkAttributeSyntax(resource={},group={},attribute={})", resource, group, attribute);
+		List<String> emails = attribute.valueAsList();
+
+		if (emails == null) return;
 
 		//check syntax of all values
 		for (String email : emails) {
@@ -75,21 +68,30 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 				throw new WrongAttributeValueException(attribute, resource, group, "Email " + email + " is not in correct form.");
 		}
 
+		//check for duplicities
+		if (hasDuplicate(emails)) {
+			throw new WrongAttributeValueException(attribute, resource, group, "duplicate values");
+		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		List<String> emails = attribute.valueAsList();
+
+		if (emails == null) emails = new ArrayList<>();
 		//at least one value if adName is set
 		AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
 		try {
 			if (emails.isEmpty()) {
-				if (am.getAttribute(sess, resource, group, ADNAME_ATTRIBUTE).getValue() != null) {
-					throw new WrongAttributeValueException(attribute, resource, group, "at least one email must be defined");
+				Attribute adName = am.getAttribute(sess, resource, group, ADNAME_ATTRIBUTE);
+				if (adName.getValue() != null) {
+					throw new WrongReferenceAttributeValueException(attribute, adName, resource, group, resource, group, "at least one email must be defined");
 				}
+
+				return;
 			}
 		} catch (AttributeNotExistsException | GroupResourceMismatchException e) {
 			throw new InternalErrorException(e.getMessage(), e);
-		}
-
-		//check for duplicities
-		if (hasDuplicate(emails)) {
-			throw new WrongAttributeValueException(attribute, resource, group, "duplicate values");
 		}
 
 		//check for duplicities among all members and groups
@@ -97,13 +99,13 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 		Set<Pair<Integer, Integer>> groupResourcePairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, attribute);
 		groupResourcePairs.remove(new Pair<>(group.getId(), resource.getId()));
 		if (!groupResourcePairs.isEmpty()) {
-			throw new WrongAttributeValueException(attribute, group, resource, "some of the email addresses are already assigned to the following group_resource pairs: " + groupResourcePairs);
+			throw new WrongReferenceAttributeValueException(attribute, attribute, group, resource, "some of the email addresses are already assigned to the following group_resource pairs: " + groupResourcePairs);
 		}
 		Attribute memberO365EmailAddresses = new Attribute(new urn_perun_member_attribute_def_def_o365EmailAddresses_mu().getAttributeDefinition());
 		memberO365EmailAddresses.setValue(emails);
 		Set<Pair<Integer, Integer>> memberPairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, memberO365EmailAddresses);
 		if (!memberPairs.isEmpty()) {
-			throw new WrongAttributeValueException(attribute, "member " + BeansUtils.getSingleId(memberPairs) + " ");
+			throw new WrongReferenceAttributeValueException(attribute, memberO365EmailAddresses, group, resource, "member " + BeansUtils.getSingleId(memberPairs) + " ");
 		}
 	}
 

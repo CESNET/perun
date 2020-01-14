@@ -36,8 +36,16 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
-		Integer gid = (Integer) attribute.getValue();
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		Integer gid = attribute.valueAsInteger();
+		if(gid != null && gid < 1) {
+			throw new WrongAttributeValueException(attribute,"GID number less than 1 is not allowed value.");
+		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+		Integer gid = attribute.valueAsInteger();
 
 		//Gid should not be null if is system unix group or if less than 1
 		Attribute isSystemGroup;
@@ -51,11 +59,9 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
 				throw new InternalErrorException(ex);
 			}
 
-			if(isSystemGroup.getValue() != null && (Integer) isSystemGroup.getValue() == 1) {
-				throw new WrongReferenceAttributeValueException(attribute, "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
+			if (isSystemGroup.getValue() != null && isSystemGroup.valueAsInteger() == 1) {
+				throw new WrongReferenceAttributeValueException(attribute, isSystemGroup, group, resource, "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
 			}
-		} else if(gid < 1) {
-			throw new WrongAttributeValueException(attribute,"GID number less than 1 is not allowed value.");
 		}
 
 
@@ -89,7 +95,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
 					throw new InternalErrorException(ex);
 				}
 
-				if(facilityForTest.equals(facility) && !(group1GroupName.getValue().equals(group2GroupName.getValue()))) throw new WrongAttributeValueException(attribute, "Gid " + gid + "is allready used by another group-resource.  " + p.getLeft() + " " + p.getRight());
+				if(facilityForTest.equals(facility) && !(group1GroupName.getValue().equals(group2GroupName.getValue())))
+					throw new WrongReferenceAttributeValueException(attribute, attribute, group, resource, "Gid " + gid + "is already used by another group-resource.  " + p.getLeft() + " " + p.getRight());
 			}
 		}
 	}

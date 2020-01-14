@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -82,29 +83,21 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 		classInstance.checkAttributeSemantics(session, group, resource, attribute);
 	}
 
-
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckType() throws Exception {
-		System.out.println("testCheckType()");
-		attributeToCheck.setValue("AAA");
-		classInstance.checkAttributeSemantics(session, group, resource, attributeToCheck);
-	}
-
 	@Test(expected = WrongAttributeValueException.class)
 	public void testCheckEmailSyntax() throws Exception {
 		System.out.println("testCheckEmailSyntax()");
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "a/-+"));
-		classInstance.checkAttributeSemantics(session, group, resource, attributeToCheck);
+		classInstance.checkAttributeSyntax(session, group, resource, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
 	public void testCheckDuplicates() throws Exception {
 		System.out.println("testCheckDuplicates()");
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", "my@example.com"));
-		classInstance.checkAttributeSemantics(session, group, resource, attributeToCheck);
+		classInstance.checkAttributeSyntax(session, group, resource, attributeToCheck);
 	}
 
-	@Test(expected = WrongAttributeValueException.class)
+	@Test(expected = WrongReferenceAttributeValueException.class)
 	public void testCheckValueExistIfAdNameSetWithNull() throws Exception {
 		System.out.println("testCheckValueExistIfAdNameSetWithNull()");
 		attributeToCheck.setValue(null);
@@ -121,7 +114,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 	}
 
 
-	@Test(expected = WrongAttributeValueException.class)
+	@Test(expected = WrongReferenceAttributeValueException.class)
 	public void testCheckValueExistIfAdNameSet() throws Exception {
 		System.out.println("testCheckValueExistIfAdNameSet()");
 		attributeToCheck.setValue(Lists.newArrayList());
@@ -134,8 +127,10 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 		when(adNameAttr.getValue()).thenReturn(null);
 		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session),any(Attribute.class))).thenReturn(Sets.newHashSet());
 		attributeToCheck.setValue(Lists.newArrayList());
+		classInstance.checkAttributeSyntax(session, group, resource, attributeToCheck);
 		classInstance.checkAttributeSemantics(session, group, resource, attributeToCheck);
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com"));
+		classInstance.checkAttributeSyntax(session, group, resource, attributeToCheck);
 		classInstance.checkAttributeSemantics(session, group, resource, attributeToCheck);
 	}
 
@@ -150,7 +145,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 		classInstance.checkAttributeSemantics(session, group, resource, attributeToCheck);
 	}
 
-	@Test(expected = WrongAttributeValueException.class)
+	@Test(expected = WrongReferenceAttributeValueException.class)
 	public void testUniqClash() throws Exception {
 		System.out.println("testUniqClash");
 		attributeToCheck.setValue(new ArrayList<>(Arrays.asList("my@example.com", "my2@google.com")));

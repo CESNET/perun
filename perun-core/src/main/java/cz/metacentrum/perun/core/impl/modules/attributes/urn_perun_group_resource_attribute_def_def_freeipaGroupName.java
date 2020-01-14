@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
@@ -33,18 +34,26 @@ public class urn_perun_group_resource_attribute_def_def_freeipaGroupName extends
 	private static final String A_GR_freeipaGroupName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":freeipaGroupName";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		//prepare group name and check its format
-		String groupName = (String) attribute.getValue();
-		if (groupName == null) {
-			throw new WrongAttributeValueException(attribute, group, "Attribute cannot be null.");
-		}
+		String groupName = attribute.valueAsString();
+		if (groupName == null) return;
 
 		Matcher match = pattern.matcher(groupName);
 
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, group, "Bad format of attribute freeipaGroupName. It has to match pattern ^[a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,252}[a-zA-Z0-9_.$-]?$");
+		}
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+
+		//prepare group name and check its format
+		String groupName = attribute.valueAsString();
+		if (groupName == null) {
+			throw new WrongReferenceAttributeValueException(attribute, null, group, resource, "Attribute cannot be null.");
 		}
 
 		//Get facility for the resource
@@ -75,10 +84,10 @@ public class urn_perun_group_resource_attribute_def_def_freeipaGroupName extends
 				}
 
 				if (freeipaGroupNameAttribute.getValue() != null){
-					String name = (String) freeipaGroupNameAttribute.getValue();
+					String name = freeipaGroupNameAttribute.valueAsString();
 
 					if (name.toLowerCase().equals(groupName.toLowerCase())){
-						throw new WrongAttributeValueException(attribute, group, "Attribute has to be unique within one facility (case insensitive).");
+						throw new WrongReferenceAttributeValueException(attribute, freeipaGroupNameAttribute, group, resource, rs, gr, "Attribute has to be unique within one facility (case insensitive).");
 					}
 				}
 			}

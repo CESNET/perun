@@ -3869,7 +3869,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		GroupAttributesModuleImplApi groupModule = getGroupAttributeModule(sess, attribute);
 		if (groupModule == null) return; //module doesn't exists
@@ -3966,7 +3966,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		GroupResourceAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
