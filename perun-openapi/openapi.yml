@@ -305,6 +305,16 @@ components:
         - "TOPGROUPCREATOR"
         - "VOADMIN"
 
+    VoMemberStatuses:
+      type: string
+      description: 'statuses of a member in a Vo'
+      enum:
+        - VALID
+        - INVALID
+        - SUSPENDED
+        - EXPIRED
+        - DISABLED
+
     Service:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -3585,6 +3595,21 @@ paths:
         - $ref: '#/components/parameters/userId'
       responses:
         '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMembers:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMembers
+      summary: Returns members of a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: status, in: query, required: false, schema: { $ref: '#/components/schemas/VoMemberStatuses'}, description: 'optional status'}
+      responses:
+        200:
           $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
