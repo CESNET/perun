@@ -11,11 +11,13 @@ public class LdapProperties {
 	private String ldapConsumerName;
 	private String ldapBase;
 	private String ldapLoginNamespace;
+	private String ldapStateFile;
 
-	public LdapProperties(String ldapConsumerName, String ldapBase, String ldapLoginNamespace) {
+	public LdapProperties(String ldapConsumerName, String ldapBase, String ldapLoginNamespace, String ldapStateFile) {
 		this.ldapConsumerName = ldapConsumerName;
 		this.ldapBase = ldapBase;
 		this.ldapLoginNamespace = ldapLoginNamespace;
+		this.ldapStateFile = ldapStateFile;
 	}
 
 	public boolean propsLoaded() {
@@ -32,5 +34,9 @@ public class LdapProperties {
 
 	public String getLdapLoginNamespace() {
 		return ldapLoginNamespace;
+	}
+	
+	public String getLdapStateFile() {
+		return ldapStateFile;
 	}
 }

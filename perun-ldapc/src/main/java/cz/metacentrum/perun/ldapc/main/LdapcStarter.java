@@ -81,9 +81,10 @@ public class LdapcStarter {
 				//Set lastProcessedIdToSet if bigger than 0
 				if(lastProcessedIdToSet > 0) {
 					//Rpc.AuditMessagesManager.setLastProcessedId(rpcCaller, "ldapcConsumer", lastProcessedIdToSet);
-					ldapcStarter.perunBl.getAuditMessagesManager().setLastProcessedId(ldapcStarter.ldapcManager.getPerunSession(),
-							ldapcStarter.ldapProperties.getLdapConsumerName(), lastProcessedIdToSet);
-				}
+					//ldapcStarter.perunBl.getAuditMessagesManager().setLastProcessedId(ldapcStarter.ldapcManager.getPerunSession(),
+					//		ldapcStarter.ldapProperties.getLdapConsumerName(), lastProcessedIdToSet);
+						ldapcStarter.ldapcManager.setLastProcessedId(lastProcessedIdToSet);
+					}
 			}
 
 			// Start processing events (run method in EventProcessorImpl)

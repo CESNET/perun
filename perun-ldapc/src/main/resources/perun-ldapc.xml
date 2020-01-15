@@ -945,6 +945,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
         <constructor-arg name="ldapConsumerName" index="0" value="${ldap.consumerName}" />
         <constructor-arg name="ldapBase" index="1" value="${ldap.base}" />
         <constructor-arg name="ldapLoginNamespace" index="2" value="${ldap.loginNamespace}" />
+        <constructor-arg name="ldapStateFile" index="3" value="${ldap.stateFile}" />
     </bean>
 
     <!-- These beans are for define ldapTemplate -->

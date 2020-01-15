@@ -229,6 +229,26 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
+	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+
+		checkAuditerConsumerExists(perunSession, consumerName);
+
+		try {
+
+			List<AuditMessage> messages = new ArrayList<>();
+
+			int maxId = getLastMessageId(perunSession);
+			if(maxId > lastProcessedId) {
+				// get messages
+				messages = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
+			}
+			return messages;
+		} catch(Exception ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException {
 
 		checkAuditerConsumerExists(perunSession, consumerName);
@@ -244,6 +264,29 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 				eventList = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
 				// update counter
 				setLastProcessedId(perunSession, consumerName, maxId);
+			}
+
+			return eventList;
+
+		} catch (Exception ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
+
+	@Override
+	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+
+		checkAuditerConsumerExists(perunSession, consumerName);
+
+		try {
+
+			List<AuditEvent> eventList = new ArrayList<>();
+
+			int maxId = getLastMessageId(perunSession);
+			if (maxId > lastProcessedId) {
+				// get events
+				eventList = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
 			}
 
 			return eventList;

@@ -54,11 +54,27 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
+	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerMessages");
+		}
+		return getAuditMessagesManagerBl().pollConsumerMessages(perunSession, consumerName, lastProcessedId);
+	}
+
+	@Override
 	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
 		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
 			throw new PrivilegeException(perunSession, "pollConsumerEvents");
 		}
 		return getAuditMessagesManagerBl().pollConsumerEvents(perunSession, consumerName);
+	}
+
+	@Override
+	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerEvents");
+		}
+		return getAuditMessagesManagerBl().pollConsumerEvents(perunSession, consumerName, lastProcessedId);
 	}
 
 	@Override

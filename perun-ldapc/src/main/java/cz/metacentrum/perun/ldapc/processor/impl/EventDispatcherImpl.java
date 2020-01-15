@@ -1,6 +1,15 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+import java.nio.file.FileSystemException;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,6 +55,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 	@Autowired
 	private LdapcManager ldapcManager;
 
+	private int lastProcessedIdNumber; 
+	
 	private boolean running = false;
 
 	private List<Pair<DispatchEventCondition, EventProcessor>> registeredProcessors;
@@ -201,14 +212,17 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		if(!ldapProperties.propsLoaded()) throw new RuntimeException("LdapcProperties is not autowired correctly!");
 
 		running = true;
-		Integer lastProcessedIdNumber = 0;
 		AuditMessage message = null;
 		List<AuditMessage> messages;
 
 		try {
 			PerunSession perunSession = ldapcManager.getPerunSession();
 			Perun perun = ldapcManager.getPerunBl();
-
+			
+			if(lastProcessedIdNumber == 0) {
+				loadLastProcessedId();
+			}
+			
 			//If running is true, then this process will be continuously
 			while (running) {
 
@@ -218,7 +232,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 				do {
 					try {
 						//IMPORTANT STEP1: Get new bulk of messages
-						messages = perun.getAuditMessagesManager().pollConsumerMessages(perunSession, ldapProperties.getLdapConsumerName());
+						messages = perun.getAuditMessagesManager().pollConsumerMessages(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedIdNumber);
 						// Rpc.AuditMessagesManager.pollConsumerMessages(ldapcManager.getRpcCaller(), ldapProperties.getLdapConsumerName());
 					} catch (InternalErrorException ex) {
 						log.error("Consumer failed due to {}. Sleeping for {} ms.",ex, sleepTime);
@@ -247,6 +261,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 				if (Thread.interrupted()) {
 					running = false;
 				} else {
+					saveLastProcessedId();
 					Thread.sleep(5000);
 				}
 			}
@@ -261,6 +276,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 			Date date = new Date();
 			log.error("Last message has ID='" + ((message!=null) ? message.getId() : 0) + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
 			throw new RuntimeException(e);
+		} finally {
+			saveLastProcessedId();
 		}
 	}
 
@@ -314,7 +331,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 			for(PerunBean p: listOfBeans) {
 				i++;
 				// if(p!=null) log.debug("There is object number " + i + ") " + p.serializeToString());
-				// else log.debug("There is unknow object which is null");
+				// else log.debug("There is unknown object which is null");
 				beans.addBean(p);
 			}
 			//log.debug("Resolved{} beans ", beans.getBeansCount());
@@ -322,4 +339,38 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		return beans;
 	}
 
+	public int getLastProcessedIdNumber() {
+		return lastProcessedIdNumber;
+	}
+
+	public void setLastProcessedIdNumber(int lastProcessedIdNumber) {
+		this.lastProcessedIdNumber = lastProcessedIdNumber;
+	}
+
+	protected void loadLastProcessedId() {
+		Path file = FileSystems.getDefault().getPath(ldapProperties.getLdapStateFile());
+		try {
+			List<String> id_s = Files.readAllLines(file, Charset.defaultCharset());
+			int lastId = id_s.isEmpty() ? 0 : Integer.parseInt(id_s.get(0));
+			if(lastId > 0) {
+				this.lastProcessedIdNumber = lastId;
+			} else {
+				log.error("Wrong number for last processed message id {}, exiting.", id_s);
+				System.exit(-1);
+				
+			}
+		} catch (IOException exception) {
+			log.error("Error reading last processed message id from {}", ldapProperties.getLdapStateFile(), exception);
+			System.exit(-1);
+		}
+	}
+	
+	protected void saveLastProcessedId() {
+		Path file = FileSystems.getDefault().getPath(ldapProperties.getLdapStateFile());
+		try {
+			Files.write(file, String.valueOf(lastProcessedIdNumber).getBytes());
+		} catch (IOException e) {
+			log.error("Error writing last processed message id to file {}", ldapProperties.getLdapStateFile(), e);
+		}
+	}
 }

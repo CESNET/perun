@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.ldapc.service;
 
+import org.infinispan.objectfilter.impl.ql.parse.IckleParser.in_key_return;
+
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -28,5 +30,7 @@ public interface LdapcManager {
 	public PerunPrincipal getPerunPrincipal();
 
 	public void setPerunPrincipal(PerunPrincipal perunPrincipal);
+	
+	public void setLastProcessedId(int lastProcessedId);
 
 }
