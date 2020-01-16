@@ -19,9 +19,15 @@ import java.nio.file.Paths;
  * <p>
  * E.g.
  * <code>
+ * cat >users.txt <<"EOF"
+ * makub@META
+ * sapakt@META
+ * EOF
+ *
  * getExpirationByExtLogin --extSourceName META --voName meta -f users.txt
- * Martin Kuba;2020-02-02;makub@META
- * Tomáš Sapák;2020-02-02;sapakt@META
+ *
+ * makub@META;2020-02-02
+ * sapakt@META;2020-02-02
  * </code>
  *
  * @author Martin Kuba makub@ics.muni.cz
@@ -37,28 +43,22 @@ public class GetExpirationByExtLogin extends PerunCommand {
 	@Override
 	public void addOptions(Options options) {
 		this.addVoOptions(options);
-		this.addExtSourceOptions(options);
+		options.addOption(Option.builder("E").required(true).hasArg().longOpt("extSourceName").desc("extSource name").build());
 		options.addOption(Option.builder("f").required(true).hasArg().longOpt("file").desc("name of file with user login per line").build());
 	}
 
 	@Override
 	public void executeCommand(PerunCLI.CommandContext ctx) {
-		ExtSource extSource = getExtSource(ctx, true);
-		String extSourceName = extSource.getName();
+		String extSourceName = ctx.getCommandLine().getOptionValue("E");
 		Integer voId = getVoId(ctx, true);
 		String filename = ctx.getCommandLine().getOptionValue("f");
 		try {
 			PerunRPC perunRPC = ctx.getPerunRPC();
 			for (String login : Files.readAllLines(Paths.get(filename))) {
-				User user = perunRPC.getUsersManager().getUserByExtSourceNameAndExtLogin(login, extSourceName);
-				Member member = perunRPC.getMembersManager().getMemberByUser(voId, user.getId());
+				Member member = perunRPC.getMembersManager().getMemberByExtSourceNameAndExtLogin(voId, login, extSourceName);
 				Attribute attr = perunRPC.getAttributesManager().getMemberAttributeByName(member.getId(), "urn:perun:member:attribute-def:def:membershipExpiration");
 				String expiration = (String) attr.getValue();
-				System.out.println(
-					user.getFirstName() + " " + user.getLastName()
-						+ ";" + expiration
-						+ ";" + login
-				);
+				System.out.println(login + ";" + expiration);
 			}
 		} catch (IOException e) {
 			System.err.println("file " + filename + " cannot be read");
