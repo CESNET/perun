@@ -1011,6 +1011,22 @@ components:
       in: query
       required: true
 
+    extLogin:
+      name: extLogin
+      description: external login of user, e.g. john
+      schema:
+        type: string
+      in: query
+      required: true
+
+    extSourceName:
+      name: extSourceName
+      description: external source name, e.g. IdP entityId
+      schema:
+        type: string
+      in: query
+      required: true
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -3438,18 +3454,8 @@ paths:
       summary: Returns user by its ExtSourceName and ExtLogin.
       description: Returns User found by its authentication data
       parameters:
-        - name: extLogin
-          description: external login of user, e.g. john
-          schema:
-            type: string
-          in: query
-          required: true
-        - name: extSourceName
-          description: external source name, e.g. IdP entityId
-          schema:
-            type: string
-          in: query
-          required: true
+        - $ref: '#/components/parameters/extLogin'
+        - $ref: '#/components/parameters/extSourceName'
       responses:
         '200':
           $ref: '#/components/responses/UserResponse'
@@ -3628,6 +3634,23 @@ paths:
           $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMemberByExtSourceNameAndExtLogin:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMemberByExtSourceNameAndExtLogin
+      summary: Searches for members in a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/extLogin'
+        - $ref: '#/components/parameters/extSourceName'
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   #################################################
   #                                               #
