@@ -9,7 +9,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 	<task:scheduler id="scheduler" pool-size="1"/>
 
-	<beans profile="production">
+	<beans profile="aproduction">
 		<task:scheduled-tasks scheduler="scheduler">
 			<task:scheduled ref="synchronizer" method="synchronizeGroups" cron="0 0/5 * * * ?"/> <!-- every 5 minutes -->
 			<task:scheduled ref="synchronizer" method="synchronizeGroupsStructures" cron="0 0/5 * * * ?"/> <!-- every 5 minutes -->

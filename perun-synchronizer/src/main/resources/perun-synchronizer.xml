@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+           xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="classpath:perun-core.xml"/>
+	<import resource="classpath:perun-core-synchronizers.xml"/>
+
+	<aop:config>
+		<aop:advisor advice-ref="txAdviceSerialized" pointcut="execution(* cz.metacentrum.perun.synchronizer.test.GroupAccessor.accessGroup*(..))"/>
+		<!-- 
+		<aop:advisor advice-ref="txAdviceSerialized" pointcut="execution(* cz.metacentrum.perun.synchronizer.test.GroupAccessor.setUp(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.synchronizer.test.GroupAccessor.accessGroup*(..))"/>
+		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.synchronizer.test.GroupAccessor.accessGroup*(..))"/>
+		-->
+	</aop:config>
+
+        <tx:advice id="txAdviceSerialized" transaction-manager="springTransactionManager">
+		<tx:attributes>
+	        	<tx:method name="*" read-only="false" rollback-for="Exception" isolation="READ_COMMITTED"/>
+	        </tx:attributes>
+	</tx:advice>
+
+	
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.synchronizer.test"/>
+    <context:annotation-config/>
+
+	<bean id="synchronizer" class="cz.metacentrum.perun.synchronizer.beans.Synchronizer" scope="singleton" depends-on="databaseManagerBl">
+		<constructor-arg ref="perun" />
+	</bean>
+
+</beans>

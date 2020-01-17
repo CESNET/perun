@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
-import cz.metacentrum.perun.core.impl.Synchronizer;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
  */
 public class ExpirationNotifScheduler {
 
-	private final static Logger log = LoggerFactory.getLogger(Synchronizer.class);
+	private final static Logger log = LoggerFactory.getLogger(ExpirationNotifScheduler.class);
 	private PerunSession sess;
 
 	private PerunBl perun;

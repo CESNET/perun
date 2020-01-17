@@ -170,6 +170,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="perun" />
 	</bean>
 
+    <bean class="cz.metacentrum.perun.core.impl.PerunLocksUtils" factory-method="setDataSource" scope="singleton">
+		<constructor-arg ref="dataSource" />
+    </bean>
+    
 	<!-- Perun implementation -->
 	<bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
 		<constructor-arg name="auditer" ref="auditer"/>
@@ -409,10 +413,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="localCacheManager" />
 	</bean>
 
-	<bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="perun" />
-	</bean>
-
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceGoogle" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
@@ -512,7 +512,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<!--DataSource implementation-->
 		<jdbc:embedded-database id="dataSource" type="HSQL">
 			<jdbc:script location="classpath:test-schema.sql"/>
-			<jdbc:script location="classpath:test-data.sql"/>
+			<jdbc:script location="classpath:test-data.sql" />
 		</jdbc:embedded-database>
 
 		<!-- PerunRolesLoader implementation -->

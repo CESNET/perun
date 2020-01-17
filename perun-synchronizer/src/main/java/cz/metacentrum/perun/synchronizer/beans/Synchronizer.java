@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.core.impl;
+package cz.metacentrum.perun.synchronizer.beans;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunClient;
