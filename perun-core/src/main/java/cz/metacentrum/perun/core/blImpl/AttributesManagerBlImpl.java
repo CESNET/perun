@@ -1748,9 +1748,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Join all attributes and filled attributes together
 		attributes.addAll(filledAttributes);
 
-		//refresh all virtual attributes with new value
-		for (Attribute attr : attributes) {
-			if (this.isVirtAttribute(sess, attr)) {
+		//refresh all attributes with new value (not just virtual attributes)
+		//Reason: there could be an attribute (def one) which value was set meantime by changeAttributeHook process
+		for(Attribute attr: attributes) {
+			if(!this.isCoreAttribute(sess, attr)) {
 				if (getAttributesManagerImpl().isFromNamespace(attr, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
 					attr.setValue(this.getAttribute(sess, member, resource, attr.getName()).getValue());
 				} else if (getAttributesManagerImpl().isFromNamespace(attr, AttributesManager.NS_USER_FACILITY_ATTR)) {
