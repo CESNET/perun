@@ -1415,15 +1415,15 @@ public interface AttributesManagerBl {
 	void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
 
 	/**
-	 * Get and set required attributes from arrayList for member, resource, user and facility.
+	 * Take list of required attributes and set those which are empty and can be filled, then check them all.
 	 *
-	 * IMPORTANT: set all attrs from arrayList, set not required attrs too if they are in arrayList
+	 * Important: this method DO NOT set non-empty attributes in list, just refresh their values and check them
 	 *
 	 * Procedure:
-	 * 1] Get all attrs from arrayList
-	 * 2] Fill attributes and store those which were really filled. (value changed)
+	 * 1] Get all attrs from arrayList (they should be required attributes)
+	 * 2] Fill empty attributes and store those which were really filled. (value changed)
 	 * 3] Set filled attributes.
-	 * 4] Refresh value in all virtual attributes.
+	 * 4] Refresh value in all attributes (not only in virtual ones - because of possible change by changeAttributeHook in other filledAttributes)
 	 * 5] Check all attributes and their dependencies.
 	 *
 	 * @param sess
