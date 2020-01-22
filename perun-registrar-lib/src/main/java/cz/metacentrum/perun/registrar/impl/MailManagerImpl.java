@@ -61,6 +61,11 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
 import cz.metacentrum.perun.registrar.MailManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.*;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_FROM_EMAIL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_GROUP_FROM_NAME_EMAIL;
+import static cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl.URN_VO_FROM_EMAIL;
+
 public class MailManagerImpl implements MailManager {
 
 	private final static Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
@@ -69,18 +74,6 @@ public class MailManagerImpl implements MailManager {
 	private static final String MAILS_SELECT_BY_PARAMS = "select id,app_type,form_id,mail_type,send from application_mails where form_id=? and app_type=? and mail_type=?";
 	private static final String MAIL_TEXTS_SELECT_BY_MAIL_ID= "select locale,subject,text from application_mail_texts where mail_id=?";
 
-	private static final String URN_VO_FROM_NAME_EMAIL = "urn:perun:vo:attribute-def:def:fromNameEmail";
-	private static final String URN_VO_FROM_EMAIL = "urn:perun:vo:attribute-def:def:fromEmail";
-	private static final String URN_VO_TO_EMAIL = "urn:perun:vo:attribute-def:def:toEmail";
-	private static final String URN_VO_MAIL_FOOTER = "urn:perun:vo:attribute-def:def:mailFooter";
-	private static final String URN_VO_LANGUAGE_EMAIL = "urn:perun:vo:attribute-def:def:notificationsDefLang";
-	private static final String URN_VO_REGISTRATION_URL = "urn:perun:vo:attribute-def:def:registrarURL";
-	private static final String URN_GROUP_MAIL_FOOTER = "urn:perun:group:attribute-def:def:mailFooter";
-	private static final String URN_GROUP_REGISTRATION_URL = "urn:perun:group:attribute-def:def:registrarURL";
-	private static final String URN_GROUP_TO_EMAIL = "urn:perun:group:attribute-def:def:toEmail";
-	private static final String URN_GROUP_FROM_EMAIL = "urn:perun:group:attribute-def:def:fromEmail";
-	private static final String URN_GROUP_FROM_NAME_EMAIL = "urn:perun:group:attribute-def:def:fromNameEmail";
-	private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
 	static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
 	private static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
 	private static final String URN_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
@@ -95,6 +88,26 @@ public class MailManagerImpl implements MailManager {
 	private static final String EMPTY_STRING = "";
 	private static final String LANG_EN = "en";
 	private static final String HMAC_SHA256 = "HmacSHA256";
+
+	private static final String FIELD_VO_NAME = "{voName}";
+	private static final String FIELD_GROUP_NAME = "{groupName}";
+	private static final String FIELD_DISPLAY_NAME = "{displayName}";
+	private static final String FIELD_INVITATION_LINK = "{invitationLink}";
+	private static final String FIELD_MAIL_FOOTER = "{mailFooter}";
+	private static final String FIELD_APP_ID = "{appId}";
+	private static final String FIELD_ACTOR = "{actor}";
+	private static final String FIELD_EXT_SOURCE = "{extSource}";
+	private static final String FIELD_CUSTOM_MESSAGE = "{customMessage}";
+	private static final String FIELD_FIRST_NAME = "{firstName}";
+	private static final String FIELD_LAST_NAME = "{lastName}";
+	private static final String FIELD_ERRORS = "{errors}";
+	private static final String FIELD_MEMBERSHIP_EXPIRATION = "{membershipExpiration}";
+	private static final String FIELD_MAIL = "{mail}";
+	private static final String FIELD_PHONE = "{phone}";
+	private static final String FIELD_PERUN_GUI_URL = "{perunGuiUrl}";
+	private static final String FIELD_APP_GUI_URL = "{appGuiUrl}";
+	private static final String FIELD_APP_DETAIL_URL = "{appDetailUrl}";
+	private static final String FIELD_VALIDATION_LINK = "{validationLink}";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
@@ -890,36 +903,36 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private String substituteCommonStringsForInvite(Vo vo, Group group, User user, String name, String mailText) {
 		// replace voName
-		if (mailText.contains("{voName}")) {
-			mailText = mailText.replace("{voName}", vo.getName());
+		if (mailText.contains(FIELD_VO_NAME)) {
+			mailText = mailText.replace(FIELD_VO_NAME, vo.getName());
 		}
 
 		// replace groupName
-		if (mailText.contains("{groupName}")) {
+		if (mailText.contains(FIELD_GROUP_NAME)) {
 			if (group != null) {
-				mailText = mailText.replace("{groupName}", group.getShortName());
+				mailText = mailText.replace(FIELD_GROUP_NAME, group.getShortName());
 			} else {
-				mailText = mailText.replace("{groupName}", EMPTY_STRING);
+				mailText = mailText.replace(FIELD_GROUP_NAME, EMPTY_STRING);
 			}
 		}
 
 		// replace name of user
-		if (mailText.contains("{displayName}")) {
+		if (mailText.contains(FIELD_DISPLAY_NAME)) {
 			if (user != null) {
-				mailText = mailText.replace("{displayName}", user.getDisplayName());
+				mailText = mailText.replace(FIELD_DISPLAY_NAME, user.getDisplayName());
 			} else if (name != null && !name.isEmpty()) {
-				mailText = mailText.replace("{displayName}", name);
+				mailText = mailText.replace(FIELD_DISPLAY_NAME, name);
 			} else {
-				mailText = mailText.replace("{displayName}", EMPTY_STRING);
+				mailText = mailText.replace(FIELD_DISPLAY_NAME, EMPTY_STRING);
 			}
 		}
 
 		// replace invitation link
-		if (mailText.contains("{invitationLink}")) {
+		if (mailText.contains(FIELD_INVITATION_LINK)) {
 			String url = getPerunUrl(vo, group);
 			if (!url.endsWith("/")) url += "/";
 			url += "registrar/";
-			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, url));
+			mailText = mailText.replace(FIELD_INVITATION_LINK, buildInviteURL(vo, group, url));
 		}
 
 		// replace invitation link
@@ -955,7 +968,7 @@ public class MailManagerImpl implements MailManager {
 		mailText = replaceAppGuiUrl(mailText, vo, group);
 
 		// mail footer
-		if (mailText.contains("{mailFooter}")) {
+		if (mailText.contains(FIELD_MAIL_FOOTER)) {
 			String footer = EMPTY_STRING;
 			// get proper value from attribute
 			try {
@@ -973,10 +986,10 @@ public class MailManagerImpl implements MailManager {
 				}
 			} catch (Exception ex) {
 				// we don't care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from the attribute.", ex);
 			}
 			// replace by the footer or empty
-			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : EMPTY_STRING);
+			mailText = mailText.replace(FIELD_MAIL_FOOTER, (footer != null) ? footer : EMPTY_STRING);
 		}
 
 		return mailText;
@@ -1043,45 +1056,45 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private String substituteCommonStrings(Application app, List<ApplicationFormItemData> data, String mailText, String reason, List<Exception> exceptions) {
 		// replace app ID
-		if (mailText.contains("{appId}")) {
-			mailText = mailText.replace("{appId}", app.getId()+EMPTY_STRING);
+		if (mailText.contains(FIELD_APP_ID)) {
+			mailText = mailText.replace(FIELD_APP_ID, app.getId()+EMPTY_STRING);
 		}
 
 		// replace actor (app created by)
-		if (mailText.contains("{actor}")) {
-			mailText = mailText.replace("{actor}", app.getCreatedBy()+EMPTY_STRING);
+		if (mailText.contains(FIELD_ACTOR)) {
+			mailText = mailText.replace(FIELD_ACTOR, app.getCreatedBy()+EMPTY_STRING);
 		}
 
 		// replace ext source (app created by)
-		if (mailText.contains("{extSource}")) {
-			mailText = mailText.replace("{extSource}", app.getExtSourceName()+EMPTY_STRING);
+		if (mailText.contains(FIELD_EXT_SOURCE)) {
+			mailText = mailText.replace(FIELD_EXT_SOURCE, app.getExtSourceName()+EMPTY_STRING);
 		}
 
 		// replace voName
-		if (mailText.contains("{voName}")) {
-			mailText = mailText.replace("{voName}", app.getVo().getName());
+		if (mailText.contains(FIELD_VO_NAME)) {
+			mailText = mailText.replace(FIELD_VO_NAME, app.getVo().getName());
 		}
 
 		// replace groupName
-		if (mailText.contains("{groupName}")) {
+		if (mailText.contains(FIELD_GROUP_NAME)) {
 			if (app.getGroup() != null) {
-				mailText = mailText.replace("{groupName}", app.getGroup().getShortName());
+				mailText = mailText.replace(FIELD_GROUP_NAME, app.getGroup().getShortName());
 			} else {
-				mailText = mailText.replace("{groupName}", EMPTY_STRING);
+				mailText = mailText.replace(FIELD_GROUP_NAME, EMPTY_STRING);
 			}
 		}
 
 		// replace customMessage (reason)
-		if (mailText.contains("{customMessage}")) {
+		if (mailText.contains(FIELD_CUSTOM_MESSAGE)) {
 			if (reason != null && !reason.isEmpty()) {
-				mailText = mailText.replace("{customMessage}", reason);
+				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, reason);
 			} else {
-				mailText = mailText.replace("{customMessage}", EMPTY_STRING);
+				mailText = mailText.replace(FIELD_CUSTOM_MESSAGE, EMPTY_STRING);
 			}
 		}
 
 		// replace displayName
-		if (mailText.contains("{displayName}")) {
+		if (mailText.contains(FIELD_DISPLAY_NAME)) {
 			String nameText = EMPTY_STRING; // backup
 			for (ApplicationFormItemData d : data) {
 				// core attribute
@@ -1114,11 +1127,11 @@ public class MailManagerImpl implements MailManager {
 				if (user != null) nameText = user.getDisplayName();
 			}
 
-			mailText = mailText.replace("{displayName}", nameText);
+			mailText = mailText.replace(FIELD_DISPLAY_NAME, nameText);
 		}
 
 		// replace firstName
-		if (mailText.contains("{firstName}")) {
+		if (mailText.contains(FIELD_FIRST_NAME)) {
 			String nameText = EMPTY_STRING; // backup
 			for (ApplicationFormItemData d : data) {
 				if ("urn:perun:user:attribute-def:core:firstName".equals(d.getFormItem().getPerunDestinationAttribute())) {
@@ -1143,11 +1156,11 @@ public class MailManagerImpl implements MailManager {
 				if (user != null) nameText = user.getFirstName();
 			}
 
-			mailText = mailText.replace("{firstName}", nameText);
+			mailText = mailText.replace(FIELD_FIRST_NAME, nameText);
 		}
 
 		// replace lastName
-		if (mailText.contains("{lastName}")) {
+		if (mailText.contains(FIELD_LAST_NAME)) {
 			String nameText = EMPTY_STRING; // backup
 			for (ApplicationFormItemData d : data) {
 				if (URN_USER_LAST_NAME.equals(d.getFormItem().getPerunDestinationAttribute())) {
@@ -1172,19 +1185,19 @@ public class MailManagerImpl implements MailManager {
 				if (user != null) nameText = user.getLastName();
 			}
 
-			mailText = mailText.replace("{lastName}", nameText);
+			mailText = mailText.replace(FIELD_LAST_NAME, nameText);
 
 		}
 
 		// replace exceptions
-		if (mailText.contains("{errors}")) {
+		if (mailText.contains(FIELD_ERRORS)) {
 			String errorText = EMPTY_STRING;
 			if (exceptions != null && !exceptions.isEmpty()) {
 				for (Exception ex : exceptions) {
 					errorText = errorText.concat("\n\n"+ex.toString());
 				}
 			}
-			mailText = mailText.replace("{errors}", errorText);
+			mailText = mailText.replace(FIELD_ERRORS, errorText);
 		}
 
 		// replace logins
@@ -1256,7 +1269,7 @@ public class MailManagerImpl implements MailManager {
 		mailText = replacePerunGuiUrl(mailText, app.getVo(), app.getGroup());
 
 		// membership expiration
-		if (mailText.contains("{membershipExpiration}")) {
+		if (mailText.contains(FIELD_MEMBERSHIP_EXPIRATION)) {
 			String expiration = EMPTY_STRING;
 			if (app.getUser() != null) {
 				try {
@@ -1272,11 +1285,11 @@ public class MailManagerImpl implements MailManager {
 				}
 			}
 			// replace by date or empty
-			mailText = mailText.replace("{membershipExpiration}", expiration);
+			mailText = mailText.replace(FIELD_MEMBERSHIP_EXPIRATION, expiration);
 		}
 
 		// user mail
-		if (mailText.contains("{mail}")) {
+		if (mailText.contains(FIELD_MAIL)) {
 			String mail = EMPTY_STRING;
 			if (app.getUser() != null) {
 				try {
@@ -1313,11 +1326,11 @@ public class MailManagerImpl implements MailManager {
 			}
 
 			// replace by mail or empty
-			mailText = mailText.replace("{mail}", mail);
+			mailText = mailText.replace(FIELD_MAIL, mail);
 		}
 
 		// user phone
-		if (mailText.contains("{phone}")) {
+		if (mailText.contains(FIELD_PHONE)) {
 			String phone = EMPTY_STRING;
 			if (app.getUser() != null) {
 				try {
@@ -1353,11 +1366,11 @@ public class MailManagerImpl implements MailManager {
 			}
 
 			// replace by phone or empty
-			mailText = mailText.replace("{phone}", phone);
+			mailText = mailText.replace(FIELD_PHONE, phone);
 		}
 
 		// mail footer
-		if (mailText.contains("{mailFooter}")) {
+		if (mailText.contains(FIELD_MAIL_FOOTER)) {
 			String footer = EMPTY_STRING;
 			// get proper value from attribute
 			try {
@@ -1378,7 +1391,7 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
 			}
 			// replace by footer or empty
-			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : EMPTY_STRING);
+			mailText = mailText.replace(FIELD_MAIL_FOOTER, (footer != null) ? footer : EMPTY_STRING);
 		}
 
 		return mailText;
@@ -1399,19 +1412,19 @@ public class MailManagerImpl implements MailManager {
 		String result = getPropertyFromConfiguration("perunUrl");
 		try {
 			if (group != null) {
-				Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_REGISTRATION_URL);
+				Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_REGISTRAR_URL);
 				if (a != null && a.getValue() != null && !((String)a.getValue()).isEmpty()) {
 					result = (String)a.getValue();
 				} else {
 					// take it from the VO if not on group settings
-					Attribute a2 = attrManager.getAttribute(registrarSession, vo, URN_VO_REGISTRATION_URL);
+					Attribute a2 = attrManager.getAttribute(registrarSession, vo, URN_VO_REGISTRAR_URL);
 					if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
 						result = (String)a2.getValue();
 					}
 				}
 			} else {
 				// take it from the VO
-				Attribute a2 = attrManager.getAttribute(registrarSession, vo, URN_VO_REGISTRATION_URL);
+				Attribute a2 = attrManager.getAttribute(registrarSession, vo, URN_VO_REGISTRAR_URL);
 				if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
 					result = (String)a2.getValue();
 				}
@@ -1429,13 +1442,13 @@ public class MailManagerImpl implements MailManager {
 
 	private String replacePerunGuiUrl(String mailText, Vo vo, Group group) {
 		// replace perun GUI links
-		if (mailText.contains("{perunGuiUrl}")) {
+		if (mailText.contains(FIELD_PERUN_GUI_URL)) {
 			String text = getPerunUrl(vo, group);
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
 				text += "gui/";
 			}
-			mailText = mailText.replace("{perunGuiUrl}", text != null ? text : EMPTY_STRING);
+			mailText = mailText.replace(FIELD_PERUN_GUI_URL, text != null ? text : EMPTY_STRING);
 		}
 
 		// replace perun GUI app link
@@ -1472,7 +1485,7 @@ public class MailManagerImpl implements MailManager {
 
 	private String replaceAppGuiUrl(String mailText, Vo vo, Group group) {
 		// replace perun application GUI link with list of applications
-		if (mailText.contains("{appGuiUrl}")) {
+		if (mailText.contains(FIELD_APP_GUI_URL)) {
 			// new backup
 			String text = getPerunUrl(vo, group);
 			if (text != null && !text.isEmpty()) {
@@ -1483,7 +1496,7 @@ public class MailManagerImpl implements MailManager {
 			if (group != null) {
 				text += "&group="+ getUrlEncodedString(group.getName());
 			}
-			mailText = mailText.replace("{appGuiUrl}", text != null ? text : EMPTY_STRING);
+			mailText = mailText.replace(FIELD_APP_GUI_URL, text != null ? text : EMPTY_STRING);
 		}
 
 		// replace registrar GUI link
@@ -1523,7 +1536,7 @@ public class MailManagerImpl implements MailManager {
 
 	private String replaceAppDetailUrl(String mailText, int appId, Vo vo, Group group) {
 		// replace appDetail for VO admins
-		if (mailText.contains("{appDetailUrl}")) {
+		if (mailText.contains(FIELD_APP_DETAIL_URL)) {
 			String text = getPerunUrl(vo, group);
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
@@ -1537,7 +1550,7 @@ public class MailManagerImpl implements MailManager {
 				}
 				text += separator + "vo/appdetail?id="+appId;
 			}
-			mailText = mailText.replace("{appDetailUrl}", text != null ? text : EMPTY_STRING);
+			mailText = mailText.replace(FIELD_APP_DETAIL_URL, text != null ? text : EMPTY_STRING);
 		}
 
 		// replace perun app link
@@ -1717,7 +1730,7 @@ public class MailManagerImpl implements MailManager {
 						}
 					}
 
-					if (mailText.contains("{validationLink}")) {
+					if (mailText.contains(FIELD_VALIDATION_LINK)) {
 						// new backup if validation URL is missing
 						String url = getPerunUrl(app.getVo(), app.getGroup());
 						if (url != null && !url.isEmpty()) {
@@ -1748,7 +1761,7 @@ public class MailManagerImpl implements MailManager {
 							}
 
 							// replace validation link
-							mailText = mailText.replace("{validationLink}", url2.toString());
+							mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());
 						}
 					}
 

@@ -90,32 +90,42 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String DISPLAY_NAME_VO_FROM_EMAIL = "\"From\" email address";
 	private static final String FRIENDLY_NAME_VO_FROM_EMAIL = "fromEmail";
 	private static final String NAMESPACE_VO_FROM_EMAIL = AttributesManager.NS_VO_ATTR_DEF;
-	private static final String URN_VO_FROM_EMAIL = NAMESPACE_VO_FROM_EMAIL  + ":" + FRIENDLY_NAME_VO_FROM_EMAIL;
+	static final String URN_VO_FROM_EMAIL = NAMESPACE_VO_FROM_EMAIL  + ":" + FRIENDLY_NAME_VO_FROM_EMAIL;
 
 	private static final String DISPLAY_NAME_VO_TO_EMAIL = "\"To\" email addresses";
 	private static final String FRIENDLY_NAME_VO_TO_EMAIL = "toEmail";
 	private static final String NAMESPACE_VO_TO_EMAIL = AttributesManager.NS_VO_ATTR_DEF;
-	private static final String URN_VO_TO_EMAIL = NAMESPACE_VO_TO_EMAIL + ":" +  FRIENDLY_NAME_VO_TO_EMAIL;
+	static final String URN_VO_TO_EMAIL = NAMESPACE_VO_TO_EMAIL + ":" +  FRIENDLY_NAME_VO_TO_EMAIL;
 
 	private static final String DISPLAY_NAME_GROUP_FROM_EMAIL = "\"From\" email address";
 	private static final String FRIENDLY_NAME_GROUP_TO_EMAIL = "toEmail";
 	private static final String NAMESPACE_GROUP_TO_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
- 	private static final String URN_GROUP_TO_EMAIL = NAMESPACE_GROUP_TO_EMAIL + ":" +  FRIENDLY_NAME_GROUP_TO_EMAIL;
+	static final String URN_GROUP_TO_EMAIL = NAMESPACE_GROUP_TO_EMAIL + ":" +  FRIENDLY_NAME_GROUP_TO_EMAIL;
 
 	private static final String DISPLAY_NAME_GROUP_TO_EMAIL = "\"To\" email addresses";
 	private static final String FRIENDLY_NAME_GROUP_FROM_EMAIL = "fromEmail";
 	private static final String NAMESPACE_GROUP_FROM_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
-	private static final String URN_GROUP_FROM_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_EMAIL;
+	static final String URN_GROUP_FROM_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_EMAIL;
+	
+	private static final String DISPLAY_NAME_GROUP_FROM_NAME_EMAIL = "\"From\" name";
+	private static final String FRIENDLY_NAME_GROUP_FROM__NAME_EMAIL = "fromNameEmail";
+	private static final String NAMESPACE_GROUP_FROM_NAME_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
+	static final String URN_GROUP_FROM_NAME_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_EMAIL;
+
+	private static final String DISPLAY_NAME_VO_FROM_NAME_EMAIL = "\"From\" name";
+	private static final String FRIENDLY_NAME_VO_FROM__NAME_EMAIL = "fromNameEmail";
+	private static final String NAMESPACE_VO_FROM_NAME_EMAIL = AttributesManager.NS_VO_ATTR_DEF;
+	static final String URN_VO_FROM_NAME_EMAIL = NAMESPACE_VO_FROM_EMAIL + ":" +  FRIENDLY_NAME_VO_FROM_EMAIL;
 
 	private static final String DISPLAY_NAME_VO_LANGUAGE_EMAIL = "Notification default language";
 	private static final String FRIENDLY_NAME_VO_LANGUAGE_EMAIL = "notificationsDefLang";
 	private static final String NAMESPACE_VO_LANGUAGE_EMAIL = AttributesManager.NS_VO_ATTR_DEF;
-	private static final String URN_VO_LANGUAGE_EMAIL = NAMESPACE_VO_LANGUAGE_EMAIL  + ":" + FRIENDLY_NAME_VO_LANGUAGE_EMAIL;
+	static final String URN_VO_LANGUAGE_EMAIL = NAMESPACE_VO_LANGUAGE_EMAIL  + ":" + FRIENDLY_NAME_VO_LANGUAGE_EMAIL;
 
 	private static final String DISPLAY_NAME_GROUP_LANGUAGE_EMAIL = "Notification default language";
 	private static final String FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL = "notificationsDefLang";
 	private static final String NAMESPACE_GROUP_LANGUAGE_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
-	private static final String URN_GROUP_LANGUAGE_EMAIL = NAMESPACE_GROUP_LANGUAGE_EMAIL + ":" +  FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL;
+	static final String URN_GROUP_LANGUAGE_EMAIL = NAMESPACE_GROUP_LANGUAGE_EMAIL + ":" +  FRIENDLY_NAME_GROUP_LANGUAGE_EMAIL;
 
 	private static final String DISPLAY_NAME_VO_APPLICATION_URL = "Application form URL";
 	private static final String FRIENDLY_NAME_VO_APPLICATION_URL = "applicationURL";
@@ -130,22 +140,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String DISPLAY_NAME_VO_REGISTRAR_URL = "Registrar URL";
 	private static final String FRIENDLY_NAME_VO_REGISTRAR_URL = "registrarURL";
 	private static final String NAMESPACE_VO_REGISTRAR_URL = AttributesManager.NS_VO_ATTR_DEF;
-	private static final String URN_VO_REGISTRAR_URL = NAMESPACE_VO_REGISTRAR_URL  + ":" + FRIENDLY_NAME_VO_REGISTRAR_URL;
+	static final String URN_VO_REGISTRAR_URL = NAMESPACE_VO_REGISTRAR_URL  + ":" + FRIENDLY_NAME_VO_REGISTRAR_URL;
 
 	private static final String DISPLAY_NAME_GROUP_REGISTRAR_URL = "Registrar URL";
 	private static final String FRIENDLY_NAME_GROUP_REGISTRAR_URL = "registrarURL";
 	private static final String NAMESPACE_GROUP_REGISTRAR_URL = AttributesManager.NS_GROUP_ATTR_DEF;
-	private static final String URN_GROUP_REGISTRAR_URL = NAMESPACE_GROUP_REGISTRAR_URL + ":" +  FRIENDLY_NAME_GROUP_REGISTRAR_URL;
+	static final String URN_GROUP_REGISTRAR_URL = NAMESPACE_GROUP_REGISTRAR_URL + ":" +  FRIENDLY_NAME_GROUP_REGISTRAR_URL;
 
-	private static final String DISPLAY_NAME_VO_MAIL_FOOTER_URL = "Mail Footer";
-	private static final String FRIENDLY_NAME_VO_MAIL_FOOTER_URL = "mailFooter";
-	private static final String NAMESPACE_VO_MAIL_FOOTER_URL = AttributesManager.NS_VO_ATTR_DEF;
-	private static final String URN_VO_MAIL_FOOTER_URL = NAMESPACE_VO_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER_URL;
+	private static final String DISPLAY_NAME_VO_MAIL_FOOTER = "Mail Footer";
+	private static final String FRIENDLY_NAME_VO_MAIL_FOOTER = "mailFooter";
+	private static final String NAMESPACE_VO_MAIL_FOOTER = AttributesManager.NS_VO_ATTR_DEF;
+	static final String URN_VO_MAIL_FOOTER = NAMESPACE_VO_MAIL_FOOTER + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER;
 
-	private static final String DISPLAY_NAME_GROUP_MAIL_FOOTER_URL = "Mail Footer";
-	private static final String FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL = "mailFooter";
-	private static final String NAMESPACE_GROUP_MAIL_FOOTER_URL = AttributesManager.NS_GROUP_ATTR_DEF;
-	private static final String URN_GROUP_MAIL_FOOTER_URL = NAMESPACE_GROUP_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL;
+	private static final String DISPLAY_NAME_GROUP_MAIL_FOOTER = "Mail Footer";
+	private static final String FRIENDLY_NAME_GROUP_MAIL_FOOTER = "mailFooter";
+	private static final String NAMESPACE_GROUP_MAIL_FOOTER = AttributesManager.NS_GROUP_ATTR_DEF;
+	static final String URN_GROUP_MAIL_FOOTER = NAMESPACE_GROUP_MAIL_FOOTER + ":" + FRIENDLY_NAME_GROUP_MAIL_FOOTER;
 
 
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
@@ -293,6 +303,39 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_FROM_NAME_EMAIL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_FROM_NAME_EMAIL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_FROM__NAME_EMAIL);
+			attrDef.setNamespace(NAMESPACE_GROUP_FROM_NAME_EMAIL);
+			attrDef.setDescription("Name of the sender used as \"from\" in mail notifications.");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_FROM_NAME_EMAIL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_VO_FROM_NAME_EMAIL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_FROM__NAME_EMAIL);
+			attrDef.setNamespace(NAMESPACE_VO_FROM_NAME_EMAIL);
+			attrDef.setDescription("Name of the sender used as \"from\" in mail notifications.");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+		}
+		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_LANGUAGE_EMAIL);
 		} catch (AttributeNotExistsException ex) {
 			// create attr if not exists
@@ -392,13 +435,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
-			attrManager.getAttributeDefinition(registrarSession, URN_VO_MAIL_FOOTER_URL);
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_MAIL_FOOTER);
 		} catch (AttributeNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
-			attrDef.setDisplayName(DISPLAY_NAME_VO_MAIL_FOOTER_URL);
-			attrDef.setFriendlyName(FRIENDLY_NAME_VO_MAIL_FOOTER_URL);
-			attrDef.setNamespace(NAMESPACE_VO_MAIL_FOOTER_URL);
+			attrDef.setDisplayName(DISPLAY_NAME_VO_MAIL_FOOTER);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_MAIL_FOOTER);
+			attrDef.setNamespace(NAMESPACE_VO_MAIL_FOOTER);
 			attrDef.setDescription("Email footer used in mail notifications by tag {mailFooter}. To edit text whithout loose of formatting, please use notification's GUI!!");
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
@@ -408,13 +451,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
-			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_MAIL_FOOTER_URL);
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_MAIL_FOOTER);
 		} catch (AttributeNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
-			attrDef.setDisplayName(DISPLAY_NAME_GROUP_MAIL_FOOTER_URL);
-			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL);
-			attrDef.setNamespace(NAMESPACE_GROUP_MAIL_FOOTER_URL);
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_MAIL_FOOTER);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_MAIL_FOOTER);
+			attrDef.setNamespace(NAMESPACE_GROUP_MAIL_FOOTER);
 			attrDef.setDescription("Email footer used in mail notifications by tag {mailFooter}. To edit text whithout loose of formatting, please use notification's GUI!!");
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
