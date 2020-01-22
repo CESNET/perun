@@ -39,20 +39,22 @@ public interface ServicesManagerImplApi {
 	 * Block Service on Facility. It won't be possible to propagate service on whole facility
 	 * or any of its destinations.
 	 *
+	 * @param session
 	 * @param serviceId The Service to be blocked on the Facility
 	 * @param facilityId The Facility on which we want to block the Service
 	 * @throws InternalErrorException
 	 */
-	void blockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException;
+	void blockServiceOnFacility(PerunSession session, int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException;
 
 	/**
 	 * Block Service on specific Destination. Service still can be propagated to other facility Destinations.
 	 *
+	 * @param session
 	 * @param serviceId The Service to be blocked on this particular destination
 	 * @param destinationId The destination on which we want to block the Service
 	 * @throws InternalErrorException
 	 */
-	void blockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException;
+	void blockServiceOnDestination(PerunSession session, int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException;
 
 	/**
 	 * Unblock Service on whole Facility. If was not blocked, nothing happens.
