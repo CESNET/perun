@@ -98,13 +98,13 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException {
-		getServicesManagerImpl().blockServiceOnFacility(service.getId(), facility.getId());
+		getServicesManagerImpl().blockServiceOnFacility(sess, service.getId(), facility.getId());
 		sess.getPerun().getAuditer().log(sess, new BanServiceOnFacility(service, facility));
 	}
 
 	@Override
 	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
-		getServicesManagerImpl().blockServiceOnDestination(service.getId(), destinationId);
+		getServicesManagerImpl().blockServiceOnDestination(sess, service.getId(), destinationId);
 		sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
 	}
 
@@ -113,7 +113,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		List<Service> services = getAssignedServices(sess, facility);
 		for (Service service : services) {
 			try {
-				getServicesManagerImpl().blockServiceOnFacility(service.getId(), facility.getId());
+				getServicesManagerImpl().blockServiceOnFacility(sess, service.getId(), facility.getId());
 				sess.getPerun().getAuditer().log(sess, new BanServiceOnFacility(service, facility));
 			} catch (ServiceAlreadyBannedException e) {
 				// we ignore, that service was already blocked
@@ -126,7 +126,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		List<Service> services = getServicesManagerImpl().getServicesFromDestination(destinationId);
 		for (Service service : services) {
 			try {
-				getServicesManagerImpl().blockServiceOnDestination(service.getId(), destinationId);
+				getServicesManagerImpl().blockServiceOnDestination(sess, service.getId(), destinationId);
 				sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
 			} catch (ServiceAlreadyBannedException e) {
 				// we ignore, that service was already blocked

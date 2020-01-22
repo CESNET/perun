@@ -195,10 +195,12 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void blockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException {
+	public void blockServiceOnFacility(PerunSession sess, int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException {
 		int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
 		try {
-			jdbc.update("insert into service_denials(id, facility_id, service_id) values (?,?,?)", newBanId, facilityId, serviceId);
+			jdbc.update("insert into service_denials(id, facility_id, service_id, created_by, modified_by, created_by_uid, modified_by_uid) values (?,?,?,?,?,?,?)",
+					newBanId, facilityId, serviceId, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+					sess.getPerunPrincipal().getUserId());
 		} catch (DuplicateKeyException ex) {
 			throw new ServiceAlreadyBannedException(String.format("Service with id %d is already banned on the facility with id %d", serviceId, facilityId));
 		} catch (RuntimeException ex) {
@@ -208,10 +210,12 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void blockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
+	public void blockServiceOnDestination(PerunSession sess, int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
 		try {
 			int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
-			jdbc.update("insert into service_denials(id, destination_id, service_id) values (?,?,?)", newBanId, destinationId, serviceId);
+			jdbc.update("insert into service_denials(id, destination_id, service_id, created_by, modified_by, created_by_uid, modified_by_uid) values (?,?,?,?,?,?,?)",
+					newBanId, destinationId, serviceId, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+					sess.getPerunPrincipal().getUserId());
 		} catch (DuplicateKeyException ex) {
 			throw new ServiceAlreadyBannedException(String.format("Service with id %d is already banned on the destination with id %d", serviceId, destinationId));
 		} catch (RuntimeException ex) {
