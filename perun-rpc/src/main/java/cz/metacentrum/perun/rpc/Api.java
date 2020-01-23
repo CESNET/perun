@@ -779,7 +779,12 @@ public class Api extends HttpServlet {
 
 		out.close();
 
-		log.debug("Method {}.{} called by {} from {}, duration {} ms.", manager, method, caller.getSession().getPerunPrincipal().getActor(), caller.getSession().getPerunPrincipal().getExtSourceName(), (System.currentTimeMillis() - timeStart));
+		if (Objects.equals(manager,"authzResolver") && Objects.equals(method, "keepAlive")) {
+			log.trace("Method {}.{} called by {} from {}, duration {} ms.", manager, method, caller.getSession().getPerunPrincipal().getActor(), caller.getSession().getPerunPrincipal().getExtSourceName(), (System.currentTimeMillis() - timeStart));
+		} else {
+			log.debug("Method {}.{} called by {} from {}, duration {} ms.", manager, method, caller.getSession().getPerunPrincipal().getActor(), caller.getSession().getPerunPrincipal().getExtSourceName(), (System.currentTimeMillis() - timeStart));
+		}
+
 	}
 
 	private Serializer selectSerializer(String format, String manager, String method, OutputStream out,
