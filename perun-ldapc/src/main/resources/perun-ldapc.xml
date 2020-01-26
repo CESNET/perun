@@ -629,7 +629,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 										<list>
 											<bean class="cz.metacentrum.perun.ldapc.beans.KeysetValueTransformer" />
 											<bean class="cz.metacentrum.perun.ldapc.beans.RegexpValueTransformer">
-												<property name="massTransformationPreferred" value="false" />
 												<property name="replaceList">
 													<list>
 														<bean class="cz.metacentrum.perun.ldapc.beans.RegexpSubst">

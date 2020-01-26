@@ -26,4 +26,14 @@ public class RegexpValueTransformer extends ValueTransformerBase implements Attr
 		return result;
 	}
 
+	@Override
+	public Boolean isMassTransformationPreferred() {
+		return false;
+	}
+
+	@Override
+	public Boolean isReduce() {
+		return false;
+	}
+
 }

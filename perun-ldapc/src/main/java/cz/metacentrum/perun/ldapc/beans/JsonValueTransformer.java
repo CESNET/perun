@@ -16,9 +16,10 @@ public class JsonValueTransformer extends ValueTransformerBase implements Attrib
 
 	private final static Logger log = LoggerFactory.getLogger(JsonValueTransformer.class);
 
+	protected static ObjectMapper mapper = new ObjectMapper();
+
 	@Override
 	public String getValue(String value, Attribute attr) {
-		ObjectMapper mapper = new ObjectMapper();
 		try {
 			return mapper.writeValueAsString(value);
 		} catch (JsonProcessingException e) {

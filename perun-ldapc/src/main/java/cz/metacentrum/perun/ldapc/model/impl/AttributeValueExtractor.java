@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

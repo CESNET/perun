@@ -8,8 +8,8 @@ import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
 public class ValueTransformerBase implements AttributeValueTransformer {
 	
-	protected Boolean massTransformationPreferred;
-	protected Boolean reduce;
+	protected Boolean massTransformationPreferred = false;
+	protected Boolean reduce = false;
 	
 	@Override
 	public String getValue(String value, Attribute attr) {
@@ -33,7 +33,7 @@ public class ValueTransformerBase implements AttributeValueTransformer {
 
 	@Override
 	public String[] getAllValues(Map<String, String> value, Attribute attr) {
-		return null;
+		throw new UnsupportedOperationException("This operation must be implemented in child class.");
 	}
 
 	@Override

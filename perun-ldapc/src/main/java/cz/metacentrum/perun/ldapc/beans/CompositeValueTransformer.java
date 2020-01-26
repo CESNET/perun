@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.beans;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -91,7 +92,7 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 		Collection<String> intermediate = value; 
 		for (AttributeValueTransformer transformer : transformerList) {
 			if(intermediate == null) {
-				intermediate = Arrays.asList(result);
+				intermediate = (result == null) ? new ArrayList<String>() : Arrays.asList(result);
 			}
 			if(transformer.isMassTransformationPreferred()) {
 				result = transformer.getAllValues(intermediate, attr);
