@@ -30,7 +30,6 @@ public class JsonValueTransformer extends ValueTransformerBase implements Attrib
 
 	@Override
 	public String getValue(Collection<String> value, Attribute attr) {
-		ObjectMapper mapper = new ObjectMapper();
 		try {
 			return mapper.writeValueAsString(value);
 		} catch (JsonProcessingException e) {
@@ -41,7 +40,6 @@ public class JsonValueTransformer extends ValueTransformerBase implements Attrib
 
 	@Override
 	public String getValue(Map<String, String> value, Attribute attr) {
-		ObjectMapper mapper = new ObjectMapper();
 		try {
 			return mapper.writeValueAsString(value);
 		} catch (JsonProcessingException e) {
