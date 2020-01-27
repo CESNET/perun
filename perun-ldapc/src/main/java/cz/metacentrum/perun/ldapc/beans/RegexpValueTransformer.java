@@ -5,7 +5,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
-public class RegexpValueTransformer implements AttributeValueTransformer {
+public class RegexpValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
 	private List<RegexpSubst> replaceList;
 
@@ -24,6 +24,16 @@ public class RegexpValueTransformer implements AttributeValueTransformer {
 			result = result.replaceAll(regexpSubst.getFind(), regexpSubst.getReplace());
 		}
 		return result;
+	}
+
+	@Override
+	public Boolean isMassTransformationPreferred() {
+		return false;
+	}
+
+	@Override
+	public Boolean isReduce() {
+		return false;
 	}
 
 }

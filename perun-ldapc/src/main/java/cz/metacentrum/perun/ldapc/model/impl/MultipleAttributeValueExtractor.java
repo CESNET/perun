@@ -24,27 +24,44 @@ public class MultipleAttributeValueExtractor<T extends PerunBean> extends Attrib
 					if(value == null) 
 						return null;
 					else
-						result = new String[] { (String)value };
+						result = new String[] { 
+								(valueTransformer == null) ?
+										(String)value 
+										: valueTransformer.getValue((String)value, attribute) 
+						};
 				} else if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
 					List<String> values = attribute.valueAsList();
 					if(values == null || values.size() == 0) 
 						return null;
-					else 
-						result = values.toArray(new String[1]);
+					else {
+						if(valueTransformer == null) {
+							result = values.toArray(new String[1]);
+						} else {
+							if(valueTransformer.isMassTransformationPreferred()) {
+								result = valueTransformer.getAllValues(values, attribute);
+							} else {
+								result = values.stream()
+								.map(value -> valueTransformer.getValue(value, attribute))
+								.toArray(String[]::new);
+							}
+						}
+					}
 				} else if (attribute.getType().equals(LinkedHashMap.class.getName())) {
 					LinkedHashMap<String, String> values = attribute.valueAsMap();
 					if(values == null || values.isEmpty()) 
 						return null;
-					else
-						result = values.keySet().toArray(new String[values.size()]);
+					else {
+						if(valueTransformer != null) {
+							result = valueTransformer.getAllValues(values, attribute);
+						} else {
+							// no default way to convert attribute map to list
+							result = null;
+						}
+					}
 				} else {
 					return null;
 				}
-
-				return valueTransformer == null ? result : 
-					Arrays.stream(result)
-						.map(value -> valueTransformer.getValue(value, attribute))
-						.toArray(String[]::new);
+				return result;
 			}
 		}
 		return null;

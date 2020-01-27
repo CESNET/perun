@@ -624,12 +624,19 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="userCertDNs" />
 							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
 							<property name="valueTransformer">
-								<bean class="cz.metacentrum.perun.ldapc.beans.RegexpValueTransformer">
-									<property name="replaceList">
+								<bean class="cz.metacentrum.perun.ldapc.beans.CompositeValueTransformer">
+									<property name="transformerList">
 										<list>
-											<bean class="cz.metacentrum.perun.ldapc.beans.RegexpSubst">
-												<property name="find" value="^[0-9]+[:]" />
-												<property name="replace" value="" />
+											<bean class="cz.metacentrum.perun.ldapc.beans.KeysetValueTransformer" />
+											<bean class="cz.metacentrum.perun.ldapc.beans.RegexpValueTransformer">
+												<property name="replaceList">
+													<list>
+														<bean class="cz.metacentrum.perun.ldapc.beans.RegexpSubst">
+															<property name="find" value="^[0-9]+[:]" />
+															<property name="replace" value="" />
+														</bean>
+													</list>
+												</property>
 											</bean>
 										</list>
 									</property>

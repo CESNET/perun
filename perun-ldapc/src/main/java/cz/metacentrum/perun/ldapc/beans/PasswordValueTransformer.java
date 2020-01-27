@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
-public class PasswordValueTransformer implements AttributeValueTransformer {
+public class PasswordValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
 	@Autowired 
 	protected LdapProperties ldapProperties;
