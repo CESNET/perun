@@ -20,6 +20,8 @@ import org.infinispan.context.Flag;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.query.Search;
 import org.infinispan.query.dsl.QueryFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.TransactionSystemException;
@@ -39,12 +41,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.ATTRIBUTE_DEFINITION_MAPPER;
+import static cz.metacentrum.perun.core.impl.AttributesManagerImpl.attributeDefinitionMappingSelectQuery;
+
 /**
  * Class used for caching layer management. It deals also with nested transactions and it contains all search and update methods for the cache.
  *
  * @author Simona Kruppova
  */
 public class CacheManager implements CacheManagerApi {
+
+	private final static Logger log = LoggerFactory.getLogger(CacheManager.class);
 
 	private final EmbeddedCacheManager localCacheManager;
 	private JdbcPerunTemplate jdbc;
@@ -1068,45 +1075,34 @@ public class CacheManager implements CacheManagerApi {
 	public List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder) throws InternalErrorException {
 		if(attrIds.isEmpty()) return new ArrayList<>();
 
-		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
-
-		org.infinispan.query.dsl.Query query =
-				qf.from(AttributeHolders.class)
-						.having(NAMESPACE).in(getAttributesByIdsNamespaces(primaryHolder.getType(), null))
-						.and().having(ID).in(attrIds)
-						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
-						.and(qf.having(PRIMARY_HOLDER + "." + HOLDER_ID).eq(primaryHolder.getId())
-								.and().having(PRIMARY_HOLDER + "." + HOLDER_TYPE).eq(primaryHolder.getType())
-								.and().having(SECONDARY_HOLDER).isNull()
-								.or(qf.having(PRIMARY_HOLDER).isNull()
-										.and().having(SECONDARY_HOLDER).isNull()
-										.and().having(SUBJECT).isNull()))
-						.toBuilder().build();
-
-		return removeDuplicates(query.list());
+		List<Attribute> result = new ArrayList<>();
+		for (Integer id : attrIds) {
+			try {
+				Attribute attribute = getAttribute(id, null, primaryHolder, null, null);
+				if (getAttributesByIdsNamespaces(primaryHolder.getType(), null).contains(attribute.getNamespace()))
+					result.add(attribute);
+			} catch (AttributeNotExistsException e) {
+				log.error("We didn't find attribute by ID in cache, but we should (attr def existed)." ,e);
+			}
+		}
+		return result;
 	}
 
 	@Override
 	public List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
 		if(attrIds.isEmpty()) return new ArrayList<>();
 
-		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
-
-		org.infinispan.query.dsl.Query query =
-				qf.from(AttributeHolders.class)
-						.having(NAMESPACE).in(getAttributesByIdsNamespaces(primaryHolder.getType(), secondaryHolder.getType()))
-						.and().having(ID).in(attrIds)
-						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
-						.and(qf.having(PRIMARY_HOLDER + "." + HOLDER_ID).eq(primaryHolder.getId())
-								.and().having(PRIMARY_HOLDER + "." + HOLDER_TYPE).eq(primaryHolder.getType())
-								.and().having(SECONDARY_HOLDER + "." + HOLDER_ID).eq(secondaryHolder.getId())
-								.and().having(SECONDARY_HOLDER + "." + HOLDER_TYPE).eq(secondaryHolder.getType())
-								.or(qf.having(PRIMARY_HOLDER).isNull()
-										.and().having(SECONDARY_HOLDER).isNull()
-										.and().having(SUBJECT).isNull()))
-						.toBuilder().build();
-
-		return removeDuplicates(query.list());
+		List<Attribute> result = new ArrayList<>();
+		for (Integer id : attrIds) {
+			try {
+				Attribute attribute = getAttribute(id, null, primaryHolder, secondaryHolder, null);
+				if (getAttributesByIdsNamespaces(primaryHolder.getType(), secondaryHolder.getType()).contains(attribute.getNamespace()))
+					result.add(attribute);
+			} catch (AttributeNotExistsException e) {
+				log.error("We didn't find attribute by ID in cache, but we should (attr def existed)." ,e);
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -1685,7 +1681,7 @@ public class CacheManager implements CacheManagerApi {
 		List<AttributeHolders> attrs;
 
 		//save attribute definitions
-		attrDefs = jdbc.query("select " + AttributesManagerImpl.attributeDefinitionMappingSelectQuery + " from attr_names ", AttributesManagerImpl.ATTRIBUTE_DEFINITION_MAPPER);
+		attrDefs = jdbc.query("select " + attributeDefinitionMappingSelectQuery + " from attr_names ", ATTRIBUTE_DEFINITION_MAPPER);
 		this.setAttributesDefinitions(attrDefs);
 
 		//save attributes with values
