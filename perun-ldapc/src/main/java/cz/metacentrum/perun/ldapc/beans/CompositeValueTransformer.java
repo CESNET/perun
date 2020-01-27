@@ -10,11 +10,18 @@ import java.util.stream.Collectors;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
-
+/**
+ * Composite value transformer allows us to apply multiple consequent transformations in defined order.
+ * Not all combinations of transformers will work.
+ */
 public class CompositeValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
+	/**
+	 * List of applied transformers.
+	 * Initialized from Spring context.
+	 */
 	protected List<AttributeValueTransformer> transformerList;
-	
+
 	@Override
 	public String getValue(String value, Attribute attr) {
 		String result = value;
@@ -39,8 +46,7 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 						intermediate = intermediate.stream()
 								.map(one -> transformer.getValue(one, attr))
 								.collect(Collectors.toList());
-								
-					}	
+					}
 				}
 			} else {
 				result = transformer.getValue(result, attr);
@@ -75,8 +81,7 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 							intermediate = intermediate.stream()
 									.map(one -> transformer.getValue(one, attr))
 									.collect(Collectors.toList());
-								
-						}	
+						}
 					}
 				} else {
 					result = transformer.getValue(result, attr);
@@ -89,7 +94,7 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 	@Override
 	public String[] getAllValues(Collection<String> value, Attribute attr) {
 		String[] result = null;
-		Collection<String> intermediate = value; 
+		Collection<String> intermediate = value;
 		for (AttributeValueTransformer transformer : transformerList) {
 			if(intermediate == null) {
 				intermediate = (result == null) ? new ArrayList<String>() : Arrays.asList(result);
@@ -109,7 +114,7 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 	@Override
 	public String[] getAllValues(Map<String, String> value, Attribute attr) {
 		String[] result = null;
-		Collection<String> intermediate = null; 
+		Collection<String> intermediate = null;
 		for (AttributeValueTransformer transformer : transformerList) {
 			if(result == null) {
 				// first transformer has to reduce map to array

@@ -12,6 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
+/**
+ * Value transformer, which converts attribute values from Perun into JSON formatted string.
+ * Incoming multi-valued attributes are reduced to single string/value attributes.
+ */
 public class JsonValueTransformer extends ValueTransformerBase implements AttributeValueTransformer {
 
 	private final static Logger log = LoggerFactory.getLogger(JsonValueTransformer.class);

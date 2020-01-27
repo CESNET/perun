@@ -571,7 +571,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="perunUser" class="cz.metacentrum.perun.ldapc.model.impl.PerunUserImpl" scope="prototype">
 		<property name="attributeDescriptions">
 			<!--  this list will be added to built-in defaultAttributeDescriptions -->
