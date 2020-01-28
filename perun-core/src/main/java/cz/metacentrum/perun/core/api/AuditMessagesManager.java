@@ -58,7 +58,6 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to poll messages
 	 */
-	@Deprecated
 	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
 	/**
@@ -82,7 +81,6 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to poll events
 	 */
-	@Deprecated
 	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
 
 	/**
@@ -95,7 +93,6 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to poll events
 	 */
-	@Deprecated
 	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException;
 
 	/**

@@ -45,7 +45,6 @@ public interface AuditMessagesManagerBl {
 	 * @return List of audit messages
 	 * @throws InternalErrorException When implementation fails
 	 */
-	@Deprecated
 	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
@@ -67,7 +66,6 @@ public interface AuditMessagesManagerBl {
 	 * @return List of audit messages
 	 * @throws InternalErrorException When implementation fails
 	 */
-	@Deprecated
 	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
