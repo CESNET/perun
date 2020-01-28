@@ -184,6 +184,9 @@ components:
             displayName: { type: string }
             writable: { type: boolean }
             unique: { type: boolean }
+            entity:
+              type: string
+              readOnly: true
       discriminator:
         propertyName: beanName
 
