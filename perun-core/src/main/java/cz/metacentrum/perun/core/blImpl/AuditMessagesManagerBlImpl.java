@@ -64,8 +64,18 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	}
 
 	@Override
+	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+		return getAuditMessagesManagerImpl().pollConsumerMessages(perunSession, consumerName, lastProcessedId);
+	}
+
+	@Override
 	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException {
 		return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName);
+	}
+
+	@Override
+	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+		return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName, lastProcessedId);
 	}
 
 	@Override

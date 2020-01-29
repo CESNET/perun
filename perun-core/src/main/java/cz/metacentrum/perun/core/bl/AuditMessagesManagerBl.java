@@ -48,6 +48,17 @@ public interface AuditMessagesManagerBl {
 	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
+	 * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
+	 *
+	 * @param perunSession perun session
+	 * @param consumerName consumer to get messages for
+	 * @param lastProcessedId id of the last message 
+	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
+	 */
+	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException;
+
+	/**
 	 * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
 	 *
 	 * @param perunSession perun session
@@ -56,6 +67,17 @@ public interface AuditMessagesManagerBl {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException;
+
+	/**
+	 * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
+	 *
+	 * @param perunSession perun session
+	 * @param consumerName consumer to get messages for
+	 * @param lastProcessedId id of the last message 
+	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
+	 */
+	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException;
 
 	/**
 	 * Creates new auditer consumer with last processed id which equals current auditer log max id.
@@ -101,6 +123,7 @@ public interface AuditMessagesManagerBl {
 	 * @param lastProcessedId id of last processed message in consumer
 	 * @throws InternalErrorException When implementation fails
 	 */
+	@Deprecated
 	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException;
 
 	/**

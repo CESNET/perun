@@ -28,5 +28,7 @@ public interface LdapcManager {
 	public PerunPrincipal getPerunPrincipal();
 
 	public void setPerunPrincipal(PerunPrincipal perunPrincipal);
+	
+	public void setLastProcessedId(int lastProcessedId);
 
 }

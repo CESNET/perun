@@ -66,7 +66,8 @@ public class LdapcManagerImpl implements LdapcManager {
 			groupSynchronizer.synchronizeGroups();
 
 			int lastProcessedMessageId = ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().getLastMessageId(perunSession);
-			((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
+			// ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
+			eventDispatcher.setLastProcessedIdNumber(lastProcessedMessageId);
 		} catch (Exception  e) {
 			log.error("Error synchronizing to LDAP", e);
 			throw new InternalErrorException(e);
@@ -94,5 +95,10 @@ public class LdapcManagerImpl implements LdapcManager {
 
 	public void setPerunPrincipal(PerunPrincipal perunPrincipal) {
 		this.perunPrincipal = perunPrincipal;
+	}
+
+	@Override
+	public void setLastProcessedId(int lastProcessedId) {
+		eventDispatcher.setLastProcessedIdNumber(lastProcessedId);
 	}
 }

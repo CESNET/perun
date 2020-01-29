@@ -64,4 +64,6 @@ public interface EventDispatcher extends Runnable {
 	public void registerProcessor(EventProcessor processor, DispatchEventCondition condition);
 
 	public void dispatchEvent(String msg, MessageBeans beans);
+	
+	public void setLastProcessedIdNumber(int lastProcessedId);
 }
