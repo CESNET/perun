@@ -8,6 +8,10 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.56
+alter table configurations drop constraint config_prop_chk;
+update configurations set value='3.1.56' where property='DATABASE VERSION';
+
 3.1.55
 drop sequence "auditer_log_json_id_seq";
 alter table auditer_log rename to auditer_log_old;

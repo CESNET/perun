@@ -2,6 +2,9 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.core.impl.Utils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 import java.util.List;
@@ -14,28 +17,28 @@ import java.util.List;
 public interface DatabaseManagerImplApi {
 	/**
 	 * Return current database version in string (ex. 3.0.1)
-	 * 
+	 *
 	 * @return return current database version
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	String getCurrentDatabaseVersion() throws InternalErrorException;
-	
+
 	/**
 	 * Get DB driver information from datasource (name-version)
-	 * 
+	 *
 	 * @return string information about database driver
-	 * 
-	 * @throws InternalErrorException 
+	 *
+	 * @throws InternalErrorException
 	 */
 	String getDatabaseDriverInformation() throws InternalErrorException;
-	
+
 	/**
 	 * Get DB information from datasource (name-version)
-	 * 
+	 *
 	 * @return string information about database
-	 * 
-	 * @throws InternalErrorException 
+	 *
+	 * @throws InternalErrorException
 	 */
 	String getDatabaseInformation() throws InternalErrorException;
 
@@ -71,6 +74,30 @@ public interface DatabaseManagerImplApi {
 	 * @throws InternalErrorException if 1.there is error reading file, 2.currentDBVersion was not found 3.db version does not match pattern 4.db versions are not ordered as they should be
 	 */
 	List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException;
+
+	/**
+	 *	Get time in ns "nanoseconds" of calling 1 simple update query to DB.
+	 *  This query will update property for this purpose in configurations table.
+	 *
+	 * @return time of processing query in nanoseconds
+	 */
+	long getTimeOfQueryPerformance();
+
+	/**
+	 * Create new property in configurations. Initial value will be "N/A".
+	 *
+	 * @param property name of property to be created
+	 */
+	void createProperty(String property);
+
+	/**
+	 * Return true if property already exists, false if not.
+	 *
+	 * @param property name of property to check existence
+	 *
+	 * @return true if property exists, false if not
+	 */
+	boolean propertyExists(String property);
 
 	/**
 	 * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
