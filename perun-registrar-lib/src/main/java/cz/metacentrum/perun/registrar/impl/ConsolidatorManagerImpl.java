@@ -347,7 +347,11 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		Map<String, Object> originalIdentity = requestCache.get(token);
 
 		if (originalIdentity == null) {
-			throw new InvalidTokenException("Your token for joining identities is no longer valid. Please retry from the start.");
+			InvalidTokenException ex = new InvalidTokenException("Your token for joining identities is no longer valid. Please retry from the start.");
+			log.info("Token {} for joining identities is no longer valid for current identity: {}",
+					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(),
+							sess.getPerunPrincipal().getExtSourceType()), " | "), token, ex);
+			throw ex;
 		}
 
 		User originalUser = (User)originalIdentity.get("user");
@@ -361,6 +365,9 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			ex.setLogin2(sess.getPerunPrincipal().getActor());
 			ex.setSource2(sess.getPerunPrincipal().getExtSourceName());
 			ex.setSourceType2(sess.getPerunPrincipal().getExtSourceType());
+			log.warn("None of identities is known to Perun. Current identity: {}, previous identity: {}",
+					StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "),
+					StringUtils.join(Arrays.asList(ex.getLogin2(), ex.getSource2(), ex.getSourceType2()), " | "));
 			throw ex;
 		}
 
@@ -371,15 +378,25 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			ex.setLogin(sess.getPerunPrincipal().getActor());
 			ex.setSource(sess.getPerunPrincipal().getExtSourceName());
 			ex.setSourceType(sess.getPerunPrincipal().getExtSourceType());
+			log.warn("User tried to join identity with itself. Identity: {}",
+					StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "));
 			throw ex;
 		}
 
 		if (originalUser != null && originalUser.equals(currentUser)) {
-			throw new IdentitiesAlreadyJoinedException("You already have both identities joined.");
+			IdentitiesAlreadyJoinedException ex = new IdentitiesAlreadyJoinedException("You already have both identities joined.");
+			log.warn("User already have both identities joined. User: {}, Current identity: {}, Original identity: {}", originalUser,
+					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType()), " | "),
+					StringUtils.join(Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType")), " | "));
+			throw ex;
 		}
 
 		if (originalUser != null && currentUser != null && !originalUser.equals(currentUser)) {
-			throw new IdentityAlreadyInUseException("Your identity is already associated with a different user. If you are really the same person, please contact support to help you.", originalUser, currentUser);
+			IdentityAlreadyInUseException ex = new IdentityAlreadyInUseException("Your identity is already associated with a different user. If you are really the same person, please contact support to help you.", originalUser, currentUser);
+			log.warn("Identity to be joined is already used by different user. Current user: {}, Current identity: {}, Original user: {}, Original identity: {}",
+					currentUser, StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType()), " | "),
+					originalUser, StringUtils.join(Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType")), " | "));
+			throw ex;
 		}
 
 		// merge original identity into current user
@@ -388,6 +405,10 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 					(String)originalIdentity.get("extSourceName"), (String)originalIdentity.get("extSourceType"),
 					(Integer) originalIdentity.get("extSourceLoa"));
 			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, (Map<String,String>)originalIdentity.get("additionalInformation"));
+			log.info("{} joined identities. Current identity: {}, Original identity: {}", currentUser,
+					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(), " | ")),
+					StringUtils.join(Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType")), " | "));
+
 		}
 
 		// merge current identity into original user
@@ -396,7 +417,11 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 					sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(),
 					sess.getPerunPrincipal().getExtSourceLoa());
 			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, sess.getPerunPrincipal().getAdditionalInformations());
+			log.info("{} joined identities. Current identity: {}, Original identity: {}", originalUser,
+					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(), " | ")),
+					StringUtils.join(Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType")), " | "));
 		}
+
 
 		AuthzResolverBlImpl.refreshSession(sess);
 
