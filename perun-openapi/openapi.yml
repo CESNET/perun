@@ -772,6 +772,19 @@ components:
             items:
               $ref: "#/components/schemas/RichDestination"
 
+    GraphDTOResponse:
+      description: "returns GraphDTO"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              graph:
+                type: string
+              format:
+                type: string
+                enum: [DOT, TGF]
+                
   #####################################################
   #                                                   #
   # PARAMETERS - definitions of often used parameters #
@@ -3306,7 +3319,276 @@ paths:
 
 #TODO checkAttributesSyntax
 
-#TODO removeAttributes
+  /urlinjsonout/attributesManager/removeAttributes/m-workWithUserAttributes:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberAttributesWorkWithUserAttributes
+      summary: Remove attributes of namespace member
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attributes'
+        - $ref: '#/components/parameters/workWithUserAttributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/m-g-workWithUserAttributes:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberGroupAttributesWorkWithUserAttributes
+      summary: Remove attributes of namespace member-group
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributes'
+        - $ref: '#/components/parameters/workWithUserAttributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/g-r-workWithGroupAttributes:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeGroupResourceAttributesWorkWithGroupAttributes
+      summary: Remove attributes of namespace group-resource
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributes'
+        - $ref: '#/components/parameters/workWithGroupAttributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/m-g:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberGroupAttributes
+      summary: Remove attributes of namespace member-group
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/m-r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberResourceAttributes
+      summary: Remove attributes of namespace member-resource
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/u-f:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeUserFacilityAttributes
+      summary: Remove attributes of namespace user-facility
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/f-r-u-m:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeAttributesForFacilityResourceUserMember
+      summary: Remove attributes of namespace facility, resource, user and member
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/f-r-g-u-m:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeAttributesForFacilityResourceGroupUserMember
+      summary: Remove attributes of namespace facility, resource, group, user and member
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/g-r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeGroupResourceAttributes
+      summary: Remove attributes of namespace group-resource
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeResourceAttributes
+      summary: Remove attributes of namespace resource
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/ues:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeUesAttributes
+      summary: Remove attributes of namespace userExtSource
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/h:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeHostAttributes
+      summary: Remove attributes of namespace host
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/f:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeFacilityAttributes
+      summary: Remove attributes of namespace facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/m:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberAttributes
+      summary: Remove attributes of namespace member
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/u:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeUserAttributes
+      summary: Remove attributes of namespace user
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/g:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeGroupAttributes
+      summary: Remove attributes of namespace group
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttributes/v:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeVoAttributes
+      summary: Remove attributes of namespace vo
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
 #TODO removeAttribute
 
@@ -3324,7 +3606,58 @@ paths:
 
 #TODO convertAttributeToUnique
 
-#TODO getAttributeModulesDependenciesGraphText
+  /json/attributesManager/getAttributeModulesDependenciesGraphText:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeModulesDependenciesGraphText
+      summary: |
+        Generates text file describing dependencies between attribute modules. 
+        The format of text file can be specified by parameter. Modules that 
+        has no dependency relations are omitted.
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [DOT, TGF]
+          description: Currently supported formats are DOT and TGF.
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/GraphDTOResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributeModulesDependenciesGraphText/for-attribute:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeModulesDependenciesForAttributeGraphText
+      summary: |
+        Generates text file describing dependencies between attribute modules. 
+        The format of text file can be specified by parameter. Modules that 
+        has no dependency relations are omitted.
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [DOT, TGF]
+          description: Currently supported formats are DOT and TGF.
+          required: true
+        - name: attrName
+          in: query
+          schema:
+            type: string
+          description: Attribute name which dependencies will be found.
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/GraphDTOResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   #################################################
   #                                               #

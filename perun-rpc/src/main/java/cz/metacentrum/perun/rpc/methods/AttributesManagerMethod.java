@@ -4213,9 +4213,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * The format of text file can be specified by parameter.
 	 * Modules that has no dependency relations are omitted.
 	 *
-	 * Warning: No matter which serializer you specify, this method always
-	 * returns .txt file as an attachment.
-	 *
 	 * @param format String Currently supported formats are DOT and TGF.
 	 * @throw InternalErrorException when some internal error happens.
 	 * @exampleParam format [ "DOT" ]
@@ -4224,9 +4221,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Generates image file describing dependencies of given attribute.
 	 * The format of text file can be specified by parameter.
 	 * Modules that has no dependency relations are omitted.
-	 *
-	 * Warning: No matter which serializer you specify, this method always
-	 * returns .txt file as an attachment.
 	 *
 	 * @param attrName attribute name which dependencies will be found.
 	 * @param format String Currently supported formats are DOT and TGF.
