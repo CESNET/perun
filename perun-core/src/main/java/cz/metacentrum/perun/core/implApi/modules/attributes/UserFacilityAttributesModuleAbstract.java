@@ -24,7 +24,7 @@ public abstract class UserFacilityAttributesModuleAbstract extends AttributesMod
 
 	}
 
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 
 	}
 

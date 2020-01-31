@@ -62,6 +62,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends G
 		}
 
 		try {
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSyntax(sess, group, groupNameAttribute);
 			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, group, groupNameAttribute);
 			//check passed, we can use value from this physical attribute
 			attribute.setValue(groupNameAttribute.getValue());

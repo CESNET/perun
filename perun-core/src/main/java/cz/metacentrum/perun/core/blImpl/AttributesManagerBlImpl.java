@@ -3412,7 +3412,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 
 		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, attribute)) return;
@@ -3420,7 +3420,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_FACILITY_ATTR);
 		for (Attribute attribute : attributes) {
 			if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, attribute)) continue;
@@ -3429,7 +3429,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 
 		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, vo, attribute)) return;
@@ -3437,7 +3437,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_VO_ATTR);
 
 		for (Attribute attribute : attributes) {
@@ -3447,7 +3447,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_GROUP_ATTR);
 
 		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, group, attribute)) return;
@@ -3455,7 +3455,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_GROUP_ATTR);
 
 		for (Attribute attribute : attributes) {
@@ -3474,7 +3474,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_RESOURCE_ATTR);
 
 		for (Attribute attribute : attributes) {
@@ -3484,7 +3484,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 
@@ -3493,12 +3493,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		checkAttributesSemantics(sess, member, resource, attributes, false);
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_GROUP_ATTR);
 
 		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute)) return;
@@ -3506,12 +3506,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		checkAttributesSemantics(sess, member, group, attributes, false);
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (!workWithUserAttributes) {
 			getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_GROUP_ATTR);
 
@@ -3540,7 +3540,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	private void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (!workWithUserAttributes) checkAttributesSemantics(sess, member, attributes);
 		else {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -3559,7 +3559,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (!workWithUserAttributes) {
 			for (Attribute attribute : attributes) {
@@ -3600,7 +3600,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		for (Attribute attribute : attributes) {
 			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
@@ -3624,7 +3624,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		for (Attribute attribute : attributes) {
@@ -3652,7 +3652,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
 
 		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) return;
@@ -3660,7 +3660,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
 
 		for (Attribute attribute : attributes) {
@@ -3670,7 +3670,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
 
 		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute)) return;
@@ -3678,7 +3678,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_FACILITY_ATTR);
 
 		for (Attribute attribute : attributes) {
@@ -3697,7 +3697,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 
 		for (Attribute attribute : attributes) {
@@ -3706,7 +3706,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!workWithGroupAttribute) {
 			this.checkAttributesSemantics(sess, resource, group, attributes);
@@ -3724,7 +3724,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
 
 		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) return;
@@ -3732,7 +3732,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_ATTR);
 
 		for (Attribute attribute : attributes) {
@@ -3774,7 +3774,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
 
 		getAttributesManagerImpl().checkAttributeSemantics(sess, key, attribute);

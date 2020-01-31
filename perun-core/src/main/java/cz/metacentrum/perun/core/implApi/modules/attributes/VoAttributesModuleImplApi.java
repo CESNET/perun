@@ -48,9 +48,8 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @param attribute attribute to be checked
 	 *
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

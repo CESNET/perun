@@ -36,13 +36,11 @@ public interface FacilityAttributesModuleImplApi extends AttributesModuleImplApi
 	 * @param attribute attribute to check
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException if an referenced attribute against
-	 *         the parameter is to be compared is not available
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 * @throws WrongAttributeAssignmentException
 	 */
 
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.

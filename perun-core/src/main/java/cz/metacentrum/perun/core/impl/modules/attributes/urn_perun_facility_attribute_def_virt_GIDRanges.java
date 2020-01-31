@@ -29,7 +29,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 	private static final String A_E_namespaceGIDRanges = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
 			if(gidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, gidNamespaceAttribute, "There is missing GID namespace on the facility.");
