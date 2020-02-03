@@ -2566,13 +2566,14 @@ public interface AttributesManager {
 	 * @param sess      perun session
 	 * @param facility  facility for which you want to check validity of attribute
 	 * @param attribute attribute to check
-	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException                if privileges are not given
-	 * @throws FacilityNotExistsException        if the facility doesn't exists in underlying data source
-	 * @throws WrongAttributeAssignmentException if attribute isn't facility attribute
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws FacilityNotExistsException            if the facility doesn't exists in underlying data source
+	 * @throws WrongAttributeAssignmentException     if attribute isn't facility attribute
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws AttributeNotExistsException           if given attribute does not exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 
 	/**
@@ -2580,10 +2581,10 @@ public interface AttributesManager {
 	 * <p>
 	 * Batch version of checkAttributeSemantics
 	 *
-	 * @throws WrongAttributeValueException if any of attributes values is wrong/illegal
+	 * @throws WrongReferenceAttributeValueException if any of attributes values has wrong/illegal semantics
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Facility, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * Check if value of this vo attribute has valid semantics.
@@ -2593,23 +2594,24 @@ public interface AttributesManager {
 	 * @param sess      perun session
 	 * @param vo        vo for which you want to check validity of attribute
 	 * @param attribute attribute to check
-	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException                if privileges are not given
-	 * @throws VoNotExistsException              if the vo doesn't exists in underlying data source
-	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws VoNotExistsException                  if the vo doesn't exists in underlying data source
+	 * @throws WrongAttributeAssignmentException     if attribute isn't vo attribute
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws AttributeNotExistsException           if given attribute does not exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
 	 * <p>
 	 * Batch version of checkAttributeSemantics
 	 *
-	 * @throws WrongAttributeValueException if any of attributes values is wrong/illegal
+	 * @throws WrongReferenceAttributeValueException if any of attributes values has wrong/illegal semantics
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Vo, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this resource attribute has valid semantics.
@@ -2619,23 +2621,24 @@ public interface AttributesManager {
 	 * @param attribute attribute to check
 	 *                  <p>
 	 *                  PRIVILEGE: Check attribute only when principal has access to write on it.
-	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException                if privileges are not given
-	 * @throws ResourceNotExistsException        if the resource doesn't exists in underlying data source
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
-	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws ResourceNotExistsException            if the resource doesn't exists in underlying data source
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException     if attribute isn't resource attribute
+	 * @throws AttributeNotExistsException           if given attribute does not exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
 	 * <p>
 	 * Batch version of checkAttributeSemantics
 	 *
-	 * @throws WrongAttributeValueException if any of attributes values is wrong/illegal
+	 * @throws WrongReferenceAttributeValueException if any of attributes values has wrong/illegal semantics
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Resource, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * Check if value of this member-resource attribute has valid semantics.
@@ -2646,13 +2649,16 @@ public interface AttributesManager {
 	 * @param member    member for which (and for specified resource) you want to check validity of attribute
 	 * @param resource  resource for which (and for specified member) you want to check validity of attribute
 	 * @param attribute attribute to check
-	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException                if privileges are not given
-	 * @throws ResourceNotExistsException        if the resource doesn't exists in underlying data source
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
-	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws ResourceNotExistsException            if the resource doesn't exists in underlying data source
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException     if attribute isn't member-resource attribute
+	 * @throws MemberNotExistsException              if specified member does not exist
+	 * @throws AttributeNotExistsException           if given attribute does not exist
+	 * @throws MemberResourceMismatchException       if member and resource are not in the same VO
 	 */
-	void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -2661,7 +2667,7 @@ public interface AttributesManager {
 	 *
 	 * @see AttributesManager#checkAttributeSemantics(PerunSession, Member, Resource, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -2672,7 +2678,7 @@ public interface AttributesManager {
 	 *                               !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 * @see AttributesManager#checkAttributeSemantics(PerunSession, Member, Resource, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
 
 	/**
 	 * Check if value of this member-group attribute has valid semantics.
@@ -2685,10 +2691,12 @@ public interface AttributesManager {
 	 * @param attribute attribute to check
 	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws PrivilegeException                if privileges are not given
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
+	 * @throws GroupNotExistsException           if specified group does not exist
+	 * @throws MemberNotExistsException          if specified member does not exist
+	 * @throws AttributeNotExistsException       if given attribute does not exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, GroupNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, GroupNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -2697,7 +2705,7 @@ public interface AttributesManager {
 	 *
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Member, Group, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -2708,14 +2716,14 @@ public interface AttributesManager {
 	 *                               !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Member, Group, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException;
 
 	/**
 	 * Check if value of attributes has valid semantics. Attributes can be from namespace: member, user, member-resource and user-facility.
 	 * <p>
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
 	 */
-	void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException;
 
 	/**
 	 * Check if value of this member attribute has valid semantics.
@@ -2725,12 +2733,14 @@ public interface AttributesManager {
 	 * @param sess      perun session
 	 * @param member    member for which (and for specified resource) you want to check validity of attribute
 	 * @param attribute attribute to check
-	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException                if privileges are not given
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
-	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException     if attribute isn't member-resource attribute
+	 * @throws MemberNotExistsException              if specified member does not exist
+	 * @throws AttributeNotExistsException           if given attribute does not exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them
@@ -2739,7 +2749,7 @@ public interface AttributesManager {
 	 *
 	 * @see AttributesManager#checkAttributeSemantics(PerunSession, Member, Resource, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * Check if value of this user-facility attribute has valid semantics.
@@ -2750,13 +2760,15 @@ public interface AttributesManager {
 	 * @param facility  facility for which (and for specified user) you want to check validity of attribute
 	 * @param user      user for which (and for specified facility) you want to check validity of attribute
 	 * @param attribute attribute to check
-	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException                if privileges are not given
-	 * @throws FacilityNotExistsException        if the facility doesn't exists in underlying data source
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
-	 * @throws WrongAttributeAssignmentException if attribute isn't user-facility attribute
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws FacilityNotExistsException            if the facility doesn't exists in underlying data source
+	 * @throws UserNotExistsException                if the user doesn't exists in underlying data source
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException     if attribute isn't user-facility attribute
+	 * @throws AttributeNotExistsException           if given attribute does not exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them
@@ -2765,7 +2777,7 @@ public interface AttributesManager {
 	 *
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Facility, User, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * Check if value of this user attribute has valid semantics.
@@ -2775,12 +2787,14 @@ public interface AttributesManager {
 	 * @param sess      perun session
 	 * @param user      user for which (and for specified facility) you want to check validity of attribute
 	 * @param attribute attribute to check
-	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws PrivilegeException                if privileges are not given
-	 * @throws WrongAttributeValueException      if the attribute value is wrong/illegal
-	 * @throws WrongAttributeAssignmentException if attribute isn't user-facility attribute
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException     if attribute isn't user-facility attribute
+	 * @throws UserNotExistsException                if the user doesn't exists in underlying data source
+	 * @throws AttributeNotExistsException           if given attribute does not exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -2789,7 +2803,7 @@ public interface AttributesManager {
 	 *
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, User, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+	void checkAttributesSemantics(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * Checks if value of this host attribute has valid semantics.
@@ -2824,13 +2838,12 @@ public interface AttributesManager {
 	 * @param group group for which attribute validity is checked
 	 * @throws PrivilegeException                    if privileges are not given
 	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException          if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException     if the attribute isn't group attribute
-	 * @throws WrongReferenceAttributeValueException if value of referenced attribute (if any) is not valid
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 * @throws AttributeNotExistsException           if given attribute doesn't exist
 	 * @throws GroupNotExistsException               if specified group doesn't exist
 	 */
-	void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException;
+	void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException;
 
 	/**
 	 * Checks if value of this group-resource attribute has valid semantics.
@@ -2841,10 +2854,16 @@ public interface AttributesManager {
 	 * @param resource  resource which attr you want check
 	 * @param group     group which attr you want to check
 	 * @param attribute attribute to be checked
-	 * @throws PrivilegeException     if privileges are not given
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws AttributeNotExistsException           if given attribute doesn't exist
+	 * @throws ResourceNotExistsException            if the resource doesn't exist in underlying data source
+	 * @throws GroupNotExistsException               if the group doesn't exist in underlying data source
+	 * @throws WrongAttributeAssignmentException     if the attribute isn't group-resource attribute
+	 * @throws GroupResourceMismatchException        if group and resource are not in the same VO
 	 */
-	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, WrongReferenceAttributeValueException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -2853,7 +2872,7 @@ public interface AttributesManager {
 	 *
 	 * @see AttributesManager#checkAttributeSemantics(PerunSession, Resource, Group, Attribute)
 	 */
-	void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Checks if value of this user external source attribute has valid semantics.
