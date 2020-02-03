@@ -1034,13 +1034,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			// Create empty user
 			User user = new User();
 
-			// Check attribute value, if the login is already occupied, then WrongAttributeValueException exception is thrown
+			// Check attribute value, if the login is already occupied, then WrongReferenceAttributeValueException exception is thrown
 			getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, user, attribute);
 
 			return true;
-		} catch (AttributeNotExistsException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException e) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
-		} catch (WrongAttributeValueException e) {
+		} catch (WrongReferenceAttributeValueException e) {
 			return false;
 		}
 

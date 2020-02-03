@@ -3848,7 +3848,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
 		if (facilityModule == null) return; //facility module doesn't exists
@@ -3861,7 +3861,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
 		if (voModule == null) return; //module doesn't exists
@@ -3892,14 +3892,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@SuppressWarnings("unused")
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongReferenceAttributeValueException {
 		for (Attribute attribute : attributes) {
 			checkAttributeSemantics(sess, resource, attribute);
 		}
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
@@ -3911,7 +3911,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		MemberGroupAttributesModuleImplApi memberGroupAttributeModule = getMemberGroupAttributeModule(sess, attribute);
 		if (memberGroupAttributeModule == null) return; //memberGroupAttributesModule module doesn't exists
@@ -3919,7 +3919,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		UserFacilityAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -3930,7 +3930,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -3941,7 +3941,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		MemberAttributesModuleImplApi attributeModule = getMemberAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -3977,7 +3977,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		EntitylessAttributesModuleImplApi attributeModule = getEntitylessAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {

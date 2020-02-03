@@ -28,7 +28,7 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 	private static final String A_FAC_uidNamespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 			if(uidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);

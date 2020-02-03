@@ -481,7 +481,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 						getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, facility, user, attribute);
 					} catch(WrongAttributeAssignmentException ex) {
 						throw new ConsistencyErrorException(ex);
-					} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+					} catch(WrongReferenceAttributeValueException ex) {
 						attribute.setValue(null);
 						brokenUserFacilityAttributes.add(attribute);
 					} //TODO jeste o tom popremyslet
