@@ -68,6 +68,11 @@ public class UrlDeserializer extends Deserializer {
 	}
 
 	@Override
+	public int[] readArrayOfInts(String name) throws RpcException {
+		return readList(name, Integer.class).stream().mapToInt(i->i).toArray();
+	}
+
+	@Override
 	public int readInt(String name) throws RpcException {
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
