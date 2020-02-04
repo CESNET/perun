@@ -142,6 +142,30 @@ public interface DatabaseManagerBl {
 	}
 
 	/**
+	 *	Get time in ns "nanoseconds" of calling 1 simple update query to DB.
+	 *  This query will update property for this purpose in configurations table.
+	 *
+	 * @return time of processing query in nanoseconds
+	 */
+	long getTimeOfQueryPerformance();
+
+	/**
+	 * Create new property in configurations. Initial value will be "N/A".
+	 *
+	 * @param property name of property to be created
+	 */
+	void createProperty(String property);
+
+	/**
+	 * Return true if property already exists, false if not.
+	 *
+	 * @param property name of property to check existence
+	 *
+	 * @return true if property exists, false if not
+	 */
+	boolean propertyExists(String property);
+
+	/**
 	 * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
 	 *
 	 * @return Peruns JDBC template

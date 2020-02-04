@@ -22,43 +22,53 @@ public class DatabaseManagerEntry implements DatabaseManager {
 
 	private DatabaseManagerBl databaseManagerBl;
 	private PerunBl perunBl;
-	
+
 	public DatabaseManagerEntry() {}
 
 	@Override
 	public String getCurrentDatabaseVersion(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-		
+
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getCurrentDatabaseVersion");
-		
+
 		return getDatabaseManagerBl().getCurrentDatabaseVersion();
 	}
-	
+
 	@Override
 	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-		
+
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getDatabaseDriverInformation");
-		
+
 		return getDatabaseManagerBl().getDatabaseDriverInformation();
 	}
-	
+
 	@Override
 	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-		
+
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getDatabaseInformation");
-		
+
 		return getDatabaseManagerBl().getDatabaseInformation();
+	}
+
+	@Override
+	public long getTimeOfQueryPerformance(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) throw new PrivilegeException(sess, "getTimeOfQueryPerformance");
+
+		return getDatabaseManagerBl().getTimeOfQueryPerformance();
 	}
 
 	public void setDatabaseManagerBl(DatabaseManagerBl databaseManagerBl) {
 		this.databaseManagerBl = databaseManagerBl;
 	}
-	
+
 	public DatabaseManagerBl getDatabaseManagerBl() {
 		return this.databaseManagerBl;
 	}

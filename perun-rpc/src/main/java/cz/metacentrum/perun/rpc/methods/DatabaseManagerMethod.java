@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -21,7 +23,7 @@ public enum DatabaseManagerMethod implements ManagerMethod {
 			return ac.getDatabaseManager().getCurrentDatabaseVersion(ac.getSession());
 		}
 	},
-	
+
 	/*#
 	 * Gets current database driver name and version
 	 *
@@ -36,7 +38,7 @@ public enum DatabaseManagerMethod implements ManagerMethod {
 			return ac.getDatabaseManager().getDatabaseDriverInformation(ac.getSession());
 		}
 	},
-	
+
 	/*#
 	 * Gets current database name and version
 	 *
@@ -49,6 +51,22 @@ public enum DatabaseManagerMethod implements ManagerMethod {
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getDatabaseManager().getDatabaseInformation(ac.getSession());
+		}
+	},
+
+	/**
+	 *	Get time in ns "nanoseconds" of calling 1 simple update query to DB.
+	 *  This query will update property for this purpose in configurations table.
+	 *
+	 * @exampleResponse "196920"
+	 * @return time of processing query in nanoseconds
+	 */
+	getTimeOfQueryPerformance {
+
+		@Override
+		public Long call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getDatabaseManager().getTimeOfQueryPerformance(ac.getSession());
 		}
 	};
 }

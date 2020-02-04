@@ -2,7 +2,7 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.55 (don't forget to update insert statement at the end of file)
+-- database version 3.1.56 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1382,8 +1382,7 @@ create table tags_resources (
 create table configurations (
 	property varchar(32) not null,  --property (for example database version)
 	value varchar(128) not null,     --value of configuration property
-	constraint config_pk primary key (property),
-	constraint config_prop_chk check (property in ('DATABASE VERSION'))
+	constraint config_pk primary key (property)
 );
 
 -- MAILCHANGE - allow to user to change mail address, temporairly saved mails during change is in progress
@@ -1773,7 +1772,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.55');
+insert into configurations values ('DATABASE VERSION','3.1.56');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');

@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.core.impl.DatabaseManagerImpl;
 import cz.metacentrum.perun.core.implApi.DatabaseManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,21 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 	}
 
 	@Override
+	public long getTimeOfQueryPerformance() {
+		return this.databaseManagerImpl.getTimeOfQueryPerformance();
+	}
+
+	@Override
+	public void createProperty(String property) {
+		this.databaseManagerImpl.createProperty(property);
+	}
+
+	@Override
+	public boolean propertyExists(String property) {
+		return this.databaseManagerImpl.propertyExists(property);
+	}
+
+	@Override
 	public JdbcPerunTemplate getJdbcPerunTemplate() {
 		return this.databaseManagerImpl.getJdbcPerunTemplate();
 	}
@@ -65,6 +81,15 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 		//This part of code probably need to be replaced by readOnly setting for every connection in perun
 		//not just the one (this one)
 		boolean readOnly = BeansUtils.isPerunReadOnly();
+
+		//Initialize property for performance testing if not exists
+		if(!this.propertyExists(DatabaseManagerImpl.PERFORMANCE_PROPERTY)) {
+			if(readOnly) {
+				log.error("There is missing property for DB performance testing!");
+			} else {
+				this.createProperty(DatabaseManagerImpl.PERFORMANCE_PROPERTY);
+			}
+		}
 
 		String fileName = POSTGRES_CHANGELOG;
 

@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.DBVersion;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.DatabaseManagerImplApi;
@@ -31,7 +33,8 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	final static Logger log = LoggerFactory.getLogger(DatabaseManagerImpl.class);
 	private static JdbcPerunTemplate jdbc;
 
-	private static final String VERSION_PROPERTY = "DATABASE VERSION";
+	public static final String VERSION_PROPERTY = "DATABASE VERSION";
+	public static final String PERFORMANCE_PROPERTY = "LAST PERFORMANCE TEST TIMESTAMP";
 
 	public DatabaseManagerImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
@@ -176,6 +179,45 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		}
 
 		return versions;
+	}
+
+	@Override
+	public long getTimeOfQueryPerformance() {
+		//Begin of query
+		long startTime = System.nanoTime();
+
+		try {
+			jdbc.update("update configurations set value=" + Compatibility.getSysdate() + " where property=?", PERFORMANCE_PROPERTY);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		//End of query
+		long endTime = System.nanoTime();
+
+		return endTime-startTime;
+	}
+
+	@Override
+	public void createProperty(String property) {
+		try {
+			jdbc.update("insert into configurations (property, value) values (?,?)", property, "N/A");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public boolean propertyExists(String property) {
+		Utils.notNull(property, "property");
+
+		try {
+			return 1 == jdbc.queryForInt("select count(1) from configurations where property=?", property);
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@Override

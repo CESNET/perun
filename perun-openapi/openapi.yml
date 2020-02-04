@@ -3368,6 +3368,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/databaseManager/getTimeOfQueryPerformance:
+    get:
+      tags:
+        - DatabaseManager
+      operationId: getTimeOfQueryPerformance
+      summary: Get time in ns "nanoseconds" of calling 1 simple update query to DB
+      responses:
+        '200':
+          $ref: '#/components/responses/LongResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ExtSourcesManager                             #
@@ -3375,7 +3387,7 @@ paths:
   #################################################
 
   #TODO createExtSource
-  
+
   #TODO deleteExtSource
 
   /json/extSourcesManager/getExtSourceById:
@@ -3405,11 +3417,11 @@ paths:
           $ref: '#/components/responses/ExtSourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-  
+
   #TODO getVoExtSources
-  
+
   #TODO getGroupExtSources
-  
+
   /json/extSourcesManager/getExtSources:
     get:
       tags:
@@ -3423,11 +3435,11 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
   #TODO addExtSource
-  
+
   #TODO removeExtSource
-  
+
   #TODO loadExtSourcesDefinitions
-  
+
   #################################################
   #                                               #
   # UsersManager                                  #
