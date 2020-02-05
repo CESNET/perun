@@ -1789,7 +1789,16 @@ insert into action_types (id, action_type, description) values (action_types_seq
 insert into action_types (id, action_type, description) values (action_types_seq.nextval, 'write_public', 'Anyone can write, rewrite and remove value.');
 
 -- insert default engine on default port
-insert into engines (id, ip_address, port, last_check_in, created_at, created_by, modified_at, modified_by, status, created_by_uid, modified_by_uid) VALUES (1, '127.0.0.1', 6061, sysdate, sysdate, 'perun', sysdate, 'perun', '1', null, null);
+insert into engines (id, ip_address, port, last_check_in) VALUES (1, '127.0.0.1', 6061, sysdate);
+
+-- init default auditer consumers
+insert into perun.auditer_consumers (id, name, last_processed_id) values (auditer_consumers_id_seq.nextval, '127.0.0.1:6071', 0); -- engine
+insert into perun.auditer_consumers (id, name, last_processed_id) values (auditer_consumers_id_seq.nextval, 'notifications', 0);  -- notification
+
+-- initial user, user_ext_source and internal ext_source
+insert into perun.ext_sources (id,name,type) values (ext_sources_id_seq.nextval,'INTERNAL','cz.metacentrum.perun.core.impl.ExtSourceInternal');
+insert into perun.users (id, first_name, last_name) values (users_id_seq.nextval,'Master','Perun');
+insert into perun.user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (user_ext_sources_id_seq.nextval, users_id_seq.currval, 'perun', ext_sources_id_seq.currval, 0);
 
 -- create array structures of numbers and characters
 create or replace type TARRAYOFCHARACTERS is table of nvarchar2(2000);

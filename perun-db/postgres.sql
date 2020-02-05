@@ -1887,5 +1887,14 @@ insert into action_types (id, action_type, description) values (nextval('action_
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_public', 'Anyone can write, rewrite and remove value.');
 
 -- insert default engine on default port
-insert into engines (id, ip_address, port, last_check_in, created_at, created_by, modified_at, modified_by, status, created_by_uid, modified_by_uid) VALUES (1, '127.0.0.1', 6061, statement_timestamp(), statement_timestamp(), 'perun', statement_timestamp(), 'perun', '1', null, null);
+insert into engines (id, ip_address, port, last_check_in) VALUES (1, '127.0.0.1', 6061, statement_timestamp());
+
+-- init default auditer consumers
+insert into perun.auditer_consumers (id, name, last_processed_id) values (nextval('auditer_consumers_id_seq'), '127.0.0.1:6071', 0); -- engine
+insert into perun.auditer_consumers (id, name, last_processed_id) values (nextval('auditer_consumers_id_seq'), 'notifications', 0);  -- notification
+
+-- initial user, user_ext_source and internal ext_source
+insert into perun.ext_sources (id,name,type) values (nextval('ext_sources_id_seq'),'INTERNAL','cz.metacentrum.perun.core.impl.ExtSourceInternal');
+insert into perun.users (id, first_name, last_name) values (nextval('users_id_seq'),'Master','Perun');
+insert into perun.user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (nextval('user_ext_sources_id_seq'), currval('users_id_seq'), 'perun', currval('ext_sources_id_seq'), 0);
 
