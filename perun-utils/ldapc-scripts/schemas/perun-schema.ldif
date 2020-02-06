@@ -50,6 +50,6 @@ olcObjectClasses: {0}( 1.3.6.1.4.1.8057.2.80.4 NAME 'perunUser' DESC 'User manag
 olcObjectClasses: {1}( 1.3.6.1.4.1.8057.2.80.5 NAME 'perunGroup' DESC 'Group managed by Perun' SUP top  STRUCTURAL MUST ( cn $ perunGroupId $ perunVoId $ perunUniqueGroupName ) MAY ( uniqueMember $ businessCategory $ seeAlso $ owner $ ou $ o $ description $ perunParentGroup $ perunParentGroupId $ assignedToResourceId $ adminOfVo $ adminOfGroup $ adminOfFacility) )
 olcObjectClasses: {2}( 1.3.6.1.4.1.8057.2.80.15 NAME 'perunResource' DESC 'Resource managed by Perun' SUP top STRUCTURAL MUST ( cn $  perunResourceId $ perunVoId $ perunFacilityId ) MAY (uniqueMember $ businessCategory $ seeAlso $ owner $ ou $ o $ description $ assignedGroupId $ perunFacilityDn $ capabilities ))
 olcObjectClasses: {3}( 1.3.6.1.4.1.8057.2.80.6 NAME 'perunVO' DESC 'VO managed by Perun' SUP organization STRUCTURAL MUST perunVoId MAY uniqueMember )
-olcObjectClasses: {4}( 1.3.6.1.4.1.8057.2.80.34 NAME 'perunFacility' DESC 'Facility managed by Perun' SUP top STRUCTURAL MUST ( cn $ perunFacilityId ) MAY ( description $ entityID $ OIDCClientID $ checkGroupMembership $ voShortNames $ wayfFilter $ wayfEFilter $ isTestSp $ proxyIdentifiers $ showOnServiceList ) )
+olcObjectClasses: {4}( 1.3.6.1.4.1.8057.2.80.34 NAME 'perunFacility' DESC 'Facility managed by Perun' SUP top STRUCTURAL MUST ( cn $ perunFacilityId ) MAY ( description $ entityID $ OIDCClientID $ checkGroupMembership $ voShortNames $ wayfFilter $ wayfEFilter $ isTestSp $ proxyIdentifiers $ showOnServiceList $ capabilities ) )
 -
 
