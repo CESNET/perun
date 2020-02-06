@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MinSizeExceededException;
 import cz.metacentrum.perun.core.api.exceptions.NumberNotInRangeException;
 import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
@@ -502,11 +503,23 @@ public class Utils {
 	 * Imposes limit on leghts of fields.
 	 * @see #parseCommonName(String)
 	 * @param rawName raw name
+	 * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception otherwise
 	 * @return user
 	 */
-	public static User parseUserFromCommonName(String rawName) {
-		Map<String, String> m = parseCommonName(rawName);
+	public static User parseUserFromCommonName(String rawName, boolean fullNameRequired) throws ParseUserNameException {
+		Map<String, String> m = parseCommonName(rawName, fullNameRequired);
 		return createUserFromNameMap(m);
+	}
+
+	/**
+	 * @see Utils.parseCommonName(String rawName, boolean fullNameRequired) - where fullNameRequired is false
+	 */
+	public static Map<String, String> parseCommonName(String rawName) {
+		try {
+			return Utils.parseCommonName(rawName, false);
+		} catch (ParseUserNameException ex) {
+			throw new InternalErrorException("Unexpected behavior while parsing user name without full name requirement.");
+		}
 	}
 
 	/**
@@ -535,9 +548,11 @@ public class Utils {
 	 * 9] put these variables to map like key=value, for ex.: Map[titleBefore="Mgr. et Mgr.",firstName="Petr", ... ] and return this map
 	 *
 	 * @param rawName name to parse
+	 * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception otherwise
 	 * @return map string to string where are 4 keys (titleBefore,titleAfter,firstName and lastName) with their values (value can be null)
+	 * @throws ParseUserNameException when method was unable to parse both first name and last name from the rawName
 	 */
-	public static Map<String, String> parseCommonName(String rawName) {
+	public static Map<String, String> parseCommonName(String rawName, boolean fullNameRequired) throws ParseUserNameException {
 		// prepare variables and result map
 		Map<String, String> parsedName = new HashMap<>();
 		String titleBefore = "";
@@ -588,6 +603,13 @@ public class Utils {
 		parsedName.put(LAST_NAME, lastName);
 		if (titleAfter.isEmpty()) titleAfter = null;
 		parsedName.put(TITLE_AFTER, titleAfter);
+
+		if(fullNameRequired) {
+			if (parsedName.get(FIRST_NAME) == null)
+				throw new ParseUserNameException("Unable to parse first name from text.", rawName);
+			if (parsedName.get(LAST_NAME) == null)
+				throw new ParseUserNameException("Unable to parse last name from text.", rawName);
+		}
 
 		return parsedName;
 	}
