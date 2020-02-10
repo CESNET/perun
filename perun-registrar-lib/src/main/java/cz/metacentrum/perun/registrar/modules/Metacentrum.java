@@ -15,8 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -31,7 +29,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -39,21 +36,9 @@ import java.util.Objects;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class Metacentrum implements RegistrarModule {
+public class Metacentrum extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
-
-	private RegistrarManager registrar;
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
 
 	/**
 	 * Add all new Metacentrum members to "storage" group.
@@ -74,7 +59,7 @@ public class Metacentrum implements RegistrarModule {
 			try  {
 				perun.getGroupsManager().addMember(session, group, mem);
 			} catch (AlreadyMemberException ex) {
-
+				// IGNORE
 			}
 		}
 
@@ -119,16 +104,6 @@ public class Metacentrum implements RegistrarModule {
 	}
 
 	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
 	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 
 		// allow only Education & Research community members
@@ -165,11 +140,6 @@ public class Metacentrum implements RegistrarModule {
 		}
 
 		throw new CantBeApprovedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null, true);
-
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 
 	}
 

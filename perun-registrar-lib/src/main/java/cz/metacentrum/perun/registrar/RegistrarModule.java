@@ -24,7 +24,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 
 /**
  * Interface for all registrar modules. They extend core registrar functionality and are
@@ -98,5 +100,17 @@ public interface RegistrarModule {
 	 * @param params custom params
 	 */
 	void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException;
+
+	/**
+	 * Custom logic for processing pre-filled form item data before they are returned from Perun to GUI
+	 * in order to display form. It can be used to modify pre-filled data retrieved from perun or federation attributes.
+	 *
+	 * @param session who approves the application
+	 * @param appType initial/extension application type
+	 * @param form form this form items belongs to
+	 * @param formItems form items with pre-filled data if any
+	 */
+	void processFormItemsWithData(PerunSession session, Application.AppType appType, ApplicationForm form,
+	                              List<ApplicationFormItemWithPrefilledValue> formItems) throws PerunException;
 
 }

@@ -4,8 +4,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
@@ -29,31 +27,9 @@ import java.util.Objects;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class Du implements RegistrarModule {
+public class Du extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(Du.class);
-
-	private RegistrarManager registrar;
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
-
-	@Override
-	public Application approveApplication(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
 
 	@Override
 	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, RegistrarException, PrivilegeException, InternalErrorException {

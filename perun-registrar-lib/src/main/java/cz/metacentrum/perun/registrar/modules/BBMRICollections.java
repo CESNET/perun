@@ -17,8 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -40,25 +38,13 @@ import java.util.*;
  * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
  */
-public class BBMRICollections implements RegistrarModule {
+public class BBMRICollections extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
 
 	private static final String COLLECTION_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
 	private static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
 	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
-
-	private RegistrarManager registrar;
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) {
-		return data;
-	}
 
 	/**
 	 * Find groups representing collections by input. Groups are looked for in subgroups
@@ -106,17 +92,6 @@ public class BBMRICollections implements RegistrarModule {
 		return app;
 	}
 
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) {
-		return app;
-	}
-
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
 	/**
 	 * Checks whether all collection IDs found in user input really exists in Perun.
 	 * If not, CantBeApproved exception is thrown.
@@ -146,11 +121,6 @@ public class BBMRICollections implements RegistrarModule {
 			throw new CantBeApprovedException("Collections " + collectionIDsInApplication + " do not exist." +
 					"If you approve the application, these collections will be skipped.", "", "", "", true);
 		}
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) {
-
 	}
 
 	/**

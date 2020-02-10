@@ -9,19 +9,12 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Module for VOs managing LifeScience Hostel
@@ -29,22 +22,13 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
-public class LifescienceHostel implements RegistrarModule {
+public class LifescienceHostel extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
 
 	private final static String LIFESCIENCE_HOSTEL_NS = "login-namespace:lifescience-hostel";
 	private final static String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";
 	private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://login.bbmri-eric.eu/lshostel/";
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
 
 	/**
 	 * Create proper UserExtSource
@@ -84,24 +68,6 @@ public class LifescienceHostel implements RegistrarModule {
 
 		return app;
 
-	}
-
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 	}
 
 }
