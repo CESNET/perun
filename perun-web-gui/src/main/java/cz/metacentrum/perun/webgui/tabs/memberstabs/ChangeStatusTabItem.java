@@ -11,14 +11,24 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
+import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.Member;
+import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -69,7 +79,7 @@ public class ChangeStatusTabItem implements TabItem {
 		this.titleWidget.setText("Change member status");
 
 		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("300px", "100%");
+		vp.setSize("350px", "100%");
 
 		FlexTable layout = new FlexTable();
 		layout.setSize("100%","100%");
@@ -138,8 +148,36 @@ public class ChangeStatusTabItem implements TabItem {
 				SetStatus request = new SetStatus(memberId, JsonCallbackEvents.disableButtonEvents(changeButton, JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
-						// close without refresh
-						session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+
+						if (lb.getSelectedIndex() == 0 || lb.getSelectedIndex() == 3) {
+
+							// if we change valid/expired, then we allow setting expiration date
+							new GetEntityById(PerunEntity.RICH_MEMBER, memberId, new JsonCallbackEvents(){
+								public void onFinished(JavaScriptObject jso){
+									RichMember member = jso.cast();
+									Map<String, Integer> localIds = new HashMap<String, Integer>();
+									localIds.put("member", member.getId());
+									GetListOfAttributes attributes = new GetListOfAttributes(new JsonCallbackEvents() {
+										@Override
+										public void onFinished(JavaScriptObject jso) {
+											ArrayList<Attribute> attributeList = JsonUtils.<Attribute>jsoAsList(jso);
+											for (Attribute a : attributeList) {
+												if (a.getName().equals("urn:perun:member:attribute-def:def:membershipExpiration")) {
+													member.setAttribute(a);
+													session.getTabManager().addTabToCurrentTab(new MembershipExpirationTabItem(member, events));
+													return;
+												}
+											}
+										}
+									});
+									attributes.getListOfAttributes(localIds, "urn:perun:member:attribute-def:def:membershipExpiration");
+								}
+							}).retrieveData();
+
+						} else {
+							// close without refresh
+							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
+						}
 					}
 				})), messageArea.getText());
 				request.setStatus(lb.getValue(lb.getSelectedIndex()));
@@ -195,6 +233,12 @@ public class ChangeStatusTabItem implements TabItem {
 					text.setHTML(text.getHTML()+"DISABLED status means, that member didn't extend his membership long ago or was manually disabled by administrator. Member can't enable/extend membership by himself.");
 					messageArea.setVisible(false);
 					description.setVisible(false);
+				}
+
+				if ((lb.getSelectedIndex() == 0 || lb.getSelectedIndex() == 3) && !lb.getValue(lb.getSelectedIndex()).equalsIgnoreCase(member.getStatus())) {
+					changeButton.setText("Change status and set expiration");
+				} else {
+					changeButton.setText("Change status");
 				}
 
 			}

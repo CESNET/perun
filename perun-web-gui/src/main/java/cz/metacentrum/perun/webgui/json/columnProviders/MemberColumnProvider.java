@@ -258,6 +258,11 @@ public class MemberColumnProvider {
 				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(object.cast(), new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
+
+						// fixme - since we pass this event to more tabs and update expiration (set attributes)
+						//  passed object might not be relevant for this action
+						if (jso == null) return;
+
 						Member m = jso.cast();
 						// set status to object in cell to change rendered value
 						object.setStatus(m.getStatus());

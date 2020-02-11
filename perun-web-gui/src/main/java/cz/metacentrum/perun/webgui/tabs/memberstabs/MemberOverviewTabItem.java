@@ -41,6 +41,7 @@ public class MemberOverviewTabItem implements TabItem {
 	private SimplePanel contentWidget = new SimplePanel();
 	private Label titleWidget = new Label("Loading member details");
 	private int groupId = 0;
+	private TabItem tabItem = this;
 
 	/**
 	 * Constructor
@@ -140,13 +141,17 @@ public class MemberOverviewTabItem implements TabItem {
 				@Override
 				public void onFinished(JavaScriptObject jso) {
 					// UPDATE OBJECT
-					Member m = jso.cast();
-					member.setStatus(m.getStatus());
+					if (jso != null) {
+						// fixme - since we pass this event to more tabs and update expiration (set attributes)
+						//  passed object might not be relevant for this action
+						Member m = jso.cast();
+						member.setStatus(m.getStatus());
+					}
 				}
 			};
-			statusWidget = new PerunStatusWidget<RichMember>(member, member.getUser().getFullName(), event);
+			statusWidget = new PerunStatusWidget<RichMember>(member, member.getUser().getFullName(), event, tabItem);
 		} else {
-			statusWidget = new PerunStatusWidget<RichMember>(member, member.getUser().getFullName(), null);
+			statusWidget = new PerunStatusWidget<RichMember>(member, member.getUser().getFullName(), null, tabItem);
 		}
 		memberLayout.setWidget(0, 1, statusWidget);
 		memberLayout.getFlexCellFormatter().setRowSpan(0, 0, 2);
@@ -303,7 +308,7 @@ public class MemberOverviewTabItem implements TabItem {
 						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:membershipExpiration")) {
 							// set attribute inside member
 							member.setAttribute(a);
-							memberLayout.setWidget(2, 1, new MembershipExpirationWidget(member));
+							memberLayout.setWidget(2, 1, new MembershipExpirationWidget(member, tabItem));
 						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:sponzoredMember")) {
 							if (!"null".equals(value)) {
 								memberLayout.setHTML(4, 1, value + " (ID of RT ticket with explanation)");
