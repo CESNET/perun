@@ -16,6 +16,7 @@ import cz.metacentrum.perun.rpc.methods.MembersManagerMethod;
 import cz.metacentrum.perun.rpc.methods.NotificationManagerMethod;
 import cz.metacentrum.perun.rpc.methods.OwnersManagerMethod;
 import cz.metacentrum.perun.rpc.methods.PropagationStatsReaderMethod;
+import cz.metacentrum.perun.rpc.methods.TasksManagerMethod;
 import cz.metacentrum.perun.rpc.methods.RTMessagesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.RegistrarManagerMethod;
 import cz.metacentrum.perun.rpc.methods.ResourcesManagerMethod;
@@ -119,6 +120,12 @@ public enum PerunManager {
 		@Override
 		public ManagerMethod getMethod(String methodName) {
 			return GeneralServiceManagerMethod.valueOf(methodName);
+		}
+	},
+	tasksManager {
+		@Override
+		public ManagerMethod getMethod(String methodName) {
+			return TasksManagerMethod.valueOf(methodName);
 		}
 	},
 	propagationStatsReader {

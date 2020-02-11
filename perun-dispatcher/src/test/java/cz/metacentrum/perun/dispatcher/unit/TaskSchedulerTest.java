@@ -4,6 +4,7 @@ import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled;
@@ -12,7 +13,6 @@ import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskSchedule;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 	@Autowired
 	DelayQueue<TaskSchedule>waitingForcedTasksQueue;
 	@Autowired
-	TaskManager taskManager;
+	TasksManagerBl tasksManagerBl;
 
 	@IfProfileValue(name = "perun.test.groups", values = ("xxx"))
 	@Test
@@ -84,10 +84,10 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 	public void setupTests() {
 		simpleSpy.setWaitingTasksQueue(waitingTasksQueue);
 		simpleSpy.setWaitingForcedTasksQueue(waitingForcedTasksQueue);
-		simpleSpy.setTaskManager(taskManager);
+		simpleSpy.setTasksManagerBl(tasksManagerBl);
 		recurrenceSpy.setWaitingTasksQueue(waitingTasksQueue);
 		recurrenceSpy.setWaitingForcedTasksQueue(waitingForcedTasksQueue);
-		recurrenceSpy.setTaskManager(taskManager);
+		recurrenceSpy.setTasksManagerBl(tasksManagerBl);
 	}
 
 	@Test

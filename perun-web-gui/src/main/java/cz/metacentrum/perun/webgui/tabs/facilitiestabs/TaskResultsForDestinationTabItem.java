@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetRichTaskResultsByTaskAndDestination;
+import cz.metacentrum.perun.webgui.json.tasksManager.GetRichTaskResultsByTaskAndDestination;
 import cz.metacentrum.perun.webgui.model.Destination;
 import cz.metacentrum.perun.webgui.model.Task;
 import cz.metacentrum.perun.webgui.model.TaskResult;

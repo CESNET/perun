@@ -43,7 +43,7 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 	static private final String URL_RICH_USER = "usersManager/getRichUser";
 	static private final String URL_RICH_USER_WITH_ATTRS = "usersManager/getRichUserWithAttributes";
 
-	static private final String URL_TASK = "propagationStatsReader/getTaskById";
+	static private final String URL_TASK = "tasksManager/getTaskById";
 	static private final String URL_APP_MAIL = "registrarManager/getApplicationMailById";
 	static private final String URL_APP = "registrarManager/getApplicationById";
 

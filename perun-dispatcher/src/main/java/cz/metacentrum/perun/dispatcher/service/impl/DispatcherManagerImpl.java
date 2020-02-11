@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.dispatcher.service.impl;
 
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
@@ -12,7 +13,6 @@ import cz.metacentrum.perun.dispatcher.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
-import cz.metacentrum.perun.taskslib.service.ResultManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	private SmartMatcher smartMatcher;
 	private SchedulingPool schedulingPool;
 	private EngineMessageProducerPool engineMessageProducerPool;
-	private ResultManager resultManager;
+	private TasksManagerBl tasksManagerBl;
 	private TaskScheduler taskScheduler;
 	private TaskExecutor taskExecutor;
 	private AuditerListener auditerListener;
@@ -110,13 +110,13 @@ public class DispatcherManagerImpl implements DispatcherManager {
 		this.engineMessageProducerPool = engineMessageProducerPool;
 	}
 
-	public ResultManager getResultManager() {
-		return resultManager;
+	public TasksManagerBl getTasksManagerBl() {
+		return tasksManagerBl;
 	}
 
 	@Autowired
-	public void setResultManager(ResultManager resultManager) {
-		this.resultManager = resultManager;
+	public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
+		this.tasksManagerBl = tasksManagerBl;
 	}
 
 	public TaskScheduler getTaskScheduler() {
@@ -268,7 +268,7 @@ public class DispatcherManagerImpl implements DispatcherManager {
 		if (cleanTaskResultsJobEnabled) {
 			for (EngineMessageProducer queue : engineMessageProducerPool.getPool()) {
 				try {
-					int numRows = resultManager.clearOld(queue.getClientID(), 3);
+					int numRows = tasksManagerBl.clearOld(queue.getClientID(), 3);
 					log.debug("Cleaned {} old task results for engine {}", numRows, queue.getClientID());
 				} catch (Throwable e) {
 					log.error("Error cleaning old task results for engine {} : {}", queue.getClientID(), e);

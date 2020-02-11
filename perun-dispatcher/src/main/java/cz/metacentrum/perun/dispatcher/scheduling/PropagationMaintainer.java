@@ -5,11 +5,11 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
-import cz.metacentrum.perun.taskslib.service.ResultManager;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +44,6 @@ public class PropagationMaintainer extends AbstractRunner {
 
 	private Perun perun;
 	private SchedulingPool schedulingPool;
-	private ResultManager resultManager;
-	private TaskManager taskManager;
 	private Properties dispatcherProperties;
 
 	// ----- setters -------------------------------------
@@ -68,15 +66,6 @@ public class PropagationMaintainer extends AbstractRunner {
 		this.perun = perun;
 	}
 
-	public ResultManager getResultManager() {
-		return resultManager;
-	}
-
-	@Autowired
-	public void setResultManager(ResultManager resultManager) {
-		this.resultManager = resultManager;
-	}
-
 	public Properties getDispatcherProperties() {
 		return dispatcherProperties;
 	}
@@ -92,16 +81,6 @@ public class PropagationMaintainer extends AbstractRunner {
 			}
 		}
 	}
-
-	public TaskManager getTaskManager() {
-		return taskManager;
-	}
-
-	@Autowired
-	public void setTaskManager(TaskManager taskManager) {
-		this.taskManager = taskManager;
-	}
-
 
 	// ----- methods -------------------------------------
 
@@ -271,7 +250,7 @@ public class PropagationMaintainer extends AbstractRunner {
 						new Object[]{task.getId(), task.getStatus(), task});
 				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
-				taskManager.updateTask(task);
+				((PerunBl) perun).getTasksManagerBl().updateTask(task);
 				continue;
 			}
 
@@ -285,7 +264,7 @@ public class PropagationMaintainer extends AbstractRunner {
 						new Object[]{task.getId(), task.getStatus(), rescheduleTime, task});
 				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
-				taskManager.updateTask(task);
+				((PerunBl) perun).getTasksManagerBl().updateTask(task);
 			}
 
 		}

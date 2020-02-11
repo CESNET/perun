@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.propagationStatsReader;
+package cz.metacentrum.perun.webgui.json.tasksManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -16,7 +16,7 @@ public class GetAllResourcesState implements JsonCallback {
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	static private final String JSON_URL = "propagationStatsReader/getAllResourcesState";
+	static private final String JSON_URL = "tasksManager/getAllResourcesState";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	private int voId = 0;

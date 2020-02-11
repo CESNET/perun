@@ -2,9 +2,9 @@ package cz.metacentrum.perun.engine;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.implApi.TasksManagerImplApi;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
-import cz.metacentrum.perun.taskslib.dao.TaskDao;
 import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
 import org.junit.Before;
@@ -37,8 +37,8 @@ public abstract class AbstractEngineTest {
 	 * Connected to the perun-core DB - needed since we must have Task present (as if actions were initiated by
 	 * the perun-dispatcher component)
 	 */
-	@Autowired TaskDao taskDaoCore;
-	@Autowired TaskDao taskDao;
+	@Autowired
+	TasksManagerImplApi tasksManagerImpl;
 
 	PerunSession sess;
 
@@ -116,7 +116,7 @@ public abstract class AbstractEngineTest {
 		task1.setService(service);
 		task1.setSchedule(LocalDateTime.now());
 		task1.setStatus(Task.TaskStatus.PLANNED);
-		task1.setId(taskDaoCore.scheduleNewTask(task1, engineId));
+		task1.setId(tasksManagerImpl.scheduleNewTask(task1, engineId));
 
 		task2 = new Task();
 		task2.setDestinations(destinations);
@@ -124,7 +124,7 @@ public abstract class AbstractEngineTest {
 		task2.setService(service2);
 		task2.setSchedule(LocalDateTime.now());
 		task2.setStatus(Task.TaskStatus.PLANNED);
-		task2.setId(taskDaoCore.scheduleNewTask(task2, engineId));
+		task2.setId(tasksManagerImpl.scheduleNewTask(task2, engineId));
 
 		sendTask1 = new SendTask(task1, destination1);
 		sendTask1.setStartTime(new Date(System.currentTimeMillis()));

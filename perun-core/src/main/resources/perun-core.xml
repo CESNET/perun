@@ -186,6 +186,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
 		<property name="searcherBl" ref="searcherBl"/>
 		<property name="modulesUtilsBl" ref="modulesUtilsBl"/>
+		<property name="tasksManagerBl" ref="tasksManagerBl"/>
+		<property name="tasksManager" ref="tasksManager"/>
 		<property name="databaseManagerBl" ref="databaseManagerBl"/>
 		<property name="vosManager" ref="vosManager"/>
 		<property name="usersManager" ref="usersManager"/>
@@ -214,6 +216,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<bean id="usersManager" class="cz.metacentrum.perun.core.entry.UsersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
 		<property name="usersManagerBl" ref="usersManagerBl"/>
+	</bean>
+	<bean id="tasksManager" class="cz.metacentrum.perun.core.entry.TasksManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+		<property name="perunBl" ref="perun"/>
+		<property name="tasksManagerBl" ref="tasksManagerBl"/>
 	</bean>
 	<bean id="groupsManager" class="cz.metacentrum.perun.core.entry.GroupsManagerEntry" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
@@ -278,6 +284,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="groupsManagerImpl" />
 	</bean>
+	<bean id="tasksManagerBl" class="cz.metacentrum.perun.core.blImpl.TasksManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+		<property name="servicesManagerBl" ref="servicesManagerBl"/>
+		<property name="perunBl" ref="perun"/>
+		<constructor-arg ref="tasksManagerImpl" />
+	</bean>
 	<bean id="facilitiesManagerBl" class="cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="facilitiesManagerImpl" />
@@ -338,6 +349,9 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="usersManagerImpl" class="cz.metacentrum.perun.core.impl.UsersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="tasksManagerImpl" class="cz.metacentrum.perun.core.impl.TasksManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="groupsManagerImpl" class="cz.metacentrum.perun.core.impl.GroupsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
@@ -458,13 +472,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	</bean>
 
 	<!-- DAOs -->
-	<bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-
-	<bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
 
 	<beans profile="trace">
 		<import resource="classpath:perun-core-trace-log.xml"/>

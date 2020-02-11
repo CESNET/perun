@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.propagationStatsReader;
+package cz.metacentrum.perun.webgui.json.tasksManager;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -34,7 +34,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	static private final String JSON_URL = "propagationStatsReader/getFacilityState";
+	static private final String JSON_URL = "tasksManager/getFacilityState";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// data providers
@@ -341,11 +341,11 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 			jsp.sendData(JSON_URL);
 		} else if (voId == 0) {
 			// get all facilities where user is admin
-			jsp.sendNativeData("propagationStatsReader/getAllFacilitiesStates", "{}");
+			jsp.sendNativeData("tasksManager/getAllFacilitiesStates", "{}");
 		} else {
 			// get facilities related to VO
 			jsp.put("vo", new JSONNumber(voId));
-			jsp.sendData("propagationStatsReader/getAllFacilitiesStates");
+			jsp.sendData("tasksManager/getAllFacilitiesStates");
 		}
 	}
 

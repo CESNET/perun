@@ -132,4 +132,11 @@ public interface Perun {
 	 * @return Searcher
 	 */
 	Searcher getSearcher();
+
+	/**
+	 * Gets a TasksManager
+	 * @return TasksManager
+	 */
+	TasksManager getTasksManager();
+
 }
