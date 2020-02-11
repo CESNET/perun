@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminAddedForGroup;
-import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupAddedForGroup;
-import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupRemovedFromGroup;
-import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminRemovedForGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberRemovedFromGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupCreatedAsSubgroup;
@@ -4588,7 +4584,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new InternalErrorException("Wrong format of period in Group membershipExpirationRules attribute. Period: " + period);
 		}
 
-		localDate = Utils.extendDateByStaticDate(localDate, m);
+		localDate = Utils.getClosestExpirationFromStaticDate(m);
 
 		// ***** GRACE PERIOD *****
 		// Is there a grace period?

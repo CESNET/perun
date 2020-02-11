@@ -203,8 +203,8 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
 		Matcher m = p.matcher(period);
 		m.matches();
-		LocalDate localDate = Utils.extendDateByStaticDate(LocalDate.of(2019, 2, 9), m);
-		assertEquals(LocalDate.of(2020, 1, 1), localDate);
+		LocalDate localDate = Utils.getClosestExpirationFromStaticDate(m);
+		assertEquals(LocalDate.of(LocalDate.now().getYear()+1, 1, 1), localDate);
 	}
 
 	@Test

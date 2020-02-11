@@ -1518,33 +1518,32 @@ public class Utils {
 	}
 
 	/**
-	 * Extends given date by values from given matcher.
-	 * @param localDate date to be extended
+	 * Returns closest future LocalDate based on values given by matcher.
+	 *
 	 * @param matcher matcher with day and month values
 	 * @return Extended date.
 	 */
-	public static LocalDate extendDateByStaticDate(LocalDate localDate, Matcher matcher) {
+	public static LocalDate getClosestExpirationFromStaticDate(Matcher matcher) {
 
 		int day = Integer.valueOf(matcher.group(1));
 		int month = Integer.valueOf(matcher.group(2));
 
 		// Get current year
-		int year = localDate.getYear();
+		int year = LocalDate.now().getYear();
 
 		// We must detect if the extension date is in current year or in a next year
-		boolean extensionInNextYear;
 		LocalDate extensionDate = LocalDate.of(year, month, day);
 
 		// check if extension is next year
-		extensionInNextYear = extensionDate.isBefore(LocalDate.now());
+		// in case of static date being today's date, we want to extend to next year (that's why we use the negation later)
+		boolean extensionThisYear = LocalDate.now().isBefore(extensionDate);
 
 		// Set the date to which the membership should be extended, can be changed if there was grace period, see next part of the code
-		localDate = LocalDate.of(year, month, day);
-		if (extensionInNextYear) {
-			localDate = localDate.plusYears(1);
+		if (!extensionThisYear) {
+			extensionDate = extensionDate.plusYears(1);
 		}
 
-		return localDate;
+		return extensionDate;
 	}
 
 	/**

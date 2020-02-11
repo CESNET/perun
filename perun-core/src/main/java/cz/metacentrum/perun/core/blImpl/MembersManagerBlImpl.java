@@ -1728,7 +1728,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		  if (!m.matches()) {
 			  throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
 		  }
-		  localDate = Utils.extendDateByStaticDate(localDate, m);
+		  localDate = Utils.getClosestExpirationFromStaticDate(m);
 
           // ***** GRACE PERIOD *****
           // Is there a grace period?
@@ -2150,7 +2150,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				if (!m.matches()) {
 					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
 				}
-				localDate = Utils.extendDateByStaticDate(localDate, m);
+				localDate = Utils.getClosestExpirationFromStaticDate(m);
 
 				// ***** GRACE PERIOD *****
 				// Is there a grace period?
