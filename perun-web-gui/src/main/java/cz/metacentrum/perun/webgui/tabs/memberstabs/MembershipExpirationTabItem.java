@@ -83,10 +83,11 @@ public class MembershipExpirationTabItem implements TabItem {
 		layout.setSize("100%","100%");
 		layout.setStyleName("inputFormFlexTable");
 
-		layout.setHTML(0, 0, "Current expiration:");
+		layout.setHTML(0, 0, "Current&nbsp;expiration:");
 		layout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
 
 		layout.setHTML(0, 1, SafeHtmlUtils.fromString(member.getStatus()).asString());
+		layout.getFlexCellFormatter().getElement(0, 1).setAttribute("style", "width: 100%; font-size: 130%;");
 
 		final Attribute expire = member.getAttribute("urn:perun:member:attribute-def:def:membershipExpiration");
 		String expirationValue = null;
@@ -97,7 +98,7 @@ public class MembershipExpirationTabItem implements TabItem {
 			layout.setHTML(0, 1, "<i>never</i>");
 		}
 
-		layout.setHTML(1, 0, "New expiration:");
+		layout.setHTML(1, 0, "New&nbsp;expiration:");
 		layout.getFlexCellFormatter().setStyleName(1, 0, "itemName");
 
 		final CustomButton changeButton = new CustomButton("Save", "Save changes in membership expiration date", SmallIcons.INSTANCE.diskIcon());
@@ -111,6 +112,7 @@ public class MembershipExpirationTabItem implements TabItem {
 			@Override
 			public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
 				layout.setHTML(1, 1, DateTimeFormat.getFormat("yyyy-MM-dd").format(picker.getValue()));
+				layout.getFlexCellFormatter().getElement(1, 1).setAttribute("style", "width: 100%; font-size: 130%;");
 				changeButton.setEnabled(true);
 				changeOrNever = true;
 			}
@@ -131,6 +133,7 @@ public class MembershipExpirationTabItem implements TabItem {
 			@Override
 			public void onClick(ClickEvent event) {
 				layout.setHTML(1, 1, "<i>never</i>");
+				layout.getFlexCellFormatter().getElement(1, 1).setAttribute("style", "width: 100%; font-size: 130%;");
 				changeOrNever = false;
 				changeButton.setEnabled(true);
 			}
@@ -152,14 +155,14 @@ public class MembershipExpirationTabItem implements TabItem {
 					expire.setValueAsString(DateTimeFormat.getFormat("yyyy-MM-dd").format(picker.getValue()));
 					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("member", member.getId());
-					SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
+					SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, events));
 					ArrayList<Attribute> list = new ArrayList<Attribute>();
 					list.add(expire);
 					request.setAttributes(ids, list);
 				} else {
 					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("member", member.getId());
-					RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
+					RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, events));
 					ArrayList<Attribute> list = new ArrayList<Attribute>();
 					list.add(expire);
 					request.removeAttributes(ids, list);

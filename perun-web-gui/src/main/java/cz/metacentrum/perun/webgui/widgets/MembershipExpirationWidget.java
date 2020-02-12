@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.widgets;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
@@ -9,6 +10,7 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.RichMember;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MembershipExpirationTabItem;
 
 /**
@@ -21,6 +23,18 @@ public class MembershipExpirationWidget extends Composite {
 	// the widget itself
 	private FlexTable statusWidget = new FlexTable();
 	private RichMember member;
+	private TabItem containingTabItem = null;
+
+	/**
+	 * Creates the new status widget
+	 * @param m member to show expiration for
+	 */
+	public MembershipExpirationWidget(RichMember m, TabItem tabItem) {
+		this.member = m;
+		this.containingTabItem = tabItem;
+		this.initWidget(statusWidget);
+		this.build();
+	}
 
 	/**
 	 * Creates the new status widget
@@ -55,7 +69,15 @@ public class MembershipExpirationWidget extends Composite {
 				change.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new MembershipExpirationTabItem(member, null));
+						PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new MembershipExpirationTabItem(member, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								if (containingTabItem != null) {
+									// forcefully refresh tab !!
+									containingTabItem.draw();
+								}
+							}
+						}));
 					}
 				});
 				statusWidget.setWidget(0, 1, change);

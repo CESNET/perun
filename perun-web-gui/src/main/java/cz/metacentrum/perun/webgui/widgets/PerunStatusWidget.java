@@ -7,12 +7,10 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.JsonStatusSetCallback;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Member;
-import cz.metacentrum.perun.webgui.model.RichMember;
+import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeStatusTabItem;
 
 /**
@@ -42,6 +40,8 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 	// item's name
 	private String objectName = "item";
 
+	private TabItem containingTabItem = null;
+
 	/**
 	 * Creates the new status widget
 	 * @param object Object to show status for
@@ -65,6 +65,22 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 		this.initWidget(statusWidget);
 		this.objectName = name;
 		this.events = events;
+		this.build();
+	}
+
+	/**
+	 * Creates the new status widget
+	 * @param object Object to show status for
+	 * @param name The object's name.
+	 * @param events Events triggered on status change
+	 */
+	public PerunStatusWidget(T object, String name, JsonCallbackEvents events, TabItem tabItem) {
+		this.object = object.cast();
+		this.checkStatus();
+		this.initWidget(statusWidget);
+		this.objectName = name;
+		this.events = events;
+		this.containingTabItem = tabItem;
 		this.build();
 	}
 
@@ -157,9 +173,17 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 				JsonCallbackEvents newEvent = JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents() {
 					@Override
 					public void onFinished(JavaScriptObject jso) {
-						Member m = jso.cast();
-						object.setStatus(m.getStatus());
+						if (jso != null) {
+							// fixme - since we pass this event to more tabs and update expiration (set attributes)
+							//  passed object might not be relevant for this action
+							Member m = jso.cast();
+							object.setStatus(m.getStatus());
+						}
 						build();
+						// forcefully draw content
+						if (containingTabItem != null) {
+							containingTabItem.draw();
+						}
 					}
 				});
 				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(object.cast(), newEvent));
