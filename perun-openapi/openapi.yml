@@ -430,6 +430,25 @@ components:
               items:
                 type: integer
 
+    Ban:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            validityTo: { type: string }
+            description: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    BanOnResource:
+      allOf:
+        - $ref: '#/components/schemas/Ban'
+        - properties:
+            memberId: { type: integer }
+            resourceId: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -516,6 +535,15 @@ components:
           schema:
             $ref: "#/components/schemas/RichUser"
 
+    ListOfRichUsersResponse:
+      description: 'returns List<RichUser>'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichUser"
+
     MemberResponse:
       description: returns Member
       content:
@@ -531,6 +559,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Member"
+
+    ListOfRichMembersResponse:
+      description: "returns List<RichMember>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichMember"
 
     RichMemberResponse:
       description: returns RichMember
@@ -818,6 +855,22 @@ components:
               format:
                 type: string
                 enum: [DOT, TGF]
+
+    BanOnResourceResponse:
+      description: "returns banOnResource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BanOnResource"
+
+    ListOfBanOnResourceResponse:
+      description: "return List<BanOnResource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/BanOnResource"
 
   #####################################################
   #                                                   #
@@ -5385,7 +5438,7 @@ paths:
   #################################################
   #                                               #
   # ResourceManager                               #
-  #  (complete with TODOs)                        #
+  #                                               #
   #################################################
 
   /json/resourcesManager/getResourceById:
@@ -5449,7 +5502,36 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyResource
+  /json/resourcesManager/copyResource:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: copyResource
+      summary: |
+                Copy "template" settings from user's another existing resource and create new resource with this template.
+                The settings are attributes, services, tags (if exists), groups and their members (if the resources are from the same VO and withGroups is true)
+                Template Resource can be from any of user's facilities.
+      responses:
+        '200':
+          $ref: '#/components/responses/ResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCopyResource
+              description: "input to copyResource"
+              type: object
+              required:
+                - templateResource
+                - destinationResource
+                - withGroups
+              properties:
+                templateResource: { $ref: '#/components/schemas/Resource' }
+                destinationResource: { $ref: '#/components/schemas/Resource' }
+                withGroups: { type: boolean, description: 'if copy the resource with group' }
 
   /json/resourcesManager/updateResource:
     post:
@@ -5489,13 +5571,61 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacility
+  /urlinjsonout/resourcesManager/getFacility:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getFacility
+      summary: Get facility which belongs to a specific resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getVo
+  /urlinjsonout/resourcesManager/getVo:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getVo
+      summary: Returns Vo which is tied to a specific resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAllowedMembers
+  /urlinjsonout/resourcesManager/getAllowedMembers:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAllowedMembers
+      summary: Returns all members assigned to the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAllowedUsers
+  /urlinjsonout/resourcesManager/getAllowedUsers:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAllowedUsers
+      summary: Returns all users assigned to the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/resourcesManager/assignGroupToResource:
     post:
@@ -5602,23 +5732,223 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedResources
+  /urlinjsonout/resourcesManager/getAssignedResources/g:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedResourcesWithGroup
+      summary: List all resources associated with a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedRichResources
+  /urlinjsonout/resourcesManager/getAssignedResources/m:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedResourcesWithMember
+      summary: List all resources associated with a member's group.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedMembers
+  /urlinjsonout/resourcesManager/getAssignedRichResources/s-m:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedRichResourcesWithMemberService
+      summary: Get all rich resources where the service and the member are assigned with facility property filled.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedRichMembers
+  /urlinjsonout/resourcesManager/getAssignedRichResources/m:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedRichResourcesWithMember
+      summary: List all rich resources associated with a member's group.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addAdmin
+  /urlinjsonout/resourcesManager/getAssignedRichResources/g:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedRichResourcesWithGroup
+      summary: List all rich resources associated with a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeAdmin
+  /urlinjsonout/resourcesManager/getAssignedMembers:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedMembers
+      summary: Returns all members assigned to the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAdmins
+  /urlinjsonout/resourcesManager/getAssignedRichMembers:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedRichMembers
+      summary: Returns all members assigned to the resource as RichMembers.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAdminGroups
+  /urlinjsonout/resourcesManager/addAdmin/r-u:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: addAdminToUser
+      summary: Adds a Resource admin.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichAdmins
+  /urlinjsonout/resourcesManager/addAdmin/r-g:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: addAdminToGroup
+      summary: Adds a group administrator to the Resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - { name: authorizedGroup, required: true, schema: { type: integer}, in: query, description: 'group id' }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/removeAdmin/r-u:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: removeUserAdminResource
+      summary: Removes a Resource admin.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/removeAdmin/r-g:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: removeGroupAdminResource
+      summary: Removes a group administrator of the Resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - { name: authorizedGroup, required: true, schema: { type: integer}, in: query, description: 'group id' }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+            $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/getAdmins:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAdmins
+      summary: Get list of all resource administrators for supported role and given resource.
+      description: If onlyDirectAdmins is == true, return only direct admins of the group for supported role. Supported roles are ResourceAdmin, VOAdmin.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - { name: onlyDirectAdmins, required: true, schema: { type: boolean}, in: query, description: 'boolean if true, get only direct resource administrators (if false, get both direct and indirect)' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/getAdminGroups:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAdminGroups
+      summary: Get all Resource group admins.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  /json/resourcesManager/getRichAdmins:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getRichAdmins
+      summary: |
+        Get list of all richUser administrators for the resource and supported role with specific attributes.
+        Supported roles: ResourceAdmin, VOAdmin
+        If "onlyDirectAdmins" is true, return only direct admins of the resource for supported role with specific attributes.
+        If "allUserAttributes" is true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - name: specificAttributes
+          description: 'list of specified attributes which are needed in object richUser'
+          schema:
+            type: array
+            items:
+              type: string
+          in: query
+          required: true
+        - { name: allUserAttributes, required: true, schema: { type: boolean}, in: query, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)' }
+        - { name: onlyDirectAdmins, required: true, schema: { type: boolean}, in: query, description: 'if == true, get only direct resource administrators (if false, get both direct and indirect)' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/resourcesManager/getResourcesWhereUserIsAdmin:
     get:
@@ -5741,23 +6071,201 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getResources
+  /urlinjsonout/resourcesManager/getResources:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResources
+      summary: Get all VO resources.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichResources
+  /urlinjsonout/resourcesManager/getRichResources:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getRichResources
+      summary: Get all VO rich resources.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getResourcesCount
+  /urlinjsonout/resourcesManager/getResourcesCount/vo:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourcesCountForVo
+      summary: Returns number of VO resources
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO deleteAllResources
+  /urlinjsonout/resourcesManager/getResourcesCount/all:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourcesCountForAll
+      summary: Gets count of all users.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAllowedResources
+  /urlinjsonout/resourcesManager/deleteAllResources:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: deleteAllResources
+      summary: Deletes all VO resources
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO createResourceTag
+  /urlinjsonout/resourcesManager/getAllowedResources:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAllowedResources
+      summary: Get all resources which have the member access on.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO updateResourceTag
+  /json/resourcesManager/createResourceTag/resourceTag:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: createResourceTagWithResourceTag
+      summary: Create new resource tag in VO
+      responses:
+        '200':
+          $ref: '#/components/responses/ResourceTagResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateResourceTagWithResourceTag
+              description: "input to createResourceTagWithResourceTag"
+              type: object
+              required:
+                - resourceTag
+                - vo
+              properties:
+                resourceTag: { $ref: '#/components/schemas/ResourceTag' }
+                vo: { type: integer, description: 'vo id' }
 
-  #TODO deleteResourceTag
+  /json/resourcesManager/createResourceTag/tagName:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: createResourceTagWithTagName
+      summary: Create new resource tag defined by tag name in VO
+      responses:
+        '200':
+          $ref: '#/components/responses/ResourceTagResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateResourceTagWithTagName
+              description: "input to createResourceTagWithTagName"
+              type: object
+              required:
+                - tagName
+                - vo
+              properties:
+                tagName: { type: string, description: 'tagName' }
+                vo: { type: integer, description: 'vo id' }
 
-  #TODO deleteAllResourcesTagsForVo
+  /json/resourcesManager/updateResourceTag:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: updateResourceTag
+      summary: Update resource tag name by it's id and VO_ID
+      responses:
+        '200':
+          $ref: '#/components/responses/ResourceTagResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateResourceTag
+              description: "input to updateResourceTag"
+              type: object
+              required:
+                - resourceTag
+              properties:
+                resourceTag: { $ref: '#/components/schemas/ResourceTag' }
+
+  /json/resourcesManager/deleteResourceTag:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: deleteResourceTag
+      summary: Delete resource tag by it's id and VO_ID
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputDeleteResourceTag
+              description: "input to deleteResourceTag"
+              type: object
+              required:
+                - resourceTag
+              properties:
+                resourceTag: { $ref: '#/components/schemas/ResourceTag' }
+
+  /urlinjsonout/resourcesManager/deleteAllResourcesTagsForVo:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: deleteAllResourcesTagsForVo
+      summary: Delete all resources tags of VO
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/resourcesManager/assignResourceTagToResource:
     post:
@@ -5878,29 +6386,213 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedServices
+  /json/resourcesManager/getAssignedServices:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getAssignedServicesToResource
+      summary: List all services associated with the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO setBan
+  /json/resourcesManager/setBan:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: setBan
+      summary: Set ban for member on resource.
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetBan
+              description: "input to setBan"
+              type: object
+              required:
+                - banOnResource
+              properties:
+                banOnResource: { $ref: '#/components/schemas/BanOnResource' }
 
-  #TODO getBanById
+  /urlinjsonout/resourcesManager/getBanById:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getBanById
+      summary: Get Ban for member on resource by it's id.
+      parameters:
+        - { name: banId, required: true, description: "BanOnResource id", schema: { type: int },  in: query }
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBan
+  /urlinjsonout/resourcesManager/getBanBy:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getBanBy
+      summary: Get ban by memberId and resource id.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBansForMember
+  /urlinjsonout/resourcesManager/getBansForMember:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getBansForMember
+      summary: Get all bans for member on any resource.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfBanOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBansForResource
+  /urlinjsonout/resourcesManager/getBansForResource:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getBansForResource
+      summary: Get all bans for members on the resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfBanOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO updateBan
+  /json/resourcesManager/updateBan:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: updateBan
+      summary: Update existing ban (description, validation timestamp)
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateBan
+              description: "input to updateBan"
+              type: object
+              required:
+                - banOnResource
+              properties:
+                banOnResource: { $ref: '#/components/schemas/BanOnResource' }
 
-  #TODO removeBan
+  /urlinjsonout/resourcesManager/removeBan/id:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: removeBanById
+      summary: Remove specific ban by it's id.
+      parameters:
+        - { name: banId, required: true, description: "BanOnResource id", schema: { type: int },  in: query }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addResourceSelfServiceUser
+  /urlinjsonout/resourcesManager/removeBan/member-resource-id:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: removeBanByMemberAndResource
+      summary: Remove specific ban by memberId and resourceId.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addResourceSelfServiceGroup
+  /urlinjsonout/resourcesManager/addResourceSelfServiceUser:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: addResourceSelfServiceUser
+      summary: Sets ResourceSelfService role to given user for given resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeResourceSelfServiceUser
+  /urlinjsonout/resourcesManager/addResourceSelfServiceGroup:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: addResourceSelfServiceGroup
+      summary: Sets ResourceSelfService role to given group for given resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeResourceSelfServiceGroup
+  /urlinjsonout/resourcesManager/removeResourceSelfServiceUser:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: removeResourceSelfServiceUser
+      summary: Unset ResourceSelfService role to given user for given resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/removeResourceSelfServiceGroup:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: removeResourceSelfServiceGroup
+      summary: Unset ResourceSelfService role to given group for given resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
 
   #################################################
