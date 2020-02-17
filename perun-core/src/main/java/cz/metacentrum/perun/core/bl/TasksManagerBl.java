@@ -1,29 +1,25 @@
-package cz.metacentrum.perun.controller.service;
+package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 import java.util.List;
 
 /**
- *
- * @author Michal Karm Babacek
- *         JavaDoc coming soon...
- *
+ * TasksManagerBl
  */
-public interface PropagationStatsReader {
+public interface TasksManagerBl {
 
 	Task getTask(PerunSession perunSession, Service service, Facility facility);
 
@@ -42,7 +38,7 @@ public interface PropagationStatsReader {
 	 */
 	List<Task> listAllTasksForFacility(PerunSession session, int facilityId);
 
-	List<Task> listAllTasksInState(PerunSession perunSession, TaskStatus state);
+	List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state);
 
 	boolean isThereSuchTask(Service service, Facility facility);
 
@@ -70,33 +66,30 @@ public interface PropagationStatsReader {
 	 * @return propagation status of facility
 	 *
 	 * @throws FacilityNotExistsException
-	 * @throws PrivilegeException
 	 * @throws InternalErrorException
 	 */
-	FacilityState getFacilityState(PerunSession session, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException;
+	FacilityState getFacilityState(PerunSession session, Facility facility) throws FacilityNotExistsException, InternalErrorException;
 
 	/**
 	 * Return propagation status of all facilities in Perun
 	 *
 	 * @param session PerunSession
 	 * @return all facilities propagation statuses
-	 * @throws PrivilegeException
 	 * @throws InternalErrorException
 	 * @throws FacilityNotExistsException
 	 */
-	List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+	List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, FacilityNotExistsException;
 
 	/**
 	 * Return propagation status of all facilities related to VO resources
 	 *
 	 * @param session PerunSession
 	 * @return all facilities propagation statuses
-	 * @throws PrivilegeException
 	 * @throws InternalErrorException
 	 * @throws FacilityNotExistsException
 	 * @throws VoNotExistsException
 	 */
-	List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException;
+	List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, VoNotExistsException, FacilityNotExistsException;
 
 	// TODO - add more methods
 
@@ -115,11 +108,10 @@ public interface PropagationStatsReader {
 	 * @param session PerunSession
 	 * @param vo VirtualOrganization
 	 * @return list of ResourceStates
-	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
 	 * @throws InternalErrorException
 	 */
-	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException;
+	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws VoNotExistsException, InternalErrorException;
 
 	/**
 	 * Returns list of ServiceStates for given facility. It lists states for all services, which are currently
@@ -131,9 +123,8 @@ public interface PropagationStatsReader {
 	 * @param facility
 	 * @return list of ServiceStates
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException;
+	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Delete Task and it's TaskResults. Use this method only before deleting whole Facility.
@@ -141,8 +132,120 @@ public interface PropagationStatsReader {
 	 * @param sess PerunSession
 	 * @param task Task to delete
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	void deleteTask(PerunSession sess, Task task) throws InternalErrorException, PrivilegeException;
+	void deleteTask(PerunSession sess, Task task) throws InternalErrorException;
+
+	//all new from dao
+
+	Task getTask(Service service, Facility facility);
+
+	int insertTask(Task task, int engineID);
+
+	List<Task> listAllTasks();
+
+	List<Pair<Task, Integer>> listAllTasksAndClients();
+
+	/**
+	 * Returns all tasks associated with selected facility
+	 *
+	 * @param facilityId
+	 * @return tasks for facility
+	 */
+	List<Task> listAllTasksForFacility(int facilityId);
+
+	List<Task> listAllTasksInState(Task.TaskStatus state);
+
+	void updateTask(Task task);
+
+	void removeTask(int id);
+
+	Task getTask(int serviceId, int facilityId);
+
+	int scheduleNewTask(Task task, int engineID);
+
+	Task getTask(Service service, Facility facility, int engineID);
+
+	Task getTask(int serviceId, int facilityId, int engineID);
+
+	Task getTaskById(int id);
+
+	Task getTaskById(int id, int engineID);
+
+	List<Task> listAllTasks(int engineID);
+
+	List<Task> listAllTasksInState(Task.TaskStatus state, int engineID);
+
+	void updateTask(Task task, int engineID);
+
+	void updateTaskEngine(Task task, int engineID) throws InternalErrorException;
+
+	boolean isThereSuchTask(Service service, Facility facility, int engineID);
+
+	void removeTask(Service service, Facility facility, int engineID);
+
+	void removeTask(Service service, Facility facility);
+
+	void removeTask(int id, int engineID);
+
+	int countTasks(int engineID);
+
+	List<Task> listAllTasksNotInState(Task.TaskStatus state, int engineID);
+
+	/**
+	 * List newest TaskResults tied to a certain task
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId);
+
+	/**
+	 * List newest TaskResults tied to a certain task and destination
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId);
+
+
+	/**
+	 * Clear all results tied to a particular Task
+	 *
+	 * @param taskId
+	 * @return number of deleted TaskResults
+	 */
+	int clearByTask(int taskId);
+
+	/**
+	 * Clear all results
+	 *
+	 * @return number of deleted TaskResults
+	 */
+	int clearAll();
+
+	int insertNewTaskResult(TaskResult taskResult, int engineID) throws InternalErrorException;
+
+	List<TaskResult> getTaskResults(int engineID);
+
+	TaskResult getTaskResultById(int taskResultId, int engineID);
+
+	int clearByTask(int taskId, int engineID);
+
+	int clearAll(int engineID);
+
+	int clearOld(int engineID, int numDays);
+
+	List<TaskResult> getTaskResultsByTask(int taskId, int engineID);
+
+	/**
+	 * Returns list of tasks results for defined destinations (string representation).
+	 *
+	 * @param destinationsNames
+	 * @return list of tasks results
+	 * @throws InternalErrorException
+	 */
+	List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) throws InternalErrorException;
+
+
 
 }

@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
@@ -24,8 +25,6 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskSchedule;
-import cz.metacentrum.perun.taskslib.service.ResultManager;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 import cz.metacentrum.perun.taskslib.service.TaskStore;
 
 import org.slf4j.Logger;
@@ -69,8 +68,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	private DelayQueue<TaskSchedule> waitingForcedTasksQueue;
 	private Properties dispatcherProperties;
 	private TaskStore taskStore;
-	private TaskManager taskManager;
-	private ResultManager resultManager;
+	private TasksManagerBl tasksManagerBl;
 	private EngineMessageProducerPool engineMessageProducerPool;
 	private Perun perun;
 
@@ -78,10 +76,10 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	public SchedulingPoolImpl(Properties dispatcherPropertiesBean, TaskStore taskStore,
-	                          TaskManager taskManager, EngineMessageProducerPool engineMessageProducerPool) {
+							  TasksManagerBl tasksManagerBl, EngineMessageProducerPool engineMessageProducerPool) {
 		this.dispatcherProperties = dispatcherPropertiesBean;
 		this.taskStore = taskStore;
-		this.taskManager = taskManager;
+		this.tasksManagerBl = tasksManagerBl;
 		this.engineMessageProducerPool = engineMessageProducerPool;
 	}
 
@@ -125,22 +123,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		this.taskStore = taskStore;
 	}
 
-	public TaskManager getTaskManager() {
-		return taskManager;
+	public TasksManagerBl getTasksManagerBl() {
+		return tasksManagerBl;
 	}
 
 	@Autowired
-	public void setTaskManager(TaskManager taskManager) {
-		this.taskManager = taskManager;
-	}
-
-	public ResultManager getResultManager() {
-		return resultManager;
-	}
-
-	@Autowired
-	public void setResultManager(ResultManager resultManager) {
-		this.resultManager = resultManager;
+	public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
+		this.tasksManagerBl = tasksManagerBl;
 	}
 
 	public EngineMessageProducerPool getEngineMessageProducerPool() {
@@ -338,7 +327,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			task.setGenEndTime((LocalDateTime) null);
 			task.setSendEndTime((LocalDateTime) null);
 
-			taskManager.updateTask(task);
+			tasksManagerBl.updateTask(task);
 
 		}
 
@@ -372,17 +361,17 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		int engineId = (engineMessageProducer == null) ? -1 : engineMessageProducer.getClientID();
 		if (task.getId() == 0) {
 			if (getTask(task.getFacility(), task.getService()) == null) {
-				int id = taskManager.scheduleNewTask(task, engineId);
+				int id = tasksManagerBl.scheduleNewTask(task, engineId);
 				task.setId(id);
 				log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 			} else {
-				Task existingTask = taskManager.getTaskById(task.getId());
+				Task existingTask = tasksManagerBl.getTaskById(task.getId());
 				if (existingTask == null) {
-					int id = taskManager.scheduleNewTask(task, engineId);
+					int id = tasksManagerBl.scheduleNewTask(task, engineId);
 					task.setId(id);
 					log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 				} else {
-					taskManager.updateTask(task);
+					tasksManagerBl.updateTask(task);
 					log.debug("[{}] Task updated in the pool: {}", task.getId(), task);
 				}
 			}
@@ -462,7 +451,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 		this.clear();
 
-		for (Pair<Task, Integer> pair : taskManager.listAllTasksAndClients()) {
+		for (Pair<Task, Integer> pair : tasksManagerBl.listAllTasksAndClients()) {
 			Task task = pair.getLeft();
 			EngineMessageProducer queue = engineMessageProducerPool.getProducerByClient(pair.getRight());
 			try {
@@ -478,7 +467,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				if (task.getStatus().equals(TaskStatus.WAITING)) {
 					// if were in WAITING, reset timestamp to now
 					task.setSchedule(LocalDateTime.now());
-					taskManager.updateTask(task);
+					tasksManagerBl.updateTask(task);
 				}
 				scheduleTask(task, 0);
 			}
@@ -499,7 +488,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		}
 		// if queue is removed, set -1 to task as it's done on task creation if queue is null
 		int queueId = (messageProducer != null) ? messageProducer.getClientID() : -1;
-		taskManager.updateTaskEngine(task, queueId);
+		tasksManagerBl.updateTaskEngine(task, queueId);
 	}
 
 	@Override
@@ -575,7 +564,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				break;
 		}
 
-		taskManager.updateTask(task);
+		tasksManagerBl.updateTask(task);
 
 		log.debug("[{}] Task status changed from {} to {} as reported by Engine: {}.", task.getId(), oldStatus, task.getStatus(), task);
 
@@ -607,7 +596,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public void onTaskDestinationComplete(int clientID, TaskResult taskResult) {
 		try {
-			resultManager.insertNewTaskResult(taskResult, clientID);
+			tasksManagerBl.insertNewTaskResult(taskResult, clientID);
 		} catch (Exception e) {
 			log.error("Could not save TaskResult from Engine {}, {}, {}", clientID, taskResult, e.getMessage());
 		}

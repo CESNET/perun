@@ -683,6 +683,9 @@ public class JsonUtils {
 
 	}-*/;
 
+	public static final native String stringify(JavaScriptObject jso)  /*-{
+		return JSON.stringify(jso);
+	}-*/;
 
 	/**
 	 * Returns list of attribute URNs (strings)

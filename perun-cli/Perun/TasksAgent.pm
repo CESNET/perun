@@ -1,11 +1,11 @@
-package Perun::PropagationStatsReaderAgent;
+package Perun::TasksAgent;
 
 use strict;
 use warnings;
 
 use Perun::Common;
 
-my $manager = 'propagationStatsReader';
+my $manager = 'tasksManager';
 
 use fields qw(_agent _manager);
 

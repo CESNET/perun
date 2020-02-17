@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.propagationStatsReader;
+package cz.metacentrum.perun.webgui.json.tasksManager;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -12,10 +12,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
-import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.ServiceState;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
@@ -36,7 +34,7 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	static private final String JSON_URL = "propagationStatsReader/getFacilityServicesState";
+	static private final String JSON_URL = "tasksManager/getFacilityServicesState";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// data providers

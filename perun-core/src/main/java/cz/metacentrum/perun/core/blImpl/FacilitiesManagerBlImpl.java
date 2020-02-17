@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminAddedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminGroupAddedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminGroupRemovedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminRemovedForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanRemovedForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanSetForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanUpdatedForFacility;
@@ -77,11 +73,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.service.ResultManager;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,12 +101,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	private final FacilitiesManagerImplApi facilitiesManagerImpl;
 	private PerunBl perunBl;
 	private AtomicBoolean initialized = new AtomicBoolean(false);
-
-	@Autowired
-	private TaskManager taskManager;
-
-	@Autowired
-	private ResultManager resultManager;
 
 	private static final List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
 	  AttributesManager.NS_USER_ATTR_DEF + ":organization",
@@ -329,10 +318,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			for (Resource resource : resources) {
 				getPerunBl().getResourcesManagerBl().deleteResource(sess, resource);
 			}
-			List<Task> tasks = taskManager.listAllTasksForFacility(facility.getId());
+			List<Task> tasks = perunBl.getTasksManagerBl().listAllTasksForFacility(facility.getId());
 			for (Task task : tasks) {
-				resultManager.clearByTask(task.getId());
-				taskManager.removeTask(task.getId());
+				perunBl.getTasksManagerBl().clearByTask(task.getId());
+				perunBl.getTasksManagerBl().removeTask(task.getId());
 			}
 		} else {
 			if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {

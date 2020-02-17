@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
 import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.ServicesManager;
+import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -50,6 +51,7 @@ import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
@@ -88,6 +90,7 @@ public class PerunBlImpl implements PerunBl {
 	private RTMessagesManager rtMessagesManager = null;
 	private SecurityTeamsManager securityTeamsManager = null;
 	private Searcher searcher = null;
+	private TasksManager tasksManager = null;
 
 	private ModulesUtilsBl modulesUtilsBl = null;
 	private VosManagerBl vosManagerBl = null;
@@ -105,6 +108,7 @@ public class PerunBlImpl implements PerunBl {
 	private RTMessagesManagerBl rtMessagesManagerBl = null;
 	private SecurityTeamsManagerBl securityTeamsManagerBl = null;
 	private SearcherBl searcherBl = null;
+	private TasksManagerBl tasksManagerBl = null;
 
 	private Auditer auditer = null;
 	private CacheManager cacheManager = null;
@@ -369,6 +373,11 @@ public class PerunBlImpl implements PerunBl {
 	}
 
 	@Override
+	public TasksManager getTasksManager() { return tasksManager; }
+
+	public void setTasksManager(TasksManager tasksManager) { this.tasksManager = tasksManager; }
+
+	@Override
 	public ModulesUtilsBl getModulesUtilsBl() {
 		return modulesUtilsBl;
 	}
@@ -390,6 +399,11 @@ public class PerunBlImpl implements PerunBl {
 	public AuditMessagesManager getAuditMessagesManager() {
 		return auditMessagesManager;
 	}
+
+	@Override
+	public TasksManagerBl getTasksManagerBl() { return tasksManagerBl; }
+
+	public void setTasksManagerBl(TasksManagerBl tasksManagerBl) { this.tasksManagerBl = tasksManagerBl; }
 
 	@Override
 	public VosManagerBl getVosManagerBl() {

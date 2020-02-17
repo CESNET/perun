@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled;
@@ -20,7 +21,6 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskSchedule;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class TaskScheduler extends AbstractRunner {
 	private EngineMessageProducerPool engineMessageProducerPool;
 	private DelayQueue<TaskSchedule> waitingTasksQueue;
 	private DelayQueue<TaskSchedule> waitingForcedTasksQueue;
-	private TaskManager taskManager;
+	private TasksManagerBl tasksManagerBl;
 
 	// ----- setters -------------------------------------
 
@@ -117,13 +117,13 @@ public class TaskScheduler extends AbstractRunner {
 		this.waitingForcedTasksQueue = waitingForcedTasksQueue;
 	}
 
-	public TaskManager getTaskManager() {
-		return taskManager;
+	public TasksManagerBl getTasksManagerBl() {
+		return tasksManagerBl;
 	}
 
 	@Autowired
-	public void setTaskManager(TaskManager taskManager) {
-		this.taskManager = taskManager;
+	public void setTasksManagerBl(TasksManagerBl tasksManagerBl) {
+		this.tasksManagerBl = tasksManagerBl;
 	}
 
 	// ----- methods -------------------------------------
@@ -184,7 +184,7 @@ public class TaskScheduler extends AbstractRunner {
 						break;
 				}
 				// update task status in DB
-				taskManager.updateTask(task);
+				tasksManagerBl.updateTask(task);
 			}
 		}
 		log.debug("TaskScheduler has stopped.");

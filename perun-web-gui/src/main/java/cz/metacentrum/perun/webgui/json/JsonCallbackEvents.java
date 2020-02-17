@@ -168,7 +168,7 @@ public class JsonCallbackEvents {
 			public void onFinished(JavaScriptObject jso)
 			{
 				button.setProcessing(false);
-				session.getTabManager().closeTab(tab);
+				session.getTabManager().closeTab(tab, tab.isRefreshParentOnClose());
 				if(events != null){
 					events.onFinished(jso);
 				}

@@ -18,7 +18,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.servicesManager.ForceServicePropagation;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetFacilityAssignedServicesForGUI;
-import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetTaskResultsByDestinations;
+import cz.metacentrum.perun.webgui.json.tasksManager.GetTaskResultsByDestinations;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;

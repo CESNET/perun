@@ -202,6 +202,31 @@ components:
       discriminator:
         propertyName: beanName
 
+    ActionType:
+      type: string
+      description: "Action types for attributes."
+      enum:
+        - "WRITE"
+        - "WRITE_VO"
+        - "WRITE_PUBLIC"
+        - "READ"
+        - "READ_VO"
+        - "READ_PUBLIC"
+
+    AttributeRights:
+      type: object
+      required:
+        - attributeId
+        - rights
+        - role
+      properties:
+        attributeId: { type: integer }
+        role: { type: string }
+        rights:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionType'
+
     Facility:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -571,6 +596,15 @@ components:
             items:
               $ref: "#/components/schemas/AttributeDefinition"
 
+    ListOfAttributeRightsResponse:
+      description: "returns List<AttributeRights>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/AttributeRights"
+
     AttributeResponse:
       description: "returns Attribute"
       content:
@@ -886,6 +920,14 @@ components:
       in: query
       required: true
 
+    optionalFacilityId:
+      name: facility
+      description: "id of Facility"
+      schema:
+        type: integer
+      in: query
+      required: false
+
     userId:
       name: user
       description: "id of User"
@@ -893,6 +935,14 @@ components:
         type: integer
       in: query
       required: true
+
+    optionalUserId:
+      name: user
+      description: "id of User"
+      schema:
+        type: integer
+      in: query
+      required: false
 
     memberId:
       name: member
@@ -912,6 +962,14 @@ components:
         in: query
         required: true
 
+    optionalMemberId:
+      name: member
+      description: "id of Member"
+      schema:
+        type: integer
+      in: query
+      required: false
+
     voId:
       name: vo
       description: "id of Vo"
@@ -920,6 +978,14 @@ components:
       in: query
       required: true
 
+    optionalVoId:
+      name: vo
+      description: "id of Vo"
+      schema:
+        type: integer
+      in: query
+      required: false
+
     groupId:
       name: group
       description: "id of Group"
@@ -927,6 +993,14 @@ components:
         type: integer
       in: query
       required: true
+
+    optionalGroupId:
+      name: group
+      description: "id of Group"
+      schema:
+        type: integer
+      in: query
+      required: false
 
     groupIds:
       name: "groups[]"
@@ -962,6 +1036,14 @@ components:
       in: query
       required: true
 
+    optionalResourceId:
+      name: resource
+      description: "id of Resource"
+      schema:
+        type: integer
+      in: query
+      required: false
+
     resourceIds:
       name: "resources[]"
       description: "list of Resource ids List<Integer>"
@@ -980,6 +1062,14 @@ components:
       in: query
       required: true
 
+    optionalUserExtSourceId:
+      name: userExtSource
+      description: "id of UserExtSource"
+      schema:
+        type: integer
+      in: query
+      required: false
+
     hostId:
       name: host
       description: "id of Host"
@@ -987,6 +1077,14 @@ components:
         type: integer
       in: query
       required: true
+
+    optionalHostId:
+      name: host
+      description: "id of Host"
+      schema:
+        type: integer
+      in: query
+      required: false
 
     hostnames:
       name: "hostnames[]"
@@ -1093,6 +1191,12 @@ components:
       description: "id of Group to have removed 'resultGroup' from subgroups"
       schema:
         type: integer
+
+    key:
+      name: key
+      description: key of an entityless attribute
+      schema:
+        type: string
       in: query
       required: true
 
@@ -2945,7 +3049,29 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-#TODO getAttributesDefinitionWithRights
+  /urlinjsonout/attributesManager/getAttributesDefinitionWithRights:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributesDefinitionWithRights
+      summary: Returns all AttributeDefinitions for every entity and possible
+        combination of entities with rights. Only attribute definition of 
+        attributes user can read (or write) you will get. Combination of entities
+        is based on provided parameters, which are optional (at least one must be present).
+      parameters:
+        - $ref: '#/components/parameters/optionalMemberId'
+        - $ref: '#/components/parameters/optionalUserId'
+        - $ref: '#/components/parameters/optionalVoId'
+        - $ref: '#/components/parameters/optionalGroupId'
+        - $ref: '#/components/parameters/optionalResourceId'
+        - $ref: '#/components/parameters/optionalFacilityId'
+        - $ref: '#/components/parameters/optionalHostId'
+        - $ref: '#/components/parameters/optionalUserExtSourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
 ##
 # combinations:
@@ -3643,19 +3769,282 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-#TODO removeAttribute
+  /urlinjsonout/attributesManager/removeAttribute/u-f:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeUserFacilityAttribute
+      summary: Remove user facility attribute
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-#TODO removeAllAttributes
+  /urlinjsonout/attributesManager/removeAttribute/f:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeFacilityAttribute
+      summary: Remove facility attribute
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/v:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeVoAttribute
+      summary: Remove vo attribute
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/m-r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberResourceAttribute
+      summary: Remove member-resource attribute
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/g-r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeGroupResourceAttribute
+      summary: Remove group-resource attribute
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/r:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeResourceAttribute
+      summary: Remove resource attribute
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/m-g:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberGroupAttribute
+      summary: Remove member-group attribute
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/m:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeMemberAttribute
+      summary: Remove member attribute
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/u:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeUserAttribute
+      summary: Remove user attribute
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/g:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeGroupAttribute
+      summary: Remove group attribute
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/h:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeHostAttribute
+      summary: Remove host attribute
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/removeAttribute/ues:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeUserExtSourceAttribute
+      summary: Remove userExtSource attribute
+      parameters:
+        - $ref: '#/components/parameters/userExtSourceId'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+  /urlinjsonout/attributesManager/removeAttribute/e:
+    post:
+      tags:
+        - AttributesManager
+      operationId: removeEntitylessAttribute
+      summary: Remove entityless attribute
+      parameters:
+        - $ref: '#/components/parameters/key'
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO removeAllAttributes
 
 #TODO getLogins
 
-#TODO updateAttributeDefinition
+  /json/attributesManager/updateAttributeDefinition:
+    post:
+      tags:
+        - AttributesManager
+      operationId: updateAttributeDefinition
+      summary: Updates AttributeDefinition in Perun based on provided object.
+        Update is done on AttributeDefinition selected by its <code>id</code>.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: InputAttributeDefinition
+              description: Input to updateAttributeDefinition
+              required:
+                - attributeDefinition
+              properties:
+                attributeDefinition:
+                  $ref: '#/components/schemas/AttributeDefinition'
+      responses:
+        '200':
+          $ref: '#/components/responses/AttributeDefinitionResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
 #TODO doTheMagic
 
-#TODO getAttributeRights
+  /json/attributesManager/getAttributeRights:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getAttributeRights
+      summary: "Gets AttributeRights for specified Attribute. Rights specify which
+      Role can do particular actions (read / write) with Attribute. Method always
+      return rights for following roles: VOADMIN, GROUPADMIN, FACILITYADMIN, SELF."
+      parameters:
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributeRightsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-#TODO setAttributeRights
+  /json/attributesManager/setAttributeRights:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setAttributeRights
+      summary: "Sets all AttributeRights in the list given as a parameter. Allowed
+       Roles to set rights for are: VOADMIN, GROUPADMIN, FACILITYADMIN, SELF."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAttributeRights
+              description: Input to setAttributeRights
+              type: object
+              required:
+                - rights
+              properties:
+                rights:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AttributeRights'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
 #TODO convertAttributeToUnique
 

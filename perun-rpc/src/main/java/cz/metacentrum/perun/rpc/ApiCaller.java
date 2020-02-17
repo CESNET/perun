@@ -12,11 +12,10 @@ import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import cz.metacentrum.perun.controller.service.PropagationStatsReader;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -88,7 +87,7 @@ public class ApiCaller {
 	private OwnersManager ownersManager = null;
 	private RTMessagesManager rtMessagesManager = null;
 	private SecurityTeamsManager securityTeamsManager = null;
-	private PropagationStatsReader propagationStatsReader;
+	private TasksManager tasksManager = null;
 	private Searcher searcher = null;
 	private CabinetManager cabinetManager;
 	private RegistrarManager registrarManager;
@@ -199,15 +198,18 @@ public class ApiCaller {
 		return attributesManager;
 	}
 
+	public TasksManager getTasksManager() {
+		if (tasksManager == null) {
+			tasksManager = rpcSession.getPerun().getTasksManager();
+		}
+		return tasksManager;
+	}
+
 	public OwnersManager getOwnersManager() {
 		if (ownersManager == null) {
 			ownersManager = rpcSession.getPerun().getOwnersManager();
 		}
 		return ownersManager;
-	}
-
-	public PropagationStatsReader getPropagationStatsReader() {
-		return propagationStatsReader;
 	}
 
 	public CabinetManager getCabinetManager() {
@@ -426,9 +428,6 @@ public class ApiCaller {
 
 		PerunPrincipal rpcPrincipal = new PerunPrincipal(RPCPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		this.rpcSession = perun.getPerunSession(rpcPrincipal, new PerunClient());
-
-		// Initialize PropagationStatsReader
-		this.propagationStatsReader = WebApplicationContextUtils.getWebApplicationContext(context).getBean("propagationStatsReader", PropagationStatsReader.class);
 
 		// Initialize CabinetManager
 		this.cabinetManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetManager", CabinetManager.class);

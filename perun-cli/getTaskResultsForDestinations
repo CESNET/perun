@@ -32,9 +32,9 @@ GetOptions ("help|h"        => sub {
 unless (@destinations) { die "ERROR: at least one destination must be specified\n";}
 
 my $agent = Perun::Agent->new();
-my $propagationStatsReaderAgent = $agent->getPropagationStatsReaderAgent;
+my $tasksAgent = $agent->getTasksAgent;
 
-my @taskResults = $propagationStatsReaderAgent->getTaskResultsForDestinations( destinations => \@destinations );
+my @taskResults = $tasksAgent->getTaskResultsForDestinations( destinations => \@destinations );
 unless (@taskResults) {
 	printMessage "No tasks results found", $batch;
 	exit 0;

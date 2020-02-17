@@ -107,8 +107,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cz.metacentrum.perun.core.impl.Utils.parseUserFromCommonName;
-
 public class MembersManagerBlImpl implements MembersManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(MembersManagerBlImpl.class);
@@ -1730,7 +1728,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		  if (!m.matches()) {
 			  throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
 		  }
-		  localDate = Utils.extendDateByStaticDate(localDate, m);
+		  localDate = Utils.getClosestExpirationFromStaticDate(m);
 
           // ***** GRACE PERIOD *****
           // Is there a grace period?
@@ -2152,7 +2150,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				if (!m.matches()) {
 					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
 				}
-				localDate = Utils.extendDateByStaticDate(localDate, m);
+				localDate = Utils.getClosestExpirationFromStaticDate(m);
 
 				// ***** GRACE PERIOD *****
 				// Is there a grace period?
@@ -2366,7 +2364,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		//create new user
 		User user;
 		if (name.containsKey("guestName")) {
-			user = Utils.parseUserFromCommonName(name.get("guestName"));
+			user = Utils.parseUserFromCommonName(name.get("guestName"), true);
 		} else {
 			user = Utils.createUserFromNameMap(name);
 		}
