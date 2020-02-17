@@ -6180,30 +6180,19 @@ paths:
                 vo: { type: integer, description: 'vo id' }
 
   /json/resourcesManager/createResourceTag/tagName:
-    post:
+    get:
       tags:
         - ResourcesManager
       operationId: createResourceTagWithTagName
       summary: Create new resource tag defined by tag name in VO
+      parameters:
+        - { name: tagName, required: true, description: "tagName", schema: { type: string },  in: query }
+        - $ref: '#/components/parameters/voId'
       responses:
         '200':
           $ref: '#/components/responses/ResourceTagResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              title: InputCreateResourceTagWithTagName
-              description: "input to createResourceTagWithTagName"
-              type: object
-              required:
-                - tagName
-                - vo
-              properties:
-                tagName: { type: string, description: 'tagName' }
-                vo: { type: integer, description: 'vo id' }
 
   /json/resourcesManager/updateResourceTag:
     post:
