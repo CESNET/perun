@@ -5571,7 +5571,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getFacility:
+  /json/resourcesManager/getFacility:
     get:
       tags:
         - ResourcesManager
@@ -5585,7 +5585,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getVo:
+  /json/resourcesManager/getVo:
     get:
       tags:
         - ResourcesManager
@@ -5599,7 +5599,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAllowedMembers:
+  /json/resourcesManager/getAllowedMembers:
     get:
       tags:
         - ResourcesManager
@@ -5613,7 +5613,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAllowedUsers:
+  /json/resourcesManager/getAllowedUsers:
     get:
       tags:
         - ResourcesManager
@@ -5732,7 +5732,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAssignedResources/g:
+  /json/resourcesManager/getAssignedResources/g:
     get:
       tags:
         - ResourcesManager
@@ -5746,7 +5746,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAssignedResources/m:
+  /json/resourcesManager/getAssignedResources/m:
     get:
       tags:
         - ResourcesManager
@@ -5760,7 +5760,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAssignedRichResources/s-m:
+  /json/resourcesManager/getAssignedRichResources/s-m:
     get:
       tags:
         - ResourcesManager
@@ -5775,7 +5775,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAssignedRichResources/m:
+  /json/resourcesManager/getAssignedRichResources/m:
     get:
       tags:
         - ResourcesManager
@@ -5789,7 +5789,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAssignedRichResources/g:
+  /json/resourcesManager/getAssignedRichResources/g:
     get:
       tags:
         - ResourcesManager
@@ -5803,7 +5803,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAssignedMembers:
+  /json/resourcesManager/getAssignedMembers:
     get:
       tags:
         - ResourcesManager
@@ -5817,7 +5817,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAssignedRichMembers:
+  /json/resourcesManager/getAssignedRichMembers:
     get:
       tags:
         - ResourcesManager
@@ -5831,7 +5831,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/addAdmin/r-u:
+  /json/resourcesManager/addAdmin/r-u:
     get:
       tags:
         - ResourcesManager
@@ -5846,7 +5846,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/addAdmin/r-g:
+  /json/resourcesManager/addAdmin/r-g:
     get:
       tags:
         - ResourcesManager
@@ -5861,7 +5861,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/removeAdmin/r-u:
+  /json/resourcesManager/removeAdmin/r-u:
     get:
       tags:
         - ResourcesManager
@@ -5876,7 +5876,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/removeAdmin/r-g:
+  /json/resourcesManager/removeAdmin/r-g:
     get:
       tags:
         - ResourcesManager
@@ -5891,7 +5891,7 @@ paths:
         default:
             $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAdmins:
+  /json/resourcesManager/getAdmins:
     get:
       tags:
         - ResourcesManager
@@ -5907,7 +5907,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAdminGroups:
+  /json/resourcesManager/getAdminGroups:
     get:
       tags:
         - ResourcesManager
@@ -6071,7 +6071,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getResources:
+  /json/resourcesManager/getResources:
     get:
       tags:
         - ResourcesManager
@@ -6085,7 +6085,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getRichResources:
+  /json/resourcesManager/getRichResources:
     get:
       tags:
         - ResourcesManager
@@ -6099,7 +6099,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getResourcesCount/vo:
+  /json/resourcesManager/getResourcesCount/vo:
     get:
       tags:
         - ResourcesManager
@@ -6113,7 +6113,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getResourcesCount/all:
+  /json/resourcesManager/getResourcesCount/all:
     get:
       tags:
         - ResourcesManager
@@ -6125,7 +6125,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/deleteAllResources:
+  /json/resourcesManager/deleteAllResources:
     get:
       tags:
         - ResourcesManager
@@ -6139,7 +6139,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getAllowedResources:
+  /json/resourcesManager/getAllowedResources:
     get:
       tags:
         - ResourcesManager
@@ -6253,7 +6253,7 @@ paths:
               properties:
                 resourceTag: { $ref: '#/components/schemas/ResourceTag' }
 
-  /urlinjsonout/resourcesManager/deleteAllResourcesTagsForVo:
+  /json/resourcesManager/deleteAllResourcesTagsForVo:
     get:
       tags:
         - ResourcesManager
@@ -6424,7 +6424,7 @@ paths:
               properties:
                 banOnResource: { $ref: '#/components/schemas/BanOnResource' }
 
-  /urlinjsonout/resourcesManager/getBanById:
+  /json/resourcesManager/getBanById:
     get:
       tags:
         - ResourcesManager
@@ -6438,7 +6438,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getBanBy:
+  /json/resourcesManager/getBanBy:
     get:
       tags:
         - ResourcesManager
@@ -6453,7 +6453,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getBansForMember:
+  /json/resourcesManager/getBansForMember:
     get:
       tags:
         - ResourcesManager
@@ -6467,7 +6467,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/getBansForResource:
+  /json/resourcesManager/getBansForResource:
     get:
       tags:
         - ResourcesManager
@@ -6505,7 +6505,7 @@ paths:
               properties:
                 banOnResource: { $ref: '#/components/schemas/BanOnResource' }
 
-  /urlinjsonout/resourcesManager/removeBan/id:
+  /json/resourcesManager/removeBan/id:
     get:
       tags:
         - ResourcesManager
@@ -6519,7 +6519,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/removeBan/member-resource-id:
+  /json/resourcesManager/removeBan/member-resource-id:
     get:
       tags:
         - ResourcesManager
@@ -6534,7 +6534,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/addResourceSelfServiceUser:
+  /json/resourcesManager/addResourceSelfServiceUser:
     get:
       tags:
         - ResourcesManager
@@ -6549,7 +6549,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/addResourceSelfServiceGroup:
+  /json/resourcesManager/addResourceSelfServiceGroup:
     get:
       tags:
         - ResourcesManager
@@ -6564,7 +6564,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/removeResourceSelfServiceUser:
+  /json/resourcesManager/removeResourceSelfServiceUser:
     get:
       tags:
         - ResourcesManager
@@ -6579,7 +6579,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/resourcesManager/removeResourceSelfServiceGroup:
+  /json/resourcesManager/removeResourceSelfServiceGroup:
     get:
       tags:
         - ResourcesManager
