@@ -1519,28 +1519,35 @@ public class Utils {
 
 	/**
 	 * Returns closest future LocalDate based on values given by matcher.
+	 * If returned value should fall to 29. 2. of non-leap year, the date is extended to 28. 2. instead.
 	 *
 	 * @param matcher matcher with day and month values
 	 * @return Extended date.
 	 */
 	public static LocalDate getClosestExpirationFromStaticDate(Matcher matcher) {
+		int day = Integer.parseInt(matcher.group(1));
+		int month = Integer.parseInt(matcher.group(2));
 
-		int day = Integer.valueOf(matcher.group(1));
-		int month = Integer.valueOf(matcher.group(2));
-
-		// Get current year
-		int year = LocalDate.now().getYear();
-
-		// We must detect if the extension date is in current year or in a next year
-		LocalDate extensionDate = LocalDate.of(year, month, day);
+		// We must detect if the extension date is in current year or in a next year (we use year 2000 in comparison because it is a leap year)
+		LocalDate extensionDate = LocalDate.of(2000, month, day);
 
 		// check if extension is next year
 		// in case of static date being today's date, we want to extend to next year (that's why we use the negation later)
-		boolean extensionThisYear = LocalDate.now().isBefore(extensionDate);
+		boolean extensionInThisYear = LocalDate.of(2000, LocalDate.now().getMonth(), LocalDate.now().getDayOfMonth()).isBefore(extensionDate);
+
+		// Get current year
+		int year = LocalDate.now().getYear();
+		if (!extensionInThisYear) {
+			// Add year to get next year
+			year++;
+		}
 
 		// Set the date to which the membership should be extended, can be changed if there was grace period, see next part of the code
-		if (!extensionThisYear) {
-			extensionDate = extensionDate.plusYears(1);
+		if (day == 29 && month == 2 && !LocalDate.of(year, 1,1).isLeapYear()) {
+			// If extended date is 29. 2. of non-leap year, the date is set to 28. 2.
+			extensionDate = LocalDate.of(year, 2, 28);
+		} else {
+			extensionDate = LocalDate.of(year, month, day);
 		}
 
 		return extensionDate;
