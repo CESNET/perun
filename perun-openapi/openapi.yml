@@ -818,7 +818,7 @@ components:
               format:
                 type: string
                 enum: [DOT, TGF]
-                
+
   #####################################################
   #                                                   #
   # PARAMETERS - definitions of often used parameters #
@@ -893,6 +893,17 @@ components:
         items:
           type: string
 
+    attrNamesOptional:
+      name: "attrNames[]"
+      description: "list of attribute names List<String> or null"
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+
+
     attributeValue:
       name: attributeValue
       description: "string value of Attribute"
@@ -940,6 +951,16 @@ components:
         type: integer
       in: query
       required: true
+
+    memberIds:
+        name: "members[]"
+        description: "id of Member"
+        schema:
+          type: array
+          items:
+            type: integer
+        in: query
+        required: true
 
     optionalMemberId:
       name: member
@@ -990,6 +1011,22 @@ components:
         type: array
         items:
           type: integer
+
+    groupDescription:
+      name: description
+      description: "description of Group"
+      schema:
+        type: string
+      in: query
+      required: true
+
+    groupName:
+      name: name
+      description: "name of Group"
+      schema:
+        type: string
+      in: query
+      required: true
 
     resourceId:
       name: resource
@@ -1140,6 +1177,22 @@ components:
         type: string
       in: query
       required: true
+
+    resultGroupId:
+      name: resultGroup
+      description: "id of Group to have removed 'operandGroup' from subgroups"
+      schema:
+         type: integer
+      in: query
+      required: true
+
+    operandGroupId:
+      name: operandGroup
+      description: "id of Group to have removed 'resultGroup' from subgroups"
+      schema:
+        type: integer
+      in: query
+      required: true  
 
     key:
       name: key
@@ -4003,8 +4056,8 @@ paths:
         - AttributesManager
       operationId: getAttributeModulesDependenciesGraphText
       summary: |
-        Generates text file describing dependencies between attribute modules. 
-        The format of text file can be specified by parameter. Modules that 
+        Generates text file describing dependencies between attribute modules.
+        The format of text file can be specified by parameter. Modules that
         has no dependency relations are omitted.
       parameters:
         - name: format
@@ -4026,8 +4079,8 @@ paths:
         - AttributesManager
       operationId: getAttributeModulesDependenciesForAttributeGraphText
       summary: |
-        Generates text file describing dependencies between attribute modules. 
-        The format of text file can be specified by parameter. Modules that 
+        Generates text file describing dependencies between attribute modules.
+        The format of text file can be specified by parameter. Modules that
         has no dependency relations are omitted.
       parameters:
         - name: format
@@ -5125,6 +5178,207 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getAllGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllGroups
+      summary: Returns all groups in a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getAllRichSubGroupsWithAttributesByNames:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllRichSubGroupsWithGroupAttributesByNames
+      summary: Returns all AllRichSubGroups from parent group containing selected attributes (all level subgroups).
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/createGroup/v-n-d:
+    post:
+      tags:
+        - GroupsManager
+      operationId: createGroupWithVoNameDescription
+      description: Creates a new group in the specific VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/groupName'
+        - $ref: '#/components/parameters/groupDescription'
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/createGroup/pg-n-d:
+    post:
+      tags:
+        - GroupsManager
+      operationId: createGroupWithParentGroupNameDescription
+      description: Creates a subgroup of a group.
+      parameters:
+        - { name: parentGroup,
+            description: "Parent Group id",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: true
+        }
+        - $ref: '#/components/parameters/groupName'
+        - $ref: '#/components/parameters/groupDescription'
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/deleteGroups:
+    post:
+      tags:
+        - GroupsManager
+      operationId: deleteGroups
+      summary: Forcefully deletes a list of groups (remove all group members, remove group from resources).
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - { name: forceDelete,
+            description: "If true use force delete",
+            schema: {
+              type: boolean
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/moveGroup/dg-mg:
+    post:
+      tags:
+        - GroupsManager
+      operationId: moveGroupWithDestinationGroupMovingGroup
+      summary: Moves "movingGroup" (including subGroups) under "destinationGroup" as subGroup within same Vo. Indirect group members are also processed during move operation.
+      parameters:
+        - { name: destinationGroup,
+            description: "id of Group to have 'movingGroup' as subGroup",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: false
+        }
+        - { name: movingGroup,
+            description: "id of Group to be moved under 'destinationGroup'",
+            schema: {
+              type: integer
+            },
+            in: query,
+            required: true
+        }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/addMembers:
+    post:
+      tags:
+        - GroupsManager
+      operationId: addMembers
+      summary: Adds members to a group. If already a member of the group, the member will be skipped. Non-empty list of members expected, if empty, no member will be added.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/memberIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/removeMembers:
+    post:
+      tags:
+        - GroupsManager
+      operationId: removeMembers
+      summary: Removes members from a group. Non-empty list of members expected. In case of empty list, no member is removed from the group. If member is not in the group or the membership is indirect, it is skipped without a warning but the rest of the members are processed.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/memberIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/createGroupUnion:
+    post:
+      tags:
+        - GroupsManager
+      operationId: createGroupUnion
+      summary: Create union of two groups, where "operandGroup" is technically set as subgroup of "resultGroup". Members from "operandGroup" are added to "resultGroup" as INDIRECT members. Union is honored also in all group member changing operations.
+      parameters:
+        - $ref: '#/components/parameters/resultGroupId'
+        - $ref: '#/components/parameters/operandGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroupUnions:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupUnions
+      summary: Return all operand groups for specified result groups (all INCLUDED groups). If "reverseDirection" is TRUE than return all result groups for specified operand group (where group is INCLUDED).
+      parameters:
+         - $ref: '#/components/parameters/groupId'
+         - { name: reverseDirection,
+             description: "FALSE (default) return INCLUDED groups / TRUE = return groups where INCLUDED",
+             schema: {
+               type: boolean
+             },
+             in: query,
+             required: true
+         }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/removeGroupUnion:
+    post:
+      tags:
+        - GroupsManager
+      operationId: removeGroupUnion
+      summary: Removes union of two groups, when "operandGroup" is technically removed from subgroups of "resultGroup". Members from "operandGroup" are removed from "resultGroup" if they were INDIRECT members sourcing from this group only.
+      parameters:
+        - $ref: '#/components/parameters/resultGroupId'
+        - $ref: '#/components/parameters/operandGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
