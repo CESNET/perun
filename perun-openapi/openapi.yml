@@ -5831,8 +5831,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/addAdmin/r-u:
-    get:
+  /urlinjsonout/resourcesManager/addAdmin/r-u:
+    post:
       tags:
         - ResourcesManager
       operationId: addAdminToUser
@@ -5846,8 +5846,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/addAdmin/r-g:
-    get:
+  /urlinjsonout/resourcesManager/addAdmin/r-g:
+    post:
       tags:
         - ResourcesManager
       operationId: addAdminToGroup
@@ -5861,8 +5861,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/removeAdmin/r-u:
-    get:
+  /urlinjsonout/resourcesManager/removeAdmin/r-u:
+    post:
       tags:
         - ResourcesManager
       operationId: removeUserAdminResource
@@ -5876,8 +5876,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/removeAdmin/r-g:
-    get:
+  /urlinjsonout/resourcesManager/removeAdmin/r-g:
+    post:
       tags:
         - ResourcesManager
       operationId: removeGroupAdminResource
@@ -6125,8 +6125,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/deleteAllResources:
-    get:
+  /urlinjsonout/resourcesManager/deleteAllResources:
+    post:
       tags:
         - ResourcesManager
       operationId: deleteAllResources
@@ -6179,8 +6179,8 @@ paths:
                 resourceTag: { $ref: '#/components/schemas/ResourceTag' }
                 vo: { type: integer, description: 'vo id' }
 
-  /json/resourcesManager/createResourceTag/tagName:
-    get:
+  /urlinjsonout/resourcesManager/createResourceTag/tagName:
+    post:
       tags:
         - ResourcesManager
       operationId: createResourceTagWithTagName
@@ -6242,8 +6242,8 @@ paths:
               properties:
                 resourceTag: { $ref: '#/components/schemas/ResourceTag' }
 
-  /json/resourcesManager/deleteAllResourcesTagsForVo:
-    get:
+  /urlinjsonout/resourcesManager/deleteAllResourcesTagsForVo:
+    post:
       tags:
         - ResourcesManager
       operationId: deleteAllResourcesTagsForVo
@@ -6420,18 +6420,18 @@ paths:
       operationId: getBanById
       summary: Get Ban for member on resource by it's id.
       parameters:
-        - { name: banId, required: true, description: "BanOnResource id", schema: { type: int },  in: query }
+        - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
       responses:
         '200':
           $ref: '#/components/responses/BanOnResourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/getBanBy:
+  /json/resourcesManager/getBan:
     get:
       tags:
         - ResourcesManager
-      operationId: getBanBy
+      operationId: getBan
       summary: Get ban by memberId and resource id.
       parameters:
         - $ref: '#/components/parameters/memberId'
@@ -6494,22 +6494,22 @@ paths:
               properties:
                 banOnResource: { $ref: '#/components/schemas/BanOnResource' }
 
-  /json/resourcesManager/removeBan/id:
-    get:
+  /urlinjsonout/resourcesManager/removeBan/id:
+    post:
       tags:
         - ResourcesManager
       operationId: removeBanById
       summary: Remove specific ban by it's id.
       parameters:
-        - { name: banId, required: true, description: "BanOnResource id", schema: { type: int },  in: query }
+        - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/removeBan/member-resource-id:
-    get:
+  /urlinjsonout/resourcesManager/removeBan/member-resource-id:
+    post:
       tags:
         - ResourcesManager
       operationId: removeBanByMemberAndResource
@@ -6523,8 +6523,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/addResourceSelfServiceUser:
-    get:
+  /urlinjsonout/resourcesManager/addResourceSelfServiceUser:
+    post:
       tags:
         - ResourcesManager
       operationId: addResourceSelfServiceUser
@@ -6538,8 +6538,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/addResourceSelfServiceGroup:
-    get:
+  /urlinjsonout/resourcesManager/addResourceSelfServiceGroup:
+    post:
       tags:
         - ResourcesManager
       operationId: addResourceSelfServiceGroup
@@ -6553,8 +6553,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/removeResourceSelfServiceUser:
-    get:
+  /urlinjsonout/resourcesManager/removeResourceSelfServiceUser:
+    post:
       tags:
         - ResourcesManager
       operationId: removeResourceSelfServiceUser
@@ -6568,8 +6568,8 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/resourcesManager/removeResourceSelfServiceGroup:
-    get:
+  /urlinjsonout/resourcesManager/removeResourceSelfServiceGroup:
+    post:
       tags:
         - ResourcesManager
       operationId: removeResourceSelfServiceGroup
