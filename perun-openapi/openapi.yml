@@ -1255,6 +1255,29 @@ components:
       in: query
       required: true
 
+    complementaryObjectId:
+      name: complementaryObjectId
+      description: "Property id of complementaryObject to get managers for"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    complementaryObjectName:
+        name: complementaryObjectName
+        description: "Property beanName of complementaryObject, meaning object type (Vo | Group | Facility | ... )"
+        schema:
+          type: string
+        in: query
+        required: true
+
+    role:
+      name: role
+      schema:
+        type: string
+      in: query
+      required: true
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -1421,6 +1444,201 @@ paths:
                 $ref: "#/components/schemas/PerunPrincipal"
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getRichAdmins:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getAuthzRichAdmins
+      summary: Gets all rich admins
+      description: Returns all managers for complementaryObject and role with specified attributes.
+      parameters:
+        - $ref: '#/components/parameters/role'
+        - $ref: '#/components/parameters/complementaryObjectId'
+        - $ref: '#/components/parameters/complementaryObjectName'
+        - { name: specificAttributes,
+            description: "list of specified attributes which are needed in object richUser",
+            schema: {
+              type: array,
+              items: {
+                type: string
+              }
+            },
+            in: query,
+            required: true
+        }
+        - { name: allUserAttributes,
+            description: "When true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes",
+            schema: {
+              type: boolean,
+              default: false
+            },
+            in: query,
+            required: false
+        }
+        - { name: onlyDirectAdmins,
+            description: "When true, return only direct users of the complementary object for role with specific attributes",
+            schema: {
+              type: boolean,
+              default: true
+            },
+            in: query,
+            required: false
+        }
+      responses:
+        '200':
+          $ref: "#/components/schemas/ListOfRichUsersResponse"
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getAdminGroups:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getAuthzAdminGroups
+      summary: Get all groups of managers (authorizedGroups) for complementaryObject and role
+      parameters:
+        - $ref: '#/components/parameters/role'
+        - $ref: '#/components/parameters/complementaryObjectId'
+        - $ref: '#/components/parameters/complementaryObjectName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/setRole/u-co:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleWithUserComplementaryObject
+      summary: Set role for user and complementaryObject
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleWithUserComplementaryObject
+              description: "input to setRoleWithUserComplementaryObject"
+              type: object
+              required:
+                - role
+                - users
+                - complementaryObject
+              properties:
+                role: {type: string, nullable: false}
+                users:
+                  type: array
+                  description: "List of user ids"
+                  nullable: false
+                  items:
+                    type: integer
+                complementaryObject: { $ref: "#/components/schemas/PerunBean"}
+
+  /json/authzResolver/unsetRole/u-co:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleWithUserComplementaryObject
+      summary: Unset role for user and complementaryObject
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleWithUserComplementaryObject
+              description: "input to unsetRoleWithUserComplementaryObject"
+              type: object
+              required:
+                - role
+                - users
+                - complementaryObject
+              properties:
+                role: {type: string, nullable: false}
+                users:
+                  type: array
+                  description: "List of user ids"
+                  nullable: false
+                  items:
+                    type: integer
+                complementaryObject: {$ref: "#/components/schemas/PerunBean"}
+
+
+  /json/authzResolver/setRole/g-co:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: setRoleWithGroupComplementaryObject
+      summary: Set role for authorizedGroup and complementaryObject
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: setRoleWithGroupComplementaryObject
+              description: "input to unsetRoleWithUserComplementaryObject"
+              type: object
+              required:
+                - role
+                - authorizedGroups
+                - complementaryObject
+              properties:
+                role: {type: string, nullable: false}
+                authorizedGroups:
+                  type: array
+                  description: "List of authorizedGroups ids"
+                  nullable: false
+                  items:
+                    type: integer
+                complementaryObject: {$ref: "#/components/schemas/PerunBean"}
+
+  /json/authzResolver/unsetRole/g-co:
+    post:
+      tags:
+        - AuthzResolver
+      operationId: unsetRoleWithGroupComplementaryObject
+      summary: Unset role for authorizedGroup and complementaryObject
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: unsetRoleWithGroupComplementaryObject
+              description: "input to unsetRoleWithUserComplementaryObject"
+              type: object
+              required:
+                - role
+                - authorizedGroups
+                - complementaryObject
+              properties:
+                role: {type: string, nullable: false}
+                authorizedGroups:
+                  type: array
+                  description: "List of authorizedGroups ids"
+                  nullable: false
+                  items:
+                    type: integer
+                complementaryObject: {$ref: "#/components/schemas/PerunBean"}
 
   #################################################
   #                                               #
