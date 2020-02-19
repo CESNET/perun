@@ -945,7 +945,7 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnFacility"
-                
+
   #####################################################
   #                                                   #
   # PARAMETERS - definitions of often used parameters #
@@ -5192,7 +5192,7 @@ paths:
     get:
       tags:
         - FacilitiesManager
-      operationId: getAllowedUsers
+      operationId: getAllowedUsersOfFacility
       summary: Return all users which can use this facility
       parameters:
         - $ref: '#/components/parameters/facilityId'
@@ -5482,7 +5482,7 @@ paths:
     post:
       tags:
         - FacilitiesManager
-      operationId: setBan
+      operationId: setFacilityBan
       summary: Set ban for user on facility.
       responses:
         '200':
@@ -5506,7 +5506,7 @@ paths:
     get:
       tags:
         - FacilitiesManager
-      operationId: getBanById
+      operationId: getFacilityBanById
       summary: Get Ban for user on facility by it's id.
       parameters:
         - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
@@ -5520,7 +5520,7 @@ paths:
     get:
       tags:
         - FacilitiesManager
-      operationId: getBan
+      operationId: getFacilityBan
       summary: Get ban by userId and facilityId.
       parameters:
         - $ref: '#/components/parameters/userId'
@@ -5563,7 +5563,7 @@ paths:
     post:
       tags:
         - FacilitiesManager
-      operationId: updateBan
+      operationId: updateFacilityBan
       summary: Update existing ban (description, validation timestamp)
       responses:
         '200':
@@ -5587,7 +5587,7 @@ paths:
     post:
       tags:
         - FacilitiesManager
-      operationId: removeBanById
+      operationId: removeFacilityBanById
       summary: Remove specific ban by it's id.
       parameters:
         - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
@@ -6142,7 +6142,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getAllowedUsers
+      operationId: getAllowedUsersOfResource
       summary: Returns all users assigned to the resource.
       parameters:
         - $ref: '#/components/parameters/resourceId'
@@ -6918,7 +6918,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: setBan
+      operationId: setResourceBan
       summary: Set ban for member on resource.
       responses:
         '200':
@@ -6942,7 +6942,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getBanById
+      operationId: getResourceBanById
       summary: Get Ban for member on resource by it's id.
       parameters:
         - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
@@ -6956,7 +6956,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getBan
+      operationId: getResourceBan
       summary: Get ban by memberId and resource id.
       parameters:
         - $ref: '#/components/parameters/memberId'
@@ -6999,7 +6999,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: updateBan
+      operationId: updateResourceBan
       summary: Update existing ban (description, validation timestamp)
       responses:
         '200':
@@ -7023,7 +7023,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: removeBanById
+      operationId: removeResourceBanById
       summary: Remove specific ban by it's id.
       parameters:
         - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
