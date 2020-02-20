@@ -1,8 +1,8 @@
 #!/bin/bash
 
-GENERATOR_VERSION=4.2.1
+GENERATOR_VERSION=4.2.3
 if [ ! -f  "openapi-generator-cli-$GENERATOR_VERSION.jar" ] ; then
-  wget http://central.maven.org/maven2/org/openapitools/openapi-generator-cli/$GENERATOR_VERSION/openapi-generator-cli-$GENERATOR_VERSION.jar
+  wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/$GENERATOR_VERSION/openapi-generator-cli-$GENERATOR_VERSION.jar
 fi
 
 rm -rf perun_openapi
@@ -17,5 +17,4 @@ java \
  --generator-name python \
  --input-spec ../perun-openapi/openapi.yml \
  --model-package model \
- --package-name perun_openapi \
- --additional-properties=generateSourceCodeOnly=true
+ --additional-properties=generateSourceCodeOnly=true,packageName=perun_openapi
