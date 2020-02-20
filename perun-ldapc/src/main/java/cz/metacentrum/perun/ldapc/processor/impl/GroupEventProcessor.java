@@ -1,12 +1,5 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ldap.NamingException;
-
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
@@ -15,6 +8,12 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ldap.NamingException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GroupEventProcessor extends AbstractEventProcessor {
 
@@ -25,26 +24,28 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 	}
 
 	public void processMemberAdded(String msg, MessageBeans beans) {
-		if(beans.getGroup() == null || beans.getMember() == null) {
+		if (beans.getGroup() == null || beans.getMember() == null) {
 			return;
 		}
 		try {
 			log.debug("Adding member {} to group {}", beans.getMember(), beans.getGroup());
 			perunGroup.addMemberToGroup(beans.getMember(), beans.getGroup());
 		} catch (NamingException | InternalErrorException e) {
-			log.error("Error adding member {} to group {}: {}", beans.getMember().getId(), beans.getGroup().getId(), e.getMessage());;
+			log.error("Error adding member {} to group {}: {}", beans.getMember().getId(), beans.getGroup().getId(), e.getMessage());
+			;
 		}
 	}
 
 	public void processMemberRemoved(String msg, MessageBeans beans) {
-		if(beans.getGroup() == null || beans.getMember() == null) {
+		if (beans.getGroup() == null || beans.getMember() == null) {
 			return;
 		}
 		try {
 			log.debug("Removing member {} from group {}", beans.getMember(), beans.getGroup());
 			perunGroup.removeMemberFromGroup(beans.getMember(), beans.getGroup());
 		} catch (NamingException | InternalErrorException e) {
-			log.error("Error removing member {} from group {}: {}", beans.getMember().getId(), beans.getGroup().getId(), e.getMessage());;
+			log.error("Error removing member {} from group {}: {}", beans.getMember().getId(), beans.getGroup().getId(), e.getMessage());
+			;
 		}
 	}
 
@@ -61,7 +62,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 	}*/
 
 	public void processResourceAssigned(String msg, MessageBeans beans) {
-		if(beans.getGroup() == null || beans.getResource() == null) {
+		if (beans.getGroup() == null || beans.getResource() == null) {
 			return;
 		}
 		try {
@@ -73,7 +74,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 	}
 
 	public void processResourceRemoved(String msg, MessageBeans beans) {
-		if(beans.getGroup() == null || beans.getResource() == null) {
+		if (beans.getGroup() == null || beans.getResource() == null) {
 			return;
 		}
 		try {
@@ -85,17 +86,17 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 	}
 
 	public void processGroupMoved(String msg, MessageBeans beans) {
-		if(beans.getGroup() == null) {
+		if (beans.getGroup() == null) {
 			return;
 		}
 		try {
 			// TODO move to PerunGroupImpl?
 			log.debug("Moving group {}", beans.getGroup());
 			perunGroup.modifyEntry(beans.getGroup(),
-						PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunUniqueGroupName,
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunParentGroup,
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunParentGroupId);
+					PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
+					PerunAttribute.PerunAttributeNames.ldapAttrPerunUniqueGroupName,
+					PerunAttribute.PerunAttributeNames.ldapAttrPerunParentGroup,
+					PerunAttribute.PerunAttributeNames.ldapAttrPerunParentGroupId);
 		} catch (NamingException | InternalErrorException e) {
 			log.error("Error moving group {}: {}", beans.getGroup().getId(), e.getMessage());
 		}
@@ -103,7 +104,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 	}
 
 	public void processMemberValidated(String msg, MessageBeans beans) {
-		if(beans.getMember() == null) {
+		if (beans.getMember() == null) {
 			return;
 		}
 		List<Group> memberGroups = new ArrayList<Group>();
@@ -112,7 +113,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 			log.debug("Getting list of groups for member {}", beans.getMember().getId());
 			// memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), beans.getMember());
 			memberGroups = perun.getGroupsManager().getAllGroupsWhereMemberIsActive(ldapcManager.getPerunSession(), beans.getMember());
-			for(Group g: memberGroups) {
+			for (Group g : memberGroups) {
 				log.debug("Adding validated member {} to group {}", beans.getMember(), g);
 				perunGroup.addMemberToGroup(beans.getMember(), g);
 			}
@@ -126,7 +127,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 	}
 
 	public void processMemberInvalidated(String msg, MessageBeans beans) {
-		if(beans.getMember() == null) {
+		if (beans.getMember() == null) {
 			return;
 		}
 		List<Group> memberGroups = new ArrayList<Group>();
@@ -135,7 +136,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 			log.debug("Getting list of groups for member {}", beans.getMember().getId());
 			// memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), beans.getMember());
 			memberGroups = perun.getGroupsManager().getAllMemberGroups(ldapcManager.getPerunSession(), beans.getMember());
-			for(Group g: memberGroups) {
+			for (Group g : memberGroups) {
 				log.debug("Removing invalidated member {} from group {}", beans.getMember(), g);
 				perunGroup.removeMemberFromGroup(beans.getMember(), g);
 			}
@@ -149,18 +150,18 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 	}
 
 	public void processAdminAdded(String msg, MessageBeans beans) {
-		if(beans.getGroup() == null) {
+		if (beans.getGroup() == null) {
 			return;
 		}
 		PerunBean admined = null;
 		try {
-			if(beans.getVo() != null) {
+			if (beans.getVo() != null) {
 				admined = beans.getVo();
 				perunGroup.addAsVoAdmin(beans.getGroup(), beans.getVo());
-			} else if(beans.getParentGroup() != null) {
+			} else if (beans.getParentGroup() != null) {
 				admined = beans.getParentGroup();
 				perunGroup.addAsGroupAdmin(beans.getGroup(), beans.getParentGroup());
-			} else if(beans.getFacility() != null) {
+			} else if (beans.getFacility() != null) {
 				admined = beans.getFacility();
 				perunGroup.addAsFacilityAdmin(beans.getGroup(), beans.getFacility());
 			}
@@ -168,27 +169,27 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 			log.error("Error adding group {} as admin of {}", beans.getGroup().getId(), admined.getId());
 		}
 	}
-	
+
 	public void processAdminRemoved(String msg, MessageBeans beans) {
-		if(beans.getGroup() == null) {
+		if (beans.getGroup() == null) {
 			return;
 		}
 		PerunBean admined = null;
 		try {
-			if(beans.getVo() != null) {
+			if (beans.getVo() != null) {
 				admined = beans.getVo();
 				perunGroup.removeFromVoAdmins(beans.getGroup(), beans.getVo());
-			} else if(beans.getParentGroup() != null) {
+			} else if (beans.getParentGroup() != null) {
 				admined = beans.getParentGroup();
 				perunGroup.removeFromGroupAdmins(beans.getGroup(), beans.getParentGroup());
-			} else if(beans.getFacility() != null) {
+			} else if (beans.getFacility() != null) {
 				admined = beans.getFacility();
 				perunGroup.removeFromFacilityAdmins(beans.getGroup(), beans.getFacility());
 			}
 		} catch (NamingException | InternalErrorException e) {
 			log.error("Error removing group {} from admins of {}", beans.getGroup().getId(), admined.getId());
 		}
-		
+
 	}
-	
+
 }

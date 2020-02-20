@@ -1,11 +1,11 @@
 package cz.metacentrum.perun.ldapc.model;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+
+import java.util.List;
 
 public interface PerunResource extends PerunEntry<Resource> {
 

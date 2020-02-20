@@ -1,25 +1,24 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.naming.Name;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.support.LdapNameBuilder;
-import static org.springframework.ldap.query.LdapQueryBuilder.query;
-
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
 import cz.metacentrum.perun.ldapc.model.PerunVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.support.LdapNameBuilder;
+
+import javax.naming.Name;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 
@@ -28,7 +27,7 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	@Autowired
 	@Lazy
 	private PerunUser user;
-	
+
 	@Override
 	protected List<String> getDefaultUpdatableAttributes() {
 		return Arrays.asList(PerunAttribute.PerunAttributeNames.ldapAttrDescription);
@@ -38,21 +37,21 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	protected List<PerunAttribute<Vo>> getDefaultAttributeDescriptions() {
 		return Arrays.asList(
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrOrganization, 
-						PerunAttribute.REQUIRED, 
-						(PerunAttribute.SingleValueExtractor<Vo>)(vo, attrs) -> vo.getShortName()
-						),
+						PerunAttribute.PerunAttributeNames.ldapAttrOrganization,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<Vo>) (vo, attrs) -> vo.getShortName()
+				),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrDescription, 
-						PerunAttribute.REQUIRED, 
-						(PerunAttribute.SingleValueExtractor<Vo>)(vo, attrs) -> vo.getName()
-						),
+						PerunAttribute.PerunAttributeNames.ldapAttrDescription,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<Vo>) (vo, attrs) -> vo.getName()
+				),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId, 
-						PerunAttribute.REQUIRED, 
-						(PerunAttribute.SingleValueExtractor<Vo>)(vo, attrs) -> String.valueOf(vo.getId())
-						)
-				);
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<Vo>) (vo, attrs) -> String.valueOf(vo.getId())
+				)
+		);
 	}
 
 	public void addVo(Vo vo) throws InternalErrorException {
@@ -72,10 +71,10 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 		DirContextOperations voEntry = findById(String.valueOf(voId));
 		String[] voShortNameInformation = voEntry.getStringAttributes(PerunAttribute.PerunAttributeNames.ldapAttrOrganization);
 		String voShortName = null;
-		if(voShortNameInformation == null || voShortNameInformation[0] == null) 
+		if (voShortNameInformation == null || voShortNameInformation[0] == null)
 			throw new InternalErrorException("There is no shortName in ldap for vo with id=" + voId);
-		if(voShortNameInformation.length != 1) 
-			throw new InternalErrorException("There is not exactly one short name of vo with id=" +  voId + " in ldap. Count of shortnames is " + voShortNameInformation.length);
+		if (voShortNameInformation.length != 1)
+			throw new InternalErrorException("There is not exactly one short name of vo with id=" + voId + " in ldap. Count of shortnames is " + voShortNameInformation.length);
 		voShortName = voShortNameInformation[0];
 		return voShortName;
 	}
@@ -104,12 +103,12 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 
 	protected void doSynchronizeMembers(DirContextOperations voEntry, List<Member> members) {
 		List<Name> memberList = new ArrayList<Name>(members.size());
-		for (Member member: members) {
+		for (Member member : members) {
 			memberList.add(addBaseDN(user.getEntryDN(String.valueOf(member.getUserId()))));
 		}
-		voEntry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrUniqueMember, memberList.stream().map( name -> name.toString()).toArray(String[]::new));
+		voEntry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrUniqueMember, memberList.stream().map(name -> name.toString()).toArray(String[]::new));
 	}
-	
+
 	@Override
 	public void synchronizeVo(Vo vo, List<Member> members) throws InternalErrorException {
 		SyncOperation syncOp = beginSynchronizeEntry(vo);
@@ -139,7 +138,7 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	}
 
 	@Override
-	public Name getEntryDN(String ...voId) {
+	public Name getEntryDN(String... voId) {
 		return LdapNameBuilder.newInstance()
 				.add(PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId, voId[0])
 				.build();
@@ -148,7 +147,7 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	@Override
 	public List<Name> listEntries() throws InternalErrorException {
 		return ldapTemplate.search(query().
-				where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunVO),
+						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunVO),
 				getNameMapper());
 	}
 
@@ -156,10 +155,10 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	public void deleteEntry(Name dn) throws InternalErrorException {
 		// first find and remove entries in subtree
 		List<Name> subentries = ldapTemplate.search(query()
-				.base(dn)
-				.where("objectclass").not().is(PerunAttribute.PerunAttributeNames.objectClassPerunVO),
+						.base(dn)
+						.where("objectclass").not().is(PerunAttribute.PerunAttributeNames.objectClassPerunVO),
 				getNameMapper());
-		for(Name entrydn : subentries) {
+		for (Name entrydn : subentries) {
 			ldapTemplate.unbind(entrydn);
 		}
 		// then remove this entry

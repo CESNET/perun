@@ -10,8 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
-import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.naming.Name;
-
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +30,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 	protected PerunGroup perunGroup;
 
 	public void synchronizeGroups() throws InternalErrorException {
-		PerunBl perun = (PerunBl)ldapcManager.getPerunBl();
+		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		boolean shouldWriteExceptionLog = true;
 		try {
 
@@ -43,7 +39,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 			List<Vo> vos = perun.getVosManagerBl().getVos(ldapcManager.getPerunSession());
 			Set<Name> presentGroups = new HashSet<Name>();
 
-			for(Vo vo : vos) {
+			for (Vo vo : vos) {
 				// Map<String, Object> params = new HashMap<String, Object>();
 				// params.put("vo", new Integer(vo.getId()));
 
@@ -53,11 +49,11 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 					// List<Group> groups = ldapcManager.getRpcCaller().call("groupsManager",  "getAllGroups", params).readList(Group.class);
 					List<Group> groups = perun.getGroupsManagerBl().getAllGroups(ldapcManager.getPerunSession(), vo);
 
-					for(Group group : groups) {
+					for (Group group : groups) {
 
 						presentGroups.add(perunGroup.getEntryDN(
-							String.valueOf(vo.getId()),
-							String.valueOf(group.getId())));
+								String.valueOf(vo.getId()),
+								String.valueOf(group.getId())));
 
 						try {
 							log.debug("Synchronizing group {}", group);
@@ -79,7 +75,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 							//perunGroup.synchronizeResources(group, resources);
 
 							GroupsManagerBl groupsManager = perun.getGroupsManagerBl();
-							List<Group> admin_groups =  groupsManager.getGroupsWhereGroupIsAdmin(ldapcManager.getPerunSession(), group);
+							List<Group> admin_groups = groupsManager.getGroupsWhereGroupIsAdmin(ldapcManager.getPerunSession(), group);
 							List<Vo> admin_vos = groupsManager.getVosWhereGroupIsAdmin(ldapcManager.getPerunSession(), group);
 							List<Facility> admin_facilities = groupsManager.getFacilitiesWhereGroupIsAdmin(ldapcManager.getPerunSession(), group);
 
@@ -93,7 +89,6 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 							throw new InternalErrorException(e);
 						}
 					}
-
 
 
 				} catch (PerunRuntimeException e) {

@@ -1,23 +1,21 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.Name;
-
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.ldapc.model.PerunFacility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.ldapc.model.PerunFacility;
+import javax.naming.Name;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 @Component
@@ -29,7 +27,7 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 	protected PerunFacility perunFacility;
 
 	public void synchronizeFacilities() throws InternalErrorException {
-		PerunBl perun = (PerunBl)ldapcManager.getPerunBl();
+		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		Set<Name> presentFacilities = new HashSet<Name>();
 		boolean shouldWriteExceptionLog = true;
 
@@ -38,7 +36,7 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 
 			List<Facility> facilities = perun.getFacilitiesManagerBl().getFacilities(ldapcManager.getPerunSession());
 
-			for(Facility facility : facilities) {
+			for (Facility facility : facilities) {
 
 				presentFacilities.add(perunFacility.getEntryDN(String.valueOf(facility.getId())));
 
@@ -61,7 +59,7 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 					perunFacility.synchronizeFacility(facility, attrs);
 
 				} catch (PerunRuntimeException e) {
-					if (shouldWriteExceptionLog)  {
+					if (shouldWriteExceptionLog) {
 						log.error("Error synchronizing facility", e);
 					}
 					shouldWriteExceptionLog = false;

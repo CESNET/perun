@@ -26,7 +26,7 @@ public class VOSynchronizer extends AbstractSynchronizer {
 	protected PerunVO perunVO;
 
 	public void synchronizeVOs() throws InternalErrorException {
-		PerunBl perun = (PerunBl)ldapcManager.getPerunBl();
+		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		boolean shouldWriteExceptionLog = true;
 		try {
 			log.debug("Getting list of VOs");

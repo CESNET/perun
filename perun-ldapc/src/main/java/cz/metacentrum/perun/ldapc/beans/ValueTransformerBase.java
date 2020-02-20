@@ -1,19 +1,19 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.Collection;
-import java.util.Map;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Base implementation of value transformer. It converts attribute values from Perun into
  * either single or multi-valued string values, which are acceptable by LDAP attributes.
- *
+ * <p>
  * Not all transformations are possible. In such case {@link UnsupportedOperationException} is thrown.
- *
+ * <p>
  * Specific transformers are expected to extend this class.
- *
+ * <p>
  * To apply multiple transformation to single attribute, see {@link CompositeValueTransformer}.
  */
 public class ValueTransformerBase implements AttributeValueTransformer {

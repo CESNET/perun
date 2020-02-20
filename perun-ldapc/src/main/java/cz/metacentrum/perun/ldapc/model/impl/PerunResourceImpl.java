@@ -1,19 +1,5 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
-import static org.springframework.ldap.query.LdapQueryBuilder.query;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.naming.Name;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.support.LdapNameBuilder;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
@@ -22,6 +8,18 @@ import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunFacility;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import cz.metacentrum.perun.ldapc.model.PerunResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.support.LdapNameBuilder;
+
+import javax.naming.Name;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements PerunResource {
 
@@ -45,32 +43,32 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
 						PerunAttribute.REQUIRED,
-						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> resource.getName()
+						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> resource.getName()
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunResourceId,
 						PerunAttribute.REQUIRED,
-						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getId())
+						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> String.valueOf(resource.getId())
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityId,
 						PerunAttribute.REQUIRED,
-						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getFacilityId())
+						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> String.valueOf(resource.getFacilityId())
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId,
 						PerunAttribute.REQUIRED,
-						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getVoId())
+						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> String.valueOf(resource.getVoId())
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrDescription,
 						PerunAttribute.OPTIONAL,
-						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> resource.getDescription()
+						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> resource.getDescription()
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityDn,
 						PerunAttribute.OPTIONAL,
-						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> perunFacility.getEntryDN(String.valueOf(resource.getFacilityId())).toString()
+						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> perunFacility.getEntryDN(String.valueOf(resource.getFacilityId())).toString()
 								+ "," + ldapProperties.getLdapBase()
 				)
 		);

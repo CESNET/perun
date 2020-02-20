@@ -1,21 +1,20 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
-import java.util.regex.Pattern;
-
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.ldapc.model.PerunUser;
+import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.InvalidAttributeValueException;
 import org.springframework.ldap.NamingException;
 
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.ldapc.model.PerunUser;
-import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
+import java.util.regex.Pattern;
 
 public class UserAttributeProcessor extends AbstractAttributeProcessor {
 
@@ -85,7 +84,7 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 		try {
 			log.debug("Changing virtual attribute {} for user {}", beans.getAttribute(), beans.getUser());
 			perunUser.modifyEntry(beans.getUser(), ((PerunBl) ldapcManager.getPerunBl()).getAttributesManagerBl().
-				getAttribute(ldapcManager.getPerunSession(), beans.getUser(), beans.getAttribute().getName()));
+					getAttribute(ldapcManager.getPerunSession(), beans.getUser(), beans.getAttribute().getName()));
 		} catch (WrongAttributeAssignmentException | InternalErrorException | AttributeNotExistsException | NamingException e) {
 			log.error("Error changing virtual attribute {} for user {}: {}", beans.getAttribute().getId(), beans.getUser().getId(), e);
 		}
@@ -122,45 +121,45 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 	}
 
 	public void processAdminAdded(String msg, MessageBeans beans) {
-		if(beans.getUser() == null) {
+		if (beans.getUser() == null) {
 			return;
 		}
 		PerunBean admined = null;
 		try {
-			if(beans.getVo() != null) {
+			if (beans.getVo() != null) {
 				admined = beans.getVo();
 				perunUser.addAsVoAdmin(beans.getUser(), beans.getVo());
-			} else if(beans.getGroup() != null) {
+			} else if (beans.getGroup() != null) {
 				admined = beans.getGroup();
 				perunUser.addAsGroupAdmin(beans.getUser(), beans.getGroup());
-			} else if(beans.getFacility() != null) {
+			} else if (beans.getFacility() != null) {
 				admined = beans.getFacility();
 				perunUser.addAsFacilityAdmin(beans.getUser(), beans.getFacility());
 			}
 		} catch (NamingException | InternalErrorException e) {
-			log.error("Error adding user {} as admin of {}: {}", beans.getUser().getId(), admined.getId(), ((InvalidAttributeValueException)e).getExplanation(), e);
+			log.error("Error adding user {} as admin of {}: {}", beans.getUser().getId(), admined.getId(), ((InvalidAttributeValueException) e).getExplanation(), e);
 		}
 	}
-	
+
 	public void processAdminRemoved(String msg, MessageBeans beans) {
-		if(beans.getUser() == null) {
+		if (beans.getUser() == null) {
 			return;
 		}
 		PerunBean admined = null;
 		try {
-			if(beans.getVo() != null) {
+			if (beans.getVo() != null) {
 				admined = beans.getVo();
 				perunUser.removeFromVoAdmins(beans.getUser(), beans.getVo());
-			} else if(beans.getGroup() != null) {
+			} else if (beans.getGroup() != null) {
 				admined = beans.getGroup();
 				perunUser.removeFromGroupAdmins(beans.getUser(), beans.getGroup());
-			} else if(beans.getFacility() != null) {
+			} else if (beans.getFacility() != null) {
 				admined = beans.getFacility();
 				perunUser.removeFromFacilityAdmins(beans.getUser(), beans.getFacility());
 			}
 		} catch (NamingException | InternalErrorException e) {
 			log.error("Error removing user {} from admins of {}: {}", beans.getUser().getId(), admined.getId(), e);
 		}
-		
+
 	}
 }
