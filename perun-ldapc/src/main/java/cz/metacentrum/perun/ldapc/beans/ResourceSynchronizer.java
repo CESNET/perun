@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.ldapc.beans;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -29,7 +28,7 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 	protected PerunResource perunResource;
 
 	public void synchronizeResources() throws InternalErrorException {
-		PerunBl perun = (PerunBl)ldapcManager.getPerunBl();
+		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		boolean shouldWriteExceptionLog = true;
 		try {
 			log.debug("Resource synchronization - getting list of VOs");
@@ -46,11 +45,11 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 					//List<Resource> resources = ldapcManager.getRpcCaller().call("resourceManager", "getResources", params).readList(Resource.class);
 					List<Resource> resources = perun.getResourcesManagerBl().getResources(ldapcManager.getPerunSession(), vo);
 
-					for(Resource resource : resources) {
+					for (Resource resource : resources) {
 
 						presentResources.add(perunResource.getEntryDN(
-							String.valueOf(vo.getId()),
-							String.valueOf(resource.getId())
+								String.valueOf(vo.getId()),
+								String.valueOf(resource.getId())
 						));
 
 						try {

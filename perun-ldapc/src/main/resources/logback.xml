@@ -23,7 +23,7 @@
 	</appender>
 
 	<root level="info">
-		<appender-ref ref="perun-ldapc" />
+		<appender-ref ref="perun-ldapc"/>
 	</root>
 
 	<logger name="cz.metacentrum.perun.ldapc" level="debug"/>

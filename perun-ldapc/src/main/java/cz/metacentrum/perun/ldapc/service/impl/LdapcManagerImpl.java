@@ -5,8 +5,8 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.ldapc.beans.FacilitySynchronizer;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.ldapc.beans.FacilitySynchronizer;
 import cz.metacentrum.perun.ldapc.beans.GroupSynchronizer;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.beans.ResourceSynchronizer;
@@ -65,10 +65,10 @@ public class LdapcManagerImpl implements LdapcManager {
 			resourceSynchronizer.synchronizeResources();
 			groupSynchronizer.synchronizeGroups();
 
-			int lastProcessedMessageId = ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().getLastMessageId(perunSession);
+			int lastProcessedMessageId = ((PerunBl) getPerunBl()).getAuditMessagesManagerBl().getLastMessageId(perunSession);
 			// ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
 			eventDispatcher.setLastProcessedIdNumber(lastProcessedMessageId);
-		} catch (Exception  e) {
+		} catch (Exception e) {
 			log.error("Error synchronizing to LDAP", e);
 			throw new InternalErrorException(e);
 		}
@@ -83,7 +83,7 @@ public class LdapcManagerImpl implements LdapcManager {
 	}
 
 	public PerunSession getPerunSession() throws InternalErrorException {
-		if(perunSession == null) {
+		if (perunSession == null) {
 			this.perunSession = perunBl.getPerunSession(perunPrincipal, new PerunClient());
 		}
 		return perunSession;

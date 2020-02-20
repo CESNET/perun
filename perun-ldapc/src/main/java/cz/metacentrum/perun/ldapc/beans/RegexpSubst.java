@@ -19,12 +19,15 @@ public class RegexpSubst {
 	public String getFind() {
 		return find;
 	}
+
 	public void setFind(String find) {
 		this.find = find;
 	}
+
 	public String getReplace() {
 		return replace;
 	}
+
 	public void setReplace(String replace) {
 		this.replace = replace;
 	}

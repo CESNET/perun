@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.ldapc.model;
 
-import java.util.List;
-
-
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+
+import java.util.List;
 
 public interface PerunVO extends PerunEntry<Vo> {
 
@@ -25,13 +24,12 @@ public interface PerunVO extends PerunEntry<Vo> {
 	 */
 	public void deleteVo(Vo vo) throws InternalErrorException;
 
-	public void updateVo(Vo vo) throws InternalErrorException; 
-	
+	public void updateVo(Vo vo) throws InternalErrorException;
+
 	/**
 	 * Find Vo in LDAP and return shortName of this Vo.
 	 *
 	 * @param voId vo id
-	 *
 	 * @return shortName of vo with vo id
 	 * @throws InternalErrorException if shortName has not right format (null, not exists, 0 length, more than 1 shortName exist)
 	 */
@@ -43,7 +41,7 @@ public interface PerunVO extends PerunEntry<Vo> {
 	public void removeMemberFromVO(int voId, Member member);
 
 	public void synchronizeVo(Vo vo, List<Member> members) throws InternalErrorException;
-	
+
 	public void synchronizeMembers(Vo vo, List<Member> members);
 
 }

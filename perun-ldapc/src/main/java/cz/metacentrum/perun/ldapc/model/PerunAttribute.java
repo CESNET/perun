@@ -29,7 +29,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrAssignedGroupId = "assignedGroupId";
 		public static final String ldapAttrDescription = "description";
 		public static final String ldapAttrCommonName = "cn";
-		public static final String ldapAttrPerunUniqueGroupName= "perunUniqueGroupName";
+		public static final String ldapAttrPerunUniqueGroupName = "perunUniqueGroupName";
 		public static final String ldapAttrEduPersonPrincipalNames = "eduPersonPrincipalNames";
 		public static final String ldapAttrPreferredMail = perunAttrPreferredMail;
 		public static final String ldapAttrMail = perunAttrMail;
@@ -68,7 +68,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrAdminOfVo = "adminOfVo";
 		public static final String ldapAttrAdminOfGroup = "adminOfGroup";
 		public static final String ldapAttrAdminOfFacility = "adminOfFacility";
-		
+
 		//LDAP OBJECT CLASSES
 		public static final String objectClassTop = "top";
 		public static final String objectClassPerunResource = "perunResource";

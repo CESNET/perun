@@ -1,12 +1,10 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
-import java.util.List;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
 public abstract class AttributeValueExtractor {
 
@@ -15,7 +13,7 @@ public abstract class AttributeValueExtractor {
 	private String nameRegexp;
 
 	protected AttributeValueTransformer valueTransformer;
-	
+
 	AttributeValueExtractor() {
 	}
 
@@ -52,14 +50,14 @@ public abstract class AttributeValueExtractor {
 	}
 
 	public boolean appliesToAttribute(AttributeDefinition attr) {
-		if(nameRegexp != null && !nameRegexp.isEmpty()) {
+		if (nameRegexp != null && !nameRegexp.isEmpty()) {
 			Matcher matcher = Pattern.compile(nameRegexp).matcher(attr.getName());
 			return matcher.find();
 		}
-		if(!attr.getNamespace().equals(this.namespace)) {
+		if (!attr.getNamespace().equals(this.namespace)) {
 			return false;
 		}
-		if(name != null && !name.isEmpty()) {
+		if (name != null && !name.isEmpty()) {
 			return attr.getBaseFriendlyName().equals(name);
 		}
 		return false;

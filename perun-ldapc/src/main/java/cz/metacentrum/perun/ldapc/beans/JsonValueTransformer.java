@@ -1,16 +1,14 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.Collection;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Value transformer, which converts attribute values from Perun into JSON formatted string.

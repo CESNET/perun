@@ -53,11 +53,11 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 		List<Facility> admin_facilities;
 
 		public SyncUsersWorker(
-				int poolIndex, 
-				User user, 
-				List<Attribute> attrs, 
-				Set<Integer> voIds, 
-				List<Group> groups, 
+				int poolIndex,
+				User user,
+				List<Attribute> attrs,
+				Set<Integer> voIds,
+				List<Group> groups,
 				List<UserExtSource> userExtSources,
 				List<Group> admin_groups,
 				List<Vo> admin_vos,
@@ -82,7 +82,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
 				//perunUser[poolIndex].synchronizePrincipals(user, userExtSources);
 				log.debug("Synchronizing user {} as admin of {} groups, {} VOs and {} facilities", user.getId(), admin_groups.size(), admin_vos.size(), admin_facilities.size());
-				perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos, admin_facilities);				
+				perunUser[poolIndex].synchronizeUser(user, attrs, voIds, groups, userExtSources, admin_groups, admin_vos, admin_facilities);
 			} catch (PerunRuntimeException e) {
 				log.error("Error synchronizing user", e);
 				UserSynchronizer.wasThreadException = true;
@@ -101,13 +101,13 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 	public void synchronizeUsers() throws InternalErrorException {
 
-		PerunBl perun = (PerunBl)ldapcManager.getPerunBl();
+		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 
 		ThreadPoolTaskExecutor syncExecutor = new ThreadPoolTaskExecutor();
 		int poolIndex;
 		boolean shouldWriteExceptionLog = true;
 
-		for(poolIndex = 0; poolIndex < perunUser.length; poolIndex++ ) {
+		for (poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
 			perunUser[poolIndex] = context.getBean("perunUser", PerunUser.class);
 		}
 
@@ -125,7 +125,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 			poolIndex = 0;
 			taskCount = new AtomicInteger(0);
 
-			for(User user: users) {
+			for (User user : users) {
 
 				presentUsers.add(perunUser[0].getEntryDN(String.valueOf(user.getId())));
 
@@ -159,8 +159,8 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 					Set<Integer> voIds = new HashSet<>();
 					List<Member> members = perun.getMembersManagerBl().getMembersByUser(ldapcManager.getPerunSession(), user);
 					List<Group> groups = new ArrayList<Group>();
-					for(Member member: members) {
-						if(member.getStatus().equals(Status.VALID)) {
+					for (Member member : members) {
+						if (member.getStatus().equals(Status.VALID)) {
 							voIds.add(member.getVoId());
 							groups.addAll(perun.getGroupsManagerBl().getAllGroupsWhereMemberIsActive(ldapcManager.getPerunSession(), member));
 						}
@@ -172,10 +172,10 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 					log.debug("Getting list of extSources for user {}", user.getId());
 					List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(ldapcManager.getPerunSession(), user);
 
-					List<Group> admin_groups =  perun.getUsersManagerBl().getGroupsWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
+					List<Group> admin_groups = perun.getUsersManagerBl().getGroupsWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
 					List<Vo> admin_vos = perun.getUsersManagerBl().getVosWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
 					List<Facility> admin_facilities = perun.getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(ldapcManager.getPerunSession(), user);
-					
+
 					//log.debug("Synchronizing user {} with {} extSources", user.getId(), userExtSources.size());
 					//perunUser.synchronizePrincipals(user, userExtSources);
 
@@ -207,7 +207,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 		} finally {
 			// wait for all the tasks to get executed
-			while(!syncExecutor.getThreadPoolExecutor().getQueue().isEmpty()) {
+			while (!syncExecutor.getThreadPoolExecutor().getQueue().isEmpty()) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -215,7 +215,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				}
 			}
 			// wait for all the tasks to complete (for at most 10 seconds)
-			for(int i = 0; i < 10 && taskCount.get() > 0; i++) {
+			for (int i = 0; i < 10 && taskCount.get() > 0; i++) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -223,7 +223,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				}
 			}
 			syncExecutor.shutdown();
-			for(poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
+			for (poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
 				perunUser[poolIndex] = null;
 			}
 		}

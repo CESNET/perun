@@ -10,15 +10,15 @@ import java.util.Map;
  * @author Michal Šťava <stavamichal@gmail.com>
  */
 public enum LdapOperation {
-	ADD_ATTRIBUTE (1),    //just created object, where some information (e.g. attribute)  is missing
-								REPLACE_ATTRIBUTE (2),  //security issue
-								REMOVE_ATTRIBUTE (3);
+	ADD_ATTRIBUTE(1),    //just created object, where some information (e.g. attribute)  is missing
+	REPLACE_ATTRIBUTE(2),  //security issue
+	REMOVE_ATTRIBUTE(3);
 
-	private static final Map<Integer,LdapOperation> lookup = new HashMap<Integer,LdapOperation>();
+	private static final Map<Integer, LdapOperation> lookup = new HashMap<Integer, LdapOperation>();
 	int code;
 
 	static {
-		for(LdapOperation s : EnumSet.allOf(LdapOperation.class))
+		for (LdapOperation s : EnumSet.allOf(LdapOperation.class))
 			lookup.put(s.getCode(), s);
 	}
 

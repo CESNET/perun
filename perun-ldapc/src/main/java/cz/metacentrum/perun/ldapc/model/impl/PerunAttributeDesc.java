@@ -59,7 +59,7 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 	@Override
 	public String getName(AttributeDefinition attr) {
 		// TODO: check if the attribute name parameter is not empty
-		if(name.contains(";") && attr != null) {
+		if (name.contains(";") && attr != null) {
 			String param = attr.getFriendlyNameParameter();
 			return name + param;
 		}
@@ -68,15 +68,16 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 
 	@Override
 	public String getBaseName() {
-		if(name.contains(";")) {
+		if (name.contains(";")) {
 			return name.substring(0, name.indexOf(";"));
-		};
+		}
+		;
 		return name;
 	}
 
 	@Override
-	public boolean hasValue(T bean, Attribute...attributes) throws InternalErrorException {
-		if(isMultiValued()) {
+	public boolean hasValue(T bean, Attribute... attributes) throws InternalErrorException {
+		if (isMultiValued()) {
 			Object[] values = getValues(bean, attributes);
 			return values != null && values.length > 0;
 		} else {
@@ -86,12 +87,12 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 	}
 
 	@Override
-	public String getValue(T bean, Attribute...attributes) throws InternalErrorException {
+	public String getValue(T bean, Attribute... attributes) throws InternalErrorException {
 		return singleValueExtractor != null ? singleValueExtractor.getValue(bean, attributes) : null;
 	}
 
 	@Override
-	public String[] getValues(T bean, Attribute...attributes) throws InternalErrorException {
+	public String[] getValues(T bean, Attribute... attributes) throws InternalErrorException {
 		return multipleValuesExtractor != null ? multipleValuesExtractor.getValues(bean, attributes) : null;
 	}
 
@@ -143,7 +144,7 @@ public class PerunAttributeDesc<T extends PerunBean> implements PerunAttribute<T
 
 	@Override
 	public boolean requiresAttributeBean() {
-		if(isMultiValued()) {
+		if (isMultiValued()) {
 			return getMultipleValuesExtractor() instanceof AttributeValueExtractor;
 		} else {
 			return getSingleValueExtractor() instanceof AttributeValueExtractor;

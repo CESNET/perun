@@ -1,17 +1,16 @@
 package cz.metacentrum.perun.ldapc.main;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,12 +43,12 @@ public class LdapcStarter {
 		int lastProcessedIdToSet = 0;
 		boolean doSync = false;
 
-		if(args.length == 0) {
+		if (args.length == 0) {
 			//This is normal behavior, do nothing special, just start ldapc
 		} else if (args.length == 1) {
 			//This behavior is special, set lastProcessedId
 			String argument = args[0];
-			if(argument.equals("--sync"))
+			if (argument.equals("--sync"))
 				doSync = true;
 			else
 				lastProcessedIdToSet = Integer.valueOf(argument);
@@ -57,7 +56,6 @@ public class LdapcStarter {
 			System.out.println("Too much arguments, can't understand what to do, exit starting!");
 			return;
 		}
-
 
 
 		try {
@@ -74,17 +72,17 @@ public class LdapcStarter {
 			ldapcStarter.ldapcManager.setPerunBl(ldapcStarter.perunBl);
 
 			// Synchronize before starting the audit consumer
-			if(doSync)
+			if (doSync)
 				ldapcStarter.ldapcManager.synchronize();
 			else {
 
 				//Set lastProcessedIdToSet if bigger than 0
-				if(lastProcessedIdToSet > 0) {
+				if (lastProcessedIdToSet > 0) {
 					//Rpc.AuditMessagesManager.setLastProcessedId(rpcCaller, "ldapcConsumer", lastProcessedIdToSet);
 					//ldapcStarter.perunBl.getAuditMessagesManager().setLastProcessedId(ldapcStarter.ldapcManager.getPerunSession(),
 					//		ldapcStarter.ldapProperties.getLdapConsumerName(), lastProcessedIdToSet);
-						ldapcStarter.ldapcManager.setLastProcessedId(lastProcessedIdToSet);
-					}
+					ldapcStarter.ldapcManager.setLastProcessedId(lastProcessedIdToSet);
+				}
 			}
 
 			// Start processing events (run method in EventProcessorImpl)
