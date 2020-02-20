@@ -1359,6 +1359,10 @@ public interface GroupsManagerBl {
 	 * Return all RichGroups for specified member, containing selected attributes.
 	 * "members" group is not included.
 	 *
+	 * Supported are attributes from these namespaces:
+	 *  - group
+	 *  - member-group
+	 *
 	 * @param sess internal session
 	 * @param member the member to get the rich groups for
 	 * @param attrNames list of selected attributes
@@ -1767,7 +1771,7 @@ public interface GroupsManagerBl {
 
 	/**
 	 *  Get list of groups where the given group is given the admin role.
-	 *  
+	 *
 	 * @param perunSession
 	 * @param Group with the admin role.
 	 * @return List of administered groups.
@@ -1777,7 +1781,7 @@ public interface GroupsManagerBl {
 
 	/**
 	 *  Get list of VOs where the given group is given the admin role.
-	 *  
+	 *
 	 * @param perunSession
 	 * @param Group with the admin role.
 	 * @return List of administered VOs.
@@ -1787,7 +1791,7 @@ public interface GroupsManagerBl {
 
 	/**
 	 *  Get list of facilities where the given group is given the admin role.
-	 *  
+	 *
 	 * @param perunSession
 	 * @param Group with the admin role.
 	 * @return List of administered facilities.

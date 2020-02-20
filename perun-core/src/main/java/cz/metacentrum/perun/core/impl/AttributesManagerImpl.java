@@ -1228,14 +1228,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException {
+		List<String> controlledAttrNames = new ArrayList<>();
+		for(String attributeName: attrNames) {
+			//check namespace
+			if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) controlledAttrNames.add(attributeName);
+		}
+
 		if(!CacheManager.isCacheDisabled()) {
-			List<String> controlledAttrNames = new ArrayList<>();
-
-			for(String attributeName: attrNames) {
-				//check namespace
-				if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) controlledAttrNames.add(attributeName);
-			}
-
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
 			return this.setValuesOfAttributes(sess, attrs, member, group);
 		}
@@ -1246,7 +1245,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("nSO", AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
 		parameters.addValue("nSD", AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
 		parameters.addValue("nSV", AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		parameters.addValue("attrNames", attrNames);
+		parameters.addValue("attrNames", controlledAttrNames);
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
@@ -1403,14 +1402,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException {
+		//filter only group attribute names
+		List<String> controlledAttrNames = new ArrayList<>();
+		for(String attributeName: attrNames) {
+			//check namespace
+			if(attributeName.startsWith(AttributesManager.NS_GROUP_ATTR)) controlledAttrNames.add(attributeName);
+		}
+
 		if(!CacheManager.isCacheDisabled()) {
-			List<String> controlledAttrNames = new ArrayList<>();
-
-			for(String attributeName: attrNames) {
-				//check namespace
-				if(attributeName.startsWith(AttributesManager.NS_GROUP_ATTR)) controlledAttrNames.add(attributeName);
-			}
-
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(group.getId(), Holder.HolderType.GROUP), null);
 			return this.setValuesOfAttributes(sess, attrs, group, null);
 		}
@@ -1421,7 +1420,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("nSO", AttributesManager.NS_GROUP_ATTR_OPT);
 		parameters.addValue("nSD", AttributesManager.NS_GROUP_ATTR_DEF);
 		parameters.addValue("nSV", AttributesManager.NS_GROUP_ATTR_VIRT);
-		parameters.addValue("attrNames", attrNames);
+		parameters.addValue("attrNames", controlledAttrNames);
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +

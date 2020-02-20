@@ -2442,7 +2442,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException {
-		return convertGroupsToRichGroupsWithAttributes(sess, this.getMemberGroups(sess, member), attrNames);
+		List<Group> memberGroups = this.getMemberGroups(sess, member);
+		List<RichGroup> richGroups = new ArrayList<>();
+
+		if(attrNames == null) {
+			//if attrNames is null, it means all possible group and member-group attributes
+			for(Group group: memberGroups) {
+				List<Attribute> allGroupAndMemberGroupAttributes = new ArrayList<>();
+				allGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group));
+				allGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group));
+				richGroups.add(new RichGroup(group, allGroupAndMemberGroupAttributes));
+			}
+		} else {
+			//if attrNames is not null, it means only selected group and member-group attributes
+			for (Group group : memberGroups) {
+				List<Attribute> selectedGroupAndMemberGroupAttributes = new ArrayList<>();
+				selectedGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames));
+				selectedGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group, attrNames));
+				richGroups.add(new RichGroup(group, selectedGroupAndMemberGroupAttributes));
+			}
+		}
+
+		return richGroups;
 	}
 
 	@Override

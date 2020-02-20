@@ -1074,9 +1074,13 @@ public interface GroupsManager {
 	 * Return all RichGroups for specified member, containing selected attributes.
 	 * "members" group is not included.
 	 *
+	 * Supported are attributes from these namespaces:
+	 *  - group
+	 *  - member-group
+	 *
 	 * @param sess internal session
 	 * @param member the member to get the rich groups for
-	 * @param attrNames list of selected attributes
+	 * @param attrNames list of selected attributes from supported namespaces
 	 * @return list of rich groups with selected attributes
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
