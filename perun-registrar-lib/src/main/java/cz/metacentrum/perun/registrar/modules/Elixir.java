@@ -77,7 +77,7 @@ public class Elixir extends DefaultRegistrarModule {
 
 		User user = null;
 		try {
-			user = Utils.parseUserFromCommonName(displayName);
+			user = Utils.parseUserFromCommonName(displayName, false);
 		} catch (Exception ex) {
 
 			log.warn("We couldn't parse commonName/displayName into User object");
