@@ -337,7 +337,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	abstract protected Name buildDN(T bean);
-	
+
 	abstract protected void mapToContext(T bean, DirContextOperations context) throws InternalErrorException;
 
 	/**
@@ -404,7 +404,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 				values = attrDef.getValues(bean, (Attribute)attr);
 			} else {
 				if(attrDef.hasValue(bean, (Attribute)attr)) {
-				values = Arrays.asList(attrDef.getValue(bean, (Attribute)attr)).toArray();
+					values = Arrays.asList(attrDef.getValue(bean, (Attribute)attr)).toArray();
 				} else {
 					values = null;
 				}
