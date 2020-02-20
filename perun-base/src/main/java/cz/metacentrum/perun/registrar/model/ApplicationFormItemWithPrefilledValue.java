@@ -10,6 +10,7 @@ public class ApplicationFormItemWithPrefilledValue {
 	private ApplicationFormItem formItem;
 	private String prefilledValue;
 	private String assuranceLevel;
+	private boolean generated = false;
 
 	public ApplicationFormItemWithPrefilledValue(ApplicationFormItem formItem, String prefilledValue) {
 		this.formItem = formItem;
@@ -40,6 +41,14 @@ public class ApplicationFormItemWithPrefilledValue {
 		this.assuranceLevel = assuranceLevel;
 	}
 
+	public boolean isGenerated() {
+		return generated;
+	}
+
+	public void setGenerated(boolean generated) {
+		this.generated = generated;
+	}
+
 	/**
 	 * Return bean name as PerunBean does.
 	 *
@@ -55,6 +64,7 @@ public class ApplicationFormItemWithPrefilledValue {
 			"formItem='" + getFormItem().toString() + '\'' +
 			", prefilledValue='" + getPrefilledValue() + '\'' +
 			", assuranceLevel='" + getAssuranceLevel() + '\'' +
+			", generated='" + isGenerated() + '\'' +
 			']';
 	}
 

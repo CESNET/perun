@@ -3,15 +3,11 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +20,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Application module for ELIXIR purpose
@@ -40,7 +34,7 @@ import java.util.Map;
  *
  * Implementation must be kept in sync with: https://github.com/ttomttom/aarc-delegation-server/blob/master/src/main/java/org/delegserver/oauth2/generator/DNGenerator.java#L483
  */
-public class ELIXIRCILogonDNGenerator implements RegistrarModule {
+public class ELIXIRCILogonDNGenerator extends DefaultRegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(ELIXIRCILogonDNGenerator.class);
 
@@ -50,15 +44,6 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 
 	private static final String RDN_TRUNCATE_SIGN = "...";
 	private static final int RDN_MAX_SIZE = 64;
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
 
 	/**
 	 * All new members will get new userExtSource with generated DN according to the CILogon rules:
@@ -117,26 +102,6 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 		return app;
 
 	}
-
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
-
-	}
-
 
 	/**
 	 * Implementation of the general truncating rule outlined in the RCauth Policy Document
