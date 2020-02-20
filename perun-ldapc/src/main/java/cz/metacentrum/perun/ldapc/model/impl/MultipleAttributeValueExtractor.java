@@ -19,19 +19,9 @@ public class MultipleAttributeValueExtractor<T extends PerunBean> extends Attrib
 		for (Attribute attribute : attributes) {
 			if(this.appliesToAttribute(attribute)) {
 				if(attribute == null) return null;
-				if (attribute.getType().equals(String.class.getName()) || attribute.getType().equals(BeansUtils.largeStringClassName)) {
-					Object value = attribute.getValue();
-					if(value == null) 
-						return null;
-					else
-						result = new String[] { 
-								(valueTransformer == null) ?
-										(String)value 
-										: valueTransformer.getValue((String)value, attribute) 
-						};
-				} else if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
+				if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
 					List<String> values = attribute.valueAsList();
-					if(values == null || values.size() == 0) 
+					if(values == null || values.size() == 0)
 						return null;
 					else {
 						if(valueTransformer == null) {
@@ -41,14 +31,14 @@ public class MultipleAttributeValueExtractor<T extends PerunBean> extends Attrib
 								result = valueTransformer.getAllValues(values, attribute);
 							} else {
 								result = values.stream()
-								.map(value -> valueTransformer.getValue(value, attribute))
-								.toArray(String[]::new);
+										.map(value -> valueTransformer.getValue(value, attribute))
+										.toArray(String[]::new);
 							}
 						}
 					}
 				} else if (attribute.getType().equals(LinkedHashMap.class.getName())) {
 					LinkedHashMap<String, String> values = attribute.valueAsMap();
-					if(values == null || values.isEmpty()) 
+					if(values == null || values.isEmpty())
 						return null;
 					else {
 						if(valueTransformer != null) {
@@ -59,7 +49,16 @@ public class MultipleAttributeValueExtractor<T extends PerunBean> extends Attrib
 						}
 					}
 				} else {
-					return null;
+					// use toString() for String, LargeString, Integer nad Boolean types
+					Object value = attribute.getValue();
+					if(value == null)
+						return null;
+					else
+						result = new String[] {
+								(valueTransformer == null) ?
+										value.toString()
+										: valueTransformer.getValue((String)value, attribute)
+						};
 				}
 				return result;
 			}

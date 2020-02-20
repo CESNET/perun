@@ -18,32 +18,31 @@ public class SingleAttributeValueExtractor<T extends PerunBean> extends Attribut
 		for (Attribute attribute : attributes) {
 			if(this.appliesToAttribute(attribute)) {
 				if(attribute == null) return null;
-				if (attribute.getType().equals(String.class.getName()) || attribute.getType().equals(BeansUtils.largeStringClassName)) {
+				if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
+					List<String> values = attribute.valueAsList();
+					if(values == null || values.size() == 0)
+						return null;
+					else
+						result = (valueTransformer == null)
+								? values.toString() : valueTransformer.getValue(values, attribute);
+				} else if (attribute.getType().equals(LinkedHashMap.class.getName())) {
+					LinkedHashMap<String, String> values = attribute.valueAsMap();
+					if(values == null || values.isEmpty())
+						return null;
+					else
+						result = (valueTransformer == null)
+								? values.toString() : valueTransformer.getValue(values, attribute);
+				} else {
+					// use toString() for String, LargeString, Integer nad Boolean types
 					Object value = attribute.getValue();
-					if(value == null) 
+					if(value == null)
 						return null;
 					else {
-						result =  value.toString();
+						result = value.toString();
 						if(valueTransformer != null) {
 							result = valueTransformer.getValue(result, attribute);
 						}
 					}
-				} else if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
-					List<String> values = attribute.valueAsList();
-					if(values == null || values.size() == 0) 
-						return null;
-					else 
-						result = (valueTransformer == null) 
-							? values.toString() : valueTransformer.getValue(values, attribute);
-				} else if (attribute.getType().equals(LinkedHashMap.class.getName())) {
-					LinkedHashMap<String, String> values = attribute.valueAsMap();
-					if(values == null || values.isEmpty()) 
-						return null;
-					else
-						result = (valueTransformer == null) 
-							? values.toString() : valueTransformer.getValue(values, attribute);
-				} else {
-					return null;
 				}
 				return result;
 			}
