@@ -806,6 +806,26 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="europeanStudentID"/>
+					<property name="required" value="false"/>
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:virt"/>
+							<property name="name" value="europeanStudentIDs"/>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="eIDASPersonIdentifier"/>
+					<property name="required" value="false"/>
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:virt"/>
+							<property name="name" value="eIDASPersonIdentifiers"/>
+						</bean>
+					</property>
+				</bean>
 			</list>
 		</property>
 		<property name="attributeDescriptionsExt" ref="perunUserAttributesExt"/>

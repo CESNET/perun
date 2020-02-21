@@ -502,6 +502,14 @@ public class CoreConfig {
 					attr.setDescription("Assurance about user as defined at: https://wiki.refeds.org/display/ASS/REFEDS+Assurance+Framework+ver+1.0");
 					attr.setType(BeansUtils.largeStringClassName);
 					break;
+				case "europeanStudentID":
+					attr.setDisplayName("European Student ID");
+					attr.setDescription("European Student ID");
+					break;
+				case "eIDASPersonIdentifier":
+					attr.setDisplayName("eIDAS Person Identifier");
+					attr.setDescription("eIDAS Person Identifier");
+					break;
 				case "dn":
 					attr.setDisplayName("certificate DN");
 					attr.setDescription("Distinguished Name from X509 digital certificate");
