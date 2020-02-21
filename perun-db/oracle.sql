@@ -1789,11 +1789,11 @@ insert into action_types (id, action_type, description) values (action_types_seq
 insert into action_types (id, action_type, description) values (action_types_seq.nextval, 'write_public', 'Anyone can write, rewrite and remove value.');
 
 -- insert default engine on default port
-insert into engines (id, ip_address, port, last_check_in) VALUES (1, '127.0.0.1', 6061, sysdate);
+insert into engines (id, ip_address, port, last_check_in) VALUES (1, 'engine1', 6061, sysdate);
 
 -- init default auditer consumers
-insert into perun.auditer_consumers (id, name, last_processed_id) values (auditer_consumers_id_seq.nextval, '127.0.0.1:6071', 0); -- engine
-insert into perun.auditer_consumers (id, name, last_processed_id) values (auditer_consumers_id_seq.nextval, 'notifications', 0);  -- notification
+insert into perun.auditer_consumers (id, name, last_processed_id) values (auditer_consumers_id_seq.nextval, 'dispatcher', 0);
+insert into perun.auditer_consumers (id, name, last_processed_id) values (auditer_consumers_id_seq.nextval, 'notifications', 0);
 
 -- initial user, user_ext_source and internal ext_source
 insert into perun.ext_sources (id,name,type) values (ext_sources_id_seq.nextval,'INTERNAL','cz.metacentrum.perun.core.impl.ExtSourceInternal');

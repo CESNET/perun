@@ -62,8 +62,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			<props>
 				<!-- set where perun-engine JSM runs -->
 				<prop key="engine.unique.id">1</prop>
-				<prop key="engine.ip.address">127.0.0.1</prop>
-				<prop key="engine.port">6061</prop>
 				<!-- set where perun-dispatcher JMS runs -->
 				<prop key="dispatcher.ip.address">127.0.0.1</prop>
 				<prop key="dispatcher.port">6071</prop>
