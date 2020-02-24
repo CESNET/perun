@@ -68,7 +68,7 @@
 	<logger name="cz.metacentrum.perun.rpc.Main" level="info"/>
 
 	<!--
-		logging to separate files - set by the atribute additivity="false" and
+		logging to separate files - set by the attribute additivity="false" and
 		the element	appender-ref on loggers
 	-->
 
@@ -146,21 +146,6 @@
 		<appender-ref ref="perun-cabinet"/>
 	</logger>
 
-
-	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-eventProcessor">
-		<file>${LOGDIR}perun-dispatcher-eventProcessor.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-dispatcher-eventProcessor.log.%d</fileNamePattern>
-			<maxHistory>${MAXHISTORY}</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${ENCODER_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="cz.metacentrum.perun.dispatcher.processing.EventProcessor" level="info" additivity="false">
-		<appender-ref ref="perun-dispatcher-eventProcessor"/>
-	</logger>
-
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-events">
 		<file>${LOGDIR}perun-dispatcher-events.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -171,7 +156,7 @@
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<logger name="cz.metacentrum.perun.dispatcher.processing.EventLogger" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.dispatcher.processing" level="info" additivity="false">
 		<appender-ref ref="perun-dispatcher-events"/>
 	</logger>
 
@@ -201,34 +186,6 @@
 	</appender>
 	<logger name="cz.metacentrum.perun.dispatcher" level="info" additivity="false">
 		<appender-ref ref="perun-dispatcher"/>
-	</logger>
-
-	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-matcher">
-		<file>${LOGDIR}perun-dispatcher-matcher.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-dispatcher-matcher.log.%d</fileNamePattern>
-			<maxHistory>${MAXHISTORY}</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${ENCODER_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="cz.metacentrum.perun.dispatcher.processing.impl.SmartMatcherImpl" level="info" additivity="false">
-		<appender-ref ref="perun-dispatcher-matcher"/>
-	</logger>
-
-	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-queue">
-		<file>${LOGDIR}perun-dispatcher-queue.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-dispatcher-queue.log.%d</fileNamePattern>
-			<maxHistory>${MAXHISTORY}</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${ENCODER_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="cz.metacentrum.perun.dispatcher.jms.DispatcherQueue" level="info" additivity="false">
-		<appender-ref ref="perun-dispatcher-queue"/>
 	</logger>
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-engine">
