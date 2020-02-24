@@ -577,6 +577,26 @@ components:
       discriminator:
         propertyName: beanName
 
+    Candidate:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - properties:
+            userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+            additionalUserExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
+            attributes:
+              type: object
+              additionalProperties: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    MemberCandidate:
+      type: object
+      properties:
+        candidate: { $ref: '#/components/schemas/Candidate' }
+        member: { $ref: '#/components/schemas/Member' }
+        richUser: { $ref: '#/components/schemas/RichUser' }
+
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -1075,6 +1095,15 @@ components:
             items:
               $ref: "#/components/schemas/SecurityTeam"
 
+    ListOfCandidatesResponse:
+      description: "return List<Candidate>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Candidate"
+
     BanOnFacilityResponse:
       description: "returns banOnFacility"
       content:
@@ -1090,6 +1119,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnFacility"
+
+    ListOfMemberCandidatesResponse:
+      description: "return List<MemberCandidate>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/MemberCandidate"
 
   #####################################################
   #                                                   #
@@ -7595,7 +7633,7 @@ paths:
   #################################################
   #                                               #
   # VosManager                                    #
-  #  (complete with TODOs)                        #
+  #                                               #
   #################################################
 
   /json/vosManager/getVos:
@@ -7622,11 +7660,104 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO deleteVo
+  /urlinjsonout/vosManager/deleteVo/pure:
+    post:
+      tags:
+        - VosManager
+      operationId: deleteVo
+      summary: Deletes a VO. If VO contain members, group or resources, it's not deleted and exception is thrown.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO createVo
+  /urlinjsonout/vosManager/deleteVo/withAll:
+    post:
+      tags:
+        - VosManager
+      operationId: deleteVoForce
+      summary: Deletes a VO. If <code>force == true</code> then VO is deleted including members, groups and resources.
+        Otherwise only empty VO is deleted or exception is thrown.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: force, description: "Force must be true", schema: { type: boolean },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO updateVo
+  /json/vosManager/createVo/withVo:
+    post:
+      tags:
+        - VosManager
+      operationId: createVoWithVo
+      summary: |
+        Creates new VO. Caller is automatically set as VO manager.
+        Vo Object must contain:
+        name - lenght can be no more than 128 characters
+        shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32 characters.
+        Other parameters are ignored.
+        @exampleParam vo { "name" : "My testing VO" , "shortName" : "test_vo" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateVoWithVo
+              description: "input to createVoWithVo"
+              type: object
+              required:
+                - vo
+              properties:
+                vo: { $ref: '#/components/schemas/Vo' }
+
+  /urlinjsonout/vosManager/createVo/withName:
+    post:
+      tags:
+        - VosManager
+      operationId: createVoWithName
+      summary: Creates new VO. Caller is automatically set as VO manager.
+      parameters:
+        - { name: name, description: "name - length can be no more than 128 characters", schema: { type: string },  in: query, required: true }
+        - { name: shortName, description: "shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32 characters", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/updateVo:
+    post:
+      tags:
+        - VosManager
+      operationId: updateVo
+      summary: Updates a VO. Only name parameter is updated. VO to updated is determined by id parameter of passed VO object.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateVo
+              description: "input to updateVo"
+              type: object
+              required:
+                - vo
+              properties:
+                vo: { $ref: '#/components/schemas/Vo' }
 
   /json/vosManager/getVoByShortName:
     get:
@@ -7656,11 +7787,126 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO findCandidates
+  /json/vosManager/findCandidates:
+    get:
+      tags:
+        - VosManager
+      operationId: findCandidates
+      summary: |
+        Find candidates for VO. Candidates can be used to create new members. Candidates are searched
+        in VOs external sources (if available). Candidates, which are already members of VO are never
+        returned even if they match searchString.
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getCompleteCandidates
+  /json/vosManager/findCandidates/withMaxNumberResults:
+    get:
+      tags:
+        - VosManager
+      operationId: findCandidatesWithMaximumNumberResults
+      summary: |
+        Find candidates for VO with specified maximum number of results. Candidates can be used to create new members.
+        Candidates are searched in VOs external sources (if available). Candidates, which are already members of VO are never
+        returned even if they match searchString.
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+        - { name: maxNumOfResults, schema: { type: integer}, in: query, required: true, description: 'Number of maximum results' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getVosCount
+  /json/vosManager/findCandidates/forGroup:
+    get:
+      tags:
+        - VosManager
+      operationId: findCandidatesForGroup
+      summary: |
+        Find candidates for Group. Candidates can be used to create new VO and Group members. Candidates are searched
+        in Groups external sources (if available). Candidates, which are already members of VO are never
+        returned even if they match searchString.
+      parameters:
+        - { name: group, schema: { type: integer}, in: query, required: true, description: 'group id' }
+        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getCompleteCandidates/forVo:
+    get:
+      tags:
+        - VosManager
+      operationId: getCompleteCandidatesForVo
+      summary: |
+        Find MemberCandidates for VO. MemberCandidates can be used to create new members. They are made of Candidate,
+        RichUser and Member objects. Candidates are searched in VO's external sources (if available). RichUsers are
+        searched in given VO and are associated with appropriate candidate and member. RichUsers for MemberCandidates
+        may also be searched in the whole Perun.
+      parameters:
+        - { name: vo, schema: { type: integer}, in: query, required: true, description: 'vo id' }
+        - name: attrNames
+          description: 'list with names of attributes that should be find'
+          schema:
+            type: array
+            items:
+              type: string
+          in: query
+          required: true
+        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMemberCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getCompleteCandidates/forGroup:
+    get:
+      tags:
+        - VosManager
+      operationId: getCompleteCandidatesForGroup
+      summary: |
+        Find MemberCandidates for GROUP. MemberCandidates can be used to create new members. They are made of Candidate,
+        RichUser and Member objects. Candidates are searched in VO's or GROUP's (depends on privileges) external sources
+        (if available). RichUsers are searched in given VO and are associated with appropriate candidate and member.
+        RichUsers for appropriate Candidate are also searched in the whole Perun.
+      parameters:
+        - { name: group, schema: { type: integer}, in: query, required: true, description: 'group id' }
+        - name: attrNames
+          description: 'list with names of attributes that should be find'
+          schema:
+            type: array
+            items:
+              type: string
+          in: query
+          required: true
+        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMemberCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getVosCount:
+    get:
+      tags:
+        - VosManager
+      operationId: getVosCount
+      summary: Gets count of all vos.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/vosManager/addAdmin/user:
     post:
@@ -7692,7 +7938,35 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addSponsorRole
+  /urlinjsonout/vosManager/addSponsorRole/user:
+    post:
+      tags:
+        - VosManager
+      operationId: addSponsorRoleToUser
+      summary: Add user as a sponsor for guest members of VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/addSponsorRole/group:
+    post:
+      tags:
+        - VosManager
+      operationId: addSponsorRoleToGroup
+      summary: Add group as a sponsor of guest members of VO. All members of group will become sponsors.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/vosManager/removeAdmin/user:
     post:
@@ -7724,7 +7998,35 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeSponsorRole
+  /urlinjsonout/vosManager/removeSponsorRole/user:
+    post:
+      tags:
+        - VosManager
+      operationId: removeSponsorRoleFromUser
+      summary: Removes user as a sponsor. His or her sponsored members will be set as expired if the user was their last sponsor.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/removeSponsorRole/group:
+    post:
+      tags:
+        - VosManager
+      operationId: removeSponsorRoleFromGroup
+      summary: Removes group as a sponsor. All group members will cease to be sponsors, and their sponsored members will be set as expired if the group member was their last sponsor.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/vosManager/getAdmins:
     get:
@@ -7762,9 +8064,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-
-  #TODO getRichAdmins
-
+  /json/vosManager/getRichAdmins:
+    get:
+      tags:
+        - VosManager
+      operationId: getRichAdminsForVo
+      description: |
+        Get list of all richUser administrators for the vo and supported role with specific attributes.
+        Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
+        If "onlyDirectAdmins" is == true, return only direct admins of the vo for supported role with specific attributes.
+        If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'role name'}
+        - name: specificAttributes
+          description: 'list of specified attributes which are needed in object richUser'
+          schema:
+            type: array
+            items:
+              type: string
+          in: query
+          required: true
+        - { name: allUserAttributes, schema: { type: boolean }, in: query, required: true, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)'}
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: 'if == true, get only direct vo administrators (if false, get both direct and indirect)'}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
