@@ -47,7 +47,7 @@
 		<file>${LOGDIR}perun.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LOGDIR}perun.log.%d.%i</fileNamePattern>
-			<maxFileSize>10MB</maxFileSize>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
 			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
@@ -66,6 +66,7 @@
 	<logger name="org.springframework" level="warn"/>
 	<logger name="org.springframework.web.context.ContextLoader" level="warn"/>
 	<logger name="cz.metacentrum.perun.rpc.Main" level="info"/>
+	<logger name="com.zaxxer.hikari" level="debug" />
 
 	<!--
 		logging to separate files - set by the attribute additivity="false" and
@@ -76,9 +77,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-rpc">
 		<file>${LOGDIR}perun-rpc.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-rpc.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-rpc.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -90,9 +93,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-core">
 		<file>${LOGDIR}perun-core.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-core.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-core.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -120,9 +125,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-auditer">
 		<file>${LOGDIR}perun-auditer.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-auditer.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-auditer.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -134,9 +141,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-cabinet">
 		<file>${LOGDIR}perun-cabinet.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-cabinet.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-cabinet.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -148,9 +157,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-events">
 		<file>${LOGDIR}perun-dispatcher-events.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-dispatcher-events.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher-events.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -162,9 +173,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-jms">
 		<file>${LOGDIR}perun-dispatcher-jms.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-dispatcher-jms.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher-jms.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -176,9 +189,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher">
 		<file>${LOGDIR}perun-dispatcher.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-dispatcher.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -190,9 +205,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-engine">
 		<file>${LOGDIR}perun-engine.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-engine.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-engine.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -204,9 +221,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-registrar">
 		<file>${LOGDIR}perun-registrar.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-registrar.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-registrar.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -218,9 +237,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="notification">
 		<file>${LOGDIR}perun-notif.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-notif.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-notif.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
@@ -232,9 +253,11 @@
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-notif-sended">
 		<file>${LOGDIR}perun-notif-sended.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-notif-sended.log.%d</fileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-notif-sended.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
