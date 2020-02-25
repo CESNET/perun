@@ -25,5 +25,6 @@
 	<journal-directory>${perun.dispatcher.hornetq.datadir:data}/journal</journal-directory>
 	<large-messages-directory>${perun.dispatcher.hornetq.datadir:data}/largemessages</large-messages-directory>
 	<paging-directory>${perun.dispatcher.hornetq.datadir:data}/paging</paging-directory>
+	<log-delegate-factory-class-name>cz.metacentrum.perun.dispatcher.hornetq.LogbackLogDelegateFactory</log-delegate-factory-class-name>
 
 </configuration>
