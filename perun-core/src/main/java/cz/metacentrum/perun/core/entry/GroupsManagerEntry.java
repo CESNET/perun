@@ -1412,7 +1412,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, null, true);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, member, null, true);
 	}
 
 	@Override
