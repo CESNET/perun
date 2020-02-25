@@ -437,7 +437,7 @@ components:
         facility: { $ref: '#/components/schemas/Facility' }
         groups: { type: array, items: { $ref: '#/components/schemas/Group' } }
         owners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
-        users: { type: array, items: { $ref: '#/components/schemas/User' } }
+        users: { type: array, items: { $ref: '#/components/schemas/RichUser' } }
 
     SecurityTeam:
       allOf:
@@ -5188,7 +5188,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/facilitiesManager/getAllowedUsers:
+  /json/facilitiesManager/getAllowedUsers/v-f-s:
     get:
       tags:
         - FacilitiesManager
@@ -5196,13 +5196,15 @@ paths:
       summary: Return all users which can use this facility
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/serviceId'
+        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO"}
+        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility"}
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO getAllowedUsers - another future versions
 
   /urlinjsonout/facilitiesManager/copyOwners:
     post:
