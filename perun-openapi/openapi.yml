@@ -1543,6 +1543,14 @@ components:
       in: query
       required: true
 
+    authorizedGroup:
+      name: authorizedGroup
+      description: 'Group id'
+      schema:
+        type: integer
+      in: query
+      required: true
+
     listOfApplicationFormItems:
       name: "ApplicationFormItem[]"
       description: "list of ApplicationFormItem List<ApplicationFormItem>"
@@ -1563,11 +1571,21 @@ components:
 
     searchString:
       name: searchString
-      description: 'string to search by'
+      description: 'Text to search by'
       schema:
-        type: string
-      required: true
+       type: string
       in: query
+      required: true
+
+    specificAttributes:
+      name: specificAttributes
+      description: 'list of specified attributes which are needed in object richUser'
+      schema:
+        type: array
+        items:
+          type: string
+      in: query
+      required: true
 
 #################################################
 #                                               #
@@ -5608,7 +5626,7 @@ paths:
       summary: Adds a group as a Facility admin.
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -5639,7 +5657,7 @@ paths:
       summary: Removes a group as a Facility admin.
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -6900,7 +6918,7 @@ paths:
       summary: Adds a group administrator to the Resource.
       parameters:
         - $ref: '#/components/parameters/resourceId'
-        - { name: authorizedGroup, required: true, schema: { type: integer}, in: query, description: 'group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -6930,7 +6948,7 @@ paths:
       summary: Removes a group administrator of the Resource.
       parameters:
         - $ref: '#/components/parameters/resourceId'
-        - { name: authorizedGroup, required: true, schema: { type: integer}, in: query, description: 'group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7660,30 +7678,16 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/vosManager/deleteVo/pure:
+  /urlinjsonout/vosManager/deleteVo:
     post:
       tags:
         - VosManager
       operationId: deleteVo
-      summary: Deletes a VO. If VO contain members, group or resources, it's not deleted and exception is thrown.
+      summary: Deletes a VO. If force == true then VO is deleted including members, groups and resources.
+        If force == false or null only empty VO is deleted or exception is thrown.
       parameters:
         - $ref: '#/components/parameters/voId'
-      responses:
-        '200':
-          $ref: '#/components/responses/VoidResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /urlinjsonout/vosManager/deleteVo/withAll:
-    post:
-      tags:
-        - VosManager
-      operationId: deleteVoForce
-      summary: Deletes a VO. If <code>force == true</code> then VO is deleted including members, groups and resources.
-        Otherwise only empty VO is deleted or exception is thrown.
-      parameters:
-        - $ref: '#/components/parameters/voId'
-        - { name: force, description: "Force must be true", schema: { type: boolean },  in: query, required: true }
+        - { name: force, description: "Force must be true", schema: { type: boolean },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7795,29 +7799,11 @@ paths:
       summary: |
         Find candidates for VO. Candidates can be used to create new members. Candidates are searched
         in VOs external sources (if available). Candidates, which are already members of VO are never
-        returned even if they match searchString.
+        returned even if they match searchString. You can also specify maximum number of results.
       parameters:
         - $ref: '#/components/parameters/id'
-        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfCandidatesResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/vosManager/findCandidates/withMaxNumberResults:
-    get:
-      tags:
-        - VosManager
-      operationId: findCandidatesWithMaximumNumberResults
-      summary: |
-        Find candidates for VO with specified maximum number of results. Candidates can be used to create new members.
-        Candidates are searched in VOs external sources (if available). Candidates, which are already members of VO are never
-        returned even if they match searchString.
-      parameters:
-        - $ref: '#/components/parameters/id'
-        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
-        - { name: maxNumOfResults, schema: { type: integer}, in: query, required: true, description: 'Number of maximum results' }
+        - $ref: '#/components/parameters/searchString'
+        - { name: maxNumOfResults, schema: { type: integer}, in: query, required: false, description: 'Number of maximum results' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfCandidatesResponse'
@@ -7834,8 +7820,8 @@ paths:
         in Groups external sources (if available). Candidates, which are already members of VO are never
         returned even if they match searchString.
       parameters:
-        - { name: group, schema: { type: integer}, in: query, required: true, description: 'group id' }
-        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/searchString'
       responses:
         '200':
           $ref: '#/components/responses/ListOfCandidatesResponse'
@@ -7853,16 +7839,9 @@ paths:
         searched in given VO and are associated with appropriate candidate and member. RichUsers for MemberCandidates
         may also be searched in the whole Perun.
       parameters:
-        - { name: vo, schema: { type: integer}, in: query, required: true, description: 'vo id' }
-        - name: attrNames
-          description: 'list with names of attributes that should be find'
-          schema:
-            type: array
-            items:
-              type: string
-          in: query
-          required: true
-        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/searchString'
       responses:
         '200':
           $ref: '#/components/responses/ListOfMemberCandidatesResponse'
@@ -7880,16 +7859,9 @@ paths:
         (if available). RichUsers are searched in given VO and are associated with appropriate candidate and member.
         RichUsers for appropriate Candidate are also searched in the whole Perun.
       parameters:
-        - { name: group, schema: { type: integer}, in: query, required: true, description: 'group id' }
-        - name: attrNames
-          description: 'list with names of attributes that should be find'
-          schema:
-            type: array
-            items:
-              type: string
-          in: query
-          required: true
-        - { name: searchString, schema: { type: string}, in: query, required: true, description: 'Text to search by' }
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/searchString'
       responses:
         '200':
           $ref: '#/components/responses/ListOfMemberCandidatesResponse'
@@ -7931,7 +7903,7 @@ paths:
       summary: Adds a group as a Vo admin.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7961,7 +7933,7 @@ paths:
       summary: Add group as a sponsor of guest members of VO. All members of group will become sponsors.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7991,7 +7963,7 @@ paths:
       summary: Removes a group as a Vo admin.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8021,7 +7993,7 @@ paths:
       summary: Removes group as a sponsor. All group members will cease to be sponsors, and their sponsored members will be set as expired if the group member was their last sponsor.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8077,14 +8049,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
         - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'role name'}
-        - name: specificAttributes
-          description: 'list of specified attributes which are needed in object richUser'
-          schema:
-            type: array
-            items:
-              type: string
-          in: query
-          required: true
+        - $ref: '#/components/parameters/specificAttributes'
         - { name: allUserAttributes, schema: { type: boolean }, in: query, required: true, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)'}
         - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: 'if == true, get only direct vo administrators (if false, get both direct and indirect)'}
       responses:
