@@ -6,6 +6,18 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.57
+drop index idx_authz_u;
+create unique index idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(security_team_id, '0'), COALESCE(sponsored_user_id, '0'));
+alter table authz drop constraint authz_user_serprinc_autgrp_chk;
+alter table authz add constraint authz_user_autgrp_chk check ((user_id is not null and authorized_group_id is null) or (user_id is null and authorized_group_id is not null));
+drop index idx_fk_authz_ser_princ;
+alter table authz drop constraint authz_ser_princ_fk;
+alter table authz drop column service_principal_id;
+drop table service_principals;
+drop sequence "service_principals_id_seq";
+update configurations set value='3.1.57' where property='DATABASE VERSION';
+
 3.1.56
 alter table configurations drop constraint config_prop_chk;
 update configurations set value='3.1.56' where property='DATABASE VERSION';
