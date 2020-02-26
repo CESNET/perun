@@ -86,6 +86,13 @@
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
+		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+			<evaluator>
+				<expression>return !Level.ERROR.equals(Level.toLevel(level)) &amp;&amp; logger.startsWith("cz.metacentrum.perun");</expression>
+			</evaluator>
+			<OnMismatch>NEUTRAL</OnMismatch>
+			<OnMatch>DENY</OnMatch>
+		</filter>
 	</appender>
 	<logger name="cz.metacentrum.perun" level="error" additivity="false">
 		<appender-ref ref="perun-rpc"/>
@@ -103,23 +110,23 @@
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<logger name="cz.metacentrum.perun.core" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.core" level="info">
 		<appender-ref ref="perun-core"/>
 	</logger>
 	<logger name="cz.metacentrum.perun.core.impl.JdbcPerunTemplate" level="error"/>
 	<logger name="cz.metacentrum.perun.core.impl.PerunTransactionManager" level="error"/>
 	<logger name="cz.metacentrum.perun.core.impl.PerunBasicDataSource" level="error"/>
 
-	<logger name="cz.metacentrum.perun.rpc" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.rpc" level="info">
 		<appender-ref ref="perun-core"/>
 	</logger>
-	<logger name="cz.metacentrum.perun.taskslib" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.taskslib" level="info">
 		<appender-ref ref="perun-core"/>
 	</logger>
-	<logger name="cz.metacentrum.perun.scim" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.scim" level="info">
 		<appender-ref ref="perun-core"/>
 	</logger>
-	<logger name="cz.metacentrum.perun.voot" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.voot" level="info">
 		<appender-ref ref="perun-core"/>
 	</logger>
 
@@ -199,7 +206,7 @@
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<logger name="cz.metacentrum.perun.dispatcher" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.dispatcher" level="info">
 		<appender-ref ref="perun-dispatcher"/>
 	</logger>
 
@@ -231,7 +238,7 @@
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<logger name="cz.metacentrum.perun.registrar" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.registrar" level="info">
 		<appender-ref ref="perun-registrar"/>
 	</logger>
 
@@ -247,7 +254,7 @@
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<logger name="cz.metacentrum.perun.notif" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.notif" level="info">
 		<appender-ref ref="notification"/>
 	</logger>
 
@@ -267,6 +274,6 @@
 		<appender-ref ref="perun-notif-sended"/>
 	</logger>
 
-   -->
+	-->
 
 </configuration>
