@@ -116,7 +116,10 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	}*/
 
 	/**
-	 * Generate unique ID as SHA1 hash from users ID and domain. Used to generate unique IDs for ProxyIdP login namespaces.
+	 * Generate unique ID as hexadecimal string representation of SHA1 digest from users ID and domain.
+	 * Input is salted per Perun instance. Effective resulting string consist of [0-9a-f] characters.
+	 *
+	 * It is used to generate unique IDs for ProxyIdP login namespaces.
 	 *
 	 * @param user User to generate ID for
 	 * @param domain Login namespace domain, eg. @einfra.cesnet.cz or @bbmri.eu etc.
