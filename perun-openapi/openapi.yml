@@ -448,6 +448,17 @@ components:
       discriminator:
         propertyName: beanName
 
+    RichUserExtSource:
+      allOf:
+        - properties:
+            userExtSource: { $ref: '#/components/schemas/UserExtSource', nullable: false }
+            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' }, nullable: false }
+      required:
+        - userExtSource
+        - attributes
+      discriminator:
+        propertyName: beanName
+
 
   #################################################
   #                                               #
@@ -778,6 +789,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/UserExtSource"
+
+    ListOfRichUserExtSourcesResponse:
+      description: "returns List<RichUserExtSource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichUserExtSource"
 
     ApplicationFormResponse:
       description: "returns ApplicationForm"
@@ -1245,7 +1265,7 @@ components:
       schema:
         type: integer
       in: query
-      required: true  
+      required: true
 
     key:
       name: key
@@ -1277,6 +1297,16 @@ components:
         type: string
       in: query
       required: true
+
+    searchString:
+      name: searchString
+      description: 'string to search by'
+      schema:
+        type: string
+      required: true
+      in: query
+
+
 
 #################################################
 #                                               #
@@ -3328,7 +3358,7 @@ paths:
         - AttributesManager
       operationId: getAttributesDefinitionWithRights
       summary: Returns all AttributeDefinitions for every entity and possible
-        combination of entities with rights. Only attribute definition of 
+        combination of entities with rights. Only attribute definition of
         attributes user can read (or write) you will get. Combination of entities
         is based on provided parameters, which are optional (at least one must be present).
       parameters:
@@ -4588,6 +4618,90 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/findUsers:
+    get:
+      tags:
+        - UsersManager
+      operationId: findUsers
+      summary: Returns list of Users with attributes who matches the searchString, searching name, email, logins.
+      parameters:
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/findRichUsers:
+    get:
+      tags:
+        - UsersManager
+      operationId: findRichUsers
+      summary: Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+      parameters:
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getVosWhereUserIsMember:
+    get:
+      tags:
+        - UsersManager
+      operationId: getVosWhereUserIsMember
+      summary: Returns list of VOs, where the user is a Member.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getVosWhereUserIsAdmin:
+    get:
+      tags:
+        - UsersManager
+      operationId: getVosWhereUserIsAdmin
+      summary: Returns list of VOs, where the user is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getGroupsWhereUserIsAdmin/u:
+    get:
+      tags:
+        - UsersManager
+      operationId: getGroupsWhereUserIsAdmin
+      summary: Returns list of Groups in Perun, where the User is a direct Administrator or he is a member of any group which is Administrator of some of these Groups.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getRichUserExtSources/u:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichUserExtSources
+      summary: Gets list of all user's external sources with attributes.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
@@ -4691,7 +4805,7 @@ paths:
       summary: Searches for members in a VO.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: searchString, schema: { type: string }, required: true, in: query, description: 'string to search by'}
+        - $ref: '#/components/parameters/searchString'
       responses:
         '200':
           $ref: '#/components/responses/ListOfMembersResponse'
