@@ -1900,8 +1900,6 @@ insert into routing_rules (created_by_uid,modified_by_uid,id,routing_rule,create
 insert into engine_routing_rule (created_by_uid,modified_by_uid,engine_id,routing_rule_id,created_at,created_by,modified_at,modified_by,status) values (null,null,1,1,timestamp '2011-11-15 14:42:35.3','PERUNV3',timestamp '2011-11-15 14:42:35.3','PERUNV3','0');
 insert into engine_routing_rule (created_by_uid,modified_by_uid,engine_id,routing_rule_id,created_at,created_by,modified_at,modified_by,status) values (null,null,1,2,timestamp '2011-11-15 14:43:13.3','PERUNV3',timestamp '2011-11-15 14:43:13.3','PERUNV3','0');
 
-drop sequence service_principals_id_seq;
-create sequence service_principals_id_seq start with 1;
 drop sequence pn_template_message_id_seq;
 create sequence pn_template_message_id_seq start with 162;
 drop sequence users_id_seq;
