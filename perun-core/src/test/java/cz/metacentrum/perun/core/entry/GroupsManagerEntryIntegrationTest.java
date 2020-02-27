@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -4695,6 +4696,37 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertFalse(activeGroups.contains(membersGroup));
 	}
 
+	@Test
+	public void getMemberRichGroupsWithAttributesByNames() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberRichGroupsWithAttributesByNames");
+
+		//create Vo and Group
+		Vo vo = setUpVo();
+		Group group = new Group("G1", "G1");
+		group = groupsManagerBl.createGroup(sess, vo, group);
+		//create new member in vo and add him to the group
+		Member member = setUpMember(vo);
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+		//create new group attributes and set them for the group
+		List<Attribute> groupAttributes = setUpGroupAttributes();
+		perun.getAttributesManagerBl().setAttributes(sess, group, groupAttributes);
+		//create new member group attributes and set them for the group and member
+		List<Attribute> memberGroupAttributes = setUpMemberGroupAttributes();
+		perun.getAttributesManagerBl().setAttributes(sess, member, group, memberGroupAttributes);
+		//prepare list of all attributes to check equality
+		List<Attribute> allAttributes = new ArrayList<Attribute>();
+		allAttributes.addAll(groupAttributes);
+		allAttributes.addAll(memberGroupAttributes);
+		//get rich group with all possible attributes (not-null)
+		List<RichGroup> richGroups = groupsManagerBl.getMemberRichGroupsWithAttributesByNames(sess, member, null);
+		assertEquals(group.getId(), richGroups.get(0).getId());
+		assertTrue(richGroups.get(0).getAttributes().containsAll(allAttributes));
+		//get rich groups with selected attributes (not-null)
+		richGroups = groupsManagerBl.getMemberRichGroupsWithAttributesByNames(sess, member, allAttributes.stream().map(Attribute::getName).collect(Collectors.toList()));
+		assertEquals(group.getId(), richGroups.get(0).getId());
+		assertEquals(allAttributes, richGroups.get(0).getAttributes());
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
@@ -4821,6 +4853,32 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		// save user for deletion after test
 		return member;
 
+	}
+
+	private List<Attribute> setUpMemberGroupAttributes() throws Exception {
+
+		List<Attribute> attributes = new ArrayList<>();
+
+		// attribute1
+		Attribute attr = new Attribute();
+		String namespace = "member-group-test-uniqueattribute:specialNamespace";
+		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
+		attr.setFriendlyName(namespace + "1");
+		attr.setType(String.class.getName());
+		attr.setValue("MemberGroupAttribute");
+		assertNotNull("unable to create member-group attribute", attributesManager.createAttribute(sess, attr));
+
+		attributes.add(attr);
+
+		// attribute2
+		Attribute attr2 = new Attribute(attr);
+		attr2.setFriendlyName(namespace + "2");
+		attr2.setValue("next2");
+		assertNotNull("unable to create member-group attribute", attributesManager.createAttribute(sess, attr2));
+
+		attributes.add(attr2);
+
+		return attributes;
 	}
 
 	private List<Attribute> setUpGroupAttributes() throws Exception {
