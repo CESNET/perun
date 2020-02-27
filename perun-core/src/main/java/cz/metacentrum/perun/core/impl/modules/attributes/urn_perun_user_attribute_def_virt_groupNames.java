@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -63,12 +64,12 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 					" DISTINCT vos.short_name AS vo_short_name, groups.name AS group_name" +
 					" FROM" +
 					" members" +
-					" JOIN vos ON vos.id = members.vo_id AND members.user_id = ?" +
+					" JOIN vos ON vos.id = members.vo_id AND members.user_id = ? AND members.status = ?" +
 					" JOIN groups_members ON groups_members.member_id = members.id AND groups_members.source_group_status = ?" +
 					" JOIN groups ON groups_members.group_id = groups.id" +
 					" ORDER BY vo_short_name, group_name",
 					ROW_MAPPER,
-					user.getId(), MemberGroupStatus.VALID.getCode());
+					user.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode());
 		} catch(EmptyResultDataAccessException e) {
 			names = new ArrayList<>();
 		} catch (RuntimeException e) {
