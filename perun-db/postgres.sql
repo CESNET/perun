@@ -1,4 +1,4 @@
--- database version 3.1.56 (don't forget to update insert statement at the end of file)
+-- database version 3.1.57 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1199,21 +1199,6 @@ create table auditer_log (
 	constraint audlog_pk primary key (id)
 );
 
--- SERVICE_PRINCIPALS - principals for executing of services by engine, actually is not used
-create table service_principals (
-	id integer not null,
-	description varchar(1024),    --description
-	name varchar(128) not null,   --name of principal
-	created_at timestamp default statement_timestamp() not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default statement_timestamp() not null,
-	modified_by varchar(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint ser_princ_pk primary key (id)
-);
-
 -- RESERVED_LOGINS - reserved lognames, actually is not used. Prepared for reservation by core.
 create table reserved_logins (
 	login varchar(256),        --logname
@@ -1533,7 +1518,6 @@ create table authz (
 	group_id integer,         --identifier of group
 	service_id integer,       --identifier of service
 	resource_id integer,      --identifier of resource
-	service_principal_id integer,  --identifier service principal
 	sponsored_user_id integer, --identifier of sponsored user
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1548,13 +1532,10 @@ create table authz (
 	constraint authz_group_fk foreign key (group_id) references groups(id),
 	constraint authz_service_fk foreign key (service_id) references services(id),
 	constraint authz_res_fk foreign key (resource_id) references resources(id),
-	constraint authz_ser_princ_fk foreign key (service_principal_id) references service_principals(id),
 	constraint authz_sponsu_fk foreign key (sponsored_user_id) references users(id),
 	constraint authz_sec_team_fk foreign key (security_team_id) references security_teams(id),
-	constraint authz_user_serprinc_autgrp_chk check
-	((user_id is not null and service_principal_id is null and authorized_group_id is null)
-	 or (user_id is null and service_principal_id is not null and authorized_group_id is null)
-	 or (user_id is null and service_principal_id is null and authorized_group_id is not null))
+	constraint authz_user_autgrp_chk check
+	     ((user_id is not null and authorized_group_id is null) or (user_id is null and authorized_group_id is not null))
 );
 
 
@@ -1585,7 +1566,6 @@ create sequence "cabinet_authorships_id_seq";
 create sequence "cabinet_thanks_id_seq";
 create sequence "cabinet_categories_id_seq";
 create sequence "roles_id_seq";
-create sequence "service_principals_id_seq";
 create sequence "application_form_id_seq";
 create sequence "application_form_items_id_seq";
 create sequence "application_id_seq";
@@ -1686,7 +1666,7 @@ create index idx_fk_entlatval_attr on entityless_attr_values(attr_id);
 create index idx_fk_catpub_sys on cabinet_publications(publicationsystemid);
 create index idx_fk_cabpub_cat on cabinet_publications(categoryid);
 create unique index idx_faccont_u2 ON facility_contacts (COALESCE(user_id, '0'), COALESCE(owner_id, '0'), COALESCE(group_id, '0'), facility_id, name);
-create unique index idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(security_team_id, '0'), COALESCE(sponsored_user_id, '0'));
+create unique index idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(security_team_id, '0'), COALESCE(sponsored_user_id, '0'));
 create index idx_fk_authz_role on authz(role_id);
 create index idx_fk_authz_user on authz(user_id);
 create index idx_fk_authz_authz_group on authz(authorized_group_id);
@@ -1696,7 +1676,6 @@ create index idx_fk_authz_mem on authz(member_id);
 create index idx_fk_authz_group on authz(group_id);
 create index idx_fk_authz_service on authz(service_id);
 create index idx_fk_authz_res on authz(resource_id);
-create index idx_fk_authz_ser_princ on authz(service_principal_id);
 create index idx_fk_authz_sec_team on authz(security_team_id);
 create index idx_fk_authz_sponsu on authz(sponsored_user_id);
 create index idx_fk_grres_gr on groups_resources(group_id);
@@ -1839,7 +1818,6 @@ grant all on roles to perun;
 grant all on authz to perun;
 grant all on groups_resources to perun;
 grant all on groups_members to perun;
-grant all on service_principals to perun;
 grant all on application_mails to perun;
 grant all on application_mail_texts to perun;
 grant all on reserved_logins to perun;
@@ -1872,7 +1850,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.56');
+insert into configurations values ('DATABASE VERSION','3.1.57');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
