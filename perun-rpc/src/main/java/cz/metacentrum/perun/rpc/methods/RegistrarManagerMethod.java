@@ -449,7 +449,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Gets all applications in a given state for a given VO.
 	 *
 	 * @param vo int VO <code>id</code>
-	 * @param state String State: NEW, VERIFIED, APPROVED, REJECTED
+	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
 	 * @return List<Application> Found applications
 	 */
 	getApplicationsForVo {
@@ -473,10 +473,10 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @return List<Application> Found applications
 	 */
 	/*#
-	 * Gets all applications for a given Group.
+	 * Gets all applications in a given state for a given Group.
 	 *
 	 * @param group int Group <code>id</code>
-	 * @param state String State: NEW, VERIFIED, APPROVED, REJECTED
+	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
 	 * @return List<Application> Found applications
 	 */
 	getApplicationsForGroup {
