@@ -430,6 +430,24 @@ components:
               items:
                 type: integer
 
+    ContactGroup:
+      type: object
+      properties:
+        name: { type: string }
+        facility: { $ref: '#/components/schemas/Facility' }
+        groups: { type: array, items: { $ref: '#/components/schemas/Group' } }
+        owners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
+        users: { type: array, items: { $ref: '#/components/schemas/RichUser' } }
+
+    SecurityTeam:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            description: { type: string }
+      discriminator:
+        propertyName: beanName
+
     Ban:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -448,6 +466,15 @@ components:
       discriminator:
         propertyName: beanName
 
+    BanOnFacility:
+      allOf:
+        - $ref: '#/components/schemas/Ban'
+        - properties:
+            userId: { type: integer }
+            facilityId: { type: integer }
+      discriminator:
+        propertyName: beanName
+
     RichUserExtSource:
       allOf:
         - properties:
@@ -458,7 +485,6 @@ components:
         - attributes
       discriminator:
         propertyName: beanName
-
 
   #################################################
   #                                               #
@@ -891,6 +917,54 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnResource"
+
+    ContactGroupResponse:
+      description: "returns ContactGroup"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContactGroup"
+
+    ListOfContactGroupResponse:
+      description: "returns List<ContactGroup>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ContactGroup"
+
+    SecurityTeamResponse:
+      description: "returns SecurityTeam"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SecurityTeam"
+
+    ListOfSecurityTeamsResponse:
+      description: "returns List<SecurityTeam>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/SecurityTeam"
+
+    BanOnFacilityResponse:
+      description: "returns banOnFacility"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BanOnFacility"
+
+    ListOfBanOnFacilitiesResponse:
+      description: "return List<BanOnFacility>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/BanOnFacility"
 
   #####################################################
   #                                                   #
@@ -4832,7 +4906,7 @@ paths:
   #################################################
   #                                               #
   # FacilitiesManager                             #
-  #  (complete with TODOs)                        #
+  #                                               #
   #################################################
 
   /json/facilitiesManager/getFacilityById:
@@ -5268,7 +5342,61 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedFacilities
+  /json/facilitiesManager/getAssignedFacilities/service:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByService
+      summary: Get facilities where the service is defined..
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedFacilities/group:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByGroup
+      summary: Get facilities which are assigned to a Group (via resource).
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedFacilities/member:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByMember
+      summary: Get facilities which have the member access on.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedFacilities/user:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByUser
+      summary: et facilities which have the user access on.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/facilitiesManager/addAdmin/user:
     post:
@@ -5364,60 +5492,459 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getFacilitiesWhereUserIsAdmin:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesWhereUserIsAdmin
+      summary: Returns list of Facilities, where the user is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichAdmins
+  /json/facilitiesManager/getFacilitiesByHostName:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByHostName
+      summary: Return all facilities where exists host with the specific hostname
+      parameters:
+        - { name: hostname, schema: { type: string }, in: query, required: true, description: "specific hostname"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichAdminsWithAttributes
+  /json/facilitiesManager/getAllowedUsers/v-f-s:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedUsersOfFacility
+      summary: Return all users which can use this facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO"}
+        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichAdminsWithSpecificAttributes
+  #TODO getAllowedUsers - another future versions
 
-  #TODO getDirectRichAdminsWithSpecificAttributes
+  /urlinjsonout/facilitiesManager/copyOwners:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyOwners
+      summary: Copy owners from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilitiesWhereUserIsAdmin
+  /urlinjsonout/facilitiesManager/copyManagers:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyManagers
+      summary: Copy managers from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilitiesByHostName
+  /urlinjsonout/facilitiesManager/copyAttributes:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyAttributes
+      summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAllowedUsers
+  /json/facilitiesManager/getFacilityContactGroups/owner:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForOwner
+      summary: Get list of contact groups for the Owner.
+      parameters:
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyOwners
+  /json/facilitiesManager/getFacilityContactGroups/user:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForUser
+      summary: Get list of contact groups for the User.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyManagers
+  /json/facilitiesManager/getFacilityContactGroups/group:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForGroup
+      summary: Get list of contact groups for the Group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyAttributes
+  /json/facilitiesManager/getFacilityContactGroups/facility:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForFacility
+      summary: Get list of contact groups for the Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilityContactGroups
+  /json/facilitiesManager/getFacilityContactGroup:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroup
+      summary: Get contact group for the facility and the name.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilityContactGroup
+  /json/facilitiesManager/getAllContactGroupNames:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllContactGroupNames
+      summary: Get all exist contact group names.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAllContactGroupNames
+  /json/facilitiesManager/addFacilityContacts:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityContacts
+      summary: Add all contacts in list of facilities contact groups
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddFacilityContacts
+              description: "input to addFacilityContacts"
+              type: object
+              required:
+                - contactGroupsToAdd
+              properties:
+                contactGroupsToAdd:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContactGroup'
 
-  #TODO addFacilityContacts
+  /json/facilitiesManager/addFacilityContact:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityContact
+      summary: Add all contacts in the contact group
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddFacilityContact
+              description: "input to addFacilityContact"
+              type: object
+              required:
+                - contactGroupToAdd
+              properties:
+                contactGroupToAdd: { $ref: '#/components/schemas/ContactGroup' }
 
-  #TODO addFacilityContact
+  /json/facilitiesManager/removeFacilityContacts:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityContacts
+      summary: Remove all contacts in list of facilities contact groups
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveFacilityContacts
+              description: "input to removeFacilityContacts"
+              type: object
+              required:
+                - contactGroupsToRemove
+              properties:
+                contactGroupsToRemove:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContactGroup'
 
-  #TODO removeFacilityContacts
+  /json/facilitiesManager/removeFacilityContact:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityContact
+      summary: Remove all contacts in the contact group
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveFacilityContact
+              description: "input to removeFacilityContact"
+              type: object
+              required:
+                - contactGroupToRemove
+              properties:
+                contactGroupToRemove: { $ref: '#/components/schemas/ContactGroup' }
 
-  #TODO removeFacilityContact
+  /json/facilitiesManager/getAssignedSecurityTeams:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedSecurityTeams
+      summary: Return assigned security teams for specific facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedSecurityTeams
+  /urlinjsonout/facilitiesManager/assignSecurityTeam:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: assignSecurityTeam
+      summary: Assign given security team to given facility (means the facility trusts the security team)
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO assignSecurityTeam
+  /urlinjsonout/facilitiesManager/removeSecurityTeam:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeSecurityTeam
+      summary: Remove (Unassign) given security team from given facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeSecurityTeam
+  /json/facilitiesManager/setBan:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: setFacilityBan
+      summary: Set ban for user on facility.
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetBanForUserOnFacility
+              description: "input to setBanForUserOnFacility"
+              type: object
+              required:
+                - banOnFacility
+              properties:
+                banOnFacility: { $ref: '#/components/schemas/BanOnFacility' }
 
-  #TODO setBan
+  /json/facilitiesManager/getBanById:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityBanById
+      summary: Get Ban for user on facility by it's id.
+      parameters:
+        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBanById
+  /json/facilitiesManager/getBan:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityBan
+      summary: Get ban by userId and facilityId.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBan
+  /json/facilitiesManager/getBansForUser:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getBansForUser
+      summary: Get all bans for user on any facility.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBansForUser
+  /json/facilitiesManager/getBansForFacility:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getBansForFacility
+      summary: Get all bans for user on the facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBansForFacility
+  /json/facilitiesManager/updateBan:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: updateFacilityBan
+      summary: Update existing ban (description, validation timestamp)
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateBanForFacility
+              description: "input to updateBanForFacility"
+              type: object
+              required:
+                - banOnFacility
+              properties:
+                banOnFacility: { $ref: '#/components/schemas/BanOnFacility' }
 
-  #TODO updateBan
+  /urlinjsonout/facilitiesManager/removeBan/byId:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityBanById
+      summary: Remove specific ban by it's id.
+      parameters:
+        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeBan
+  /urlinjsonout/facilitiesManager/removeBan/byUserIdFacilityId:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeBanByUserIdFacilityId
+      summary: Remove specific ban by userId and facilityId.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
@@ -5949,7 +6476,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getAllowedUsers
+      operationId: getAllowedUsersOfResource
       summary: Returns all users assigned to the resource.
       parameters:
         - $ref: '#/components/parameters/resourceId'
@@ -6725,7 +7252,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: setBan
+      operationId: setResourceBan
       summary: Set ban for member on resource.
       responses:
         '200':
@@ -6749,7 +7276,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getBanById
+      operationId: getResourceBanById
       summary: Get Ban for member on resource by it's id.
       parameters:
         - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
@@ -6763,7 +7290,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getBan
+      operationId: getResourceBan
       summary: Get ban by memberId and resource id.
       parameters:
         - $ref: '#/components/parameters/memberId'
@@ -6806,7 +7333,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: updateBan
+      operationId: updateResourceBan
       summary: Update existing ban (description, validation timestamp)
       responses:
         '200':
@@ -6830,7 +7357,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: removeBanById
+      operationId: removeResourceBanById
       summary: Remove specific ban by it's id.
       parameters:
         - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
