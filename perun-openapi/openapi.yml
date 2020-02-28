@@ -7259,36 +7259,24 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/registrarManager/sendInvitation:
+  /urlinjsonout/registrarManager/sendInvitation:
     post:
       tags:
         - RegistrarManager
       operationId: sendInvitation
       summary: Sends invitation email to user which is not member of VO
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
+        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
+        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              title: InputSendInvitation
-              description: "input to sendInvitation"
-              type: object
-              required:
-                - vo
-                - email
-                - language
-              properties:
-                vo: { type: integer, description: "vo id" }
-                name: { type: string, description: "name of person used in invitation email (optional)" }
-                email: { type: string, description: "email address to send invitation to" }
-                language: { type: string, description: "preferred language to use" }
 
-  /json/registrarManager/sendInvitation/g:
+  /urlinjsonout/registrarManager/sendInvitation/g:
     post:
       tags:
         - RegistrarManager
@@ -7296,77 +7284,48 @@ paths:
       summary: Sends invitation email to user which is not member of VO and Group
       description: |
         Invitation link targets VO application form fist, after submission, Group application form is displayed.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/groupId'
+        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
+        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
+        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              title: InputSendInvitationForGroup
-              description: "input to sendInvitationForGroup"
-              type: object
-              required:
-                - vo
-                - group
-                - email
-                - language
-              properties:
-                vo: { type: integer, description: "vo id" }
-                group: { type: integer, description: "group id" }
-                name: { type: string, description: "name of person used in invitation email (optional)" }
-                email: { type: string, description: "email address to send invitation to" }
-                language: { type: string, description: "preferred language to use" }
 
-  /json/registrarManager/sendInvitation/u:
+  /urlinjsonout/registrarManager/sendInvitation/u:
     post:
       tags:
         - RegistrarManager
       operationId: sendInvitationToExistingUser
       summary: Sends invitation email to user which is not member of VO
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/voId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              title: InputSendInvitationToExistingUser
-              description: "input to sendInvitationToExistingUser"
-              type: object
-              properties:
-                vo: { type: integer, description: "vo id" }
-                user: { type: integer, description: "user id" }
 
-  /json/registrarManager/sendInvitation/u-g:
+  /urlinjsonout/registrarManager/sendInvitation/u-g:
     post:
       tags:
         - RegistrarManager
       operationId: sendInvitationGroupToExistingUser
       summary: Sends invitation email to user which is not member of Group
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/groupId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              title: InputSendInvitationGroupToExistingUser
-              description: "input to sendInvitationGroupToExistingUser"
-              type: object
-              properties:
-                vo: { type: integer, description: "vo id" }
-                user: { type: integer, description: "user id" }
-                group: { type: integer, description: "group id" }
 
   /json/registrarManager/getApplicationsForVo:
     get:
