@@ -8,20 +8,14 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -35,18 +29,9 @@ import java.util.Objects;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class Elixircz implements RegistrarModule {
+public class Elixircz extends DefaultRegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(Elixircz.class);
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
 
 	@Override
 	public Application approveApplication(PerunSession session, Application app) throws MemberNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, ExtendMembershipException {
@@ -80,24 +65,6 @@ public class Elixircz implements RegistrarModule {
 
 		return app;
 
-	}
-
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 	}
 
 }

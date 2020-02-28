@@ -16,8 +16,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -27,7 +25,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -35,16 +32,9 @@ import java.util.Objects;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class Vsup implements RegistrarModule {
+public class Vsup extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(Vsup.class);
-
-	private RegistrarManager registrar;
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
-	}
 
 	@Override
 	public List<ApplicationFormItemData> createApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
@@ -151,24 +141,6 @@ public class Vsup implements RegistrarModule {
 
 		return app;
 
-	}
-
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 	}
 
 }

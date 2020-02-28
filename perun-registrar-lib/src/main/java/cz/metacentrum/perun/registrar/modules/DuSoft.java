@@ -2,10 +2,7 @@ package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -20,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -28,37 +24,9 @@ import java.util.Objects;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class DuSoft implements RegistrarModule {
+public class DuSoft extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(DuSoft.class);
-
-	private RegistrarManager registrar;
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
-
-	@Override
-	public Application approveApplication(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		// allow approval of any application based on VO rules
-		return app;
-	}
 
 	@Override
 	public void canBeApproved(PerunSession session, Application app) throws RegistrarException, PrivilegeException, InternalErrorException, CantBeApprovedException {
@@ -97,11 +65,6 @@ public class DuSoft implements RegistrarModule {
 		}
 
 		throw new CantBeApprovedException("User is not eligible for CESNET services. User must log-in using verified academic identity (at least once a year) in order to access CESNET services.", "NOT_ELIGIBLE", null, null, true);
-
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 
 	}
 

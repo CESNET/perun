@@ -1,20 +1,18 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
-import static org.springframework.ldap.query.LdapQueryBuilder.query;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.naming.Name;
-
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.support.LdapNameBuilder;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunFacility;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.support.LdapNameBuilder;
+
+import javax.naming.Name;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 public class PerunFacilityImpl extends AbstractPerunEntry<Facility> implements PerunFacility {
 
@@ -29,21 +27,21 @@ public class PerunFacilityImpl extends AbstractPerunEntry<Facility> implements P
 	protected List<PerunAttribute<Facility>> getDefaultAttributeDescriptions() {
 		return Arrays.asList(
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrCommonName, 
-						PerunAttribute.REQUIRED, 
-						(PerunAttribute.SingleValueExtractor<Facility>)(facility, attrs) -> facility.getName()
-						),
+						PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<Facility>) (facility, attrs) -> facility.getName()
+				),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityId, 
-						PerunAttribute.REQUIRED, 
-						(PerunAttribute.SingleValueExtractor<Facility>)(facility, attrs) -> String.valueOf(facility.getId())
-						),
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityId,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<Facility>) (facility, attrs) -> String.valueOf(facility.getId())
+				),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrDescription, 
-						PerunAttribute.OPTIONAL, 
-						(PerunAttribute.SingleValueExtractor<Facility>)(facility, attrs) -> facility.getDescription()
-						)
-				);
+						PerunAttribute.PerunAttributeNames.ldapAttrDescription,
+						PerunAttribute.OPTIONAL,
+						(PerunAttribute.SingleValueExtractor<Facility>) (facility, attrs) -> facility.getDescription()
+				)
+		);
 	}
 
 	@Override
@@ -87,7 +85,7 @@ public class PerunFacilityImpl extends AbstractPerunEntry<Facility> implements P
 	@Override
 	public List<Name> listEntries() throws InternalErrorException {
 		return ldapTemplate.search(query().
-				where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunFacility),
+						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunFacility),
 				getNameMapper());
 	}
 

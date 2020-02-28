@@ -3,7 +3,6 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -22,8 +21,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -46,7 +43,7 @@ import java.util.Set;
  * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
  */
-public class BBMRINetworks implements RegistrarModule {
+public class BBMRINetworks extends DefaultRegistrarModule {
 
 	private final static Logger log = LoggerFactory.getLogger(BBMRINetworks.class);
 	private static final String NETWORK_IDS_FIELD = "Comma or new-line separated list of IDs of networks you are representing:";
@@ -54,18 +51,6 @@ public class BBMRINetworks implements RegistrarModule {
 	private static final String NETWORK_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:networkID";
 	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
 	private static final String ADD_NEW_NETWORKS_GROUP_NAME = "addNewNetworks";
-
-	private RegistrarManager registrar;
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) {
-		return data;
-	}
 
 	/**
 	 * Add users to the listed groups.
@@ -110,17 +95,6 @@ public class BBMRINetworks implements RegistrarModule {
 		return app;
 	}
 
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) {
-		return app;
-	}
-
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
 	/**
 	 * Checks whether all network IDs found in user input really exists in Perun.
 	 * If not, CantBeApproved exception is thrown.
@@ -149,11 +123,6 @@ public class BBMRINetworks implements RegistrarModule {
 			throw new CantBeApprovedException("Networks with IDs: " + networkIDsInApplication + " do not exist." +
 					"If you approve the application, these networks will be skipped.", "", "", "", true);
 		}
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) {
-		// automatically overridden method
 	}
 
 	/**

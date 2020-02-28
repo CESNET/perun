@@ -84,8 +84,6 @@ public class AuditerListener extends AbstractRunner {
 
 		boolean whichOfTwoRules = false;
 
-		String dispatcherName = dispatcherProperties.getProperty("dispatcher.ip.address") + ":" + dispatcherProperties.getProperty("dispatcher.port");
-
 		try {
 
 			try {
@@ -105,7 +103,7 @@ public class AuditerListener extends AbstractRunner {
 
 			while (!shouldStop()) {
 				try {
-					for (AuditEvent message : perun.getAuditMessagesManager().pollConsumerEvents(sess, dispatcherName)) {
+					for (AuditEvent message : perun.getAuditMessagesManager().pollConsumerEvents(sess, "dispatcher")) {
 						// create event for each message
 						Event event = new Event();
 						event.setTimeStamp(System.currentTimeMillis());

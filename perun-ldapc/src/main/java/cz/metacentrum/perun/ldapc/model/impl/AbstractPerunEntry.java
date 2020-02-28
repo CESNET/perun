@@ -1,14 +1,14 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.ldapc.beans.LdapProperties;
+import cz.metacentrum.perun.ldapc.beans.PerunAttributeConfigurer;
+import cz.metacentrum.perun.ldapc.model.PerunAttribute;
+import cz.metacentrum.perun.ldapc.model.PerunEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -21,14 +21,12 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.support.LdapNameBuilder;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.ldapc.beans.LdapProperties;
-import cz.metacentrum.perun.ldapc.beans.PerunAttributeConfigurer;
-import cz.metacentrum.perun.ldapc.model.PerunAttribute;
-import cz.metacentrum.perun.ldapc.model.PerunEntry;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractPerunEntry<T extends PerunBean> implements InitializingBean, PerunEntry<T> {
 
@@ -64,18 +62,18 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	private List<String> updatableAttributeNames;
 
 	public void afterPropertiesSet() {
-		if(attributeDescriptions == null) {
+		if (attributeDescriptions == null) {
 			attributeDescriptions = new ArrayList<PerunAttribute<T>>();
 		}
 		attributeDescriptions.addAll(getDefaultAttributeDescriptions());
-		if(updatableAttributeNames == null) {
+		if (updatableAttributeNames == null) {
 			updatableAttributeNames = new ArrayList<String>();
 		}
 		updatableAttributeNames.addAll(getDefaultUpdatableAttributes());
 
 		// add attributes from extension list
 		List<PerunAttribute<T>> attrsExt = attributeDescriptionsExt.getAttributeDescriptions();
-		if(attrsExt != null) {
+		if (attrsExt != null) {
 			attributeDescriptions.addAll(attrsExt);
 		}
 	}
@@ -108,7 +106,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#modifyEntry(cz.metacentrum.perun.core.api.PerunBean)
 	 */
 	@Override
-	public void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String...attrNames) throws InternalErrorException {
+	public void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames) throws InternalErrorException {
 		modifyEntry(bean, attrs, Arrays.asList(attrNames));
 	}
 
@@ -122,13 +120,13 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	public void modifyEntry(T bean, AttributeDefinition attr) throws InternalErrorException {
 		DirContextOperations entry = findByDN(buildDN(bean));
 		List<PerunAttribute<T>> attrDefs = findAttributeDescriptionsByPerunAttr(getAttributeDescriptions(), attr);
-		if(attrDefs.isEmpty()) {
+		if (attrDefs.isEmpty()) {
 			// this is not exceptional situation
 			// throw new InternalErrorException("Attribute description for attribute " + attr.getName() + " not found");
 			log.info("Attribute description for attribute {} not found, not modifying entry.", attr.getName());
 			return;
 		}
-		for(PerunAttribute<T> attrDef : attrDefs) {
+		for (PerunAttribute<T> attrDef : attrDefs) {
 			mapToContext(bean, entry, attrDef, attr);
 		}
 		ldapTemplate.modifyAttributes(entry);
@@ -165,11 +163,11 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 		boolean newEntry = false;
 		try {
 			entry = findByDN(buildDN(bean));
-		} catch(NameNotFoundException e) {
+		} catch (NameNotFoundException e) {
 			newEntry = true;
 			entry = new DirContextAdapter(buildDN(bean));
 		}
-		if(newEntry) {
+		if (newEntry) {
 			log.debug("Creating new entry {} ", entry.toString());
 			// map with objectclasses
 			mapToContext(bean, entry);
@@ -189,13 +187,13 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 		boolean newEntry = false;
 		try {
 			entry = findByDN(buildDN(bean));
-		} catch(NameNotFoundException e) {
+		} catch (NameNotFoundException e) {
 			newEntry = true;
 			entry = new DirContextAdapter(buildDN(bean));
 		}
 		mapToContext(bean, entry);
 		for (Attribute attribute : attrs) {
-			for(PerunAttribute<T> attributeDesc : findAttributeDescriptionsByPerunAttr(attributeDescriptions, attribute)) {
+			for (PerunAttribute<T> attributeDesc : findAttributeDescriptionsByPerunAttr(attributeDescriptions, attribute)) {
 				mapToContext(bean, entry, attributeDesc, attribute);
 			}
 		}
@@ -211,7 +209,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 
 	@Override
 	public void commitSyncOperation(SyncOperation op) throws InternalErrorException {
-		if(op.isNew()) {
+		if (op.isNew()) {
 			ldapTemplate.bind(op.getEntry());
 		} else {
 			ldapTemplate.modifyAttributes(op.getEntry());
@@ -231,7 +229,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	@Override
 	public DirContextOperations findByDN(Name dn) {
 		Name baseDN = LdapNameBuilder.newInstance(this.getBaseDN()).build();
-		if(dn.startsWith(baseDN)) {
+		if (dn.startsWith(baseDN)) {
 			return ldapTemplate.lookupContext(dn.getSuffix(baseDN.size()));
 		}
 		return ldapTemplate.lookupContext(dn);
@@ -239,11 +237,11 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 
 
 	@Override
-	public DirContextOperations findById(String ...id) {
+	public DirContextOperations findById(String... id) {
 		return ldapTemplate.lookupContext(getEntryDN(id));
 	}
 
-	abstract public Name getEntryDN(String ...id);
+	abstract public Name getEntryDN(String... id);
 
 	@Override
 	public Boolean entryAttributeExists(T bean, String ldapAttributeName) {
@@ -257,16 +255,16 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 		DirContextOperations entry = findByDN(buildDN(bean));
 		/* we have to find all existing entry attributes to resolve all the present options in names */
 		NamingEnumeration<String> attrNames = entry.getAttributes().getIDs();
-		while(attrNames.hasMoreElements()) {
+		while (attrNames.hasMoreElements()) {
 			String attrName = attrNames.nextElement();
 			Iterable<PerunAttribute<T>> attrDefs = findAttributeDescriptionsByLdapName(getAttributeDescriptions(), Arrays.asList(attrName));
-			for(PerunAttribute<T> attrDef: attrDefs) {
-				if(attrDef.requiresAttributeBean() && !attrDef.isRequired()) {
+			for (PerunAttribute<T> attrDef : attrDefs) {
+				if (attrDef.requiresAttributeBean() && !attrDef.isRequired()) {
 					entry.setAttributeValues(attrName, null);
 				}
 			}
 		}
-		if(entry.getModificationItems().length > 0) {
+		if (entry.getModificationItems().length > 0) {
 			ldapTemplate.modifyAttributes(entry);
 		}
 	}
@@ -279,7 +277,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 		} catch (NameNotFoundException e) {
 			return false;
 		}
-		if(entry == null)
+		if (entry == null)
 			return false;
 		else
 			return true;
@@ -316,9 +314,9 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	@Override
 	public List<String> getPerunAttributeNames() {
 		List<String> attrNames = new ArrayList<String>();
-		for(PerunAttribute<T> attrDesc: getAttributeDescriptions()) {
-			if(!attrDesc.requiresAttributeBean()) continue;
-			AttributeValueExtractor extractor = attrDesc.isMultiValued() ? (AttributeValueExtractor)attrDesc.getMultipleValuesExtractor() : (AttributeValueExtractor)attrDesc.getSingleValueExtractor();
+		for (PerunAttribute<T> attrDesc : getAttributeDescriptions()) {
+			if (!attrDesc.requiresAttributeBean()) continue;
+			AttributeValueExtractor extractor = attrDesc.isMultiValued() ? (AttributeValueExtractor) attrDesc.getMultipleValuesExtractor() : (AttributeValueExtractor) attrDesc.getSingleValueExtractor();
 			attrNames.add(extractor.getNamespace() + ":" + extractor.getName());
 		}
 		return attrNames;
@@ -337,7 +335,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	abstract protected Name buildDN(T bean);
-	
+
 	abstract protected void mapToContext(T bean, DirContextOperations context) throws InternalErrorException;
 
 	/**
@@ -345,16 +343,16 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 * List of attributes to fill-in is given as parameter; if attribute has no value, it will be removed.
 	 * Attribute definitions that require data from Attribute bean are ignored.
 	 *
-	 * @param bean - Perun bean containing the basic data
+	 * @param bean    - Perun bean containing the basic data
 	 * @param context - LDAP context (ie. entry) that should be filled
-	 * @param attrs - list of known attributes
+	 * @param attrs   - list of known attributes
 	 * @throws InternalErrorException
 	 */
 	protected void mapToContext(T bean, DirContextOperations context, Iterable<PerunAttribute<T>> attrs) throws InternalErrorException {
-		for(PerunAttribute<T> attr: attrs) {
+		for (PerunAttribute<T> attr : attrs) {
 
 			// skip attributes not sources from object itself
-			if(attr.requiresAttributeBean())
+			if (attr.requiresAttributeBean())
 				continue;
 
 			// clear attributes marked for deletion
@@ -365,25 +363,23 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 			}
 
 			String[] values;
-			if(attr.isMultiValued()) {
+			if (attr.isMultiValued()) {
 				values = attr.getValues(bean);
 			} else {
-				if(attr.hasValue(bean)) {
-					values = new String[] { attr.getValue(bean) };
+				if (attr.hasValue(bean)) {
+					values = new String[]{attr.getValue(bean)};
 				} else {
 					values = null;
 				}
 			}
-			if(attr.isRequired() && (values == null || values.length == 0)) {
-				throw new InternalErrorException("Value of required attribute " +  attr.getName() + " is empty");
+			if (attr.isRequired() && (values == null || values.length == 0)) {
+				throw new InternalErrorException("Value of required attribute " + attr.getName() + " is empty");
 			}
 			context.setAttributeValues(attr.getName(), values);
 		}
 	}
 
 	/**
-	 *
-	 *
 	 * @param bean
 	 * @param entry
 	 * @param attrDef
@@ -399,18 +395,18 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 		}
 
 		Object[] values;
-		if(attr instanceof Attribute) {
-			if(attrDef.isMultiValued()) {
-				values = attrDef.getValues(bean, (Attribute)attr);
+		if (attr instanceof Attribute) {
+			if (attrDef.isMultiValued()) {
+				values = attrDef.getValues(bean, (Attribute) attr);
 			} else {
-				if(attrDef.hasValue(bean, (Attribute)attr)) {
-				values = Arrays.asList(attrDef.getValue(bean, (Attribute)attr)).toArray();
+				if (attrDef.hasValue(bean, (Attribute) attr)) {
+					values = Arrays.asList(attrDef.getValue(bean, (Attribute) attr)).toArray();
 				} else {
 					values = null;
 				}
 			}
-			if(attrDef.isRequired() && (values == null || values.length == 0)) {
-				throw new InternalErrorException("Value of required attribute " +  attrDef.getName() + " is empty");
+			if (attrDef.isRequired() && (values == null || values.length == 0)) {
+				throw new InternalErrorException("Value of required attribute " + attrDef.getName() + " is empty");
 			}
 		} else {
 			values = null;
@@ -420,15 +416,15 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 
 	protected Iterable<PerunAttribute<T>> findAttributeDescriptionsByLdapName(Iterable<PerunAttribute<T>> attrs, Iterable<String> attrNames) {
 		List<PerunAttribute<T>> result = new ArrayList<PerunAttribute<T>>();
-		for(PerunAttribute<T> attrDesc : attrs) {
+		for (PerunAttribute<T> attrDesc : attrs) {
 			String descName = attrDesc.getName();
-			for(String attrName : attrNames) {
-				if(descName.contains(";")) {
+			for (String attrName : attrNames) {
+				if (descName.contains(";")) {
 					// tagged names are taken as prefixes
-					if(attrName.startsWith(descName)) result.add(attrDesc);
+					if (attrName.startsWith(descName)) result.add(attrDesc);
 				} else {
 					// names without options are compared as a whole
-					if(descName.equals(attrName)) result.add(attrDesc);
+					if (descName.equals(attrName)) result.add(attrDesc);
 				}
 			}
 		}
@@ -447,18 +443,18 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 		List<PerunAttribute<T>> result = new ArrayList<PerunAttribute<T>>();
 		for (PerunAttribute<T> attrDef : attrs) {
 			AttributeValueExtractor extractor = null;
-			if(attrDef.isMultiValued()) {
+			if (attrDef.isMultiValued()) {
 				PerunAttribute.MultipleValuesExtractor<T> ext = attrDef.getMultipleValuesExtractor();
-				if(ext instanceof AttributeValueExtractor) {
-						extractor = (AttributeValueExtractor)ext;
+				if (ext instanceof AttributeValueExtractor) {
+					extractor = (AttributeValueExtractor) ext;
 				}
 			} else {
 				PerunAttribute.SingleValueExtractor<T> ext = attrDef.getSingleValueExtractor();
-				if(ext instanceof AttributeValueExtractor) {
-					extractor = (AttributeValueExtractor)ext;
+				if (ext instanceof AttributeValueExtractor) {
+					extractor = (AttributeValueExtractor) ext;
 				}
 			}
-			if(extractor != null && extractor.appliesToAttribute(attr)) {
+			if (extractor != null && extractor.appliesToAttribute(attr)) {
 				result.add(attrDef);
 			}
 		}

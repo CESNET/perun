@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
 import org.springframework.beans.factory.annotation.Required;
 
-import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RegexpDispatchEventCondition extends SimpleDispatchEventCondition {
 

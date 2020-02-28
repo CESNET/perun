@@ -1405,6 +1405,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * "members" group is not included!
 	 *
+	 * Supported are attributes from these namespaces:
+	 *  - group
+	 *  - member-group
+	 *
 	 * @throw MemberNotExistsException When the member doesn't exist
 	 *
 	 * @param member int <code>id</code> of member
@@ -1419,6 +1423,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Example: [1,2,3,4], toIndex=2 => [1,2,3]
 	 *
 	 * "members" group is not included!
+	 *
+	 * Supported are attributes from these namespaces:
+	 *  - group
+	 *  - member-group
 	 *
 	 * @throw MemberNotExistsException When the member doesn't exist
 	 *
@@ -1435,6 +1443,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * "members" group is not included!
 	 *
+	 * Supported are attributes from these namespaces:
+	 *  - group
+	 *  - member-group
+	 *
 	 * @throw MemberNotExistsException When the member doesn't exist
 	 *
 	 * @param member int <code>id</code> of member
@@ -1447,6 +1459,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns full list of member's RichGroups containing selected attributes.
 	 *
 	 * "members" group is not included!
+	 *
+	 * Supported are attributes from these namespaces:
+	 *  - group
+	 *  - member-group
 	 *
 	 * @throw MemberNotExistsException When the member doesn't exist
 	 *

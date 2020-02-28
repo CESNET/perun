@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
+
+import java.util.List;
 
 public abstract class AbstractPerunAttributeConfigurer<T extends PerunBean> implements PerunAttributeConfigurer<T> {
 
@@ -16,5 +16,5 @@ public abstract class AbstractPerunAttributeConfigurer<T extends PerunBean> impl
 	public void setAttributeDescriptions(List<PerunAttribute<T>> attributeDescriptions) {
 		this.attributeDescriptions = attributeDescriptions;
 	}
-	
+
 }

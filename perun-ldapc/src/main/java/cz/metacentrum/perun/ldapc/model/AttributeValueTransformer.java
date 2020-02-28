@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.ldapc.model;
 
+import cz.metacentrum.perun.core.api.Attribute;
+
 import java.util.Collection;
 import java.util.Map;
-
-import cz.metacentrum.perun.core.api.Attribute;
 
 /**
  * Value transformer used to modify incoming attribute values from Perun
@@ -15,7 +15,7 @@ public interface AttributeValueTransformer {
 	 * Returns single string value to be stored in LDAP from incoming single string value from Perun.
 	 *
 	 * @param value Value of Attribute from Perun
-	 * @param attr Attribute from Perun
+	 * @param attr  Attribute from Perun
 	 * @return Single String value to be stored in LDAP
 	 */
 	public String getValue(String value, Attribute attr);
@@ -24,7 +24,7 @@ public interface AttributeValueTransformer {
 	 * Returns single string value to be stored in LDAP from incoming list of values from Perun.
 	 *
 	 * @param value Value of Attribute from Perun
-	 * @param attr Attribute from Perun
+	 * @param attr  Attribute from Perun
 	 * @return Single String value to be stored in LDAP
 	 */
 	public String getValue(Collection<String> value, Attribute attr);
@@ -33,7 +33,7 @@ public interface AttributeValueTransformer {
 	 * Returns single string value to be stored in LDAP from incoming map value from Perun.
 	 *
 	 * @param value Value of Attribute from Perun
-	 * @param attr Attribute from Perun
+	 * @param attr  Attribute from Perun
 	 * @return Single String value to be stored in LDAP
 	 */
 	public String getValue(Map<String, String> value, Attribute attr);
@@ -42,7 +42,7 @@ public interface AttributeValueTransformer {
 	 * Returns array of string values to be stored in LDAP from incoming list value from Perun.
 	 *
 	 * @param value Value of Attribute from Perun
-	 * @param attr Attribute from Perun
+	 * @param attr  Attribute from Perun
 	 * @return Multi String value to be stored in LDAP
 	 */
 	public String[] getAllValues(Collection<String> value, Attribute attr);
@@ -51,7 +51,7 @@ public interface AttributeValueTransformer {
 	 * Returns array of string values to be stored in LDAP from incoming map value from Perun.
 	 *
 	 * @param value Value of Attribute from Perun
-	 * @param attr Attribute from Perun
+	 * @param attr  Attribute from Perun
 	 * @return Multi String value to be stored in LDAP
 	 */
 	public String[] getAllValues(Map<String, String> value, Attribute attr);

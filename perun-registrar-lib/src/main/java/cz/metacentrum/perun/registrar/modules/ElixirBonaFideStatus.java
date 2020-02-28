@@ -16,12 +16,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +32,7 @@ import java.util.Map;
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
-public class ElixirBonaFideStatus implements RegistrarModule {
+public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(ElixirBonaFideStatus.class);
 
@@ -48,16 +45,6 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 	private static final String A_U_D_userBonaFideStatusRems = AttributesManager.NS_USER_ATTR_DEF + ':' + USER_BONA_FIDE_STATUS_REMS_ATTR_NAME;
 	private static final String A_U_D_userEduPersonScopedAffiliations = AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
 	private static final String A_G_D_groupAttestation = AttributesManager.NS_GROUP_ATTR_DEF + ':' + GROUP_ATESTATION_ATTR_NAME;
-
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
 
 	/**
 	 * Add new bonaFideStatus to the user attribute.
@@ -88,11 +75,6 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 	}
 
 	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
 	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, InternalErrorException {
 		Group group = app.getGroup();
 		if (group == null) {
@@ -117,11 +99,6 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 		}
 
 		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-
 	}
 
 	/**

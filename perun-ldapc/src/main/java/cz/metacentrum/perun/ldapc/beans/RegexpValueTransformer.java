@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
+
+import java.util.List;
 
 /**
  * Value transformer, which applies list of regular expresion substitutions ({@link RegexpSubst})

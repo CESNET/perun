@@ -106,7 +106,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String FRIENDLY_NAME_GROUP_FROM_EMAIL = "fromEmail";
 	private static final String NAMESPACE_GROUP_FROM_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_FROM_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_EMAIL;
-	
+
 	private static final String DISPLAY_NAME_GROUP_FROM_NAME_EMAIL = "\"From\" name";
 	private static final String FRIENDLY_NAME_GROUP_FROM__NAME_EMAIL = "fromNameEmail";
 	private static final String NAMESPACE_GROUP_FROM_NAME_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
@@ -1225,7 +1225,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					// skip logins with empty/null value
 					if (itemData.getValue() == null || itemData.getValue().isEmpty() || itemData.getValue().equals("null")) continue;
 					// skip unchanged pre-filled logins, since they must have been handled last time
-					if (itemData.getValue().equals(itemData.getPrefilledValue()) && itemType != PASSWORD) continue;
+					if (itemType == USERNAME && Objects.equals(itemData.getValue(), itemData.getPrefilledValue())) continue;
 					logins.add(itemData);
 				}
 			}
@@ -2447,6 +2447,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 
 			}
+		}
+
+		if (module != null) {
+			module.processFormItemsWithData(sess, appType, form, itemsWithValues);
 		}
 
 		if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {

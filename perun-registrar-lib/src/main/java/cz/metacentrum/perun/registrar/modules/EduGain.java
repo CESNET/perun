@@ -8,31 +8,18 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * Application module for EduGain purpose
  */
-public class EduGain implements RegistrarModule {
+public class EduGain extends DefaultRegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
 
 	/**
 	 * All new members will be given role VOOBSERVER and TOPGROUPCREATOR

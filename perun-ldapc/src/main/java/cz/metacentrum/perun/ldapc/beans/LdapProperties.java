@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.Properties;
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * LdapProperties data from properties file.
  */
@@ -21,7 +18,7 @@ public class LdapProperties {
 	}
 
 	public boolean propsLoaded() {
-		return ldapConsumerName!=null&&ldapBase!=null&&ldapLoginNamespace!=null;
+		return ldapConsumerName != null && ldapBase != null && ldapLoginNamespace != null;
 	}
 
 	public String getLdapConsumerName() {
@@ -35,7 +32,7 @@ public class LdapProperties {
 	public String getLdapLoginNamespace() {
 		return ldapLoginNamespace;
 	}
-	
+
 	public String getLdapStateFile() {
 		return ldapStateFile;
 	}

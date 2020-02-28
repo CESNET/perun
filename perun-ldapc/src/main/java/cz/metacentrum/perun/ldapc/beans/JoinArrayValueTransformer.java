@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.ldapc.beans;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
+
 import java.util.Collection;
 import java.util.List;
 
 import static java.util.stream.Collectors.joining;
-
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
 /**
  * Value transformer which joins {@link List <String>} attribute values from Perun into single String

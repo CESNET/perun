@@ -1,14 +1,14 @@
 package cz.metacentrum.perun.ldapc.beans;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
 
 /**
  * Composite value transformer allows us to apply multiple consequent transformations in defined order.
@@ -35,12 +35,12 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 	public String getValue(Collection<String> value, Attribute attr) {
 		Collection<String> intermediate = value;
 		String result = null;
-		for(AttributeValueTransformer transformer : transformerList) {
-			if(result == null) {
-				if(transformer.isReduce()) {
+		for (AttributeValueTransformer transformer : transformerList) {
+			if (result == null) {
+				if (transformer.isReduce()) {
 					result = transformer.getValue(intermediate, attr);
 				} else {
-					if(transformer.isMassTransformationPreferred()) {
+					if (transformer.isMassTransformationPreferred()) {
 						intermediate = Arrays.asList(transformer.getAllValues(intermediate, attr));
 					} else {
 						intermediate = intermediate.stream()
@@ -59,9 +59,9 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 	public String getValue(Map<String, String> value, Attribute attr) {
 		Collection<String> intermediate = null;
 		String result = null;
-		for(AttributeValueTransformer transformer : transformerList) {
-			if(intermediate == null) {
-				if(transformer.isReduce()) {
+		for (AttributeValueTransformer transformer : transformerList) {
+			if (intermediate == null) {
+				if (transformer.isReduce()) {
 					// first transformer has to reduce map to array
 					result = transformer.getValue(value, attr);
 				} else {
@@ -70,12 +70,12 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 				}
 			} else {
 
-				if(result == null) {
+				if (result == null) {
 
-					if(transformer.isReduce()) {
+					if (transformer.isReduce()) {
 						result = transformer.getValue(intermediate, attr);
 					} else {
-						if(transformer.isMassTransformationPreferred()) {
+						if (transformer.isMassTransformationPreferred()) {
 							intermediate = Arrays.asList(transformer.getAllValues(intermediate, attr));
 						} else {
 							intermediate = intermediate.stream()
@@ -96,10 +96,10 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 		String[] result = null;
 		Collection<String> intermediate = value;
 		for (AttributeValueTransformer transformer : transformerList) {
-			if(intermediate == null) {
+			if (intermediate == null) {
 				intermediate = (result == null) ? new ArrayList<String>() : Arrays.asList(result);
 			}
-			if(transformer.isMassTransformationPreferred()) {
+			if (transformer.isMassTransformationPreferred()) {
 				result = transformer.getAllValues(intermediate, attr);
 			} else {
 				result = intermediate.stream()
@@ -116,14 +116,14 @@ public class CompositeValueTransformer extends ValueTransformerBase implements A
 		String[] result = null;
 		Collection<String> intermediate = null;
 		for (AttributeValueTransformer transformer : transformerList) {
-			if(result == null) {
+			if (result == null) {
 				// first transformer has to reduce map to array
 				result = transformer.getAllValues(value, attr);
 			} else {
-				if(intermediate == null) {
+				if (intermediate == null) {
 					intermediate = Arrays.asList(result);
 				}
-				if(transformer.isMassTransformationPreferred()) {
+				if (transformer.isMassTransformationPreferred()) {
 					result = transformer.getAllValues(intermediate, attr);
 				} else {
 					result = intermediate.stream()

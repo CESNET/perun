@@ -1,15 +1,14 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.ldapc.model.AttributeValueTransformer;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Value transformer, which converts users login into value acceptable by LDAP userPassword attribute.
  * Nor Perun or LDAP actually contains userPassword. Password check in LDAP is redirected to KDC.
- *
+ * <p>
  * Transformation example: "login" -> "{SASL}login@namespace" where "namespace" is defined in LDAPc configuration
  * and should match "login-namespace:[namespace]" name of the attribute from Perun.
  */

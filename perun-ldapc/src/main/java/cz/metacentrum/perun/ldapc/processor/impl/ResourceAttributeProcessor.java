@@ -74,13 +74,13 @@ public class ResourceAttributeProcessor extends AbstractAttributeProcessor {
 		}
 		try {
 			Attribute virtAttr = perun.getAttributesManagerBl().
-				getAttribute(ldapcManager.getPerunSession(), beans.getResource(), beans.getAttribute().getName());
+					getAttribute(ldapcManager.getPerunSession(), beans.getResource(), beans.getAttribute().getName());
 
 			log.debug("Changing virtual attribute {} for resource {}", virtAttr, beans.getResource());
 			perunResource.modifyEntry(beans.getResource(), virtAttr);
 
 		} catch (InternalErrorException | AttributeNotExistsException | WrongAttributeAssignmentException |
-			NamingException e) {
+				NamingException e) {
 			log.error("Error changing virtual attribute:", e);
 		}
 	}

@@ -5,23 +5,18 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.RegistrarManager;
-import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,18 +24,9 @@ import java.util.Objects;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class Sitola implements RegistrarModule {
+public class Sitola extends DefaultRegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(Sitola.class);
-
-	@Override
-	public void setRegistrar(RegistrarManager registrar) {
-	}
-
-	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
-		return data;
-	}
 
 	/**
 	 * All new Sitola members will have MU eduroam identity added if they posses MU login.
@@ -100,26 +86,6 @@ public class Sitola implements RegistrarModule {
 		}
 
 		return app;
-
-	}
-
-	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public Application beforeApprove(PerunSession session, Application app) {
-		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-
-	}
-
-	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 
 	}
 
