@@ -126,7 +126,7 @@ public class CreateVoTabItem implements TabItem {
 				if (!nameValidator.validateTextBox()) return;
 				if (!shortNameValidator.validateTextBox()) return;
 
-				CreateVo request = new CreateVo(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, new JsonCallbackEvents() {
+				CreateVo request = new CreateVo(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true, new JsonCallbackEvents() {
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						// new VO must be editable by user in GUI, because it is already in PERUN

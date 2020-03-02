@@ -107,7 +107,7 @@ public class CreateVoResourceTagTabItem implements TabItem {
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (!nameValidator.validateTextBox()) return;
-				CreateResourceTag request = new CreateResourceTag(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+				CreateResourceTag request = new CreateResourceTag(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 				request.createResourceTag(nameTextBox.getTextBox().getText().trim(), voId);
 			}
 		});

@@ -127,10 +127,11 @@ public class JsonCallbackEvents {
 	 *
 	 * @param button Button to be enabled / disabled
 	 * @param tab Tab to be closed
+	 * @param mayRefreshTab
 	 * @return JsonCallbackEvents object
 	 */
-	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab)	{
-		return closeTabDisableButtonEvents(button, tab, null);
+	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab, boolean mayRefreshTab)	{
+		return closeTabDisableButtonEvents(button, tab, mayRefreshTab, null);
 	}
 
 
@@ -144,10 +145,11 @@ public class JsonCallbackEvents {
 	 *
 	 * @param button Button to be enabled / disabled
 	 * @param tab Tab to be closed
+	 * @param mayRefreshTab
 	 * @param events Events inside this event
 	 * @return JsonCallbackEvents object
 	 */
-	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab, final JsonCallbackEvents events)	{
+	static public JsonCallbackEvents closeTabDisableButtonEvents(final CustomButton button, final TabItem tab, boolean mayRefreshTab, final JsonCallbackEvents events)	{
 
 		JsonCallbackEvents closeTabEvents = new JsonCallbackEvents(){
 
@@ -168,7 +170,7 @@ public class JsonCallbackEvents {
 			public void onFinished(JavaScriptObject jso)
 			{
 				button.setProcessing(false);
-				session.getTabManager().closeTab(tab, tab.isRefreshParentOnClose());
+				session.getTabManager().closeTab(tab, tab.isRefreshParentOnClose() || mayRefreshTab);
 				if(events != null){
 					events.onFinished(jso);
 				}

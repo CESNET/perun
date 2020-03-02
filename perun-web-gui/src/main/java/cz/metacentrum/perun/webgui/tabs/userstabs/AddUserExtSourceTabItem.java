@@ -172,7 +172,7 @@ public class AddUserExtSourceTabItem implements TabItem, TabItemWithUrl {
 		TabMenu menu = new TabMenu();
 
 		// close tab events
-		final JsonCallbackEvents addExtSrcEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, this);
+		final JsonCallbackEvents addExtSrcEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, this, true);
 		addButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {

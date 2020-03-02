@@ -215,7 +215,7 @@ public class CreateGroupTabItem implements TabItem {
 				if (!validator.validateTextBox()) return;
 
 				// creates a new request
-				CreateGroup cg = new CreateGroup(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+				CreateGroup cg = new CreateGroup(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 				if (asSubGroup.getValue()) {
 					if (vosGroups.getSelectedObject() != null) {
 						cg.createGroupInGroup(vosGroups.getSelectedObject().getId(), groupNameTextBox.getTextBox().getText().trim(), groupDescriptionTextBox.getText().trim());

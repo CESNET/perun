@@ -154,7 +154,7 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 					AddSpecificUserOwner req;
 					if (i == list.size() - 1) {
-						req = new AddSpecificUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+						req = new AddSpecificUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
 					} else {
 						req = new AddSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
 					}

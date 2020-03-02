@@ -114,7 +114,7 @@ public class AssignSecurityTeamTabItem implements TabItem {
 					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
 					for (int i=0; i<list.size(); i++) {
 						if (i == list.size()-1) {
-							AssignSecurityTeam request = new AssignSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							AssignSecurityTeam request = new AssignSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
 							request.assignSecurityTeam(facilityId, list.get(i).getId());
 						} else {
 							AssignSecurityTeam request = new AssignSecurityTeam(JsonCallbackEvents.disableButtonEvents(addButton));

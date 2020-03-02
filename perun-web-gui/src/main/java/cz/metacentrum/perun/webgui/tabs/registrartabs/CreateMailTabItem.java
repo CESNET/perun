@@ -470,7 +470,7 @@ public class CreateMailTabItem implements TabItem {
 				ApplicationMail appMail = ApplicationMail.construct(appType, form.getId(), mailType, send, messages);
 
 				// request
-				AddApplicationMail req = new AddApplicationMail(entity, JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab));
+				AddApplicationMail req = new AddApplicationMail(entity, JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true));
 				req.addMail(appMail, entityId);
 
 			}
