@@ -292,6 +292,556 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #FacilitiesManagerEntry
+  getFacilityById_int_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFacilityByName_String_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichFacilities_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getRichFacilities_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFacilitiesByDestination_String_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getFacilitiesByDestination_String_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFacilitiesByAttribute_String_String_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFacilities_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getFacilities_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getOwners_Facility_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  setOwners_Facility_List<Owner>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  addOwner_Facility_Owner_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeOwner_Facility_Owner_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  copyOwners_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getAllowedVos_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedGroups_Facility_Vo_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedRichGroupsWithAttributes_Facility_Vo_Service_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedUsers_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedUsers_Facility_Vo_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedResources_Facility_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedRichResources_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  createFacility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  deleteFacility_Facility_Boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  updateFacility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getOwnerFacilities_Owner_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedFacilities_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  filter-getAssignedFacilities_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  getAssignedFacilities_Member_policy:
+    policy_roles:
+      - SELF: User
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  filter-getAssignedFacilities_Member_policy:
+    policy_roles:
+      - SELF: User
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  getAssignedFacilities_User_policy:
+    policy_roles:
+      - SELF: User
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  filter-getAssignedFacilities_User_policy:
+    policy_roles:
+      - SELF: User
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  getAssignedFacilities_Service_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  filter-getAssignedFacilities_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  getAssignedFacilities_SecurityTeam_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  filter-getAssignedFacilities_SecurityTeam_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  getHostsCount_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  addHosts_List<Host>_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addHosts_Facility_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeHosts_List<Host>_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addAdmin_Facility_User_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addAdmin_Facility_Group_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeAdmin_Facility_User_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeAdmin_Facility_Group_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getAdmins_Facility_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getRichAdmins_Facility_List<String>_boolean_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getAdminGroups_Facility_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getFacilitiesWhereUserIsAdmin_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  copyManagers_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  copyAttributes_Facility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addHost_Host_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeHost_Host_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getHostById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RPC:
+      - FACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getHostsByHostname_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  filter-getHostsByHostname_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getFacilityForHost_Host_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getFacilitiesByHostName_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getAssignedUsers_Facility_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getAssignedUsers_Facility_Service_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getFacilityContactGroups_Owner_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getFacilityContactGroups_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getFacilityContactGroups_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getFacilityContactGroups_Facility_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getFacilityContactGroup_Facility_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addFacilityContacts_List<ContactGroup>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addFacilityContact_ContactGroup_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeFacilityContacts_List<ContactGroup>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeFacilityContact_ContactGroup_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getAssignedSecurityTeams_Facility_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  assignSecurityTeam_Facility_SecurityTeam_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeSecurityTeam_Facility_SecurityTeam_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  setBan_BanOnFacility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getBanById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getBan_int_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getBansForUser_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getBansForFacility_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  updateBan_BanOnFacility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeBan_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeBan_int_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
   #OwnersManagerEntry
   createOwner_Owner_policy:
     policy_roles: []

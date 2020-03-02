@@ -481,14 +481,14 @@ public interface FacilitiesManager {
 	 *
 	 * @return list of users
 	 */
-	List<User> getAssignedUsers(PerunSession sess, Facility facility) throws PrivilegeException;
+	List<User> getAssignedUsers(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Returns list of Users assigned with chosen Facility containing resources where service is assigned.
 	 *
 	 * @return list of users
 	 */
-	List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws PrivilegeException;
+	List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
 
 	/**
 	 * Copy all managers(admins) of the source facility to the destination facility.
