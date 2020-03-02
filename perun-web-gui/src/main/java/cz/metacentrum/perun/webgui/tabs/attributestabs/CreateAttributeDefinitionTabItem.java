@@ -183,7 +183,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		menu.addWidget(createButton);
 
 		// close tab events & enable, disable buttons
-		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(createButton, this);
+		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(createButton, this, true);
 
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {

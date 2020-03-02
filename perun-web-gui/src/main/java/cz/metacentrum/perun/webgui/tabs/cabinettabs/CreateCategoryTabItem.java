@@ -113,7 +113,7 @@ public class CreateCategoryTabItem implements TabItem {
 		addCategory.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				if (validator.validateTextBox() && validator2.validateTextBox()) {
-					CreateCategory request = new CreateCategory(JsonCallbackEvents.closeTabDisableButtonEvents(addCategory, tab));
+					CreateCategory request = new CreateCategory(JsonCallbackEvents.closeTabDisableButtonEvents(addCategory, tab, true));
 					request.createCategory(nameTextBox.getTextBox().getText().trim(), Double.parseDouble(rankTextBox.getTextBox().getText().trim()));
 				}
 			}

@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.vosManager.UpdateVo;
@@ -116,7 +115,7 @@ public class EditVoDetailsTabItem implements TabItem {
 				if (!nameValidator.validateTextBox()) return;
 				VirtualOrganization v = JsonUtils.clone(vo).cast();
 				v.setName(nameTextBox.getTextBox().getText().trim());
-				UpdateVo request = new UpdateVo(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+				UpdateVo request = new UpdateVo(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 				request.updateVo(v);
 			}
 		});

@@ -207,22 +207,22 @@ public class CopyMailsTabItem implements TabItem {
 				if (groupsBox.getSelectedIndex() != 0 && voId != 0 && groupId == 0) {
 
 					// from group to VO
-					request = new CopyMails(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyMails(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				} else if (groupsBox.getSelectedIndex() != 0 && voId != 0 && groupId != 0) {
 
 					// from group to group
-					request = new CopyMails(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyMails(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				} else if (groupsBox.getSelectedIndex() == 0 && voId != 0 && groupId == 0) {
 
 					// from VO to VO
-					request = new CopyMails(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyMails(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				} else if (groupsBox.getSelectedIndex() == 0 && voId != 0 && groupId != 0) {
 
 					// from VO to group
-					request = new CopyMails(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyMails(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				}
 

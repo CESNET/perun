@@ -187,7 +187,7 @@ public class EditServiceDetailsTabItem implements TabItem {
 					serv.setRecurrence(Integer.parseInt(recurrence.getTextBox().getText().trim()));
 					serv.setEnabled(enabled.getValue());
 					serv.setScriptPath(scriptPath.getTextBox().getText().trim());
-					UpdateService request = new UpdateService(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+					UpdateService request = new UpdateService(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 					request.updateService(serv);
 				}
 			}

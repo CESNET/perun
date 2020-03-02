@@ -123,7 +123,7 @@ public class EditUserDetailsTabItem implements TabItem {
 					u.setLastName(lastName.getText().trim());
 					u.setTitleBefore(beforeName.getText().trim());
 					u.setTitleAfter(afterName.getText().trim());
-					UpdateUser request = new UpdateUser(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+					UpdateUser request = new UpdateUser(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 					request.updateUser(u);
 				}
 			});
@@ -135,7 +135,7 @@ public class EditUserDetailsTabItem implements TabItem {
 					User u = JsonUtils.clone(user).cast();
 					u.setTitleBefore(beforeName.getText().trim());
 					u.setTitleAfter(afterName.getText().trim());
-					UpdateNameTitles request = new UpdateNameTitles(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+					UpdateNameTitles request = new UpdateNameTitles(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 					request.updateUserTitles(u);
 				}
 			});

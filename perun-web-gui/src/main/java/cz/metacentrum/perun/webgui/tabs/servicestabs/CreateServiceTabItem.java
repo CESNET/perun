@@ -177,7 +177,7 @@ public class CreateServiceTabItem implements TabItem {
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (validator.validateTextBox() && delayValidator.validateTextBox() && scriptValidator.validateTextBox() && recurrenceValidator.validateTextBox()) {
-					CreateService request = new CreateService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					CreateService request = new CreateService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 					String description = serviceDescription.getTextBox().getText().trim();
 					if (description.isEmpty()) description = null;
 					request.createService(serviceName.getTextBox().getText().trim(),

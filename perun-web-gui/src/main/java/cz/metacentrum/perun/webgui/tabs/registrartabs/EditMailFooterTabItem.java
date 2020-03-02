@@ -174,8 +174,8 @@ public class EditMailFooterTabItem implements TabItem {
 				}
 
 				// requests
-				SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
-				RemoveAttributes removeRequest = new RemoveAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+				SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
+				RemoveAttributes removeRequest = new RemoveAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 				// send if not empty
 				if (!toRemove.isEmpty()) {
 					removeRequest.removeAttributes(ids, toRemove);
