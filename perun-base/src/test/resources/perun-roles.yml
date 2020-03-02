@@ -466,4 +466,103 @@ perun_policies:
       - PERUNOBSERVER:
     include_policies:
       - default_policy
+
+  #TasksManagerEntry
+  getTask_Service_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getTaskById_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  listAllTasksForFacility_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  isThereSuchTask_Service_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getTask_int_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getTaskResultsByTask_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getTaskResultsForGUIByTaskOnlyNewest_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getTaskResultsForGUIByTaskAndDestination_int_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getTaskResultsForGUIByTask_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFacilityState_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  getAllFacilitiesStatesForVo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getResourcesState_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFacilityServicesState_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  deleteTask_Task_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
 ...
