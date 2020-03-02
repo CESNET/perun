@@ -135,7 +135,7 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 
 		final CustomButton finishAssigningButton = TabMenu.getPredefinedButton(ButtonType.FINISH, ButtonTranslation.INSTANCE.finishGroupAssigning());
 
-		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(finishAssigningButton, this);
+		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(finishAssigningButton, this, true);
 		final JsonCallbackEvents disableButtonEvents = JsonCallbackEvents.disableButtonEvents(finishAssigningButton);
 
 		finishAssigningButton.addClickHandler(new ClickHandler() {

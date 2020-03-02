@@ -163,7 +163,7 @@ public class SetNewAttributeTabItem implements TabItem {
 
 		final TabItem tab = this;
 		final CustomButton saveButton = TabMenu.getPredefinedButton(ButtonType.SAVE, buttonTranslation.saveNewAttributes());
-		final JsonCallbackEvents events = JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab);
+		final JsonCallbackEvents events = JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true);
 		saveButton.addClickHandler(new ClickHandler() {
 
 			public void onClick(ClickEvent event) {

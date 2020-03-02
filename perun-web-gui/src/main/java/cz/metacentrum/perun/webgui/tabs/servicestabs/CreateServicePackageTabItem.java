@@ -120,7 +120,7 @@ public class CreateServicePackageTabItem implements TabItem {
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (validator.validateTextBox() && validator2.validateTextBox()) {
-					CreateServicePackage request = new CreateServicePackage(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					CreateServicePackage request = new CreateServicePackage(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 					request.createServicePackage(packageName.getTextBox().getText().trim(), packageDescription.getTextBox().getText().trim());
 				}
 			}

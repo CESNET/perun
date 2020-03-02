@@ -118,7 +118,7 @@ public class EditSecurityTeamDetailsTabItem implements TabItem {
 				SecurityTeam team2 = JsonUtils.clone(team).cast();
 				team2.setName(nameTextBox.getTextBox().getText().trim());
 				team2.setDescription(descriptionTextBox.getTextBox().getText().trim());
-				UpdateSecurityTeam request = new UpdateSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+				UpdateSecurityTeam request = new UpdateSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 				request.updateSecurityTeam(team2);
 			}
 		});

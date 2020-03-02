@@ -5,13 +5,9 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.datepicker.client.DatePicker;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -20,21 +16,16 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetLogins;
-import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
-import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.json.membersManager.SendPasswordResetLinkEmail;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -167,7 +158,7 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 		changeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				SendPasswordResetLinkEmail request = new SendPasswordResetLinkEmail(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
+				SendPasswordResetLinkEmail request = new SendPasswordResetLinkEmail(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, true));
 				request.sendEmail(member, namespaces.getItemText(namespaces.getSelectedIndex()).toLowerCase(),
 						emails.getSelectedValue(), languages.getSelectedValue());
 			}

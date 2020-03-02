@@ -142,7 +142,7 @@ public class AssignServiceTabItem implements TabItem {
 							AssignService request = new AssignService(JsonCallbackEvents.disableButtonEvents(assignButton));
 							request.assignService(servicesToAssign.get(i).getId(), resourceId);
 						} else {                                                // last change - call json with update
-							AssignService request = new AssignService(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+							AssignService request = new AssignService(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab, true));
 							request.assignService(servicesToAssign.get(i).getId(), resourceId);
 						}
 					}

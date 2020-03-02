@@ -123,7 +123,7 @@ public class EditFacilityDetailsTabItem implements TabItem {
 					Facility fac = JsonUtils.clone(facility).cast();
 					fac.setName(nameTextBox.getTextBox().getText().trim());
 					fac.setDescription(descriptionTextBox.getText().trim());
-					UpdateFacility request = new UpdateFacility(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+					UpdateFacility request = new UpdateFacility(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 					request.updateFacility(fac);
 				}
 			}

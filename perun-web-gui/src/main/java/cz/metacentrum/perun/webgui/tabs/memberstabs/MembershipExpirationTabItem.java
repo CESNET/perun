@@ -155,14 +155,14 @@ public class MembershipExpirationTabItem implements TabItem {
 					expire.setValueAsString(DateTimeFormat.getFormat("yyyy-MM-dd").format(picker.getValue()));
 					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("member", member.getId());
-					SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, events));
+					SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, false, events));
 					ArrayList<Attribute> list = new ArrayList<Attribute>();
 					list.add(expire);
 					request.setAttributes(ids, list);
 				} else {
 					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("member", member.getId());
-					RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, events));
+					RemoveAttributes request = new RemoveAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, false, events));
 					ArrayList<Attribute> list = new ArrayList<Attribute>();
 					list.add(expire);
 					request.removeAttributes(ids, list);
