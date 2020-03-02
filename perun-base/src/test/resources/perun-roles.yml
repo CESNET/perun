@@ -519,6 +519,405 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #ServicesManagerEntry
+  blockServiceOnFacility_Service_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  blockServiceOnDestination_Service_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  blockAllServicesOnFacility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  blockAllServicesOnDestination_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getServicesBlockedOnFacility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getServicesBlockedOnDestination_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  isServiceBlockedOnFacility_Service_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  isServiceBlockedOnDestination_Service_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  unblockAllServicesOnDestination_String_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  unblockAllServicesOnDestination_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  unblockServiceOnFacility_Service_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  unblockServiceOnDestination_Service_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  forceServicePropagation_Facility_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  forceServicePropagation_Service_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  planServicePropagation_Facility_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  planServicePropagation_Service_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - ENGINE:
+    include_policies:
+      - default_policy
+
+  getFacilityAssignedServicesForGUI_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  createService_Service_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteService_Service_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updateService_Service_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getServiceById_int_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - ENGINE:
+      - RPC:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getServiceByName_String_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getServices_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - FACILITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getServicesByAttributeDefinition_AttributeDefinition_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedResources_Service_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getAssignedResources_Service_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getHierarchicalData_Service_Facility_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFlatData_Service_Facility_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getDataWithGroups_Service_Facility_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getDataWithVos_Service_Facility_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getServicesPackages_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getServicesPackageById_int_policy:
+    policy_roles:
+      - RPC:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getServicesPackageByName_String_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  createServicesPackage_ServicesPackage_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updateServicesPackage_ServicesPackage_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteServicesPackage_ServicesPackage_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  addServiceToServicesPackage_ServicesPackage_Service_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeServiceFromServicesPackage_ServicesPackage_Service_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getServicesFromServicesPackage_ServicesPackage_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  addRequiredAttribute_Service_AttributeDefinition_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  addRequiredAttributes_Service_List<AttributeDefinition>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeRequiredAttribute_Service_AttributeDefinition_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeRequiredAttributes_Service_List<AttributeDefinition>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeAllRequiredAttributes_Service_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  addDestination_List<Service>_Facility_Destination_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addDestination_Service_Facility_Destination_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeDestination_Service_Facility_Destination_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getDestinationById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - ENGINE:
+      - FACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  getDestinations_Service_Facility_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getDestinations_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllRichDestinations_Facility_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getAllRichDestinations_Service_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichDestinations_Facility_Service_policy:
+    policy_roles:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeAllDestinations_Service_Facility_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAssignedServices_Facility_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addDestinationsForAllServicesOnFacility_Facility_Destination_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addDestinationsDefinedByHostsOnFacility_Service_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addDestinationsDefinedByHostsOnFacility_List<Services>_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addDestinationsDefinedByHostsOnFacility_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
   #TasksManagerEntry
   getTask_Service_Facility_policy:
     policy_roles:
