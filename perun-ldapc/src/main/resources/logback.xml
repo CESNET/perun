@@ -12,7 +12,7 @@
 		<file>${LOGDIR}perun-ldapc.log</file>
 		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-ldapc.log.%d.%i</fileNamePattern>
+			<fileNamePattern>${LOGDIR}perun-ldapc.log.%d.%i.gz</fileNamePattern>
 			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>30</maxHistory>
 			<totalSizeCap>1GB</totalSizeCap>
