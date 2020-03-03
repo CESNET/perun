@@ -2765,6 +2765,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	public void updateFormItemData(PerunSession sess, ApplicationFormItemData app) throws InternalErrorException, PrivilegeException {
+
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "updateApplicationData");
+		}
+
+		try {
+			int result = jdbc.update("update application_data set value=? where id=?", app.getValue(), app.getId());
+			log.info("{} manually updated form item data {}", sess.getPerunPrincipal(), app);
+			if (result != 1) {
+				throw new InternalErrorException("Unable to update form item data");
+			}
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
+
 	@Override
 	public MailManager getMailManager() {
 		return this.mailManager;

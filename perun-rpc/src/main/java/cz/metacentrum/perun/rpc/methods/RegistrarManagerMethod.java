@@ -1246,6 +1246,23 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		}
 
+	},
+
+	/*#
+	 * Update data of specific application form item, which was originally submitted by user.
+	 * Only PerunAdmin can use this.
+	 *
+	 * @param data ApplicationFormItemData Form item data to be updated by its ID.
+	 */
+	updateFormItemData {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			ac.getRegistrarManager().updateFormItemData(ac.getSession(), parms.read("data", ApplicationFormItemData.class));
+			return null;
+		}
+
 	};
 
 }
