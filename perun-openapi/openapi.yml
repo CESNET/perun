@@ -9331,14 +9331,7 @@ paths:
       summary: Batch version of addRequiredAttribute.
       parameters:
         - $ref: '#/components/parameters/serviceId'
-        - name: attributes
-          description: 'Attribute IDs'
-          schema:
-            type: array
-            items:
-              type: integer
-          in: query
-          required: true
+        - $ref: '#/components/parameters/attributes'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9368,14 +9361,7 @@ paths:
       summary: Remove required attributes from service.
       parameters:
         - $ref: '#/components/parameters/serviceId'
-        - name: attributes
-          description: 'Attribute IDs'
-          schema:
-            type: array
-            items:
-              type: integer
-          in: query
-          required: true
+        - $ref: '#/components/parameters/attributes'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9492,7 +9478,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - { name: destination, description: "Destination's destination, usually a DNS name", schema: { type: string },  in: query, required: true }
         - { name: type, description: "Destination's type", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
-        - { name: propagationType, description: "Destination's propagationType", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: true }
+        - { name: propagationType, description: "Destination's propagationType", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/DestinationResponse'
@@ -9523,7 +9509,6 @@ paths:
                 - facility
                 - destination
                 - type
-                - propagationType
               properties:
                 services:
                   type: array
