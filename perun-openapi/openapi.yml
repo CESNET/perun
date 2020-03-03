@@ -1536,7 +1536,7 @@ components:
       required: true
 
     applicationId:
-      name: applicationId
+      name: appId
       description: id of application
       schema:
         type: integer
@@ -8183,7 +8183,7 @@ paths:
       operationId: getApplicationById
       summary: Returns application object by its id.
       parameters:
-        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
@@ -8197,7 +8197,7 @@ paths:
       operationId: getApplicationDataById
       summary: Returns data submitted by user in given application (by id).
       parameters:
-        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/ListOfApplicationFormItemDataResponse'
