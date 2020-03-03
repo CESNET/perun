@@ -15,7 +15,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<!-- Scans for @Repository, @Service and @Component -->
 	<context:component-scan base-package="cz.metacentrum.perun.dispatcher"/>
-	<context:component-scan base-package="cz.metacentrum.perun.controller"/>
 
 	<!-- Enable @AspectJ support -->
 	<aop:aspectj-autoproxy/>
