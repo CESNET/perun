@@ -8085,7 +8085,7 @@ paths:
       operationId: sendInvitation
       summary: Sends invitation email to user which is not member of VO
       parameters:
-        - $ref: '#/components/parameters/voId'
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
         - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
         - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
         - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
@@ -8104,8 +8104,8 @@ paths:
       description: |
         Invitation link targets VO application form fist, after submission, Group application form is displayed.
       parameters:
-        - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/groupId'
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
+        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into"}
         - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
         - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
         - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
@@ -8122,8 +8122,8 @@ paths:
       operationId: sendInvitationToExistingUser
       summary: Sends invitation email to user which is not member of VO
       parameters:
-        - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/voId'
+        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to"}
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8137,9 +8137,9 @@ paths:
       operationId: sendInvitationGroupToExistingUser
       summary: Sends invitation email to user which is not member of Group
       parameters:
-        - $ref: '#/components/parameters/userId'
-        - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/groupId'
+        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to"}
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
+        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into"}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
