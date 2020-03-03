@@ -434,7 +434,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all services with given attribute.
 	 *
-	 * @param attributeDefinition AttributeDefinition attributeDefinition
+	 * @param attributeDefinition int attributeDefinition <code>id</code>
 	 * @return all services with given attribute
 	 */
 	getServicesByAttributeDefinition {
