@@ -1805,6 +1805,8 @@ tags:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-VosManager.html
   - name: TasksManager
     description: TasksManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-TasksManager.html
 
 
 #################################################
@@ -9282,7 +9284,7 @@ paths:
       operationId: getAllResourcesState
       summary: Return propagation status of all resources related to VO.
       parameters:
-        - $ref: '#/components/parameters/voId'
+        - { name: voId, description: "VO id", schema: { type: integer },  in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/ListOfResourceStatesResponse'
@@ -9296,7 +9298,7 @@ paths:
       operationId: getTaskResultsForDestinations
       summary: Returns task results for defined destinations.
       parameters:
-        - name: destinations
+        - name: destinations[]
           in: query
           schema:
             type: array
