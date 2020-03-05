@@ -2,15 +2,18 @@ package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -48,13 +51,30 @@ public class Vsup extends DefaultRegistrarModule {
 					// if application contains birth number, try to map to existing user
 					String rc = item.getValue();
 					if (rc != null && !rc.isEmpty()) {
+
 						try {
 							User user = ((PerunBl) session.getPerun()).getUsersManagerBl().getUserByExtSourceNameAndExtLogin(session, "RC", rc);
 							application.setUser(user);
 							registrar.updateApplicationUser(session, application);
+							log.debug("Existing user found by RC for {}", application);
 						} catch (Exception ex) {
 							log.warn("Couldn't find or set user to application {} by RC: {}", application, ex);
 						}
+
+						// associate existing user with the identity used on registration form
+						if (application.getUser() != null) {
+							PerunBl perunBl = (PerunBl)session.getPerun();
+							ExtSource es = perunBl.getExtSourcesManager().checkOrCreateExtSource(session, application.getExtSourceName(), application.getExtSourceType());
+							UserExtSource ues = new UserExtSource(es, application.getExtSourceLoa(), application.getCreatedBy());
+							try {
+								ues = perunBl.getUsersManagerBl().addUserExtSource(session, application.getUser(), ues);
+								log.debug("{} associated with {} from application {}", application.getUser(), ues, application);
+							} catch (UserExtSourceExistsException ex) {
+								// we can ignore, user will be paired with application
+								log.warn("{} already had identity associated from application {}", application.getUser(), application);
+							}
+						}
+
 					}
 					break;
 				}
