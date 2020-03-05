@@ -315,14 +315,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public int storePasswordResetRequest(PerunSession sess, User user, String namespace) throws InternalErrorException {
+	public int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail) throws InternalErrorException {
 
 		int newId = Utils.getNewId(jdbc, "pwdreset_id_seq");
 
 		try {
-			jdbc.update("insert into pwdreset (id, namespace, user_id, created_by, created_by_uid, created_at) "
-							+ "values (?,?,?,?,?," + Compatibility.getSysdate() + ")",
-					newId, namespace, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+			jdbc.update("insert into pwdreset (id, namespace, user_id, mail, created_by, created_by_uid, created_at) "
+							+ "values (?,?,?,?,?,?," + Compatibility.getSysdate() + ")",
+					newId, namespace, user.getId(), mail, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

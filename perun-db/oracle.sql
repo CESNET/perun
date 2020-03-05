@@ -1,4 +1,4 @@
--- database version 3.1.57 (don't forget to update insert statement at the end of file)
+-- database version 3.1.58 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1392,6 +1392,7 @@ create table mailchange (
 create table pwdreset (
 	id integer not null,
 	namespace nvarchar2(512) not null,
+	mail nvarchar2(4000),
 	user_id integer not null,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1300) default user not null,
@@ -1753,7 +1754,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.57');
+insert into configurations values ('DATABASE VERSION','3.1.58');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
