@@ -2,7 +2,7 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.56 (don't forget to update insert statement at the end of file)
+-- database version 3.1.57 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
