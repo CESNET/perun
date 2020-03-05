@@ -596,6 +596,97 @@ components:
         member: { $ref: '#/components/schemas/Member' }
         richUser: { $ref: '#/components/schemas/RichUser' }
 
+    TaskStatus:
+      type: string
+      enum:
+        - WAITING
+        - PLANNED
+        - GENERATING
+        - GENERROR
+        - GENERATED
+        - SENDING
+        - DONE
+        - SENDERROR
+        - ERROR
+
+    Task:
+      type: object
+      properties:
+        id: { type: integer }
+        delay: { type: integer }
+        recurrence: { type: integer }
+        startTime: { type: string }
+        sentToEngine: { type: string }
+        sendStartTime: { type: string }
+        schedule: { type: string }
+        genStartTime: { type: string }
+        genEndTime: { type: string }
+        sendEndTime: { type: string }
+        endTime: { type: string }
+        service: { $ref: '#/components/schemas/Service' }
+        facility: { $ref: '#/components/schemas/Facility' }
+        destinations: { type: array, items: { $ref: '#/components/schemas/Destination' } }
+        status: { $ref: '#/components/schemas/TaskStatus' }
+        sourceUpdated: { type: boolean }
+        propagationForced: { type: boolean }
+
+    TaskResultStatus:
+      type: string
+      enum:
+        - DONE
+        - ERROR
+        - FATAL_ERROR
+        - DENIED
+        - WARN
+
+    TaskResult:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            taskId: { type: integer }
+            destinationId: { type: integer }
+            errorMessage: { type: string }
+            standardMessage: { type: string }
+            returnCode: { type: integer }
+            timestamp: { type: string }
+            status: { $ref: '#/components/schemas/TaskResultStatus' }
+            destination: { $ref: '#/components/schemas/Destination' }
+            service: { $ref: '#/components/schemas/Service' }
+      discriminator:
+        propertyName: beanName
+
+    FacilityPropagationState:
+      type: string
+      enum:
+        - OK
+        - ERROR
+        - PROCESSING
+        - NOT_DETERMINED
+
+    FacilityState:
+      type: object
+      properties:
+        facility: { $ref: '#/components/schemas/Facility' }
+        state: { $ref: '#/components/schemas/FacilityPropagationState' }
+        results:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/FacilityPropagationState' }
+
+    ResourceState:
+      type: object
+      properties:
+        resource: { $ref: '#/components/schemas/Resource' }
+        taskList: { type: array, items: { $ref: '#/components/schemas/Task' } }
+
+    ServiceState:
+      type: object
+      properties:
+        service: { $ref: '#/components/schemas/Service' }
+        facility: { $ref: '#/components/schemas/Facility' }
+        task: { $ref: '#/components/schemas/Task' }
+        isBlockedOnFacility: { type: boolean }
+        hasDestinations: { type: boolean }
+
 
   #################################################
   #                                               #
@@ -1129,6 +1220,72 @@ components:
             items:
               $ref: "#/components/schemas/MemberCandidate"
 
+    TaskResponse:
+      description: "Task"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Task"
+
+    ListOfTasksResponse:
+      description: "List<Task> Tasks"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Task"
+
+    TaskResultResponse:
+      description: "Task result"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TaskResult"
+
+    ListOfTaskResultsResponse:
+      description: "List<TaskResult> Task results"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TaskResult"
+
+    FacilityStateResponse:
+      description: "Facility state"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FacilityState"
+
+    ListOfFacilityStatesResponse:
+      description: "List<FacilityState> Propagation status"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/FacilityState"
+
+    ListOfResourceStatesResponse:
+      description: "List<ResourceState> Propagation status"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ResourceState"
+
+    ListOfServiceStatesResponse:
+      description: "List<ServiceState> serviceStates"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ServiceState"
+
   #####################################################
   #                                                   #
   # PARAMETERS - definitions of often used parameters #
@@ -1587,6 +1744,22 @@ components:
       in: query
       required: true
 
+    taskId:
+      name: task
+      description: "Task id"
+      schema:
+        type: integer
+      required: true
+      in: query
+
+    taskResultId:
+      name: taskResult
+      description: "TaskResult id"
+      schema:
+        type: integer
+      required: true
+      in: query
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -1630,6 +1803,10 @@ tags:
     description: VosManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-VosManager.html
+  - name: TasksManager
+    description: TasksManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-TasksManager.html
 
 
 #################################################
@@ -8898,5 +9075,267 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # TasksManager                                  #
+  #                                               #
+  #################################################
+
+  /json/tasksManager/getTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTask
+      summary: Returns a task.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TaskResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/listAllTasks:
+    get:
+      tags:
+        - TasksManager
+      operationId: listAllTasks
+      summary: Returns all tasks.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTasksResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/listAllTasksForFacility:
+    get:
+      tags:
+        - TasksManager
+      operationId: listAllTasksForFacility
+      summary: Returns all tasks associated with selected facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTasksResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/isThereSuchTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: isThereSuchTask
+      summary: Whether task exists.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/countTasks:
+    get:
+      tags:
+        - TasksManager
+      operationId: countTasks
+      summary: Returns the count of all tasks.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResults:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResults
+      summary: Returns all task results.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsByTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsByTask
+      summary:  Return list of TaskResults by a Task.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForGUIByTaskOnlyNewest:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForGUIByTaskOnlyNewest
+      summary:  Return list of only newest TaskResults by a Task for GUI.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForGUIByTaskAndDestination:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForGUIByTaskAndDestination
+      summary:  Return list of TaskResults by a Task and destination for GUI.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForGUIByTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForGUIByTask
+      summary:  Return list of TaskResults by a Task for GUI.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultById:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultById
+      summary:  Returns TaskResult by its id.
+      parameters:
+        - $ref: '#/components/parameters/taskResultId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TaskResultResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskById:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskById
+      summary:  Returns Task by its id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/TaskResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getFacilityState:
+    get:
+      tags:
+        - TasksManager
+      operationId: getFacilityState
+      summary:   Return propagation status of facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/FacilityStateResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getAllFacilitiesStates:
+    get:
+      tags:
+        - TasksManager
+      operationId: getAllFacilitiesStates
+      summary: Return propagation status of all facilities in Perun/Vo.
+      parameters:
+        - $ref: '#/components/parameters/optionalVoId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilityStatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getAllResourcesState:
+    get:
+      tags:
+        - TasksManager
+      operationId: getAllResourcesState
+      summary: Return propagation status of all resources related to VO.
+      parameters:
+        - { name: voId, description: "VO id", schema: { type: integer },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourceStatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForDestinations:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForDestinations
+      summary: Returns task results for defined destinations.
+      parameters:
+        - name: destinations[]
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: 'List<String> Destinations'
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getFacilityServicesState:
+    get:
+      tags:
+        - TasksManager
+      operationId: getFacilityServicesState
+      summary: Returns service states for defined facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServiceStatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/deleteTask:
+    post:
+      tags:
+        - TasksManager
+      operationId: deleteTask
+      summary:  Delete Task and TaskResults.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
