@@ -1016,4 +1016,592 @@ perun_policies:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
+
+  #UsersManagerEntry
+  getUserByUserExtSource_UserExtSource_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUserByUserExtSources_List<UserExtSource>_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUserById_int_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getSpecificUsersByUser_User_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsersBySpecificUser_User_policy:
+    policy_roles:
+      - SPONSOR: User
+      - ENGINE:
+      - GROUPADMIN: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  removeSpecificUserOwner_User_User_policy:
+    policy_roles:
+      - SPONSOR: User
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  owner-removeSpecificUserOwner_User_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  addSpecificUserOwner_User_User_policy:
+    policy_roles:
+      - SPONSOR: User
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  owner-addSpecificUserOwner_User_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getSpecificUsers_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUserByMember_Member_policy:
+    policy_roles:
+      - GROUPADMIN:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUserByExtSourceNameAndExtLogin_String_String_policy:
+    policy_roles:
+      - SELF: User
+      - REGISTRAR:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsers_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichUser_User_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichUserWithAttributes_User_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllRichUsers_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllRichUsersWithAttributes_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichUsersFromListOfUsers_List<User>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichUsersWithAttributesFromListOfUsers_List<User>_policy:
+    policy_roles:
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  setSpecificUser_User_SpecificUserType_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  owner-setSpecificUser_User_SpecificUserType_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  unsetSpecificUser_User_SpecificUserType_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteUser_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteUser_User_boolean_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updateUser_User_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  updateNameTitles_User_policy:
+    policy_roles:
+      - SELF: User
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  updateUserExtSource_UserExtSource_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  getUserExtSources_User_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichUserExtSources_User_List<String>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUserExtSourceById_int_policy:
+    policy_roles:
+      - RPC:
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  addUserExtSource_User_UserExtSource_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeUserExtSource_User_UserExtSource_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  removeUserExtSource_User_UserExtSource_boolean_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  moveUserExtSource_User_User_UserExtSource_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getUserExtSourceByExtLogin_ExtSource_String_policy:
+    policy_roles:
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getVosWhereUserIsAdmin_User_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getGroupsWhereUserIsAdmin_User_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getGroupsWhereUserIsAdmin_Vo_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getVosWhereUserIsMember_User_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedResources_Facility_User_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedResources_User_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedRichResources_User_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findUsers_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findRichUsers_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsersWithoutSpecificVo_Vo_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findUsersByName_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findUsersByName_String_String_String_String_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findUsersByExactName_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsersByAttribute_Attribute_policy:
+    policy_roles:
+      - SERVICEUSER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsersByAttribute_String_String_policy:
+    policy_roles:
+      - SERVICEUSER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsersByAttributeValue_String_String_policy:
+    policy_roles:
+      - SERVICEUSER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsersWithoutVoAssigned_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichUsersWithoutVoAssigned_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  isUserPerunAdmin_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  changePassword_User_String_String_String_boolean_policy:
+    policy_roles:
+      - SELF: User
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  changePassword_String_String_String_String_boolean_policy:
+    policy_roles:
+      - SELF: User
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  reserveRandomPassword_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  service_user-reserveRandomPassword_User_String_policy:
+    policy_roles:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  reservePassword_String_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  reservePassword_User_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  service_user-reservePassword_User_String_String_policy:
+    policy_roles:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  validatePassword_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  validatePasswordAndSetExtSources_User_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  service_user-validatePasswordAndSetExtSources_User_String_String_policy:
+    policy_roles:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  validatePassword_User_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  deletePassword_String_String_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  createAlternativePassword_User_String_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  deleteAlternativePassword_User_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getAllRichUsersWithAttributes_boolean_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findRichUsersWithAttributes_String_List<String>_policy:
+    policy_roles:
+      - SECURITYADMIN:
+      - FACILITYADMIN:
+      - GROUPADMIN:
+      - VOOBSREVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  user-findRichUsersWithAttributes_String_List<String>_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+  findRichUsersWithAttributesByExactMatch_String_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findRichUsersWithoutSpecificVoWithAttributes_Vo_String_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichUsersWithoutVoWithAttributes_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  setLogin_User_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  requestPreferredEmailChange_String_User_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  validatePreferredEmailChange_User_String_String_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getPendingPreferredEmailChanges_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  updateUserExtSourceLastAccess_UserExtSource_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  generateAccount_String_Map<String_String>_policy:
+    policy_roles:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  getSponsors_Member_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  changePasswordRandom_User_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getGroupsWhereUserIsActive_Resource_User_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichGroupsWhereUserIsActive_Resource_User_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getGroupsWhereUserIsActive_Facility_User_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichGroupsWhereUserIsActive_Facility_User_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
 ...
