@@ -8388,7 +8388,7 @@ paths:
       operationId: verifyApplication
       summary: Forcefully marks application as verified (only when application was in NEW state).
       parameters:
-        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
@@ -8404,7 +8404,7 @@ paths:
       description: |
         Expected to be called as a result of direct VO administrator action in the web UI.
       parameters:
-        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
@@ -8420,8 +8420,8 @@ paths:
       description: |
         Expected to be called as a result of direct VO administrator action in the web UI.
       parameters:
-        - $ref: '#/components/parameters/applicationId'
-        - { name: reason, schema: { type: string }, in: query, description: "description of reason" }
+        - $ref: '#/components/parameters/id'
+        - { name: reason, schema: { type: string }, in: query, description: "description of reason", required: false }
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
@@ -8435,7 +8435,7 @@ paths:
       operationId: deleteApplication
       summary: Deletes an application.
       parameters:
-        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/id'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
