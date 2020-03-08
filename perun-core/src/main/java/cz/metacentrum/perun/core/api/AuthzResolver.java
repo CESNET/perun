@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Privileges;
 import cz.metacentrum.perun.core.impl.Utils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -51,6 +52,23 @@ public class AuthzResolver {
 	public static boolean authorizedInternal(PerunSession sess, String policyDefinition, List<PerunBean> objects) {
 		try {
 			return AuthzResolverBlImpl.authorized(sess, policyDefinition, objects);
+		} catch (PolicyNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Checks if the principal is authorized.
+	 * Used when there are no PerunBeans needed for authorization.
+	 * This method should be used in the internal code.
+	 *
+	 * @param sess PerunSession which contains the principal.
+	 * @param policyDefinition of policy which contains authorization rules.
+	 * @return true if the principal has particular rights, false otherwise.
+	 */
+	public static boolean authorizedInternal(PerunSession sess, String policyDefinition) {
+		try {
+			return AuthzResolverBlImpl.authorized(sess, policyDefinition, Collections.emptyList());
 		} catch (PolicyNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
