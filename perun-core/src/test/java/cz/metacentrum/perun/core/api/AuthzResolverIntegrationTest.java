@@ -47,8 +47,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 			perun,
 			new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 			new PerunClient()
-		), "default_policy",
-			Collections.emptyList()));
+		), "default_policy"));
 	}
 
 	@Test
@@ -63,7 +62,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
 
-		assertTrue(AuthzResolver.authorizedInternal(session, "default_policy", Collections.emptyList()));
+		assertTrue(AuthzResolver.authorizedInternal(session, "default_policy"));
 	}
 
 	@Test
@@ -363,7 +362,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		PerunSession session = getHisSession(createdMember);
 		AuthzResolver.refreshAuthz(session);
-		assertFalse(AuthzResolver.authorizedInternal(session, "test_security_admin", Arrays.asList()));
+		assertFalse(AuthzResolver.authorizedInternal(session, "test_security_admin"));
 
 	}
 
