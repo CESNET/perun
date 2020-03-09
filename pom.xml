@@ -49,6 +49,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+		<!-- "mvn deploy" should not deploy subprojects to a Maven repo by default,
+		     exceptions (perun-rpc, perun-openapi) are marked by the value "false" -->
+		<maven.deploy.skip>true</maven.deploy.skip>
+
 		<!-- macros @perun.conf@ @perun.jdbc@ etc replaced in all filtered resources in /src/main/resources during maven build-->
 		<perun.conf>/etc/perun/</perun.conf>
 		<perun.jdbc>file:${perun.conf}jdbc.properties</perun.jdbc>

@@ -17,6 +17,11 @@
 	<name>perun-openapi</name>
 	<description>OpenAPI specification of Perun RPC API and its Java client</description>
 
+	<properties>
+		<!-- deploy the resulting jar to a Maven repo-->
+		<maven.deploy.skip>false</maven.deploy.skip>
+	</properties>
+
 	<build>
 		<plugins>
 			<!-- generate a Java client from OpenAPI specification of Perun RPC API-->

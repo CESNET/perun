@@ -18,6 +18,8 @@
 
 	<properties>
 		<skipTests>true</skipTests>
+		<!-- deploy the resulting jar to a Maven repo -->
+		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
 	<!-- common module build settings used by all profiles -->
