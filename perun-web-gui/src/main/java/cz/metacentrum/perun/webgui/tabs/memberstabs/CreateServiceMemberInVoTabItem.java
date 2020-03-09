@@ -405,7 +405,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 																public void onFinished(JavaScriptObject jso) {
 
 																	// validate member when all kerberos logins are set
-																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab, true));
 																	req2.validateMemberAsync(member);
 																}
 															}));
@@ -422,7 +422,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 															UiElements.generateError(error, "Saving login failed", "You were assigned with login <b>"+login+"</b> in namespace MU but saving it to user failed. <b>Please copy your login and contact support at <a href=\"mailto:"+Utils.perunReportEmailAddress()+"\">"+Utils.perunReportEmailAddress()+"</a>.</b>");
 
 															// validate member when all logins are set
-															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab, true));
 															req2.validateMemberAsync(member);
 
 														}
@@ -455,7 +455,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 											CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
 												public void onFinished(JavaScriptObject jso) {
 													// validate member when all kerberos logins are set
-													ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+													ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab, true));
 													req2.validateMemberAsync(member);
 												}
 											}));
@@ -491,7 +491,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 																public void onFinished(JavaScriptObject jso) {
 
 																	// validate member when all kerberos logins are set
-																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab, true));
 																	req2.validateMemberAsync(member);
 																}
 															}));
@@ -506,7 +506,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 														public void onError(PerunError error) {
 
 															// validate member when all logins are set
-															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab, true));
 															req2.validateMemberAsync(member);
 
 														}
@@ -539,7 +539,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 											CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(skipButton, new JsonCallbackEvents() {
 												public void onFinished(JavaScriptObject jso) {
 													// validate member when all kerberos logins are set
-													ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(skipButton, tab));
+													ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(skipButton, tab, true));
 													req2.validateMemberAsync(member);
 												}
 											}));

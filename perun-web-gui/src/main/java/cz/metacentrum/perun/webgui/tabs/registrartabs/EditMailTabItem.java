@@ -394,7 +394,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				}
 
 				// request
-				UpdateApplicationMail req = new UpdateApplicationMail(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab));
+				UpdateApplicationMail req = new UpdateApplicationMail(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true));
 				req.updateMail(appMail);
 			}
 		});

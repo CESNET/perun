@@ -107,7 +107,7 @@ public class CreateSecurityTeamTabItem implements TabItem {
 
 				if (!nameValidator.validateTextBox()) return;
 
-				CreateSecurityTeam request = new CreateSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, new JsonCallbackEvents() {
+				CreateSecurityTeam request = new CreateSecurityTeam(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true, new JsonCallbackEvents() {
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						// new SecTeam must be editable by user in GUI, because it is already in PERUN

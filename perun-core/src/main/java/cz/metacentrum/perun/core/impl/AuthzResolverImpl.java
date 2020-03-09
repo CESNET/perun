@@ -55,7 +55,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	private final static String authzRoleMappingSelectQuery = " authz.user_id as authz_user_id, authz.role_id as authz_role_id," +
 		"authz.authorized_group_id as authz_authorized_group_id, authz.vo_id as pb_vo_id, authz.group_id as pb_group_id, " +
 		"authz.facility_id as pb_facility_id, authz.member_id as pb_member_id, authz.resource_id as pb_resource_id, " +
-		"authz.service_id as pb_service_id, authz.service_principal_id as pb_user_id, authz.security_team_id as pb_security_team_id, " +
+		"authz.service_id as pb_service_id, authz.security_team_id as pb_security_team_id, " +
 		"authz.sponsored_user_id as pb_sponsored_user_id";
 
 

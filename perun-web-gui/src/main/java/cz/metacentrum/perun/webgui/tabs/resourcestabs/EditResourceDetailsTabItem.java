@@ -120,7 +120,7 @@ public class EditResourceDetailsTabItem implements TabItem {
 				Resource r = JsonUtils.clone(resource).cast();
 				r.setName(nameTextBox.getTextBox().getText().trim());
 				r.setDescription(descriptionTextBox.getText().trim());
-				UpdateResource request = new UpdateResource(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+				UpdateResource request = new UpdateResource(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 				request.updateResource(r);
 			}
 		});

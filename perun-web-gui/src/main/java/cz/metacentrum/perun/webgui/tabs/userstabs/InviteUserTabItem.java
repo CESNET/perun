@@ -165,7 +165,7 @@ public class InviteUserTabItem implements TabItem {
 				//if (!nameValidator.validateTextBox() || !emailValidator.validateTextBox()) return;
 				if (!emailValidator.validateTextBox()) return;
 
-				SendInvitation invite = new SendInvitation(vo.getId(), groupId, JsonCallbackEvents.closeTabDisableButtonEvents(sendInvitationButton, tab));
+				SendInvitation invite = new SendInvitation(vo.getId(), groupId, JsonCallbackEvents.closeTabDisableButtonEvents(sendInvitationButton, tab, true));
 				invite.inviteUser(email.getTextBox().getText().trim(), name.getTextBox().getText().trim(), languages.getValue(languages.getSelectedIndex()));
 
 			}

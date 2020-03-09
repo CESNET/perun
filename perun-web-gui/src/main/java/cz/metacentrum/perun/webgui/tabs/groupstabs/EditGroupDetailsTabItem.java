@@ -138,7 +138,7 @@ public class EditGroupDetailsTabItem implements TabItem {
 					// short name is whole name
 					g.setName(value);
 				};
-				UpdateGroup request = new UpdateGroup(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+				UpdateGroup request = new UpdateGroup(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, true, events));
 				request.updateGroup(g);
 
 			}

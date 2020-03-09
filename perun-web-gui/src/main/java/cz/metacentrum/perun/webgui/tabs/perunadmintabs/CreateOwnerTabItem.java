@@ -128,7 +128,7 @@ public class CreateOwnerTabItem implements TabItem {
 			@Override
 			public void onClick(ClickEvent event) {
 				if (nameValidator.validateTextBox() && contactValidator.validateTextBox()) {
-					CreateOwner request = new CreateOwner(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					CreateOwner request = new CreateOwner(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 					request.createOwner(ownerNameTextBox.getTextBox().getText().trim(), ownerContactTextBox.getTextBox().getText().trim(), ownerType.getValue(ownerType.getSelectedIndex()));
 				}
 			}

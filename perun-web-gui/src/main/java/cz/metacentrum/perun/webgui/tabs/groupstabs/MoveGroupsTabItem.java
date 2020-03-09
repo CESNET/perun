@@ -140,7 +140,7 @@ public class MoveGroupsTabItem implements TabItem {
 					public void onFinished(JavaScriptObject jso) {
 						if (groups.size() - 1 == groupsCounter) {
 							// there is another group to move
-							request.setEvents(JsonCallbackEvents.closeTabDisableButtonEvents(moveButton, tab));
+							request.setEvents(JsonCallbackEvents.closeTabDisableButtonEvents(moveButton, tab, true));
 							request.moveGroup(groups.get(groupsCounter),destinationGroup);
 						} else if (groups.size() - 1 > groupsCounter) {
 							request.moveGroup(groups.get(groupsCounter), destinationGroup);
@@ -163,7 +163,7 @@ public class MoveGroupsTabItem implements TabItem {
 				});
 				if (groups.size() == 1) {
 					// single group
-					request.setEvents(JsonCallbackEvents.closeTabDisableButtonEvents(moveButton, tab));
+					request.setEvents(JsonCallbackEvents.closeTabDisableButtonEvents(moveButton, tab, true));
 				} else {
 					// iterate over more groups
 					request.setEvents(nextEvent);

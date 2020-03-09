@@ -156,9 +156,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		</tx:attributes>
 	</tx:advice>
 
-	<context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
-	<context:component-scan base-package="cz.metacentrum.perun.controller.service.impl"/>
-
 	<!--FIXME   a hack which forces Spring to call a static method -->
 	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl" scope="singleton">
 		<constructor-arg ref="authzResolverImpl" />

@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.AddOwner;
@@ -105,7 +104,7 @@ public class AddFacilityOwnerTabItem implements TabItem {
 					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
 					for (int i=0; i<list.size(); i++) {
 						if (i == list.size()-1) {
-							AddOwner request = new AddOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							AddOwner request = new AddOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
 							request.addOwner(facilityId, list.get(i).getId());
 						} else {
 							AddOwner request = new AddOwner(JsonCallbackEvents.disableButtonEvents(addButton));

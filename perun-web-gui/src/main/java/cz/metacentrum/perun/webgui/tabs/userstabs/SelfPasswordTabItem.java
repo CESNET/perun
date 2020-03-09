@@ -234,11 +234,11 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
 				if (session.isPerunAdmin() || user.isServiceUser()) {
 					if (!validator.validateTextBox() && !validator2.validateTextBox()) return;
-					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab), false);
+					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, true), false);
 					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
 				} else {
 					if (!validator.validateTextBox() && !validator2.validateTextBox() && !oldValidator.validateTextBox()) return;
-					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab), true);
+					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab, true), true);
 					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
 				}
 
@@ -272,7 +272,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 										UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
 
 										// VALIDATE PASSWORD - SET EXT SOURCES
-										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 										req.validateAndSetUserExtSources(user.getId(), login, namespace);
 
 									}
@@ -301,7 +301,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 					} else {
 
 						// NORMAL PWD LOGIC
-						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 						create.createPassword(userId, login, namespace, newPass.getTextBox().getValue());
 
 					}
@@ -388,7 +388,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 										UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
 
 										// VALIDATE PASSWORD - SET EXT SOURCES
-										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
 										req.validateAndSetUserExtSources(user.getId(), login, namespace);
 
 									}
@@ -416,7 +416,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
 					} else {
 
-						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(skip, tab));
+						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(skip, tab, true));
 						create.createRandomPassword(userId, login, namespace);
 
 					}

@@ -211,22 +211,22 @@ public class CopyFormTabItem implements TabItem {
 				if (groupsBox.getSelectedIndex() != 0 && voId != 0 && groupId == 0) {
 
 					// from group to VO
-					request = new CopyForm(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyForm(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				} else if (groupsBox.getSelectedIndex() != 0 && voId != 0 && groupId != 0) {
 
 					// from group to group
-					request = new CopyForm(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyForm(PerunEntity.GROUP, groupsBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				} else if (groupsBox.getSelectedIndex() == 0 && voId != 0 && groupId == 0) {
 
 					// from VO to VO
-					request = new CopyForm(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyForm(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.VIRTUAL_ORGANIZATION, voId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				} else if (groupsBox.getSelectedIndex() == 0 && voId != 0 && groupId != 0) {
 
 					// from VO to group
-					request = new CopyForm(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab));
+					request = new CopyForm(PerunEntity.VIRTUAL_ORGANIZATION, vosBox.getSelectedObject().getId(), PerunEntity.GROUP, groupId, JsonCallbackEvents.closeTabDisableButtonEvents(save, tab, true));
 
 				}
 

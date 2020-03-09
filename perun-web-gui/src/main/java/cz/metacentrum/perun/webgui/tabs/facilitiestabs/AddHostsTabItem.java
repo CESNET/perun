@@ -122,7 +122,7 @@ public class AddHostsTabItem implements TabItem {
 					for (int i = 0; i< hosts.length; i++) {
 						hosts[i] = hosts[i].trim();
 					}
-					AddHosts request = new AddHosts(facility.getId(), JsonCallbackEvents.closeTabDisableButtonEvents(addHostsButton, tab));
+					AddHosts request = new AddHosts(facility.getId(), JsonCallbackEvents.closeTabDisableButtonEvents(addHostsButton, tab, true));
 					request.addHosts(hosts);
 				}
 			}

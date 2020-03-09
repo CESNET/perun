@@ -15,7 +15,6 @@ import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.GetHosts;
@@ -339,22 +338,22 @@ public class AddFacilityDestinationTabItem implements TabItem {
 						// selected all
 						if (useHosts.getValue() == true) {
 							// auto by hosts
-							AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
 							request.addDestinationByHosts(services.getAllObjects());
 						} else {
 							// default
-							AddDestination request = new AddDestination(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							AddDestination request = new AddDestination(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
 							request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()), services.getAllObjects(), propTypeSelect.getSelectedValue());
 						}
 					} else {
 						// selected one
 						if (useHosts.getValue() == true) {
 							// auto by hosts
-							AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							AddDestinationsByHostsOnFacility request = new AddDestinationsByHostsOnFacility(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
 							request.addDestinationByHosts(services.getSelectedObject());
 						} else {
 							// default
-							AddDestination request = new AddDestination(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+							AddDestination request = new AddDestination(facility, JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab, true));
 							request.addDestination(destination.getSuggestBox().getText().trim(), type.getValue(type.getSelectedIndex()), services.getSelectedObject(), propTypeSelect.getSelectedValue());
 						}
 					}

@@ -113,7 +113,7 @@ public class AssignTagTabItem implements TabItem {
 							AssignResourceTag request = new AssignResourceTag(resourceId, JsonCallbackEvents.disableButtonEvents(assignButton));
 							request.assignResourceTag(tagsToAssign.get(i));
 						} else {                                                // last change - call json with update
-							AssignResourceTag request = new AssignResourceTag(resourceId, JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+							AssignResourceTag request = new AssignResourceTag(resourceId, JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab, true));
 							request.assignResourceTag(tagsToAssign.get(i));
 						}
 					}

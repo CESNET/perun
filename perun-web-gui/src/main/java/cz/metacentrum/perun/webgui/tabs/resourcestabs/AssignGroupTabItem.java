@@ -144,7 +144,7 @@ public class AssignGroupTabItem implements TabItem {
 				ArrayList<Group> groupsToAssign = voGroups.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(groupsToAssign)) {
 					if (chb.getValue() == false) {
-						AssignGroupsToResource request = new AssignGroupsToResource(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab));
+						AssignGroupsToResource request = new AssignGroupsToResource(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab, true));
 						request.assignGroupsToResource(groupsToAssign, resource);
 					}
 					if (chb.getValue() == true){

@@ -419,6 +419,97 @@ components:
         automaticApprovalExtension: { type: boolean }
         moduleClassName: {type: string }
 
+    Type:
+      type: string
+      description: 'type of application form items'
+      enum:
+        - HTML_COMMENT
+        - SUBMIT_BUTTON
+        - AUTO_SUBMIT_BUTTON
+        - FROM_FEDERATION_SHOW
+        - FROM_FEDERATION_HIDDEN
+        - PASSWORD
+        - VALIDATED_EMAIL
+        - TEXTFIELD
+        - TEXTAREA
+        - CHECKBOX
+        - RADIO
+        - SELECTIONBOX
+        - COMBOBOX
+        - USERNAME
+        - HEADING
+        - TIMEZONE
+
+    ApplicationFormItem:
+      type: object
+      properties:
+        id: { type: integer }
+        shortname: { type: string }
+        required: { type: boolean }
+        type: { $ref: '#/components/schemas/Type' }
+        federationAttribute: { type: string }
+        perunSourceAttribute: { type: string }
+        perunDestinationAttribute: { type: string }
+        regex: { type: string }
+        applicationTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppType'
+        ordnum: { type: integer }
+
+    ApplicationFormItemData:
+      type: object
+      properties:
+        id: { type: integer }
+        formItem: { $ref: '#/components/schemas/ApplicationFormItem' }
+        shortname: { type: string }
+        value: { type: string }
+        assuranceLevel: { type: string }
+        prefilledValue: { type: string }
+
+    AppType:
+      type: string
+      enum:
+        - INITIAL
+        - EXTENSION
+
+    AppState:
+      type: string
+      enum:
+        - NEW
+        - VERIFIED
+        - APPROVED
+        - REJECTED
+
+    Application:
+      type: object
+      properties:
+        id: { type: integer }
+        vo: { $ref: '#/components/schemas/Vo' }
+        group: { $ref: '#/components/schemas/Group' }
+        type: { $ref: '#/components/schemas/AppType' }
+        fedInfo: { type: string }
+        state: { $ref: '#/components/schemas/AppState' }
+        extSourceName: { type: string }
+        extSourceType: { type: string }
+        extSourceLoa: { type: integer }
+        user: { $ref: '#/components/schemas/User' }
+        createdBy: { type: string }
+        createdAt: { type: string }
+        modifiedBy: { type: string }
+        modifiedAt: { type: string }
+
+    MailType:
+      type: string
+      enum:
+        - APP_CREATED_USER
+        - APP_CREATED_VO_ADMIN
+        - MAIL_VALIDATION
+        - APP_APPROVED_USER
+        - APP_REJECTED_USER
+        - APP_ERROR_VO_ADMIN
+        - USER_INVITE
+
     PerunPrincipal:
       type: object
       required:
@@ -445,6 +536,24 @@ components:
               items:
                 type: integer
 
+    ContactGroup:
+      type: object
+      properties:
+        name: { type: string }
+        facility: { $ref: '#/components/schemas/Facility' }
+        groups: { type: array, items: { $ref: '#/components/schemas/Group' } }
+        owners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
+        users: { type: array, items: { $ref: '#/components/schemas/RichUser' } }
+
+    SecurityTeam:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            description: { type: string }
+      discriminator:
+        propertyName: beanName
+
     Ban:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -462,6 +571,136 @@ components:
             resourceId: { type: integer }
       discriminator:
         propertyName: beanName
+
+    BanOnFacility:
+      allOf:
+        - $ref: '#/components/schemas/Ban'
+        - properties:
+            userId: { type: integer }
+            facilityId: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+    RichUserExtSource:
+      allOf:
+        - properties:
+            userExtSource: { $ref: '#/components/schemas/UserExtSource', nullable: false }
+            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' }, nullable: false }
+      required:
+        - userExtSource
+        - attributes
+      discriminator:
+        propertyName: beanName
+
+    Candidate:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - properties:
+            userExtSource: { $ref: '#/components/schemas/UserExtSource' }
+            additionalUserExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
+            attributes:
+              type: object
+              additionalProperties: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    MemberCandidate:
+      type: object
+      properties:
+        candidate: { $ref: '#/components/schemas/Candidate' }
+        member: { $ref: '#/components/schemas/Member' }
+        richUser: { $ref: '#/components/schemas/RichUser' }
+
+    TaskStatus:
+      type: string
+      enum:
+        - WAITING
+        - PLANNED
+        - GENERATING
+        - GENERROR
+        - GENERATED
+        - SENDING
+        - DONE
+        - SENDERROR
+        - ERROR
+
+    Task:
+      type: object
+      properties:
+        id: { type: integer }
+        delay: { type: integer }
+        recurrence: { type: integer }
+        startTime: { type: string }
+        sentToEngine: { type: string }
+        sendStartTime: { type: string }
+        schedule: { type: string }
+        genStartTime: { type: string }
+        genEndTime: { type: string }
+        sendEndTime: { type: string }
+        endTime: { type: string }
+        service: { $ref: '#/components/schemas/Service' }
+        facility: { $ref: '#/components/schemas/Facility' }
+        destinations: { type: array, items: { $ref: '#/components/schemas/Destination' } }
+        status: { $ref: '#/components/schemas/TaskStatus' }
+        sourceUpdated: { type: boolean }
+        propagationForced: { type: boolean }
+
+    TaskResultStatus:
+      type: string
+      enum:
+        - DONE
+        - ERROR
+        - FATAL_ERROR
+        - DENIED
+        - WARN
+
+    TaskResult:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            taskId: { type: integer }
+            destinationId: { type: integer }
+            errorMessage: { type: string }
+            standardMessage: { type: string }
+            returnCode: { type: integer }
+            timestamp: { type: string }
+            status: { $ref: '#/components/schemas/TaskResultStatus' }
+            destination: { $ref: '#/components/schemas/Destination' }
+            service: { $ref: '#/components/schemas/Service' }
+      discriminator:
+        propertyName: beanName
+
+    FacilityPropagationState:
+      type: string
+      enum:
+        - OK
+        - ERROR
+        - PROCESSING
+        - NOT_DETERMINED
+
+    FacilityState:
+      type: object
+      properties:
+        facility: { $ref: '#/components/schemas/Facility' }
+        state: { $ref: '#/components/schemas/FacilityPropagationState' }
+        results:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/FacilityPropagationState' }
+
+    ResourceState:
+      type: object
+      properties:
+        resource: { $ref: '#/components/schemas/Resource' }
+        taskList: { type: array, items: { $ref: '#/components/schemas/Task' } }
+
+    ServiceState:
+      type: object
+      properties:
+        service: { $ref: '#/components/schemas/Service' }
+        facility: { $ref: '#/components/schemas/Facility' }
+        task: { $ref: '#/components/schemas/Task' }
+        isBlockedOnFacility: { type: boolean }
+        hasDestinations: { type: boolean }
 
 
   #################################################
@@ -803,12 +1042,55 @@ components:
             items:
               $ref: "#/components/schemas/UserExtSource"
 
+    ListOfRichUserExtSourcesResponse:
+      description: "returns List<RichUserExtSource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RichUserExtSource"
+
     ApplicationFormResponse:
       description: "returns ApplicationForm"
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ApplicationForm"
+
+    ListOfApplicationFormItemsResponse:
+      description: "returns List<ApplicationFormItem>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ApplicationFormItem"
+
+    ListOfApplicationFormItemDataResponse:
+      description: "returns List<ApplicationFormItemData>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ApplicationFormItemData"
+
+    ApplicationResponse:
+      description: "returns Application"
+      content:
+        application/json:
+          schema:
+              $ref: "#/components/schemas/Application"
+
+    ListOfApplicationsResponse:
+      description: "returns List<Application>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Application"
 
     ServiceResponse:
       description: "returns Service"
@@ -895,6 +1177,138 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/BanOnResource"
+
+    ContactGroupResponse:
+      description: "returns ContactGroup"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContactGroup"
+
+    ListOfContactGroupResponse:
+      description: "returns List<ContactGroup>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ContactGroup"
+
+    SecurityTeamResponse:
+      description: "returns SecurityTeam"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SecurityTeam"
+
+    ListOfSecurityTeamsResponse:
+      description: "returns List<SecurityTeam>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/SecurityTeam"
+
+    ListOfCandidatesResponse:
+      description: "return List<Candidate>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Candidate"
+
+    BanOnFacilityResponse:
+      description: "returns banOnFacility"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BanOnFacility"
+
+    ListOfBanOnFacilitiesResponse:
+      description: "return List<BanOnFacility>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/BanOnFacility"
+
+    ListOfMemberCandidatesResponse:
+      description: "return List<MemberCandidate>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/MemberCandidate"
+
+    TaskResponse:
+      description: "Task"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Task"
+
+    ListOfTasksResponse:
+      description: "List<Task> Tasks"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Task"
+
+    TaskResultResponse:
+      description: "Task result"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TaskResult"
+
+    ListOfTaskResultsResponse:
+      description: "List<TaskResult> Task results"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TaskResult"
+
+    FacilityStateResponse:
+      description: "Facility state"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FacilityState"
+
+    ListOfFacilityStatesResponse:
+      description: "List<FacilityState> Propagation status"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/FacilityState"
+
+    ListOfResourceStatesResponse:
+      description: "List<ResourceState> Propagation status"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ResourceState"
+
+    ListOfServiceStatesResponse:
+      description: "List<ServiceState> serviceStates"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ServiceState"
 
   #####################################################
   #                                                   #
@@ -1269,7 +1683,7 @@ components:
       schema:
         type: integer
       in: query
-      required: true  
+      required: true
 
     key:
       name: key
@@ -1309,6 +1723,74 @@ components:
       in: query
       required: true
 
+    applicationId:
+      name: appId
+      description: id of application
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    authorizedGroup:
+      name: authorizedGroup
+      description: 'Group id'
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    listOfApplicationFormItems:
+      name: "ApplicationFormItem[]"
+      description: "list of ApplicationFormItem List<ApplicationFormItem>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/ApplicationFormItem"
+
+    applicationForm:
+      name: applicationForm
+      description: application form
+      schema:
+        $ref: "#/components/schemas/ApplicationForm"
+      in: query
+      required: true
+
+    searchString:
+      name: searchString
+      description: 'Text to search by'
+      schema:
+       type: string
+      in: query
+      required: true
+
+    specificAttributes:
+      name: specificAttributes
+      description: 'list of specified attributes which are needed in object richUser'
+      schema:
+        type: array
+        items:
+          type: string
+      in: query
+      required: true
+
+    taskId:
+      name: task
+      description: "Task id"
+      schema:
+        type: integer
+      required: true
+      in: query
+
+    taskResultId:
+      name: taskResult
+      description: "TaskResult id"
+      schema:
+        type: integer
+      required: true
+      in: query
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -1320,7 +1802,7 @@ tags:
     description: AuthzResolver RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AuthzResolver.html
-  - name: AuditMessagesManagerMethod
+  - name: AuditMessagesManager
     description: AuditMessage RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AuditMessagesManager.html
@@ -1356,6 +1838,10 @@ tags:
     description: VosManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-VosManager.html
+  - name: TasksManager
+    description: TasksManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-TasksManager.html
 
 
 #################################################
@@ -3363,7 +3849,7 @@ paths:
         - AttributesManager
       operationId: getAttributesDefinitionWithRights
       summary: Returns all AttributeDefinitions for every entity and possible
-        combination of entities with rights. Only attribute definition of 
+        combination of entities with rights. Only attribute definition of
         attributes user can read (or write) you will get. Combination of entities
         is based on provided parameters, which are optional (at least one must be present).
       parameters:
@@ -4796,6 +5282,90 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/findUsers:
+    get:
+      tags:
+        - UsersManager
+      operationId: findUsers
+      summary: Returns list of Users with attributes who matches the searchString, searching name, email, logins.
+      parameters:
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/findRichUsers:
+    get:
+      tags:
+        - UsersManager
+      operationId: findRichUsers
+      summary: Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+      parameters:
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getVosWhereUserIsMember:
+    get:
+      tags:
+        - UsersManager
+      operationId: getVosWhereUserIsMember
+      summary: Returns list of VOs, where the user is a Member.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getVosWhereUserIsAdmin:
+    get:
+      tags:
+        - UsersManager
+      operationId: getVosWhereUserIsAdmin
+      summary: Returns list of VOs, where the user is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getGroupsWhereUserIsAdmin/u:
+    get:
+      tags:
+        - UsersManager
+      operationId: getGroupsWhereUserIsAdmin
+      summary: Returns list of Groups in Perun, where the User is a direct Administrator or he is a member of any group which is Administrator of some of these Groups.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getRichUserExtSources/u:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichUserExtSources
+      summary: Gets list of all user's external sources with attributes.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
@@ -4899,7 +5469,7 @@ paths:
       summary: Searches for members in a VO.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: searchString, schema: { type: string }, required: true, in: query, description: 'string to search by'}
+        - $ref: '#/components/parameters/searchString'
       responses:
         '200':
           $ref: '#/components/responses/ListOfMembersResponse'
@@ -4926,7 +5496,7 @@ paths:
   #################################################
   #                                               #
   # FacilitiesManager                             #
-  #  (complete with TODOs)                        #
+  #                                               #
   #################################################
 
   /json/facilitiesManager/getFacilityById:
@@ -5362,7 +5932,61 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedFacilities
+  /json/facilitiesManager/getAssignedFacilities/service:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByService
+      summary: Get facilities where the service is defined..
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedFacilities/group:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByGroup
+      summary: Get facilities which are assigned to a Group (via resource).
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedFacilities/member:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByMember
+      summary: Get facilities which have the member access on.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedFacilities/user:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedFacilitiesByUser
+      summary: et facilities which have the user access on.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/facilitiesManager/addAdmin/user:
     post:
@@ -5387,7 +6011,7 @@ paths:
       summary: Adds a group as a Facility admin.
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -5418,7 +6042,7 @@ paths:
       summary: Removes a group as a Facility admin.
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -5458,60 +6082,459 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getFacilitiesWhereUserIsAdmin:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesWhereUserIsAdmin
+      summary: Returns list of Facilities, where the user is an Administrator.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichAdmins
+  /json/facilitiesManager/getFacilitiesByHostName:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByHostName
+      summary: Return all facilities where exists host with the specific hostname
+      parameters:
+        - { name: hostname, schema: { type: string }, in: query, required: true, description: "specific hostname"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichAdminsWithAttributes
+  /json/facilitiesManager/getAllowedUsers/v-f-s:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedUsersOfFacility
+      summary: Return all users which can use this facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO"}
+        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getRichAdminsWithSpecificAttributes
+  #TODO getAllowedUsers - another future versions
 
-  #TODO getDirectRichAdminsWithSpecificAttributes
+  /urlinjsonout/facilitiesManager/copyOwners:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyOwners
+      summary: Copy owners from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilitiesWhereUserIsAdmin
+  /urlinjsonout/facilitiesManager/copyManagers:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyManagers
+      summary: Copy managers from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilitiesByHostName
+  /urlinjsonout/facilitiesManager/copyAttributes:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyAttributes
+      summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAllowedUsers
+  /json/facilitiesManager/getFacilityContactGroups/owner:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForOwner
+      summary: Get list of contact groups for the Owner.
+      parameters:
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyOwners
+  /json/facilitiesManager/getFacilityContactGroups/user:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForUser
+      summary: Get list of contact groups for the User.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyManagers
+  /json/facilitiesManager/getFacilityContactGroups/group:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForGroup
+      summary: Get list of contact groups for the Group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyAttributes
+  /json/facilitiesManager/getFacilityContactGroups/facility:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForFacility
+      summary: Get list of contact groups for the Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilityContactGroups
+  /json/facilitiesManager/getFacilityContactGroup:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroup
+      summary: Get contact group for the facility and the name.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilityContactGroup
+  /json/facilitiesManager/getAllContactGroupNames:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllContactGroupNames
+      summary: Get all exist contact group names.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAllContactGroupNames
+  /json/facilitiesManager/addFacilityContacts:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityContacts
+      summary: Add all contacts in list of facilities contact groups
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddFacilityContacts
+              description: "input to addFacilityContacts"
+              type: object
+              required:
+                - contactGroupsToAdd
+              properties:
+                contactGroupsToAdd:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContactGroup'
 
-  #TODO addFacilityContacts
+  /json/facilitiesManager/addFacilityContact:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityContact
+      summary: Add all contacts in the contact group
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddFacilityContact
+              description: "input to addFacilityContact"
+              type: object
+              required:
+                - contactGroupToAdd
+              properties:
+                contactGroupToAdd: { $ref: '#/components/schemas/ContactGroup' }
 
-  #TODO addFacilityContact
+  /json/facilitiesManager/removeFacilityContacts:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityContacts
+      summary: Remove all contacts in list of facilities contact groups
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveFacilityContacts
+              description: "input to removeFacilityContacts"
+              type: object
+              required:
+                - contactGroupsToRemove
+              properties:
+                contactGroupsToRemove:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContactGroup'
 
-  #TODO removeFacilityContacts
+  /json/facilitiesManager/removeFacilityContact:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityContact
+      summary: Remove all contacts in the contact group
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputRemoveFacilityContact
+              description: "input to removeFacilityContact"
+              type: object
+              required:
+                - contactGroupToRemove
+              properties:
+                contactGroupToRemove: { $ref: '#/components/schemas/ContactGroup' }
 
-  #TODO removeFacilityContact
+  /json/facilitiesManager/getAssignedSecurityTeams:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedSecurityTeams
+      summary: Return assigned security teams for specific facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getAssignedSecurityTeams
+  /urlinjsonout/facilitiesManager/assignSecurityTeam:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: assignSecurityTeam
+      summary: Assign given security team to given facility (means the facility trusts the security team)
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO assignSecurityTeam
+  /urlinjsonout/facilitiesManager/removeSecurityTeam:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeSecurityTeam
+      summary: Remove (Unassign) given security team from given facility
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeSecurityTeam
+  /json/facilitiesManager/setBan:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: setFacilityBan
+      summary: Set ban for user on facility.
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetBanForUserOnFacility
+              description: "input to setBanForUserOnFacility"
+              type: object
+              required:
+                - banOnFacility
+              properties:
+                banOnFacility: { $ref: '#/components/schemas/BanOnFacility' }
 
-  #TODO setBan
+  /json/facilitiesManager/getBanById:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityBanById
+      summary: Get Ban for user on facility by it's id.
+      parameters:
+        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBanById
+  /json/facilitiesManager/getBan:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityBan
+      summary: Get ban by userId and facilityId.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBan
+  /json/facilitiesManager/getBansForUser:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getBansForUser
+      summary: Get all bans for user on any facility.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBansForUser
+  /json/facilitiesManager/getBansForFacility:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getBansForFacility
+      summary: Get all bans for user on the facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getBansForFacility
+  /json/facilitiesManager/updateBan:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: updateFacilityBan
+      summary: Update existing ban (description, validation timestamp)
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnFacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateBanForFacility
+              description: "input to updateBanForFacility"
+              type: object
+              required:
+                - banOnFacility
+              properties:
+                banOnFacility: { $ref: '#/components/schemas/BanOnFacility' }
 
-  #TODO updateBan
+  /urlinjsonout/facilitiesManager/removeBan/byId:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityBanById
+      summary: Remove specific ban by it's id.
+      parameters:
+        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeBan
+  /urlinjsonout/facilitiesManager/removeBan/byUserIdFacilityId:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeBanByUserIdFacilityId
+      summary: Remove specific ban by userId and facilityId.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
@@ -6043,7 +7066,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getAllowedUsers
+      operationId: getAllowedUsersOfResource
       summary: Returns all users assigned to the resource.
       parameters:
         - $ref: '#/components/parameters/resourceId'
@@ -6280,7 +7303,7 @@ paths:
       summary: Adds a group administrator to the Resource.
       parameters:
         - $ref: '#/components/parameters/resourceId'
-        - { name: authorizedGroup, required: true, schema: { type: integer}, in: query, description: 'group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -6310,7 +7333,7 @@ paths:
       summary: Removes a group administrator of the Resource.
       parameters:
         - $ref: '#/components/parameters/resourceId'
-        - { name: authorizedGroup, required: true, schema: { type: integer}, in: query, description: 'group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -6819,7 +7842,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: setBan
+      operationId: setResourceBan
       summary: Set ban for member on resource.
       responses:
         '200':
@@ -6843,7 +7866,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getBanById
+      operationId: getResourceBanById
       summary: Get Ban for member on resource by it's id.
       parameters:
         - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
@@ -6857,7 +7880,7 @@ paths:
     get:
       tags:
         - ResourcesManager
-      operationId: getBan
+      operationId: getResourceBan
       summary: Get ban by memberId and resource id.
       parameters:
         - $ref: '#/components/parameters/memberId'
@@ -6900,7 +7923,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: updateBan
+      operationId: updateResourceBan
       summary: Update existing ban (description, validation timestamp)
       responses:
         '200':
@@ -6924,7 +7947,7 @@ paths:
     post:
       tags:
         - ResourcesManager
-      operationId: removeBanById
+      operationId: removeResourceBanById
       summary: Remove specific ban by it's id.
       parameters:
         - { name: banId, required: true, description: "BanOnResource id", schema: { type: integer },  in: query }
@@ -7013,7 +8036,7 @@ paths:
   #################################################
   #                                               #
   # VosManager                                    #
-  #  (complete with TODOs)                        #
+  #                                               #
   #################################################
 
   /json/vosManager/getVos:
@@ -7040,11 +8063,90 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO deleteVo
+  /urlinjsonout/vosManager/deleteVo:
+    post:
+      tags:
+        - VosManager
+      operationId: deleteVo
+      summary: Deletes a VO. If force == true then VO is deleted including members, groups and resources.
+        If force == false or null only empty VO is deleted or exception is thrown.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: force, description: "Force must be true", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO createVo
+  /json/vosManager/createVo/withVo:
+    post:
+      tags:
+        - VosManager
+      operationId: createVoWithVo
+      summary: |
+        Creates new VO. Caller is automatically set as VO manager.
+        Vo Object must contain:
+        name - lenght can be no more than 128 characters
+        shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32 characters.
+        Other parameters are ignored.
+        @exampleParam vo { "name" : "My testing VO" , "shortName" : "test_vo" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateVoWithVo
+              description: "input to createVoWithVo"
+              type: object
+              required:
+                - vo
+              properties:
+                vo: { $ref: '#/components/schemas/Vo' }
 
-  #TODO updateVo
+  /urlinjsonout/vosManager/createVo/withName:
+    post:
+      tags:
+        - VosManager
+      operationId: createVoWithName
+      summary: Creates new VO. Caller is automatically set as VO manager.
+      parameters:
+        - { name: name, description: "name - length can be no more than 128 characters", schema: { type: string },  in: query, required: true }
+        - { name: shortName, description: "shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32 characters", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/updateVo:
+    post:
+      tags:
+        - VosManager
+      operationId: updateVo
+      summary: Updates a VO. Only name parameter is updated. VO to updated is determined by id parameter of passed VO object.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateVo
+              description: "input to updateVo"
+              type: object
+              required:
+                - vo
+              properties:
+                vo: { $ref: '#/components/schemas/Vo' }
 
   /json/vosManager/getVoByShortName:
     get:
@@ -7074,11 +8176,94 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO findCandidates
+  /json/vosManager/findCandidates:
+    get:
+      tags:
+        - VosManager
+      operationId: findCandidates
+      summary: |
+        Find candidates for VO. Candidates can be used to create new members. Candidates are searched
+        in VOs external sources (if available). Candidates, which are already members of VO are never
+        returned even if they match searchString. You can also specify maximum number of results.
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/searchString'
+        - { name: maxNumOfResults, schema: { type: integer}, in: query, required: false, description: 'Number of maximum results' }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getCompleteCandidates
+  /json/vosManager/findCandidates/forGroup:
+    get:
+      tags:
+        - VosManager
+      operationId: findCandidatesForGroup
+      summary: |
+        Find candidates for Group. Candidates can be used to create new VO and Group members. Candidates are searched
+        in Groups external sources (if available). Candidates, which are already members of VO are never
+        returned even if they match searchString.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getVosCount
+  /json/vosManager/getCompleteCandidates/forVo:
+    get:
+      tags:
+        - VosManager
+      operationId: getCompleteCandidatesForVo
+      summary: |
+        Find MemberCandidates for VO. MemberCandidates can be used to create new members. They are made of Candidate,
+        RichUser and Member objects. Candidates are searched in VO's external sources (if available). RichUsers are
+        searched in given VO and are associated with appropriate candidate and member. RichUsers for MemberCandidates
+        may also be searched in the whole Perun.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMemberCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getCompleteCandidates/forGroup:
+    get:
+      tags:
+        - VosManager
+      operationId: getCompleteCandidatesForGroup
+      summary: |
+        Find MemberCandidates for GROUP. MemberCandidates can be used to create new members. They are made of Candidate,
+        RichUser and Member objects. Candidates are searched in VO's or GROUP's (depends on privileges) external sources
+        (if available). RichUsers are searched in given VO and are associated with appropriate candidate and member.
+        RichUsers for appropriate Candidate are also searched in the whole Perun.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMemberCandidatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getVosCount:
+    get:
+      tags:
+        - VosManager
+      operationId: getVosCount
+      summary: Gets count of all vos.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/vosManager/addAdmin/user:
     post:
@@ -7103,14 +8288,42 @@ paths:
       summary: Adds a group as a Vo admin.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addSponsorRole
+  /urlinjsonout/vosManager/addSponsorRole/user:
+    post:
+      tags:
+        - VosManager
+      operationId: addSponsorRoleToUser
+      summary: Add user as a sponsor for guest members of VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/addSponsorRole/group:
+    post:
+      tags:
+        - VosManager
+      operationId: addSponsorRoleToGroup
+      summary: Add group as a sponsor of guest members of VO. All members of group will become sponsors.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/authorizedGroup'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/vosManager/removeAdmin/user:
     post:
@@ -7135,14 +8348,42 @@ paths:
       summary: Removes a group as a Vo admin.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: authorizedGroup, schema: { type: integer}, in: query, required: true, description: 'Group id' }
+        - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeSponsorRole
+  /urlinjsonout/vosManager/removeSponsorRole/user:
+    post:
+      tags:
+        - VosManager
+      operationId: removeSponsorRoleFromUser
+      summary: Removes user as a sponsor. His or her sponsored members will be set as expired if the user was their last sponsor.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/removeSponsorRole/group:
+    post:
+      tags:
+        - VosManager
+      operationId: removeSponsorRoleFromGroup
+      summary: Removes group as a sponsor. All group members will cease to be sponsors, and their sponsored members will be set as expired if the group member was their last sponsor.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/authorizedGroup'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/vosManager/getAdmins:
     get:
@@ -7180,15 +8421,265 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-
-  #TODO getRichAdmins
-
+  /json/vosManager/getRichAdmins:
+    get:
+      tags:
+        - VosManager
+      operationId: getRichAdminsForVo
+      description: |
+        Get list of all richUser administrators for the vo and supported role with specific attributes.
+        Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
+        If "onlyDirectAdmins" is == true, return only direct admins of the vo for supported role with specific attributes.
+        If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'role name'}
+        - $ref: '#/components/parameters/specificAttributes'
+        - { name: allUserAttributes, schema: { type: boolean }, in: query, required: true, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)'}
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: 'if == true, get only direct vo administrators (if false, get both direct and indirect)'}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
   # RegistrarManager                              #
   #                                               #
   #################################################
+
+  /json/registrarManager/consolidateIdentityUsingToken:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: consolidateIdentityUsingToken
+      summary: Joins current user identity with the one previously provided and referenced by the token.
+      parameters:
+        - { name: token, schema: { type: string }, in: query, required: true, description: "token to be used for joining identities" }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/sendInvitation:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: sendInvitation
+      summary: Sends invitation email to user which is not member of VO
+      parameters:
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
+        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
+        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
+        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/sendInvitation/g:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: sendInvitationForGroup
+      summary: Sends invitation email to user which is not member of VO and Group
+      description: |
+        Invitation link targets VO application form fist, after submission, Group application form is displayed.
+      parameters:
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
+        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into"}
+        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
+        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
+        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/sendInvitation/u:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: sendInvitationToExistingUser
+      summary: Sends invitation email to user which is not member of VO
+      parameters:
+        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to"}
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/sendInvitation/u-g:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: sendInvitationGroupToExistingUser
+      summary: Sends invitation email to user which is not member of Group
+      parameters:
+        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to"}
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
+        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getApplicationsForVo:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationsForVo
+      summary: Gets all applications for a given VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: "state[]", schema: { type: array, items: { type: string } }, in: query, description: "list of states: NEW, VERIFIED, APPROVED, REJECTED" }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getApplicationsForGroup:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationsForGroup
+      summary: Gets all applications for a given Group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - { name: "state[]", schema: { type: array, items: { type: string } }, in: query, description: "list of states: NEW, VERIFIED, APPROVED, REJECTED" }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getApplicationById:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationById
+      summary: Returns application object by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getApplicationDataById:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationDataById
+      summary: Returns data submitted by user in given application (by id).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationFormItemDataResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/verifyApplication:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: verifyApplication
+      summary: Forcefully marks application as verified (only when application was in NEW state).
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/approveApplication:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: approveApplication
+      summary: Manually approves an application.
+      description: |
+        Expected to be called as a result of direct VO administrator action in the web UI.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/rejectApplication:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: rejectApplication
+      summary: Manually rejects an application.
+      description: |
+        Expected to be called as a result of direct VO administrator action in the web UI.
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - { name: reason, schema: { type: string }, in: query, description: "description of reason", required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/deleteApplication:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteApplication
+      summary: Deletes an application.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/sendMessage:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: sendMessage
+      summary: Re-send mail notification for existing application.
+      description: |
+        Message of specified type is sent only, when application is in expected state related to the notification.
+        Note, that some data related to processing application are not available (e.g. list of exceptions during approval), since this method doesn't perform any action with Application itself.
+        Perun admin can send any notification except USER_INVITE type, see #sendInvitation() for this.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSendMessage
+              description: "input to sendMessage"
+              type: object
+              required:
+                - mailType
+                - applicationId
+              properties:
+                mailType: { $ref: '#/components/schemas/MailType' }
+                applicationId: { type: integer, description: "application id" }
+                reason: { type: string, description: "you can specify reason for case: mailType == APP_REJECTED_USER" }
 
   /json/registrarManager/getApplicationForm/vo:
     get:
@@ -7221,6 +8712,255 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getFormItems/vo:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getFormItemsForVo
+      summary: Gets all items in VO application form.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationFormItemsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getFormItems/vo-type:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getFormItemsForVoWithType
+      summary: Gets items of specified type in VO application form, for initital registration or extension of account.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - { name: type, schema: { type: string }, in: query, description: "application type: INITIAL or EXTENSION" }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationFormItemsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getFormItems/group:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getFormItemsForGroup
+      summary: Gets all items in Group application form.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationFormItemsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getFormItems/group-type:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getFormItemsForGroupWithType
+      summary: Gets items of specified type in Group application form, for initital registration or extension of account.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - { name: type, schema: { type: string }, in: query, description: "application type: INITIAL or EXTENSION" }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationFormItemsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/updateFormItems/vo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateFormItemsForVo
+      summary: Updates form items sent in list.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateFormItemsForVo
+              description: "input to updateFormItemsForVo"
+              type: object
+              properties:
+                vo: { type: integer, description: "vo id" }
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ApplicationFormItem'
+
+  /json/registrarManager/updateFormItems/group:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateFormItemsForGroup
+      summary: Updates form items sent in list.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateFormItemsForGroup
+              description: "input to updateFormItemsForGroup"
+              type: object
+              properties:
+                group: { type: integer, description: "group id" }
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ApplicationFormItem'
+
+  /json/registrarManager/updateForm:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateForm
+      summary: Updates the form attributes, not the form items.
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateForm
+              description: "input to updateForm"
+              type: object
+              properties:
+                applicationForm: { $ref: '#/components/schemas/ApplicationForm' }
+
+  /urlinjsonout/registrarManager/copyForm/voToVo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyFormFromVoToVo
+      summary: Copy all form items from selected VO into another.
+      parameters:
+        - { name: fromVo, schema: { type: integer }, in: query, description: "source VO" }
+        - { name: toVo, schema: { type: integer }, in: query, description: "destination VO" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/copyForm/groupToVo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyFormFromGroupToVo
+      summary: Copy all form items from selected Group into VO.
+      parameters:
+        - { name: fromGroup, schema: { type: integer }, in: query, description: "source group" }
+        - { name: toVo, schema: { type: integer }, in: query, description: "destination VO" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/copyForm/voToGroup:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyFormFromVoToGroup
+      summary: Copy all form items from selected VO into Group.
+      parameters:
+        - { name: fromVo, schema: { type: integer }, in: query, description: "source VO" }
+        - { name: toGroup, schema: { type: integer }, in: query, description: "destination group" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/copyForm/groupToGroup:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyFormFromGroupToGroup
+      summary: Copy all form items from selected Group into another.
+      parameters:
+        - { name: fromGroup, schema: { type: integer }, in: query, description: "source group" }
+        - { name: toGroup, schema: { type: integer }, in: query, description: "destination group" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #TODO getApplicationMails
+
+  #TODO setSendingEnabled
+
+  #TODO copyMails
+
+  #TODO deleteApplicationMail
+
+  #TODO updateApplicationMail
+
+  #TODO addApplicationMail
+
+  #TODO copyMails
+
+  /urlinjsonout/registrarManager/createApplicationForm/vo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: createApplicationFormInVo
+      summary: Create application form for a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/createApplicationForm/group:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: createApplicationFormInGroup
+      summary: Create application form for a group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/getConsolidatorToken:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getConsolidatorToken
+      summary: Get time-limited token proving user identity in external source (for now 3 minutes).
+      description: |
+        It can be used to join user identity with another by calling consolidateIdentityUsingToken() method and passing the token.
+        Please note, that different authz (identity) must be used to perform both calls.
+      responses:
+        '200':
+          $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -7543,5 +9283,267 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # TasksManager                                  #
+  #                                               #
+  #################################################
+
+  /json/tasksManager/getTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTask
+      summary: Returns a task.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TaskResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/listAllTasks:
+    get:
+      tags:
+        - TasksManager
+      operationId: listAllTasks
+      summary: Returns all tasks.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTasksResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/listAllTasksForFacility:
+    get:
+      tags:
+        - TasksManager
+      operationId: listAllTasksForFacility
+      summary: Returns all tasks associated with selected facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTasksResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/isThereSuchTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: isThereSuchTask
+      summary: Whether task exists.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/countTasks:
+    get:
+      tags:
+        - TasksManager
+      operationId: countTasks
+      summary: Returns the count of all tasks.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResults:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResults
+      summary: Returns all task results.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsByTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsByTask
+      summary:  Return list of TaskResults by a Task.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForGUIByTaskOnlyNewest:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForGUIByTaskOnlyNewest
+      summary:  Return list of only newest TaskResults by a Task for GUI.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForGUIByTaskAndDestination:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForGUIByTaskAndDestination
+      summary:  Return list of TaskResults by a Task and destination for GUI.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForGUIByTask:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForGUIByTask
+      summary:  Return list of TaskResults by a Task for GUI.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultById:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultById
+      summary:  Returns TaskResult by its id.
+      parameters:
+        - $ref: '#/components/parameters/taskResultId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TaskResultResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskById:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskById
+      summary:  Returns Task by its id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/TaskResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getFacilityState:
+    get:
+      tags:
+        - TasksManager
+      operationId: getFacilityState
+      summary:   Return propagation status of facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/FacilityStateResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getAllFacilitiesStates:
+    get:
+      tags:
+        - TasksManager
+      operationId: getAllFacilitiesStates
+      summary: Return propagation status of all facilities in Perun/Vo.
+      parameters:
+        - $ref: '#/components/parameters/optionalVoId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilityStatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getAllResourcesState:
+    get:
+      tags:
+        - TasksManager
+      operationId: getAllResourcesState
+      summary: Return propagation status of all resources related to VO.
+      parameters:
+        - { name: voId, description: "VO id", schema: { type: integer },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourceStatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getTaskResultsForDestinations:
+    get:
+      tags:
+        - TasksManager
+      operationId: getTaskResultsForDestinations
+      summary: Returns task results for defined destinations.
+      parameters:
+        - name: destinations[]
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: 'List<String> Destinations'
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfTaskResultsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/getFacilityServicesState:
+    get:
+      tags:
+        - TasksManager
+      operationId: getFacilityServicesState
+      summary: Returns service states for defined facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServiceStatesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/tasksManager/deleteTask:
+    post:
+      tags:
+        - TasksManager
+      operationId: deleteTask
+      summary:  Delete Task and TaskResults.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'

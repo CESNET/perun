@@ -123,6 +123,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 * Return list of TaskResults by a Task and destination for GUI.
 	 *
 	 * @param task int Task
+	 * @param destination int Destination <code>id</code>
 	 * @return List<TaskResult> Results
 	 */
 	getTaskResultsForGUIByTaskAndDestination {
@@ -240,7 +241,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	/*#
 	 * Delete Task and TaskResults.
 	 *
-	 * @param task Task Task to delete.
+	 * @param task int Task to delete.
 	 */
 	deleteTask {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
