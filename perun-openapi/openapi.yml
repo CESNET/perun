@@ -1302,6 +1302,13 @@ components:
       in: query
       required: true
 
+    consumerName:
+      name: consumerName
+      schema:
+        type: string
+      in: query
+      required: true
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -4481,11 +4488,99 @@ paths:
           schema:
             type: integer
           description: id of message to what consumer will be set
+          required: true
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/AuditMessagesManager/createAuditerConsumer:
+    post:
+      tags:
+        - AuditMessagesManager
+      operationId: createAuditerConsumer
+      summary: |
+        Creates new auditer consumer with last processed id which equals current auditer log max id.
+      parameters:
+        - name: consumerName
+          in: query
+          schema:
+            type: string
+          description: New name for consumer
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/getAllAuditerConsumers:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getAllAuditerConsumers
+      summary: |
+        Get all auditer consumers as a map with key=value pairs like String(name)=Integer(lastProcessedId).
+      responses:
+        '200':
+          description: map with key=value pairs like String(name)=Integer(lastProcessedId)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/getLastMessageId:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getLastMessageId
+      summary: |
+        Get ID of last (newest) message in auditer logs.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/getAuditerMessagesCount:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getAuditerMessagesCount
+      summary: |
+        Get count of all messages stored in auditer logs.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/AuditMessagesManager/log:
+    post:
+      tags:
+        - AuditMessagesManager
+      operationId: auditMessagesManagerLog
+      summary: |
+        Log arbitrary auditer message/event to the audit log.
+      parameters:
+        - name: msg
+          in: query
+          schema:
+            type: string
+          description: Message to be logged
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
 
   #################################################
   #                                               #
