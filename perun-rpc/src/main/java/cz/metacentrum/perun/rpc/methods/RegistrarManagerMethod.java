@@ -996,14 +996,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param mail ApplicationMail ApplicationMail JSON object
-	 * @return ApplicationMail Created ApplicationMail
+	 * @return ApplicationMailId int
 	 */
 	/*#
 	 * Add new mail notification.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param mail ApplicationMail ApplicationMail JSON object
-	 * @return ApplicationMail Created ApplicationMail
+	 * @return ApplicationMailId int
 	 */
 	addApplicationMail {
 
