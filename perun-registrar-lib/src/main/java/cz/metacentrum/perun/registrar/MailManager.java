@@ -26,7 +26,7 @@ public interface MailManager {
 	 * @param sess PerunSession for authz
 	 * @param form for authz
 	 * @param mail ApplicationMail to be stored
-	 * @return ApplicationMail with ID property set returned from DB (null on error)
+	 * @return ApplicationMail ID returned from DB (null on error)
 	 * @throws PrivilegeException when caller is not VOADMIN or GROUPADMIN
 	 * @throws ApplicationMailExistsException when mail definition already exists.
 	 */
