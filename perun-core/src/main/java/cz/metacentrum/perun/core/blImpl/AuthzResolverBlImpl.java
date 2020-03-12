@@ -2026,11 +2026,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return all related objects together with the objects from the input as a map of PerunBean names and ids.
 	 */
 	private static Map<String, Set<Integer>> fetchAllRelatedObjects(List<PerunBean> objects) {
+		if (objects == null) throw new InternalErrorException("A list of PerunBeans, used in authorization evaluation, cannot be null.");
 		List<PerunBean> relatedObjects = new ArrayList<>();
 		//Create a map from objects for easier manipulation and duplicity prevention
 		Map<String, Set<Integer>> mapOfBeans = new HashMap<>();
 
 		for (PerunBean object: objects) {
+			if (object == null) throw new InternalErrorException("A list of PerunBeans, used in authorization evaluation, cannot contain a null value.");
 			relatedObjects.add(object);
 			List<PerunBean> retrievedObjects = RelatedObjectsResolver.getValue(object.getBeanName()).apply(object);
 			relatedObjects.addAll(retrievedObjects);
