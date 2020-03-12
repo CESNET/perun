@@ -7,8 +7,8 @@ import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,7 +71,7 @@ public class AuditParserTest {
 	public void setUp() throws Exception {
 		member.setMembershipType(MembershipType.DIRECT);
 		member.setSourceGroupId(5);
-		member.setSuspendedTo(Calendar.getInstance().getTime());
+		member.setSuspendedTo(Date.from(Instant.now()));
 		facility.setDescription(textMismatch);
 		Map<String, String> attributesMap = new HashMap<String, String>();
 		attributesMap.put("test1", textMismatch);
@@ -192,7 +192,7 @@ public class AuditParserTest {
 
 		String log4 = "Attribute:[id=<146>, friendlyName=<login-namespace:einfra>, namespace=<urn:perun:user:attribute-def:def>, type=<java.lang.String>, value=<tejral>]";
 
-		String log5 = "Member:[id=<3899>, userId=<3199>, voId=<21>, status=<VALID>, sourceGroupId=<\\0>, sponsored=<true>, suspendedTo=<" + BeansUtils.getDateFormatter().format(Calendar.getInstance().getTime()) + ">] Cokoliv:[]";
+		String log5 = "Member:[id=<3899>, userId=<3199>, voId=<21>, status=<VALID>, sourceGroupId=<\\0>, sponsored=<true>, suspendedTo=<" + BeansUtils.getDateFormatter().format(Date.from(Instant.now())) + ">] Cokoliv:[]";
 
 		//Long start = System.currentTimeMillis();
 		List<PerunBean> list = AuditParser.parseLog(log);
