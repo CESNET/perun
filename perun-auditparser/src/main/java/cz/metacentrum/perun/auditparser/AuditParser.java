@@ -8,10 +8,7 @@ import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
