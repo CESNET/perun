@@ -2290,10 +2290,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this user-facility attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
 	 * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
@@ -2305,9 +2305,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this facility attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param facility int Facility <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2318,9 +2318,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this vo attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param vo int Vo <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw VoNotExistsException When the vo with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
@@ -2331,10 +2331,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this member-resource attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
@@ -2347,10 +2347,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this group-resource attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param resource int Resource <code>id</code>
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
@@ -2363,9 +2363,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this resource attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param resource int Resource <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2376,10 +2376,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this member-group attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
@@ -2391,9 +2391,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this member attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param member int Member <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2404,9 +2404,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this group attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException  When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
@@ -2417,9 +2417,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this host attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param host int Host <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
@@ -2430,9 +2430,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this user attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param user int User <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw UserNotExistsException When the user with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2443,9 +2443,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this userExtSource attribute has valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributeSyntax() and checkAttributeSemantics()
 	 * @param userExtSource int UserExtSource <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
@@ -2527,7 +2527,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
 	 * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
@@ -2539,7 +2539,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this facility attribute has valid syntax.
 	 *
 	 * @param facility int Facility <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
@@ -2550,7 +2550,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this vo attribute has valid syntax.
 	 *
 	 * @param vo int Vo <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw VoNotExistsException When the vo with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
@@ -2562,7 +2562,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
@@ -2576,7 +2576,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
@@ -2589,7 +2589,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this resource attribute has valid syntax.
 	 *
 	 * @param resource int Resource <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
@@ -2601,7 +2601,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
@@ -2613,7 +2613,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this member attribute has valid syntax.
 	 *
 	 * @param member int Member <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
@@ -2624,7 +2624,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this group attribute has valid syntax.
 	 *
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException  When the attribute value has wrong/illegal syntax.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
@@ -2635,7 +2635,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this host attribute has valid syntax.
 	 *
 	 * @param host int Host <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
@@ -2646,7 +2646,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this user attribute has valid syntax.
 	 *
 	 * @param user int User <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw UserNotExistsException When the user with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
@@ -2657,7 +2657,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this userExtSource attribute has valid syntax.
 	 *
 	 * @param userExtSource int UserExtSource <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
@@ -2738,7 +2738,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
 	 * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
@@ -2751,7 +2751,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this facility attribute has valid semantics.
 	 *
 	 * @param facility int Facility <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2763,7 +2763,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this vo attribute has valid semantics.
 	 *
 	 * @param vo int Vo <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw VoNotExistsException When the vo with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
@@ -2776,7 +2776,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
@@ -2791,7 +2791,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
@@ -2805,7 +2805,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this resource attribute has valid semantics.
 	 *
 	 * @param resource int Resource <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2818,7 +2818,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
@@ -2831,7 +2831,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this member attribute has valid semantics.
 	 *
 	 * @param member int Member <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2843,7 +2843,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this group attribute has valid semantics.
 	 *
 	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException  When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
@@ -2855,7 +2855,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this host attribute has valid semantics.
 	 *
 	 * @param host int Host <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
@@ -2867,7 +2867,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this user attribute has valid semantics.
 	 *
 	 * @param user int User <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw UserNotExistsException When the user with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2879,7 +2879,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Checks if this userExtSource attribute has valid semantics.
 	 *
 	 * @param userExtSource int UserExtSource <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
+	 * @param attribute Attribute Attribute <code>id</code>
 	 *
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
@@ -2959,7 +2959,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if attributes have valid semantics. These attributes can be from namespace: member, user, member-resource and user-facility.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param facility int Facility <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @param user int User <code>id</code>
@@ -2969,7 +2969,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these user-facility attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
@@ -2977,21 +2977,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these facility attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param facility int Facility <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these vo attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param vo int Vo <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these member-resource attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
@@ -3000,7 +3000,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these member-resource attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
@@ -3008,7 +3008,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these group-resource attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param resource int Resource <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
@@ -3016,14 +3016,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these resource attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these member-group attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
@@ -3032,7 +3032,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these member-group attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
@@ -3040,28 +3040,28 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these member attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these host attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param host int Host <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these user attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these userExtSource attributes have valid semantics.
 	 *
-	 * @deprecated
+	 * @deprecated Will be removed in 3.10.0. See checkAttributesSyntax() and checkAttributesSemantics()
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
