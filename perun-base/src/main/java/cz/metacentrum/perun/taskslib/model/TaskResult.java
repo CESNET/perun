@@ -25,7 +25,6 @@ public class TaskResult extends PerunBean implements Serializable {
 		DONE, ERROR, FATAL_ERROR, DENIED, WARN
 	}
 
-	private int id;
 	private int taskId;
 	private int destinationId;
 	private String errorMessage;
@@ -42,7 +41,7 @@ public class TaskResult extends PerunBean implements Serializable {
 		int result = 1;
 		result = prime * result + destinationId;
 		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
-		result = prime * result + id;
+		result = prime * result + getId();
 		result = prime * result + returnCode;
 		result = prime * result + ((standardMessage == null) ? 0 : standardMessage.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
@@ -68,7 +67,7 @@ public class TaskResult extends PerunBean implements Serializable {
 				return false;
 		} else if (!errorMessage.equals(other.errorMessage))
 			return false;
-		if (id != other.id)
+		if (getId() != other.getId())
 			return false;
 		if (returnCode != other.returnCode)
 			return false;
@@ -111,7 +110,7 @@ public class TaskResult extends PerunBean implements Serializable {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		return str.append(getClass().getSimpleName())
-				.append(":[id='").append(id)
+				.append(":[id='").append(getId())
 				.append("', taskId='").append(taskId)
 				.append("', destinationId='").append(destinationId)
 				.append("', errorMessage='").append(errorMessage)
@@ -176,14 +175,6 @@ public class TaskResult extends PerunBean implements Serializable {
 
 	public void setStatus(TaskResultStatus status) {
 		this.status = status;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public int getId() {
-		return id;
 	}
 
 	public Destination getDestination() {

@@ -1556,7 +1556,7 @@ public class Utils {
 	/**
 	 * Prepares grace period date by values from given matcher.
 	 * @param matcher matcher
-	 * @return pair of field(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH) and amount
+	 * @return pair of field(ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS) and amount
 	 * @throws InternalErrorException when given matcher contains invalid data
 	 * @throws IllegalArgumentException when matcher does not match gracePeriod format
 	 */
