@@ -618,7 +618,7 @@ components:
             name: { type: string }
       discriminator:
         propertyName: beanName
-=======
+
     TaskStatus:
       type: string
       enum:
