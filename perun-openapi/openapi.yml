@@ -8975,7 +8975,7 @@ paths:
       summary: Add new mail notification.
       responses:
         '200':
-          $ref: '#/components/responses/ApplicationMailResponse'
+          $ref: '#/components/responses/IntegerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:
@@ -9001,7 +9001,7 @@ paths:
       summary: Add new mail notification.
       responses:
         '200':
-          $ref: '#/components/responses/ApplicationMailResponse'
+          $ref: '#/components/responses/IntegerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
       requestBody:
