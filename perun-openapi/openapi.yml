@@ -596,6 +596,29 @@ components:
         member: { $ref: '#/components/schemas/Member' }
         richUser: { $ref: '#/components/schemas/RichUser' }
 
+    ServiceForGUI:
+      allOf:
+        - $ref: '#/components/schemas/Service'
+        - properties:
+            allowedOnFacility: { type: boolean }
+      discriminator:
+        propertyName: beanName
+
+    ServiceAttributes:
+      type: object
+      properties:
+        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+        childElements: { type: array, items: { $ref: '#/components/schemas/ServiceAttributes' } }
+
+    ServicesPackage:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            description: { type: string }
+            name: { type: string }
+      discriminator:
+        propertyName: beanName
+
     TaskStatus:
       type: string
       enum:
@@ -686,7 +709,6 @@ components:
         task: { $ref: '#/components/schemas/Task' }
         isBlockedOnFacility: { type: boolean }
         hasDestinations: { type: boolean }
-
 
   #################################################
   #                                               #
@@ -1170,6 +1192,16 @@ components:
             items:
               $ref: "#/components/schemas/ContactGroup"
 
+    ListOfServiceForGUIResponse:
+      description: "return List<ServiceForGUI>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ServiceForGUI"
+
+
     SecurityTeamResponse:
       description: "returns SecurityTeam"
       content:
@@ -1219,6 +1251,29 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/MemberCandidate"
+
+    ServiceAttributesResponse:
+      description: "return List<ServiceAttributes>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ServiceAttributes"
+
+    ServicesPackageResponse:
+      description: "return ServicesPackage"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ServicesPackage"
+
+    ListOfServicesPackageResponse:
+      description: "return List<ServicesPackage>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ServicesPackage"
 
     TaskResponse:
       description: "Task"
@@ -1369,7 +1424,6 @@ components:
         type: array
         items:
           type: string
-
 
     attributeValue:
       name: attributeValue
@@ -1741,6 +1795,14 @@ components:
         type: array
         items:
           type: string
+      in: query
+      required: true
+
+    destinationType:
+      name: destinationType
+      description: "Destination type (like host, user@host, user@host:port, email, service-specific, ...)"
+      schema:
+        type: string
       in: query
       required: true
 
@@ -8759,44 +8821,381 @@ paths:
   #################################################
   #                                               #
   # ServicesManager                               #
-  #  (complete with TODOs)                        #
+  #                                               #
   #################################################
 
-  #TODO blockServiceOnFacility
+  /urlinjsonout/servicesManager/blockServiceOnFacility:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServiceOnFacility
+      summary: Bans service on a facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO blockServiceOnDestination
+  /urlinjsonout/servicesManager/blockServiceOnDestination/s-d:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServiceOnDestination
+      summary: Bans Service on a destination.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO blockAllServicesOnFacility
+  /urlinjsonout/servicesManager/blockServiceOnDestination/s-dname-dtype:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockServiceOnDestinationWithNameAndType
+      summary: Bans Service on a destination.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationName'
+        - $ref: '#/components/parameters/destinationType'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO blockAllServicesOnDestination
+  /urlinjsonout/servicesManager/blockAllServicesOnFacility:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockAllServicesOnFacility
+      summary: Block all services currently assigned on this facility.
+              Newly assigned services are still allowed for propagation.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServicesBlockedOnFacility
+  /urlinjsonout/servicesManager/blockAllServicesOnDestination/d:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockAllServicesOnDestinationById
+      summary: Block all services currently assigned on this destination.
+               Newly assigned services are still allowed for propagation.
+      parameters:
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServicesBlockedOnDestination
+  /urlinjsonout/servicesManager/blockAllServicesOnDestination/dname-dtype:
+    post:
+      tags:
+        - ServicesManager
+      operationId: blockAllServicesOnDestinationByName
+      summary: Block all services currently assigned on this destination.
+        Newly assigned services are still allowed for propagation.
+      parameters:
+        - $ref: '#/components/parameters/destinationName'
+        - $ref: '#/components/parameters/destinationType'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO isServiceBlockedOnFacility
+  /json/servicesManager/getServicesBlockedOnFacility:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServicesBlockedOnFacility
+      summary: Returns list of denials for a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO isServiceBlockedOnDestination
+  /json/servicesManager/getServicesBlockedOnDestination:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServicesBlockedOnDestination
+      summary: Returns list of denials for a destination.
+      parameters:
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO unblockAllServicesOnFacility
+  /json/servicesManager/isServiceBlockedOnFacility:
+    get:
+      tags:
+        - ServicesManager
+      operationId: isServiceBlockedOnFacility
+      summary: Is this Service denied on the facility?
+        Return int 1 = true - the Service is denied on the facility, 0 = false - the Service is NOT denied on the facility
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO unblockAllServicesOnDestination
+  /json/servicesManager/isServiceBlockedOnDestination:
+    get:
+      tags:
+        - ServicesManager
+      operationId: isServiceBlockedOnDestination
+      summary: Is this Service denied on the destination?
+        Return int 1 = true - the Service is denied on the destination, 0 = false - the Service is NOT denied on the destination
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO unblockServiceOnFacility
+  /urlinjsonout/servicesManager/unblockAllServicesOnFacility:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockAllServicesOnFacility
+      summary: Erase all the possible denials on this facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO unblockServiceOnDestination
+  /urlinjsonout/servicesManager/unblockAllServicesOnDestination/d:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockAllServicesOnDestinationById
+      summary: Erase all the possible denials on this destination.
+      parameters:
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO forceServicePropagation
+  /urlinjsonout/servicesManager/unblockAllServicesOnDestination/dname-dtype:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockAllServicesOnDestinationByName
+      summary: Erase all the possible denials on this destination.
+      parameters:
+        - $ref: '#/components/parameters/destinationName'
+        - $ref: '#/components/parameters/destinationType'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO planServicePropagation
+  /urlinjsonout/servicesManager/unblockServiceOnFacility:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServiceOnFacility
+      summary: Free the denial of the Service on this facility. If the Service was banned
+              on this facility, it will be freed. In case the Service was not banned on
+              this facility, nothing will happen.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilityAssignedServicesForGUI
+  /urlinjsonout/servicesManager/unblockServiceOnDestination/s-d:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServiceOnDestinationById
+      summary: Free the denial of the Service on this destination. If the Service was banned on
+         this destination, it will be freed. In case the Service was not banned on this
+         destination, nothing will happen.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO createService
+  /urlinjsonout/servicesManager/unblockServiceOnDestination/s-dname-dtype:
+    post:
+      tags:
+        - ServicesManager
+      operationId: unblockServiceOnDestinationByName
+      summary: Free the denial of the Service on this destination. If the Service was banned on
+        this destination, it will be freed. In case the Service was not banned on this
+        destination, nothing will happen.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/destinationName'
+        - $ref: '#/components/parameters/destinationType'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO deleteService
+  /urlinjsonout/servicesManager/forceServicePropagation:
+    post:
+      tags:
+        - ServicesManager
+      operationId: forceServicePropagation
+      summary: Forces service propagation on defined facility.
+              Return int 1 = true if it is possible, 0 = false if not
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/optionalFacilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO updateService
+  /urlinjsonout/servicesManager/planServicePropagation:
+    post:
+      tags:
+        - ServicesManager
+      operationId: planServicePropagation
+      summary: Plans service propagation on defined facility.
+        Return int 1 = true if it is possible, 0 = false if not
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/optionalFacilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getFacilityAssignedServicesForGUI:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getFacilityAssignedServicesForGUI
+      summary: Return list of ServiceForGUI assigned on facility, (Service with "allowedOnFacility" property filled).
+              1 - allowed / 0 - service is service is denied.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServiceForGUIResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/createService:
+    post:
+      tags:
+        - ServicesManager
+      operationId: createServiceWithService
+      summary: Creates a new service.
+        Service object must contain name. Parameters desctiption, script, delay, recurrence, enabled are optional. Other parameters ignored.
+      responses:
+        '200':
+          $ref: '#/components/responses/ServiceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateService
+              description: "input to createService"
+              type: object
+              required:
+                - service
+              properties:
+                service: { $ref: '#/components/schemas/Service' }
+
+  /urlinjsonout/servicesManager/createService:
+    post:
+      tags:
+        - ServicesManager
+      operationId: createService
+      summary: Creates a new service.
+      parameters:
+        - { name: name, description: "name", schema: { type: string },  in: query, required: true }
+        - { name: description, description: "description", schema: { type: string },  in: query, required: true }
+        - { name: script, description: "script which should be constructed like ./service_name (where anything else than [a-z,A-Z] is converted to _)", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ServiceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/deleteService:
+    post:
+      tags:
+        - ServicesManager
+      operationId: deleteService
+      summary: Deletes a service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/updateService:
+    post:
+      tags:
+        - ServicesManager
+      operationId: updateService
+      summary: Updates a service.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateService
+              description: "input to updateService"
+              type: object
+              required:
+                - service
+              properties:
+                service: { $ref: '#/components/schemas/Service' }
 
   /json/servicesManager/getServiceById:
     get:
@@ -8831,45 +9230,333 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServices
+  /json/servicesManager/getServices:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServices
+      summary: Returns all services.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServicesByAttributeDefinition
+  /json/servicesManager/getServicesByAttributeDefinition:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServicesByAttributeDefinition
+      summary: Get all services with given attribute.
+      parameters:
+        - $ref: '#/components/parameters/attributeDefinitionId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getHierarchicalData
+  /json/servicesManager/getHierarchicalData:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getHierarchicalData
+      summary: Generates the list of attributes per each member associated with the resource.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ServiceAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFlatData
+  /json/servicesManager/getFlatData:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getFlatData
+      summary: Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ServiceAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getDataWithGroups
+  /json/servicesManager/getDataWithGroups:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getDataWithGroups
+      summary: Generates the list of attributes per each member associated with the resources and groups.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ServiceAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getDataWithVos
+  /json/servicesManager/getDataWithVos:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getDataWithVos
+      summary: Generates the list of attributes per each member associated with the resources and groups in vos.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ServiceAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServicesPackages
+  /json/servicesManager/getServicesPackages:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServicesPackages
+      summary: Returns packages.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesPackageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServicesPackageById
+  /json/servicesManager/getServicesPackageById:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServicesPackageById
+      summary: Gets package by id.
+      parameters:
+        - $ref: '#/components/parameters/servicesPackageId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ServicesPackageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServicesPackageByName
+  /json/servicesManager/getServicesPackageByName:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServicesPackageByName
+      summary: Gets package by name.
+      parameters:
+        - { name: name, description: "ServicesPackage name", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ServicesPackageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO createServicesPackage
+  /json/servicesManager/createServicesPackage:
+    post:
+      tags:
+        - ServicesManager
+      operationId: createServicesPackage
+      summary: Creates a new services package.
+      responses:
+        '200':
+          $ref: '#/components/responses/ServicesPackageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: InputCreateServicesPackage
+              description: Input to createServicesPackage
+              required:
+                - servicesPackage
+              properties:
+                servicesPackage:
+                  $ref: '#/components/schemas/ServicesPackage'
 
-  #TODO deleteServicesPackage
+  /urlinjsonout/servicesManager/createServicesPackage:
+    post:
+      tags:
+        - ServicesManager
+      operationId: createServicesPackageByNameAndDescription
+      summary: Creates a new services package.
+      parameters:
+        - { name: name, description: "name", schema: { type: string },  in: query, required: true }
+        - { name: description, description: "description", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ServicesPackageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO updateServicesPackage
+  /urlinjsonout/servicesManager/deleteServicesPackage:
+    post:
+      tags:
+        - ServicesManager
+      operationId: deleteServicesPackage
+      summary: Deletes a services package.
+      parameters:
+        - $ref: '#/components/parameters/servicesPackageId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addServiceToServicesPackage
+  /json/servicesManager/updateServicesPackage:
+    post:
+      tags:
+        - ServicesManager
+      operationId: updateServicesPackage
+      summary: Updates a service package.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: InputUpdateServicesPackage
+              description: Input to updateServicesPackage
+              required:
+                - servicesPackage
+              properties:
+                servicesPackage:
+                  $ref: '#/components/schemas/ServicesPackage'
 
-  #TODO removeServiceFromServicesPackage
+  /urlinjsonout/servicesManager/addServiceToServicesPackage:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addServiceToServicesPackage
+      summary: Adds a Service to a Services Package.
+      parameters:
+        - $ref: '#/components/parameters/servicesPackageId'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getServicesFromServicesPackage
+  /urlinjsonout/servicesManager/removeServiceFromServicesPackage:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeServiceFromServicesPackage
+      summary: Removes a Service from a Services Package.
+      parameters:
+        - $ref: '#/components/parameters/servicesPackageId'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addRequiredAttribute
+  /json/servicesManager/getServicesFromServicesPackage:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getServicesFromServicesPackage
+      summary: Lists services stored in a package.
+      parameters:
+        - $ref: '#/components/parameters/servicesPackageId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfServicesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addRequiredAttributes
+  /urlinjsonout/servicesManager/addRequiredAttribute:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addRequiredAttribute
+      summary: Mark the attribute as required for the service. Required attributes are requisite for Service to run.
+           If you add attribute which has a default attribute then this default attribute will be automatically add too.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeRequiredAttribute
+  /urlinjsonout/servicesManager/addRequiredAttributes:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addRequiredAttributes
+      summary: Batch version of addRequiredAttribute.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeRequiredAttributes
+  /urlinjsonout/servicesManager/removeRequiredAttribute:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeRequiredAttribute
+      summary: Remove required attribute from service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/attributeId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeAllRequiredAttributes
+  /urlinjsonout/servicesManager/removeRequiredAttributes:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeRequiredAttributes
+      summary: Remove required attributes from service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/attributes'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/servicesManager/removeAllRequiredAttributes:
+    post:
+      tags:
+        - ServicesManager
+      operationId: removeAllRequiredAttributes
+      summary: Remove all required attributes from service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/servicesManager/getDestinationById:
     get:
@@ -8917,7 +9604,7 @@ paths:
     get:
       tags:
         - ServicesManager
-      operationId: getRichDestinationsForService
+      operationId: getAllRichDestinationsForService
       summary: Returns list of all rich destinations defined for the service.
       parameters:
         - $ref: '#/components/parameters/serviceId'
@@ -8931,7 +9618,7 @@ paths:
     get:
       tags:
         - ServicesManager
-      operationId: getRichDestinationsForFacility
+      operationId: getAllRichDestinationsForFacility
       summary: Returns list of all rich destinations defined for the facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
@@ -8967,7 +9654,7 @@ paths:
         - $ref: '#/components/parameters/facilityId'
         - { name: destination, description: "Destination's destination, usually a DNS name", schema: { type: string },  in: query, required: true }
         - { name: type, description: "Destination's type", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
-        - { name: propagationType, description: "Destination's propagationType", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: true }
+        - { name: propagationType, description: "Destination's propagationType", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/DestinationResponse'
@@ -8998,7 +9685,6 @@ paths:
                 - facility
                 - destination
                 - type
-                - propagationType
               properties:
                 services:
                   type: array
@@ -9010,9 +9696,84 @@ paths:
                 propagationType: { $ref: '#/components/schemas/DestinationPropagationType' }
 
 
-  #TODO addDestinationsForAllServicesOnFacility
+  /urlinjsonout/servicesManager/addDestinationsForAllServicesOnFacility:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addDestinationsForAllServicesOnFacility
+      summary: Adds destination for all services defined on the facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/destinationName'
+        - { name: type, description: "Destination type (host,user@host,user@host:port,url,mail,service-specific)", schema: { $ref: '#/components/schemas/DestinationType' },  in: query, required: true }
+        - { name: propagationType, description: "propagation type (PARALLEL, DUMMY - doesn't send data)", schema: { $ref: '#/components/schemas/DestinationPropagationType' },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addDestinationsDefinedByHostsOnFacility
+  /urlinjsonout/servicesManager/addDestinationsDefinedByHostsOnFacility/s-f:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addDestinationsDefinedByHostsOnFacilityWithServiceAndFacility
+      summary: Add services destinations for all services currently available on facility
+          (assigned to all facility's resources). Destinations names are taken from
+          all facility's host hostnames.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/addDestinationsDefinedByHostsOnFacility/lists-f:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addDestinationsDefinedByHostsOnFacilityWithListOfServiceAndFacility
+      summary: Add services destinations for list of services. Destinations names are taken from
+                all facility's host hostnames.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddDestinationsDefinedByHostsOnFacility
+              description: "input to addDestinationsDefinedByHostsOnFacility"
+              type: object
+              required:
+                - services
+                - facility
+              properties:
+                services:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Service'
+                facility: { type: integer }
+
+  /urlinjsonout/servicesManager/addDestinationsDefinedByHostsOnFacility/f:
+    post:
+      tags:
+        - ServicesManager
+      operationId: addDestinationsDefinedByHostsOnFacilityWithFacility
+      summary: Add services destinations for one service. Destinations names are taken from
+                all facility's host hostnames.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/servicesManager/removeDestination:
     post:
@@ -9046,9 +9807,31 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getFacilitiesDestinations
+  /json/servicesManager/getFacilitiesDestinations:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getFacilitiesDestinations
+      summary: List all destinations for all facilities which are joined by resources to the VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfDestinationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getDestinationsCount
+  /json/servicesManager/getDestinationsCount:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getDestinationsCount
+      summary: Gets count of all destinations.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/servicesManager/getAssignedServices:
     get:
