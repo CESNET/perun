@@ -2306,7 +2306,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace);
+		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress);
 		Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, id, message, subject);
 
 	}

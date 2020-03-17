@@ -691,13 +691,13 @@ public interface UsersManagerImplApi {
 	 * Return only valid password reset requests for selected user and request ID.
 	 * Validity is determined by time since request creation and actual usage (only once).
 	 *
-	 * If no valid entry is found, then empty string is returned. Entry is invalidated once loaded.
+	 * If no valid entry is found, then NULL is returned. Entry is invalidated once loaded.
 	 *
 	 * @param user user to get requests for
 	 * @param request request ID to get
-	 * @return namespace where user wants to reset password in or empty string
+	 * @return Pair with "left" = namespace user wants to reset password, "right" = mail used for notification
 	 */
-	String loadPasswordResetRequest(User user, int request);
+	Pair<String,String> loadPasswordResetRequest(User user, int request);
 
 	/**
 	 * Removes all password reset requests associated with user.

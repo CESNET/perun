@@ -2234,9 +2234,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws InternalErrorException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		String requestId = Utils.cipherInput(m, true);
-		String namespace = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
+		Pair<String,String> resetRequest = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
 
-		if (namespace.isEmpty()) throw new InternalErrorException("Password reset request is not valid anymore or doesn't existed at all for User: "+user);
+		if (resetRequest == null) {
+			throw new InternalErrorException("Password reset request is not valid anymore or doesn't existed at all for User: "+user);
+		}
+
+		String namespace = resetRequest.getLeft();
+		String mail = resetRequest.getRight();
 
 		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
 		String login = null;
@@ -2258,6 +2263,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// was changed - send notification to all member's emails
 		Set<String> emails = new HashSet<>();
+
+		// add mail used for reset request
+		if (mail != null && !mail.isEmpty()) emails.add(mail);
 
 		try {
 			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");

@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.58
+alter table pwdreset add column mail nvarchar2(4000);
+update configurations set value='3.1.58' where property='DATABASE VERSION';
+
 3.1.57
 drop index IDX_AUTHZ_U;
 create unique index IDX_AUTHZ_U on authz(user_id, authorized_group_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id, sponsored_user_id);
