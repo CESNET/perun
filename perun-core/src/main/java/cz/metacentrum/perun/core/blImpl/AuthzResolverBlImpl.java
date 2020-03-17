@@ -139,6 +139,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
+	@Deprecated
 	public static boolean isAuthorized(PerunSession sess, String role, PerunBean complementaryObject) {
 		log.trace("Entering isAuthorized: sess='" + sess + "', role='" + role + "', complementaryObject='" + complementaryObject + "'");
 		Utils.notNull(sess, "sess");
@@ -931,6 +932,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
+	@Deprecated
 	public static boolean isAuthorized(PerunSession sess, String role) {
 		return isAuthorized(sess, role, null);
 	}

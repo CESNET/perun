@@ -83,6 +83,7 @@ public class AuthzResolver {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
+	@Deprecated
 	public static boolean isAuthorized(PerunSession sess, String role, PerunBean complementaryObject) {
 		if (!roleExists(role)) {
 			throw new InternalErrorException("Role: "+ role +" does not exists.");
@@ -347,6 +348,7 @@ public class AuthzResolver {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
+	@Deprecated
 	public static boolean isAuthorized(PerunSession sess, String role) {
 		if (!roleExists(role)) {
 			throw new InternalErrorException("Role: "+ role +" does not exists.");
