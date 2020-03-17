@@ -710,6 +710,25 @@ components:
         isBlockedOnFacility: { type: boolean }
         hasDestinations: { type: boolean }
 
+    MailText:
+      type: object
+      properties:
+        locale: { type: string }
+        subject: { type: string }
+        text: { type: string }
+
+    ApplicationMail:
+      type: object
+      properties:
+        id: { type: integer }
+        appType: { $ref: '#/components/schemas/AppType' }
+        formId: { type: integer }
+        mailType: { $ref: '#/components/schemas/MailType' }
+        send: { type: boolean }
+        message:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/MailText' }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -1290,6 +1309,22 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Task"
+
+    ApplicationMailResponse:
+      description: "ApplicationMail"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApplicationMail"
+
+    ListOfApplicationMailsResponse:
+      description: "List<ApplicationMail> Application mails"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ApplicationMail"
 
     TaskResultResponse:
       description: "Task result"
@@ -8761,19 +8796,228 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getApplicationMails
+  /json/registrarManager/getApplicationMails/v:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationMailsForVo
+      summary:  Returns all mail notifications related to specific app form.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationMailsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO setSendingEnabled
+  /json/registrarManager/getApplicationMails/g:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationMailsForGroup
+      summary:  Returns all mail notifications related to specific app form.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationMailsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyMails
+  /json/registrarManager/setSendingEnabled:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: setSendingEnabled
+      summary: Enable or disable sending for list of mail definitions.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetSendingEnabled
+              description: "input to setSendingEnabled"
+              type: object
+              required:
+                - mails
+                - enabled
+              properties:
+                mails:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ApplicationMail'
+                enabled: { type: boolean }
 
-  #TODO deleteApplicationMail
+  /urlinjsonout/registrarManager/copyMails/voToVo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyMailsFromVoToVo
+      summary: Copy all e-mail notifications from selected VO into another.
+      parameters:
+        - { name: fromVo, schema: { type: integer }, in: query, description: "source VO" }
+        - { name: toVo, schema: { type: integer }, in: query, description: "destination VO" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO updateApplicationMail
+  /urlinjsonout/registrarManager/copyMails/groupToVo:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyMailsFromGroupToVo
+      summary: Copy all e-mail notifications from selected Group into VO.
+      parameters:
+        - { name: fromGroup, schema: { type: integer }, in: query, description: "source group" }
+        - { name: toVo, schema: { type: integer }, in: query, description: "destination VO" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addApplicationMail
+  /urlinjsonout/registrarManager/copyMails/voToGroup:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyMailsFromVoToGroup
+      summary: Copy all e-mail notifications from selected VO into Group.
+      parameters:
+        - { name: fromVo, schema: { type: integer }, in: query, description: "source VO" }
+        - { name: toGroup, schema: { type: integer }, in: query, description: "destination group" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO copyMails
+  /urlinjsonout/registrarManager/copyMails/groupToGroup:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: copyMailsFromGroupToGroup
+      summary: Copy all e-mail notifications from selected Group into another.
+      parameters:
+        - { name: fromGroup, schema: { type: integer }, in: query, description: "source group" }
+        - { name: toGroup, schema: { type: integer }, in: query, description: "destination group" }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/deleteApplicationMail/v:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteApplicationMailForVo
+      summary: Deletes an e-mail notification from DB based on id property.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/registrarManager/deleteApplicationMail/g:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: deleteApplicationMailForGroup
+      summary: Deletes an e-mail notification from DB based on id property.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/updateApplicationMail:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateApplicationMail
+      summary: Updates an e-mail notification.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateApplicationMail
+              description: "input to updateApplicationMail"
+              type: object
+              required:
+                - mail
+              properties:
+                mail: { $ref: '#/components/schemas/ApplicationMail' }
+
+  /json/registrarManager/addApplicationMail/v:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: addApplicationMailForVo
+      summary: Add new mail notification.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddApplicationMailForVo
+              description: "input to addApplicationMailForVo"
+              type: object
+              required:
+                - vo
+                - mail
+              properties:
+                vo: { type: integer }
+                mail: { $ref: '#/components/schemas/ApplicationMail' }
+
+  /json/registrarManager/addApplicationMail/g:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: addApplicationMailForGroup
+      summary: Add new mail notification.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputAddApplicationMailForGroup
+              description: "input to addApplicationMailForGroup"
+              type: object
+              required:
+                - group
+                - mail
+              properties:
+                group: { type: integer }
+                mail: { $ref: '#/components/schemas/ApplicationMail' }
 
   /urlinjsonout/registrarManager/createApplicationForm/vo:
     post:
