@@ -214,10 +214,11 @@ public interface MembersManagerImplApi {
 	 * @param sess PerunSession
 	 * @param user User to reset password for
 	 * @param namespace namespace to reset password in
+	 * @param mail mail address used to send request to
 	 * @return ID of request to be used for validation
 	 * @throws InternalErrorException
 	 */
-	int storePasswordResetRequest(PerunSession sess, User user, String namespace) throws InternalErrorException;
+	int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail) throws InternalErrorException;
 
 	/**
 	 * Creates a new member in given Vo with flag "sponsored", and linked to its sponsoring user.

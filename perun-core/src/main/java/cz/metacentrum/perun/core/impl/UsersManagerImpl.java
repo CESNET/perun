@@ -1264,21 +1264,21 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public String loadPasswordResetRequest(User user, int requestId) {
+	public Pair<String,String> loadPasswordResetRequest(User user, int requestId) {
 
 		int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
 
-		String result = "";
+		Pair<String,String> result = new Pair<>();
 		try {
 			if (Compatibility.isPostgreSql()) {
 
-				result = jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
-					(resultSet, i) -> resultSet.getString("namespace"), user.getId(), requestId);
+				result = jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
+					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
 
 			} else {
 
-				result =  jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
-					(resultSet, i) -> resultSet.getString("namespace"), user.getId(), requestId);
+				result =  jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
+					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
 			}
 
 			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);
