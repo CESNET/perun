@@ -1726,6 +1726,14 @@ components:
       in: query
       required: true
 
+    sourceId:
+      name: source
+      description: external source id
+      schema:
+        type: integer
+      in: query
+      required: true
+
     extSourceName:
       name: extSourceName
       description: external source name, e.g. IdP entityId
@@ -1856,6 +1864,14 @@ components:
         type: integer
       required: true
       in: query
+
+    name:
+      name: name
+      description: name of entity
+      schema:
+        type: string
+      in: query
+      required: true
 
 #################################################
 #                                               #
@@ -5017,9 +5033,63 @@ paths:
   #                                               #
   #################################################
 
-  #TODO createExtSource
+  /json/extSourcesManager/createExtSource/es:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: createExtSourceFromExtSourceObject
+      summary: "Creates an external source. ExtSource object must contain: name, type. Other parameters are ignored."
+      responses:
+        '200':
+          $ref: '#/components/responses/ExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: ExtSourceObject
+              description: "input to createExtSourceFromExtSourceObject"
+              type: object
+              required:
+                - extSource
+              properties:
+                extSource: { $ref: '#/components/schemas/ExtSource' }
 
-  #TODO deleteExtSource
+  /urlinjsonout/extSourcesManager/createExtSource/n-t:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: createExtSourceWithNameType
+      summary: "Creates an external source."
+      parameters:
+        - $ref: '#/components/parameters/name'
+        - name: type
+          schema:
+            type: string
+          description: type of ExtSource
+          required: true
+          in: query
+      responses:
+        '200':
+          $ref: '#/components/responses/ExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/extSourcesManager/deleteExtSource:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: deleteExtSource
+      summary: "Delete an external source."
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/extSourcesManager/getExtSourceById:
     get:
@@ -5042,16 +5112,40 @@ paths:
       operationId: getExtSourceByName
       summary: Returns an external source by its name.
       parameters:
-        - { name: name, in: query, required: true, schema: { type: string}, description: "ExtSource Name", example: "https://login.cesnet.cz/idp/" }
+        - $ref: '#/components/parameters/name'
       responses:
         '200':
           $ref: '#/components/responses/ExtSourceResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getVoExtSources
+  /json/extSourcesManager/getVoExtSources:
+    get:
+      tags:
+        - ExtSourcesManager
+      operationId: getVoExtSources
+      summary: Returns the list of external sources associated with a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO getGroupExtSources
+  /json/extSourcesManager/getGroupExtSources:
+    get:
+      tags:
+        - ExtSourcesManager
+      operationId: getGroupExtSources
+      summary: Returns the list of external sources associated with a GROUP.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/extSourcesManager/getExtSources:
     get:
@@ -5065,11 +5159,77 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO addExtSource
+  /urlinjsonout/extSourcesManager/addExtSource/v-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: addExtSourceWithVoSource
+      summary: Associate an external source definition with a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO removeExtSource
+  /urlinjsonout/extSourcesManager/addExtSource/g-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: addExtSourceWithGroupSource
+      summary: Associate an external source definition with a GROUP.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-  #TODO loadExtSourcesDefinitions
+  /urlinjsonout/extSourcesManager/removeExtSource/v-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: removeExtSourceWithVoSource
+      summary: Remove an association of an external source from a VO.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/extSourcesManager/removeExtSource/g-s:
+    post:
+      tags:
+        - ExtSourcesManager
+      operationId: removeExtSourceWithGroupSource
+      summary: Remove an association of an external source from a GROUP.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/sourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/extSourcesManager/loadExtSourcesDefinitions:
+    get:
+      tags:
+        - ExtSourcesManager
+      operationId: loadExtSourcesDefinitions
+      summary: Loads ext source definitions from the configuration file and updates entries stored in the DB.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
@@ -5409,7 +5569,7 @@ paths:
       operationId: getFacilityByName
       summary: Returns Facility with specified name.
       parameters:
-        - { name: name, description: "name of Facility", schema: { type: string }, in: query, required: true}
+        - $ref: '#/components/parameters/name'
       responses:
         '200':
           $ref: '#/components/responses/FacilityResponse'
@@ -5632,7 +5792,7 @@ paths:
       operationId: createFacility
       summary: Creates a facility. Caller is automatically set as facility manager.
       parameters:
-        - { name: name, required: true, in: query, schema: { type: string, pattern: '[a-zA-Z0-9.-_ ]+' }, description: "name of a facility - can contain only a-Z0-9.-_ and space characters" }
+        - $ref: '#/components/parameters/name'
         - { name: description, required: false, in: query, schema: { type: string }, description: "optional description of a facility" }
       responses:
         '200':
@@ -6536,7 +6696,7 @@ paths:
         Throws GroupNotExistsException when the group doesn't exist.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: name, schema: { type: string }, in: query, required: true, description: 'full group name' }
+        - $ref: '#/components/parameters/name'
       responses:
         '200':
           $ref: '#/components/responses/GroupResponse'
@@ -6802,7 +6962,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: name, schema: { type: string }, in: query, required: true, description: 'resource name' }
+        - $ref: '#/components/parameters/name'
       responses:
         '200':
           $ref: '#/components/responses/ResourceResponse'
@@ -6832,7 +6992,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/facilityId'
-        - { name: name, schema: { type: string }, in: query, required: true, description: 'resource name' }
+        - $ref: '#/components/parameters/name'
         - { name: description, schema: { type: string }, in: query, required: false, description: 'optional resource description' }
       responses:
         '200':
@@ -9462,12 +9622,7 @@ paths:
       operationId: getServiceByName
       summary: Returns a service by its name.
       parameters:
-        - name: name
-          description: name of service
-          required: true
-          in: query
-          schema:
-            type: string
+        - $ref: '#/components/parameters/name'
       responses:
         '200':
           $ref: '#/components/responses/ServiceResponse'
