@@ -725,6 +725,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				throw new InternalErrorException(errorMessage, ex);
 			}
 		}
+		if(ues == null) throw new UserExtSourceNotExistsException("User ext source was not found. Searched value is any from \"" + additionalIdentifiers + "\" in " + additionalIdentifiersPerunAttributeName);
 		return ues;
 	}
 
