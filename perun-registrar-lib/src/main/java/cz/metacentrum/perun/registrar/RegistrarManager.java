@@ -464,11 +464,13 @@ public interface RegistrarManager {
 	 * Updated data stored for specific application and form item.
 	 *
 	 * @param session
-	 * @param app
+	 * @param applicationId ID of submitted application
+	 * @param data Form item data to update
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
+	 * @throws RegistrarException
 	 */
-	void updateFormItemData(PerunSession session, ApplicationFormItemData app) throws InternalErrorException, PrivilegeException;
+	void updateFormItemData(PerunSession session, int applicationId, ApplicationFormItemData data) throws InternalErrorException, PrivilegeException, RegistrarException;
 
 	/**
 	 * Getter for Mail manager used for notifications

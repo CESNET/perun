@@ -2765,20 +2765,58 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
-	public void updateFormItemData(PerunSession sess, ApplicationFormItemData app) throws InternalErrorException, PrivilegeException {
+	public void updateFormItemData(PerunSession sess, int appId, ApplicationFormItemData data) throws RegistrarException, InternalErrorException, PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "updateApplicationData");
 		}
 
+		Application app = getApplicationById(sess, appId);
+		if (AppState.APPROVED.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Form items of once approved or rejected applications can't be modified.");
+
+		ApplicationFormItemData existingData = getFormItemDataById(data.getId());
+		if (existingData == null) throw new RegistrarException("Form item data specified by ID: "+ data.getId() + " not found in the DB.");
+
+		List<Type> notAllowed = Arrays.asList(FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
+
+		if (notAllowed.contains(existingData.getFormItem().getType())) throw new RegistrarException("You are not allowed to modify "+existingData.getFormItem().getType()+" type of form items.");
+
 		try {
-			int result = jdbc.update("update application_data set value=? where id=?", app.getValue(), app.getId());
-			log.info("{} manually updated form item data {}", sess.getPerunPrincipal(), app);
+			int result = jdbc.update("update application_data set value=? where id=?", data.getValue(), data.getId());
+			log.info("{} manually updated form item data {}", sess.getPerunPrincipal(), data);
 			if (result != 1) {
 				throw new InternalErrorException("Unable to update form item data");
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+
+	}
+
+	/**
+	 * Retrieve form item data by its ID or NULL if not exists.
+	 *
+	 * @param formItemDataId ID of form item data entry
+	 * @return Form item with data submitted by the User.
+	 * @throws InternalErrorException When implementation fails
+	 */
+	private ApplicationFormItemData getFormItemDataById(int formItemDataId) throws InternalErrorException {
+
+		try {
+			return jdbc.queryForObject("select id,item_id,shortname,value,assurance_level from application_data where id=?",
+					(resultSet, rowNum) -> {
+						ApplicationFormItemData data = new ApplicationFormItemData();
+						data.setId(resultSet.getInt("id"));
+						data.setFormItem(getFormItemById(resultSet.getInt("item_id")));
+						data.setShortname(resultSet.getString("shortname"));
+						data.setValue(resultSet.getString("value"));
+						data.setAssuranceLevel(resultSet.getString("assurance_level"));
+						return data;
+					}, formItemDataId);
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException("Unable to get form item data by its ID:" + formItemDataId, ex);
 		}
 
 	}

@@ -59,6 +59,8 @@ public class GetApplicationDataById implements JsonCallback{
 	// whether to show hidden information
 	private boolean showAdminItems = true;
 
+	private boolean editable = false;
+
 	/**
 	 * Creates a new method instance
 	 *
@@ -78,6 +80,10 @@ public class GetApplicationDataById implements JsonCallback{
 	public GetApplicationDataById(int id, JsonCallbackEvents events) {
 		this(id);
 		this.events = events;
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 
 	/**
@@ -201,7 +207,7 @@ public class GetApplicationDataById implements JsonCallback{
 						ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong>");
 					}
 
-					if (PerunWebSession.getInstance().isPerunAdmin()) {
+					if (PerunWebSession.getInstance().isPerunAdmin() && gen.isUpdatable() && editable) {
 						final int finalI = i;
 						CustomButton editButton = new CustomButton("", "Editor form item data.", SmallIcons.INSTANCE.applicationFormEditIcon(), new ClickHandler() {
 							@Override
@@ -213,7 +219,7 @@ public class GetApplicationDataById implements JsonCallback{
 								}
 								content.setSize("350px", "100px");
 
-								Confirm confirm = new Confirm("Edit item: " + item.getShortname(), content, new ClickHandler() {
+								Confirm confirm = new Confirm("Edit item: " + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString(), content, new ClickHandler() {
 									@Override
 									public void onClick(ClickEvent event) {
 										// save old value and push new value
@@ -231,7 +237,7 @@ public class GetApplicationDataById implements JsonCallback{
 												item.setValue(previousValue);
 											}
 										});
-										update.updateFormItemData(item);
+										update.updateFormItemData(appId, item);
 									}
 								}, "Update form item",true);
 								confirm.setNonScrollable(true);

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.json.registrarManager;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -25,6 +26,8 @@ public class UpdateFormItemData {
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
+	private int appId = 0;
+
 	/**
 	 * Creates a new request
 	 *
@@ -46,7 +49,9 @@ public class UpdateFormItemData {
 	 *
 	 * @param data
 	 */
-	public void updateFormItemData(ApplicationFormItemData data) {
+	public void updateFormItemData(int appId, ApplicationFormItemData data) {
+
+		this.appId = appId;
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
@@ -103,6 +108,7 @@ public class UpdateFormItemData {
 		newItem2.put("assuranceLevel", obj2.get("assuranceLevel"));
 		newItem2.put("formItem", newItem);
 
+		query.put("appId", new JSONNumber(appId));
 		query.put("data", newItem2);
 
 		return query;

@@ -1249,9 +1249,12 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Update data of specific application form item, which was originally submitted by user.
-	 * Only PerunAdmin can use this.
+	 * Update data of specific application form item, which was originally submitted by the user.
+	 * Only PerunAdmin can use this. Only applications in NEW or VERIFIED state can have form items updated.
+	 * Form items of types: FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT,
+	 * SUBMIT_BUTTON and AUTO_SUBMIT_BUTTON are not updatable by this method.
 	 *
+	 * @param appId int ID of Application this data belongs to.
 	 * @param data ApplicationFormItemData Form item data to be updated by its ID.
 	 */
 	updateFormItemData {
@@ -1259,7 +1262,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			ac.getRegistrarManager().updateFormItemData(ac.getSession(), parms.read("data", ApplicationFormItemData.class));
+			ac.getRegistrarManager().updateFormItemData(ac.getSession(), parms.readInt("appId"), parms.read("data", ApplicationFormItemData.class));
 			return null;
 		}
 

@@ -404,6 +404,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(new HTML("<strong>STATE: </strong>"+Application.getTranslatedState(app.getState())));
 
 		GetApplicationDataById data = new GetApplicationDataById(appId);
+		data.setEditable(app.getState().equals("VERIFIED") || app.getState().equals("NEW"));
 		data.retrieveData();
 		ScrollPanel sp = new ScrollPanel(data.getContents());
 		sp.setSize("100%", "100%");
