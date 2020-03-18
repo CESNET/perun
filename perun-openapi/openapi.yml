@@ -209,13 +209,13 @@ components:
         message: { type: string }
 
     AuditMessage:
-      allOf:
-        - $ref: '#/components/schemas/AuditEvent'
-        - properties:
-            id: { type: integer }
-            actor: { type: string }
-            createdAt: { type: string }
-            createdByUid: { type: integer }
+      type: object
+      properties:
+        event: { $ref: '#/components/schemas/AuditEvent'}
+        id: { type: integer }
+        actor: { type: string }
+        createdAt: { type: string }
+        createdByUid: { type: integer }
 
     ActionType:
       type: string
