@@ -729,6 +729,16 @@ components:
           type: object
           additionalProperties: { $ref: '#/components/schemas/MailText' }
 
+    #Map<String, Map<String, List<Integer>>>
+    AuthzRoles:
+      type: object
+      additionalProperties:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: integer
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -1376,6 +1386,13 @@ components:
             items:
               $ref: "#/components/schemas/ServiceState"
 
+    AuthzRolesResponse:
+      description: AuthzRoles of user
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AuthzRoles"
+
   #####################################################
   #                                                   #
   # PARAMETERS - definitions of often used parameters #
@@ -1486,6 +1503,14 @@ components:
 
     userId:
       name: user
+      description: "id of User"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    userIdLiterally:
+      name: userId
       description: "id of User"
       schema:
         type: integer
@@ -2238,6 +2263,20 @@ paths:
                   items:
                     type: integer
                 complementaryObject: {$ref: "#/components/schemas/PerunBean"}
+
+  /json/authzResolver/getUserRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getUserRoles
+      summary: Returns all roles as an AuthzRoles object for a given user.
+      parameters:
+        - $ref: '#/components/parameters/userIdLiterally'
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
