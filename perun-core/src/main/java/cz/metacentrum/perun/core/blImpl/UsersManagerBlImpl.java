@@ -706,10 +706,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws InternalErrorException, UserExtSourceNotExistsException {
+	public UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws UserExtSourceNotExistsException {
 		String additionalIdentifiers = principal.getAdditionalInformations().get(additionalIdentifiersAttributeName);
 		if (additionalIdentifiers == null) {
-			throw new UserExtSourceNotExistsException("Mandatory attribute is not defined: ".concat(additionalIdentifiersAttributeName));
+			throw new InternalErrorException("Entry " + additionalIdentifiersAttributeName + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
 		}
 		UserExtSource ues = null;
 		for(String identifier : additionalIdentifiers.split(multivalueAttributeSeparatorRegExp)) {
@@ -719,12 +719,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				break;
 			} catch (UserExtSourceNotExistsException ex) {
 				//try to find user ext source using different identifier in the next iteration of for cycle
-			} catch (InternalErrorException | AttributeNotExistsException ex) {
+			} catch (AttributeNotExistsException ex) {
 				String errorMessage = "Mandatory attribute is not defined: ".concat(additionalIdentifiersPerunAttributeName);
 				log.error(errorMessage);
 				throw new InternalErrorException(errorMessage, ex);
 			}
 		}
+		if (ues == null) throw new UserExtSourceNotExistsException("User ext source was not found. Searched value is any from \"" + additionalIdentifiers + "\" in " + additionalIdentifiersPerunAttributeName);
 		return ues;
 	}
 
