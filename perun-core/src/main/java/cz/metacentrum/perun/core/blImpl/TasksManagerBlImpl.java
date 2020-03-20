@@ -18,17 +18,10 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.bl.TasksManagerBl;
-import cz.metacentrum.perun.core.impl.FacilitiesManagerImpl;
-import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
-import cz.metacentrum.perun.core.impl.TasksManagerImpl;
 import cz.metacentrum.perun.core.implApi.TasksManagerImplApi;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,7 +42,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	@Autowired
 	protected TasksManagerImplApi tasksManagerImpl;
 
-	public TasksManagerBlImpl(TasksManagerImpl tasksManagerImpl) {
+	public TasksManagerBlImpl(TasksManagerImplApi tasksManagerImpl) {
 		this.tasksManagerImpl = tasksManagerImpl;
 	}
 
