@@ -97,25 +97,25 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_VO_TO_EMAIL = AttributesManager.NS_VO_ATTR_DEF;
 	static final String URN_VO_TO_EMAIL = NAMESPACE_VO_TO_EMAIL + ":" +  FRIENDLY_NAME_VO_TO_EMAIL;
 
-	private static final String DISPLAY_NAME_GROUP_FROM_EMAIL = "\"From\" email address";
+	private static final String DISPLAY_NAME_GROUP_TO_EMAIL = "\"To\" email addresses";
 	private static final String FRIENDLY_NAME_GROUP_TO_EMAIL = "toEmail";
 	private static final String NAMESPACE_GROUP_TO_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_TO_EMAIL = NAMESPACE_GROUP_TO_EMAIL + ":" +  FRIENDLY_NAME_GROUP_TO_EMAIL;
 
-	private static final String DISPLAY_NAME_GROUP_TO_EMAIL = "\"To\" email addresses";
+	private static final String DISPLAY_NAME_GROUP_FROM_EMAIL = "\"From\" email address";
 	private static final String FRIENDLY_NAME_GROUP_FROM_EMAIL = "fromEmail";
 	private static final String NAMESPACE_GROUP_FROM_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_FROM_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_EMAIL;
 
 	private static final String DISPLAY_NAME_GROUP_FROM_NAME_EMAIL = "\"From\" name";
-	private static final String FRIENDLY_NAME_GROUP_FROM__NAME_EMAIL = "fromNameEmail";
+	private static final String FRIENDLY_NAME_GROUP_FROM_NAME_EMAIL = "fromNameEmail";
 	private static final String NAMESPACE_GROUP_FROM_NAME_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
-	static final String URN_GROUP_FROM_NAME_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_EMAIL;
+	static final String URN_GROUP_FROM_NAME_EMAIL = NAMESPACE_GROUP_FROM_EMAIL + ":" +  FRIENDLY_NAME_GROUP_FROM_NAME_EMAIL;
 
 	private static final String DISPLAY_NAME_VO_FROM_NAME_EMAIL = "\"From\" name";
-	private static final String FRIENDLY_NAME_VO_FROM__NAME_EMAIL = "fromNameEmail";
+	private static final String FRIENDLY_NAME_VO_FROM_NAME_EMAIL = "fromNameEmail";
 	private static final String NAMESPACE_VO_FROM_NAME_EMAIL = AttributesManager.NS_VO_ATTR_DEF;
-	static final String URN_VO_FROM_NAME_EMAIL = NAMESPACE_VO_FROM_EMAIL + ":" +  FRIENDLY_NAME_VO_FROM_EMAIL;
+	static final String URN_VO_FROM_NAME_EMAIL = NAMESPACE_VO_FROM_EMAIL + ":" +  FRIENDLY_NAME_VO_FROM_NAME_EMAIL;
 
 	private static final String DISPLAY_NAME_VO_LANGUAGE_EMAIL = "Notification default language";
 	private static final String FRIENDLY_NAME_VO_LANGUAGE_EMAIL = "notificationsDefLang";
@@ -308,7 +308,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_GROUP_FROM_NAME_EMAIL);
-			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_FROM__NAME_EMAIL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_FROM_NAME_EMAIL);
 			attrDef.setNamespace(NAMESPACE_GROUP_FROM_NAME_EMAIL);
 			attrDef.setDescription("Name of the sender used as \"from\" in mail notifications.");
 			attrDef.setType(String.class.getName());
@@ -325,7 +325,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_VO_FROM_NAME_EMAIL);
-			attrDef.setFriendlyName(FRIENDLY_NAME_VO_FROM__NAME_EMAIL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_FROM_NAME_EMAIL);
 			attrDef.setNamespace(NAMESPACE_VO_FROM_NAME_EMAIL);
 			attrDef.setDescription("Name of the sender used as \"from\" in mail notifications.");
 			attrDef.setType(String.class.getName());

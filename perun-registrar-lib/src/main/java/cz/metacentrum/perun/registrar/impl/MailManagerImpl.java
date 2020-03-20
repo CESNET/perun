@@ -438,7 +438,7 @@ public class MailManagerImpl implements MailManager {
 		if (MailType.USER_INVITE.equals(mailType)) {
 			throw new RegistrarException("USER_INVITE notification can't be sent this way. Use sendInvitation() instead.");
 		}
-		
+
 		// authz
 		boolean pass = false;
 		// managers can
@@ -478,7 +478,7 @@ public class MailManagerImpl implements MailManager {
 			if (MailType.APP_ERROR_VO_ADMIN.equals(mailType)) {
 				throw new RegistrarException("APP_ERROR_VO_ADMIN notification can't be sent this way, since it's bound to each approval process. Try to approve application once again to receive this message.");
 			}
-			
+
 			switch (mailType) {
 				case APP_CREATED_USER:
 				case APP_CREATED_VO_ADMIN: {
@@ -522,7 +522,7 @@ public class MailManagerImpl implements MailManager {
 		if (email == null || email.isEmpty()) {
 			throw new RegistrarException("You must provide non-empty email of person you are inviting.");
 		}
-		
+
 		//authz
 		if (group == null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
@@ -550,7 +550,7 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException {
 		if (user == null) throw new RegistrarException("Missing user to send notification to.");
-		
+
 		//authz
 		if (group == null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
@@ -789,7 +789,8 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Sets proper value "FROM" to mail message based on VO or GROUP attribute "fromEmail"
+	 * Sets proper values "FROM" and "REPLY-TO" to mail message.
+	 * FROM is constant per perun instance, REPLY-TO can be modified by "fromEmail" attribute of VO or GROUP.
 	 *
 	 * If group attribute not set and is group application, get vo attribute as backup.
 	 * If any attribute not set, BACKUP_FROM address is used.
@@ -800,6 +801,8 @@ public class MailManagerImpl implements MailManager {
 	private void setFromMailAddress(MimeMessage message, Application app) {
 		String fromMail = getPropertyFromConfiguration("backupFrom");
 		String fromName = getPropertyFromConfiguration("backupFromName");
+		String replyToMail = fromMail;
+		String replyToName = fromName;
 
 		// get proper value from attribute
 		try {
@@ -807,19 +810,27 @@ public class MailManagerImpl implements MailManager {
 			Attribute attrSenderEmail = getMailFromVoAndGroupAttrs(app, URN_VO_FROM_EMAIL, URN_GROUP_FROM_EMAIL);
 
 			if (attrSenderName != null && attrSenderName.getValue() != null) {
-				String possibleFrom = BeansUtils.attributeValueToString(attrSenderName);
-				if (possibleFrom != null && !possibleFrom.trim().isEmpty()) {
-					fromName = possibleFrom;
+				String possibleReplyTo = BeansUtils.attributeValueToString(attrSenderName);
+				if (possibleReplyTo != null && !possibleReplyTo.trim().isEmpty()) {
+					replyToName = possibleReplyTo;
 				}
 			}
 
 			if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
-				String possibleFrom = BeansUtils.attributeValueToString(attrSenderEmail);
-				if (possibleFrom != null && !possibleFrom.trim().isEmpty()) {
-					fromMail = possibleFrom;
+				String possibleReplyToMail = BeansUtils.attributeValueToString(attrSenderEmail);
+				if (possibleReplyToMail != null && !possibleReplyToMail.trim().isEmpty()) {
+					if (possibleReplyToMail.contains("\"")) {
+						// "name whatever" <mail@server.com>
+						String[] parts = possibleReplyToMail.split("\\s<");
+						if (parts.length != 2) throw new InternalErrorException("Failed to parse complex mail address for reply-to: "+possibleReplyToMail);
+						replyToName = parts[0].replace("\"", "");
+						replyToMail = parts[1].replace(">", "");
+					} else {
+						replyToMail = possibleReplyToMail;
+					}
 				}
 			}
-			setFromAndReplyTo(message, fromName, fromMail);
+			setFromAndReplyTo(message, fromName, fromMail, replyToName, replyToMail);
 		} catch (Exception ex) {
 			// we don't care about exceptions here - we have backup TO/FROM address
 			if (app.getGroup() == null) {
@@ -830,13 +841,16 @@ public class MailManagerImpl implements MailManager {
 		}
 	}
 
-	private void setFromAndReplyTo(MimeMessage message, String fromName, String fromMail) throws UnsupportedEncodingException, MessagingException {
+	private void setFromAndReplyTo(MimeMessage message, String fromName, String fromMail, String replyToName, String replayToMail) throws UnsupportedEncodingException, MessagingException {
 		if (fromName != null) {
 			message.setFrom(new InternetAddress(fromMail, fromName));
-			message.setReplyTo(new InternetAddress[]{new InternetAddress(fromMail, fromName)});
 		} else {
 			message.setFrom(new InternetAddress(fromMail));
-			message.setReplyTo(new InternetAddress[]{new InternetAddress(fromMail)});
+		}
+		if (replyToName != null) {
+			message.setReplyTo(new InternetAddress[]{new InternetAddress(replayToMail, replyToName)});
+		} else {
+			message.setReplyTo(new InternetAddress[]{new InternetAddress(replayToMail)});
 		}
 	}
 
