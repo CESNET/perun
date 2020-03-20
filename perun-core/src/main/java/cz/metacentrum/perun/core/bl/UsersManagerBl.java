@@ -512,15 +512,14 @@ public interface UsersManagerBl {
 
 	/**
 	 * Iteratively searches through additional identifiers trying to find userExtSource with the same identifier.
-	 * Returns first found userExtSource or null when no matching userExtSource found.
+	 * Returns first found userExtSource or throw an exception when no matching userExtSource is found.
 	 *
 	 * @param sess PerunSession to retrieve UserExtSource
 	 * @param principal PerunPrincipal which contains additionalIdentifiers
 	 *
-	 * @return UserExtSource found using additionalIdentifiers or null
+	 * @return UserExtSource found using additionalIdentifiers
 	 *
-	 * @throws InternalErrorException When attribute is not defined in Perun
-	 * @throws UserExtSourceNotExistsException When the multiple identifiers received are actually empty
+	 * @throws UserExtSourceNotExistsException When no matching userExtSource is found
 	 */
 	UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws InternalErrorException, UserExtSourceNotExistsException;
 
