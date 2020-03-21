@@ -62,6 +62,8 @@
 		<property name="autocreatedNamespaces" value="#{'${perun.autocreatedNamespaces}'.split('\s*,\s*')}" />
 		<property name="rtSendToMail" value="${perun.rt.sendToMail}" />
 		<property name="queryTimeout" value="${perun.queryTimeout}" />
+		<property name="extSourceNameFenix" value="${perun.extSourceNameFenix}" />
+		<property name="domainNameFenix" value="${perun.domainNameFenix}" />
 	</bean>
 
 
@@ -123,6 +125,8 @@
 				<prop key="perun.allowedCorsDomains"></prop>
 				<prop key="perun.cacheEnabled">false</prop>
 				<prop key="perun.queryTimeout">-1</prop>
+				<prop key="perun.extSourceNameFenix"/>
+				<prop key="perun.domainNameFenix"/>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->

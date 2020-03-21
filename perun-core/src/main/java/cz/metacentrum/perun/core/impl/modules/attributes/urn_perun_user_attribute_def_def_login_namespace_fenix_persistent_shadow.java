@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -21,8 +22,8 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow.class);
-	private final static String extSourceNameFenix = "https://proxy-fenix.pilot.eduteams.org/proxy";
-	private final static String domainNameFenix = "@fenix.pilot.eduteams.org";
+	private final static String extSourceNameFenix = BeansUtils.getCoreConfig().getExtSourceNameFenix();
+	private final static String domainNameFenix = BeansUtils.getCoreConfig().getDomainNameFenix();
 	private final static String attrNameFenix = "login-namespace:fenix-persistent-shadow";
 
 	/**
@@ -38,10 +39,15 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
+		if (domainNameFenix == null || domainNameFenix.isEmpty()) {
+			throw new InternalErrorException("The value of variable domainNameFenix is null or empty due to the wrong mapping configuration.");
+		}
+		String domain = "@" + domainNameFenix;
+
 		Attribute filledAttribute = new Attribute(attribute);
 
 		if (attribute.getFriendlyName().equals(attrNameFenix)) {
-			filledAttribute.setValue(sha1HashCount(user, domainNameFenix).toString() + domainNameFenix);
+			filledAttribute.setValue(sha1HashCount(user, domain).toString() + domain);
 			return filledAttribute;
 		} else {
 			// without value
@@ -66,6 +72,10 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 			String userNamespace = attribute.getFriendlyNameParameter();
 
 			if(userNamespace.equals("fenix-persistent-shadow") && attribute.getValue() != null){
+				if (extSourceNameFenix == null || extSourceNameFenix.isEmpty()) {
+					throw new InternalErrorException("The value of variable extSourceNameFenix is null or empty due to the wrong mapping configuration.");
+				}
+
 				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameFenix);
 				UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
 
@@ -85,7 +95,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		attr.setDisplayName("FENIX login");
 		attr.setType(String.class.getName());
 		attr.setDescription("Login for FENIX. Do not use it directly! " +
-				"Use \"user:virt:login-namespace:fenix-persistent\" attribute instead.");
+			"Use \"user:virt:login-namespace:fenix-persistent\" attribute instead.");
 		return attr;
 	}
 
