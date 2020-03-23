@@ -17,7 +17,19 @@ public interface LdapcManager {
 	 */
 	void stopProcessingEvents();
 
+	/**
+	 * Synchronize Perun into LDAP using consistent data (SERIALIZABLE transaction)
+	 *
+	 * @throws InternalErrorException When implementation fails
+	 */
 	void synchronize() throws InternalErrorException;
+
+	/**
+	 * Synchronize Perun in LDAP (replica) using possibly inconsistent data (REPEATABLE_READ transaction).
+	 *
+	 * @throws InternalErrorException When implementation fails
+	 */
+	void synchronizeReplica() throws InternalErrorException;
 
 	public Perun getPerunBl();
 

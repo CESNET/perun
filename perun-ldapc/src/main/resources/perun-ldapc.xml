@@ -27,11 +27,19 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<aop:config>
 		<aop:advisor advice-ref="txCommonSerialized"
 		             pointcut="execution(* cz.metacentrum.perun.ldapc.service.LdapcManager.synchronize(..))"/>
+		<aop:advisor advice-ref="txCommonRepeatable"
+		             pointcut="execution(* cz.metacentrum.perun.ldapc.service.LdapcManager.synchronizeReplica(..))"/>
 	</aop:config>
 
 	<tx:advice id="txCommonSerialized" transaction-manager="perunTransactionManager">
 		<tx:attributes>
 			<tx:method name="*" rollback-for="Exception" isolation="SERIALIZABLE"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txCommonRepeatable" transaction-manager="perunTransactionManager">
+		<tx:attributes>
+			<tx:method name="*" rollback-for="Exception" isolation="REPEATABLE_READ"/>
 		</tx:attributes>
 	</tx:advice>
 
@@ -1082,6 +1090,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<constructor-arg name="ldapBase" index="1" value="${ldap.base}"/>
 		<constructor-arg name="ldapLoginNamespace" index="2" value="${ldap.loginNamespace}"/>
 		<constructor-arg name="ldapStateFile" index="3" value="${ldap.stateFile}"/>
+		<constructor-arg name="isReplica" index="4" value="${ldap.isReplica}"/>
 	</bean>
 
 	<!-- These beans are for define ldapTemplate -->

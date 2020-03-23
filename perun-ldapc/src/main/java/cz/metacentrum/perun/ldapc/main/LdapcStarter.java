@@ -73,7 +73,13 @@ public class LdapcStarter {
 
 			// Synchronize before starting the audit consumer
 			if (doSync)
-				ldapcStarter.ldapcManager.synchronize();
+				if (ldapcStarter.ldapProperties.isReplica()) {
+					// use REPEATABLE_READ sync
+					ldapcStarter.ldapcManager.synchronizeReplica();
+				} else {
+					// use SERIALIZED
+					ldapcStarter.ldapcManager.synchronize();
+				}
 			else {
 
 				//Set lastProcessedIdToSet if bigger than 0

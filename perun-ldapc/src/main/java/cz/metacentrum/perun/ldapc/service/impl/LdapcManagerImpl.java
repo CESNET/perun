@@ -74,6 +74,11 @@ public class LdapcManagerImpl implements LdapcManager {
 		}
 	}
 
+	public void synchronizeReplica() throws InternalErrorException {
+		// let original method to do the work under our transaction settings
+		synchronize();
+	}
+
 	public Perun getPerunBl() {
 		return perunBl;
 	}
