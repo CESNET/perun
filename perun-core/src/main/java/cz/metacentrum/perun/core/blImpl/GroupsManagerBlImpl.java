@@ -4161,7 +4161,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// check indirect relationships (for example "A" with "A:B:C" are in indirect relationship using "A:B")
 		// looking for situation where result group is predecessor of operand group (by name) but not a parent of it (which is ok)
-		if(!parentFlag && operandGroup.getName().startsWith(resultGroup.getName())) {
+		if(!parentFlag && operandGroup.getName().startsWith(resultGroup.getName() + ":")) {
 			throw new GroupRelationNotAllowed("There is an indirect relationship between result group " + resultGroup +
 					" and operand group " + operandGroup);
 		}
