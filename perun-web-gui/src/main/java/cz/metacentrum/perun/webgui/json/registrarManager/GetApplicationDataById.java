@@ -1,12 +1,15 @@
 package cz.metacentrum.perun.webgui.json.registrarManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.applicationresources.RegistrarFormItemGenerator;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -15,6 +18,8 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItemData;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +59,8 @@ public class GetApplicationDataById implements JsonCallback{
 	// whether to show hidden information
 	private boolean showAdminItems = true;
 
+	private boolean editable = false;
+
 	/**
 	 * Creates a new method instance
 	 *
@@ -73,6 +80,10 @@ public class GetApplicationDataById implements JsonCallback{
 	public GetApplicationDataById(int id, JsonCallbackEvents events) {
 		this(id);
 		this.events = events;
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 
 	/**
@@ -148,7 +159,9 @@ public class GetApplicationDataById implements JsonCallback{
 
 		FlexTable ft = new FlexTable();
 		ft.setWidth("100%");
-		ft.setCellPadding(10);
+		ft.setCellPadding(5);
+		ft.setCellSpacing(0);
+		ft.setStyleName("stripped");
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 		String locale = "en";
 		if (!Utils.getNativeLanguage().isEmpty() &&
@@ -194,16 +207,57 @@ public class GetApplicationDataById implements JsonCallback{
 						ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong>");
 					}
 
+					if (PerunWebSession.getInstance().isPerunAdmin() && gen.isUpdatable() && editable) {
+						final int finalI = i;
+						CustomButton editButton = new CustomButton("", "Editor form item data.", SmallIcons.INSTANCE.applicationFormEditIcon(), new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+
+								TextArea content = new TextArea();
+								if (item.getValue() != null) {
+									content.setText(item.getValue());
+								}
+								content.setSize("350px", "100px");
+
+								Confirm confirm = new Confirm("Edit item: " + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString(), content, new ClickHandler() {
+									@Override
+									public void onClick(ClickEvent event) {
+										// save old value and push new value
+										String previousValue = item.getValue();
+										item.setValue(content.getText());
+										UpdateFormItemData update = new UpdateFormItemData(new JsonCallbackEvents(){
+											@Override
+											public void onFinished(JavaScriptObject jso) {
+												// update local UI
+												ft.setWidget(finalI, 2, new HTML((item.getValue() != null) ? (SafeHtmlUtils.fromString(item.getValue()).asString()) : null));
+											}
+											@Override
+											public void onError(PerunError error) {
+												// put back old value
+												item.setValue(previousValue);
+											}
+										});
+										update.updateFormItemData(appId, item);
+									}
+								}, "Update form item",true);
+								confirm.setNonScrollable(true);
+								confirm.show();
+
+							}
+						});
+						ft.setWidget(i, 1, editButton);
+					}
+
 					// 1 = value
-					ft.setWidget(i, 1, new HTML((item.getValue() != null) ? (SafeHtmlUtils.fromString(item.getValue()).asString()) : null));
+					ft.setWidget(i, 2, new HTML((item.getValue() != null) ? (SafeHtmlUtils.fromString(item.getValue()).asString()) : null));
 
 					// format
 					fcf.setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_TOP);
-					fcf.setVerticalAlignment(i, 1, HasVerticalAlignment.ALIGN_TOP);
+					fcf.setVerticalAlignment(i, 2, HasVerticalAlignment.ALIGN_TOP);
 					fcf.setHorizontalAlignment(i, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-					fcf.setHorizontalAlignment(i, 1, HasHorizontalAlignment.ALIGN_LEFT);
+					fcf.setHorizontalAlignment(i, 2, HasHorizontalAlignment.ALIGN_LEFT);
 					fcf.setWidth(i, 0, "25%");
-					fcf.setWidth(i, 1, "75%");
+					fcf.setWidth(i, 2, "75%");
 
 				}
 

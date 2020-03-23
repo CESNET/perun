@@ -481,6 +481,17 @@ public class RegistrarFormItemGenerator {
 
 	}
 
+	public boolean isUpdatable() {
+		return !"FROM_FEDERATION_HIDDEN".equalsIgnoreCase(item.getType()) &&
+				!"FROM_FEDERATION_SHOW".equalsIgnoreCase(item.getType()) &&
+				!"USERNAME".equalsIgnoreCase(item.getType()) &&
+				!"PASSWORD".equalsIgnoreCase(item.getType()) &&
+				!"HEADING".equalsIgnoreCase(item.getType()) &&
+				!"HTML_COMMENT".equalsIgnoreCase(item.getType()) &&
+				!"SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
+				!"AUTO_SUBMIT_BUTTON".equalsIgnoreCase(item.getType());
+	}
+
 	/**
 	 * Generates the readonly textbox
 	 * @return
