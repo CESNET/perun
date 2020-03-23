@@ -404,6 +404,60 @@ components:
         automaticApprovalExtension: { type: boolean }
         moduleClassName: {type: string }
 
+    Type:
+      type: string
+      description: 'type of application form items'
+      enum:
+        - HTML_COMMENT
+        - SUBMIT_BUTTON
+        - AUTO_SUBMIT_BUTTON
+        - FROM_FEDERATION_SHOW
+        - FROM_FEDERATION_HIDDEN
+        - PASSWORD
+        - VALIDATED_EMAIL
+        - TEXTFIELD
+        - TEXTAREA
+        - CHECKBOX
+        - RADIO
+        - SELECTIONBOX
+        - COMBOBOX
+        - USERNAME
+        - HEADING
+        - TIMEZONE
+
+    ApplicationFormItem:
+      type: object
+      properties:
+        id: { type: integer }
+        shortname: { type: string }
+        required: { type: boolean }
+        type: { $ref: '#/components/schemas/Type' }
+        federationAttribute: { type: string }
+        perunSourceAttribute: { type: string }
+        perunDestinationAttribute: { type: string }
+        regex: { type: string }
+        applicationTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppType'
+        ordnum: { type: integer }
+
+    ApplicationFormItemData:
+      type: object
+      properties:
+        id: { type: integer }
+        formItem: { $ref: '#/components/schemas/ApplicationFormItem' }
+        shortname: { type: string }
+        value: { type: string }
+        assuranceLevel: { type: string }
+        prefilledValue: { type: string }
+
+    AppType:
+      type: string
+      enum:
+        - INITIAL
+        - EXTENSION
+
     PerunPrincipal:
       type: object
       required:
@@ -1245,7 +1299,7 @@ components:
       schema:
         type: integer
       in: query
-      required: true  
+      required: true
 
     key:
       name: key
@@ -3328,7 +3382,7 @@ paths:
         - AttributesManager
       operationId: getAttributesDefinitionWithRights
       summary: Returns all AttributeDefinitions for every entity and possible
-        combination of entities with rights. Only attribute definition of 
+        combination of entities with rights. Only attribute definition of
         attributes user can read (or write) you will get. Combination of entities
         is based on provided parameters, which are optional (at least one must be present).
       parameters:
@@ -7013,6 +7067,32 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ApplicationFormResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/updateFormItemData:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateFormItemData
+      summary: Update application form item data value, which was originally submitted by the User.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputFormItemData
+              description: "input to updateFormItemData"
+              type: object
+              required:
+                - appId
+                - data
+              properties:
+                appId: { type: integer, description: "application id" }
+                data: { $ref: '#/components/schemas/ApplicationFormItemData' }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
