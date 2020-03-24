@@ -1585,4 +1585,16 @@ public class Utils {
 
 		return new Pair<>(amount, field);
 	}
+
+	/**
+	 * We need to escape some special characters for LDAP filtering.
+	 * We need to escape these characters: '\\', '*', '(', ')', '\000'
+	 *
+	 * @param searchString search string which need to be escaped properly
+	 * @return properly escaped search string
+	 */
+	public static String escapeStringForLDAP(String searchString) {
+		if(searchString == null) return "";
+		return searchString.replace("\\", "\\5C").replace("*", "\\2A").replace("(", "\\28").replace(")", "\\29").replace("\000", "\\00");
+	}
 }
