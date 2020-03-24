@@ -70,7 +70,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		if (query == null) {
 			throw new InternalErrorException("query attributes is required");
 		}
-		query = query.replaceAll("\\?", searchString);
+		query = query.replace("?", Utils.escapeStringForLDAP(searchString));
 
 		String base = getAttributes().get("base");
 		if (base == null) {
@@ -87,7 +87,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		if (query == null) {
 			throw new InternalErrorException("loginQuery attributes is required");
 		}
-		query = query.replaceAll("\\?", login);
+		query = query.replace("?", Utils.escapeStringForLDAP(login));
 
 		String base = getAttributes().get("base");
 		if (base == null) {
