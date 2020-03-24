@@ -9,12 +9,14 @@ public class LdapProperties {
 	private String ldapBase;
 	private String ldapLoginNamespace;
 	private String ldapStateFile;
+	private boolean isReplica = false;
 
-	public LdapProperties(String ldapConsumerName, String ldapBase, String ldapLoginNamespace, String ldapStateFile) {
+	public LdapProperties(String ldapConsumerName, String ldapBase, String ldapLoginNamespace, String ldapStateFile, String isReplica) {
 		this.ldapConsumerName = ldapConsumerName;
 		this.ldapBase = ldapBase;
 		this.ldapLoginNamespace = ldapLoginNamespace;
 		this.ldapStateFile = ldapStateFile;
+		this.isReplica = Boolean.parseBoolean(isReplica);
 	}
 
 	public boolean propsLoaded() {
@@ -36,4 +38,9 @@ public class LdapProperties {
 	public String getLdapStateFile() {
 		return ldapStateFile;
 	}
+
+	public boolean isReplica() {
+		return isReplica;
+	}
+
 }
