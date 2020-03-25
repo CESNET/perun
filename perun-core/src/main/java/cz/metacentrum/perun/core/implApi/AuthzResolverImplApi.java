@@ -303,7 +303,7 @@ public interface AuthzResolverImplApi {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException;
+	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Make user Perun observer
@@ -312,7 +312,7 @@ public interface AuthzResolverImplApi {
 	 * @param user user to be promoted to perunObserver
 	 * @throws InternalErrorException
 	 */
-	void makeUserPerunObserver(PerunSession sess, User user) throws InternalErrorException;
+	void makeUserPerunObserver(PerunSession sess, User user) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Make group Perun observer
@@ -321,7 +321,7 @@ public interface AuthzResolverImplApi {
 	 * @param authorizedGroup authorizedGroup to be promoted to perunObserver
 	 * @throws InternalErrorException
 	 */
-	void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws InternalErrorException;
+	void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Remove role perunAdmin for user.

@@ -1123,11 +1123,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	/**
 	 * Make user to be PERUNADMIN!
 	 *
-	 * @param sess
+	 * @param sess PerunSession with authorization
 	 * @param user which will get role "PERUNADMIN" in the system
-	 * @throws InternalErrorException
+	 * @throws InternalErrorException When implementation fails
+	 * @throws AlreadyAdminException When user is already perun admin
 	 */
-	public static void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public static void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, AlreadyAdminException {
 		getPerunBl().getAuditer().log(sess, new UserPromotedToPerunAdmin(user));
 		authzResolverImpl.makeUserPerunAdmin(sess, user);
 	}
