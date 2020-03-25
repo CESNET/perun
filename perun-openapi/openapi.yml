@@ -425,6 +425,15 @@ components:
         - HEADING
         - TIMEZONE
 
+    ItemTexts:
+      type: object
+      properties:
+        locale: { type: string }
+        label: { type: string }
+        options: { type: string }
+        help: { type: string }
+        errorMessage: { type: string }
+
     ApplicationFormItem:
       type: object
       properties:
@@ -441,6 +450,9 @@ components:
           items:
             $ref: '#/components/schemas/AppType'
         ordnum: { type: integer }
+        i18n:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/ItemTexts' }
 
     ApplicationFormItemData:
       type: object
