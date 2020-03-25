@@ -512,27 +512,33 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public void makeUserPerunAdmin(PerunSession sess, User user) throws AlreadyAdminException, InternalErrorException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNADMIN.toLowerCase());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already perun admin", e, user, Role.PERUNADMIN);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public void makeUserPerunObserver(PerunSession sess, User user) throws InternalErrorException {
+	public void makeUserPerunObserver(PerunSession sess, User user) throws AlreadyAdminException, InternalErrorException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNOBSERVER.toLowerCase());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already perun observer", e, user, Role.PERUNOBSERVER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws InternalErrorException {
+	public void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws AlreadyAdminException, InternalErrorException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id) values (?, (select id from roles where name=?))", authorizedGroup.getId(), Role.PERUNOBSERVER.toLowerCase());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("Group id=" + authorizedGroup.getId() + " is already perun observer", e, authorizedGroup, Role.PERUNOBSERVER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

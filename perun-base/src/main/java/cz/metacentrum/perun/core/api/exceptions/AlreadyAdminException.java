@@ -55,6 +55,19 @@ public class AlreadyAdminException extends PerunException {
 	}
 
 	/**
+	 * Constructor with a message, Throwable object, user and role
+	 * @param message message with details about the cause
+	 * @param cause Throwable that caused throwing of this exception
+	 * @param user user who is already in the role
+	 * @param role the role in which the user already is
+	 */
+	public AlreadyAdminException(String message, Throwable cause, User user, String role) {
+		super(message, cause);
+		this.user = user;
+		this.role = role;
+	}
+
+	/**
 	 * Constructor with a message, Throwable object, user, vo and role
 	 * @param message message with details about the cause
 	 * @param cause Throwable that caused throwing of this exception
@@ -153,6 +166,19 @@ public class AlreadyAdminException extends PerunException {
 		super(user.toString());
 		this.user = user;
 		this.vo = vo;
+	}
+
+	/**
+	 * Constructor with a message, Throwable object, authorized group and role
+	 * @param message message with details about the cause
+	 * @param cause Throwable that caused throwing of this exception
+	 * @param authorizedGroup group which is already in the specific role
+	 * @param role the role in which the group already is
+	 */
+	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, String role) {
+		super(message, cause);
+		this.authorizedGroup = authorizedGroup;
+		this.role = role;
 	}
 
 	/**
