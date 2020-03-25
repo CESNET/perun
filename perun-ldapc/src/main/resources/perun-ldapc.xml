@@ -1063,10 +1063,40 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	</bean>
 
 	<bean id="perunGroup" class="cz.metacentrum.perun.ldapc.model.impl.PerunGroupImpl">
+		<property name="attributeDescriptions">
+			<!--  this list will be added to built-in defaultAttributeDescriptions -->
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="groupAffiliations"/>
+					<property name="required" value="false"/>
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="groupAffiliations"/>
+							<property name="namespace" value="urn:perun:group:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
 		<property name="attributeDescriptionsExt" ref="perunGroupAttributesExt"/>
 	</bean>
 
 	<bean id="perunVO" class="cz.metacentrum.perun.ldapc.model.impl.PerunVOImpl">
+		<property name="attributeDescriptions">
+			<!--  this list will be added to built-in defaultAttributeDescriptions -->
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="aup"/>
+					<property name="required" value="false"/>
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="aup"/>
+							<property name="namespace" value="urn:perun:vo:attribute-def:def"/>
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
 		<property name="attributeDescriptionsExt" ref="perunVOAttributesExt"/>
 	</bean>
 
