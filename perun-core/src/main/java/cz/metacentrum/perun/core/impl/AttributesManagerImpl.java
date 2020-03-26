@@ -1245,7 +1245,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("nSO", AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
 		parameters.addValue("nSD", AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
 		parameters.addValue("nSV", AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		parameters.addValue("attrNames", controlledAttrNames);
+		parameters.addValue("attrNames", attrNames);
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
