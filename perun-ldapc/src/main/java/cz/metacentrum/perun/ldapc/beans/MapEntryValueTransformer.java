@@ -25,6 +25,7 @@ public class MapEntryValueTransformer extends ValueTransformerBase implements At
 		int i = 0;
 		for (Map.Entry<String, String> entry : value.entrySet()) {
 			result[i] = entry.getKey() + this.separator + entry.getValue();
+			i++;
 		}
 		return result;
 	}
