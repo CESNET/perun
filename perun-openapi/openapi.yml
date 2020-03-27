@@ -2290,6 +2290,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/authzResolver/getUserRoleNames:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getUserRoleNames
+      summary: Returns list of user's role names. Perun system uses role names in the upper case format. However, for now, they are converted to the lower case format because of the compatibility with external systems.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # AttributesManager                             #
@@ -5463,6 +5477,39 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/createAlternativePassword:
+    post:
+      tags:
+        - UsersManager
+      operationId: createAlternativePassword
+      summary: Creates alternative password in external system.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - {name: description, schema: { type: string }, in: query, required: true}
+        - {name: loginNamespace, schema: { type: string }, in: query, required: true}
+        - {name: password, schema: { type: string }, in: query, required: true}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/deleteAlternativePassword:
+    post:
+      tags:
+        - UsersManager
+      operationId: deleteAlternativePassword
+      summary: Deletes alternative password in external system.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - {name: loginNamespace, schema: { type: string }, in: query, required: true}
+        - {name: passwordId, schema: { type: string }, in: query, required: true}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
