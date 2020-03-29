@@ -139,7 +139,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		String principalShibIdentityProvider = sess.getPerunPrincipal().getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
 
 		//Authorization based on the user
-		if (sess.getPerunPrincipal().getUser() != null && app.getUser() != null && isAuthorized(sess, Role.SELF, app.getUser())) {
+		if (app.getUser() != null && sess.getPerunPrincipal().getUserId() == app.getUser().getId()) {
 			return true;
 		//Authorization based on the extSourceName and extSourceLogin
 		} else if (Objects.equals(app.getCreatedBy(), sess.getPerunPrincipal().getActor()) &&
