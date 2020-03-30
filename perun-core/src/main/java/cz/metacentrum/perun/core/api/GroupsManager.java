@@ -212,9 +212,10 @@ public interface GroupsManager {
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
+	 * @throws GroupExistsException if group with same name already exists in the same VO
 	 * @throws PrivilegeException
 	 */
-	Group updateGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException;
+	Group updateGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, GroupExistsException, InternalErrorException, PrivilegeException;
 
 	/**
 	 * Search for the group with specified id in all VOs.

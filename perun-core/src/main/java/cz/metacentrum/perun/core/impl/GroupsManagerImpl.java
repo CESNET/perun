@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -195,7 +196,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
+	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException, GroupExistsException {
 		Utils.notNull(group.getName(), "group.getName()");
 
 		// Get the group stored in the DB
@@ -212,6 +213,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			try {
 				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", dbGroup.getName(),
 						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), dbGroup.getId());
+			} catch (DataIntegrityViolationException e) {
+				throw new GroupExistsException("The name must be unique and it's already occupied - " + dbGroup, e);
 			} catch (RuntimeException e) {
 				throw new InternalErrorException(e);
 			}
