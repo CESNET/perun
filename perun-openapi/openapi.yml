@@ -2304,6 +2304,19 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/authzResolver/loadAuthorizationComponents:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: loadAuthorizationComponents
+      summary: Load perun roles and policies from the configuration file perun-roles.yml.
+        Roles are loaded to the database and policies are loaded to the PerunPoliciesContainer.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # AttributesManager                             #
