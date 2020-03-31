@@ -268,6 +268,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Updates a group.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupExistsException when the group with the same name already exists in the same vo
 	 *
 	 * @param group Group JSON Group class
 	 * @return Group Updated group

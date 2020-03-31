@@ -2515,6 +2515,20 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
+	@Test (expected=GroupExistsException.class)
+	public void updateGroupNameWhenSuchGroupExists() throws Exception {
+		System.out.println(CLASS_NAME + "updateGroupNameWhenSuchGroupExists");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		String sameName = "GroupsManagerTestGroup1Updated";
+		Group groupWithSameName = new Group(sameName, sameName);
+		groupsManager.createGroup(sess, vo, groupWithSameName);
+		group.setName(sameName);
+		groupsManager.updateGroup(sess, group);
+	}
+
 	@Test (expected=GroupNotExistsException.class)
 	public void updateGroupWhenGroupNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "updateGroupWhenGroupNotExists");

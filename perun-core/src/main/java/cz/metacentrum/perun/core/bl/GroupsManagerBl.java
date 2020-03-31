@@ -190,8 +190,9 @@ public interface GroupsManagerBl {
 	 * @return updated group with correctly set parameters (including group.name)
 	 *
 	 * @throws InternalErrorException
+	 * @throws GroupExistsException if group with same name already exists in the same VO
 	 */
-	Group updateGroup(PerunSession perunSession, Group group) throws InternalErrorException;
+	Group updateGroup(PerunSession perunSession, Group group) throws InternalErrorException, GroupExistsException;
 
 	/**
 	 * Updates parentGroupId.
