@@ -200,7 +200,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group updateGroup(PerunSession sess, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException {
+	public Group updateGroup(PerunSession sess, Group group) throws GroupNotExistsException, GroupExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		Utils.notNull(group, "group");

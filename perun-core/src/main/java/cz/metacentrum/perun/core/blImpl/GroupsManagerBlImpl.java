@@ -509,7 +509,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
+	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException, GroupExistsException {
 
 		// return group with correct updated name and shortName
 		group = getGroupsManagerImpl().updateGroup(sess, group);
@@ -3951,14 +3951,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if(groupWithOldDescription.getDescription() != null) {
 			if(!groupWithOldDescription.getDescription().equals(groupWithNewDescription.asGroup().getDescription())){
 				groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
-				groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
+				try {
+					groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
+				} catch (GroupExistsException ex) {
+					throw new InternalErrorException("Unexpected exception when trying to modify group description!");
+				}
 				getPerunBl().getAuditer().log(sess, new GroupUpdated(groupWithOldDescription));
 				return true;
 			}
 		// If the new description is not null set the old description to new one
 		} else if(groupWithNewDescription.asGroup().getDescription() != null){
 			groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
-			groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
+			try {
+				groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
+			} catch (GroupExistsException ex) {
+				throw new InternalErrorException("Unexpected exception when trying to modify group description!");
+			}
 			getPerunBl().getAuditer().log(sess, new GroupUpdated(groupWithOldDescription));
 			return true;
 		}
