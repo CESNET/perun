@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ModuleConfiguration;
+import cz.metacentrum.perun.core.api.ModulesConfigContainer;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -20,9 +22,8 @@ import org.slf4j.LoggerFactory;
  */
 public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
+	private final static String className = urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow.class.getSimpleName();
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow.class);
-	private final static String extSourceNameFenix = "https://proxy-fenix.pilot.eduteams.org/proxy";
-	private final static String domainNameFenix = "@fenix.pilot.eduteams.org";
 	private final static String attrNameFenix = "login-namespace:fenix-persistent-shadow";
 
 	/**
@@ -38,6 +39,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
+		String domainNameFenix = ModulesConfigContainer.getInstance().fetchPropertyAsString(className, "domainNameFenix");
 		Attribute filledAttribute = new Attribute(attribute);
 
 		if (attribute.getFriendlyName().equals(attrNameFenix)) {
@@ -62,6 +64,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 	 */
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
+		String extSourceNameFenix = ModulesConfigContainer.getInstance().fetchPropertyAsString(className, "extSourceNameFenix");
 		try {
 			String userNamespace = attribute.getFriendlyNameParameter();
 

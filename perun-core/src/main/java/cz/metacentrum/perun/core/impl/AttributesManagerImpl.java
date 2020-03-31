@@ -184,6 +184,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	private ModulesConfigLoader modulesConfigLoader;
+
 	/**
 	 * Constructor.
 	 *
@@ -302,6 +304,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private static final RowMapper<String> ENTITYLESS_KEYS_MAPPER = (rs, i) -> rs.getString("subject");
 
 	private static final RowMapper<String> ATTRIBUTE_NAMES_MAPPER = (rs, i) -> rs.getString("attr_name");
+
+	public void setModulesConfigLoader(ModulesConfigLoader modulesConfigLoader) {
+		this.modulesConfigLoader = modulesConfigLoader;
+	}
 
 	static class SingleBeanAttributeRowMapper<T extends PerunBean> extends AttributeRowMapper<T, T> {
 		SingleBeanAttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, T attributeHolder) {
