@@ -4910,12 +4910,7 @@ paths:
         then all of them are returned OR Returns exact number of newest audit messages defined by
         'count' param (disregarding message IDs). If there is less messages present, then all of them are returned..
       parameters:
-        - name: count
-          in: query
-          schema:
-            type: integer
-          description: Messages limit
-          required: false
+        - { name: count, in: query, schema: { type: integer },  description: "Messages limit",  required: false }
       responses:
         '200':
           $ref: '#/components/responses/ListOfAuditMessagesResponse'
@@ -4932,12 +4927,7 @@ paths:
         where number of returned messages is equal or less than 'count' param, because some
         IDs could be skipped in the sequence.
       parameters:
-        - name: count
-          in: query
-          schema:
-            type: integer
-          description: Number of IDs to subtract from max_id
-          required: true
+        - { name: count, in: query, schema: { type: integer }, description: "Number of IDs to subtract from max_id", required: true }
       responses:
         '200':
           $ref: '#/components/responses/ListOfAuditMessagesResponse'
@@ -4969,12 +4959,7 @@ paths:
         Set ID of last processed message for specified consumer.
       parameters:
         - $ref: '#/components/parameters/consumerName'
-        - name: lastProcessedId
-          in: query
-          schema:
-            type: integer
-          description: id of message to what consumer will be set
-          required: true
+        - { name: lastProcessedId, in: query, schema: { type: integer }, description: "id of message to what consumer will be set",  required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -4989,12 +4974,7 @@ paths:
       summary: |
         Creates new auditer consumer with last processed id which equals current auditer log max id.
       parameters:
-        - name: consumerName
-          in: query
-          schema:
-            type: string
-          description: New name for consumer
-          required: true
+        - $ref: '#/components/parameters/consumerName'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -5054,12 +5034,7 @@ paths:
       summary: |
         Log arbitrary auditer message/event to the audit log.
       parameters:
-        - name: msg
-          in: query
-          schema:
-            type: string
-          description: Message to be logged
-          required: true
+        -  { name: msg, in: query, schema: { type: string }, description: "Message to be logged", required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
