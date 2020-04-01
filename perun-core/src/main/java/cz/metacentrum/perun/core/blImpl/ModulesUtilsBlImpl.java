@@ -250,7 +250,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		String gidNamespace = attribute.getFriendlyNameParameter();
 
 		Attribute gidRangesAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_GIDRanges);
-		Map<Integer, Integer> gidRanges = checkAndConvertGIDRanges(gidRangesAttribute);
+		Map<Integer, Integer> gidRanges = checkAndConvertIDRanges(gidRangesAttribute);
 
 		//Gid is not in range, throw exception
 		if(!isGIDWithinRanges(gidRanges, gid)) {
@@ -265,7 +265,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if (gidsToCheck != null){
 			String gidNamespace = attribute.getFriendlyNameParameter();
 			Attribute gidRangesAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_GIDRanges);
-			Map<Integer, Integer> gidRanges = checkAndConvertGIDRanges(gidRangesAttribute);
+			Map<Integer, Integer> gidRanges = checkAndConvertIDRanges(gidRangesAttribute);
 
 			for(String gidToCheck : gidsToCheck){
 				try{
@@ -290,7 +290,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if(gidRangesAttribute.getValue() == null) return 0;
 		Map<Integer, Integer> gidRanges;
 		try {
-			gidRanges = checkAndConvertGIDRanges(gidRangesAttribute);
+			gidRanges = checkAndConvertIDRanges(gidRangesAttribute);
 		} catch (WrongAttributeValueException ex) {
 			throw new InternalErrorException("Value in GID ranges attribute where we are looking for free gid is not in correct format " + gidRangesAttribute, ex);
 		}
@@ -1135,24 +1135,24 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public Map<Integer, Integer> checkAndConvertGIDRanges(Attribute gidRangesAttribute) throws WrongAttributeValueException {
+	public Map<Integer, Integer> checkAndConvertIDRanges(Attribute idRangesAttribute) throws WrongAttributeValueException {
 		//Prepare structure for better working with GID Ranges
 		Map<Integer, Integer> convertedRanges = new HashMap<>();
 
 		//For null attribute throw an exception
-		if(gidRangesAttribute == null) throw new InternalErrorException("Can't get value from null attribute!");
+		if(idRangesAttribute == null) throw new InternalErrorException("Can't get value from null attribute!");
 
-		Map<String, String> gidRanges = gidRangesAttribute.valueAsMap();
+		Map<String, String> idRanges = idRangesAttribute.valueAsMap();
 
 		//Return empty map if there is empty input of gidRanges in method parameters
-		if(gidRanges == null || gidRanges.isEmpty()) return convertedRanges;
+		if(idRanges == null || idRanges.isEmpty()) return convertedRanges;
 
 		//Check every range if it is in correct format and it is valid range
-		for(String minimumOfRange: gidRanges.keySet()) {
+		for(String minimumOfRange: idRanges.keySet()) {
 			//Check not null
-			if(minimumOfRange == null || minimumOfRange.isEmpty()) throw new WrongAttributeValueException(gidRangesAttribute, "Minimum in one of gid ranges is empty!");
-			String maximumOfRange = gidRanges.get(minimumOfRange);
-			if(maximumOfRange == null || maximumOfRange.isEmpty()) throw new WrongAttributeValueException(gidRangesAttribute, "Maximum in one of gid ranges is empty!");
+			if(minimumOfRange == null || minimumOfRange.isEmpty()) throw new WrongAttributeValueException(idRangesAttribute, "Minimum in one of id ranges is empty!");
+			String maximumOfRange = idRanges.get(minimumOfRange);
+			if(maximumOfRange == null || maximumOfRange.isEmpty()) throw new WrongAttributeValueException(idRangesAttribute, "Maximum in one of id ranges is empty!");
 
 			//Transfer string to numbers
 			Integer minimum;
@@ -1162,14 +1162,14 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 				minimum = Integer.valueOf(minimumOfRange);
 				maximum = Integer.valueOf(maximumOfRange);
 			} catch (NumberFormatException ex) {
-				throw new WrongAttributeValueException(gidRangesAttribute, "Min or max value of some range is not correct number format.");
+				throw new WrongAttributeValueException(idRangesAttribute, "Min or max value of some range is not correct number format.");
 			}
 
 			//Check if min value from range is bigger than 0
-			if(minimum < 1) throw new WrongAttributeValueException(gidRangesAttribute, "Minimum of one of gid ranges is less than 0.");
+			if(minimum < 1) throw new WrongAttributeValueException(idRangesAttribute, "Minimum of one of id ranges is less than 0.");
 
 			//Check if it is correct range
-			if(minimum>maximum) throw new WrongAttributeValueException(gidRangesAttribute, "One of gid ranges is not correct range. Minimum of this range is bigger then it's maximum.");
+			if(minimum>maximum) throw new WrongAttributeValueException(idRangesAttribute, "One of id ranges is not correct range. Minimum of this range is bigger then it's maximum.");
 
 			//Put this valid range to the map of correct gid ranges
 			convertedRanges.put(minimum, maximum);
@@ -1178,7 +1178,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		//Check gid ranges overlaps (there should be no overlaps)
 		Integer lastMaxValue = 0;
 		for(Integer minValue: convertedRanges.keySet().stream().sorted().collect(Collectors.toList())) {
-			if(minValue <= lastMaxValue) throw new WrongAttributeValueException(gidRangesAttribute, "There is an overlap between two gid ranges.");
+			if(minValue <= lastMaxValue) throw new WrongAttributeValueException(idRangesAttribute, "There is an overlap between two id ranges.");
 			lastMaxValue = convertedRanges.get(minValue);
 		}
 

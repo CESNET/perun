@@ -495,7 +495,7 @@ public interface ModulesUtilsBl {
 	User getUserFromMessage(PerunSessionImpl sess, String message);
 
 	/**
-	 * Take attribute with gidRanges value (map of strings) and check if all records of this value are valid ranges.
+	 * Take attribute with idRanges value (map of strings) and check if all records of this value are valid ranges.
 	 * Valid range is from minimum to maximum where minimum must be less or equal to maximum. If minimum and maximum
 	 * are equal, the interval has exactly one element. If all ranges are valid, it also checks if there is any
 	 * overlap between ranges. If yes, it throws an error.
@@ -515,12 +515,12 @@ public interface ModulesUtilsBl {
 	 * key='100', value='1000' - range from 100 to 1000 included
 	 * key='1', value ='1' - range with exactly one gid with number "1"
 	 *
-	 * @param gidRangesAttribute attribute with gid ranges value (map of ranges as strings)
+	 * @param idRangesAttribute attribute with id ranges value (map of ranges as strings)
 	 *
 	 * @return map of valid ranges without overlaps
 	 *
 	 * @throws InternalErrorException if attribute in parameter of method is null
 	 * @throws WrongAttributeValueException if value of attribute in parameter does not contain valid ranges without overlaps
 	 */
-	Map<Integer, Integer> checkAndConvertGIDRanges(Attribute gidRangesAttribute) throws WrongAttributeValueException;
+	Map<Integer, Integer> checkAndConvertIDRanges(Attribute idRangesAttribute) throws WrongAttributeValueException;
 }
