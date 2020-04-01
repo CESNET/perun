@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -247,9 +248,9 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	}
 
 	@Override
-	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources,
+	public void synchronizeGroup(Group group, Iterable<Attribute> attrs, List<Member> members, List<Resource> resources,
 	                             List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException {
-		SyncOperation syncOp = beginSynchronizeEntry(group);
+		SyncOperation syncOp = beginSynchronizeEntry(group, attrs);
 		doSynchronizeMembers(syncOp.getEntry(), members);
 		doSynchronizeResources(syncOp.getEntry(), resources);
 		doSynchronizeAdminRoles(syncOp.getEntry(), admin_groups, admin_vos, admin_facilities);
