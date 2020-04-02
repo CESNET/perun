@@ -384,6 +384,53 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		</property>
 	</bean>
 
+	<bean id="groupAttributeEventProcessor"
+	      class="cz.metacentrum.perun.ldapc.processor.impl.GroupAttributeProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+						</list>
+					</property>
+					<property name="pattern" value=" set for Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processAttributeSet"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.AttributeDefinition</value>
+						</list>
+					</property>
+					<property name="pattern" value=" removed for Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processAttributeRemoved"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value="All attributes removed for Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processAllAttributesRemoved"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value=" changed for Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processVirtualAttributeChanged"/>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
 	<bean id="resourceAttributeEventProcessor"
 	      class="cz.metacentrum.perun.ldapc.processor.impl.ResourceAttributeProcessor">
 		<property name="dispatchConditions">
@@ -425,6 +472,53 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</list>
 					</property>
 					<property name="pattern" value=" changed for Resource:\[.*\]"/>
+					<property name="handlerMethodName" value="processVirtualAttributeChanged"/>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="voAttributeEventProcessor"
+	      class="cz.metacentrum.perun.ldapc.processor.impl.VoAttributeProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+						</list>
+					</property>
+					<property name="pattern" value=" set for Vo:\[.*\]"/>
+					<property name="handlerMethodName" value="processAttributeSet"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+							<value>cz.metacentrum.perun.core.api.AttributeDefinition</value>
+						</list>
+					</property>
+					<property name="pattern" value=" removed for Vo:\[.*\]"/>
+					<property name="handlerMethodName" value="processAttributeRemoved"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value="All attributes removed for Vo:\[.*\]"/>
+					<property name="handlerMethodName" value="processAllAttributesRemoved"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value=" changed for Vo:\[.*\]"/>
 					<property name="handlerMethodName" value="processVirtualAttributeChanged"/>
 				</bean>
 			</list>

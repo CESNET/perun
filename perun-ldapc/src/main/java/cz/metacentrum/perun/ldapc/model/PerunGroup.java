@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.model;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -95,7 +96,7 @@ public interface PerunGroup extends PerunEntry<Group> {
 
 	public void removeFromFacilityAdmins(Group group, Facility facility);
 
-	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources,
+	public void synchronizeGroup(Group group, Iterable<Attribute> attrs, List<Member> members, List<Resource> resources,
 	                             List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException;
 
 	public void synchronizeMembers(Group group, List<Member> members);

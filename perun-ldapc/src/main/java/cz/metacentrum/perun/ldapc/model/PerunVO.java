@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.model;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -40,7 +41,7 @@ public interface PerunVO extends PerunEntry<Vo> {
 
 	public void removeMemberFromVO(int voId, Member member);
 
-	public void synchronizeVo(Vo vo, List<Member> members) throws InternalErrorException;
+	public void synchronizeVo(Vo vo, Iterable<Attribute> attrs, List<Member> members) throws InternalErrorException;
 
 	public void synchronizeMembers(Vo vo, List<Member> members);
 

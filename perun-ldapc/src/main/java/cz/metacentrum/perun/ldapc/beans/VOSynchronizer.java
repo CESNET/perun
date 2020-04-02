@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.ldapc.beans;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.ldapc.model.PerunVO;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.naming.Name;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,15 +42,27 @@ public class VOSynchronizer extends AbstractSynchronizer {
 				// params.put("vo", new Integer(vo.getId()));
 
 				presentVos.add(perunVO.getEntryDN(String.valueOf(vo.getId())));
+				log.debug("Synchronizing VO entry {}", vo);
+
+				log.debug("Getting list of attributes for vo {}", vo.getId());
+				List<Attribute> attrs = new ArrayList<Attribute>();
+				List<String> attrNames = fillPerunAttributeNames(perunVO.getPerunAttributeNames());
+				try {
+					attrs.addAll(perun.getAttributesManagerBl().getAttributes(ldapcManager.getPerunSession(), vo, attrNames));
+				} catch (PerunRuntimeException e) {
+					log.warn("Couldn't get attributes {} for vo {}: {}", attrNames, vo.getId(), e.getMessage());
+					shouldWriteExceptionLog = false;
+					throw new InternalErrorException(e);
+				}
+				log.debug("Got attributes {}", attrNames.toString());
 
 				try {
-					log.debug("Synchronizing VO entry {}", vo);
-					//perunVO.synchronizeEntry(vo);
+
 					log.debug("Getting list of VO {} members", vo.getId());
 					// List<Member> members = ldapcManager.getRpcCaller().call("membersManager", "getMembers", params).readList(Member.class);
 					List<Member> members = perun.getMembersManager().getMembers(ldapcManager.getPerunSession(), vo, Status.VALID);
 					log.debug("Synchronizing {} members of VO {}", members.size(), vo.getId());
-					perunVO.synchronizeVo(vo, members);
+					perunVO.synchronizeVo(vo, attrs, members);
 				} catch (PerunException e) {
 					log.error("Error synchronizing VO " + vo.getId(), e);
 					shouldWriteExceptionLog = false;
