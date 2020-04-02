@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -110,8 +111,8 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	}
 
 	@Override
-	public void synchronizeVo(Vo vo, List<Member> members) throws InternalErrorException {
-		SyncOperation syncOp = beginSynchronizeEntry(vo);
+	public void synchronizeVo(Vo vo, Iterable<Attribute> attrs, List<Member> members) throws InternalErrorException {
+		SyncOperation syncOp = beginSynchronizeEntry(vo, attrs);
 		doSynchronizeMembers(syncOp.getEntry(), members);
 		commitSyncOperation(syncOp);
 	}

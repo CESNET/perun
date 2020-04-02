@@ -20,9 +20,6 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 
 	private final static Logger log = LoggerFactory.getLogger(UserAttributeProcessor.class);
 
-	@Autowired
-	protected PerunUser perunUser;
-
 	private static Pattern userSetPattern = Pattern.compile(" set for User:\\[(.*)\\]");
 	private static Pattern userRemovePattern = Pattern.compile(" removed for User:\\[(.*)\\]");
 	private static Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)\\]");
