@@ -4948,4 +4948,31 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession perunSession, Group group) throws InternalErrorException {
 		return this.getGroupsManagerImpl().getFacilitiesWhereGroupIsAdmin(perunSession, group);
 	}
+
+	@Override
+	public void reactivateMember(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException {
+		if (!isGroupMember(sess, group, member)) throw new MemberNotExistsException("Member does not belong to this group");
+
+		validateMemberInGroup(sess, member, group);
+
+		// Get current membershipExpiration date attribute
+		Attribute membershipExpirationAttribute = getMemberExpiration(sess, member, group);
+		// Set new value of the membershipExpiration for the member
+		membershipExpirationAttribute.setValue(null);
+
+		try {
+			getPerunBl().getAttributesManagerBl().setAttribute(sess, member, group, membershipExpirationAttribute);
+		} catch (WrongAttributeValueException e) {
+			throw new InternalErrorException("Wrong value: " + membershipExpirationAttribute.getValue(),e);
+		} catch (WrongReferenceAttributeValueException | WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
+
+		try {
+			extendMembershipInGroup(sess, member, group);
+		} catch (ExtendMembershipException ex) {
+			// This exception should not be thrown for null membershipExpiration attribute
+			throw new InternalErrorException(ex);
+		}
+	}
 }
