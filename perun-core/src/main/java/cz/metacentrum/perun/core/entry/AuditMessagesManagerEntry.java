@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
@@ -47,7 +46,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	@Override
 	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerMessages_String_policy")) {
 			throw new PrivilegeException(perunSession, "pollConsumerMessages");
 		}
 		return getAuditMessagesManagerBl().pollConsumerMessages(perunSession, consumerName);
@@ -55,7 +54,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	@Override
 	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerMessages_String_int_policy")) {
 			throw new PrivilegeException(perunSession, "pollConsumerMessages");
 		}
 		return getAuditMessagesManagerBl().pollConsumerMessages(perunSession, consumerName, lastProcessedId);
@@ -63,7 +62,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	@Override
 	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerEvents_String_policy")) {
 			throw new PrivilegeException(perunSession, "pollConsumerEvents");
 		}
 		return getAuditMessagesManagerBl().pollConsumerEvents(perunSession, consumerName);
@@ -71,7 +70,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	@Override
 	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "pollConsumerEvents_String_int_policy")) {
 			throw new PrivilegeException(perunSession, "pollConsumerEvents");
 		}
 		return getAuditMessagesManagerBl().pollConsumerEvents(perunSession, consumerName, lastProcessedId);
@@ -79,7 +78,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	@Override
 	public void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "createAuditerConsumer_String_policy")) {
 			throw new PrivilegeException(perunSession, "createAuditerConsumer");
 		}
 		getAuditMessagesManagerBl().createAuditerConsumer(perunSession, consumerName);
@@ -87,7 +86,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	@Override
 	public void log(PerunSession perunSession, String message) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "log_String_policy")) {
 			throw new PrivilegeException(perunSession, "log");
 		}
 		getAuditMessagesManagerBl().log(perunSession, message);
@@ -107,7 +106,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 
 	@Override
 	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "setLastProcessedId_String_int_policy")) {
 			throw new PrivilegeException(perunSession, "setLastProcessedId");
 		}
 		getAuditMessagesManagerBl().setLastProcessedId(perunSession, consumerName, lastProcessedId);
