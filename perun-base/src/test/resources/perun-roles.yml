@@ -168,42 +168,6 @@ perun_policies:
     include_policies:
       - test_resource_admin
 
-  #AuditMessagesManagerEntry
-  pollConsumerMessages_String_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  pollConsumerMessages_String_int_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  pollConsumerEvents_String_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  pollConsumerEvents_String_int_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  createAuditerConsumer_String_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  log_String_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  setLastProcessedId_String_int_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:
@@ -363,6 +327,143 @@ perun_policies:
       - GROUPADMIN:
       - FACILITYADMIN:
       - ENGINE:
+    include_policies:
+      - default_policy
+
+  #SecurityTeamsManagerEntry
+  getSecurityTeams_policy:
+    policy_roles:
+      - SECURITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getSecurityTeams_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllSecurityTeams_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - SECURITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  createSecurityTeam_SecurityTeam_policy:
+    policy_roles:
+      - SECURITYADMIN:
+    include_policies:
+      - default_policy
+
+  updateSecurityTeam_SecurityTeam_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  deleteSecurityTeam_SecurityTeam__boolean_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  getSecurityTeamById_int_policy:
+    policy_roles:
+      - RPC:
+      - FACILITYADMIN:
+      - SECURITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getSecurityTeamByName_String_policy:
+    policy_roles:
+      - RPC:
+      - FACILITYADMIN:
+      - SECURITYADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAdmins_SecurityTeam_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAdminGroups_SecurityTeam_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  addAdmin_SecurityTeam_User_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  addAdmin_SecurityTeam_Group_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  removeAdmin_SecurityTeam_User_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  removeAdmin_SecurityTeam_Group_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  addUserToBlacklist_SecurityTeam_User_String_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  removeUserFromBlacklist_SecurityTeam_User_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies:
+      - default_policy
+
+  getBlacklist_SecurityTeam_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getBlacklist_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getBlacklistWithDescription_SecurityTeam_policy:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getBlacklistWithDescription_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 ...
