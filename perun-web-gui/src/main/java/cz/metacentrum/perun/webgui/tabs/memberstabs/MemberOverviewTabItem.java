@@ -117,7 +117,6 @@ public class MemberOverviewTabItem implements TabItem {
 		personalLayout.setHTML(6, 0, "Address:");
 		personalLayout.setHTML(7, 0, "Preferred language:");
 		personalLayout.setHTML(8, 0, "LoA:");
-		personalLayout.setHTML(9, 0, "EDU person affiliation:");
 
 		// one empty cell to create empty column
 		personalLayout.setHTML(0, 1, "&nbsp;");
@@ -218,7 +217,6 @@ public class MemberOverviewTabItem implements TabItem {
 		attrs.add("urn:perun:user:attribute-def:def:preferredLanguage");
 		attrs.add("urn:perun:member:attribute-def:virt:loa");
 		attrs.add("urn:perun:member:attribute-def:def:membershipExpiration");
-		attrs.add("urn:perun:member:attribute-def:opt:eduPersonAffiliation");
 		attrs.add("urn:perun:member:attribute-def:def:sponzoredMember");
 
 		HashMap<String, Integer> ids = new HashMap<String, Integer>();
@@ -298,12 +296,6 @@ public class MemberOverviewTabItem implements TabItem {
 								personalLayout.setHTML(8, 1, value + text);
 							} else {
 								personalLayout.setHTML(8, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:opt:eduPersonAffiliation")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(9, 1, value);
-							} else {
-								personalLayout.setHTML(9, 1, notSet);
 							}
 						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:membershipExpiration")) {
 							// set attribute inside member
