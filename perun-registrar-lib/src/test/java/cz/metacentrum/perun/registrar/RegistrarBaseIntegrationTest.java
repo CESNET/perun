@@ -239,14 +239,6 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i5.getTexts(EN).setLabel("Organisation");
 		registrarManager.addFormItem(session, applicationForm, i5);
 
-		ApplicationFormItem i5b = new ApplicationFormItem();
-		i5b.setShortname("affiliation");
-		i5b.setPerunDestinationAttribute("urn:perun:member:attribute-def:opt:eduPersonAffiliation");
-		i5b.setType(ApplicationFormItem.Type.FROM_FEDERATION_HIDDEN);
-		i5b.setRequired(true);
-		i5b.setFederationAttribute("Shib-EP-Affiliation");
-		registrarManager.addFormItem(session, applicationForm, i5b);
-
 		ApplicationFormItem i5c = new ApplicationFormItem();
 		i5c.setShortname("mail");
 		i5c.setPerunDestinationAttribute("urn:perun:user:attribute-def:def:mail");
@@ -366,7 +358,6 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertTrue("Item i3 was not returned from form", items.contains(i3));
 		assertTrue("Item i4 was not returned from form", items.contains(i4));
 		assertTrue("Item i5 was not returned from form", items.contains(i5));
-		assertTrue("Item i5b was not returned from form", items.contains(i5b));
 		assertTrue("Item i5c was not returned from form", items.contains(i5c));
 		assertTrue("Item i6 was not returned from form", items.contains(i6));
 		assertTrue("Item i7 was not returned from form", items.contains(i7));
