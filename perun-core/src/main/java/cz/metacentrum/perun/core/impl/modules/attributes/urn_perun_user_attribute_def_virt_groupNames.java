@@ -7,6 +7,11 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedT
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberInvalidated;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberSuspended;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberValidated;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -103,6 +108,16 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 			resolvingMessages.add(resolveEvent(sess, ((MemberExpiredInGroup) message).getMember()));
 		} else if (message instanceof MemberValidatedInGroup) {
 			resolvingMessages.add(resolveEvent(sess, ((MemberValidatedInGroup) message).getMember()));
+		} else if (message instanceof MemberValidated) {
+			resolvingMessages.add(resolveEvent(sess, ((MemberValidated) message).getMember()));
+		} else if (message instanceof MemberExpired) {
+			resolvingMessages.add(resolveEvent(sess, ((MemberExpired) message).getMember()));
+		} else if (message instanceof MemberSuspended) {
+			resolvingMessages.add(resolveEvent(sess, ((MemberSuspended) message).getMember()));
+		} else if (message instanceof MemberDisabled) {
+			resolvingMessages.add(resolveEvent(sess, ((MemberDisabled) message).getMember()));
+		} else if (message instanceof MemberInvalidated) {
+			resolvingMessages.add(resolveEvent(sess, ((MemberInvalidated) message).getMember()));
 		}
 		return resolvingMessages;
 	}
