@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -97,6 +98,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private static final String SET_ROLE = "SET";
 
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private final static boolean isForceMultipleIdentifiersEnabled = BeansUtils.getCoreConfig().isForceMultipleIdentifiersEnabled();
 
 	/**
 	 * Prepare necessary structures and resolve access rights for the session's principal.
@@ -1745,7 +1747,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		try {
 			User user;
-				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName()) ||
+					(principal.getExtSourceType().equals(ExtSourcesManager.EXTSOURCE_IDP) && isForceMultipleIdentifiersEnabled)) {
 					UserExtSource ues = perunBl.getUsersManagerBl().getUserExtSourceFromMultipleIdentifiers(sess, principal);
 					user = perunBl.getUsersManagerBl().getUserByUserExtSource(sess, ues);
 				} else {
@@ -1753,6 +1756,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				}
 			sess.getPerunPrincipal().setUser(user);
 		} catch (Exception ex) {
+			log.debug("An exception was thrown while refreshing session: " + ex);
 			// we don't care that user was not found - clear it from session
 			sess.getPerunPrincipal().setUser(null);
 		}

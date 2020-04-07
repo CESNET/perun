@@ -118,6 +118,7 @@ public class PerunBlImpl implements PerunBl {
 
 	private final static Set<String> dontLookupUsersForLogins = BeansUtils.getCoreConfig().getDontLookupUsers();
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private final static boolean isForceMultipleIdentifiersEnabled = BeansUtils.getCoreConfig().isForceMultipleIdentifiersEnabled();
 
 	public PerunBlImpl() {
 
@@ -136,7 +137,8 @@ public class PerunBlImpl implements PerunBl {
 			try {
 				PerunSession internalSession = getPerunSession();
 				User user;
-				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName()) ||
+					(principal.getExtSourceType().equals(ExtSourcesManager.EXTSOURCE_IDP) && isForceMultipleIdentifiersEnabled)) {
 					UserExtSource ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
 					user = usersManagerBl.getUserByUserExtSource(internalSession, ues);
 				} else {
@@ -147,7 +149,8 @@ public class PerunBlImpl implements PerunBl {
 				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
 					UserExtSource ues;
-						if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+						if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName()) ||
+							(principal.getExtSourceType().equals(ExtSourcesManager.EXTSOURCE_IDP) && isForceMultipleIdentifiersEnabled)) {
 							ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
 						} else {
 							ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());

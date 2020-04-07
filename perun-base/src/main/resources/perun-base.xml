@@ -15,6 +15,7 @@
 		<property name="dbType" value="${perun.db.type}"/>
 		<property name="dontLookupUsers" value="#{'${perun.dont.lookup.users}'.split('\s*,\s*')}"/>
 		<property name="extSourcesMultipleIdentifiers" value="#{'${perun.extsources.multiple.identifiers}'.split('\s*,\s*')}"/>
+		<property name="extSourcesForceMultipleIdentifiers" value="${perun.extsources.force.multiple.identifiers}"/>
 		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
@@ -123,6 +124,7 @@
 				<prop key="perun.allowedCorsDomains"></prop>
 				<prop key="perun.cacheEnabled">false</prop>
 				<prop key="perun.queryTimeout">-1</prop>
+				<prop key="perun.extsources.force.multiple.identifiers">false</prop>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->

@@ -78,6 +78,7 @@ public class CoreConfig {
 	private String smtpUser;
 	private String smtpPass;
 	private List<String> autocreatedNamespaces;
+	private boolean extSourcesForceMultipleIdentifiers;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -638,5 +639,13 @@ public class CoreConfig {
 
 	public void setQueryTimeout(int queryTimeout) {
 		this.queryTimeout = queryTimeout;
+	}
+
+	public void setExtSourcesForceMultipleIdentifiers(boolean extSourcesForceMultipleIdentifiers) {
+		this.extSourcesForceMultipleIdentifiers = extSourcesForceMultipleIdentifiers;
+	}
+
+	public boolean isForceMultipleIdentifiersEnabled() {
+		return extSourcesForceMultipleIdentifiers;
 	}
 }
