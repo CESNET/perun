@@ -26,6 +26,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Displays members overview
@@ -206,7 +207,7 @@ public class MemberOverviewTabItem implements TabItem {
 
 		// attributes to load
 		ArrayList<String> attrs = new ArrayList<String>();
-		// TODO - switch all personal to member attrs
+		// TODO - WE WILL HAVE THIS CONFIGURABLE SOON
 		attrs.add("urn:perun:user:attribute-def:def:organization");
 		attrs.add("urn:perun:user:attribute-def:def:workplace");
 		attrs.add("urn:perun:user:attribute-def:opt:researchGroup");
@@ -215,7 +216,7 @@ public class MemberOverviewTabItem implements TabItem {
 		attrs.add("urn:perun:user:attribute-def:def:phone");
 		attrs.add("urn:perun:user:attribute-def:def:address");
 		attrs.add("urn:perun:user:attribute-def:def:preferredLanguage");
-		attrs.add("urn:perun:member:attribute-def:virt:loa");
+		attrs.add("urn:perun:user:attribute-def:virt:loa");
 		attrs.add("urn:perun:member:attribute-def:def:membershipExpiration");
 		attrs.add("urn:perun:member:attribute-def:def:sponzoredMember");
 
@@ -228,110 +229,75 @@ public class MemberOverviewTabItem implements TabItem {
 		attrsCall.setEvents(new JsonCallbackEvents() {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
+
 				ArrayList<Attribute> list = JsonUtils.jsoAsList(jso);
-				if (list != null && !list.isEmpty()) {
-					for (Attribute a : list) {
-						String value = SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString();
-						if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:def:organization")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(0, 1, value);
-							} else {
-								personalLayout.setHTML(0, 1, notSet);
-							}
-							// set default value width
-						} else if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:def:workplace")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(1, 1, value);
-							} else {
-								personalLayout.setHTML(1, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:opt:researchGroup")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(2, 1, value);
-							} else {
-								personalLayout.setHTML(2, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:def:preferredMail")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(3, 1, value);
-							} else {
-								personalLayout.setHTML(3, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:mail")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(4, 1, value);
-							} else {
-								personalLayout.setHTML(4, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:def:phone")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(5, 1, value);
-							} else {
-								personalLayout.setHTML(5, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:def:address")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(6, 1, value);
-							} else {
-								personalLayout.setHTML(6, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:def:preferredLanguage")) {
-							if (!"null".equals(value)) {
-								personalLayout.setHTML(7, 1, value);
-							} else {
-								personalLayout.setHTML(7, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:virt:loa")) {
-							if (!"null".equals(value)) {
-								String text = "";
-								if (value.equals("0")) {
-									text = " (not verified = default)";
-								} else if (value.equals("1")) {
-									text = " (verified email)";
-								} else if (value.equals("2")) {
-									text = " (verified identity)";
-								} else if (value.equals("3")) {
-									text = " (verified identity, strict password strength)";
-								}
-								personalLayout.setHTML(8, 1, value + text);
-							} else {
-								personalLayout.setHTML(8, 1, notSet);
-							}
-						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:membershipExpiration")) {
-							// set attribute inside member
-							member.setAttribute(a);
-							memberLayout.setWidget(2, 1, new MembershipExpirationWidget(member, tabItem));
-						} else if (a.getName().equalsIgnoreCase("urn:perun:member:attribute-def:def:sponzoredMember")) {
-							if (!"null".equals(value)) {
-								memberLayout.setHTML(4, 1, value + " (ID of RT ticket with explanation)");
-							} else {
-								memberLayout.setHTML(4, 1, "<i>N/A</i>");
-							}
+				Map<String,Attribute> attrMap = new HashMap<>();
+				for (Attribute a : list) {
+					attrMap.put(a.getName(), a);
+				}
 
-						}
+				setValueForLayout(personalLayout, 0, 1, attrMap.get("urn:perun:user:attribute-def:def:organization"), null);
+				setValueForLayout(personalLayout, 1, 1, attrMap.get("urn:perun:user:attribute-def:def:workplace"), null);
+				setValueForLayout(personalLayout, 2, 1, attrMap.get("urn:perun:user:attribute-def:opt:researchGroup"), null);
+				setValueForLayout(personalLayout, 3, 1, attrMap.get("urn:perun:user:attribute-def:def:preferredMail"), null);
+				setValueForLayout(personalLayout, 4, 1, attrMap.get("urn:perun:member:attribute-def:def:mail"), null);
+				setValueForLayout(personalLayout, 5, 1, attrMap.get("urn:perun:user:attribute-def:def:phone"), null);
+				setValueForLayout(personalLayout, 6, 1, attrMap.get("urn:perun:user:attribute-def:def:address"), null);
+				setValueForLayout(personalLayout, 7, 1, attrMap.get("urn:perun:user:attribute-def:def:preferredLanguage"), null);
 
+				String appendLoa = null;
+				if (attrMap.get("urn:perun:user:attribute-def:virt:loa") != null) {
+					Attribute attr = attrMap.get("urn:perun:user:attribute-def:virt:loa");
+					if ("0".equals(attr.getValue())) {
+						appendLoa = " (not verified = default)";
+					} else if ("1".equals(attr.getValue())) {
+						appendLoa = " (verified email)";
+					} else if ("2".equals(attr.getValue())) {
+						appendLoa = " (verified identity)";
+					} else if ("3".equals(attr.getValue())) {
+						appendLoa = " (verified identity, strict password strength)";
 					}
 				}
+				setValueForLayout(personalLayout, 8, 1, attrMap.get("urn:perun:user:attribute-def:virt:loa"), appendLoa);
+
+				setValueForLayout(memberLayout, 4, 1, attrMap.get("urn:perun:member:attribute-def:def:sponzoredMember"), " (ID of RT ticket with explanation)");
+				if (attrMap.containsKey("urn:perun:member:attribute-def:def:membershipExpiration")) {
+					// set attribute inside member
+					member.setAttribute(attrMap.get("urn:perun:member:attribute-def:def:membershipExpiration"));
+					memberLayout.setWidget(2, 1, new MembershipExpirationWidget(member, tabItem));
+				}
+
 			}
 
-		@Override
-		public void onError(PerunError error) {
-			String text = "<span style=\"color: red\">Error while loading";
-			for (int i=0; i<personalLayout.getRowCount(); i++) {
-				personalLayout.setHTML(i, 1, text);
+			private void setValueForLayout(FlexTable layout, int row, int column, Attribute attribute, String append) {
+				if (attribute != null) {
+					String value = SafeHtmlUtils.fromString((attribute.getValue() != null) ? attribute.getValue() : "").asString();
+					if (!"null".equals(value)) {
+						layout.setHTML(row, column, (append != null) ? (value + append) : value);
+						return;
+					}
+				}
+				layout.setHTML(row, column, notSet);
 			}
-			memberLayout.setHTML(2, 1, text);
-			memberLayout.setHTML(4, 1, text);
-		}
 
-		@Override
-		public void onLoadingStart() {
-			for (int i=0; i<personalLayout.getRowCount(); i++) {
-				personalLayout.setWidget(i, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
+			@Override
+			public void onError(PerunError error) {
+				String text = "<span style=\"color: red\">Error while loading";
+				for (int i=0; i<personalLayout.getRowCount(); i++) {
+					personalLayout.setHTML(i, 1, text);
+				}
+				memberLayout.setHTML(2, 1, text);
+				memberLayout.setHTML(4, 1, text);
 			}
-			memberLayout.setWidget(2, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
-			memberLayout.setWidget(4, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
-		}
+
+			@Override
+			public void onLoadingStart() {
+				for (int i=0; i<personalLayout.getRowCount(); i++) {
+					personalLayout.setWidget(i, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
+				}
+				memberLayout.setWidget(2, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
+				memberLayout.setWidget(4, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
+			}
 		});
 
 		attrsCall.getListOfAttributes(ids, attrs);
