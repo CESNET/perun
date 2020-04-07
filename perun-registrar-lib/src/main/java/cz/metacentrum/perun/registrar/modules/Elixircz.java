@@ -42,7 +42,7 @@ public class Elixircz extends DefaultRegistrarModule {
 		if (app.getGroup() == null && Objects.equals(app.getType(), Application.AppType.INITIAL)) {
 
 			// IF VO INITIAL override VO rules to set unlimited (only to those with LoA = 2).
-			Attribute loaAttr = perun.getAttributesManagerBl().getAttribute(session, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
+			Attribute loaAttr = perun.getAttributesManagerBl().getAttribute(session, app.getUser(), AttributesManager.NS_USER_ATTR_VIRT + ":loa");
 			int loa = Integer.valueOf((String) loaAttr.getValue());
 
 			if (loa == 2) {
