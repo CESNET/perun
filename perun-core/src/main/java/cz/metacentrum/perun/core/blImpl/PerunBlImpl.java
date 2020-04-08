@@ -133,10 +133,11 @@ public class PerunBlImpl implements PerunBl {
 		log.debug("creating PerunSession for user {}", principal.getActor());
 		if (principal.getUser() == null && usersManagerBl != null && !dontLookupUsersForLogins.contains(principal.getActor())) {
 			// Get the user if we are completely initialized
+			String shibIdentityProvider = principal.getAdditionalInformations().get(ORIGIN_IDENTITY_PROVIDER_KEY);
 			try {
 				PerunSession internalSession = getPerunSession();
 				User user;
-				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+				if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
 					UserExtSource ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
 					user = usersManagerBl.getUserByUserExtSource(internalSession, ues);
 				} else {
@@ -147,7 +148,7 @@ public class PerunBlImpl implements PerunBl {
 				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
 					UserExtSource ues;
-						if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+						if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
 							ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
 						} else {
 							ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
