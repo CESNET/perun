@@ -62,6 +62,7 @@
 		<property name="autocreatedNamespaces" value="#{'${perun.autocreatedNamespaces}'.split('\s*,\s*')}" />
 		<property name="rtSendToMail" value="${perun.rt.sendToMail}" />
 		<property name="queryTimeout" value="${perun.queryTimeout}" />
+		<property name="defaultLoaIdP" value="${perun.defaultLoa.idp}"/>
 	</bean>
 
 
@@ -123,6 +124,7 @@
 				<prop key="perun.allowedCorsDomains"></prop>
 				<prop key="perun.cacheEnabled">false</prop>
 				<prop key="perun.queryTimeout">-1</prop>
+				<prop key="perun.defaultLoa.idp">2</prop>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->
