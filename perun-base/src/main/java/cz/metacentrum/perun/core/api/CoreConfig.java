@@ -523,6 +523,12 @@ public class CoreConfig {
 					attr.setDescription("PEM encoded X509 certificate");
 					attr.setType(BeansUtils.largeStringClassName);
 					break;
+				case "additionalIdentifiers":
+					attr.setDisplayName("Additional Identifiers");
+					attr.setDescription("Additional unique user identifiers");
+					attr.setType(ArrayList.class.getName());
+					attr.setUnique(true);
+					break;
 				default:
 					attr.setDisplayName(attrName);
 					attr.setDescription(attrName);
