@@ -20,6 +20,7 @@ public class CoreConfig {
 	private final static Logger log = LoggerFactory.getLogger(CoreConfig.class);
 
 	private Properties properties;
+	private String defaultLoaIdP;
 
 	/**
 	 * Stores this bean into static BeansUtils for backward compatibility. Called by init-method in perun-base.xml.
@@ -644,5 +645,13 @@ public class CoreConfig {
 
 	public void setQueryTimeout(int queryTimeout) {
 		this.queryTimeout = queryTimeout;
+	}
+
+	public void setDefaultLoaIdP(String defaultLoaIdP) {
+		this.defaultLoaIdP = defaultLoaIdP;
+	}
+
+	public String getDefaultLoaIdP() {
+		return defaultLoaIdP;
 	}
 }

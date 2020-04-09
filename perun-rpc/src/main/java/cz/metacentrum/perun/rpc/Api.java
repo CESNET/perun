@@ -222,7 +222,7 @@ public class Api extends HttpServlet {
 			extSourceName = getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
 			extSourceType = ExtSourcesManager.EXTSOURCE_IDP;
 			extSourceLoaString = getStringAttribute(req, LOA);
-			if(isEmpty(extSourceLoaString)) extSourceLoaString = "2";
+			if(isEmpty(extSourceLoaString)) extSourceLoaString = BeansUtils.getCoreConfig().getDefaultLoaIdP();
 
 			// FIXME: find better place where do the operation with attributes from federation
 			String eppn = getStringAttribute(req, "eppn");
