@@ -4741,6 +4741,201 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(allAttributes, richGroups.get(0).getAttributes());
 	}
 
+	@Test(expected=MemberNotExistsException.class)
+	public void reactivateMemberThatIsNotInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "reactivateMemberThatIsNotInGroup");
+
+		// set up member and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		// Try to reactivate membership
+		groupsManagerBl.reactivateMember(sess, member, group);
+	}
+
+	@Test
+	public void reactivateMemberStatus() throws Exception {
+		System.out.println(CLASS_NAME + "reactivateMemberStatus");
+
+		// set up member and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		// set up group and add member to group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member);
+
+		// expire member
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		// check that member is really expired
+		assertEquals("membership status must be EXPIRED", groupsManagerBl.getDirectMemberGroupStatus(sess, member, group), MemberGroupStatus.EXPIRED);
+
+		groupsManagerBl.reactivateMember(sess, member, group);
+
+		assertEquals("membership status must be VALID", groupsManagerBl.getDirectMemberGroupStatus(sess, member, group), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void reactivateMemberWithExtensionByRelativeDate() throws Exception {
+		System.out.println(CLASS_NAME + "reactivateMemberWithExtensionByRelativeDate");
+
+		// set up member and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		// set up group and add member to group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member);
+
+		// set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// try to reactivate membership
+		groupsManagerBl.reactivateMember(sess, member, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.now().plusDays(10);
+
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
+	}
+
+	@Test
+	public void reactivateMemberWithExtensionByAbsoluteDate() throws Exception {
+		System.out.println(CLASS_NAME + "reactivateMemberWithExtensionByAbsoluteDate");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member);
+
+		// set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// try to reactivate membership
+		groupsManagerBl.reactivateMember(sess, member, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.of(LocalDate.now().getYear()+1, 1, 1);
+
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
+	}
+
+	@Test
+	public void reactivateMemberWithExtensionForDefinedLoa() throws Exception {
+		System.out.println(CLASS_NAME + "reactivateMemberWithExtensionForDefinedLoa");
+
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member);
+
+		// set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "0|+1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// try to reactivate membership
+		groupsManagerBl.reactivateMember(sess, member, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.now().plusMonths(1);
+
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
+	}
+
+	@Test
+	public void reactivateMemberOutsideGracePeriod() throws Exception {
+		System.out.println(CLASS_NAME + "reactivateMemberOutsideGracePeriod");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// set expiration date to one day after grace period
+		LocalDate afterTwelveDays = LocalDate.now().plusDays(12);
+
+		Attribute membershipAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
+		membershipAttribute.setValue(afterTwelveDays.toString());
+		attributesManager.setAttribute(sess, member, group, membershipAttribute);
+
+		// try to reactivate membership
+		groupsManagerBl.reactivateMember(sess, member, group);
+
+		membershipAttribute = attributesManager.getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
+
+		LocalDate requiredDate = LocalDate.now().plusDays(10);
+
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
