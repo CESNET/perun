@@ -83,6 +83,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModule;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -125,12 +126,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private static final String A_USER_DEF_ALT_PASSWORD_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
 
-	private static final String PASSWORD_VALIDATE = "validate";
 	private static final String PASSWORD_CREATE = "create";
-	private static final String PASSWORD_RESERVE = "reserve";
-	private static final String PASSWORD_RESERVE_RANDOM = "reserve_random";
-	private static final String PASSWORD_CHANGE = "change";
-	private static final String PASSWORD_CHECK = "check";
 	private static final String PASSWORD_DELETE = "delete";
 
 	public final static String multivalueAttributeSeparatorRegExp = ";";
@@ -640,16 +636,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames) throws InternalErrorException {
 		return getUserExtSources(sess, user).stream()
-			.map(ues -> new RichUserExtSource(ues,
-				attrsNames == null ? getPerunBl().getAttributesManagerBl().getAttributes(sess, ues)
-					: getPerunBl().getAttributesManagerBl().getAttributes(sess, ues, attrsNames)))
-			.collect(Collectors.toList());
+				.map(ues -> new RichUserExtSource(ues,
+						attrsNames == null ? getPerunBl().getAttributesManagerBl().getAttributes(sess, ues)
+								: getPerunBl().getAttributesManagerBl().getAttributes(sess, ues, attrsNames)))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<RichUserExtSource> filterOnlyAllowedAttributesForRichUserExtSources(PerunSession sess, List<RichUserExtSource> richUserExtSources) {
 		richUserExtSources.forEach(rues -> rues.setAttributes(
-			AuthzResolverBlImpl.filterNotAllowedAttributes(sess, rues.asUserExtSource(), rues.getAttributes())));
+				AuthzResolverBlImpl.filterNotAllowedAttributes(sess, rues.asUserExtSource(), rues.getAttributes())));
 		return richUserExtSources;
 	}
 
@@ -1167,13 +1163,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return users;
 	}
 
-	/**
-	 * Method which calls external program for password reservation.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param loginNamespace
-	 */
 	@Override
 	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
@@ -1188,14 +1177,18 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 
 			// Create the password
+			PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 			try {
-				this.managePassword(sess, PASSWORD_RESERVE_RANDOM, (String) attr.getValue(), loginNamespace, null);
+				module.reserveRandomPassword(sess, attr.valueAsString());
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
 			} catch (PasswordOperationTimeoutRuntimeException e) {
 				throw new PasswordOperationTimeoutException(e);
 			} catch (PasswordStrengthFailedRuntimeException e) {
 				throw new PasswordStrengthFailedException(e);
+			} catch (Exception ex) {
+				// fallback for exception compatibility
+				throw new PasswordCreationFailedException("Password creation failed for " + loginNamespace + ":" + attr.valueAsString() + ".", ex);
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new LoginNotExistsException(e);
@@ -1204,39 +1197,27 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
-	/**
-	 * Method which calls external program for password reservation.
-	 *
-	 * @param sess
-	 * @param userLogin
-	 * @param loginNamespace
-	 * @param password
-	 */
 	@Override
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
 			PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Reserve the password
+		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 		try {
-			this.managePassword(sess, PASSWORD_RESERVE, userLogin, loginNamespace, password);
+			module.reservePassword(sess, userLogin, password);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		} catch (PasswordOperationTimeoutRuntimeException e) {
 			throw new PasswordOperationTimeoutException(e);
 		} catch (PasswordStrengthFailedRuntimeException e) {
 			throw new PasswordStrengthFailedException(e);
+		} catch (Exception ex) {
+			// fallback for exception compatibility
+			throw new PasswordCreationFailedException("Password creation failed for " + loginNamespace + ":" + userLogin + ".", ex);
 		}
 	}
 
-	/**
-	 * Method which calls external program for password reservation. User and login is already known.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param loginNamespace
-	 * @param password
-	 */
 	@Override
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
 			PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
@@ -1251,14 +1232,18 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 
 			// Create the password
+			PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 			try {
-				this.managePassword(sess, PASSWORD_RESERVE, (String) attr.getValue(), loginNamespace, password);
+				module.reservePassword(sess, attr.valueAsString(), password);
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
 			} catch (PasswordOperationTimeoutRuntimeException e) {
 				throw new PasswordOperationTimeoutException(e);
 			} catch (PasswordStrengthFailedRuntimeException e) {
 				throw new PasswordStrengthFailedException(e);
+			} catch (Exception ex) {
+				// fallback for exception compatibility
+				throw new PasswordCreationFailedException("Password creation failed for " + loginNamespace + ":" + attr.valueAsString() + ".", ex);
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new LoginNotExistsException(e);
@@ -1267,33 +1252,20 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
-	/**
-	 * Method which calls external program for password validation.
-	 *
-	 * @param sess
-	 * @param userLogin
-	 * @param loginNamespace
-	 */
 	@Override
 	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
 			PasswordCreationFailedException {
 		log.info("Validating password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Validate the password
+		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 		try {
-			this.managePassword(sess, PASSWORD_VALIDATE, userLogin, loginNamespace, null);
+			module.validatePassword(sess, userLogin);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		}
 	}
 
-	/**
-	 * Method which calls external program for password validation. User and login is already known.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param loginNamespace
-	 */
 	@Override
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
 			PasswordCreationFailedException, LoginNotExistsException {
@@ -1307,9 +1279,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
 			}
 
-			// Create the password
+			// Validate the password
+			PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 			try {
-				this.managePassword(sess, PASSWORD_VALIDATE, (String) attr.getValue(), loginNamespace, null);
+				module.validatePassword(sess, attr.valueAsString());
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
 			}
@@ -1320,13 +1293,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
-	/**
-	 * Method which calls external program for password validation. User and login is already known.
-	 *
-	 * @param sess
-	 * @param userLogin
-	 * @param loginNamespace
-	 */
 	@Override
 	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		/*
@@ -1592,90 +1558,27 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
-	/**
-	 * Method which calls external program for password creation.
-	 *
-	 * @param sess
-	 * @param userLogin
-	 * @param loginNamespace
-	 * @param password
-	 */
-	@Override
-	@Deprecated
-	public void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-			PasswordCreationFailedException {
-		log.info("Creating password for {} in login-namespace {}.", userLogin, loginNamespace);
-
-		// Create the password
-		try {
-			this.managePassword(sess, PASSWORD_CREATE, userLogin, loginNamespace, password);
-		} catch (PasswordCreationFailedRuntimeException e) {
-			throw new PasswordCreationFailedException(e);
-		}
-	}
-
-	/**
-	 * Method which calls external program for password creation. User and login is already known.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param loginNamespace
-	 * @param password
-	 */
-	@Override
-	@Deprecated
-	public void createPassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-			PasswordCreationFailedException, LoginNotExistsException {
-		log.info("Creating password for {} in login-namespace {}.", user, loginNamespace);
-
-		// Get login.
-		try {
-			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
-
-			if (attr.getValue() == null) {
-				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
-			}
-
-			// Create the password
-			try {
-				this.managePassword(sess, PASSWORD_CREATE, (String) attr.getValue(), loginNamespace, password);
-			} catch (PasswordCreationFailedRuntimeException e) {
-				throw new PasswordCreationFailedException(e);
-			}
-		} catch (AttributeNotExistsException e) {
-			throw new LoginNotExistsException(e);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	/**
-	 * Method which calls external program for password deletion.
-	 *
-	 * @param sess
-	 * @param userLogin
-	 * @param loginNamespace
-	 */
 	@Override
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException, LoginNotExistsException,
 			PasswordDeletionFailedException, PasswordOperationTimeoutException {
 		log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Delete the password
+		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 		try {
-			this.managePassword(sess, PASSWORD_DELETE, userLogin, loginNamespace, null);
+			module.deletePassword(sess, userLogin);
 		} catch (PasswordDeletionFailedRuntimeException e) {
 			throw new PasswordDeletionFailedException(e);
 		} catch (LoginNotExistsRuntimeException e) {
 			throw new LoginNotExistsException(e);
 		}  catch (PasswordOperationTimeoutRuntimeException e) {
 			throw new PasswordOperationTimeoutException(e);
+		} catch (Exception ex) {
+			// fallback for exception compatibility
+			throw new PasswordDeletionFailedException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".", ex);
 		}
 	}
 
-	/**
-	 * Method which calls external program for password change.
-	 */
 	@Override
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
 			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
@@ -1691,26 +1594,34 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException(e);
 		}
 
+		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
+
 		// Check password if it was requested
 		if (checkOldPassword) {
 			try {
-				this.managePassword(sess, PASSWORD_CHECK, (String) userLogin.getValue(), loginNamespace, oldPassword);
+				module.checkPassword(sess, userLogin.valueAsString(), oldPassword);
 			} catch (PasswordDoesntMatchRuntimeException e) {
 				throw new PasswordDoesntMatchException(e);
 			} catch (PasswordOperationTimeoutRuntimeException e) {
 				throw new PasswordOperationTimeoutException(e);
+			} catch (Exception ex) {
+				// fallback for exception compatibility
+				throw new PasswordDoesntMatchException("Old password doesn't match for " + loginNamespace + ":" + userLogin + ".", ex);
 			}
 		}
 
 		// Change the password
 		try {
-			this.managePassword(sess, PASSWORD_CHANGE, (String) userLogin.getValue(), loginNamespace, newPassword);
+			module.changePassword(sess, userLogin.valueAsString(), newPassword);
 		} catch (PasswordChangeFailedRuntimeException e) {
 			throw new PasswordChangeFailedException(e);
 		} catch (PasswordOperationTimeoutRuntimeException e) {
 			throw new PasswordOperationTimeoutException(e);
 		} catch (PasswordStrengthFailedRuntimeException e) {
 			throw new PasswordStrengthFailedException(e);
+		} catch (Exception ex) {
+			// fallback for exception compatibility
+			throw new PasswordChangeFailedException("Password change failed for " + loginNamespace + ":" + userLogin + ".", ex);
 		}
 
 		//validate and set user ext sources
@@ -1720,145 +1631,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new PasswordChangeFailedException(ex);
 		} catch(ExtSourceNotExistsException | AttributeValueException ex) {
 			throw new InternalErrorException(ex);
-		}
-	}
-
-	/**
-	 * Calls external program which do the job with the password.
-	 *
-	 * Return codes of the external program
-	 * If password check fails then return 1
-	 * If there is no handler for loginNamespace return 2
-	 * If setting of the new password failed return 3
-	 *
-	 * @param sess
-	 * @param operation
-	 * @param userLogin
-	 * @param loginNamespace
-	 * @param password
-	 * @throws InternalErrorException
-	 */
-	protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password) throws InternalErrorException {
-
-		// If new PWDMGR module exists, use-it
-		PasswordManagerModule module = null;
-
-		try {
-			module = getPasswordManagerModule(sess, loginNamespace);
-		} catch (Exception ex) {
-			// silently skip
-		}
-
-		if (module != null) {
-
-			if (operation.equals(PASSWORD_RESERVE)) {
-				try {
-					module.reservePassword(sess, userLogin, password);
-					return;
-				} catch (Exception ex) {
-					throw new PasswordCreationFailedRuntimeException("Password creation failed for " + loginNamespace + ":" + userLogin + ".");
-				}
-			}
-			if (operation.equals(PASSWORD_RESERVE_RANDOM)) {
-				try {
-					module.reserveRandomPassword(sess, userLogin);
-					return;
-				} catch (Exception ex) {
-					throw new PasswordCreationFailedRuntimeException("Password creation failed for " + loginNamespace + ":" + userLogin + ".");
-				}
-			}
-			if (operation.equals(PASSWORD_CHECK)) {
-				try {
-					module.checkPassword(sess, userLogin, password);
-					return;
-				} catch (Exception ex) {
-					throw new PasswordDoesntMatchRuntimeException("Old password doesn't match for " + loginNamespace + ":" + userLogin + ".");
-				}
-			}
-			if (operation.equals(PASSWORD_VALIDATE)) {
-				module.validatePassword(sess, userLogin);
-				return;
-			}
-			if (operation.equals(PASSWORD_CHANGE)) {
-				try {
-					module.changePassword(sess, userLogin, password);
-					return;
-				} catch (Exception ex) {
-					throw new PasswordChangeFailedRuntimeException("Password change failed for " + loginNamespace + ":" + userLogin + ".");
-				}
-			}
-			if (operation.equals(PASSWORD_DELETE)) {
-				try {
-					module.deletePassword(sess, userLogin);
-					return;
-				} catch (Exception ex) {
-					throw new PasswordDeletionFailedRuntimeException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".");
-				}
-			}
-
-		}
-
-		// use good old way
-
-		// Check validity of original password
-		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getCoreConfig().getPasswordManagerProgram(),
-				operation, loginNamespace, userLogin);
-
-		Process process;
-		try {
-			process = pb.start();
-		} catch (IOException e) {
-			throw new InternalErrorException(e);
-		}
-
-		InputStream es = process.getErrorStream();
-
-		if (operation.equals(PASSWORD_CHANGE) || operation.equals(PASSWORD_CHECK)  || operation.equals(PASSWORD_RESERVE)) {
-			OutputStream os = process.getOutputStream();
-			if (password == null || password.isEmpty()) {
-				throw new EmptyPasswordRuntimeException("Password for " + loginNamespace + ":" + userLogin + " cannot be empty.");
-			}
-			// Write password to the stdin of the program
-			PrintWriter pw = new PrintWriter(os, true);
-			pw.write(password);
-			pw.close();
-		}
-
-		// If non-zero exit code is returned, then try to read error output
-		try {
-			if (process.waitFor() != 0) {
-				if (process.exitValue() == 1) {
-					throw new PasswordDoesntMatchRuntimeException("Old password doesn't match for " + loginNamespace + ":" + userLogin + ".");
-				} else if (process.exitValue() == 3) {
-					throw new PasswordChangeFailedRuntimeException("Password change failed for " + loginNamespace + ":" + userLogin + ".");
-				} else if (process.exitValue() == 4) {
-					throw new PasswordCreationFailedRuntimeException("Password creation failed for " + loginNamespace + ":" + userLogin + ".");
-				} else if (process.exitValue() == 5) {
-					throw new PasswordDeletionFailedRuntimeException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".");
-				} else if (process.exitValue() == 6) {
-					throw new LoginNotExistsRuntimeException("User login doesn't exists in underlying system for " + loginNamespace + ":" + userLogin + ".");
-				} else if (process.exitValue() == 11) {
-					throw new PasswordStrengthFailedRuntimeException("Password to set doesn't match expected restrictions for " + loginNamespace + ":" + userLogin + ".");
-				} else if (process.exitValue() == 12) {
-					throw new PasswordOperationTimeoutRuntimeException("Operation with password exceeded expected limit for " + loginNamespace + ":" + userLogin + ".");
-				} else {
-					// Some other error occured
-					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));
-					StringBuilder errorMsg = new StringBuilder();
-					String line;
-					try {
-						while ((line = inReader.readLine()) != null) {
-							errorMsg.append(line);
-						}
-					} catch (IOException e) {
-						throw new InternalErrorException(e);
-					}
-
-					throw new InternalErrorException(errorMsg.toString());
-				}
-			}
-		} catch (InterruptedException e) {
-			throw new InternalErrorException(e);
 		}
 	}
 
@@ -2330,7 +2102,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
-		return getUsersManagerImpl().generateAccount(session, namespace, parameters);
+		PasswordManagerModule module = getPasswordManagerModule(session, namespace);
+		return module.generateAccount(session, parameters);
 	}
 
 	@Override
@@ -2341,8 +2114,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return getUsersManagerImpl().getSponsors(sess, sponsoredMember);
 	}
 
-	private PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
-		return getUsersManagerImpl().getPasswordManagerModule(session, namespace);
+	@Override
+	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
+		PasswordManagerModule module = getUsersManagerImpl().getPasswordManagerModule(session, namespace);
+		if (module == null) {
+			log.info("Password manager module for '{}' not found. Loading 'generic' password manager module instead.", namespace);
+			module = getUsersManagerImpl().getPasswordManagerModule(session, "generic");
+			if (module instanceof GenericPasswordManagerModule) {
+				// set proper login-namespace to the generic module
+				((GenericPasswordManagerModule) module).setActualLoginNamespace(namespace);
+			}
+		}
+		if (module == null) {
+			log.error("No password manager module found by the class loader for both '{}' and 'generic' namespaces.", namespace);
+			throw new InternalErrorException("No password manager module implementation found by the class loader for both '"+namespace+"' and 'generic' namespaces.");
+		}
+		return module;
 	}
 
 	@Override
@@ -2439,7 +2226,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException | InternalErrorException e) {
 			log.warn("Failed to get template attribute for password reset in namespace {}, using default. Exception " +
-				"class: {}, Exception message: {}", loginNamespace, e.getClass().getName(), e.getMessage());
+					"class: {}, Exception message: {}", loginNamespace, e.getClass().getName(), e.getMessage());
 		}
 
 		return template;

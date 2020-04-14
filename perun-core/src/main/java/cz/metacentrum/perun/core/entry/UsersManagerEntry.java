@@ -980,42 +980,6 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	@Deprecated
-	public void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-			throw new PrivilegeException(sess, "createPassword");
-		}
-
-		// Check if the login is already occupied == reserved, if not throw an exception.
-		// We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
-		if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-			getUsersManagerBl().createPassword(sess, userLogin, loginNamespace, password);
-		} else {
-			throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
-		}
-	}
-
-	@Override
-	@Deprecated
-	public void createPassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) && (!(AuthzResolver.isAuthorized(sess, Role.VOADMIN) && user.isServiceUser()))) {
-			throw new PrivilegeException(sess, "createPassword");
-		}
-
-		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
-		getUsersManagerBl().createPassword(sess, user, loginNamespace, password);
-	}
-
-	@Override
 	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
