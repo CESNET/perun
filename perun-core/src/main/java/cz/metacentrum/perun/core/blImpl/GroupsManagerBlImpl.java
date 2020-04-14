@@ -1084,9 +1084,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for (String groupId : groupsForAddition) {
 			try {
 				Group groupForAddition = getGroupById(sess, Integer.parseInt(groupId));
-				addDirectMember(sess, groupForAddition, member);
-			} catch (InternalErrorException | WrongReferenceAttributeValueException | AlreadyMemberException | WrongAttributeValueException | GroupNotExistsException e) {
-				log.error("Member could not be added to the group, Exception message: " + e.toString());
+				if (isDirectGroupMember(sess, groupForAddition, member)) {
+					reactivateMember(sess, member, groupForAddition);
+				} else {
+					addDirectMember(sess, groupForAddition, member);
+				}
+			} catch (InternalErrorException | GroupNotExistsException | MemberNotExistsException | AlreadyMemberException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+				log.error("Member could not be added to or reactivated in the group, exception message: " + e.toString());
 			}
 		}
 	}
