@@ -2641,20 +2641,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		String idStr = urlParameters.get("i");
 		if (mailManager.getMessageAuthenticationCode(idStr).equals(urlParameters.get("m"))) {
 			int appDataId = Integer.parseInt(idStr, Character.MAX_RADIX);
+			// validate mail
 			jdbc.update("update application_data set assurance_level=1 where id = ?", appDataId);
 			Application app = getApplicationById(jdbc.queryForInt("select app_id from application_data where id = ?", appDataId));
-			boolean verified = tryToVerifyApplication(registrarSession, app);
+			if (app == null) {
+				log.warn("Application for FormItemData ID: {} doesn't exists and therefore mail can't be verified.", appDataId);
+				throw new RegistrarException("Application doesn't exists and therefore mail can't be verified.");
+			}
+
+			// if application is already approved or rejected, fake OK on mail validation and do nothing
+			if (Arrays.asList(AppState.APPROVED, AppState.REJECTED).contains(app.getState())) return true;
+
+			boolean verified = AppState.VERIFIED.equals(app.getState());
+			if (AppState.NEW.equals(app.getState())) {
+				// try to verify only new applications
+				verified = tryToVerifyApplication(registrarSession, app);
+			}
 			if (verified) {
-				// try to APPROVE if auto approve
+				// try to APPROVE only verified and only if auto approve
 				try {
 					tryToAutoApproveApplication(registrarSession, app);
 				} catch (PerunException ex) {
 					// when approval fails, we want this to be silently skipped, since for "user" called method did verified his mail address.
 					log.warn("We couldn't auto-approve application {}, because of error: {}", app, ex);
 				}
-			} else {
-				// send request validation notification
-				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
 			}
 			return true;
 		}

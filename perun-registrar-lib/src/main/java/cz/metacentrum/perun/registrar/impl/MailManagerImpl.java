@@ -1699,7 +1699,13 @@ public class MailManagerImpl implements MailManager {
 			ApplicationFormItem item = d.getFormItem();
 			String value = d.getValue();
 			// if mail field and not validated
-			if (ApplicationFormItem.Type.VALIDATED_EMAIL.equals(item.getType()) && !"1".equals(d.getAssuranceLevel())) {
+			int loa = 0;
+			try {
+				loa = Integer.parseInt(d.getAssuranceLevel());
+			} catch (NumberFormatException ex) {
+				// ignore
+			}
+			if (ApplicationFormItem.Type.VALIDATED_EMAIL.equals(item.getType()) && loa < 1) {
 				if (value != null && !value.isEmpty()) {
 					// set TO
 					message.setRecipients(Message.RecipientType.TO, new InternetAddress[] {new InternetAddress(value)});
