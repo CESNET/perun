@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -233,7 +234,7 @@ public class Api extends HttpServlet {
 
 			// Store IdP used by user to session, since for IdentityConsolidator and Registrar we need to know,
 			// if user logged in through proxy or not - we provide different links etc.
-			additionalInformations.put("originIdentityProvider", shibIdentityProvider);
+			additionalInformations.put(PerunBl.ORIGIN_IDENTITY_PROVIDER_KEY, shibIdentityProvider);
 
 			if (isNotEmpty(remoteUser)) {
 				extLogin = remoteUser;

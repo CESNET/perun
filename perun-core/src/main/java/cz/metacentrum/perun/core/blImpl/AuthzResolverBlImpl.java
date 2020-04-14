@@ -1742,10 +1742,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Refreshing session data for session {}.", sess);
 
 		PerunPrincipal principal = sess.getPerunPrincipal();
+		String shibIdentityProvider = principal.getAdditionalInformations().get(PerunBl.ORIGIN_IDENTITY_PROVIDER_KEY);
 
 		try {
 			User user;
-				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+				if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
 					UserExtSource ues = perunBl.getUsersManagerBl().getUserExtSourceFromMultipleIdentifiers(sess, principal);
 					user = perunBl.getUsersManagerBl().getUserByUserExtSource(sess, ues);
 				} else {
