@@ -30,6 +30,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 public interface PerunBl extends Perun {
 
 	String INTERNALPRINCIPAL = "INTERNAL";
+	String ORIGIN_IDENTITY_PROVIDER_KEY = "originIdentityProvider";
 
 	/**
 	 * Gets a (possibly cached) Perun session.
