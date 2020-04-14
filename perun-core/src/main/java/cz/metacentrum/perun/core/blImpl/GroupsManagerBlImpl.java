@@ -1067,6 +1067,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * If any error occurs, the group will be skipped and the error will be logged.
 	 * If there is an error in getting the attribute, the method will log the error and return
 	 *
+	 * IMPORTANT: groupTrigger attribute shouldn't exist with write rights for any other role than VoAdmin, unless
+	 * the right checks will be added here! Otherwise it could allow a way how to add someone to group he doesn't have
+	 * any rights to.
+	 *
 	 * @param sess PerunSession
 	 * @param group Group from which the member has been removed
 	 * @param member Member to be added to groups in groupTrigger
@@ -4955,7 +4959,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public void reactivateMember(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException {
-		if (!isGroupMember(sess, group, member)) throw new MemberNotExistsException("Member does not belong to this group");
+		//only direct membership has own status and expiration, indirect membership get it's status and expiration from origin group
+		if (!isDirectGroupMember(sess, group, member)) throw new MemberNotExistsException("Member does not belong to this group");
 
 		validateMemberInGroup(sess, member, group);
 
