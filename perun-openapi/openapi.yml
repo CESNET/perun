@@ -751,6 +751,12 @@ components:
           items:
             type: integer
 
+    RTMessage:
+      type: object
+      properties:
+        memberPreferredEmail: { type: string }
+        ticketNumber: { type: integer }
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -1405,6 +1411,14 @@ components:
           schema:
             $ref: "#/components/schemas/AuthzRoles"
 
+    RTMessageResponse:
+      description: Confirmation with e-mail address the ticket was created for
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RTMessage"
+
+
   #####################################################
   #                                                   #
   # PARAMETERS - definitions of often used parameters #
@@ -1957,6 +1971,10 @@ tags:
     description: TasksManager RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-TasksManager.html
+  - name: RTMessagesManager
+    description: RTMessagesManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-RTMessagesManager.html
 
 
 #################################################
@@ -10656,5 +10674,77 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # RTMessagesManager                               #
+  #                                               #
+  #################################################
+
+  /urlinjsonout/rtMessagesManager/sentMessageToRT/q:
+    post:
+      tags:
+        - RTMessagesManager
+      operationId: sentMessageToRTWithQueue
+      summary:  Sends a message to RT. Only text information is sent.
+      parameters:
+        - { name: queue, description: "RT queue", schema: { type: string },  in: query, required: true }
+        - { name: subject, description: "Message subject", schema: { type: string },  in: query, required: true }
+        - { name: text, description: "Message text", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/RTMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/rtMessagesManager/sentMessageToRT/m-q:
+    post:
+      tags:
+        - RTMessagesManager
+      operationId: sentMessageToRTWithMemberQueue
+      summary:  Sends a message to RT. Member id is sent.
+      parameters:
+        - { name: memberId, description: "Member whose e-mail address will be user", schema: { type: integer },  in: query, required: true }
+        - { name: queue, description: "RT queue", schema: { type: string },  in: query, required: true }
+        - { name: subject, description: "Message subject", schema: { type: string },  in: query, required: true }
+        - { name: text, description: "Message text", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/RTMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/rtMessagesManager/sentMessageToRT/v-q:
+    post:
+      tags:
+        - RTMessagesManager
+      operationId: sentMessageToRTWithVoQueue
+      summary:  Sends a message to RT. VO id is sent.
+      parameters:
+        - { name: voId, description: "VO id", schema: { type: integer },  in: query, required: true }
+        - { name: queue, description: "RT queue", schema: { type: string },  in: query, required: true }
+        - { name: subject, description: "Message subject", schema: { type: string },  in: query, required: true }
+        - { name: text, description: "Message text", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/RTMessageResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/rtMessagesManager/sentMessageToRT/v:
+    post:
+      tags:
+        - RTMessagesManager
+      operationId: sentMessageToRTWithVo
+      summary:  Sends a message to RT. VO id is sent. Queue is not sent.
+      parameters:
+        - { name: voId, description: "VO id", schema: { type: integer },  in: query, required: true }
+        - { name: subject, description: "Message subject", schema: { type: string },  in: query, required: true }
+        - { name: text, description: "Message text", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/RTMessageResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
