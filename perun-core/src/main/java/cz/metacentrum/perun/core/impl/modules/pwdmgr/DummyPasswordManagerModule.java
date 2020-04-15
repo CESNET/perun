@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,4 +57,15 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
 	public void deletePassword(PerunSession sess, String userLogin) {
 		log.debug("deletePassword(userLogin={})",userLogin);
 	}
+
+	@Override
+	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) {
+		log.debug("createAlternativePassword(user={},passwordId={})", user, passwordId);
+	}
+
+	@Override
+	public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
+		log.debug("deleteAlternativePassword(user={},passwordId={})", user, passwordId);
+	}
+
 }

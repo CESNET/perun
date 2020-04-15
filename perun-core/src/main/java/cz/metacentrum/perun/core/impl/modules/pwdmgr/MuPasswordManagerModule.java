@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -103,6 +104,16 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	@Override
 	public void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException {
 		throw new InternalErrorException("Deleting user/password in login namespace 'mu' is not supported.");
+	}
+
+	@Override
+	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) {
+		throw new InternalErrorException("Creating alternative password in login namespace 'mu' is not supported.");
+	}
+
+	@Override
+	public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
+		throw new InternalErrorException("Deleting alternative password in login namespace 'mu' is not supported.");
 	}
 
 	/**
