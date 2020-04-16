@@ -202,6 +202,21 @@ components:
       discriminator:
         propertyName: beanName
 
+    AuditEvent:
+      type: object
+      properties:
+        name: { type: string }
+        message: { type: string }
+
+    AuditMessage:
+      type: object
+      properties:
+        event: { $ref: '#/components/schemas/AuditEvent'}
+        id: { type: integer }
+        actor: { type: string }
+        createdAt: { type: string }
+        createdByUid: { type: integer }
+
     ActionType:
       type: string
       description: "Action types for attributes."
@@ -918,6 +933,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Owner"
+
+    ListOfAuditMessagesResponse:
+      description: "returns List<AuditMessage>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/AuditMessage"
 
     AttributeDefinitionResponse:
       description: "returns AttributeDefinition"
@@ -1826,6 +1850,13 @@ components:
       in: query
       required: true
 
+    consumerName:
+      name: consumerName
+      schema:
+        type: string
+      in: query
+      required: true
+
     applicationId:
       name: appId
       description: id of application
@@ -1921,6 +1952,10 @@ tags:
     description: AuthzResolver RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AuthzResolver.html
+  - name: AuditMessagesManager
+    description: AuditMessage RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AuditMessagesManager.html
   - name: UsersManager
     description: UsersManager RPC API in Perun
     externalDocs:
@@ -5049,6 +5084,154 @@ paths:
           $ref: '#/components/responses/GraphDTOResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  #################################################
+  #                                               #
+  # AuditMessagesManager                          #
+  #                                               #
+  #################################################
+
+  /json/AuditMessagesManager/getMessages:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getMessages
+      summary: |
+        Returns 100 newest audit messages from audit log. If there is a less messages than 100,
+        then all of them are returned OR Returns exact number of newest audit messages defined by
+        'count' param (disregarding message IDs). If there is less messages present, then all of them are returned..
+      parameters:
+        - { name: count, in: query, schema: { type: integer },  description: "Messages limit",  required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuditMessagesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/getMessagesByCount:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getMessagesByCount
+      summary: |
+        Returns all messages with IDs within the range from max(ID) to (max(ID)-count),
+        where number of returned messages is equal or less than 'count' param, because some
+        IDs could be skipped in the sequence.
+      parameters:
+        - { name: count, in: query, schema: { type: integer }, description: "Number of IDs to subtract from max_id", required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuditMessagesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/pollConsumerMessages:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: pollConsumerMessages
+      summary: |
+        Returns list of AuditMessages from audit log with IDs > lastProcessedId for
+        registered auditer consumer specified by consumerName param.
+      parameters:
+        - $ref: '#/components/parameters/consumerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuditMessagesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/AuditMessagesManager/setLastProcessedId:
+    post:
+      tags:
+        - AuditMessagesManager
+      operationId: setLastProcessedId
+      summary: |
+        Set ID of last processed message for specified consumer.
+      parameters:
+        - $ref: '#/components/parameters/consumerName'
+        - { name: lastProcessedId, in: query, schema: { type: integer }, description: "id of message to what consumer will be set",  required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/AuditMessagesManager/createAuditerConsumer:
+    post:
+      tags:
+        - AuditMessagesManager
+      operationId: createAuditerConsumer
+      summary: |
+        Creates new auditer consumer with last processed id which equals current auditer log max id.
+      parameters:
+        - $ref: '#/components/parameters/consumerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/getAllAuditerConsumers:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getAllAuditerConsumers
+      summary: |
+        Get all auditer consumers as a map with key=value pairs like String(name)=Integer(lastProcessedId).
+      responses:
+        '200':
+          description: map with key=value pairs like String(name)=Integer(lastProcessedId)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/getLastMessageId:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getLastMessageId
+      summary: |
+        Get ID of last (newest) message in auditer logs.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/AuditMessagesManager/getAuditerMessagesCount:
+    get:
+      tags:
+        - AuditMessagesManager
+      operationId: getAuditerMessagesCount
+      summary: |
+        Get count of all messages stored in auditer logs.
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/AuditMessagesManager/log:
+    post:
+      tags:
+        - AuditMessagesManager
+      operationId: auditMessagesManagerLog
+      summary: |
+        Log arbitrary auditer message/event to the audit log.
+      parameters:
+        -  { name: msg, in: query, schema: { type: string }, description: "Message to be logged", required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
 
   #################################################
