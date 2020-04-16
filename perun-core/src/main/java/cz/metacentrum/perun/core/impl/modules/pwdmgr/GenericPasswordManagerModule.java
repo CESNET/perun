@@ -41,7 +41,10 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	protected static final String PASSWORD_CHECK = "check";
 	protected static final String PASSWORD_DELETE = "delete";
 
-	private String actualLoginNamespace = "generic";
+	protected static final String binTrue = "/bin/true";
+	protected String actualLoginNamespace = "generic";
+	protected String passwordManagerProgram = BeansUtils.getCoreConfig().getPasswordManagerProgram();
+	protected String altPasswordManagerProgram = BeansUtils.getCoreConfig().getAlternativePasswordManagerProgram();
 
 	public String getActualLoginNamespace() {
 		return actualLoginNamespace;
@@ -129,9 +132,9 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	 * @param login Login to perform operation for
 	 * @return Started process
 	 */
-	private Process createPwdManagerProcess(String operation, String loginNamespace, String login) {
+	protected Process createPwdManagerProcess(String operation, String loginNamespace, String login) {
 
-		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getCoreConfig().getPasswordManagerProgram(), operation, loginNamespace, login);
+		ProcessBuilder pb = new ProcessBuilder(passwordManagerProgram, operation, loginNamespace, login);
 
 		Process process;
 		try {
@@ -150,7 +153,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	 * @param process process waiting for password on STDIN
 	 * @param password password to be set
 	 */
-	private void sendPassword(Process process, String password) {
+	protected void sendPassword(Process process, String password) {
 
 		OutputStream os = process.getOutputStream();
 		// Write password to the stdin of the program
@@ -167,7 +170,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	 * @param loginNamespace Namespace in which operation was performed.
 	 * @param userLogin Login for which operation was performed.
 	 */
-	private void handleExit(Process process, String loginNamespace, String userLogin) {
+	protected void handleExit(Process process, String loginNamespace, String userLogin) {
 
 		InputStream es = process.getErrorStream();
 
@@ -198,9 +201,9 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 
 	}
 
-	private Process createAltPwdManagerProcess(String operation, String loginNamespace, User user, String passwordId) {
+	protected Process createAltPwdManagerProcess(String operation, String loginNamespace, User user, String passwordId) {
 
-		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getCoreConfig().getAlternativePasswordManagerProgram(), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
+		ProcessBuilder pb = new ProcessBuilder(altPasswordManagerProgram, operation, loginNamespace, Integer.toString(user.getId()), passwordId);
 
 		Process process;
 		try {
@@ -221,7 +224,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	 * @param loginNamespace Namespace in which operation was performed.
 	 * @param passwordId ID of alt password entry for which it was performed.
 	 */
-	private void handleAltPwdManagerExit(Process process, User user, String loginNamespace, String passwordId) {
+	protected void handleAltPwdManagerExit(Process process, User user, String loginNamespace, String passwordId) {
 
 		InputStream es = process.getErrorStream();
 
