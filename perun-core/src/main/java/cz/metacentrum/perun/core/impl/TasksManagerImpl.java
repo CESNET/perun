@@ -105,7 +105,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public int insertNewTaskResult(TaskResult taskResult, int engineID) throws InternalErrorException {
+	public int insertNewTaskResult(TaskResult taskResult) throws InternalErrorException {
 		int newTaskResultId = Utils.getNewId(jdbc, "tasks_results_id_seq");
 
 		// There was probably an issue with too long a String for VARCHAR2 datatype http://goo.gl/caVxp.
@@ -125,38 +125,23 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 				"insert into tasks_results(" +
 					"id, " +
 					"task_id, " +
+					"engine_id, " +
 					"destination_id, " +
 					"status, " +
 					"err_message, " +
 					"std_message, " +
 					"return_code, " +
-					"timestamp, " +
-					"engine_id) values (?,?,?,?,?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " ,?)",
+					"timestamp) values (?,?,?,?,?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ")",
 				newTaskResultId,
 				taskResult.getTaskId(),
+				1,
 				taskResult.getDestinationId(),
 				taskResult.getStatus().toString(),
 				errorMessage == null ? null : new String(errorMessage, StandardCharsets.UTF_8),
 				standardMessage == null ? null : new String(standardMessage, StandardCharsets.UTF_8),
 				taskResult.getReturnCode(),
-				getDateFormatter().format(taskResult.getTimestamp()),
-				engineID);
+				getDateFormatter().format(taskResult.getTimestamp()));
 		return newTaskResultId;
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	@Override
-	public List<TaskResult> getTaskResults(int engineID) {
-		// jdbc template cannot be null
-		return jdbc.query(
-			"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-				ServicesManagerImpl.serviceMappingSelectQuery +
-				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
-				" left join tasks on tasks.id = tasks_results.task_id" +
-				" left join services on services.id = tasks.service_id" +
-				" where tasks_results.engine_id = ?",
-			TASKRESULT_ROWMAPPER,
-			engineID);
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -174,20 +159,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public TaskResult getTaskResultById(int taskResultId, int engineID) {
-		// jdbc template cannot be null
-		return jdbc.queryForObject(
-			"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-				ServicesManagerImpl.serviceMappingSelectQuery +
-				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
-				" left join tasks on tasks.id = tasks_results.task_id" +
-				" left join services on services.id = tasks.service_id" +
-				" where tasks_results.id = ? and tasks_results.engine_id = ?",
-			TASKRESULT_ROWMAPPER, taskResultId, engineID);
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	@Override
 	public TaskResult getTaskResultById(int taskResultId) {
 		// jdbc template cannot be null
 		return jdbc.queryForObject("select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
@@ -201,23 +172,9 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public int clearByTask(int taskId, int engineID) {
-		// jdbc template cannot be null
-		return jdbc.update("delete from tasks_results where task_id = ? and engine_id = ?", taskId, engineID);
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	@Override
 	public int clearByTask(int taskId) {
 		// jdbc template cannot be null
 		return jdbc.update("delete from tasks_results where task_id = ?", taskId);
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	@Override
-	public int clearAll(int engineID) {
-		// jdbc template cannot be null
-		return jdbc.update("delete from tasks_results where engine_id = ?", engineID);
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -229,12 +186,12 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public int clearOld(int engineID, int numDays) {
+	public int clearOld(int numDays) {
 
 		String compareDate = LocalDateTime.now().minusDays(numDays).format(getDateTimeFormatter());
 
 		// jdbc template cannot be null
-		return jdbc.update("delete from tasks_results where engine_id = ? and " +
+		return jdbc.update("delete from tasks_results where " +
 				"id in (" +
 				"select otr.id from tasks_results otr " +
 				"         left join ( " +
@@ -244,12 +201,12 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 				"		group by tr.destination_id,tr.task_id " +
 				"   )  tmp on otr.task_id = tmp.task_id and otr.destination_id = tmp.destination_id " +
 				"where otr.timestamp < maxtimestamp and otr.timestamp < "+Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'")+" )",
-			engineID, compareDate);
+			compareDate);
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public List<TaskResult> getTaskResultsByTask(int taskId, int engineID) {
+	public List<TaskResult> getTaskResultsByTask(int taskId) {
 		// jdbc template cannot be null
 		return jdbc.query(
 			"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
@@ -257,8 +214,8 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
 				" left join tasks on tasks.id = tasks_results.task_id " +
 				" left join services on services.id = tasks.service_id" +
-				" where tasks_results.task_id = ? and tasks_results.engine_id = ?",
-			TASKRESULT_ROWMAPPER, taskId, engineID);
+				" where tasks_results.task_id = ? ",
+			TASKRESULT_ROWMAPPER, taskId);
 	}
 
 
@@ -288,20 +245,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 				" and tasks_results.id   = tr3.id_max" +
 				" where tasks_results.task_id=?",
 			TASKRESULT_ROWMAPPER, taskId, taskId, taskId);
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	@Override
-	public List<TaskResult> getTaskResultsByTask(int taskId) {
-		// jdbc template cannot be null
-		return jdbc.query(
-			"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
-				ServicesManagerImpl.serviceMappingSelectQuery +
-				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
-				" left join tasks on tasks.id = tasks_results.task_id " +
-				" left join services on services.id = tasks.service_id" +
-				" where tasks_results.task_id = ?",
-			TASKRESULT_ROWMAPPER, taskId);
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -440,7 +383,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	public final static String taskMappingSelectQuery = " tasks.id as tasks_id, tasks.schedule as tasks_schedule, tasks.recurrence as tasks_recurrence, " +
-		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time, tasks.engine_id as tasks_engine_id ";
+		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time ";
 
 	public static final RowMapper<Task> TASK_ROWMAPPER = (resultSet, i) -> {
 
@@ -489,26 +432,15 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		return task;
 	};
 
-	public static final RowMapper<Pair<Task, Integer>> TASK_CLIENT_ROWMAPPER = (resultSet, i) -> {
-
-		Task task = TASK_ROWMAPPER.mapRow(resultSet, i);
-
-		int engineID = resultSet.getInt("tasks_engine_id");
-		if(resultSet.wasNull()) {
-			engineID = -1;
-		}
-		return new Pair<>(task, engineID);
-	};
-
 	@Override
-	public int scheduleNewTask(Task task, int engineID) {
+	public int scheduleNewTask(Task task) {
 		int newTaskId = 0;
 		try {
 			newTaskId = Utils.getNewId(getMyJdbcTemplate(), "tasks_id_seq");
 			// jdbc template cannot be null
 			getMyJdbcTemplate().update(
 				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
-				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
+				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null);
 			log.debug("Added task with ID {}", newTaskId);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
@@ -521,14 +453,14 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	@Override
-	public int insertTask(Task task, int engineID) {
+	public int insertTask(Task task) {
 		int newTaskId = 0;
 		try {
 			newTaskId = task.getId();
 			// jdbc template cannot be null
 			getMyJdbcTemplate().update(
 				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
-				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
+				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
 			log.error("Data: id, service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getServiceId() + ", " + task.getFacilityId() + ", "
@@ -551,27 +483,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id and tasks.service_id=?" +
 					"left join facilities on facilities.id = tasks.facility_id and tasks.facility_id = ?",
 				TASK_ROWMAPPER, serviceId, facilityId);
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		}
-	}
-
-	@Override
-	public Task getTask(Service service, Facility facility, int engineID) {
-		return getTask(service.getId(), facility.getId(), engineID);
-	}
-
-	@Override
-	public Task getTask(int serviceId, int facilityId, int engineID) {
-		try {
-			// jdbc template cannot be null
-			return getMyJdbcTemplate().queryForObject(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id " +
-					"left join facilities on facilities.id = tasks.facility_id " +
-					"where tasks.service_id = ? and tasks.facility_id = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
-				engineID < 0 ? new Integer[] { serviceId, facilityId } : new Integer[] { serviceId, facilityId, engineID},
-				TASK_ROWMAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}
@@ -606,42 +517,11 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	@Override
-	public Task getTaskById(int id, int engineID) {
-		try {
-			// jdbc template cannot be null
-			return getMyJdbcTemplate().queryForObject(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-					", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
-					"left join facilities on facilities.id = tasks.facility_id where tasks.id = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
-				engineID < 0 ? new Integer[] { id } : new Integer[] { id, engineID }, TASK_ROWMAPPER);
-		} catch (EmptyResultDataAccessException ex) {
-			return null;
-		}
-	}
-
-	@Override
 	public List<Task> listAllTasks() {
 		// jdbc template cannot be null
 		return getMyJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 			", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
 			"left join facilities on facilities.id = tasks.facility_id", TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listAllTasks(int engineID) {
-		// jdbc template cannot be null
-		return getMyJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left where tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
-			engineID < 0 ? new Integer[] { } : new Integer[] { engineID }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Pair<Task, Integer>> listAllTasksAndClients() {
-		// jdbc template cannot be null
-		return getMyJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-			", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
-			"left join facilities on facilities.id = tasks.facility_id", TASK_CLIENT_ROWMAPPER);
 	}
 
 	@Override
@@ -655,46 +535,13 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	@Override
-	public List<Task> listAllTasksInState(Task.TaskStatus state, int engineID) {
+	public List<Task> listAllTasksNotInState(Task.TaskStatus state) {
 		String textState = state.toString().toUpperCase();
 		// jdbc template cannot be null
 		return getMyJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
-				"left join facilities on facilities.id = tasks.facility_id where tasks.status = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
-			engineID < 0 ? new Object[] { textState } : new Object[] { textState, engineID }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listAllTasksNotInState(Task.TaskStatus state, int engineID) {
-		String textState = state.toString().toUpperCase();
-		// jdbc template cannot be null
-		return getMyJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
-				"left join facilities on facilities.id = tasks.facility_id where tasks.status != ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
-			engineID < 0 ? new Object[] { textState } : new Object[] { textState, engineID }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public void updateTask(Task task, int engineID) {
-		String scheduled = null;
-		if (task.getSchedule() != null) {
-			scheduled = task.getSchedule().format(getDateTimeFormatter());
-		}
-		String endTime = null;
-		if (task.getEndTime() != null) {
-			endTime = task.getEndTime().format(getDateTimeFormatter());
-		}
-		String startTime = null;
-		if (task.getStartTime() != null) {
-			startTime = task.getStartTime().format(getDateTimeFormatter());
-		}
-
-		// jdbc template cannot be null
-		getMyJdbcTemplate().update(
-			"update tasks set service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
-				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"), task.getServiceId(),
-			task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getId(),
-			engineID < 0 ? null : engineID);
+				"left join facilities on facilities.id = tasks.facility_id where tasks.status != ? ",
+			 new Object[] { textState }, TASK_ROWMAPPER);
 	}
 
 	@Override
@@ -720,33 +567,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	@Override
-	public void updateTaskEngine(Task task, int engineID) throws InternalErrorException {
-		try {
-			// jdbc template cannot be null
-			getMyJdbcTemplate().update(
-				"update tasks set engine_id = ? where id = ?", engineID < 0 ? null : engineID, task.getId());
-		} catch(Exception e) {
-			throw new InternalErrorException("Error updating engine id", e);
-		}
-	}
-
-	@Override
-	public boolean isThereSuchTask(Service service, Facility facility, int engineID) {
-		// jdbc template cannot be null
-		getMyJdbcTemplate().update("select id from services where id = ?", service.getId());
-
-		List<Integer> tasks = getMyJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
-			engineID < 0 ? new Integer[] { service.getId(), facility.getId() }
-				: new Integer[] { service.getId(), facility.getId(),  engineID }, Integer.class);
-		if (tasks.size() == 0) {
-			return false;
-		} else if (tasks.size() > 1) {
-			throw new IllegalArgumentException("There is a duplicate Task for constraints Service[" + service.getId() + "], Facility[" + facility.getId() + "]");
-		}
-		return true;
-	}
-
-	@Override
 	public boolean isThereSuchTask(Service service, Facility facility) {
 		//this.getJdbcTemplate().update("select id from services where id = ? for update", service.getId());
 
@@ -762,28 +582,9 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	@Override
-	public void removeTask(Service service, Facility facility, int engineID) {
-		// jdbc template cannot be null
-		getMyJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
-			engineID < 0 ? new Object[] { service.getId(), facility.getId() }
-				: new Object[] { service.getId(), facility.getId(), engineID });
-	}
-
-	@Override
 	public void removeTask(Service service, Facility facility) {
 		// jdbc template cannot be null
 		getMyJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ?", service.getId(), facility.getId());
-	}
-
-	@Override
-	public void removeTask(int id, int engineID) {
-		if(engineID < 0) {
-			// jdbc template cannot be null
-			getMyJdbcTemplate().update("delete from tasks where id = ? and engine_id is null", id);
-		} else {
-			// jdbc template cannot be null
-			getMyJdbcTemplate().update("delete from tasks where id = ? and engine_id = ?", id, engineID);
-		}
 	}
 
 	@Override
@@ -796,15 +597,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		// jdbc template cannot be null
 		Integer i = getMyJdbcTemplate().queryForObject(sql, args, Integer.class);
 		return (i != null ? i : 0);
-	}
-
-	@Override
-	public int countTasks(int engineID) {
-		if(engineID < 0) {
-			return queryForInt("select count(*) from tasks where engine_id is null");
-		} else {
-			return queryForInt("select count(*) from tasks where engine_id = ?", engineID );
-		}
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 import java.util.List;
@@ -14,13 +15,9 @@ import java.util.List;
  */
 public interface TasksManagerImplApi {
 
-	Task getTask(Service service, Facility facility);
-
-	int insertTask(Task task, int engineID);
+	int insertTask(Task task);
 
 	List<Task> listAllTasks();
-
-	List<Pair<Task, Integer>> listAllTasksAndClients();
 
 	/**
 	 * Returns all tasks associated with selected facility
@@ -32,6 +29,8 @@ public interface TasksManagerImplApi {
 
 	List<Task> listAllTasksInState(Task.TaskStatus state);
 
+	List<Task> listAllTasksNotInState(TaskStatus state);
+
 	void updateTask(Task task);
 
 	void removeTask(int id);
@@ -40,37 +39,15 @@ public interface TasksManagerImplApi {
 
 	Task getTask(int serviceId, int facilityId);
 
-	int scheduleNewTask(Task task, int engineID);
+	int scheduleNewTask(Task task);
 
-	Task getTask(Service service, Facility facility, int engineID);
-
-	Task getTask(int serviceId, int facilityId, int engineID);
+	Task getTask(Service service, Facility facility);
 
 	Task getTaskById(int id);
 
-	Task getTaskById(int id, int engineID);
-
-	List<Task> listAllTasks(int engineID);
-
-	List<Task> listAllTasksInState(Task.TaskStatus state, int engineID);
-
-	void updateTask(Task task, int engineID);
-
-	void updateTaskEngine(Task task, int engineID) throws InternalErrorException;
-
-	boolean isThereSuchTask(Service service, Facility facility, int engineID);
-
 	boolean isThereSuchTask(Service service, Facility facility);
 
-	void removeTask(Service service, Facility facility, int engineID);
-
 	void removeTask(Service service, Facility facility);
-
-	void removeTask(int id, int engineID);
-
-	int countTasks(int engineID);
-
-	List<Task> listAllTasksNotInState(Task.TaskStatus state, int engineID);
 
 	/**
 	 * List TaskResults
@@ -126,19 +103,9 @@ public interface TasksManagerImplApi {
 	 */
 	int clearAll();
 
-	int insertNewTaskResult(TaskResult taskResult, int engineID) throws InternalErrorException;
+	int insertNewTaskResult(TaskResult taskResult) throws InternalErrorException;
 
-	List<TaskResult> getTaskResults(int engineID);
-
-	TaskResult getTaskResultById(int taskResultId, int engineID);
-
-	int clearByTask(int taskId, int engineID);
-
-	int clearAll(int engineID);
-
-	int clearOld(int engineID, int numDays);
-
-	List<TaskResult> getTaskResultsByTask(int taskId, int engineID);
+	int clearOld(int numDays);
 
 	/**
 	 * Returns list of tasks results for defined destinations (string representation).

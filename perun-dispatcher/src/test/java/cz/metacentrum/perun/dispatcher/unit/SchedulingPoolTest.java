@@ -33,7 +33,6 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 
 	@Autowired
 	private SchedulingPool schedulingPool;
-	private EngineMessageProducer engineMessageProducer;
 	private List<Destination> destinations = new ArrayList<Destination>() {{
 		add(new Destination(1, "par_dest1", "host", "PARALLEL"));
 		add(new Destination(2, "par_dest2", "host", "PARALLEL"));
@@ -54,8 +53,7 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 
 		task1.setStatus(TaskStatus.WAITING);
 		task1.setSchedule(LocalDateTime.now());
-		engineMessageProducer = new EngineMessageProducer(1, "test-queue");
-		schedulingPool.addToPool(task1, engineMessageProducer);
+		schedulingPool.addToPool(task1);
 	}
 
 	@After
@@ -69,7 +67,7 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 		System.out.println("SchedulingPool.addTask()");
 
 		Assert.isTrue(schedulingPool.getSize() == 1, "original size is 1");
-		schedulingPool.addToPool(task1, engineMessageProducer);
+		schedulingPool.addToPool(task1);
 		Assert.isTrue(schedulingPool.getSize() == 1, "new size is 1"); // pool already contains this task
 		task2 = new Task();
 		task2.setId(2);
@@ -77,7 +75,7 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 		task2.setFacility(facility1);
 		task2.setDestinations(destinations);
 		task2.setSchedule(LocalDateTime.now());
-		schedulingPool.addToPool(task2, engineMessageProducer);
+		schedulingPool.addToPool(task2);
 		Assert.isTrue(schedulingPool.getSize() == 2, "new size is 2");
 	}
 

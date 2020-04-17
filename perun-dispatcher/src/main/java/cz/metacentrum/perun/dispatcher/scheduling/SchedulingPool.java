@@ -31,15 +31,14 @@ import java.util.List;
 public interface SchedulingPool extends TaskStore {
 
 	/**
-	 * Add Task associated with some engine (or null) to DB and internal scheduling pool.
+	 * Add Task to DB and internal scheduling pool.
 	 *
 	 * @param task Task to be added
-	 * @param engineMessageProducer Message queue producer of some Engine or null
 	 * @return Current size of pool after adding
 	 * @throws InternalErrorException When implementation fails.
 	 * @throws TaskStoreException When Task can't be added.
 	 */
-	int addToPool(Task task, EngineMessageProducer engineMessageProducer) throws InternalErrorException, TaskStoreException;
+	int addToPool(Task task) throws InternalErrorException, TaskStoreException;
 
 	/**
 	 * Adds supplied Task into DelayQueue and reset its source updated flag to false if Task is eligible for running.
@@ -79,37 +78,10 @@ public interface SchedulingPool extends TaskStore {
 	String getReport();
 
 	/**
-	 * Return EngineMessageProducer queue associated with a Task
-	 *
-	 * @param task Task to get EngineMessageProducer for
-	 * @return EngineMessageProducer queue or throws exception
-	 * @throws InternalErrorException When Task has no EngineMessageProducer associated
-	 */
-	EngineMessageProducer getEngineMessageProducerForTask(Task task) throws InternalErrorException;
-
-	/**
-	 * Set EngineMessageProducer queue for a Task.
-	 *
-	 * @param task Task to set EngineMessageProducer queue
-	 * @param queueForTask EngineMessageProducer queue to set
-	 * @throws InternalErrorException When Task doesn't exists in a pool
-	 */
-	void setEngineMessageProducerForTask(Task task, EngineMessageProducer queueForTask) throws InternalErrorException;
-
-	/**
-	 * Get all Tasks associated with Engine by its ID
-	 *
-	 * @param clientID ID of Engine
-	 * @return Tasks associated with Engine by its ID
-	 */
-	List<Task> getTasksForEngine(int clientID);
-
-	/**
 	 * Switch all processing Tasks to ERROR if engine was restarted.
 	 *
-	 * @param clientID ID of Engine
 	 */
-	void closeTasksForEngine(int clientID);
+	void closeTasksForEngine();
 
 	/**
 	 * Store change in Task status sent from Engine.
@@ -123,17 +95,15 @@ public interface SchedulingPool extends TaskStore {
 	/**
 	 * Store TaskResult sent from Engine.
 	 *
-	 * @param clientID ID of Engine
 	 * @param string Serialized TaskResult object
 	 */
-	void onTaskDestinationComplete(int clientID, String string);
+	void onTaskDestinationComplete(String string);
 
 	/**
 	 * Store TaskResult sent from Engine.
 	 *
-	 * @param clientID ID of Engine
 	 * @param taskResult TaskResult object
 	 */
-	void onTaskDestinationComplete(int clientID, TaskResult taskResult);
+	void onTaskDestinationComplete(TaskResult taskResult);
 
 }

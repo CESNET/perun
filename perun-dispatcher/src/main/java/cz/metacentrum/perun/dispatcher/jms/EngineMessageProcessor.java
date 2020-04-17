@@ -3,7 +3,6 @@ package cz.metacentrum.perun.dispatcher.jms;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.jms.Connection;
@@ -11,23 +10,21 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
-
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.hornetq.api.jms.JMSFactoryType;
-import org.hornetq.jms.client.HornetQConnectionFactory;
 import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.hornetq.core.remoting.impl.netty.TransportConstants;
+import org.hornetq.jms.client.HornetQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
-import org.hornetq.core.remoting.impl.netty.TransportConstants;
 
 import cz.metacentrum.perun.dispatcher.exceptions.MessageFormatException;
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
-import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
+import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 
 /**
  * Main class ensuring processing of JMS communication between Dispatcher and Engines.
@@ -53,12 +50,11 @@ public class EngineMessageProcessor {
 	private final static Logger log = LoggerFactory.getLogger(EngineMessageProcessor.class);
 
 	private Properties dispatcherProperties;
-	private EngineMessageProducerPool engineMessageProducerPool;
 	private PerunHornetQServer perunHornetQServer;
-	private SmartMatcher smartMatcher;
 	private TaskExecutor taskExecutor;
 	private EngineMessageConsumer engineMessageConsumer;
 	private SchedulingPool schedulingPool;
+	private EngineMessageProducerFactory engineMessageProducerFactory;
 
 	private Session session = null;
 	private boolean processingMessages = false;
@@ -79,15 +75,6 @@ public class EngineMessageProcessor {
 		this.dispatcherProperties = dispatcherProperties;
 	}
 
-	public EngineMessageProducerPool getEngineMessageProducerPool() {
-		return engineMessageProducerPool;
-	}
-
-	@Autowired
-	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
-		this.engineMessageProducerPool = engineMessageProducerPool;
-	}
-
 	public PerunHornetQServer getPerunHornetQServer() {
 		return perunHornetQServer;
 	}
@@ -95,15 +82,6 @@ public class EngineMessageProcessor {
 	@Autowired
 	public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {
 		this.perunHornetQServer = perunHornetQServer;
-	}
-
-	public SmartMatcher getSmartMatcher() {
-		return smartMatcher;
-	}
-
-	@Autowired
-	public void setSmartMatcher(SmartMatcher smartMatcher) {
-		this.smartMatcher = smartMatcher;
 	}
 
 	public TaskExecutor getTaskExecutor() {
@@ -131,6 +109,15 @@ public class EngineMessageProcessor {
 	@Autowired
 	public void setSchedulingPool(SchedulingPool schedulingPool) {
 		this.schedulingPool = schedulingPool;
+	}
+
+	public EngineMessageProducerFactory getEngineMessageProducerFactory() {
+		return engineMessageProducerFactory;
+	}
+
+	@Autowired
+	public void setEngineMessageProducer(EngineMessageProducerFactory engineMessageProducerFactory) {
+		this.engineMessageProducerFactory = engineMessageProducerFactory;
 	}
 
 
@@ -249,23 +236,19 @@ public class EngineMessageProcessor {
 	 * Expected message format is:
 	 *
 	 * Register engine message
-	 * register:x
-	 * where x is an Integer that represents Engine's ID in the Perun DB.
+	 * register
 	 *
 	 * Good bye engine message
-	 * goodbye:x
-	 * where x is an Integer that represents Engine's ID in the Perun DB.
+	 * goodbye
 	 *
 	 * Task status change message
-	 * task:x:y:status:timestamp
-	 * where x is an Integer that represents Engine's ID in the Perun
+	 * task:y:status:timestamp
 	 * y is an Integer that represents task ID
 	 * status is string representation of task status
 	 * timestamp is a string representation of timestamp (long)
 	 *
 	 * Task result message
-	 * taskresult:x:object
-	 * where x is an Integer that represents Engine's ID in the Perun
+	 * taskresult:object
 	 * object is serialized TaskResult object sent from Engine
 	 *
 	 * @see EngineMessageConsumer
@@ -274,7 +257,7 @@ public class EngineMessageProcessor {
 	 * @throws PerunHornetQServerException When HornetQ server is not running
 	 * @throws MessageFormatException When Engine sent malformed JMS message
 	 */
-	protected void processDispatcherQueueAndMatchingRule(String message) throws PerunHornetQServerException, MessageFormatException {
+	protected void processEngineMessage(String message) throws PerunHornetQServerException, MessageFormatException {
 
 		if (perunHornetQServer.isServerRunning() && perunHornetQServer.getJMSServerManager() != null) {
 
@@ -284,65 +267,54 @@ public class EngineMessageProcessor {
 				throw new MessageFormatException("Engine sent empty message");
 			}
 
-			String[] clientIDsplitter = message.split(":", 3);
-			if(clientIDsplitter.length < 2) {
-				throw new MessageFormatException("Engine sent a malformed message, not enough params [" + message + "]");
-			}
-
-			int clientID = 0;
-			try {
-				clientID = Integer.parseInt(clientIDsplitter[1]);
-			} catch (NumberFormatException e) {
-				throw new MessageFormatException("Engine sent a malformed message, can't parse ID of engine [" + message + "]", e);
-			}
+			String[] clientMessageSplitter = message.split(":", 2);
 
 			// process expected messages
-
-			if (clientIDsplitter[0].equalsIgnoreCase("register")) {
+			EngineMessageProducer engineMessageProducer;
+			
+			if (clientMessageSplitter[0].equalsIgnoreCase("register")) {
 
 				// Do we have this queue already?
-				EngineMessageProducer engineMessageProducer = engineMessageProducerPool.getProducerByClient(clientID);
+				engineMessageProducer = engineMessageProducerFactory.getProducer();
+				
 				if (engineMessageProducer != null) {
-					// Yes, so we just reload matching rules...
-					smartMatcher.reloadRulesFromDBForEngine(clientID);
 					// ...and close all tasks that could have been running there
-					schedulingPool.closeTasksForEngine(clientID);
+					schedulingPool.closeTasksForEngine();
 				} else {
 					// No, we have to create the whole JMS queue and load matching rules...
-					createDispatcherQueueForClient(clientID);
+					createDispatcherQueueForClient();
 				}
 
-			} else if (clientIDsplitter[0].equalsIgnoreCase("goodbye")) {
+			} else if (clientMessageSplitter[0].equalsIgnoreCase("goodbye")) {
 
 				// engine is going down, should mark all tasks as failed
-				schedulingPool.closeTasksForEngine(clientID);
-				engineMessageProducerPool.removeProducer(clientID);
+				schedulingPool.closeTasksForEngine();
+				engineMessageProducerFactory.removeProducer();
 
-			} else if (clientIDsplitter[0].equalsIgnoreCase("task")) {
+			} else if (clientMessageSplitter[0].equalsIgnoreCase("task")) {
 
-				clientIDsplitter = message.split(":", 5);
+				clientMessageSplitter = message.split(":", 4);
 
-				if(clientIDsplitter.length < 5) {
+				if(clientMessageSplitter.length < 4) {
 					throw new MessageFormatException("Engine sent a malformed message, not enough params [" + message + "]");
 				}
 
 				try {
 					schedulingPool.onTaskStatusChange(
-							Integer.parseInt(clientIDsplitter[2]),
-							clientIDsplitter[3],
-							clientIDsplitter[4]);
+							Integer.parseInt(clientMessageSplitter[1]),
+							clientMessageSplitter[2],
+							clientMessageSplitter[3]);
 				} catch(NumberFormatException e) {
 					throw new MessageFormatException("Engine sent a malformed message, could not parse client ID", e);
 				}
 
-			} else if (clientIDsplitter[0].equalsIgnoreCase("taskresult")) {
+			} else if (clientMessageSplitter[0].equalsIgnoreCase("taskresult")) {
 
-				clientIDsplitter = message.split(":", 3);
-				if(clientIDsplitter.length < 3) {
+				if(clientMessageSplitter.length < 2) {
 					throw new MessageFormatException("Engine sent a malformed message, not enough params [" + message + "]");
 				}
 
-				schedulingPool.onTaskDestinationComplete(clientID, clientIDsplitter[2]);
+				schedulingPool.onTaskDestinationComplete(clientMessageSplitter[1]);
 
 			} else {
 				throw new MessageFormatException("Engine sent a malformed message, unknown type of message [" + message + "]");
@@ -354,29 +326,12 @@ public class EngineMessageProcessor {
 	}
 
 	/**
-	 * Create JMS queues for all engines (ID passed).
+	 * Create JMS queue for Engine.
 	 *
-	 * @param clientIDs IDs of Engines
-	 * @throws PerunHornetQServerException if HornetQ server is not running
 	 */
-	public void createDispatcherQueuesForClients(Set<Integer> clientIDs) throws PerunHornetQServerException {
-		if (perunHornetQServer.isServerRunning() && perunHornetQServer.getJMSServerManager() != null) {
-			for (Integer clientID : clientIDs) {
-				createDispatcherQueueForClient(clientID);
-			}
-		} else {
-			throw new PerunHornetQServerException("HornetQ server is not running or JMSServerManager is fucked up...");
-		}
-	}
+	private void createDispatcherQueueForClient() {
 
-	/**
-	 * Create JMS queue for Engine specified by its ID.
-	 *
-	 * @param clientID ID of Engine
-	 */
-	private void createDispatcherQueueForClient(Integer clientID) {
-
-		String queueName = "queue" + clientID;
+		String queueName = "queue";
 
 		try {
 			perunHornetQServer.getJMSServerManager().createQueue(false, queueName, null, false);
@@ -384,11 +339,7 @@ public class EngineMessageProcessor {
 			log.error("Can't create JMS {}: {}", queueName, e);
 		}
 
-		EngineMessageProducer engineMessageProducer = new EngineMessageProducer(clientID, queueName, session);
-		// Rules
-		smartMatcher.reloadRulesFromDBForEngine(clientID);
-		// Add to the queue
-		engineMessageProducerPool.addProducer(engineMessageProducer);
+		engineMessageProducerFactory.createProducer(queueName, session);
 	}
 
 }

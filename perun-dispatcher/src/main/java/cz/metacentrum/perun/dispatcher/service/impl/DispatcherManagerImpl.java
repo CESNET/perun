@@ -1,28 +1,25 @@
 package cz.metacentrum.perun.dispatcher.service.impl;
 
-import cz.metacentrum.perun.core.bl.TasksManagerBl;
-import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
-import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
-import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
-import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
-import cz.metacentrum.perun.dispatcher.jms.EngineMessageProcessor;
-import cz.metacentrum.perun.dispatcher.processing.AuditerListener;
-import cz.metacentrum.perun.dispatcher.processing.EventProcessor;
-import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
-import cz.metacentrum.perun.dispatcher.scheduling.PropagationMaintainer;
-import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
-import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
-import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
+import java.util.Properties;
+
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-
-import java.util.Properties;
+import cz.metacentrum.perun.core.bl.TasksManagerBl;
+import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
+import cz.metacentrum.perun.dispatcher.jms.EngineMessageProcessor;
+import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerFactory;
+import cz.metacentrum.perun.dispatcher.processing.AuditerListener;
+import cz.metacentrum.perun.dispatcher.processing.EventProcessor;
+import cz.metacentrum.perun.dispatcher.scheduling.PropagationMaintainer;
+import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
+import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
+import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
 
 /**
  * Implementation of DispatcherManager.
@@ -39,9 +36,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	private PerunHornetQServer perunHornetQServer;
 	private EngineMessageProcessor engineMessageProcessor;
 	private EventProcessor eventProcessor;
-	private SmartMatcher smartMatcher;
 	private SchedulingPool schedulingPool;
-	private EngineMessageProducerPool engineMessageProducerPool;
+	private EngineMessageProducerFactory engineMessageProducerPool;
 	private TasksManagerBl tasksManagerBl;
 	private TaskScheduler taskScheduler;
 	private TaskExecutor taskExecutor;
@@ -83,15 +79,6 @@ public class DispatcherManagerImpl implements DispatcherManager {
 		this.eventProcessor = eventProcessor;
 	}
 
-	public SmartMatcher getSmartMatcher() {
-		return smartMatcher;
-	}
-
-	@Autowired
-	public void setSmartMatcher(SmartMatcher smartMatcher) {
-		this.smartMatcher = smartMatcher;
-	}
-
 	public SchedulingPool getSchedulingPool() {
 		return schedulingPool;
 	}
@@ -101,12 +88,12 @@ public class DispatcherManagerImpl implements DispatcherManager {
 		this.schedulingPool = schedulingPool;
 	}
 
-	public EngineMessageProducerPool getEngineMessageProducerPool() {
+	public EngineMessageProducerFactory getEngineMessageProducerPool() {
 		return engineMessageProducerPool;
 	}
 
 	@Autowired
-	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
+	public void setEngineMessageProducerPool(EngineMessageProducerFactory engineMessageProducerPool) {
 		this.engineMessageProducerPool = engineMessageProducerPool;
 	}
 
@@ -187,12 +174,6 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	}
 
 	@Override
-	public void prefetchRulesAndDispatcherQueues() throws PerunHornetQServerException {
-		smartMatcher.loadAllRulesFromDB();
-		engineMessageProcessor.createDispatcherQueuesForClients(smartMatcher.getClientsWeHaveRulesFor());
-	}
-
-	@Override
 	public void startProcessingSystemMessages() {
 		engineMessageProcessor.startProcessingSystemMessages();
 	}
@@ -266,13 +247,11 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	@Override
 	public void cleanOldTaskResults() {
 		if (cleanTaskResultsJobEnabled) {
-			for (EngineMessageProducer queue : engineMessageProducerPool.getPool()) {
-				try {
-					int numRows = tasksManagerBl.clearOld(queue.getClientID(), 3);
-					log.debug("Cleaned {} old task results for engine {}", numRows, queue.getClientID());
-				} catch (Throwable e) {
-					log.error("Error cleaning old task results for engine {} : {}", queue.getClientID(), e);
-				}
+			try {
+				int numRows = tasksManagerBl.clearOld(3);
+				log.debug("Cleaned {} old task results for engine", numRows);
+			} catch (Throwable e) {
+				log.error("Error cleaning old task results for engine: {}", e);
 			}
 		} else {
 			log.debug("Cleaning of old task results is disabled.");
@@ -301,8 +280,6 @@ public class DispatcherManagerImpl implements DispatcherManager {
 			startPerunHornetQServer();
 			// Start System Queue Processor
 			startProcessingSystemMessages();
-			// Prefetch rules for all the Engines in the Perun DB and create
-			prefetchRulesAndDispatcherQueues();
 			// Reload tasks from database
 			loadSchedulingPool();
 			// Start listening to Audit messages
