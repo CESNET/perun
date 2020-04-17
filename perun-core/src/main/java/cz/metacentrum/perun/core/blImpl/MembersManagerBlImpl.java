@@ -730,6 +730,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) throws InternalErrorException {
+		return getMembersManagerImpl().getMembersByUserWithStatus(sess, user, status);
+	}
+
+	@Override
 	public List<Member> getMembers(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);

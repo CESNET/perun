@@ -1,20 +1,38 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForGroup;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForGroup;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForGroup;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberInvalidated;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberSuspended;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberValidated;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
@@ -161,40 +179,19 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 	private Set<String> getAffiliationsFromGroups(PerunSessionImpl sess, User user) throws InternalErrorException {
 		Set<String> result = new HashSet<>();
 
-		List<Member> userVoMembers = sess.getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-		List<Member> validVoMembers = new ArrayList<>();
-		if (userVoMembers != null && !userVoMembers.isEmpty()) {
-			for (Member member: userVoMembers) {
-				if (member.getStatus() == Status.VALID) {
-					validVoMembers.add(member);
-				}
-			}
-		}
+		List<Member> validVoMembers = sess.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID);
 
-		List<Member> groupMembers = new ArrayList<>();
+		GroupsManagerBl groupsManagerBl = sess.getPerunBl().getGroupsManagerBl();
+
 		List<Group> groupsForAttrCheck = new ArrayList<>();
 		for (Member member : validVoMembers) {
-			List<Group> groups = sess.getPerunBl().getGroupsManagerBl().getMemberGroups(sess, member);
-			if (groups == null || groups.isEmpty()) {
-				continue;
-			}
-
-			for (Group group: groups) {
-				try {
-					Member groupMember = sess.getPerunBl().getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
-					if (groupMember.getGroupStatus() == MemberGroupStatus.VALID) {
-						groupsForAttrCheck.add(group);
-					}
-				} catch (NotGroupMemberException e) {
-					log.debug("User: " + user.getId() + " is not a member of group: " + group.getId() + ", skipping");
-				}
-			}
+			groupsForAttrCheck.addAll(groupsManagerBl.getGroupsWhereMemberIsActive(sess, member));
 		}
 
-		for (Group group: groupsForAttrCheck) {
+		for (Group group : groupsForAttrCheck) {
 			try {
 				Attribute groupAffiliations = sess.getPerunBl().getAttributesManagerBl()
-					.getAttribute(sess, group, getTertiarySourceAttributeName());
+						.getAttribute(sess, group, getTertiarySourceAttributeName());
 				if (groupAffiliations != null && groupAffiliations.valueAsList() != null) {
 					result.addAll(groupAffiliations.valueAsList());
 				}
@@ -210,28 +207,133 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 
 	@Override
 	public List<AttributeHandleIdentifier> getHandleIdentifiers() {
+
 		List<AttributeHandleIdentifier> handleIdentifiers = super.getHandleIdentifiers();
+
+		// member related events
 		handleIdentifiers.add(auditEvent -> {
-			if (auditEvent instanceof AllAttributesRemovedForUser) {
-				return ((AllAttributesRemovedForUser) auditEvent).getUser().getId();
-			} else {
-				return null;
+
+			if (auditEvent instanceof DirectMemberAddedToGroup) {
+				return ((DirectMemberAddedToGroup) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof IndirectMemberAddedToGroup) {
+				return ((IndirectMemberAddedToGroup) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberRemovedFromGroupTotally) {
+				return ((MemberRemovedFromGroupTotally) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberExpiredInGroup) {
+				return ((MemberExpiredInGroup) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberValidatedInGroup) {
+				return ((MemberValidatedInGroup) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberValidated) {
+				return ((MemberValidated) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberExpired) {
+				return ((MemberExpired) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberSuspended) {
+				return ((MemberSuspended) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberDisabled) {
+				return ((MemberDisabled) auditEvent).getMember().getUserId();
+			} else if (auditEvent instanceof MemberInvalidated) {
+				return ((MemberInvalidated) auditEvent).getMember().getUserId();
 			}
+
+			// no match
+			return null;
+
 		});
-		handleIdentifiers.add(auditEvent -> {
-			if (auditEvent instanceof AttributeSetForUser && ((AttributeSetForUser) auditEvent).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
-				return ((AttributeSetForUser) auditEvent).getUser().getId();
-			} else {
-				return null;
-			}
-		});
-		handleIdentifiers.add(auditEvent -> {
-			if (auditEvent instanceof AttributeRemovedForUser && ((AttributeRemovedForUser) auditEvent).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
-				return ((AttributeRemovedForUser) auditEvent).getUser().getId();
-			} else {
-				return null;
-			}
-		});
+
 		return handleIdentifiers;
 	}
+
+	@Override
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+
+		// generic handling
+		List<AuditEvent> resolvingMessages = super.resolveVirtualAttributeValueChange(perunSession, message);
+
+		// handle source user attribute changes
+
+		if (message instanceof AttributeSetForUser &&
+				((AttributeSetForUser) message).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
+
+			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
+			resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeSetForUser) message).getUser()));
+
+		} else if (message instanceof AttributeRemovedForUser &&
+				((AttributeRemovedForUser) message).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
+
+			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
+			resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), ((AttributeRemovedForUser) message).getUser()));
+
+		} else if (message instanceof AllAttributesRemovedForUser) {
+
+			boolean skip = false;
+			try {
+				AttributeDefinition sourceExists = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getSecondarySourceAttributeName());
+				User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, ((AllAttributesRemovedForUser) message).getUser().getId());
+			} catch (AttributeNotExistsException | UserNotExistsException ex) {
+				// silently skip this event, since source attribute couldn't be between deleted
+				// or user no longer exist
+				skip = true;
+			}
+
+			if (!skip) {
+				AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
+				resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), ((AllAttributesRemovedForUser) message).getUser()));
+			}
+
+		}
+
+		// handle group attr changes, exclude "members" group, since its not counted within attr value
+
+		if (message instanceof AttributeSetForGroup &&
+				!VosManager.MEMBERS_GROUP.equals(((AttributeSetForGroup) message).getGroup().getName()) &&
+				((AttributeSetForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
+
+			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
+			// TODO - get only active group users, since expired are not affected by current group affiliations
+			List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, ((AttributeSetForGroup) message).getGroup());
+			for (User user : users) {
+				resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
+			}
+
+		} else if (message instanceof AttributeRemovedForGroup &&
+				!VosManager.MEMBERS_GROUP.equals(((AttributeRemovedForGroup) message).getGroup().getName()) &&
+				((AttributeRemovedForGroup) message).getAttribute().getName().equals(getTertiarySourceAttributeName())) {
+
+			AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
+			// TODO - get only active group users, since expired are not affected by current group affiliations
+			List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, ((AttributeRemovedForGroup) message).getGroup());
+			for (User user : users) {
+				resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
+			}
+
+		} else if (message instanceof AllAttributesRemovedForGroup &&
+				!VosManager.MEMBERS_GROUP.equals(((AllAttributesRemovedForGroup) message).getGroup().getName())) {
+
+			boolean skip = false;
+			try {
+				AttributeDefinition sourceExists = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getTertiarySourceAttributeName());
+				Group group = perunSession.getPerunBl().getGroupsManagerBl().getGroupById(perunSession, ((AllAttributesRemovedForGroup) message).getGroup().getId());
+			} catch (AttributeNotExistsException | GroupNotExistsException ex) {
+				// silently skip this event, since source attribute couldn't be between deleted
+				// or group no longer exist.
+				skip = true;
+			}
+
+			if (!skip) {
+				AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
+				// TODO - get only active group users, since expired are not affected by current group affiliations
+				List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, ((AllAttributesRemovedForGroup) message).getGroup());
+				for (User user : users) {
+					resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
+				}
+			}
+
+		}
+
+		// case AllAttributesRemovedForGroup doesn't matter, everything was processed by removing members before group deletion
+
+		return resolvingMessages;
+
+	}
+
 }
