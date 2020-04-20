@@ -143,7 +143,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 		Attribute manualEPSAAttr = null;
 		try {
 			manualEPSAAttr = sess.getPerunBl().getAttributesManagerBl()
-				.getAttribute(sess, user, getSecondarySourceAttributeName());
+					.getAttribute(sess, user, getSecondarySourceAttributeName());
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException("Wrong assignment of " + getSecondarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
 		} catch (AttributeNotExistsException e) {
