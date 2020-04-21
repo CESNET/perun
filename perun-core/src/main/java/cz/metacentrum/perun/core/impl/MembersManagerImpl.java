@@ -148,6 +148,19 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT " + memberMappingSelectQuery + " FROM" +
+							" members WHERE members.user_id=? and members.status"+Compatibility.castToInteger()+"=?",
+					MEMBER_MAPPER, user.getId(), status.getCode());
+		} catch (EmptyResultDataAccessException ex) {
+			throw new InternalErrorException(new MemberNotExistsException("user=" + user));
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
 	public Member getMemberById(PerunSession sess, int id) throws InternalErrorException, MemberNotExistsException {
 		try {
 			return jdbc.queryForObject("SELECT " + memberMappingSelectQuery + " FROM members "

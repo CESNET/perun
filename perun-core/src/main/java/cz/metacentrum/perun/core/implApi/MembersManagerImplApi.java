@@ -97,17 +97,25 @@ public interface MembersManagerImplApi {
 	Member getMemberByUserId(PerunSession perunSession, Vo vo, int userId) throws InternalErrorException, MemberNotExistsException;
 
 	/**
-	 * Returns members by his user.
+	 * Return all VO Members of the User.
 	 *
-	 * @param perunSession
+	 * @param sess
 	 * @param user
-	 * @return list of members
+	 * @return List of Members
 	 * @throws InternalErrorException
-	 * @throws MemberNotExistsException
-	 * @throws VoNotExistsException
-	 * @throws UserNotExistsException
 	 */
-	List<Member> getMembersByUser(PerunSession perunSession, User user) throws InternalErrorException;
+	List<Member> getMembersByUser(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Return all VO Members of the User, which have specified Status in their VO.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param status
+	 * @return List of Members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) throws InternalErrorException;
 
 	/**
 	 * Check if member exists in underlaying data source.
