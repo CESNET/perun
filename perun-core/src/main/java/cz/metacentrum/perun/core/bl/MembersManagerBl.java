@@ -498,14 +498,25 @@ public interface MembersManagerBl {
 	Member getMemberByUser(PerunSession sess, Vo vo, User user) throws InternalErrorException, MemberNotExistsException;
 
 	/**
-	 * Returns members by his user.
+	 * Return all VO Members of the User.
 	 *
 	 * @param sess
 	 * @param user
-	 * @return member
+	 * @return List of Members
 	 * @throws InternalErrorException
 	 */
 	List<Member> getMembersByUser(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Return all VO Members of the User, which have specified Status in their VO.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param status
+	 * @return List of Members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) throws InternalErrorException;
 
 	/**
 	 * Returns member by his userId.

@@ -61,13 +61,11 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 	private LocalDate valid;
 	private LocalDate invalid;
 	private Member validMember;
-	private Member expiredMember;
 	private Member groupMember1;
 	private Member groupMember2;
 	private final int gId1 = 1;
 	private final int gId2 = 2;
 	private Group group1;
-	private Group group2;
 	private Attribute groupAtt1;
 
 	@Before
@@ -97,10 +95,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		userAtt1.setValue(mapValue);
 
 		group1 = new Group(gId1, "G1", "G1_DSC", null, null, null, null, null, null);
-		group2 = new Group(gId2, "G2", "G2_DSC", null, null, null, null, null, null);
 
 		validMember = new Member(1, 1, 1, Status.VALID);
-		expiredMember = new Member(2, 1, 1, Status.EXPIRED);
 
 		groupMember1 = new Member(1, 1, 1, Status.VALID);
 		groupMember1.setSourceGroupId(gId1);
@@ -143,17 +139,11 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		);
 
 		// AFFILIATIONS_FROM_GROUP
-		when(session.getPerunBl().getMembersManagerBl().getMembersByUser(session, user)).thenReturn(
-				Arrays.asList(validMember, expiredMember)
+		when(session.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(session, user, Status.VALID)).thenReturn(
+				Collections.singletonList(validMember)
 		);
-		when(session.getPerunBl().getGroupsManagerBl().getMemberGroups(session, validMember)).thenReturn(
-				Arrays.asList(group1, group2)
-		);
-		when(session.getPerunBl().getGroupsManagerBl().getGroupMemberById(session, group1, validMember.getId())).thenReturn(
-				groupMember1
-		);
-		when(session.getPerunBl().getGroupsManagerBl().getGroupMemberById(session, group2, validMember.getId())).thenReturn(
-				groupMember2
+		when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, validMember)).thenReturn(
+				Collections.singletonList(group1)
 		);
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
 				groupAtt1
@@ -163,8 +153,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		assertTrue(receivedAttr.getValue() instanceof List);
 		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
 
-		@SuppressWarnings("unchecked")
-		List<String> actual = (List<String>) receivedAttr.getValue();
+		List<String> actual = receivedAttr.valueAsList();
 		Collections.sort(actual);
 		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4, VALUE5, VALUE6);
 		Collections.sort(expected);
@@ -176,17 +165,12 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance = new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
 		PerunSessionImpl session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-		when(session.getPerunBl().getMembersManagerBl().getMembersByUser(session, user)).thenReturn(
-			Arrays.asList(validMember, expiredMember)
+		// AFFILIATIONS_FROM_GROUP
+		when(session.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(session, user, Status.VALID)).thenReturn(
+				Collections.singletonList(validMember)
 		);
-		when(session.getPerunBl().getGroupsManagerBl().getMemberGroups(session, validMember)).thenReturn(
-			Arrays.asList(group1, group2)
-		);
-		when(session.getPerunBl().getGroupsManagerBl().getGroupMemberById(session, group1, validMember.getId())).thenReturn(
-			groupMember1
-		);
-		when(session.getPerunBl().getGroupsManagerBl().getGroupMemberById(session, group2, validMember.getId())).thenReturn(
-			groupMember2
+		when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, validMember)).thenReturn(
+				Collections.singletonList(group1)
 		);
 
 		String tertiarySourceAttrName = classInstance.getTertiarySourceAttributeName();
@@ -198,8 +182,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		assertTrue(receivedAttr.getValue() instanceof List);
 		assertEquals("destination attribute name wrong",classInstance.getDestinationAttributeFriendlyName(),receivedAttr.getFriendlyName());
 
-		@SuppressWarnings("unchecked")
-		List<String> actual = (List<String>) receivedAttr.getValue();
+		List<String> actual = receivedAttr.valueAsList();
 		Collections.sort(actual);
 		List<String> expected = Arrays.asList(VALUE4, VALUE5);
 		Collections.sort(expected);
@@ -262,7 +245,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 	public void resolveAttributeValueChangeTest() throws Exception {
 		when(session.getPerunBl().getUsersManagerBl().getUserById(session, 1)).thenReturn(user);
 		AuditEvent event = new AllAttributesRemovedForUserExtSource(ues1);
-		List auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+		List<AuditEvent> auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
 
 		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
 
