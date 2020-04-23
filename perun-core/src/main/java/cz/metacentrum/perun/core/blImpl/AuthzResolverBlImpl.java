@@ -64,11 +64,13 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +79,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -93,11 +96,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private final static Logger log = LoggerFactory.getLogger(AuthzResolverBlImpl.class);
 	private static AuthzResolverImplApi authzResolverImpl;
 	private static PerunBl perunBl;
+	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 
 	private static final String UNSET_ROLE = "UNSET";
 	private static final String SET_ROLE = "SET";
-
-	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 
 	/**
 	 * Prepare necessary structures and resolve access rights for the session's principal.
@@ -128,6 +130,47 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Map <String, Set<Integer>> mapOfBeans = fetchAllRelatedObjects(objects);
 
 		return resolveAuthorization(sess, policyRoles, mapOfBeans);
+	}
+
+	public static boolean selfAuthorizedForApplication(PerunSession sess, Application app) {
+		//fetch necessary information
+		LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
+		String appShibIdentityProvider = additionalAttributes.get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+		String principalShibIdentityProvider = sess.getPerunPrincipal().getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+
+		//Authorization based on the user
+		if (sess.getPerunPrincipal().getUser() != null && app.getUser() != null && isAuthorized(sess, Role.SELF, app.getUser())) {
+			return true;
+		//Authorization based on the extSourceName and extSourceLogin
+		} else if (Objects.equals(app.getCreatedBy(), sess.getPerunPrincipal().getActor()) &&
+			Objects.equals(app.getExtSourceName(), sess.getPerunPrincipal().getExtSourceName()) &&
+			Objects.equals(app.getExtSourceType(), sess.getPerunPrincipal().getExtSourceType())) {
+			return true;
+		//Authorization based on additional identifiers
+		} else if (principalShibIdentityProvider != null &&
+			principalShibIdentityProvider.equals(appShibIdentityProvider) &&
+			extSourcesWithMultipleIdentifiers.contains(principalShibIdentityProvider) &&
+			Objects.equals(app.getExtSourceName(), sess.getPerunPrincipal().getExtSourceName()) &&
+			Objects.equals(app.getExtSourceType(), sess.getPerunPrincipal().getExtSourceType())) {
+
+			//fetch necessary information
+			String principalAdditionalIdentifiers = sess.getPerunPrincipal().getAdditionalInformations().get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+			String appAdditionalIdentifiers = additionalAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+			if (principalAdditionalIdentifiers == null) {
+				throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
+			}
+			if (appAdditionalIdentifiers == null) {
+				throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME + " is not defined in the application's federation information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
+			}
+
+			//find match between principal and application identifiers
+			List<String> appAdditionalIdentifiersList = Arrays.asList(appAdditionalIdentifiers.split(UsersManagerBl.MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX));
+			for (String identifier : principalAdditionalIdentifiers.split(UsersManagerBl.MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX)) {
+				if (appAdditionalIdentifiersList.contains(identifier))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -1760,16 +1803,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		log.trace("Refreshing session data for session {}.", sess);
 
 		PerunPrincipal principal = sess.getPerunPrincipal();
-		String shibIdentityProvider = principal.getAdditionalInformations().get(PerunBl.ORIGIN_IDENTITY_PROVIDER_KEY);
 
 		try {
-			User user;
-				if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-					UserExtSource ues = perunBl.getUsersManagerBl().getUserExtSourceFromMultipleIdentifiers(sess, principal);
-					user = perunBl.getUsersManagerBl().getUserByUserExtSource(sess, ues);
-				} else {
-					user = perunBl.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, principal.getExtSourceName(), principal.getActor());
-				}
+			User user = getPerunBl().getUsersManagerBl().getUserByExtSourceInformation(sess, principal);
 			sess.getPerunPrincipal().setUser(user);
 		} catch (Exception ex) {
 			// we don't care that user was not found - clear it from session

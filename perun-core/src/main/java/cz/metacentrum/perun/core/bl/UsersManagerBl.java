@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -58,6 +59,11 @@ import java.util.Map;
  * @author Sona Mastrakova
  */
 public interface UsersManagerBl {
+
+	String ORIGIN_IDENTITY_PROVIDER_KEY = "originIdentityProvider";
+	String MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX = ";";
+	String ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME = "additionalIdentifiers";
+	String ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME = AttributesManager.NS_UES_ATTR_DEF + ":" + ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME;
 
 	/**
 	 * Returns user by his login in external source and external source.
@@ -411,6 +417,20 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource);
+
+	/**
+	 * Get user by principal's additional identifiers or extSourceName and extSourceLogin.
+	 * Additional identifiers are used in case principal's extSource was send through proxy which has enabled multiple identifiers.
+	 * extSourceName and extSourceLogin are used otherwise.
+	 *
+	 * @param sess
+	 * @param principal
+	 * @return
+	 * @throws UserExtSourceNotExistsException
+	 * @throws UserNotExistsException
+	 * @throws ExtSourceNotExistsException
+	 */
+	User getUserByExtSourceInformation(PerunSession sess, PerunPrincipal principal) throws UserExtSourceNotExistsException, UserNotExistsException, ExtSourceNotExistsException;
 
 	/**
 	 * Gets list of all users external sources by specific type and extLogin.

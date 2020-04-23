@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Privileges;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.model.Application;
 
 import java.util.Collections;
 import java.util.List;
@@ -72,6 +73,17 @@ public class AuthzResolver {
 		} catch (PolicyNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	/**
+	 * Check if the principal is the owner of the application.
+	 *
+	 * @param sess PerunSession which contains the principal.
+	 * @param app application which principal wants to access
+	 * @return true if the principal has particular rights, false otherwise.
+	 */
+	public static boolean selfAuthorizedForApplication(PerunSession sess, Application app) {
+		return AuthzResolverBlImpl.selfAuthorizedForApplication(sess, app);
 	}
 
 	/**
