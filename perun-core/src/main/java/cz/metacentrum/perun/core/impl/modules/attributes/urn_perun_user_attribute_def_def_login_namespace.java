@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Class for checking login uniqueness in the namespace and filling login value in namespace
@@ -36,6 +37,8 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 
 	protected final static List<String> generatedNamespaces = BeansUtils.getCoreConfig().getGeneratedLoginNamespaces();
 
+	protected final static Pattern defaultLoginPattern = Pattern.compile("^[a-zA-Z0-9_][-A-z0-9_.@/]*$");
+
 	/**
 	 * Checks if the user's login is in the correct format and if it is permitted to use
 	 *
@@ -50,7 +53,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		if (attribute.getValue() == null) return;
 
 		//Check attribute regex
-		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[a-zA-Z0-9_][-A-z0-9_.@/]*$");
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, defaultLoginPattern);
 		//Check if user login is permitted or not permitted
 		sess.getPerunBl().getModulesUtilsBl().checkUnpermittedUserLogins(attribute);
 	}

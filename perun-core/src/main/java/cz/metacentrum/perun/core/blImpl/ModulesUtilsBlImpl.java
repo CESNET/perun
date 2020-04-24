@@ -639,7 +639,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkAttributeRegex(Attribute attribute, String defaultRegex) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeRegex(Attribute attribute, Pattern defaultRegex) throws InternalErrorException, WrongAttributeValueException {
 		if (attribute == null || attribute.getValue() == null) throw new InternalErrorException("Attribute or it's value is null.");
 		String attributeValue = (String) attribute.getValue();
 		checkPerunNamespacesMap();
@@ -658,8 +658,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			}
 		} else {
 			//Regex property not found in our attribute map, so use the default hardcoded regex
-			if (defaultRegex == null) return;
-			if (!attributeValue.matches(defaultRegex)) {
+			if (!defaultRegex.matcher(attributeValue).matches()) {
 				throw new WrongAttributeValueException(attribute, "Wrong format. Regex: \"" + defaultRegex +"\" expected for this attribute:");
 			}
 		}
