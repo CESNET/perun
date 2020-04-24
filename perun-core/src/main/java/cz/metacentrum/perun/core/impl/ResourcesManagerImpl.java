@@ -354,8 +354,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" left outer join groups_resources on groups_resources.resource_id=resources.id" +
 					" left outer join groups_members on groups_members.group_id=groups_resources.group_id" +
 					" left outer join members on members.id=groups_members.member_id" +
-					" where facilities.id=? and members.user_id=? and members.status!=?",
-					RESOURCE_MAPPER, facility.getId(), user.getId(), String.valueOf(Status.INVALID.getCode()));
+					" where facilities.id=? and members.user_id=? and members.status!=? and members.status!=?",
+					RESOURCE_MAPPER, facility.getId(), user.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		}	catch (RuntimeException e) {
