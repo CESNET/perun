@@ -72,6 +72,9 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public static final Pattern letterPattern = Pattern.compile("[A-Z]");
 	public static final Pattern fqdnPattern = Pattern.compile("^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}\\.?$");
 
+	//previous regex ^/[-a-zA-Z0-9_/]*$"
+	public static final Pattern shellPattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
+
 	public final static List<String> reservedNamesForUnixGroups = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup",
 	          "hadoop", "hdfs", "mapred", "yarn", "hsqldb", "derby", "jetty", "hbase", "zookeeper", "users", "oozie", "hive");
 	public final static List<String> unpermittedNamesForUserLogins = Arrays.asList("arraysvcs", "at", "backup", "bin", "daemon", "Debian-exim", "flexlm", "ftp", "games",
@@ -629,11 +632,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public void checkFormatOfShell(String shell, Attribute attribute) throws WrongAttributeValueException {
-		//previous regex ^/[-a-zA-Z0-9_/]*$"
-		Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
-
-		Matcher match = pattern.matcher(shell);
-
+		Matcher match = shellPattern.matcher(shell);
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, "Bad shell attribute format " + shell);
 		}
