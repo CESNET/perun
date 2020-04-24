@@ -5097,7 +5097,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 */
 	GroupResourceVirtualAttributesModuleImplApi getResourceGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
-		if (attributeModule == null) return null;
+		if (attributeModule == null)
+			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
 
 		if (attributeModule instanceof GroupResourceVirtualAttributesModuleImplApi) {
 			return (GroupResourceVirtualAttributesModuleImplApi) attributeModule;
@@ -5114,7 +5115,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 */
 	MemberResourceVirtualAttributesModuleImplApi getResourceMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
-		if (attributeModule == null) return null;
+		if (attributeModule == null)
+			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
 
 		if (attributeModule instanceof MemberResourceVirtualAttributesModuleImplApi) {
 			return (MemberResourceVirtualAttributesModuleImplApi) attributeModule;
@@ -5131,7 +5133,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 */
 	MemberGroupVirtualAttributesModuleImplApi getMemberGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
-		if (attributeModule == null) return null;
+		if (attributeModule == null)
+			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
 
 		if (attributeModule instanceof MemberGroupVirtualAttributesModuleImplApi) {
 			return (MemberGroupVirtualAttributesModuleImplApi) attributeModule;
