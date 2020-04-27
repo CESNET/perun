@@ -650,7 +650,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -663,7 +663,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, searchString), null, true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, searchString, onlySponsored), null, true);
 	}
 
 	@Override
@@ -1046,7 +1046,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersInVo");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersInVo(sess, vo, searchString), null, true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersInVo(sess, vo, searchString, false), null, true);
 	}
 
 	@Override

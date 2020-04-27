@@ -340,4 +340,17 @@ public interface MembersManagerImplApi {
 	 */
 	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException;
 
+	/**
+	 * Return list of members by specific string.
+	 * Looking for searchString in member mail, user preferredMail, logins, name and IDs (user and member).
+	 * If parameter onlySponsored is true, it will return only sponsored members by searchString.
+	 * If vo is null, looking for any members in whole Perun. If vo is not null, looking only in specific VO.
+	 *
+	 * @param sess
+	 * @param vo for which searching will be filtered, if null there is no filter for vo
+	 * @param searchString it will be looking for this search string in the specific parameters in DB
+	 * @param onlySponsored it will return only sponsored members in vo
+	 * @return all members from specific VO by specific string
+	 */
+	List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
 }

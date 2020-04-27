@@ -699,10 +699,11 @@ public interface MembersManagerBl {
 	 * @param vo
 	 * @param attrsNames
 	 * @param searchString
+	 * @param onlySponsored return only sponsored members
 	 * @return list of founded richMembers with specific attributes from Vo for searchString
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored) throws InternalErrorException;
 
 	/**
 	 * Return list of richMembers by the searchString with attributes specific for list of attrsNames.
@@ -1066,19 +1067,21 @@ public interface MembersManagerBl {
 	 * @param sess
 	 * @param searchString
 	 * @param vo
+	 * @param onlySponsored return only sponsored members
 	 * @return list of rich members
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
+	List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString, boolean onlySponsored) throws InternalErrorException;
 
 	/**
 	 * Return list of rich members by theirs name or login or email
 	 * @param sess
 	 * @param searchString
+	 * @param onlySponsored return only sponsored members
 	 * @return list of rich members
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembers(PerunSession sess, String searchString) throws InternalErrorException;
+	List<RichMember> findRichMembers(PerunSession sess, String searchString, boolean onlySponsored) throws InternalErrorException;
 
 	/**
 	 * Return list of rich members with certain attributes by theirs name or login or email defined VO.
@@ -1086,10 +1089,11 @@ public interface MembersManagerBl {
 	 * @param vo vo
 	 * @param searchString search string
 	 * @param attrsNames list of attribute names that should be found
+	 * @param onlySponsored return only sponsored members
 	 * @return list of rich members with certain attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames, boolean onlySponsored) throws InternalErrorException;
 
 	/**
 	 * Return list of rich members with attributes by theirs name or login or email under defined VO.
@@ -1566,4 +1570,18 @@ public interface MembersManagerBl {
 	 */
 	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException;
 
+	/**
+	 * Return list of members VO by specific string.
+	 * Looking for searchString in member mail, user preferredMail, logins, name and IDs (user and member).
+	 * If parameter onlySponsored is true, it will return only sponsored members by searchString.
+	 * If vo is null, looking for any members in whole Perun. If vo is not null, looking only in specific VO.<
+	 *
+	 * @param sess
+	 * @param vo for which searching will be filtered, if null there is no filter for vo
+	 * @param searchString it will be looking for this search string in the specific parameters in DB
+	 * @param onlySponsored it will return only sponsored members in vo
+	 * @return all members from specific VO by specific string
+	 * @throws InternalErrorException
+	 */
+	List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
 }

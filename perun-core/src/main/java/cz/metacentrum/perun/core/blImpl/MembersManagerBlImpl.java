@@ -827,8 +827,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException {
-		return this.findRichMembersWithAttributesInVo(sess, vo, searchString, attrsNames);
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored) throws InternalErrorException {
+		return this.findRichMembersWithAttributesInVo(sess, vo, searchString, attrsNames, onlySponsored);
 	}
 
 
@@ -839,7 +839,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException {
-		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, vo, attrsNames, searchString), allowedStatuses);
+		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, vo, attrsNames, searchString, false), allowedStatuses);
 	}
 
 	@Override
@@ -1328,38 +1328,24 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 
 	@Override
-	public List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
+	public List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString, boolean onlySposnored) throws InternalErrorException {
 
-		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
-
-		List<Member> members = new ArrayList<>();
-		for (User user: users) {
-			try {
-				members.add(getMembersManagerImpl().getMemberByUserId(sess, vo, user.getId()));
-			} catch (MemberNotExistsException e) {
-				// User is not member of this VO
-			}
-		}
+		List<Member> members = this.findMembers(sess, vo, searchString, onlySposnored);
 
 		return this.convertMembersToRichMembers(sess, this.setAllMembersSameType(members, MembershipType.DIRECT));
 	}
 
 	@Override
-	public List<RichMember> findRichMembers(PerunSession sess, String searchString) throws InternalErrorException {
+	public List<RichMember> findRichMembers(PerunSession sess, String searchString, boolean onlySponsored) throws InternalErrorException {
 
-		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
-
-		List<Member> members = new ArrayList<>();
-		for (User user: users) {
-			members.addAll(getMembersByUser(sess, user));
-		}
+		List<Member> members = this.findMembers(sess, null, searchString, onlySponsored);
 
 		return this.convertMembersToRichMembers(sess, this.setAllMembersSameType(members, MembershipType.DIRECT));
 	}
 
 	@Override
-	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames) throws InternalErrorException {
-		List<RichMember> list = findRichMembersInVo(sess, vo, searchString);
+	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames, boolean onlySponsored) throws InternalErrorException {
+		List<RichMember> list = findRichMembersInVo(sess, vo, searchString, onlySponsored);
 		List<AttributeDefinition> attrsDefs = new ArrayList<>();
 		for (String attrsName : attrsNames) {
 			try {
@@ -1374,14 +1360,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
 
-		List<RichMember> list = findRichMembersInVo(sess, vo, searchString);
+		List<RichMember> list = findRichMembersInVo(sess, vo, searchString, false);
 		return convertMembersToRichMembersWithAttributes(sess, list);
 
 	}
 
 	@Override
 	public List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString, List<String> attrsNames) throws InternalErrorException {
-		List<RichMember> list = findRichMembers(sess, searchString);
+		List<RichMember> list = findRichMembers(sess, searchString, false);
 		List<AttributeDefinition> attrsDefs = new ArrayList<>();
 		for (String attrsName : attrsNames) {
 			try {
@@ -1395,7 +1381,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString) throws InternalErrorException {
-		List<RichMember> list = findRichMembers(sess, searchString);
+		List<RichMember> list = findRichMembers(sess, searchString, false);
 		return convertMembersToRichMembersWithAttributes(sess, list);
 	}
 
@@ -2506,6 +2492,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException {
 		return getMembersManagerImpl().getUnifiedMemberGroupStatus(sess, user, facility);
+	}
+
+	@Override
+	public List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored) {
+		return getMembersManagerImpl().findMembers(sess, vo, searchString, onlySponsored);
 	}
 
 	/**
