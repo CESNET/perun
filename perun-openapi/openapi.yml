@@ -5727,6 +5727,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/removeUserExtSource:
+    post:
+      tags:
+        - UsersManager
+      operationId: removeUserExtSource
+      summary: Remove user's external source. Persistent UserExtSources are not removed unless force param is present and set to true.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/userExtSourceId'
+        - { name: force, description: "If true, use force deletion.", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
