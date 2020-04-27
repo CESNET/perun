@@ -205,7 +205,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 			List<ExtSource> ess = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 			log.debug("Deleting {} external sources binded to the vo {}", ess.size(), vo);
 			for (ExtSource es : ess) {
-				getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, vo, es);
+				getPerunBl().getExtSourcesManagerBl().removeExtSourceFromVo(sess, vo, es);
 			}
 
 			// Delete members group

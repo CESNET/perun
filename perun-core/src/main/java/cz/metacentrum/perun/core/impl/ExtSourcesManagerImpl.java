@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -13,25 +14,24 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
+import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.sql.DataSource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,23 +45,20 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	public final static String USEREXTSOURCEMAPPING = "additionalues_";
 
 	private ExtSourcesManagerImplApi self;
+	private PerunBl perunBl;
 
 	final static String extSourceMappingSelectQuery = "ext_sources.id as ext_sources_id, ext_sources.name as ext_sources_name, ext_sources.type as ext_sources_type, " +
 			"ext_sources.created_at as ext_sources_created_at, ext_sources.created_by as ext_sources_created_by, ext_sources.modified_by as ext_sources_modified_by, " +
 			"ext_sources.modified_at as ext_sources_modified_at, ext_sources.modified_by_uid as ext_sources_modified_by_uid, ext_sources.created_by_uid as ext_sources_created_by_uid";
 
-	private final static String extSourceMappingSelectQueryWithAttributes = "ext_sources.id as ext_sources_id, ext_sources.name as ext_sources_name, ext_sources.type as ext_sources_type, " +
-			"ext_sources.created_at as ext_sources_created_at, ext_sources.created_by as ext_sources_created_by, ext_sources.modified_by as ext_sources_modified_by, " +
-			"ext_sources.modified_at as ext_sources_modified_at, ext_sources.modified_by_uid as ext_sources_modified_by_uid, ext_sources.created_by_uid as ext_sources_created_by_uid, " +
-			"ext_sources_attributes.attr_name as attr_name, ext_sources_attributes.attr_value as attr_value";
-
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
-	private static final RowMapper<ExtSource> EXTSOURCE_MAPPER = (rs, i) -> {
+	private final RowMapper<ExtSource> EXTSOURCE_MAPPER = (rs, i) -> {
 		try {
 			Class<?> extSourceClass = Class.forName(rs.getString("ext_sources_type"));
-			ExtSource es = (ExtSource) extSourceClass.newInstance();
+			ExtSourceImpl es = (ExtSourceImpl) extSourceClass.newInstance();
+			es.setPerunBl(perunBl);
 
 			es.setId(rs.getInt("ext_sources_id"));
 			es.setName(rs.getString("ext_sources_name"));
@@ -109,37 +106,17 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 					sess.getPerunPrincipal().getUserId());
 			extSource.setId(newId);
 
-			ExtSource es;
-
-			// Get the instance by the type of the extSource
-			try {
-				Class<?> extSourceClass = Class.forName(extSource.getType());
-				es = (ExtSource) extSourceClass.newInstance();
-			} catch (ClassNotFoundException e) {
-				throw new InternalErrorException(e);
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new InternalErrorException(e);
-			}
-
-			// Set the properties
-			es.setId(extSource.getId());
-			es.setName(extSource.getName());
-			es.setType(extSource.getType());
-
 			// Now store the attributes
 			if (attributes != null) {
 				for (String attr_name : attributes.keySet()) {
 					jdbc.update("insert into ext_sources_attributes (attr_name, attr_value, ext_sources_id,created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", attr_name, attributes.get(attr_name), extSource.getId(),
+									"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", attr_name, attributes.get(attr_name), newId,
 							sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 				}
 			}
 
-			// Assign newly created extSource
-			extSource = es;
-
-			return extSource;
-		} catch (RuntimeException e) {
+			return getExtSourceById(sess, newId);
+		} catch (RuntimeException | ExtSourceNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -202,32 +179,10 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
-	private static final ExtSourcesExtractor EXT_SOURCES_EXTRACTOR = new ExtSourcesExtractor();
-
-	private static class ExtSourcesExtractor implements ResultSetExtractor<List<ExtSource>> {
-
-		@Override
-		public List<ExtSource> extractData(ResultSet rs) throws SQLException {
-			Map<Integer, ExtSource> map = new HashMap<>();
-			ExtSource myObject;
-			while (rs.next()) {
-				// fetch from map by ID
-				Integer id = rs.getInt("ext_sources_id");
-				myObject = map.get(id);
-				if (myObject == null) {
-					// if not preset, put in map
-					myObject = EXTSOURCE_MAPPER.mapRow(rs, rs.getRow());
-					map.put(id, myObject);
-				}
-			}
-			return new ArrayList<>(map.values());
-		}
-	}
-
 	@Override
 	public ExtSource getExtSourceById(PerunSession sess, int id) throws ExtSourceNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
+			return jdbc.queryForObject("select " + extSourceMappingSelectQuery + " from ext_sources where id=?", EXTSOURCE_MAPPER, id);
 		} catch (EmptyResultDataAccessException ex) {
 			throw new ExtSourceNotExistsException("ExtSource with ID=" + id + " not exists", ex);
 		} catch (RuntimeException ex) {
@@ -238,9 +193,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	@Override
 	public ExtSource getExtSourceByName(PerunSession sess, String name) throws ExtSourceNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes +
-					" from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
-					"where name=?", EXT_SOURCES_EXTRACTOR, name);
+			return jdbc.queryForObject("select " + extSourceMappingSelectQuery + " from ext_sources where name=?", EXTSOURCE_MAPPER, name);
 		} catch (EmptyResultDataAccessException ex) {
 			throw new ExtSourceNotExistsException("ExtSource with name=" + name + " not exists", ex);
 		} catch (RuntimeException ex) {
@@ -250,26 +203,22 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	}
 
 	@Override
-	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) {
+	public List<Integer> getVoExtSourcesIds(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			return jdbc.query("SELECT " + extSourceMappingSelectQueryWithAttributes +
-					" FROM vo_ext_sources v INNER JOIN ext_sources ON v.ext_sources_id=ext_sources.id " +
-					"   LEFT JOIN ext_sources_attributes ON ext_sources.id=ext_sources_attributes.ext_sources_id " +
-					" WHERE v.vo_id=?", EXT_SOURCES_EXTRACTOR, vo.getId());
-
+			return jdbc.queryForList("SELECT ext_sources.id " +
+					" FROM vo_ext_sources v JOIN ext_sources ON v.ext_sources_id=ext_sources.id " +
+					" WHERE v.vo_id=?", Integer.class, vo.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group) {
+	public List<Integer> getGroupExtSourcesIds(PerunSession perunSession, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("SELECT " + extSourceMappingSelectQueryWithAttributes +
-					" FROM group_ext_sources g_exts INNER JOIN ext_sources ON g_exts.ext_source_id=ext_sources.id " +
-					"   LEFT JOIN ext_sources_attributes ON ext_sources.id=ext_sources_attributes.ext_sources_id " +
-					" WHERE g_exts.group_id=?", EXT_SOURCES_EXTRACTOR, group.getId());
-
+			return jdbc.queryForList("SELECT ext_sources.id " +
+					" FROM group_ext_sources g_exts JOIN ext_sources ON g_exts.ext_source_id=ext_sources.id " +
+					" WHERE g_exts.group_id=?", Integer.class, group.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -278,9 +227,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	@Override
 	public List<ExtSource> getExtSources(PerunSession sess) {
 		try {
-			return jdbc.query("SELECT " + extSourceMappingSelectQueryWithAttributes +
-					" FROM ext_sources LEFT JOIN ext_sources_attributes ON ext_sources.id=ext_sources_attributes.ext_sources_id ", EXT_SOURCES_EXTRACTOR);
-
+			return jdbc.query("SELECT " + extSourceMappingSelectQuery + " FROM ext_sources", EXTSOURCE_MAPPER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -362,7 +309,8 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	 * Routine which initialize the extSourcesManager.
 	 */
 	@Override
-	public void initialize(PerunSession sess) {
+	public void initialize(PerunSession sess, PerunBl perunBl) {
+		this.perunBl = perunBl;
 		if (sess.getPerun().isPerunReadOnly()) log.debug("Loading extSource manager init in readOnly version.");
 
 		//In read only just test if extSource Perun exists
@@ -397,92 +345,230 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	}
 
 	/**
+	 * Cleans up allocated resources.
+	 */
+	@Override
+	public void destroy() {
+		for (DataSource dataSource : dataSourceMap.values()) {
+			if (dataSource instanceof HikariDataSource) {
+				((HikariDataSource) dataSource).close();
+			}
+		}
+	}
+
+	/**
+	 * Map of db connection pools created for all ExtSourceSql in perun-extSources.xml
+	 */
+	private final Map<String, DataSource> dataSourceMap = new HashMap<>();
+
+	@Override
+	public DataSource getDataSource(String poolName) {
+			return dataSourceMap.get(poolName);
+	}
+
+
+
+	/**
 	 * Loads the extSources definitions from the XML configuration file.
 	 * All data from the extSouces XML file are synchronized with the DB.
+	 * <P>Example:</P>
+	 * <PRE>
+	 * &lt;extSources>
+	 *   &lt;dbpools>
+	 *     &lt;dbpool>
+	 *       &lt;name>MAIN&lt;/name>
+	 *       &lt;main&#47;>&lt;!-- indicates the main pool used by Perun -->
+	 *     &lt;/dbpool>
+	 *     &lt;dbpool>
+	 *       &lt;name>PEOPLEDB&lt;/name>&lt;!-- required -->
+	 *       &lt;url>jdbc:oracle:thin:@//oracle.example.com:1521/people&lt;/url>&lt;!-- required -->
+	 *       &lt;user>perun&lt;/user>&lt;!-- optional -->
+	 *       &lt;password>******&lt;/password>&lt;!-- optional -->
+	 *       &lt;driver>oracle.jdbc.OracleDriver&lt;/driver>&lt;!-- optional for postgresql, oracle, sqlite, mysql; required for others -->
+	 *       &lt;connectionTimeout>300000&lt;/connectionTimeout>&lt;!-- optional -->
+	 *       &lt;maxLifetime>600000&lt;/maxLifetime>&lt;!-- optional -->
+	 *       &lt;maximumPoolSize>10&lt;/maximumPoolSize>&lt;!-- optional -->
+	 *       &lt;minimumIdle>1&lt;/minimumIdle>&lt;!-- optional -->
+	 *       &lt;idleTimeout>300000&lt;/idleTimeout>&lt;!-- optional -->
+	 *       &lt;leakDetectionThreshold>30000&lt;/leakDetectionThreshold>&lt;!-- optional -->
+	 *     &lt;/dbpool>
+	 *   &lt;/dbpools>
+	 *   &lt;extSource>
+	 *     &lt;name>INET&lt;/name>
+	 *     &lt;type>cz.metacentrum.perun.core.impl.ExtSourceSql&lt;/type>
+	 *     &lt;description>&lt;/description>&lt;!-- ignored -->
+	 *     &lt;attributes>
+	 *       &lt;attribute name="dbpool">INETDB&lt;/attribute>
+	 *       &lt;attribute name="query">...&lt;/query>
+	 *       &lt;attribute name="loginQuery">...&lt;/query>
+	 *     &lt;/attributes>
+	 *   &lt;/extSource>
+	 * </PRE>
 	 */
 	@Override
 	public void loadExtSourcesDefinitions(PerunSession sess) {
+		File file = new File(ExtSourcesManager.CONFIGURATIONFILE);
+		if (!Files.isReadable(file.toPath())) {
+			log.warn("File " + file + " does not exist or is not readable");
+			return;
+		}
 		try {
 			// Load the XML file
-			BufferedInputStream is = new BufferedInputStream(new FileInputStream(ExtSourcesManager.CONFIGURATIONFILE));
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(is);
-			doc.getDocumentElement().normalize();
-
-			// Check if the root element is "extSources"
-			if (!doc.getDocumentElement().getNodeName().equals("extSources")) {
+			log.debug("loading file {}", file);
+			Document document = new SAXReader().read(file);
+			Element extSources = document.getRootElement();
+			if (!extSources.getName().equals("extSources")) {
 				throw new InternalErrorException("perun-extSources.xml doesn't contain extSources as root element");
 			}
 
-			// Get all defined extSources
-			NodeList extSourcesNodes = doc.getElementsByTagName("extSource");
-			for (int extSourceSeq = 0; extSourceSeq < extSourcesNodes.getLength(); extSourceSeq++) {
-
-				// Get each extSource
-				Node extSourceNode = extSourcesNodes.item(extSourceSeq);
-				if (extSourceNode.getNodeType() == Node.ELEMENT_NODE) {
-
-					Element extSourceElement = (Element) extSourceNode;
-
-					// Get extSource name
-					String extSourceName = extSourceElement.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue();
-					if (extSourceName == null) {
-						throw new InternalErrorException("extSource doesn't have defined name");
-					}
-
-					// Get extSource type
-					String extSourceType = extSourceElement.getElementsByTagName("type").item(0).getChildNodes().item(0).getNodeValue();
-					if (extSourceType == null) {
-						throw new InternalErrorException("extSource " + extSourceName + " doesn't have defined type");
-					}
-
-					// Get all extSource attributes
-					NodeList attributeNodes = extSourceElement.getElementsByTagName("attribute");
-
-					Map<String, String> attributes = new HashMap<>();
-					for (int attributeSeq = 0; attributeSeq < attributeNodes.getLength(); attributeSeq++) {
-						Element elem = (Element) attributeNodes.item(attributeSeq);
-
-						if (elem.getNodeType() == Node.ELEMENT_NODE) {
-							String attrName = elem.getAttribute("name");
-							String attrValue = null;
-							if (elem.getChildNodes() != null && elem.getChildNodes().item(0) != null) {
-								attrValue = elem.getChildNodes().item(0).getNodeValue();
-							}
-
-							attributes.put(attrName, attrValue);
-						}
-					}
-
-					// Check if the extSource
-					try {
-						ExtSource extSource;
-						try {
-							extSource = this.getExtSourceByName(sess, extSourceName);
-							extSource.setName(extSourceName);
-							extSource.setType(extSourceType);
-
-							// ExtSource exists, so check values and potentionally update it
-							self.updateExtSource(sess, extSource, attributes);
-
-						} catch (ExtSourceNotExistsException e) {
-							// ExtSource doesn't exist, so create it
-							extSource = new ExtSource();
-							extSource.setName(extSourceName);
-							extSource.setType(extSourceType);
-							self.createExtSource(sess, extSource, attributes);
-						}
-					} catch (RuntimeException e) {
-						throw new InternalErrorException(e);
+			//shared database pools
+			Element dbpools = extSources.element("dbpools");
+			if (dbpools != null) {
+				for (Element dbpool : dbpools.elements("dbpool")) {
+					String poolName = dbpool.element("name").getText();
+					Element main = dbpool.element("main");
+					if (main != null) {
+						//use main pool
+						dataSourceMap.put(poolName, this.jdbc.getDataSource());
+						log.debug("creating ExtSourceSql dbpool {} referencing the main pool", poolName);
+					} else {
+						String url = dbpool.element("url").getText();
+						String driver = dbpool.element("driver") != null ? dbpool.element("driver").getText() : null;
+						String user = dbpool.element("user") != null ? dbpool.element("user").getText() : null;
+						String password = dbpool.element("password") != null ? dbpool.element("password").getText() : null;
+						HikariDataSource hds = createHikariPool(poolName, url, driver, user, password);
+						Integer maximumPoolSize = parsePoolIntProperty(dbpool, "maximumPoolSize");
+						if (maximumPoolSize != null) hds.setMaximumPoolSize(maximumPoolSize);
+						Integer minimumIdle = parsePoolIntProperty(dbpool, "minimumIdle");
+						if (minimumIdle != null) hds.setMinimumIdle(minimumIdle);
+						Integer connectionTimeout = parsePoolIntProperty(dbpool, "connectionTimeout");
+						if (connectionTimeout != null) hds.setConnectionTimeout(connectionTimeout);
+						Integer maxLifetime = parsePoolIntProperty(dbpool, "maxLifetime");
+						if (maxLifetime != null) hds.setMaxLifetime(maxLifetime);
+						Integer idleTimeout = parsePoolIntProperty(dbpool, "idleTimeout");
+						if (idleTimeout != null) hds.setIdleTimeout(idleTimeout);
+						Integer leakDetectionThreshold = parsePoolIntProperty(dbpool, "leakDetectionThreshold");
+						if (leakDetectionThreshold != null) hds.setLeakDetectionThreshold(leakDetectionThreshold);
+						log.debug("creating ExtSourceSql dbpool {} for user {} and db {}", poolName, user, url);
+						dataSourceMap.put(poolName, hds);
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			log.warn("No external source configuration file found.");
+
+			// Get each extSource
+			for (Element extSourceElement : extSources.elements("extSource")) {
+				// Get extSource name
+				String extSourceName = extSourceElement.element("name").getText();
+				if (StringUtils.isBlank(extSourceName)) {
+					throw new InternalErrorException("extSource doesn't have defined name");
+				}
+				// Get extSource type
+				String extSourceType = extSourceElement.element("type").getText();
+				if (StringUtils.isBlank(extSourceType)) {
+					throw new InternalErrorException("extSource doesn't have defined type");
+				}
+				// Get all extSource attributes
+				Map<String, String> attributes = new HashMap<>();
+				Element attrs = extSourceElement.element("attributes");
+				if (attrs != null) {
+					for (Element attribute : attrs.elements("attribute")) {
+						String attrName = attribute.attribute("name").getValue();
+						String attrValue = attribute.getText();
+						attributes.put(attrName, attrValue);
+					}
+				}
+				// Check if the extSource exists
+				ExtSource extSource;
+				try {
+					extSource = this.getExtSourceByName(sess, extSourceName);
+					extSource.setName(extSourceName);
+					extSource.setType(extSourceType);
+					// ExtSource exists, so check values and potentially update it
+					self.updateExtSource(sess, extSource, attributes);
+				} catch (ExtSourceNotExistsException e) {
+					// ExtSource doesn't exist, so create it
+					extSource = new ExtSource();
+					extSource.setName(extSourceName);
+					extSource.setType(extSourceType);
+					self.createExtSource(sess, extSource, attributes);
+				}
+				log.debug("ExtSource {} of type {} read from XML file", extSourceName, extSourceType);
+			}
+		} catch (DocumentException e) {
+			log.error("File " + file + " was not loaded", e);
 		} catch (Exception e) {
 			log.error("Cannot initialize ExtSourceManager.");
 			throw new InternalErrorException(e);
+		}
+
+		// check connection attributes for all ExtSourcesSql present in the database (may be more than in perun-extSources.xml)
+		for (ExtSource extSource : getExtSources(sess)) {
+			if (extSource instanceof ExtSourceSql) {
+				Map<String, String> attributes = getAttributes(extSource);
+				// pools in attributes
+				String dbpool = attributes.get(ExtSourceSql.DBPOOL);
+				String url = attributes.get(ExtSourceSql.URL);
+				if (dbpool != null) {
+					log.debug("ExtSource {} uses dbpool {}", extSource.getName(), dbpool);
+					if (dataSourceMap.get(dbpool) == null) {
+						log.error("ExtSource {} references non-existing pool {}", extSource.getName(), dbpool);
+					}
+				} else if (url != null) {
+					//for backward compatibility, create pools based on user and url
+					String user = attributes.get(ExtSourceSql.USER);
+					String password = attributes.get("password");
+					String driver = attributes.get("driver");
+					String poolKey = "db-" + user + "-" + url;
+					dataSourceMap.computeIfAbsent(poolKey, s -> {
+							log.debug("creating dbpool from legacy attributes for user \"{}\" and url \"{}\"", user, url);
+							return createHikariPool(poolKey, url, driver, user, password);
+						}
+					);
+					log.debug("ExtSource {} uses legacy dbpool {}", extSource.getName(), poolKey);
+				}
+			}
+		}
+	}
+
+	private static HikariDataSource createHikariPool(String name, String url, String driver, String user, String password) {
+		HikariDataSource hds = new HikariDataSource();
+		hds.setPoolName(name);
+		hds.setJdbcUrl(url);
+		if (StringUtils.isNotBlank(driver)) {
+			hds.setDriverClassName(driver);
+		} else if (url.startsWith("jdbc:oracle")) {
+			hds.setDriverClassName("oracle.jdbc.OracleDriver");
+		} else if (url.startsWith("jdbc:postgresql")) {
+			hds.setDriverClassName("org.postgresql.Driver");
+		} else if (url.startsWith("jdbc:sqlite")) {
+			hds.setDriverClassName("org.sqlite.JDBC");
+		} else if (url.startsWith("jdbc:mysql")) {
+			hds.setDriverClassName("com.mysql.jdbc.Driver");
+		} else {
+			log.error("Unknown JDBC driver for " + url + " pool " + name);
+		}
+		if (StringUtils.isNotBlank(user)) {
+			hds.setUsername(user);
+		}
+		if (StringUtils.isNotBlank(password)) {
+			hds.setPassword(password);
+		}
+		hds.setTransactionIsolation("TRANSACTION_READ_COMMITTED");
+		hds.setReadOnly(true);
+		if(url.startsWith("jdbc:sqlite")) {
+			hds.addDataSourceProperty("open_mode","1");
+		}
+		return hds;
+	}
+
+	private static Integer parsePoolIntProperty(Element dbpool, String propName) {
+		Element element = dbpool.element(propName);
+		if (element == null) return null;
+		try {
+			return Integer.parseInt(element.getText());
+		} catch (NumberFormatException e) {
+			log.error("<" + propName + "> of <dbpool name=\"" + dbpool.getName() + "\"> does not contain a number: " + element.getText());
+			return null;
 		}
 	}
 
@@ -512,7 +598,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	/**
 	 * Result Set Extractor for Attributes map
 	 */
-	private class AttributesExtractor implements ResultSetExtractor<Map<String, String>> {
+	private static class AttributesExtractor implements ResultSetExtractor<Map<String, String>> {
 		@Override
 		public Map<String, String> extractData(ResultSet rs) throws SQLException {
 			Map<String, String> attributes = new HashMap<>();
@@ -537,7 +623,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		try {
 			return jdbc.query("select " + extSourceMappingSelectQuery + " from ext_sources, ext_sources_attributes where ext_sources.id=ext_sources_attributes.ext_sources_id and ext_sources_attributes.attr_name=? and ext_sources_attributes.attr_value=true", EXTSOURCE_MAPPER, ExtSourcesManager.EXTSOURCE_SYNCHRONIZATION_ENABLED_ATTRNAME);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<ExtSource>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

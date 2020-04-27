@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,11 @@ public interface ExtSourcesManagerBl {
 	 * Initialize manager.
 	 */
 	void initialize(PerunSession sess);
+
+	/**
+	 * Destroy manager. Clean resources.
+	 */
+	void destroy();
 
 	/**
 	 * Creates an external source.
@@ -331,4 +337,11 @@ public interface ExtSourcesManagerBl {
 	 */
 	List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> groupSubjectsData, ExtSource source, String loginPrefix);
 
+	/**
+	 * Returns a database connection pool.
+	 *
+	 * @param poolName named defined in perun-extSources.xml
+	 * @return database connection pool
+	 */
+	DataSource getDataSource(String poolName);
 }

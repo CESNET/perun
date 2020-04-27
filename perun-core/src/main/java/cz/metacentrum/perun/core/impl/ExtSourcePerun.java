@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -13,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
@@ -48,7 +46,7 @@ import java.util.regex.Pattern;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
+public class ExtSourcePerun extends ExtSourceImpl implements ExtSourceApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourcePerun.class);
 
@@ -61,15 +59,6 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 	private String extSourceNameForLogin = null;
 	public static final Pattern attributePattern = Pattern.compile("[{](.+)[}]");
-
-	private static PerunBlImpl perunBl;
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
-	}
-
 
 	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
@@ -370,9 +359,5 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	@Override
 	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
-	}
-
-	protected Map<String,String> getAttributes() {
-		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

@@ -10,7 +10,9 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +25,12 @@ public interface ExtSourcesManagerImplApi {
 	/**
 	 * Initialize manager
 	 */
-	void initialize(PerunSession sess);
+	void initialize(PerunSession sess, PerunBl perunBl);
+
+	/**
+	 * Clean up allocated resources.
+	 */
+	void destroy();
 
 	/**
 	 * Creates an external source.
@@ -87,28 +94,28 @@ public interface ExtSourcesManagerImplApi {
 	ExtSource getExtSourceByName(PerunSession perunSession, String name) throws ExtSourceNotExistsException;
 
 	/**
-	 * Get list of external sources associated to the VO.
+	 * Get list of external sources ids associated to the VO.
 	 *
 	 * @param perunSession
 	 * @param vo
 	 *
-	 * @return list of VO
+	 * @return list of external sources ids associated with the VO
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo);
+	List<Integer> getVoExtSourcesIds(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
-	 * Get list of external sources associated with the GROUP.
+	 * Get list of external sources ids associated with the GROUP.
 	 *
 	 * @param perunSession
 	 * @param group
 	 *
-	 * @return list of external sources associated with the VO
+	 * @return list of external sources ids associated with the group
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group);
+	List<Integer> getGroupExtSourcesIds(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Get list of all external sources.
@@ -205,6 +212,14 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws ExtSourceNotExistsException
 	 */
 	void checkExtSourceExists(PerunSession perunSession, ExtSource extSource) throws ExtSourceNotExistsException;
+
+	/**
+	 * Returns a database connection pool.
+	 *
+	 * @param poolName named defined in perun-extSources.xml
+	 * @return database connection pool
+	 */
+	DataSource getDataSource(String poolName);
 
 	/**
 	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.

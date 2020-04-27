@@ -1,32 +1,30 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
+import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StreamUtils;
 
-import java.io.ByteArrayOutputStream;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
 
 import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_SYNC_DEFAULT_DATA;
 import static java.util.stream.Collectors.toMap;
@@ -34,40 +32,31 @@ import static java.util.stream.Collectors.toMap;
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
+public class ExtSourceSql extends ExtSourceImpl implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceSql.class);
-	private static final Map<String, String> attributeNameMapping = new HashMap<>();
-	private Connection con;
-	private boolean isOracle = false;
-	private boolean isSQLite = false;
+	private static final Map<String, String> ATTRIBUTE_NAME_MAPPING = new HashMap<>();
+	public static final String DBPOOL = "dbpool";
+	public static final String USER = "user";
+	public static final String URL = "url";
 
-	private static PerunBlImpl perunBl;
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
-	}
+	private DataSource dataSource;
 
 	static {
-		attributeNameMapping.put("m", "urn:perun:member");
-		attributeNameMapping.put("u", "urn:perun:user");
-		attributeNameMapping.put("f", "urn:perun:facility");
-		attributeNameMapping.put("r", "urn:perun:resource");
-		attributeNameMapping.put("g", "urn:perun:group");
-		attributeNameMapping.put("v", "urn:perun:vo");
-		attributeNameMapping.put("h", "urn:perun:host");
-		attributeNameMapping.put("mr", "urn:perun:member_resource");
-		attributeNameMapping.put("uf", "urn:perun:user_facility");
-		attributeNameMapping.put("gr", "urn:perun:group_resource");
-		attributeNameMapping.put("o", ":attribute-def:opt:");
-		attributeNameMapping.put("d", ":attribute-def:def:");
+		ATTRIBUTE_NAME_MAPPING.put("m", "urn:perun:member");
+		ATTRIBUTE_NAME_MAPPING.put("u", "urn:perun:user");
+		ATTRIBUTE_NAME_MAPPING.put("f", "urn:perun:facility");
+		ATTRIBUTE_NAME_MAPPING.put("r", "urn:perun:resource");
+		ATTRIBUTE_NAME_MAPPING.put("g", "urn:perun:group");
+		ATTRIBUTE_NAME_MAPPING.put("v", "urn:perun:vo");
+		ATTRIBUTE_NAME_MAPPING.put("h", "urn:perun:host");
+		ATTRIBUTE_NAME_MAPPING.put("mr", "urn:perun:member_resource");
+		ATTRIBUTE_NAME_MAPPING.put("uf", "urn:perun:user_facility");
+		ATTRIBUTE_NAME_MAPPING.put("gr", "urn:perun:group_resource");
+		ATTRIBUTE_NAME_MAPPING.put("o", ":attribute-def:opt:");
+		ATTRIBUTE_NAME_MAPPING.put("d", ":attribute-def:def:");
 	}
 
-
-	public ExtSourceSql() {
-	}
 
 	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) {
@@ -80,7 +69,6 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		if (query == null) {
 			throw new InternalErrorException("query attribute is required");
 		}
-
 		return this.querySource(query, searchString, maxResults);
 	}
 
@@ -104,165 +92,120 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> groupAttributes) throws InternalErrorException {
 		// Get the sql query for the group subjects
-		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-
+		String sqlQueryForGroup = groupAttributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		return this.querySource(sqlQueryForGroup, null, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> getUsersSubjects() {
-		String query = getAttributes().get(UsersManager.USERS_QUERY);
-
+	public List<Map<String,String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException{
+		String query = getAttributes().get("usersQuery");
 		if (query == null) {
 			throw new InternalErrorException("usersQuery attribute is required");
 		}
-
 		return this.querySource(query, null, 0);
 	}
 
-	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) {
-		log.debug("Searching for '{}' in external source 'url:{}'", searchString, getAttributes().get("url"));
+	/**
+	 * Helper structure for holding data about database column mappings.
+	 */
+	private static class ColumnMapping {
+		int columnIndex;
+		String attributeName;
+		boolean blob;
 
-		this.checkAndSetPrerequisites();
+		public ColumnMapping(int columnIndex, String attributeName, boolean blob) {
+			this.columnIndex = columnIndex;
+			this.attributeName = attributeName;
+			this.blob = blob;
+		}
+	}
 
-		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
-			try (ResultSet rs = st.executeQuery()) {
-				List<Map<String, String>> subjects = new ArrayList<>();
+	// database columns for base attributes
+	private static final String[] BASE_COLUMNS = new String[]{"login", "firstName", "lastName", "middleName", "titleBefore", "titleAfter"};
 
+	// column name should be matched case-insensitively
+	private static String matchingBaseColumnName(String s) {
+		for (String baseName : BASE_COLUMNS) {
+			if (baseName.equalsIgnoreCase(s)) {
+				return baseName;
+			}
+		}
+		return null;
+	}
+
+	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
+		log.debug("Searching for '{}' in external source '{}'", searchString, getName());
+		try (Connection con = getDataSource().getConnection()) {
+			try (PreparedStatement st = con.prepareStatement(query)) {
+				// Substitute the ? in the query by the searchString
+				if (StringUtils.isNotBlank(searchString)) {
+					for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
+						st.setString(i, searchString);
+					}
+				}
+				// Limit results
+				if (maxResults > 0) {
+					st.setMaxRows(maxResults);
+				}
+				// make the SQL query
 				log.trace("Query {}", query);
-
-				while (rs.next()) {
-					Map<String, String> map = new HashMap<>();
-
-					try {
-						map.put("firstName", rs.getString("firstName"));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put("firstName", null);
-					}
-					try {
-						map.put("lastName", rs.getString("lastName"));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put("lastName", null);
-					}
-					try {
-						map.put("middleName", rs.getString("middleName"));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put("middleName", null);
-					}
-					try {
-						map.put("titleBefore", rs.getString("titleBefore"));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put("titleBefore", null);
-					}
-					try {
-						map.put("titleAfter", rs.getString("titleAfter"));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put("titleAfter", null);
-					}
-					try {
-						map.put("login", rs.getString("login"));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put("login", null);
-					}
-
-					for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-						String columnName = rs.getMetaData().getColumnLabel(i);
-						log.trace("Iterating through attribute {}", columnName);
-						// Now go through all other attributes. If the column name(=attribute name) contains ":", then it represents an attribute
-						if (columnName.contains(":")) {
+				try (ResultSet rs = st.executeQuery()) {
+					// pre-process column metadata into columnMappings
+					ResultSetMetaData metaData = rs.getMetaData();
+					List<ColumnMapping> columnMappings = new ArrayList<>(metaData.getColumnCount());
+					for (int i = 1; i <= metaData.getColumnCount(); i++) {
+						String columnName = metaData.getColumnLabel(i);
+						String baseName = matchingBaseColumnName(columnName);
+						if (baseName != null) {
+							columnMappings.add(new ColumnMapping(i, baseName, false));
+						} else if (columnName.contains(":")) {
 							// Decode the attribute name (column name has limited size, so we need to code the attribute names)
 							// Coded attribute name: x:y:z
 							// x - m: member, u: user, f: facility, r: resource, mr: member-resource, uf: user-facility, h: host, v: vo, g: group, gr: group-resource
 							// y - d: def, o: opt
 							String[] attributeRaw = columnName.split(":", 3);
-							String attributeName = null;
-							if (!attributeNameMapping.containsKey(attributeRaw[0])) {
-								log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[0], map.get("firstName"), map.get("lastName"), attributeRaw);
-							} else if (!attributeNameMapping.containsKey(attributeRaw[1])) {
-								log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[1], map.get("firstName"), map.get("lastName"), attributeRaw);
+							if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[0])) {
+								log.warn("Unknown attribute type '{}', column {}", attributeRaw[0], columnName);
+							} else if (!ATTRIBUTE_NAME_MAPPING.containsKey(attributeRaw[1])) {
+								log.warn("Unknown attribute type '{}', column {}", attributeRaw[1], columnName);
 							} else {
-								attributeName = attributeNameMapping.get(attributeRaw[0]) + attributeNameMapping.get(attributeRaw[1]) + attributeRaw[2];
-								if (!Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
-									// trace only string data
-									log.trace("Adding attribute {} with value {}", attributeName, rs.getString(i));
-								} else {
-									log.trace("Adding attribute {} with BLOB value", attributeName);
-								}
-							}
-							String attributeValue = null;
-							if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
-								// source column is binary
-								attributeValue = parseBlobValue(rs.getBinaryStream(i), columnName);
-							} else {
-								// let driver to convert type to string
-								attributeValue = rs.getString(i);
-							}
-							if (rs.wasNull()) {
-								map.put(attributeName, null);
-							} else {
-								map.put(attributeName, attributeValue);
+								String attributeName = ATTRIBUTE_NAME_MAPPING.get(attributeRaw[0]) + ATTRIBUTE_NAME_MAPPING.get(attributeRaw[1]) + attributeRaw[2];
+								boolean blob = "BLOB".equals(metaData.getColumnTypeName(i));
+								columnMappings.add(new ColumnMapping(i, attributeName, blob));
 							}
 						} else if (columnName.toLowerCase().startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
 							// additionalUserExtSources, we must do lower case because some DBs changes lower to upper
-							map.put(columnName.toLowerCase(), rs.getString(i));
-							log.trace("Adding attribute {} with value {}", columnName, rs.getString(i));
+							columnMappings.add(new ColumnMapping(i, columnName.toLowerCase(), false));
 						}
 					}
-					subjects.add(map);
+					// process each row
+					List<Map<String, String>> subjects = new ArrayList<>();
+					while (rs.next()) {
+						Map<String, String> map = new HashMap<>();
+						for (ColumnMapping columnMapping : columnMappings) {
+							if (columnMapping.blob) {
+								try (InputStream in = rs.getBinaryStream(columnMapping.columnIndex)) {
+									map.put(columnMapping.attributeName, Base64.encodeBase64String(StreamUtils.copyToByteArray(in)));
+								} catch (IOException ex) {
+									throw new InternalErrorException("Unable to read BLOB data for column: " + columnMapping.attributeName, ex);
+								}
+							} else {
+								map.put(columnMapping.attributeName, rs.getString(columnMapping.columnIndex));
+							}
+						}
+						subjects.add(map);
+					}
+					log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
+					return subjects;
 				}
-
-				log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
-				return subjects;
+			} catch (SQLException e) {
+				log.error("SQL exception during searching for subject '{}'", query);
+				throw new InternalErrorException(e);
 			}
 		} catch (SQLException e) {
-			log.error("SQL exception during searching for subject '{}'", query);
-			throw new InternalErrorException(e);
-		}
-	}
-
-	protected void createConnection() {
-		try {
-
-			String connectionUrl = getAttributes().get("url");
-			String user = getAttributes().get("user");
-			String pass = getAttributes().get("password");
-			Properties connectionProperties = new Properties();
-
-			// set user/pass to properties if present
-			if (user != null && pass != null) {
-				connectionProperties.put("user", user);
-				connectionProperties.put("password", pass);
-			}
-
-			// set connection read_only for SQLite (doesn't follow JDBC standard)
-			if (connectionUrl.startsWith("jdbc:sqlite:")) {
-				isSQLite = true;
-				connectionProperties.put("open_mode","1");
-			}
-
-			// create connection
-			this.con = DriverManager.getConnection(connectionUrl, connectionProperties);
-
-			// Set connection to read-only mode for standard JDBC drivers
-			if (!isSQLite) {
-				this.con.setReadOnly(true);
-			}
-
-			if (this.con.getMetaData().getDriverName().toLowerCase().contains("oracle")) {
-				this.isOracle = true;
-				this.isSQLite = false;
-			}
-
-		} catch (SQLException e) {
-			log.error("SQL exception during creating the connection to URL", getAttributes().get("url"));
+			log.error("Cannot get connection from pool",e);
 			throw new InternalErrorException(e);
 		}
 	}
@@ -280,199 +223,60 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
-		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
-
-		return this.groupQuery(sqlQueryForGroup, null, 0);
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> groupAttributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		String sqlQueryForGroup = groupAttributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
+		return this.groupQuery(sqlQueryForGroup);
 	}
 
 	/**
 	 * Get subject groups from an external source
 	 *
 	 * @param query to select subject groups
-	 * @param searchString by which will be ? in query replaced
-	 * @param maxResults maximum subjects to get
 	 * @return list of subjects
-	 * @throws InternalErrorException
 	 */
-	protected List<Map<String,String>> groupQuery(String query, String searchString, int maxResults) {
-
-		this.checkAndSetPrerequisites();
-
-		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
-			try (ResultSet rs = st.executeQuery()) {
-
-				List<Map<String, String>> subjects = new ArrayList<>();
-
-				log.trace("Query {}", query);
-
-				while (rs.next()) {
-					Map<String, String> map = new HashMap<>();
-					GROUP_SYNC_DEFAULT_DATA.forEach(
-						column -> map.put(column, readGroupSyncRequiredData(rs, column))
-					);
-					map.putAll(parseAdditionalAttributeData(rs));
-					subjects.add(map);
+	protected List<Map<String,String>> groupQuery(String query) throws InternalErrorException {
+		try (Connection con = getDataSource().getConnection()) {
+			try (PreparedStatement st = con.prepareStatement(query)) {
+				try (ResultSet rs = st.executeQuery()) {
+					List<Map<String, String>> subjects = new ArrayList<>();
+					log.trace("Query {}", query);
+					while (rs.next()) {
+						Map<String, String> map = new HashMap<>();
+						try {
+							map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
+						} catch (SQLException ignored) {}
+						try {
+							map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_NAME));
+						} catch (SQLException ignored) {}
+						try {
+							map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
+						} catch (SQLException ignored) {}
+						subjects.add(map);
+					}
+					log.debug("Returning {} subjects from external source {}", subjects.size(), this);
+					return subjects;
 				}
-
-				log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
-				return subjects;
+			} catch (SQLException e) {
+				log.error("SQL exception during searching for subject '{}'", query);
+				throw new InternalErrorException(e);
 			}
 		} catch (SQLException e) {
-			log.error("SQL exception during searching for subject '{}'", query);
+			log.error("Cannot get connection from pool", e);
 			throw new InternalErrorException(e);
 		}
 	}
 
-	/**
-	 * Decodes a full attribute name from the given value. For used mappings,
-	 * see attributeNameMapping.
-	 *
-	 * @param value which will be mapped
-	 * @return attribute full name
-	 */
-	private String mapAttributeNames(String value) {
-		String[] attributeRaw = value.split(":", 3);
-		String attributeName = null;
-		if (!attributeNameMapping.containsKey(attributeRaw[0])) {
-			log.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[0], attributeRaw);
-		} else if (!attributeNameMapping.containsKey(attributeRaw[1])) {
-			log.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[1], attributeRaw);
-		} else {
-			attributeName = attributeNameMapping.get(attributeRaw[0]) + attributeNameMapping.get(attributeRaw[1]) +
-					attributeRaw[2];
-		}
-		return attributeName;
-	}
-
-	/**
-	 * Parse additional data from the given result set.
-	 *
-	 * @param rs result set with attribute data
-	 * @throws SQLException SQLException
-	 */
-	private Map<String, String> parseAdditionalAttributeData(ResultSet rs) throws SQLException {
-		Map<String, String> additionalAttributes = new HashMap<>();
-		for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-			String columnName = rs.getMetaData().getColumnLabel(i);
-			if (columnName.contains(":")) {
-				String attrName = mapAttributeNames(columnName);
-				String attributeValue = null;
-				if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
-					attributeValue = parseBlobValue(rs.getBinaryStream(i), columnName);
-				} else {
-					// let driver to convert type to string
-					attributeValue = rs.getString(i);
-				}
-				additionalAttributes.put(attrName, attributeValue);
+	private DataSource getDataSource() {
+		if (dataSource == null) {
+			Map<String, String> attributes = this.getAttributes();
+			String dbpool = attributes.get(DBPOOL);
+			if (dbpool == null) {
+				dbpool = "db-" + attributes.get(USER) + "-" + attributes.get(URL);
 			}
+			this.dataSource = perunBl.getExtSourcesManagerBl().getDataSource(dbpool);
+			log.debug("ExtSource {} got dbpool {}", getName(), dbpool);
 		}
-		return additionalAttributes;
+		return dataSource;
 	}
 
-	/**
-	 * Parse blob value from given input stream.
-	 *
-	 * @param inputStream input stream with a blob value
-	 * @param columnName name of the column to which the blob belongs
-	 * @return parsed value
-	 */
-	private String parseBlobValue(InputStream inputStream, String columnName) {
-		if (inputStream == null) {
-			return null;
-		}
-		try {
-			ByteArrayOutputStream result = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			int length;
-			while ((length = inputStream.read(buffer)) != -1) {
-				result.write(buffer, 0, length);
-			}
-			byte[] bytes = Base64.encodeBase64(result.toByteArray());
-			return new String(bytes, StandardCharsets.UTF_8);
-		} catch (IOException ex) {
-			log.error("Unable to read BLOB for column {}", columnName);
-			throw new InternalErrorException("Unable to read BLOB data for column: " + columnName, ex);
-		}
-	}
-
-	/**
-	 * Read data from rs from specified column. If the column doesn't exist,
-	 * a null is returned.
-	 *
-	 * @param rs result rest
-	 * @param column column
-	 * @return column data or null if column doesn't exist
-	 */
-	private String readGroupSyncRequiredData(ResultSet rs, String column) {
-		try {
-			return rs.getString(column);
-		} catch (SQLException e) {
-			// If the column doesn't exists, ignore it
-			return null;
-		}
-	}
-
-	protected Map<String,String> getAttributes() {
-		return perunBl.getExtSourcesManagerBl().getAttributes(this);
-	}
-
-	/**
-	 * Check if needed prerequisites are set to be able to call query.
-	 *
-	 * @throws InternalErrorException if expected attributes are not set
-	 */
-	private void checkAndSetPrerequisites() {
-		if (getAttributes().get("url") == null) {
-			throw new InternalErrorException("url attribute is required");
-		}
-
-		// Register driver if the attribute has been defined
-		if (getAttributes().get("driver") != null) {
-			try {
-				Class.forName(getAttributes().get("driver"));
-			} catch (ClassNotFoundException e) {
-				throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
-			}
-		}
-
-		try {
-			// Check if we have existing connection. In case of Oracle also checks the connection validity
-			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
-				this.createConnection();
-			}
-		} catch (SQLException ex) {
-			throw new InternalErrorException("Can't check if connection to database is still valid in SQL ExtSource.", ex);
-		}
-	}
-
-	/**
-	 * Prepares query statement from query.
-	 * - substitutes character '?' by searchString.
-	 * - set max results limit.
-	 *
-	 * @param query basic query
-	 * @param searchString search string
-	 * @param maxResults limit of max results where 0 is unlimited
-	 * @return
-	 * @throws SQLException
-	 */
-	protected PreparedStatement getPreparedStatement(String query, String searchString, int maxResults) throws SQLException {
-		PreparedStatement st = this.con.prepareStatement(query);
-
-		// Substitute the ? in the query by the searchString
-		if (searchString != null && !searchString.isEmpty()) {
-			for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
-				st.setString(i, searchString);
-			}
-		}
-
-		// Limit results
-		if (maxResults > 0) {
-			st.setMaxRows(maxResults);
-
-		}
-
-		return st;
-	}
 }

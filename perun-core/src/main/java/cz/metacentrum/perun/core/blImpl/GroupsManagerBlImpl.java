@@ -375,7 +375,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
 		for(ExtSource source: assignedSources) {
 			try {
-				getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+				getPerunBl().getExtSourcesManagerBl().removeExtSourceFromGroup(sess, group, source);
 			} catch (ExtSourceNotAssignedException | ExtSourceAlreadyRemovedException ex) {
 				//Just log this, because if method can't remove it, it is probably not assigned now
 				log.warn("Try to remove not existing extSource {} from group {} when deleting group.", source, group);
@@ -4306,7 +4306,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//for each group set attributes for members synchronization, synchronize them and save the result
 		for (Group group: groupsForMemberSynchronization) {
 			try {
-				getPerunBl().getExtSourcesManagerBl().addExtSource(sess, group, source);
+				getPerunBl().getExtSourcesManagerBl().addExtSourceToGroup(sess, group, source);
 			} catch (ExtSourceAlreadyAssignedException e) {
 				log.info("ExtSource already assigned to group: {}", group);
 			}
