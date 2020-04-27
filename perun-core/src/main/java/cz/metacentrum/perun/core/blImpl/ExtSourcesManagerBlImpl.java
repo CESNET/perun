@@ -27,7 +27,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -36,6 +35,7 @@ import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerBlImpl.class);
@@ -62,54 +63,88 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	@Override
 	public void initialize(PerunSession sess) {
 		if (!this.initialized.compareAndSet(false, true)) return;
-		this.extSourcesManagerImpl.initialize(sess);
+		this.extSourcesManagerImpl.initialize(sess, perunBl);
+		cacheExtSourcesInMemory(sess);
+	}
+
+	private Map<Integer,ExtSource> extSourcesByIdMap = new HashMap<>();
+	private Map<String,ExtSource> extSourcesByNameMap = new HashMap<>();
+	
+	private void cacheExtSourcesInMemory(PerunSession sess) {
+		Map<Integer,ExtSource> extSourcesByIdMap = new HashMap<>();
+		Map<String,ExtSource> extSourcesByNameMap = new HashMap<>();
+		// read all ExtSources from database
+		List<ExtSource> extSources = getExtSourcesManagerImpl().getExtSources(sess);
+		// cache them in hashmaps
+		for(ExtSource extSource : extSources) {
+			extSourcesByIdMap.put(extSource.getId(), extSource);
+			extSourcesByNameMap.put(extSource.getName(), extSource);
+		}
+		this.extSourcesByIdMap = extSourcesByIdMap;
+		this.extSourcesByNameMap = extSourcesByNameMap;
+	}
+
+	@Override
+	public void destroy() {
+		this.extSourcesManagerImpl.destroy();
 	}
 
 	@Override
 	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException {
 		getPerunBl().getAuditer().log(sess, new ExtSourceCreated(extSource));
-		return getExtSourcesManagerImpl().createExtSource(sess, extSource, attributes);
+		ExtSource extSourceImpl = getExtSourcesManagerImpl().createExtSource(sess, extSource, attributes);
+		extSourcesByIdMap.put(extSourceImpl.getId(), extSource);
+		extSourcesByNameMap.put(extSourceImpl.getName(), extSource);
+		return extSourceImpl;
 	}
 
 	@Override
 	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {
 		getExtSourcesManagerImpl().deleteExtSource(sess, extSource);
+		cacheExtSourcesInMemory(sess);
 		getPerunBl().getAuditer().log(sess, new ExtSourceDeleted(extSource));
 	}
 
 	@Override
 	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
-		return getExtSourcesManagerImpl().getExtSourceById(sess, id);
+		ExtSource extSource = extSourcesByIdMap.get(id);
+		if (extSource == null) throw new ExtSourceNotExistsException("ExtSource with ID=" + id + " not exists");
+		return extSource;
 	}
 
 	@Override
 	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException {
-		return getExtSourcesManagerImpl().getExtSourceByName(sess, name);
+		ExtSource extSource = extSourcesByNameMap.get(name);
+		if (extSource == null) throw new ExtSourceNotExistsException("ExtSource with name =" + name + " not exists");
+		return extSource;
 	}
 
 	@Override
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
-		return getExtSourcesManagerImpl().getVoExtSources(sess, vo);
+		List<Integer> ids = getExtSourcesManagerImpl().getVoExtSourcesIds(sess, vo);
+		return ids.stream().map(id -> extSourcesByIdMap.get(id)).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException {
-		return getExtSourcesManagerImpl().getGroupExtSources(sess, group);
+		List<Integer> ids = getExtSourcesManagerImpl().getGroupExtSourcesIds(sess, group);
+		return ids.stream().map(id -> extSourcesByIdMap.get(id)).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
-		return getExtSourcesManagerImpl().getExtSources(sess);
+		return new ArrayList<>(extSourcesByIdMap.values());
 	}
+	
 	@Override
-	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
-		getExtSourcesManagerImpl().addExtSource(sess, vo, source);
+	public void addExtSourceToVo(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
+		getExtSourcesManagerImpl().addExtSourceToVo(sess, vo, source);
 		getPerunBl().getAuditer().log(sess, new ExtSourceAddedToVo(source, vo));
 	}
 
 	@Override
-	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
-		getExtSourcesManagerImpl().addExtSource(sess, group, source);
+	public void addExtSourceToGroup(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
+		getExtSourcesManagerImpl().addExtSourceToGroup(sess, group, source);
 		getPerunBl().getAuditer().log(sess, new ExtSourceAddedToGroup(source, group));
 	}
 
@@ -117,12 +152,10 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException {
 		// Check if the extSource exists
 		try {
-			return getExtSourcesManagerImpl().getExtSourceByName(sess, extSourceName);
+			return getExtSourceByName(sess, extSourceName);
 		} catch (ExtSourceNotExistsException e) {
 			// extSource doesn't exist, so create new one
-			ExtSource extSource = new ExtSource();
-			extSource.setName(extSourceName);
-			extSource.setType(extSourceType);
+			ExtSource extSource = new ExtSource(extSourceName, extSourceType);
 			try {
 				return this.createExtSource(sess, extSource, null);
 			} catch (ExtSourceExistsException e1) {
@@ -132,19 +165,18 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSourceFromVo(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		List<Group> groupsWithAssignedExtSource = getPerunBl().getGroupsManagerBl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
 		for(Group group: groupsWithAssignedExtSource) {
-			getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+			getPerunBl().getExtSourcesManagerBl().removeExtSourceFromGroup(sess, group, source);
 		}
-
-		getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
+		getExtSourcesManagerImpl().removeExtSourceFromVo(sess, vo, source);
 		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromVo(source, vo));
 	}
 
 	@Override
-	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
-		getExtSourcesManagerImpl().removeExtSource(sess, group, source);
+	public void removeExtSourceFromGroup(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		getExtSourcesManagerImpl().removeExtSourceFromGroup(sess, group, source);
 		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromGroup(source, group));
 	}
 
@@ -198,7 +230,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	@Override
 	public void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException {
-		getExtSourcesManagerImpl().checkExtSourceExists(sess, extSource);
+		getExtSourceById(sess, extSource.getId());
 	}
 
 	public void setPerunBl(PerunBl perunBl) {
@@ -323,16 +355,20 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
+	public DataSource getDataSource(String poolName) {
+		return getExtSourcesManagerImpl().getDataSource(poolName);
+	}
+
+	@Override
 	public void checkExtSourceAssignedToVo(PerunSession sess, ExtSource extSource, int voId) throws InternalErrorException, ExtSourceNotAssignedException, VoNotExistsException {
 		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, voId);
-		List<ExtSource> voExtSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
-
-		if(!voExtSources.contains(extSource)) throw new ExtSourceNotAssignedException("ExtSource " + extSource + " is not assigned to vo " + vo);
+		if(!getExtSourcesManagerImpl().getVoExtSourcesIds(sess, vo).contains(extSource.getId())) throw new ExtSourceNotAssignedException("ExtSource " + extSource + " is not assigned to vo " + vo);
 	}
 
 	@Override
 	public void loadExtSourcesDefinitions(PerunSession sess) {
 		getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
+		cacheExtSourcesInMemory(sess);
 	}
 
 	@Override

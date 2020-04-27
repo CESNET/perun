@@ -55,7 +55,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<!-- ExtSourcesManagerImpl -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.createExtSource(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.updateExtSource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.addExtSource(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.addExtSourceToVo(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.addExtSourceToGroup(..))"/>
 		<!-- FacilitiesManagerImpl -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.createFacility(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.updateFacility(..))"/>
@@ -171,7 +172,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	</bean>
 
 	<!-- Perun implementation -->
-	<bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
+	<bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize" destroy-method="destroy" depends-on="databaseManagerBl">
 		<constructor-arg name="auditer" ref="auditer"/>
 		<property name="vosManagerBl" ref="vosManagerBl"/>
 		<property name="usersManagerBl" ref="usersManagerBl"/>
@@ -410,43 +411,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	</bean>
 
 	<bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton" depends-on="databaseManagerBl">
-		<constructor-arg ref="perun" />
-	</bean>
-
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceGoogle" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceVOOT" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceUnity" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-        </bean>
-        <bean class="cz.metacentrum.perun.core.impl.ExtSourceCSV" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceISMU" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceLdap" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourcePerun" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceSql" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceREMS" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceTCS" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceSqlComplex" factory-method="setPerunBlImpl">
-		<constructor-arg ref="perun" />
-	</bean>
-	<bean class="cz.metacentrum.perun.core.impl.ExtSourceXML" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
 

@@ -1,11 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,7 +29,7 @@ import static cz.metacentrum.perun.core.impl.Utils.parseCommonName;
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 12.07.2016
  */
-public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
+public class ExtSourceVOOT extends ExtSourceImpl implements ExtSourceApi {
 
     private final static Logger log = LoggerFactory.getLogger(ExtSourceVOOT.class);
 
@@ -40,13 +38,6 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     private String query = null;
     private String username = null;
     private String password = null;
-    private static PerunBlImpl perunBl;
-
-    // filled by spring (perun-core.xml)
-    public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-        perunBl = perun;
-        return perun;
-    }
 
     @Override
     public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
@@ -361,10 +352,6 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         if (uriMembers == null || uriMembers.isEmpty()) {
             throw new InternalErrorException("uriMembers attribute is required");
         }
-    }
-
-    protected Map<String, String> getAttributes() throws InternalErrorException {
-        return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
 
 	@Override

@@ -95,7 +95,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class), any(String.class));
 		//noinspection ResultOfMethodCallIgnored
 		doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap)essa).getName();
-		doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));
+		doNothing().when(extSourceManagerBl).addExtSourceToGroup(any(PerunSession.class), any(Group.class), any(ExtSource.class));
 	}
 
 	@After
@@ -464,11 +464,11 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		Group returnedGroup = groupsManagerBl.createGroup(sess, vo, baseGroup);
 
-		extSourceManagerBl.addExtSource(sess, vo, extSource);
+		extSourceManagerBl.addExtSourceToVo(sess, vo, extSource);
 		Attribute attr = attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
 		attr.setValue(extSource.getName());
 		attributesManagerBl.setAttribute(sess, baseGroup, attr);
-		extSourceManagerBl.addExtSource(sess, baseGroup, extSource);
+		extSourceManagerBl.addExtSourceToGroup(sess, baseGroup, extSource);
 
 		Attribute membersQuery = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
 		membersQuery.setValue("SELECT * from members where groupName='?';");

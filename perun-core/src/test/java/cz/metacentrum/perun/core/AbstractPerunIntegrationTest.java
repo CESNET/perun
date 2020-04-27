@@ -72,6 +72,7 @@ public abstract class AbstractPerunIntegrationTest {
 		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		sess = perun.getPerunSession(pp, new PerunClient());
 		CacheManager.setCacheDisabled(true);
+		perun.getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
 	}
 
 	@After
