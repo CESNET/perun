@@ -1492,9 +1492,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
+	 * Returns resource attributes required by specified list of services.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param services List<int> list of Service IDs
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
 	 * Returns required host attributes.
 	 *
 	 * @param host int Host <code>id</code>
+	 * @param service int Service <code>id</code>
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns required vo attributes.
+	 *
+	 * @param vo int Vo <code>id</code>
 	 * @param service int Service <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
@@ -1562,6 +1576,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns
 	 */
 	/*#
 	 * Returns required user attributes.

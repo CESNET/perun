@@ -1769,6 +1769,16 @@ components:
       in: query
       required: true
 
+    serviceIds:
+      name: "services[]"
+      description: "list of Service ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     servicesPackageId:
       name: servicesPackage
       description: "id of ServicesPackage"
@@ -1784,6 +1794,14 @@ components:
         type: boolean
       in: query
       required: true
+
+    workWithUserAttributesOptional:
+      name: workWithUserAttributes
+      description: "flag to work with user attributes"
+      schema:
+        type: boolean
+      in: query
+      required: false
 
     workWithGroupAttributes:
       name: workWithGroupAttributes
@@ -4479,7 +4497,273 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-#TODO getRequiredAttributes
+  /json/attributesManager/getRequiredAttributes/s-r-g-m:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesMemberGroupResourceService
+      summary: Returns member, member-group and member-resource attributes required by specified service.
+        If workWithUserAttributes == TRUE, then returns also user and user-facility attributes.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/workWithUserAttributesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/s-r-g:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesGroupResourceService
+      summary: Returns group-resource attributes required by specified service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/s-r-m:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesMemberResourceService
+      summary: Returns member and member-resource attributes required by the specified service.
+        If workWithUserAttributes == TRUE, then returns also user attributes.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/workWithUserAttributesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/s-r:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesResourceService
+      summary: Returns resource attributes required by specified service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/s-g-m:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesMemberGroupService
+      summary: Returns member-group attributes required by specified service.
+        If workWithUserAttributes == TRUE, then returns also member and user attributes.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/workWithUserAttributesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/s-f:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesFacilityService
+      summary: Returns facility attributes required by specified service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/s-h:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesHostService
+      summary: Returns required host attributes.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/hostId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/s-v:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesVoService
+      summary: Returns required vo attributes.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/ss-f:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesFacilityServices
+      summary: Returns facility attributes required by specified list of services.
+      parameters:
+        - $ref: '#/components/parameters/serviceIds'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/ss-r:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesResourceServices
+      summary: Returns resource attributes required by specified list of services.
+      parameters:
+        - $ref: '#/components/parameters/serviceIds'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/m-r:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesMemberResource
+      summary: Returns member-resource attributes required by specified list of services.
+               If workWithUserAttributes == TRUE, then returns also user attributes.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/workWithUserAttributesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/r:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesResource
+      summary: Returns required resource attributes.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/u-f:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesUserFacility
+      summary: Returns required user-facility attributes.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/f:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesFacility
+      summary: Returns required facility attributes.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/m-g:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesMemberGroup
+      summary: Returns required member-group attributes. If workWithUserAttributes == TRUE,
+        then returns also user attributes.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/workWithUserAttributesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/m:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesMember
+      summary: Returns required member attributes.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/workWithUserAttributesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getRequiredAttributes/u:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesUser
+      summary: Returns required user attributes.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
 #TODO getRequiredAttributesDefinition
 
