@@ -1526,9 +1526,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
+	 * Returns resource attributes required by specified list of services.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param services List<int> list of Service IDs
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
 	 * Returns required host attributes.
 	 *
 	 * @param host int Host <code>id</code>
+	 * @param service int Service <code>id</code>
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns required vo attributes.
+	 *
+	 * @param vo int Vo <code>id</code>
 	 * @param service int Service <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
@@ -1602,6 +1616,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
 	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
 	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 */
+	/*#
+	 * Returns
 	 */
 	/*#
 	 * Returns required user attributes.
