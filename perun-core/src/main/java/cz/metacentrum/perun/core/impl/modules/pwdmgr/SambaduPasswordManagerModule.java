@@ -26,60 +26,60 @@ import java.util.Map;
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
-public class DusambaPasswordManagerModule extends GenericPasswordManagerModule {
+public class SambaduPasswordManagerModule extends GenericPasswordManagerModule {
 
-	private final static Logger log = LoggerFactory.getLogger(DusambaPasswordManagerModule.class);
+	private final static Logger log = LoggerFactory.getLogger(SambaduPasswordManagerModule.class);
 
-	public DusambaPasswordManagerModule() {
+	public SambaduPasswordManagerModule() {
 
 		// set proper namespace
-		this.actualLoginNamespace = "du-samba";
+		this.actualLoginNamespace = "samba-du";
 
 		// if we are not faking password manager by using /bin/true value in the config,
 		// then append namespace to the script path to trigger correct password manager script.
 
 		if (!binTrue.equals(this.passwordManagerProgram)) {
-			passwordManagerProgram += ".du-samba";
+			passwordManagerProgram += ".samba-du";
 		}
 		if (!binTrue.equals(this.altPasswordManagerProgram)) {
-			altPasswordManagerProgram += ".du-samba";
+			altPasswordManagerProgram += ".samba-du";
 		}
 
 	}
 
 	@Override
 	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException {
-		throw new InternalErrorException("Generating account in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Generating account in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
 	public void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException {
-		throw new InternalErrorException("Reserving password in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Reserving password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
 	public void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException {
-		throw new InternalErrorException("Reserving random password in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Reserving random password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
 	public void checkPassword(PerunSession sess, String userLogin, String password) {
-		throw new InternalErrorException("Checking password in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Checking password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
 	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
-		throw new InternalErrorException("Changing password in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Changing password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
 	public void validatePassword(PerunSession sess, String userLogin) {
-		throw new InternalErrorException("Validating password in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Validating password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
 	public void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException {
-		throw new InternalErrorException("Deleting password in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Deleting password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class DusambaPasswordManagerModule extends GenericPasswordManagerModule {
 
 	@Override
 	public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
-		throw new InternalErrorException("Deleting alternative password in login namespace 'du-samba' is not supported.");
+		throw new InternalErrorException("Deleting alternative password in login namespace 'samba-du' is not supported.");
 	}
 
 	/**
