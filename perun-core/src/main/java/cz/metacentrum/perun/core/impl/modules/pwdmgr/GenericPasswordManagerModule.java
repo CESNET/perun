@@ -260,7 +260,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	 *
 	 * @param errorStream Password manager script error stream
 	 */
-	private void handleGenericErrorCode(InputStream errorStream) {
+	protected void handleGenericErrorCode(InputStream errorStream) {
 
 		BufferedReader inReader = new BufferedReader(new InputStreamReader(errorStream));
 		StringBuilder errorMsg = new StringBuilder();

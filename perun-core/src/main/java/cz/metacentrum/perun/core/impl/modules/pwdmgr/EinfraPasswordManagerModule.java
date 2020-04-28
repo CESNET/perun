@@ -48,8 +48,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 	@Override
 	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
 		checkPasswordStrength(newPassword);
-		super.changePassword(sess,userLogin, newPassword);
-
+		super.changePassword(sess, userLogin, newPassword);
 	}
 
 	@Override
