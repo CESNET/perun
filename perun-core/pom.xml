@@ -202,6 +202,15 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
+		<!-- Oracle -->
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc8</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.database.nls</groupId>
+			<artifactId>orai18n</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.infinispan</groupId>
@@ -215,37 +224,10 @@
 
 	</dependencies>
 
-	<profiles>
-
-		<profile>
 			<!--
 			Run tests against Oracle DB with the following command:
-			  mvn -Dspring.profiles.active=production -Dperun.conf.custom=$HOME/perun_test -Doracle=True test
+			  mvn -Dspring.profiles.active=production -Dperun.conf.custom=$HOME/perun_test test
 			where $HOME/perun_test/ directory contains files jdbc.properties and perun.properties
 			-->
-			<id>oracle</id>
-			<activation>
-				<property>
-					<name>oracle</name>
-					<value>True</value>
-				</property>
-			</activation>
-			<dependencies>
-				<!-- Oracle jdbc driver -->
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc8</artifactId>
-					<scope>test</scope>
-				</dependency>
-				<!-- Oracle internationalization -->
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>orai18n</artifactId>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-
-	</profiles>
 
 </project>
