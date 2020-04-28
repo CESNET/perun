@@ -77,7 +77,7 @@
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20190722</json.version>
-		<oracle.version>12.2.0.1.0</oracle.version>
+		<oracle.version>19.6.0.0</oracle.version>
 		<reflections.version>0.9.11</reflections.version>
 	</properties>
 
@@ -243,13 +243,13 @@
 
 			<!-- Oracle jdbc driver -->
 			<dependency>
-				<groupId>com.oracle</groupId>
+				<groupId>com.oracle.database.jdbc</groupId>
 				<artifactId>ojdbc8</artifactId>
 				<version>${oracle.version}</version>
 			</dependency>
 			<!-- Oracle internationalization -->
 			<dependency>
-				<groupId>com.oracle</groupId>
+				<groupId>com.oracle.database.nls</groupId>
 				<artifactId>orai18n</artifactId>
 				<version>${oracle.version}</version>
 			</dependency>
