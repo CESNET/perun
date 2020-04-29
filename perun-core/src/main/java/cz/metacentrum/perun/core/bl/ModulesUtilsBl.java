@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
@@ -331,7 +332,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkAttributeRegex(Attribute attribute, String defaultRegex) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeRegex(Attribute attribute, Pattern defaultRegex) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * Check if quotaToCheck is in limit of limitQuota.
