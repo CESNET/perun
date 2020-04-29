@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -31,11 +32,13 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 	private static final String A_G_unixGID_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace";
 	private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace";
 
+	protected static final Pattern defaultUnixGroupNamePattern = Pattern.compile("^[-_.a-zA-Z0-9]+$");
+
 	@Override
 	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException, InternalErrorException {
 		if (attribute.getValue() == null) return;
 		//Check attribute regex
-		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[-._a-zA-Z0-9]+$");
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, defaultUnixGroupNamePattern);
 
 		//Check reserved unix group names
 		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);

@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Class for checking logins uniqueness and filling random unique ID.
@@ -25,6 +26,8 @@ import java.util.UUID;
 public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_fedcloud.class);
+
+	protected final static Pattern defaultFedcloudLoginPattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
 	/**
 	 * Checks if the user's login has correct format and if it's not already reserved in that namespace.
@@ -40,7 +43,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends u
 		if (attribute.valueAsString() == null) return;
 
 		//Check attribute regex
-		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, defaultFedcloudLoginPattern);
 	}
 
 	/**
