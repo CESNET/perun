@@ -88,6 +88,7 @@ public class SearcherImpl implements SearcherImplApi {
 			return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER, def.getId());
 
 		} catch (Exception e) {
+			log.error("Getting all expired members of all VOs failed.", e);
 			throw new InternalErrorException(e);
 		}
 
@@ -295,6 +296,7 @@ public class SearcherImpl implements SearcherImplApi {
 			return jdbcTemplate.query(query, MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, group.getId(), def.getId(), group.getId());
 
 		} catch (Exception e) {
+			log.error("Getting expired members of {} failed: {}", group, e);
 			throw new InternalErrorException(e);
 		}
 	}

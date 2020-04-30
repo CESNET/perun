@@ -114,17 +114,17 @@ public class ExpirationNotifScheduler {
 	 * Enum defining time before member expiration and action that should be logged in auditer when it happens
 	 */
 	private enum ExpirationPeriod {
-		MONTH(((auditer, sess, member, vo) ->
-			auditer.log(sess, new MembershipExpirationInMonthNotification(member, vo))
+		MONTH(((auditer, sess, member, vo) -> log.debug("Would log audit message: {}", new MembershipExpirationInMonthNotification(member, vo))
+			//auditer.log(sess, new MembershipExpirationInMonthNotification(member, vo))
 		)),
-		DAYS_14(((auditer, sess, member, vo) ->
-			auditer.log(sess, new MembershipExpirationInDays(member, 14, vo))
+		DAYS_14(((auditer, sess, member, vo) -> log.debug("Would log audit message: {}", new MembershipExpirationInDays(member, 14, vo))
+			//auditer.log(sess, new MembershipExpirationInDays(member, 14, vo))
 		)),
-		DAYS_7(((auditer, sess, member, vo) ->
-			auditer.log(sess, new MembershipExpirationInDays(member, 7, vo))
+		DAYS_7(((auditer, sess, member, vo) -> log.debug("Would log audit message: {}", new MembershipExpirationInDays(member, 7, vo))
+			//auditer.log(sess, new MembershipExpirationInDays(member, 7, vo))
 		)),
-		DAYS_1(((auditer, sess, member, vo) ->
-			auditer.log(sess, new MembershipExpirationInDays(member, 1, vo))
+		DAYS_1(((auditer, sess, member, vo) -> log.debug("Would log audit message: {}", new MembershipExpirationInDays(member, 1, vo))
+			//auditer.log(sess, new MembershipExpirationInDays(member, 1, vo))
 		));
 
 		private final ExpirationAuditAction<Auditer, PerunSession, Member, Vo> expirationAuditAction;
@@ -142,17 +142,17 @@ public class ExpirationNotifScheduler {
 	 * Enum defining time before member expiration and action that should be logged in auditer when it happens
 	 */
 	private enum GroupExpirationPeriod {
-		MONTH(((auditer, sess, member, group) ->
-				auditer.log(sess, new GroupMembershipExpirationInMonthNotification(member, group))
+		MONTH(((auditer, sess, member, group) -> log.debug("Would log audit message: {}", new GroupMembershipExpirationInMonthNotification(member, group))
+				//auditer.log(sess, new GroupMembershipExpirationInMonthNotification(member, group))
 		)),
-		DAYS_14(((auditer, sess, member, group) ->
-				auditer.log(sess, new GroupMembershipExpirationInDays(member, 14, group))
+		DAYS_14(((auditer, sess, member, group) -> log.debug("Would log audit message: {}", new GroupMembershipExpirationInDays(member, 14, group))
+				//auditer.log(sess, new GroupMembershipExpirationInDays(member, 14, group))
 		)),
-		DAYS_7(((auditer, sess, member, group) ->
-				auditer.log(sess, new GroupMembershipExpirationInDays(member, 7, group))
+		DAYS_7(((auditer, sess, member, group) -> log.debug("Would log audit message: {}", new GroupMembershipExpirationInDays(member, 7, group))
+				//auditer.log(sess, new GroupMembershipExpirationInDays(member, 7, group))
 		)),
-		DAYS_1(((auditer, sess, member, group) ->
-				auditer.log(sess, new GroupMembershipExpirationInDays(member, 1, group))
+		DAYS_1(((auditer, sess, member, group) -> log.debug("Would log audit message: {}", new GroupMembershipExpirationInDays(member, 1, group))
+				//auditer.log(sess, new GroupMembershipExpirationInDays(member, 1, group))
 		));
 
 		private final GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> expirationAuditAction;
@@ -336,12 +336,15 @@ public class ExpirationNotifScheduler {
 		List<Member> shouldntBeExpired = perun.getSearcherBl().getMembersByExpiration(sess, ">", date);
 		for (Member member : shouldntBeExpired) {
 			if (member.getStatus().equals(Status.EXPIRED)) {
+				log.info("We would be switching {} to VALID state, due to changed expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
+				/*
 				try {
 					perun.getMembersManagerBl().validateMember(sess, member);
 					log.info("Switching {} to VALID state, due to changed expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
 				} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 					log.error("Error during validating member {}, exception {}", member, e);
 				}
+				*/
 			}
 		}
 	}
@@ -357,12 +360,15 @@ public class ExpirationNotifScheduler {
 		List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByExpiration(sess, "<=", date);
 		for (Member member : shouldBeExpired) {
 			if (member.getStatus().equals(Status.VALID)) {
+				log.info("We would be switching {} to EXPIRED state, due to changed expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
+				/*
 				try {
 					perun.getMembersManagerBl().expireMember(sess, member);
-					log.info("Switching {} to EXPIRE state, due to expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
+					log.info("Switching {} to EXPIRED state, due to expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
 				} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 					log.error("Consistency error while trying to expire member {}, exception {}", member, e);
 				}
+				*/
 			}
 		}
 	}
@@ -383,8 +389,9 @@ public class ExpirationNotifScheduler {
 		for (Member m : expired7DaysAgo) {
 			if (allowedStatuses.contains(m.getStatus())) {
 				if (didntSubmitExtensionApplication(m)) {
+					log.debug("Would log audit message: {}", new MembershipExpired(m, 7, vosMap.get(m.getVoId())));
 					// still didn't apply for extension
-					getPerun().getAuditer().log(sess, new MembershipExpired(m, 7, vosMap.get(m.getVoId())));
+					// getPerun().getAuditer().log(sess, new MembershipExpired(m, 7, vosMap.get(m.getVoId())));
 				} else {
 					log.debug("{} not notified about expiration, has submitted - pending application.", m);
 				}
@@ -412,8 +419,9 @@ public class ExpirationNotifScheduler {
 				// we don't notify members in indirect only relation
 				if (status != null) {
 					if (didntSubmitGroupExtensionApplication(m, group)) {
+						log.debug("Would log audit message: {}", new GroupMembershipExpired(m, 7, group));
 						// still didn't apply for extension
-						getPerun().getAuditer().log(sess, new GroupMembershipExpired(m, 7, group));
+						//getPerun().getAuditer().log(sess, new GroupMembershipExpired(m, 7, group));
 					} else {
 						log.debug("{} not notified about expiration in {}, has submitted - pending application.", m, group);
 					}
@@ -502,8 +510,8 @@ public class ExpirationNotifScheduler {
 				})
 				.forEach(member -> {
 					try {
-						perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + "groupMembershipExpiration").getValue());
+						//perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
+						log.info("We would be switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Consistency error while trying to expire member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
@@ -538,8 +546,8 @@ public class ExpirationNotifScheduler {
 				})
 				.forEach(member -> {
 					try {
-						perun.getGroupsManagerBl().validateMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + "groupMembershipExpiration").getValue());
+						//perun.getGroupsManagerBl().validateMemberInGroup(sess, member, group);
+						log.info("We would be switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Error during validating member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
