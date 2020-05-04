@@ -25,7 +25,8 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLoginTest {
 	private Group group = new Group();
 	private Resource resource = new Resource();
 	private PerunSessionImpl sess;
-	private Attribute reqAttribute;
+	private Attribute namespaceAttribute;
+	private Attribute loginAttribute;
 
 	@Before
 	public void setUp() throws Exception {
@@ -33,13 +34,16 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLoginTest {
 		attributeToCheck = new Attribute();
 		sess = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 		Facility facility = new Facility();
-		reqAttribute = new Attribute();
+		namespaceAttribute = new Attribute();
+		namespaceAttribute.setValue("namespace");
+		loginAttribute = new Attribute();
 
 		User user = new User();
 
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login")).thenReturn(reqAttribute);
 		when(sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource)).thenReturn(facility);
-		when(sess.getPerunBl().getUsersManagerBl().getUsers(sess)).thenReturn(Collections.singletonList(user));
+		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace")).thenReturn(namespaceAttribute);
+		when(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:namespace")).thenReturn(loginAttribute);
+		when(sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, loginAttribute)).thenReturn(Collections.singletonList(user));
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
@@ -62,7 +66,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLoginTest {
 	public void testSemanticsNoUserWithGivenName() throws Exception {
 		System.out.println("testSemanticsNoUserWithGivenName()");
 		attributeToCheck.setValue("correct_value");
-		reqAttribute.setValue(null);
+		namespaceAttribute.setValue(null);
 
 		classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
 	}
@@ -71,8 +75,6 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLoginTest {
 	public void testCorrectSemantics() throws Exception {
 		System.out.println("testCorrectSemantics()");
 		attributeToCheck.setValue("correct_value");
-		reqAttribute.setValue("correct_value");
-
 		classInstance.checkAttributeSemantics(sess, group, resource, attributeToCheck);
 	}
 }
