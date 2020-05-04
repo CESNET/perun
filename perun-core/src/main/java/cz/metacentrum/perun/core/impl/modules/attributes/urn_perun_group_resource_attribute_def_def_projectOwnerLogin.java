@@ -52,21 +52,39 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 		//Get Facility from resource
 		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 
-		//Get all users
-		List<User> users = sess.getPerunBl().getUsersManagerBl().getUsers(sess);
-
-		//Check if exists any user with this login
-		for(User u: users) {
-			Attribute userLogin;
-			try {
-				userLogin = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, u, A_UF_V_login);
-			} catch (AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException("Not existing attribute user_login", ex);
-			}
-			if (ownerLogin.equals(userLogin.getValue())) return;
+		Attribute loginNamespaceAttribute = null;
+		try {
+			loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
 		}
 
-		throw new WrongReferenceAttributeValueException(attribute, null, group, resource, "There is no user with this login:'" + ownerLogin);
+		// facility has namespace for logins
+		if (loginNamespaceAttribute != null && loginNamespaceAttribute.valueAsString() != null) {
+
+			try {
+
+				// get login attr
+				AttributeDefinition loginAttributeDef = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:"+loginNamespaceAttribute.valueAsString());
+
+				// check that some user have it with our value
+				Attribute loginAttribute = new Attribute(loginAttributeDef);
+				loginAttribute.setValue(ownerLogin);
+
+				List<User> usersWithlogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, loginAttribute);
+				if (usersWithlogin.isEmpty()) {
+					throw new WrongReferenceAttributeValueException(attribute, null, group, resource, "There is no user with login '" + ownerLogin+"' in namespace '"+loginNamespaceAttribute.valueAsString()+"'.");
+				}
+
+			} catch (AttributeNotExistsException e) {
+				// there is no user login namespace attribute with namespace set on facility
+				throw new ConsistencyErrorException(e);
+			}
+
+		} else {
+			throw new WrongReferenceAttributeValueException(attribute, loginNamespaceAttribute, group, resource, facility, null, "Login-namespace on facility can`t be empty.");
+		}
+
 	}
 
 	@Override
