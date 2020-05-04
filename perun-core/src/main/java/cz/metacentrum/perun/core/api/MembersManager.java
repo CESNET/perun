@@ -641,13 +641,14 @@ public interface MembersManager {
 	 * @param vo
 	 * @param attrsNames
 	 * @param searchString
+	 * @param onlySponsored return only sponsored members
 	 * @return list of founded richMembers with specific attributes from Vo for searchString
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames

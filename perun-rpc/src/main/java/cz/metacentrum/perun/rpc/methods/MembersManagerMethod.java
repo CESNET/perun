@@ -1023,6 +1023,17 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Vo for searchString
  	 */
 	/*#
+	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames.
+	 * If attrsNames is empty or null return all attributes for specific richMembers.
+	 * By parameter onlySponsored we can return only sponsored members for specific vo.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param attrsNames List<String> Attribute names
+	 * @param searchString String String to search by
+	 * @param onlySponsored Boolean true, if only sponsored members should be returned, false otherwise
+	 * @return List<RichMember> List of founded richMembers with specific attributes from Vo for searchString
+	 */
+	/*#
  	 * Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames
  	 * and who have only status which is contain in list of statuses.
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
@@ -1074,10 +1085,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 							parms.readList("allowedStatuses", String.class),
 							parms.readString("searchString"));
 				} else {
+					boolean onlySponsored = false;
+					if(parms.contains("onlySponsored")) onlySponsored = parms.readBoolean("onlySponsored");
 					return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
 							ac.getVoById(parms.readInt("vo")),
 							parms.readList("attrsNames", String.class),
-							parms.readString("searchString"));
+							parms.readString("searchString"),
+							onlySponsored);
 				}
 			} else {
 				if(parms.contains("allowedStatuses")) {
