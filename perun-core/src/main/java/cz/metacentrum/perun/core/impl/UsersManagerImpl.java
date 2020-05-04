@@ -792,24 +792,24 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" from users, members, member_attr_values, attr_names " +
 					"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
 					"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
-					"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+					"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
 
 		// Search preferred email (user)
 		users.addAll(jdbc.query("select " + userMappingSelectQuery +
 					" from users, user_attr_values, attr_names " +
 					"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
 					"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
-					"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+					"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
 
 		// Search logins in userExtSources
 		users.addAll(jdbc.query("select " + userMappingSelectQuery +
 					" from users, user_ext_sources " +
-					"where user_ext_sources.login_ext=? and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
+					"where lower(user_ext_sources.login_ext)=lower(?) and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
 
 		// Search logins in attributes: login-namespace:*
 		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
 					" from attr_names, user_attr_values, users " +
-					"where attr_names.friendly_name like 'login-namespace:%' and user_attr_values.attr_value=? " +
+					"where attr_names.friendly_name like 'login-namespace:%' and lower(user_attr_values.attr_value)=lower(?) " +
 					"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
 					USER_MAPPER, searchString));
 
@@ -837,24 +837,24 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				" from users, members, member_attr_values, attr_names " +
 				"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
 				"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
-				"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+				"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
 
 		// Search preferred email (user)
 		users.addAll(jdbc.query("select " + userMappingSelectQuery +
 				" from users, user_attr_values, attr_names " +
 				"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
 				"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
-				"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+				"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
 
 		// Search logins in userExtSources
 		users.addAll(jdbc.query("select " + userMappingSelectQuery +
 				" from users, user_ext_sources " +
-				"where user_ext_sources.login_ext=? and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
+				"where lower(user_ext_sources.login_ext)=lower(?) and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
 
 		// Search logins in attributes: login-namespace:*
 		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
 						" from attr_names, user_attr_values, users " +
-						"where attr_names.friendly_name like 'login-namespace:%' and user_attr_values.attr_value=? " +
+						"where attr_names.friendly_name like 'login-namespace:%' and lower(user_attr_values.attr_value)=lower(?) " +
 						"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
 				USER_MAPPER, searchString));
 
@@ -877,13 +877,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return new ArrayList<>();
 		}
 
-		// Convert to lower case
-		searchString = searchString.toLowerCase();
-		log.debug("Search string '{}' converted into the lowercase", searchString);
-
-		// Convert to ASCII
-		searchString = Utils.utftoasci(searchString);
-		log.debug("Search string '{}' converted into the ASCII", searchString);
+		// Convert to lowercase ASCII
+		searchString = Utils.utftoasci(searchString.toLowerCase());
+		log.trace("Search string '{}' converted into lower-cased ASCII", searchString);
 
 		// remove spaces from the search string
 		searchString = searchString.replaceAll(" ", "");
