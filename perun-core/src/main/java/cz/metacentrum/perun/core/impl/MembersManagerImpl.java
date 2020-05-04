@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -20,6 +19,8 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -40,6 +41,8 @@ import java.util.Objects;
 import java.util.Set;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
+
+	final static Logger log = LoggerFactory.getLogger(MembersManagerImpl.class);
 
 	final static String memberMappingSelectQuery = "members.id as members_id, members.user_id as members_user_id, members.vo_id as members_vo_id, members.status as members_status, " +
 			"members.sponsored as members_sponsored, " +
@@ -496,7 +499,6 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	@Override
 	public List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored) {
-		Set<Member> members = new HashSet<>();
 
 		String voIdQueryString = "";
 		if(vo != null) {
@@ -528,15 +530,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			// IGNORE wrong format of ID
 		}
 
-		String lowercaseSearchString = searchString.toLowerCase();
-
 		//searching by member mail
 		//searching by user preferredMail
 		//searching by login in userExtSources
 		//searching by login in logins (all namespaces)
 		//searching by name for user
 		//searching by user and member id
-		members.addAll(jdbc.query("select distinct " + memberMappingSelectQuery +
+		Set<Member> members = new HashSet<>(jdbc.query("select distinct " + memberMappingSelectQuery +
 				" from members " +
 				" left join users u on members.user_id=u.id " +
 				" left join member_attr_values mav1 on members.id=mav1.member_id and mav1.attr_id in (select id from attr_names where attr_name='" + MembersManagerImpl.A_D_MEMBER_MAIl + "') " +
@@ -553,7 +553,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				" lower(ues.login_ext)=lower(?) or " +
 				idQueryString +
 				userNameQueryString +
-				" ) ", MEMBER_MAPPER, lowercaseSearchString, lowercaseSearchString, lowercaseSearchString, lowercaseSearchString, lowercaseSearchString));
+				" ) ", MEMBER_MAPPER, searchString, searchString, searchString, searchString, Utils.utftoasci(searchString.toLowerCase())));
+
+		if (vo != null) {
+			log.debug("Searching members of VO '{}' using searchString '{}', sponsored '{}'. Found: {} member(s).", vo.getShortName(), searchString, onlySponsored, members.size());
+		} else {
+			log.debug("Searching all members using searchString '{}', sponsored '{}'. Found: {} member(s).", searchString, onlySponsored, members.size());
+		}
 
 		return new ArrayList<>(members);
 	}
