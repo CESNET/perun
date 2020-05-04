@@ -1,9 +1,11 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -68,6 +70,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		return member;
 	};
 
+	public static final String A_D_MEMBER_MAIl = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
+	public static final String A_D_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 
 	public static final ResultSetExtractor<List<Member>> MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
 		Map<Integer, Member> members = new HashMap<>();
@@ -490,4 +494,67 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	}
 
+	@Override
+	public List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored) {
+		Set<Member> members = new HashSet<>();
+
+		String voIdQueryString = "";
+		if(vo != null) {
+			voIdQueryString = " members.vo_id=" + vo.getId() + " and ";
+		}
+
+		String sponsoredQueryString = "";
+		if(onlySponsored) {
+			//only sponsored members
+			sponsoredQueryString+=" members.sponsored=1 and ";
+		}
+
+		String userNameQueryString;
+		if (Compatibility.isOracle()) {
+			userNameQueryString = " lower("+Compatibility.convertToAscii("u.first_name || u.middle_name || u.last_name")+") like '%' || ? || '%' ";
+		} else if (Compatibility.isPostgreSql()) {
+			userNameQueryString= " strpos(lower("+Compatibility.convertToAscii("COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'')")+"),?) > 0 ";
+		} else if (Compatibility.isHSQLDB()) {
+			userNameQueryString=" lower("+Compatibility.convertToAscii("COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'')")+") like '%' || ? || '%' ";
+		} else {
+			throw new InternalErrorException("Unsupported db type");
+		}
+
+		String idQueryString = "";
+		try {
+			int id = Integer.parseInt(searchString);
+			idQueryString = " members.user_id=" + id + " or members.id=" + id + " or ";
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of ID
+		}
+
+		String lowercaseSearchString = searchString.toLowerCase();
+
+		//searching by member mail
+		//searching by user preferredMail
+		//searching by login in userExtSources
+		//searching by login in logins (all namespaces)
+		//searching by name for user
+		//searching by user and member id
+		members.addAll(jdbc.query("select distinct " + memberMappingSelectQuery +
+				" from members " +
+				" left join users u on members.user_id=u.id " +
+				" left join member_attr_values mav1 on members.id=mav1.member_id and mav1.attr_id in (select id from attr_names where attr_name='" + MembersManagerImpl.A_D_MEMBER_MAIl + "') " +
+				" left join user_attr_values uav1 on u.id=uav1.user_id and uav1.attr_id in (select id from attr_names where attr_name='" + MembersManagerImpl.A_D_USER_PREFERRED_MAIL + "') " +
+				" left join user_attr_values uav2 on u.id=uav2.user_id and uav2.attr_id in (select id from attr_names where friendly_name like 'login-namespace:%') " +
+				" left join user_ext_sources ues on ues.user_id=u.id " +
+				" where " +
+				voIdQueryString +
+				sponsoredQueryString +
+				" ( " +
+				" lower(mav1.attr_value)=lower(?) or " +
+				" lower(uav1.attr_value)=lower(?) or " +
+				" lower(uav2.attr_value)=lower(?) or " +
+				" lower(ues.login_ext)=lower(?) or " +
+				idQueryString +
+				userNameQueryString +
+				" ) ", MEMBER_MAPPER, lowercaseSearchString, lowercaseSearchString, lowercaseSearchString, lowercaseSearchString, lowercaseSearchString));
+
+		return new ArrayList<>(members);
+	}
 }

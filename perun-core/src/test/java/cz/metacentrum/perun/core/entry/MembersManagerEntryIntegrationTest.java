@@ -1573,6 +1573,62 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue("member is not in list of sponsored members for sponsor 2", sponsoredMembers2.stream().map(PerunBean::getId).anyMatch(id -> id == sponsoredMember.getId()));
 	}
 
+	@Test
+	public void findMemberById() throws Exception {
+		System.out.println(CLASS_NAME + "findMemberById");
+		Member member = setUpMember(createdVo);
+		List<Member> members = perun.getMembersManagerBl().findMembers(sess, createdVo, String.valueOf(member.getId()), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member, members.get(0));
+		members = perun.getMembersManagerBl().findMembers(sess, createdVo, String.valueOf(member.getUserId()), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member, members.get(0));
+	}
+
+	@Test
+	public void findMemberByName() throws Exception {
+		System.out.println(CLASS_NAME + "findMemberByName");
+		Member member = setUpMember(createdVo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		List<Member> members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getFirstName(), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member, members.get(0));
+		members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getLastName(), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member, members.get(0));
+	}
+
+	@Test
+	public void findMemberByNameWithoutVo() throws Exception {
+		System.out.println(CLASS_NAME + "findMemberByNameWithoutVo");
+		Member member = setUpMember(createdVo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		List<Member> members = perun.getMembersManagerBl().findMembers(sess, null, user.getFirstName(), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member, members.get(0));
+		members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getLastName(), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member, members.get(0));
+	}
+
+	@Test
+	public void findOnlySponsoredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "findOnlySponsoredMembers");
+
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Petr Novák, CSc.");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, sponsoredMember);
+		System.out.println(user);
+		List<Member> members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getFirstName(), true);
+		assertTrue(members.size() == 1);
+		assertEquals(sponsoredMember, members.get(0));
+		perun.getMembersManagerBl().unsetSponsorshipForMember(sess, sponsoredMember);
+		members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getFirstName(), true);
+		assertTrue(members.size() == 0);
+	}
 
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {
 		Attribute attr = new Attribute();
