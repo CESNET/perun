@@ -359,7 +359,7 @@ public class ExpirationNotifScheduler {
 			if (member.getStatus().equals(Status.VALID)) {
 				try {
 					perun.getMembersManagerBl().expireMember(sess, member);
-					log.info("Switching {} to EXPIRE state, due to expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
+					log.info("Switching {} to EXPIRED state, due to expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
 				} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 					log.error("Consistency error while trying to expire member {}, exception {}", member, e);
 				}
@@ -503,7 +503,7 @@ public class ExpirationNotifScheduler {
 				.forEach(member -> {
 					try {
 						perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + "groupMembershipExpiration").getValue());
+						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Consistency error while trying to expire member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
@@ -539,7 +539,7 @@ public class ExpirationNotifScheduler {
 				.forEach(member -> {
 					try {
 						perun.getGroupsManagerBl().validateMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + "groupMembershipExpiration").getValue());
+						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Error during validating member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
