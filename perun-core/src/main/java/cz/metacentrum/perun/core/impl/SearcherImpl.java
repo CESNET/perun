@@ -287,12 +287,16 @@ public class SearcherImpl implements SearcherImplApi {
 		}
 
 		try {
-			AttributeDefinition def = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
 
-			String query = "select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from members left join groups_members on members.id=groups_members.member_id and groups_members.group_id=? left join member_group_attr_values val on " +
-					"val.member_id=members.id and val.attr_id=? where val.group_id=? and TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
+			String query = "select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from member_group_attr_values val" +
+					" join groups_members on val.member_id=groups_members.member_id" +
+					" and val.group_id=groups_members.group_id" +
+					" and val.group_id=?" +
+					" and val.attr_id=(select id from attr_names where attr_name='urn:perun:member_group:attribute-def:def:groupMembershipExpiration')" +
+					" and TO_DATE(val.attr_value, 'YYYY-MM-DD')" + operator + compareDate +
+					" join members on members.id=val.member_id";
 
-			return jdbcTemplate.query(query, MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, group.getId(), def.getId(), group.getId());
+			return jdbcTemplate.query(query, MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, group.getId());
 
 		} catch (Exception e) {
 			throw new InternalErrorException(e);
