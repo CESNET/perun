@@ -1,4 +1,4 @@
--- database version 3.1.58 (don't forget to update insert statement at the end of file)
+-- database version 3.1.59 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1046,7 +1046,7 @@ create table ext_sources (
 create table ext_sources_attributes (
 	ext_sources_id integer not null,   --identifier of ext. source (ext_sources.id)
 	attr_name varchar(128) not null,   --name of attribute at ext. source
-	attr_value varchar(4000),          --value of attribute
+	attr_value varchar,          --value of attribute
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
 	modified_at timestamp default statement_timestamp() not null,
@@ -1851,7 +1851,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.58');
+insert into configurations values ('DATABASE VERSION','3.1.59');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
