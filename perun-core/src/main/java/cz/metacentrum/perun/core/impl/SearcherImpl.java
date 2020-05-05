@@ -80,12 +80,12 @@ public class SearcherImpl implements SearcherImplApi {
 
 		try {
 
-			AttributeDefinition def = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration");
+			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from member_attr_values val" +
+					" join members on val.member_id=members.id" +
+					" and val.attr_id=(select id from attr_names where attr_name='urn:perun:member:attribute-def:def:membershipExpiration')" +
+					" and TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
 
-			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from members left join member_attr_values val on " +
-					"val.member_id=members.id and val.attr_id=? where TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
-
-			return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER, def.getId());
+			return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER);
 
 		} catch (Exception e) {
 			throw new InternalErrorException(e);
