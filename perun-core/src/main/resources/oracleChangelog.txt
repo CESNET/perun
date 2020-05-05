@@ -7,7 +7,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.59
-ALTER TABLE EXT_SOURCES_ATTRIBUTES ADD (tmpcolumn  CLOB);
+ALTER TABLE EXT_SOURCES_ATTRIBUTES ADD (tmpcolumn CLOB);
 UPDATE EXT_SOURCES_ATTRIBUTES SET tmpcolumn=attr_value;
 ALTER TABLE EXT_SOURCES_ATTRIBUTES DROP COLUMN attr_value;
 ALTER TABLE EXT_SOURCES_ATTRIBUTES RENAME COLUMN tmpcolumn TO attr_value;
