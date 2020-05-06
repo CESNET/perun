@@ -384,30 +384,17 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		getResourcesManagerImpl().assignGroupToResource(sess, group, resource);
 		getPerunBl().getAuditer().log(sess, new GroupAssignedToResource(group, resource));
 
-
-		//fill and check required attributes' values for the group
-
+		// get/fill/set all required group and group-resource attributes
 		try {
-			//FIXME predelat na metody ktere umeji zpracovavat najednou group i group-resource atributy
-			//List<Attribute> groupRequiredAttributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, resource, group, true);
-
-			//group-resource
-			List<Attribute> resourceGroupRequiredAttributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, resource, group);
-			resourceGroupRequiredAttributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, resource, group, resourceGroupRequiredAttributes);
-			getPerunBl().getAttributesManagerBl().setAttributes(sess, resource, group, resourceGroupRequiredAttributes);
-
-			//group
-			List<Attribute> groupRequiredAttributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, group);
-			groupRequiredAttributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, group, groupRequiredAttributes);
-			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, groupRequiredAttributes);
-
+			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, resource, group, true);
+			attributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, resource, group, attributes, true);
+			getPerunBl().getAttributesManagerBl().setAttributes(sess, resource, group, attributes, true);
 		} catch(WrongAttributeAssignmentException | GroupResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 
-		//fill and check required attributes' values for each member
-		//and set defaultResource attribute if necessary
-		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		// get all "allowed" group members and get/fill/set required attributes for them
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		for(Member member : members) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -631,7 +618,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, Member member) throws InternalErrorException {
-		if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
+		if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID) &&
+				!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.DISABLED)) {
 			return getAssignedResources(sess, member);
 		} else {
 			return new ArrayList<>();
