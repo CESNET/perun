@@ -5361,21 +5361,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_USER_FACILITY_ATTR);
-		List<Facility> allowedFacilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
-		if (!allowedFacilities.contains(facility)) {
-			return false;
-		} else {
-			if (!getAttributesManagerImpl().isAttributeRequiredByFacility(sess, facility, attributeDefinition))
-				return false;
-			List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-			resources.retainAll(getPerunBl().getUsersManagerBl().getAllowedResources(sess, user));
-			for (Resource resource : resources) {
-				if (getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition))
-					return true;
-			}
+		if (!getAttributesManagerImpl().isAttributeRequiredByFacility(sess, facility, attributeDefinition)) {
 			return false;
 		}
-
+		List<Resource> resources = getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
+		for (Resource resource : resources) {
+			if (getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
