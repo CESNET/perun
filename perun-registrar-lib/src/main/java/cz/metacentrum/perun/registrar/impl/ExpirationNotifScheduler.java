@@ -294,6 +294,9 @@ public class ExpirationNotifScheduler {
 		} catch(WrongAttributeAssignmentException e){
 			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace.", e);
 		}
+
+		log.debug("Processing checkMemberState() on (to be) expired members DONE!");
+
 	}
 
 	/**
