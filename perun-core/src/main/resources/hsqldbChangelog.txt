@@ -8,6 +8,10 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.60
+ALTER TABLE tasks ADD schedule_expr VARCHAR(256);
+update configurations set value='3.1.60' where property='DATABASE VERSION';
+
 3.1.59
 ALTER TABLE ext_sources_attributes ALTER COLUMN attr_value TYPE longvarchar;
 update configurations set value='3.1.59' where property='DATABASE VERSION';

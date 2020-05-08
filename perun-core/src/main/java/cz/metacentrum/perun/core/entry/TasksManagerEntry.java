@@ -74,9 +74,16 @@ public class TasksManagerEntry implements TasksManager {
 
 	@Override
 	public List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state) throws PrivilegeException {
+		// TODO: authorization check
 		return tasksManagerBl.listAllTasksInState(perunSession, state);
 	}
 
+	@Override
+	public List<Task> listAllSchedulableTasks() throws PrivilegeException {
+		// TODO: authorization check
+		return tasksManagerBl.listAllSchedulableTasks();
+	}
+	
 	@Override
 	public boolean isThereSuchTask(PerunSession session, Service service, Facility facility) throws PrivilegeException {
 		if (!AuthzResolver.isAuthorized(session, Role.FACILITYADMIN, facility) &&

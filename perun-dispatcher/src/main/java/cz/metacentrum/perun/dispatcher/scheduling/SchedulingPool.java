@@ -78,6 +78,13 @@ public interface SchedulingPool extends TaskStore {
 	String getReport();
 
 	/**
+	 * Get all tasks with periodic schedule
+	 * 
+	 *  @return list of Tasks
+	 */
+	List<Task> listAllSchedulableTasks();
+	
+	/**
 	 * Switch all processing Tasks to ERROR if engine was restarted.
 	 *
 	 */

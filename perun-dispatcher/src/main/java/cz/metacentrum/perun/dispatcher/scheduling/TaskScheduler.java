@@ -1,5 +1,26 @@
 package cz.metacentrum.perun.dispatcher.scheduling;
 
+import static cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled.DB_ERROR;
+import static cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled.DENIED;
+import static cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled.ERROR;
+import static cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled.QUEUE_ERROR;
+import static cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled.SUCCESS;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Perun;
@@ -22,23 +43,6 @@ import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskSchedule;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
 
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Resource;
-
-import static cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled.*;
-
 /**
  * Schedule Tasks, which are WAITING in DelayQueue and send them to Engine and switch it to PLANNED.
  *
@@ -60,7 +64,7 @@ public class TaskScheduler extends AbstractRunner {
 	private DelayQueue<TaskSchedule> waitingTasksQueue;
 	private DelayQueue<TaskSchedule> waitingForcedTasksQueue;
 	private TasksManagerBl tasksManagerBl;
-
+	 
 	// ----- setters -------------------------------------
 
 	public SchedulingPool getSchedulingPool() {
@@ -126,6 +130,7 @@ public class TaskScheduler extends AbstractRunner {
 		this.tasksManagerBl = tasksManagerBl;
 	}
 
+	
 	// ----- methods -------------------------------------
 
 

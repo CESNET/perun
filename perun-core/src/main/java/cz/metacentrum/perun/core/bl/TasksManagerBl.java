@@ -167,6 +167,8 @@ public interface TasksManagerBl {
 
 	List<Task> listAllTasksNotInState(Task.TaskStatus state);
 
+	List<Task> listAllSchedulableTasks();
+
 	/**
 	 * List newest TaskResults tied to a certain task
 	 *
