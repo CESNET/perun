@@ -354,18 +354,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public List<Service> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
-		List<Service> services = new ArrayList<>();
-		List<Integer> servicesIds = getResourcesManagerImpl().getAssignedServices(sess, resource);
-
-		try {
-			for(Integer serviceId: servicesIds) {
-				services.add(getPerunBl().getServicesManagerBl().getServiceById(sess, serviceId));
-			}
-		} catch(ServiceNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		}
-
-		return services;
+		return getResourcesManagerImpl().getAssignedServices(sess, resource);
 	}
 
 
