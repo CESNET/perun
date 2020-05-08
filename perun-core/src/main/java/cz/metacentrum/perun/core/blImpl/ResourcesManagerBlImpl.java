@@ -384,6 +384,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		getResourcesManagerImpl().assignGroupToResource(sess, group, resource);
 		getPerunBl().getAuditer().log(sess, new GroupAssignedToResource(group, resource));
 
+		// if there are no assigned services, no attributes have to be checked or filled
+		if (getAssignedServices(sess, resource).isEmpty()) {
+			return;
+		}
 		// get/fill/set all required group and group-resource attributes
 		try {
 			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(sess, resource, resource, group, true);
@@ -404,7 +408,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
-
 	}
 
 	@Override
