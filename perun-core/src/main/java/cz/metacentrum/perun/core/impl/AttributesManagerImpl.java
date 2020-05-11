@@ -5212,24 +5212,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * null if attribute doesn't exists
 	 */
 	private Object getAttributesModule(String moduleName) throws InternalErrorException {
-		//try to get already loaded module.
-		if (attributesModulesMap.containsKey(moduleName)) return attributesModulesMap.get(moduleName);
-
-		try {
-			Class<?> moduleClass = classLoader.loadClass(moduleName);
-			log.debug("Attribute module found. Module class={}  Module name={}", moduleClass, moduleName);
-			Object module = moduleClass.newInstance();
-			attributesModulesMap.put(moduleName, (AttributesModuleImplApi) module);
-			return module;
-		} catch (ClassNotFoundException ex) {
-			//attribute module doesn't exist
-			return null;
-		} catch (InstantiationException ex) {
-			throw new InternalErrorException("Attribute module " + moduleName + " cannot be instantiated.", ex);
-		} catch (IllegalAccessException ex) {
-			throw new InternalErrorException(ex);
-		}
-
+		return attributesModulesMap.get(moduleName);
 	}
 
 	@Override
