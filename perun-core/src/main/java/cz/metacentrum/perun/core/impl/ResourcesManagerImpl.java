@@ -560,9 +560,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public List<Integer> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Service> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
-			return jdbc.query("select service_id as id from resource_services where resource_id=?", Utils.ID_MAPPER, resource.getId());
+			return jdbc.query("select "+ ServicesManagerImpl.serviceMappingSelectQuery +
+					" from services join resource_services on services.id=resource_services.service_id and resource_services.resource_id=?",
+					ServicesManagerImpl.SERVICE_MAPPER, resource.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
