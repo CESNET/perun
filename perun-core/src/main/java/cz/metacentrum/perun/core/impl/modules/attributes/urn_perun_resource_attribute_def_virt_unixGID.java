@@ -63,7 +63,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		}
 
 		try {
-			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSyntax(sess, resource, gidAttribute);
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSyntax(sess, resource, gidAttribute);
 			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSemantics(sess, resource, gidAttribute);
 			//check passed, we can use value from this physical attribute
 			attribute.setValue(gidAttribute.getValue());
