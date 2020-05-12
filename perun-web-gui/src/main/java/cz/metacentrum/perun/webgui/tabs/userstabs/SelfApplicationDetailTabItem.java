@@ -102,7 +102,7 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 			header += "group "+application.getGroup().getShortName()+" in VO "+application.getVo().getName();
 		}
 
-		String submitted = "</h2><p>Submitted on <strong>" + application.getCreatedAt().substring(0, application.getCreatedAt().indexOf("."));
+		String submitted = "</h2><p>Submitted on <strong>" + ((application.getCreatedAt().contains(".")) ? application.getCreatedAt().substring(0, application.getCreatedAt().indexOf(".")) : application.getCreatedAt());
 		submitted += "</strong> is in state <strong>"+application.getState().toUpperCase()+"</strong>";
 
 		vp.add(new HTML(header+submitted));
