@@ -30,6 +30,7 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDe
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import org.slf4j.Logger;
@@ -453,7 +454,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			if (memberAttributes.get(member) != null) {
 				tempAttrs.addAttributes(memberAttributes.get(member).getAttributes());
 			}
-			tempAttrs.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, group));
+			try {
+				tempAttrs.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, group));
+			} catch (MemberGroupMismatchException e) {
+				throw new InternalErrorException(e);
+			}
 			groupsMembersElement.addChildElement(tempAttrs);
 		}
 

@@ -80,6 +80,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunni
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
@@ -356,7 +357,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			try {
 				perunBl.getAttributesManagerBl().removeAllAttributes(sess, member, group);
 			} catch (AttributeValueException ex) {
-				throw new ConsistencyErrorException("All resources were removed from this group. So all member-group attribute values can be removed.", ex);
+				throw new ConsistencyErrorException("All members were removed from this group. So all member-group attribute values can be removed.", ex);
+			} catch (MemberGroupMismatchException e) {
+				throw new InternalErrorException("Member we tried to remove all member-group attributes doesn't come from the same VO as group", e);
 			}
 		}
 
@@ -964,7 +967,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			addMemberToGroupsFromTriggerAttribute(sess, group, removedIndirectMember);
 			notifyMemberRemovalFromGroup(sess, group, removedIndirectMember);
 			//remove all member-group attributes because member is not part of group any more
-			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, removedIndirectMember, group);
+			try {
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, removedIndirectMember, group);
+			} catch (MemberGroupMismatchException e) {
+				throw new InternalErrorException("Member we tried to remove all member-group attributes is not from the same VO as Group.", e);
+			}
 			getPerunBl().getAuditer().log(sess, new IndirectMemberRemovedFromGroup(removedIndirectMember, group));
 		}
 
@@ -1043,7 +1050,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} else {
 			notifyMemberRemovalFromGroup(sess, group, member);
 			//remove all member-group attributes because member is not part of group any more
-			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member, group);
+			try {
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member, group);
+			} catch (MemberGroupMismatchException e) {
+				throw new InternalErrorException(e);
+			}
 			getPerunBl().getAuditer().log(sess, new MemberRemovedFromGroupTotally(member, group));
 		}
 
@@ -2383,7 +2394,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException {
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberGroupMismatchException {
 		List<RichGroup> richGroups = new ArrayList<>();
 
 		//filter attr names for different namespaces (we need to process them separately)
@@ -2435,7 +2446,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		assignedGroups.retainAll(perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member));
 		try {
 			return this.convertGroupsToRichGroupsWithAttributes(sess, member, resource, assignedGroups, attrNames);
-		} catch (GroupResourceMismatchException | MemberResourceMismatchException ex) {
+		} catch (GroupResourceMismatchException | MemberGroupMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -2455,7 +2466,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			for(Group group: memberGroups) {
 				List<Attribute> allGroupAndMemberGroupAttributes = new ArrayList<>();
 				allGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group));
-				allGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group));
+				try {
+					allGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group));
+				} catch (MemberGroupMismatchException e) {
+					throw new InternalErrorException(e);
+				}
 				richGroups.add(new RichGroup(group, allGroupAndMemberGroupAttributes));
 			}
 		} else {
@@ -2463,7 +2478,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			for (Group group : memberGroups) {
 				List<Attribute> selectedGroupAndMemberGroupAttributes = new ArrayList<>();
 				selectedGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames));
-				selectedGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group, attrNames));
+				try {
+					selectedGroupAndMemberGroupAttributes.addAll(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group, attrNames));
+				} catch (MemberGroupMismatchException e) {
+					throw new InternalErrorException(e);
+				}
 				richGroups.add(new RichGroup(group, selectedGroupAndMemberGroupAttributes));
 			}
 		}
@@ -4585,7 +4604,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, member, group, membershipExpirationAttribute);
 			} catch (WrongAttributeValueException e) {
 				throw new InternalErrorException("Wrong value: " + membershipExpirationAttribute.getValue(),e);
-			} catch (WrongReferenceAttributeValueException | WrongAttributeAssignmentException e) {
+			} catch (WrongReferenceAttributeValueException | WrongAttributeAssignmentException | MemberGroupMismatchException e) {
 				throw new InternalErrorException(e);
 			}
 		}
@@ -4794,7 +4813,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException("Attribute: " +A_MG_D_MEMBERSHIP_EXPIRATION +
 					" must be defined in order to use membershipExpirationRules");
-		} catch (WrongAttributeAssignmentException e) {
+		} catch (WrongAttributeAssignmentException | MemberGroupMismatchException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -4972,6 +4991,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new InternalErrorException("Wrong value: " + membershipExpirationAttribute.getValue(),e);
 		} catch (WrongReferenceAttributeValueException | WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
+		} catch (MemberGroupMismatchException e) {
+			throw new ConsistencyErrorException(e);
 		}
 
 		try {

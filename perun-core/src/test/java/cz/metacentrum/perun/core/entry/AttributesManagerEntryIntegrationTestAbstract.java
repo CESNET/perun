@@ -5453,7 +5453,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						break;
 					case "member_group":
 						attributesManager.setAttribute(sess, member1OfUser1, group1InVo1, a);
-						attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
+						attributesManager.setAttribute(sess, member2OfUser2, group2InVo1, b);
 						break;
 					case "user_facility":
 						attributesManager.setAttribute(sess, facility1, user1, a);
@@ -5607,7 +5607,8 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 							break;
 						case "member_group":
 							attributesManager.setAttribute(sess, member1OfUser1, group1InVo1, a);
-							attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
+							attributesManager.setAttribute(sess, member2OfUser2, group2InVo1, b);
+							//attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
 							break;
 						case "user_facility":
 							attributesManager.setAttribute(sess, facility1, user1, a);
@@ -5686,7 +5687,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						assertThat("member with duplicate value is not the one",mId_gId.getLeft(), is(member1OfUser1.getId()));
 						assertThat("group with duplicate value is not the one",mId_gId.getRight(), is(group1InVo1.getId()));
 						attributesManager.removeAttribute(sess, member1OfUser1, group1InVo1, a);
-						attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
+						attributesManager.setAttribute(sess, member2OfUser2, group2InVo1, b);
 						break;
 					case "user_facility":
 						Pair<Integer,Integer> uId_fId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));

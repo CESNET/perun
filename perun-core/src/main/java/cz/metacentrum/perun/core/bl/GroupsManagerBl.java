@@ -34,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -1320,8 +1321,9 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupResourceMismatchException if group is not assigned to resource
 	 * @throws MemberResourceMismatchException if member is not assigned to group
+	 * @throws MemberGroupMismatchException if member is not in the same vo as group
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException;
 
 	/**
 	 * Get all RichGroups with selected attributes assigned to the resource.
