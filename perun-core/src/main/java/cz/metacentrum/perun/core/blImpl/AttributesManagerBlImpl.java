@@ -4059,24 +4059,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void forceCheckAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
-		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
-
-		getAttributesManagerImpl().checkAttributeSyntax(sess, group, attribute);
-	}
-
-	@Override
 	public void forceCheckAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 
 		getAttributesManagerImpl().checkAttributeSemantics(sess, group, attribute);
-	}
-
-	@Override
-	public void forceCheckAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws WrongAttributeValueException, WrongAttributeAssignmentException {
-		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_RESOURCE_ATTR);
-
-		getAttributesManagerImpl().checkAttributeSyntax(sess, resource, attribute);
 	}
 
 	@Override
