@@ -141,7 +141,12 @@ public class GetAuditMessagesByCount implements JsonCallback, JsonCallbackTable<
 		// TIME COLUMN
 		TextColumn<AuditMessage> timeColumn = new TextColumn<AuditMessage>() {
 			public String getValue(AuditMessage msg) {
-				return msg.getCreatedAt().substring(0, msg.getCreatedAt().indexOf("."));
+				if (msg.getCreatedAt().contains(".")) {
+					return msg.getCreatedAt().substring(0, msg.getCreatedAt().indexOf("."));
+				} else {
+					// oracle timestamp doesn't have ending ".12345" in "2020-01-01 12:00:00.12345"
+					return msg.getCreatedAt();
+				}
 			}
 		};
 
