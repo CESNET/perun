@@ -9,6 +9,9 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,7 +41,8 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		// then append namespace to the script path to trigger correct password manager script.
 
 		if (!binTrue.equals(this.passwordManagerProgram)) {
-			passwordManagerProgram += ".einfra";
+			// TODO - create einfra specific standard password manager
+			//passwordManagerProgram += ".einfra";
 		}
 		if (!binTrue.equals(this.altPasswordManagerProgram)) {
 			altPasswordManagerProgram += ".einfra";
@@ -93,7 +97,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			throw new InternalErrorException(e);
 		}
 
-		handleAltPwdManagerExit(process, user, actualLoginNamespace, passwordId);
+		handleAltPwdManagerExit(process, new PasswordCreationFailedRuntimeException("Alternative password creation failed for " + user + ". Namespace: " + actualLoginNamespace + ", passwordId: " + passwordId + "."));
 
 	}
 
@@ -114,8 +118,18 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			throw new InternalErrorException(e);
 		}
 
-		handleAltPwdManagerExit(process, user, actualLoginNamespace, passwordId);
+		handleAltPwdManagerExit(process, new PasswordDeletionFailedRuntimeException("Alternative password deletion failed for " + user + ". Namespace: " + actualLoginNamespace + ", passwordId: " + passwordId + "."));
 
+	}
+
+	private void handleAltPwdManagerExit(Process process, PerunRuntimeException exToThrow) {
+		try {
+			if (process.waitFor() != 0) {
+				throw exToThrow;
+			}
+		} catch (InterruptedException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**

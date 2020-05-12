@@ -122,18 +122,10 @@ public class SambaduPasswordManagerModule extends GenericPasswordManagerModule {
 	@Override
 	protected void handleAltPwdManagerExit(Process process, User user, String loginNamespace, String passwordId) {
 
-		InputStream es = process.getErrorStream();
-
-		// If non-zero exit code is returned, then try to read error output
 		try {
 			if (process.waitFor() != 0) {
-				if (process.exitValue() == 1) {
-					throw new PasswordCreationFailedRuntimeException("Alternative password creation failed for " + user + ". Namespace: " + loginNamespace + ", passwordId: " + passwordId + ".");
-				} else if (process.exitValue() == 2) {
-					throw new PasswordDeletionFailedRuntimeException("Alternative password deletion failed for " + user + ". Namespace: " + loginNamespace + ", passwordId: " + passwordId + ".");
-				} else {
-					handleGenericErrorCode(es);
-				}
+				// on any exit code it means creation failed
+				throw new PasswordCreationFailedRuntimeException("Alternative password creation failed for " + user + ". Namespace: " + loginNamespace + ", passwordId: " + passwordId + ".");
 			}
 		} catch (InterruptedException e) {
 			throw new InternalErrorException(e);
