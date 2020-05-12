@@ -1292,24 +1292,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException {
 		List<User> users = this.getAdmins(perunSession, group);
-		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
-		return richUsers;
+		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 	}
 
 	@Override
 	@Deprecated
 	public List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException {
 		List<User> users = this.getDirectAdmins(perunSession, group);
-		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
-		return richUsers;
+		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 	}
 
 	@Override
 	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, group);
-		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
-		return richUsers;
+		return perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
 	}
 
 	@Override
@@ -3494,7 +3491,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (ExtSourceUnsupportedOperationException e) {
 				// ExtSource doesn't support that functionality, so silently skip it.
 			} catch (InternalErrorException e) {
-				log.info("Can't close membersSource connection. Cause: {}", e);
+				log.info("Can't close membersSource connection.", e);
 			}
 		}
 		if(source != null) {
@@ -3503,7 +3500,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (ExtSourceUnsupportedOperationException e) {
 				// ExtSource doesn't support that functionality, so silently skip it.
 			} catch (InternalErrorException e) {
-				log.info("Can't close extSource connection. Cause: {}", e);
+				log.info("Can't close extSource connection.", e);
 			}
 		}
 	}
@@ -4550,7 +4547,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if (membershipExpirationRulesAttribute == null) {
 			return;
 		}
-		LinkedHashMap<String, String> membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
+		LinkedHashMap<String, String> membershipExpirationRules = membershipExpirationRulesAttribute.valueAsMap();
 
 		LocalDate localDate = LocalDate.now();
 

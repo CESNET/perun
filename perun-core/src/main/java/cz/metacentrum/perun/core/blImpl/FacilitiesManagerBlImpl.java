@@ -73,13 +73,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import cz.metacentrum.perun.taskslib.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,8 +121,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public List<RichFacility> getRichFacilities(PerunSession perunSession) throws InternalErrorException {
 		List<Facility> facilities = getFacilities(perunSession);
-		List<RichFacility> richFacilities = this.getRichFacilities(perunSession, facilities);
-		return richFacilities;
+		return this.getRichFacilities(perunSession, facilities);
 	}
 
 	@Override

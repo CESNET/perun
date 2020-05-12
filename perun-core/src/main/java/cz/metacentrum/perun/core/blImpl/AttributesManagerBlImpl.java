@@ -54,7 +54,6 @@ import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -111,7 +110,6 @@ import cz.metacentrum.perun.utils.graphs.serializers.GraphSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -175,8 +173,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, facility);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		//adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, facility));
@@ -195,8 +192,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, vo);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		//adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, vo));
@@ -208,8 +204,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, group);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		//adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, group));
@@ -221,8 +216,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getVirtualAttributes(sess, resource);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		//adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, resource));
@@ -248,8 +242,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member, group);
 		// filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 		// adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group));
 		return attributes;
@@ -267,8 +260,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member, group);
 		// filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 		// adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group));
 		if (workWithUserAttributes) {
@@ -313,9 +305,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, member, resource);
 		List<Attribute> virtualAttributes = getVirtualAttributes(sess, member, resource);
 		//remove virtual attributes with null value
-		Iterator<Attribute> virtualAttributesIterator = virtualAttributes.iterator();
-		while (virtualAttributesIterator.hasNext())
-			if (virtualAttributesIterator.next().getValue() == null) virtualAttributesIterator.remove();
+		virtualAttributes.removeIf(attribute -> attribute.getValue() == null);
 		// adds non-empty non-virtual attributes
 		attributes.addAll(virtualAttributes);
 
@@ -404,8 +394,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		//adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member));
@@ -448,14 +437,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = this.getAttributes(sess, member, attrNames);
-
-		if (!workWithUserAttributes) return attributes;
-		else {
+		if (workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			attributes.addAll(this.getAttributes(sess, user, attrNames));
-
-			return attributes;
 		}
+		return attributes;
 	}
 
 	@Override
@@ -604,8 +590,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, user);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user));
 		return attributes;
@@ -623,8 +608,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, host);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		//adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, host));
@@ -690,8 +674,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, ues);
 		//filter out virtual attributes with null value
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) if (attributeIterator.next().getValue() == null) attributeIterator.remove();
+		attributes.removeIf(attribute -> attribute.getValue() == null);
 
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, ues));
 		return attributes;
@@ -950,7 +933,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						setAttributeWithoutCheck(sess, member, resource, attribute, false);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 						setAttributeWithoutCheck(sess, facility, user, attribute);
-					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) { ;
+					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
 						setAttributeWithoutCheck(sess, user, attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
 						setAttributeWithoutCheck(sess, member, attribute);
@@ -6396,19 +6379,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			return;
 		}
 		if (attribute.getValue() instanceof String) {
-			if (((String) attribute.getValue()).matches("\\s*")) {
+			if (attribute.valueAsString().matches("\\s*")) {
 				attribute.setValue(null);
 			}
 		} else if (attribute.getValue() instanceof Boolean) {
-			if (attribute.getValue().equals(Boolean.FALSE)) {
+			if (!attribute.valueAsBoolean()) {
 				attribute.setValue(null);
 			}
 		} else if (attribute.getValue() instanceof ArrayList) {
-			if (((ArrayList) attribute.getValue()).isEmpty()) {
+			if (attribute.valueAsList().isEmpty()) {
 				attribute.setValue(null);
 			}
 		} else if (attribute.getValue() instanceof LinkedHashMap) {
-			if (((LinkedHashMap) attribute.getValue()).isEmpty()) {
+			if (attribute.valueAsMap().isEmpty()) {
 				attribute.setValue(null);
 			}
 		} else {
@@ -7485,26 +7468,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		Set<AttributeDefinition> allAttributesDef = new HashSet<>(this.getAttributesDefinition(sess));
 
 		initializeModuleDependencies(sess, allAttributesDef);
-		//DEBUG creating file with all dependencies of all attributes (180+- on devel)
-		/*String pathToFile = "./AllDependencies.log";
-			File f = new File(pathToFile);
-			try {
-			f.createNewFile();
-			PrintWriter writer;
-			writer = new PrintWriter(new FileWriter(f, true));
-			int i=1;
-			for(AttributeDefinition ad: allDependencies.keySet()) {
-			writer.println(i + ") " + ad.toString());
-			for(AttributeDefinition a: allDependencies.get(ad)) {
-			writer.println(" ---> " + a);
-			}
-			i++;
-			}
-			writer.close();
-			} catch (IOException ex) {
-			log.error("Error at saving AllDependencies file.");
-			}*/
-		//DEBUG end
 
 		log.debug("AttributesManagerBlImpl initialize ended.");
 	}
@@ -7536,8 +7499,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Fill dep and strongDep maps
 		for (AttributeDefinition ad : definitions) {
 			AttributesModuleImplApi module;
-			List<String> depList;
-			List<String> strongDepList = new ArrayList<>();
 			Set<AttributeDefinition> depSet = new HashSet<>();
 			Set<AttributeDefinition> strongDepSet = new HashSet<>();
 

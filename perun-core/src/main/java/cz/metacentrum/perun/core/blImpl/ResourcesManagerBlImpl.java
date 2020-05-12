@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminGroupAddedForResource;
-import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminGroupRemovedForResource;
-import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminUserAddedForResource;
-import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminUserRemovedForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanRemovedForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanSetForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanUpdatedForResource;
@@ -59,7 +55,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;

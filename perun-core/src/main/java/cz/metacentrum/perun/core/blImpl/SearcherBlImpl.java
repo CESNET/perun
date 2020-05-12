@@ -268,8 +268,8 @@ public class SearcherBlImpl implements SearcherBl {
 				}
 			} else if (entityAttribute.getValue() instanceof Integer) {
 				Integer attrValue = entityAttribute.valueAsInteger();
-				Integer valueInInteger = Integer.valueOf(value);
-				if (attrValue.intValue() != valueInInteger.intValue()) {
+				int valueInInteger = Integer.parseInt(value);
+				if (attrValue != valueInInteger) {
 					shouldBeAccepted = false;
 				}
 			} else {
