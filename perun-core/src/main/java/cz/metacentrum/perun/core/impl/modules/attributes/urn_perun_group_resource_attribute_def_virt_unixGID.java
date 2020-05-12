@@ -36,7 +36,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 		}
 		gidAttribute.setValue(attribute.getValue());
 		try {
-			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSyntax(sess, group, gidAttribute);
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSyntax(sess, group, gidAttribute);
 			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSemantics(sess, group, gidAttribute);
 		} catch(WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, ex.getAttribute(), ex);
@@ -61,7 +61,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 		}
 
 		try {
-			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSyntax(sess, group, gidAttribute);
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSyntax(sess, group, gidAttribute);
 			sess.getPerunBl().getAttributesManagerBl().forceCheckAttributeSemantics(sess, group, gidAttribute);
 			//check passed, we can use value from this physical attribute
 			attribute.setValue(gidAttribute.getValue());
