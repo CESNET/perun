@@ -78,16 +78,16 @@ public class SearcherImpl implements SearcherImplApi {
 		if (!operator.equals("<") && !operator.equals("<=") && !operator.equals("=") && !operator.equals(">=") && !operator.equals(">"))
 			throw new InternalErrorException("Operator '"+operator+"' is not allowed in SQL.");
 
+		String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from member_attr_values val" +
+				" join members on val.member_id=members.id" +
+				" and val.attr_id=(select id from attr_names where attr_name='urn:perun:member:attribute-def:def:membershipExpiration')" +
+				" and TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
 		try {
-
-			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from member_attr_values val" +
-					" join members on val.member_id=members.id" +
-					" and val.attr_id=(select id from attr_names where attr_name='urn:perun:member:attribute-def:def:membershipExpiration')" +
-					" and TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
 
 			return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER);
 
 		} catch (Exception e) {
+			log.error("Failed to get all vos members by expiration using query: {}", query);
 			throw new InternalErrorException(e);
 		}
 
@@ -286,19 +286,20 @@ public class SearcherImpl implements SearcherImplApi {
 			throw new InternalErrorException("Operator '"+operator+"' is not allowed in SQL.");
 		}
 
+		// Use Oracle specific SQL hint to force usage of attr_id index to prevent to_date() failure on invalid input
+		String query = "select /*+INDEX(val IDX_FK_MEMGAV_ACCATTNAM) */ distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from member_group_attr_values val" +
+				" join groups_members on val.member_id=groups_members.member_id" +
+				" and val.group_id=groups_members.group_id" +
+				" and val.group_id=?" +
+				" and val.attr_id=(select id from attr_names where attr_name='urn:perun:member_group:attribute-def:def:groupMembershipExpiration')" +
+				" and TO_DATE(val.attr_value, 'YYYY-MM-DD')" + operator + compareDate +
+				" join members on members.id=val.member_id";
 		try {
-
-			String query = "select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from member_group_attr_values val" +
-					" join groups_members on val.member_id=groups_members.member_id" +
-					" and val.group_id=groups_members.group_id" +
-					" and val.group_id=?" +
-					" and val.attr_id=(select id from attr_names where attr_name='urn:perun:member_group:attribute-def:def:groupMembershipExpiration')" +
-					" and TO_DATE(val.attr_value, 'YYYY-MM-DD')" + operator + compareDate +
-					" join members on members.id=val.member_id";
 
 			return jdbcTemplate.query(query, MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, group.getId());
 
 		} catch (Exception e) {
+			log.error("Failed to get group members of {} by expiration using query: {}", group, query);
 			throw new InternalErrorException(e);
 		}
 	}
