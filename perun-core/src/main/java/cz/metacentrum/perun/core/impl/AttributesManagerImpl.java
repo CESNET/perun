@@ -5185,34 +5185,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * Get the attribute module for the attribute
 	 *
 	 * @param attribute get the attribute module for this attribute
-	 * @see #getAttributesModule(String)
 	 */
 	@Override
 	public Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+
+		// core attributes doesn't have modules !!
+		if (isCoreAttribute(sess, attribute)) return null;
+
 		String moduleName;
 		//first try to find specific module including parameter of attribute (full friendly name)
 		if (!attribute.getFriendlyName().equals(attribute.getBaseFriendlyName())) {
 			moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getFriendlyName());
-			Object attributeModule = getAttributesModule(moduleName);
+			Object attributeModule = attributesModulesMap.get(moduleName);
 			if (attributeModule != null) return attributeModule;
 		}
 
 		//if specific module not exists or attribute has no parameter, find the common one
 		moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
-		Object attributeModule = getAttributesModule(moduleName);
+		Object attributeModule = attributesModulesMap.get(moduleName);
 		if (attributeModule == null) log.debug("Attribute module not found. Module name={}", moduleName);
 		return attributeModule;
-	}
-
-	/**
-	 * Get the attributeModule
-	 *
-	 * @param moduleName name of the module
-	 * @return instance of attribute module
-	 * null if attribute doesn't exists
-	 */
-	private Object getAttributesModule(String moduleName) throws InternalErrorException {
-		return attributesModulesMap.get(moduleName);
 	}
 
 	@Override
