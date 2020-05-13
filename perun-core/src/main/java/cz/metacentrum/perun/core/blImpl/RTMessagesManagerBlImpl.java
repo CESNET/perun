@@ -192,7 +192,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 			}
 
 			//Return message if response is ok, or throw exception with bad response
-			int ticketNum = Integer.valueOf(ticketNumber);
+			int ticketNum = Integer.parseInt(ticketNumber);
 			if(ticketNum != 0) {
 				RTMessage rtmessage = new RTMessage(email, ticketNum);
 				log.debug("RT message was send successfully and the ticket has number: " + ticketNum);

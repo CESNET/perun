@@ -774,8 +774,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException {
 		List<Member> members = new ArrayList<>(perunBl.getMembersManagerBl().getMembers(sess, vo));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
-		return richMembersWithAttributes;
+		return this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
 	}
 
 	@Override
@@ -787,8 +786,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
 		}
-		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
-		return richMembersWithAttributes;
+		return this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
 	}
 
 	@Override
@@ -913,16 +911,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
 		}
-		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
-		return richMembersWithAttributes;
+		return this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
 	}
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException {
 		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
-		return richMembersWithAttributes;
+		return this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
 	}
 
 	@Override
@@ -934,8 +930,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
-		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		return richMembers;
+		return this.convertMembersToRichMembers(sess, members);
 	}
 
 	@Override
@@ -1402,10 +1397,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public boolean isMemberAllowed(PerunSession sess, Member member) throws InternalErrorException {
-		if(member == null) throw new InternalErrorException("Member can't be null.");
-		if(this.haveStatus(sess, member, Status.INVALID)) return false;
-		else if (this.haveStatus(sess, member, Status.DISABLED)) return false;
-		else return true;
+		if (member == null) throw new InternalErrorException("Member can't be null.");
+		return !this.haveStatus(sess, member, Status.INVALID) && !this.haveStatus(sess, member, Status.DISABLED);
 	}
 
 	@Override
@@ -1493,7 +1486,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			try {
 				((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
 			} catch(Exception ex) {
-				log.info("validateMemberAsync failed. Cause: {}", ex);
+				log.info("validateMemberAsync failed.", ex);
 				getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
 				log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
 			}
@@ -1659,7 +1652,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     Attribute membershipExpirationRulesAttribute;
     try {
       membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
-      membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
+      membershipExpirationRules = membershipExpirationRulesAttribute.valueAsMap();
       // If attribute was not filled, then silently exit with null
       if (membershipExpirationRules == null) return null;
     } catch (AttributeNotExistsException e) {
@@ -1774,8 +1767,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException, InternalErrorException {
 		User user = getPerunBl().getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, extSourceName, extLogin);
-		Member member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
-		return member;
+		return getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
 	}
 
 	/* Check if the user can apply for VO membership
@@ -1932,7 +1924,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Attribute membershipExpirationRulesAttribute;
 		try {
 			membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
-			membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
+			membershipExpirationRules = membershipExpirationRulesAttribute.valueAsMap();
 			// If attribute was not filled, then silently exit
 			if (membershipExpirationRules == null) return true;
 		} catch (AttributeNotExistsException e) {
@@ -1996,7 +1988,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		try {
 			vo = getPerunBl().getVosManagerBl().getVoById(sess, member.getVoId());
 			membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
-			membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
+			membershipExpirationRules = membershipExpirationRulesAttribute.valueAsMap();
 			// If attribute was not filled, then silently exit
 			if (membershipExpirationRules == null) return new Pair<>(true, null);
 		} catch (VoNotExistsException e) {

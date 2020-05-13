@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -253,7 +252,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	@Override
 	public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
 		Utils.notNull(attribute, "attribute");
-		List<String> gidsToCheck = (List<String>)attribute.getValue();
+		List<String> gidsToCheck = attribute.valueAsList();
 		if (gidsToCheck != null){
 			String gidNamespace = attribute.getFriendlyNameParameter();
 			Attribute gidRangesAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_GIDRanges);
@@ -295,7 +294,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		//return the minimum from all ranges
 		if(usedGids.getValue() == null) return allMinimums.get(0);
 		else {
-			Map<String,String> usedGidsValue = (Map<String, String>) usedGids.getValue();
+			Map<String,String> usedGidsValue = usedGids.valueAsMap();
 			Set<String> keys = usedGidsValue.keySet();
 
 			for(String key: keys) {
@@ -625,9 +624,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if (email == null) return false;
 
 		Matcher emailMatcher = Utils.emailPattern.matcher(email);
-		if (emailMatcher.find()) return true;
-
-		return false;
+		return emailMatcher.find();
 	}
 
 	@Override
@@ -722,7 +719,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 		//Prepare result container and value of attribute
 		Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotas = new HashMap<>();
-		Map<String, String> defaultQuotasMap = (Map<String, String>) quotasAttribute.getValue();
+		Map<String, String> defaultQuotasMap = quotasAttribute.valueAsMap();
 
 		//List to test if all paths are unique (/var/log and /var/log/ are the same so these two paths are not unique)
 		List<String> uniquePaths = new ArrayList<>();
@@ -856,7 +853,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			}
 			//other cases are ok
 
-			transferedQuotas.put(canonicalPath, new Pair(softQuotaAfterTransfer, hardQuotaAfterTransfer));
+			transferedQuotas.put(canonicalPath, new Pair<>(softQuotaAfterTransfer, hardQuotaAfterTransfer));
 		}
 
 		return transferedQuotas;
@@ -952,7 +949,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 						hardQuota = quotasValue1.getRight().add(quotasValue2.getRight());
 					}
 					//create new pair of summed numbers
-					Pair<BigDecimal, BigDecimal> finalQuotasValue = new Pair(softQuota, hardQuota);
+					Pair<BigDecimal, BigDecimal> finalQuotasValue = new Pair<>(softQuota, hardQuota);
 					//add new summed pair to the result map
 					resultTransferredQuotas.put(pathKey, finalQuotasValue);
 				}
@@ -1090,7 +1087,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		//For null attribute throw an exception
 		if(gidRangesAttribute == null) throw new InternalErrorException("Can't get value from null attribute!");
 
-		Map<String, String> gidRanges = (LinkedHashMap) gidRangesAttribute.getValue();
+		Map<String, String> gidRanges = gidRangesAttribute.valueAsMap();
 
 		//Return empty map if there is empty input of gidRanges in method parameters
 		if(gidRanges == null || gidRanges.isEmpty()) return convertedRanges;
