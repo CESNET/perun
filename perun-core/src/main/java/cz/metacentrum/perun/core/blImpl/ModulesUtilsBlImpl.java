@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -715,10 +716,10 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		//firstPlaceholder can't be null
 		if(firstPlaceholder == null) throw new InternalErrorException("Missing first mandatory placeHolder (PerunBean).");
 		//If quotas attribute is null or it's value is empty, return empty hash map
-		if(quotasAttribute == null || quotasAttribute.getValue() == null) return new HashMap<>();
+		if(quotasAttribute == null || quotasAttribute.getValue() == null) return new LinkedHashMap<>();
 
 		//Prepare result container and value of attribute
-		Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotas = new HashMap<>();
+		Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotas = new LinkedHashMap<>();
 		Map<String, String> defaultQuotasMap = quotasAttribute.valueAsMap();
 
 		//List to test if all paths are unique (/var/log and /var/log/ are the same so these two paths are not unique)
@@ -861,7 +862,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public Map<String, String> transferQuotasBackToAttributeValue(Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotasMap, boolean withMetrics) throws InternalErrorException {
-		Map<String, String> attributeQuotasValue = new HashMap<>();
+		Map<String, String> attributeQuotasValue = new LinkedHashMap<>();
 		//if null or empty, return empty attribute value map for quotas
 		if(transferedQuotasMap == null || transferedQuotasMap.isEmpty()) return attributeQuotasValue;
 
@@ -895,7 +896,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public Map<String,Pair<BigDecimal, BigDecimal>> mergeMemberAndResourceTransferredQuotas(Map<String, Pair<BigDecimal, BigDecimal>> resourceQuotas, Map<String, Pair<BigDecimal, BigDecimal>> memberResourceQuotas, Map<String, Pair<BigDecimal, BigDecimal>> quotasOverride) {
-		Map<String,Pair<BigDecimal, BigDecimal>> mergedTransferedQuotas = new HashMap<>();
+		Map<String,Pair<BigDecimal, BigDecimal>> mergedTransferedQuotas = new LinkedHashMap<>();
 
 		//first go through member-resource quotas values
 		for(String path: memberResourceQuotas.keySet()) {
@@ -926,7 +927,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public Map<String, Pair<BigDecimal, BigDecimal>> countUserFacilityQuotas(List<Map<String, Pair<BigDecimal, BigDecimal>>> allUserQuotas) {
-		Map<String, Pair<BigDecimal, BigDecimal>> resultTransferredQuotas = new HashMap<>();
+		Map<String, Pair<BigDecimal, BigDecimal>> resultTransferredQuotas = new LinkedHashMap<>();
 		//for every transfered map of merged quotas count one result transfered map
 		for(Map<String, Pair<BigDecimal, BigDecimal>> mapValue : allUserQuotas) {
 			//for every path in one transfered map

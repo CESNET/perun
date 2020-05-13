@@ -23,7 +23,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualA
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ public class urn_perun_user_facility_attribute_def_virt_fileQuotas extends UserF
 				throw new ConsistencyErrorException(ex);
 			}
 
-			if(memberResourceFinalFileQuotasAttribute == null || memberResourceFinalFileQuotasAttribute.getValue() == null) memberResourceFinalFileQuotas = new HashMap<>();
+			if(memberResourceFinalFileQuotasAttribute == null || memberResourceFinalFileQuotasAttribute.getValue() == null) memberResourceFinalFileQuotas = new LinkedHashMap<>();
 			else {
 				try {
 					memberResourceFinalFileQuotas = sess.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(memberResourceFinalFileQuotasAttribute, resource, memberOnResource, false);
