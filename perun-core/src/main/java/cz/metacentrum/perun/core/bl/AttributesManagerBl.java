@@ -1441,6 +1441,33 @@ public interface AttributesManagerBl {
 	void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
 
 	/**
+	 * Get and set required attribute for member, resource, user, facility and specific service.
+	 *
+	 * Procedure:
+	 * 1] Get all member, member-resource, user, user-facility required attributes for member, resource and specific service.
+	 * 2] Fill attributes and store those which were really filled. (value changed)
+	 * 3] Set filled attributes.
+	 * 4] Refresh value in all virtual attributes.
+	 * 5] Check all attributes and their dependencies.
+	 *
+	 * @param sess
+	 * @param service
+	 * @param facility
+	 * @param resource
+	 * @param user
+	 * @param member
+	 * @param forceAttributesChecks if true, all required attributes for given resource and user will be semantically
+	 *                              checked, no matter if the user has truly access to the given resource
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException
+	 * @throws MemberResourceMismatchException
+	 */
+	void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member, boolean forceAttributesChecks) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
+
+	/**
 	 * Take list of required attributes and set those which are empty and can be filled, then check them all.
 	 *
 	 * Important: this method DO NOT set non-empty attributes in list, just refresh their values and check them
