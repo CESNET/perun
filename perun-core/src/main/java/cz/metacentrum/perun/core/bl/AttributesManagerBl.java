@@ -1380,6 +1380,32 @@ public interface AttributesManagerBl {
 	 * @param resource
 	 * @param user
 	 * @param facility
+	 * @param forceAttributesChecks if true, all required attributes for given resource and user will be semantically
+	 *                              checked, no matter if the user has truly access to the given resource
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException
+	 * @throws MemberResourceMismatchException
+	 */
+	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, boolean forceAttributesChecks) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
+
+	/**
+	 * Get and set required attribute for member, resource, user and facility.
+	 *
+	 * Procedure:
+	 * 1] Get all member, member-resource, user, user-facility required attributes for member and resource.
+	 * 2] Fill attributes and store those which were really filled. (value changed)
+	 * 3] Set filled attributes.
+	 * 4] Refresh value in all virtual attributes.
+	 * 5] Check all attributes and their dependencies.
+	 *
+	 * @param sess
+	 * @param member
+	 * @param resource
+	 * @param user
+	 * @param facility
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongReferenceAttributeValueException
@@ -1440,6 +1466,35 @@ public interface AttributesManagerBl {
 	 * @throws MemberResourceMismatchException
 	 */
 	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
+
+	/**
+	 * Take list of required attributes and set those which are empty and can be filled, then check them all.
+	 *
+	 * Important: this method DO NOT set non-empty attributes in list, just refresh their values and check them
+	 *
+	 * Procedure:
+	 * 1] Get all attrs from arrayList (they should be required attributes)
+	 * 2] Fill empty attributes and store those which were really filled. (value changed)
+	 * 3] Set filled attributes.
+	 * 4] Refresh value in all attributes (not only in virtual ones - because of possible change by changeAttributeHook in other filledAttributes)
+	 * 5] Check all attributes and their dependencies.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param resource
+	 * @param user
+	 * @param member
+	 * @param attributes
+	 * @param forceAttributesChecks if true, all required attributes for given resource and user will be semantically
+	 *                              checked, no matter if the user has truly access to the given resource
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException
+	 * @throws MemberResourceMismatchException
+	 */
+	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean forceAttributesChecks) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
 
 	/**
 	 * Store the particular attribute associated with the facility. Core attributes can't be set this way.
@@ -2735,6 +2790,25 @@ public interface AttributesManagerBl {
 	 * @throws MemberResourceMismatchException if member and resource are not in the same VO
 	 */
 	void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
+
+	/**
+	 * Check if value of attributes has valid semantics. Attributes can be from namespace: member,
+	 * user, member-resource and user-facility. This method does not validate, if all of these attributes are
+	 * truly required! This methods calls semantics checks on ALL of the given attributes.
+	 *
+	 * @param sess perun session
+	 * @param facility facility for which you want to check validity of attribute
+	 * @param resource resource for which you want to check validity of attribute
+	 * @param user user for which you want to check validity of attribute
+	 * @param member member for which you want to check validity of attribute
+	 * @param attributes list of attributes to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws MemberResourceMismatchException if member and resource are not in the same VO
+	 */
+	void forceCheckAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 	/**
 	 * Check if value of attributes has valid semantics. Attributes can be from namespace: member, user, member-group, member-resource and user-facility.

@@ -1693,6 +1693,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
+		setRequiredAttributes(sess, facility, resource, user, member, attributes, false);
+	}
+
+	@Override
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean forceAttributesChecks) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
 		//fill attributes and get back only those which were really filled with new value
 		List<Attribute> filledAttributes = this.fillAttributes(sess, facility, resource, user, member, attributes, true);
 
@@ -1750,18 +1755,27 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		//Check all attributes semantics
-		checkAttributesSemantics(sess, facility, resource, user, member, attributes);
+		if (forceAttributesChecks) {
+			forceCheckAttributesSemantics(sess, facility, resource, user, member, attributes);
+		} else {
+			checkAttributesSemantics(sess, facility, resource, user, member, attributes);
+		}
 
 		//Check all attributes dependencies
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
 	}
 
 	@Override
-	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, boolean forceAttributesChecks) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
 		//get all attributes (for member, resource, facility and user) with values
 		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
 
-		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
+		setRequiredAttributes(sess, facility, resource, user, member, attributes, forceAttributesChecks);
+	}
+
+	@Override
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
+		setRequiredAttributes(sess, facility, resource, user, member, false);
 	}
 
 	@Override
@@ -3599,6 +3613,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				getAttributesManagerImpl().checkAttributeSemantics(sess, user, attribute);
 			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
 				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeSemantics(sess, member, attribute);
+			} else {
+				throw new WrongAttributeAssignmentException(attribute);
+			}
+		}
+	}
+
+	@Override
+	public void forceCheckAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		for (Attribute attribute : attributes) {
+			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+				getAttributesManagerImpl().checkAttributeSemantics(sess, member, resource, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+				getAttributesManagerImpl().checkAttributeSemantics(sess, facility, user, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
+				getAttributesManagerImpl().checkAttributeSemantics(sess, user, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
 				getAttributesManagerImpl().checkAttributeSemantics(sess, member, attribute);
 			} else {
 				throw new WrongAttributeAssignmentException(attribute);

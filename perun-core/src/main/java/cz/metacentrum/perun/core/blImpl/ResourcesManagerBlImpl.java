@@ -387,7 +387,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		for(Member member : members) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			try {
-				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
+				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member, true);
 			} catch(WrongAttributeAssignmentException | MemberResourceMismatchException | AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
