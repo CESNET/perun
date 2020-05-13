@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminAddedForVo;
-import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminGroupAddedForVo;
-import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminGroupRemovedForVo;
-import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminRemovedForVo;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoCreated;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
@@ -15,7 +11,6 @@ import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -40,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
@@ -296,7 +290,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 						} catch (ExtSourceUnsupportedOperationException e) {
 							// ExtSource doesn't support that functionality, so silently skip it.
 						} catch (InternalErrorException e) {
-							log.error("Can't close extSource connection. Cause: {}", e);
+							log.error("Can't close extSource connection.", e);
 						}
 					}
 
@@ -415,7 +409,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 						} catch (ExtSourceUnsupportedOperationException e) {
 							// ExtSource doesn't support that functionality, so silently skip it.
 						} catch (InternalErrorException e) {
-							log.error("Can't close extSource connection. Cause: {}", e);
+							log.error("Can't close extSource connection.", e);
 						}
 					}
 

@@ -259,11 +259,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			candidate.setServiceUser(false);
 		} else {
 			String isServiceUser = subjectData.get("isServiceUser");
-			if(isServiceUser.equals("true")) {
-				candidate.setServiceUser(true);
-			} else {
-				candidate.setServiceUser(false);
-			}
+			candidate.setServiceUser(isServiceUser.equals("true"));
 		}
 
 		//Set sponsored user
@@ -271,11 +267,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			candidate.setSponsoredUser(false);
 		} else {
 			String isSponsoredUser = subjectData.get("isSponsoredUser");
-			if(isSponsoredUser.equals("true")) {
-				candidate.setSponsoredUser(true);
-			} else {
-				candidate.setSponsoredUser(false);
-			}
+			candidate.setSponsoredUser(isSponsoredUser.equals("true"));
 		}
 
 		// Filter attributes

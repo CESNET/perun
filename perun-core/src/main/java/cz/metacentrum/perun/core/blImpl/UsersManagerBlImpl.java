@@ -385,8 +385,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException {
 		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
-		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
-		return richUsers;
+		return this.convertUsersToRichUsers(sess, users);
 	}
 
 	@Override
@@ -394,22 +393,19 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
-		List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
-		return richUsersWithAttributes;
+		return this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
 	}
 
 
 	@Override
 	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException {
-		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
-		return richUsers;
+		return this.convertUsersToRichUsers(sess, users);
 	}
 
 	@Override
 	public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, UserNotExistsException {
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
-		List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
-		return richUsersWithAttributes;
+		return this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
 	}
 
 	@Override
@@ -552,7 +548,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				// OK - User hasn't assigned any password with this login
 			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
-					log.error("Error during deletion of the account at {} for user {} with login {}.", loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue());
+					log.error("Error during deletion of the account at {} for user {} with login {}.", loginAttribute.getFriendlyNameParameter(), user, loginAttribute.getValue());
 				} else {
 					throw new RelationExistsException("Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() +
 							" for user " + user + " with login " + loginAttribute.getValue() + ".");
