@@ -124,15 +124,6 @@
 					</configuration>
 				</plugin>
 
-				<!-- mvn shade - creates shaded jar (1 jar containing everything including dependencies) -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-shade-plugin</artifactId>
-					<configuration>
-						<createDependencyReducedPom>false</createDependencyReducedPom>
-					</configuration>
-				</plugin>
-
 				<!-- plugin used to apply jUnit tests settings in maven and to generate report (target/surefire-reports)-->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
