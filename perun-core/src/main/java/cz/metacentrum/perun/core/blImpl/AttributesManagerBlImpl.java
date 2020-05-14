@@ -5749,24 +5749,40 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	private void checkAttributesDependencies(PerunSession sess, Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (attributes != null && !attributes.isEmpty()) {
+			List<RichAttribute> richAttrs = new ArrayList<>();
 			for (Attribute attr : attributes) {
-				checkAttributeDependencies(sess, new RichAttribute<>(primaryHolder, secondaryHolder, attr));
+				richAttrs.add(new RichAttribute<>(primaryHolder, secondaryHolder, attr));
 			}
+			checkAttributeDependencies(sess, richAttrs);
 		}
 	}
 
 	@Override
 	public void checkAttributeDependencies(PerunSession sess, RichAttribute richAttr) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		checkAttributeDependencies(sess, Collections.singletonList(richAttr));
+	}
+
+	private void checkAttributeDependencies(PerunSession sess, List<RichAttribute> richAttrs) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+
+		// check input
 		if (getAllDependencies() == null || getAllDependencies().isEmpty())
 			log.error("Map of all dependencies is empty. If this is not test, its an error probably.");
-		if (richAttr == null || richAttr.getAttribute() == null)
-			throw new InternalErrorException("RichAttribute or Attribute in it can't be null!");
-		else {
-			//Get All attributeDef which are dependencies
+		if (richAttrs == null) throw new InternalErrorException("List of RichAttributes can't be null!");
+
+		for (RichAttribute richAttr : richAttrs) {
+			if (richAttr == null || richAttr.getAttribute() == null)
+				throw new InternalErrorException("RichAttribute or Attribute in it can't be null!");
+		}
+
+		// this is a unique set of all attributes with values and holders we will check at once
+		Set<RichAttribute> richAttributesToCheck = new HashSet<>();
+
+		// now actually get all those dependant attributes with values and holders
+		for (RichAttribute richAttr : richAttrs) {
+
 			Set<AttributeDefinition> dependencies = getAllDependencies().get(new AttributeDefinition(richAttr.getAttribute()));
 			if (dependencies != null && !dependencies.isEmpty()) {
 				for (AttributeDefinition dependency : dependencies) {
-					List<RichAttribute> richAttributesToCheck;
 					if (attributesManagerImpl.isVirtAttribute(sess, dependency)) {
 						AttributesModuleImplApi module = (AttributesModuleImplApi) attributesManagerImpl.getAttributesModule(sess, dependency);
 						if (module.getClass().isAnnotationPresent(SkipValueCheckDuringDependencyCheck.class)) {
@@ -5774,184 +5790,188 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						}
 					}
 					try {
-						richAttributesToCheck = getRichAttributesWithHoldersForAttributeDefinition(sess, dependency, richAttr);
+						richAttributesToCheck.addAll(getRichAttributesWithHoldersForAttributeDefinition(sess, dependency, richAttr));
 					} catch (AttributeNotExistsException | VoNotExistsException | UserNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException | MemberGroupMismatchException ex) {
 						throw new InternalErrorException(ex);
 					}
-					for (RichAttribute richAttribute : richAttributesToCheck) {
-						if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_VO_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Vo) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for VO Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Vo) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For VO Attribute there must be VO in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Group Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Group Attribute there must be Group in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Member Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Member Attribute there must be Member in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for User Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For User Attribute there must be User in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_RESOURCE_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Resource Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Resource Attribute there must be Resource in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_FACILITY_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Facility Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Facility Attribute there must be Facility in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_ENTITYLESS_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof String) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Entityless Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (String) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Entityless Attribute there must be String in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_HOST_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Host) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Host Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Host) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Host Attribute there must be Host in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_RESOURCE_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
-									try {
-										this.checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-									} catch (GroupResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
-									try {
-										this.checkAttributeSemantics(sess, (Resource) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-									} catch (GroupResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
-								}
-							} else {
-								throw new InternalErrorException("For Group_Resource Attribute there must be Group or Resource in primaryHolder.");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_RESOURCE_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-									} catch (MemberResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Resource) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-									} catch (MemberResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
-								}
-							} else {
-								throw new InternalErrorException("For Member_Resource Attribute there must be Member or Resource in primaryHolder.");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_GROUP_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-									} catch (MemberGroupMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-									} catch (MemberGroupMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
-								}
-							} else {
-								throw new InternalErrorException("For Member_Group Attribute there must be Member or Group in primaryHolder.");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_FACILITY_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof User) {
-									this.checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), (User) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-								} else {
-									throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Facility) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
-									this.checkAttributeSemantics(sess, (Facility) richAttribute.getSecondaryHolder(), (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								} else {
-									throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
-								}
-							} else {
-								throw new InternalErrorException("For Facility_User Attribute there must be Facility or User in primaryHolder.");
-							}
-						}
+				}
+			}
+
+		}
+
+		// now check those dependant attributes only once
+		for (RichAttribute richAttribute : richAttributesToCheck) {
+			if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_VO_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Vo) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for VO Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (Vo) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
 					}
+				} else {
+					throw new InternalErrorException("For VO Attribute there must be VO in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Group Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Group Attribute there must be Group in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Member Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Member Attribute there must be Member in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for User Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For User Attribute there must be User in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_RESOURCE_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Resource Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Resource Attribute there must be Resource in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_FACILITY_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Facility Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Facility Attribute there must be Facility in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_ENTITYLESS_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof String) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Entityless Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (String) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Entityless Attribute there must be String in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_HOST_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Host) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Host Attribute must be null!");
+					} else {
+						this.checkAttributeSemantics(sess, (Host) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Host Attribute there must be Host in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_RESOURCE_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
+						try {
+							this.checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+						} catch (GroupResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
+						try {
+							this.checkAttributeSemantics(sess, (Resource) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+						} catch (GroupResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
+					}
+				} else {
+					throw new InternalErrorException("For Group_Resource Attribute there must be Group or Resource in primaryHolder.");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_RESOURCE_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
+						try {
+							this.checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+						} catch (MemberResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
+						try {
+							this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Resource) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+						} catch (MemberResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
+					}
+				} else {
+					throw new InternalErrorException("For Member_Resource Attribute there must be Member or Resource in primaryHolder.");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_GROUP_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
+						try {
+							this.checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+						} catch (MemberGroupMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
+						try {
+							this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+						} catch (MemberGroupMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
+					}
+				} else {
+					throw new InternalErrorException("For Member_Group Attribute there must be Member or Group in primaryHolder.");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_FACILITY_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof User) {
+						this.checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), (User) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+					} else {
+						throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Facility) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
+						this.checkAttributeSemantics(sess, (Facility) richAttribute.getSecondaryHolder(), (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					} else {
+						throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
+					}
+				} else {
+					throw new InternalErrorException("For Facility_User Attribute there must be Facility or User in primaryHolder.");
 				}
 			}
 		}
+
 	}
 
 	@Override
