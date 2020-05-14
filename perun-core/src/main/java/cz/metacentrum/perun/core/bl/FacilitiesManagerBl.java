@@ -410,15 +410,24 @@ public interface FacilitiesManagerBl {
 	List<Facility> getAssignedFacilities(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
-	 * Get facilities where the user have access.
+	 * Get facilities where the user is allowed.
 	 *
 	 * @param sess
 	 * @param user
 	 * @return
-	 *
 	 * @throws InternalErrorException
 	 */
 	List<Facility> getAllowedFacilities(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Get facilities where member is allowed.
+	 *
+	 * @param sess
+	 * @param member
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getAllowedFacilities(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
 	 * Get facilities where the services is defined.

@@ -450,6 +450,44 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
+	public List<Facility> getAllowedFacilities(PerunSession sess, User user) throws InternalErrorException {
+		try  {
+			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources" +
+							" join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id" +
+							" join members on groups_members.member_id=members.id " +
+							" join resources on groups_resources.resource_id=resources.id " +
+							" join facilities on resources.facility_id=facilities.id " +
+							" where members.user_id=? and members.status!=? and members.status!=?",
+					FACILITY_MAPPER, user.getId(),
+					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Facility> getAllowedFacilities(PerunSession sess, Member member) throws InternalErrorException {
+		try  {
+			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources" +
+							" join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id" +
+							" join members on groups_members.member_id=members.id " +
+							" join resources on groups_resources.resource_id=resources.id " +
+							" join facilities on resources.facility_id=facilities.id " +
+							" where members.id=? and members.status!=? and members.status!=?",
+					FACILITY_MAPPER, member.getId(),
+					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
