@@ -21,19 +21,17 @@
 
 	<properties>
 		<start-class>cz.metacentrum.perun.cli.PerunCLI</start-class>
+		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
 	<build>
+		<finalName>${project.name}</finalName>
 		<plugins>
 			<!-- Package JAR with Main class and all libraries -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<!-- Main-Class taken from property ${start-class} -->
-				<configuration>
-					<finalName>${project.name}</finalName>
-					<createDependencyReducedPom>false</createDependencyReducedPom>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
