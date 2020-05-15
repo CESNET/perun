@@ -425,46 +425,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new ConsistencyErrorException(ex);
 		}
 
-		//check attributes and set new correct values if necessary
-		List<User> groupsUsers = getPerunBl().getGroupsManagerBl().getGroupUsers(sess, group);
-		Facility facility = getFacility(sess, resource);
-		List<User> allowedUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-		for(User user : groupsUsers) {
-			if(!allowedUsers.contains(user)) {
+		// FIXME - here we should call checkSemantics() and on error re-fill/set user-facility attributes
+		//  for the group members of removed group, which are still allowed on the facility, since we removed
+		//  one relation and attribute constraints might have changed (eg. for shell / default gid/group).
+		//  We don't do this for performance reasons.
 
-				// user from removed group is no longer "allowed" on facility
-
-				//find required user-facility attributes (that which are not required can keep original value)
-				List<Attribute> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user);
-
-				//find which of attributes are broken
-				List<Attribute> brokenUserFacilityAttributes = new ArrayList<>();
-				for(Attribute attribute : userFacilityAttributes) {
-					try {
-						getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, facility, user, attribute);
-					} catch(WrongAttributeAssignmentException ex) {
-						throw new ConsistencyErrorException(ex);
-					} catch(WrongReferenceAttributeValueException ex) {
-						attribute.setValue(null);
-						brokenUserFacilityAttributes.add(attribute);
-					} //TODO jeste o tom popremyslet
-					//TODO this may fix it
-
-				}
-
-				//fix broken attributes
-				try {
-					List<Attribute> fixedUserFacilityAttributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, facility, user, brokenUserFacilityAttributes);
-					getPerunBl().getAttributesManagerBl().setAttributes(sess, facility, user, fixedUserFacilityAttributes);
-				} catch(WrongAttributeAssignmentException ex) {
-					throw new ConsistencyErrorException(ex);
-				} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-					//TODO jeste o tom popremyslet
-					//That's unresolveable problem
-					throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
-				}
-			}
-		}
 	}
 
 	@Override
