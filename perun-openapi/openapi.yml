@@ -5964,6 +5964,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getGroupsWhereUserIsAdmin/u-v:
+    get:
+      tags:
+        - UsersManager
+      operationId: getGroupsInVoWhereUserIsAdmin
+      summary: Returns list of Groups in selected Vo, where the User is a direct Administrator or he is a member of any group which is Administrator of some of these Groups.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getRichUserExtSources/u:
     get:
       tags:
