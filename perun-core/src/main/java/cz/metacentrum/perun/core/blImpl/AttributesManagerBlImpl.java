@@ -953,7 +953,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, member, resource, attributesToSet, workWithUserAttributes);
-		checkAttributesDependencies(sess, resource, member, attributesToSet, workWithUserAttributes);
+		checkAttributesDependencies(sess, member, resource, attributesToSet, workWithUserAttributes);
 	}
 
 	@Override
@@ -1227,7 +1227,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 			//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 			checkAttributesSemantics(sess, resource, group, attributesToSet, true);
-			checkAttributesDependencies(sess, resource, group, attributesToSet, true);
+			checkAttributesDependencies(sess, group, resource, attributesToSet, true);
 		}
 	}
 
@@ -4631,7 +4631,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, member, resource, attributesFromDefinitions(attributesToCheck));
-		checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, member, resource, attributesFromDefinitions(attributesToCheck));
 	}
 
 	private void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
@@ -4659,7 +4659,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 			checkAttributesSemantics(sess, member, resource, attributesFromDefinitions(attributesToCheck), true);
-			checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck), true);
+			checkAttributesDependencies(sess, member, resource, attributesFromDefinitions(attributesToCheck), true);
 		}
 	}
 
@@ -4675,7 +4675,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, member, resource, attributes);
-			checkAttributesDependencies(sess, resource, member, attributes);
+			checkAttributesDependencies(sess, member, resource, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -5070,7 +5070,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 			}
 			checkAttributesSemantics(sess, resource, group, attributesFromDefinitions(attributesToCheck), true);
-			checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck), true);
+			checkAttributesDependencies(sess, group, resource, attributesFromDefinitions(attributesToCheck), true);
 		}
 	}
 
@@ -5609,14 +5609,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributesDependencies(sess, richAttrs);
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_MEMBER_RESOURCE_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, resource, member, attributes);
+		constructRichAttributes(richAttrs, member, resource, attributes);
 		checkAttributesDependencies(sess, richAttrs);
 	}
 
@@ -5709,7 +5709,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		checkAttributesDependencies(sess, resource, group, attributes, false);
+		checkAttributesDependencies(sess, group, resource, attributes, false);
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -5724,7 +5724,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@SuppressWarnings("SameParameterValue")
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Group group, Resource resource, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (workWithGroupAttributes) {
 			List<Attribute> groupAttributes = new ArrayList<>();
@@ -5738,7 +5738,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			constructRichAttributes(richAttrs, resource, group, groupResourceAttributes);
+			constructRichAttributes(richAttrs, group, resource, groupResourceAttributes);
 			constructRichAttributes(richAttrs, group, null, groupAttributes);
 		} else {
 			constructRichAttributes(richAttrs, resource, group, attributes);
@@ -5790,8 +5790,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		constructRichAttributes(richAttrs, member, null, memberAttributes);
 		constructRichAttributes(richAttrs, user, null, userAttributes);
-		constructRichAttributes(richAttrs, facility, user, userFacilityAttributes);
-		constructRichAttributes(richAttrs, resource, member, memberResourceAttributes);
+		constructRichAttributes(richAttrs, user, facility, userFacilityAttributes);
+		constructRichAttributes(richAttrs, member, resource, memberResourceAttributes);
 		checkAttributesDependencies(sess, richAttrs);
 	}
 
@@ -5819,13 +5819,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		constructRichAttributes(richAttrs, member, null, memberAttributes);
 		constructRichAttributes(richAttrs, user, null, userAttributes);
-		constructRichAttributes(richAttrs, facility, user, userFacilityAttributes);
-		constructRichAttributes(richAttrs, resource, member, memberResourceAttributes);
+		constructRichAttributes(richAttrs, user, facility, userFacilityAttributes);
+		constructRichAttributes(richAttrs, member, resource, memberResourceAttributes);
 		constructRichAttributes(richAttrs, member, group, memberGroupAttributes);
 		checkAttributesDependencies(sess, richAttrs);
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -5849,10 +5849,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 			constructRichAttributes(richAttrs, member, null, memberAttributes);
 			constructRichAttributes(richAttrs, user, null, userAttributes);
-			constructRichAttributes(richAttrs, facility, user, userFacilityAttributes);
-			constructRichAttributes(richAttrs, resource, member, memberResourceAttributes);
+			constructRichAttributes(richAttrs, user, facility, userFacilityAttributes);
+			constructRichAttributes(richAttrs, member, resource, memberResourceAttributes);
 		} else {
-			constructRichAttributes(richAttrs, resource, member, attributes);
+			constructRichAttributes(richAttrs, member, resource, attributes);
 		}
 		checkAttributesDependencies(sess, richAttrs);
 	}
