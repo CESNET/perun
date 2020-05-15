@@ -10,6 +10,8 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.ModulesConfigLoader;
+import cz.metacentrum.perun.core.impl.modules.ModulesYamlConfigLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +23,20 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow.class);
-	private final static String extSourceNameFenix = "https://proxy-fenix.pilot.eduteams.org/proxy";
-	private final static String domainNameFenix = "@fenix.pilot.eduteams.org";
 	private final static String attrNameFenix = "login-namespace:fenix-persistent-shadow";
+
+	private final static String CONFIG_EXT_SOURCE_NAME_FENIX = "extSourceNameFenix";
+	private final static String CONFIG_DOMAIN_NAME_FENIX = "domainNameFenix";
+
+	private ModulesConfigLoader loader = new ModulesYamlConfigLoader();
+	private String extSourceNameFenix = null;
+	private String domainNameFenix = null;
+
+	public urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow() { }
+
+	public urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow(ModulesConfigLoader loader) {
+		this.loader = loader;
+	}
 
 	/**
 	 * Filling implemented for login:namespace:fenix-persistent attribute
@@ -41,7 +54,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		Attribute filledAttribute = new Attribute(attribute);
 
 		if (attribute.getFriendlyName().equals(attrNameFenix)) {
-			filledAttribute.setValue(sha1HashCount(user, domainNameFenix).toString() + domainNameFenix);
+			String domain = "@" + getDomainNameFenix();
+			filledAttribute.setValue(sha1HashCount(user, domain).toString() + domain);
 			return filledAttribute;
 		} else {
 			// without value
@@ -66,7 +80,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 			String userNamespace = attribute.getFriendlyNameParameter();
 
 			if(userNamespace.equals("fenix-persistent-shadow") && attribute.getValue() != null){
-				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameFenix);
+				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, getExtSourceNameFenix());
 				UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
 
 				session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
@@ -89,4 +103,17 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		return attr;
 	}
 
+	public String getExtSourceNameFenix() {
+		if (extSourceNameFenix == null) {
+			extSourceNameFenix = loader.loadString(getClass().getSimpleName(), CONFIG_EXT_SOURCE_NAME_FENIX);
+		}
+		return extSourceNameFenix;
+	}
+
+	public String getDomainNameFenix() {
+		if (domainNameFenix == null) {
+			domainNameFenix = loader.loadString(getClass().getSimpleName(), CONFIG_DOMAIN_NAME_FENIX);
+		}
+		return domainNameFenix;
+	}
 }
