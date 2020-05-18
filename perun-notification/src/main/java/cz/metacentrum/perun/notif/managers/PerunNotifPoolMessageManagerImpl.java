@@ -12,7 +12,6 @@ import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.utils.ParsedMethod;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -127,7 +127,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 
 					if (retrievedPrimaryProperties != null && !retrievedPrimaryProperties.isEmpty()) {
 						PerunNotifPoolMessage poolMessage = new PerunNotifPoolMessage();
-						poolMessage.setCreated(new DateTime());
+						poolMessage.setCreated(Instant.now());
 						poolMessage.setKeyAttributes(retrievedPrimaryProperties);
 						poolMessage.setRegexId(regexId);
 						poolMessage.setTemplateId(template.getId());
