@@ -7,8 +7,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -19,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 @Repository("perunNotifPoolMessageDao")
@@ -44,12 +44,11 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 		}
 
 		if (message.getCreated() == null) {
-			message.setCreated(new DateTime());
+			message.setCreated(Instant.now());
 		}
 		this.getJdbcTemplate().update(
 				"insert into pn_pool_message" + "(id, regex_id, template_id, key_attributes, notif_message, created) " + "values (?,?,?,?,?,?)",
-				newMessageId, message.getRegexId(), message.getTemplateId(), serializedKeyAttributes, message.getNotifMessage(),
-				new Timestamp(message.getCreated().getMillis()));
+				newMessageId, message.getRegexId(), message.getTemplateId(), serializedKeyAttributes, message.getNotifMessage(), new Timestamp(message.getCreated().toEpochMilli()));
 
 		message.setId(newMessageId);
 
@@ -59,8 +58,8 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	@Override
 	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() throws InternalErrorException {
 
-		Days days = Days.days(10);
-		removeOldPoolMessages(days.toStandardDuration().getMillis());
+		Duration days = Duration.ofDays(10);
+		removeOldPoolMessages(days.toMillis());
 
 		logger.debug("Getting all poolMessages from db.");
 		Map<Integer, List<PoolMessage>> result = this.getJdbcTemplate().query("SELECT * FROM pn_pool_message ORDER BY key_attributes ASC, template_id ASC, created ASC ", new PerunNotifPoolMessage.PERUN_NOTIF_POOL_MESSAGE_EXTRACTOR());
@@ -73,7 +72,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	public void setAllCreatedToNow() {
 
 		logger.debug("Setting created for PoolMessages to now in db.");
-		this.getJdbcTemplate().update("update pn_pool_message set created = ? where 1=1", new Timestamp(new DateTime().getMillis()));
+		this.getJdbcTemplate().update("update pn_pool_message set created = ? where 1=1", new Timestamp(Instant.now().toEpochMilli()));
 	}
 
 	@Override
@@ -92,7 +91,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 
 	private void removeOldPoolMessages(long olderThan) throws InternalErrorException {
 		Set<Integer> proccessedIds = new HashSet<Integer>();
-		long actualTimeInMillis = new DateTime().getMillis();
+		long actualTimeInMillis = Instant.now().toEpochMilli();
 		SqlRowSet srs = this.getJdbcTemplate().queryForRowSet("SELECT id,created FROM pn_pool_message");
 		while (srs.next()) {
 			Timestamp timeStamp = srs.getTimestamp("created");

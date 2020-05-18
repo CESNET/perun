@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.notif.managers;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -35,13 +33,14 @@ import freemarker.template.TemplateExceptionHandler;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import javax.annotation.PostConstruct;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -231,20 +230,17 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			//      - need to ensure delivery of all the msgs required by the template message
 			case STREAM:
 
-				DateTime now = new DateTime();
-				DateTime oldestTime = new DateTime(now.getMillis() - template.getOldestMessageTime());
-				DateTime youngestTime = new DateTime(now.getMillis() - template.getYoungestMessageTime());
+				Instant oldestTime = Instant.now().minusMillis(template.getOldestMessageTime());
+				Instant youngestTime = Instant.now().minusMillis(template.getYoungestMessageTime());
 
 				for (PoolMessage parentDto : notifMessages) {
 					List<PerunNotifPoolMessage> poolMessages = parentDto.getList();
 					if (poolMessages != null) {
 						// Test for oldest message first message in list is oldest,
-						// messages
-						// are sorted from sql query
+						// messages are sorted from sql query
 						PerunNotifPoolMessage oldestPoolMessage = poolMessages.get(0);
-						if (oldestPoolMessage.getCreated().compareTo(oldestTime) < 0) {
-							// We have reached longest wait time, we take everything
-							// we have and send it
+						if (oldestPoolMessage.getCreated().isBefore(oldestTime)) {
+							// We have reached longest wait time, we take everything we have and send it
 							try {
 								logger.debug("Oldest message is older than oldest time for template id " + template.getId() + " message will be sent.");
 								messageDtoList.addAll(createMessageToSend(template, parentDto));
@@ -252,10 +248,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 								logger.error("Error during creating of messages to send.", ex);
 							}
 						} else {
-							// We test youngest message so we now nothing new will
-							// propably come in close future
+							// We test youngest message so we now nothing new will probably come in close future
 							PerunNotifPoolMessage youngestPoolMessage = poolMessages.get(poolMessages.size() - 1);
-							if (youngestPoolMessage.getCreated().compareTo(youngestTime) < 0) {
+							if (youngestPoolMessage.getCreated().isBefore(youngestTime)) {
 								// Youngest message is older
 								try {
 									logger.debug("Youngest message is older than youngest time for template id " + template.getId() + " message will be sent.");
@@ -264,22 +259,10 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 									logger.error("Error during creating of messages to send.", ex);
 								}
 							} else {
-								Period oldestPeriod = new Period(oldestPoolMessage.getCreated().getMillis() - oldestTime.getMillis());
-								Period youngestPeriod = new Period(youngestPoolMessage.getCreated().getMillis() - youngestTime.getMillis());
-								Period period = oldestPeriod.getMillis() < youngestPeriod.getMillis() ? oldestPeriod : youngestPeriod;
-								String remainingTime = "";
-								if (period.getDays() > 0) {
-									remainingTime += period.getDays() + " days ";
-								}
-								if (period.getHours() > 0) {
-									remainingTime += period.getHours() + " hours ";
-								}
-								if (period.getMinutes() > 0) {
-									remainingTime += period.getMinutes()+ " minutes ";
-								}
-								if (period.getSeconds()> 0) {
-									remainingTime += period.getSeconds()+ " sec.";
-								}
+								Duration oldestPeriod = Duration.between(oldestPoolMessage.getCreated(), oldestTime);
+								Duration youngestPeriod = Duration.between(youngestPoolMessage.getCreated(), youngestTime);
+								Duration period = oldestPeriod.getSeconds() < youngestPeriod.getSeconds() ? oldestPeriod : youngestPeriod;
+								String remainingTime = DurationFormatUtils.formatDurationWords(period.toMillis(), true, true);
 								logger.debug("The time limits for messages are greater that messages creation time for template id " + template.getId() + ", the message will not be sent yet. "
 								+ "Provided no messages is created, the notification will be sent in " + remainingTime);
 

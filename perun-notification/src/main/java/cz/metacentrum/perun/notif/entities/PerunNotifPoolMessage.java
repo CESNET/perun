@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.notif.entities;
 
 import cz.metacentrum.perun.notif.dto.PoolMessage;
-import org.joda.time.DateTime;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -10,6 +9,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -63,7 +63,7 @@ public class PerunNotifPoolMessage {
 	 *
 	 * Column name created
 	 */
-	private DateTime created;
+	private Instant created;
 
 	/**
 	 * Holds creating auditer message which was used for creation Will be
@@ -110,11 +110,11 @@ public class PerunNotifPoolMessage {
 		return serializeMap(keyAttributes);
 	}
 
-	public DateTime getCreated() {
+	public Instant getCreated() {
 		return created;
 	}
 
-	public void setCreated(DateTime created) {
+	public void setCreated(Instant created) {
 		this.created = created;
 	}
 
@@ -149,7 +149,7 @@ public class PerunNotifPoolMessage {
 					throw new SQLException("Unsupported encoding during decode of map.", ex);
 				}
 				poolMessage.setId(rs.getInt("id"));
-				poolMessage.setCreated(new DateTime(rs.getTimestamp("created")));
+				poolMessage.setCreated(Instant.ofEpochMilli(rs.getTimestamp("created").getTime()));
 				poolMessage.setRegexId(rs.getInt("regex_id"));
 				poolMessage.setTemplateId(rs.getInt("template_id"));
 				poolMessage.setNotifMessage(rs.getString("notif_message"));
