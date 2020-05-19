@@ -179,6 +179,26 @@ public interface FacilitiesManagerImplApi {
 	List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Return all allowed facilities of the user.
+	 * It means all facilities, where is assigned through some resource and member is allowed on such resource.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return List of allowed facilities of the user.
+	 */
+	List<Facility> getAllowedFacilities(PerunSession sess, User user);
+
+	/**
+	 * Return all allowed facilities of the member.
+	 * It means all facilities, where is assigned through some resource and member is allowed.
+	 *
+	 * @param sess
+	 * @param member
+	 * @return List of allowed facilities of the member.
+	 */
+	List<Facility> getAllowedFacilities(PerunSession sess, Member member);
+
+	/**
 	 * Returns all resources assigned to the facility.
 	 *
 	 * @param perunSession
