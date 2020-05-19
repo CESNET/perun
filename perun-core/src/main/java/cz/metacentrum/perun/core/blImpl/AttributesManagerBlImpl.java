@@ -1631,12 +1631,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
 		AttributeDefinition attributeDefinition = getAttributeDefinitionById(sess, id);
 
 		if (getAttributesManagerImpl().isFromNamespace(attributeDefinition, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
 			Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, member, group, id);
 			getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_GROUP_ATTR);
+			checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
 			return attribute;
 		} else if (getAttributesManagerImpl().isFromNamespace(attributeDefinition, AttributesManager.NS_MEMBER_ATTR)) {
 			return getAttributesManagerImpl().getAttributeById(sess, member, id);

@@ -1274,7 +1274,7 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException;
 
 	/**
 	 * Get particular attribute for the member.

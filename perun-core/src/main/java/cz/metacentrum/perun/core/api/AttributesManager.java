@@ -1341,7 +1341,7 @@ public interface AttributesManager {
 	 * @throws WrongAttributeAssignmentException if attribute isn't member-group attribute
 	 * @throws AttributeNotExistsException       if the attribute doesn't exists in the underlying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws PrivilegeException, GroupNotExistsException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException;
+	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws PrivilegeException, GroupNotExistsException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException;
 
 	/**
 	 * Get particular attribute for the member.
