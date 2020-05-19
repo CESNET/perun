@@ -184,10 +184,9 @@ public interface FacilitiesManagerImplApi {
 	 *
 	 * @param sess
 	 * @param user
-	 * @return
-	 * @throws InternalErrorException
+	 * @return List of allowed facilities of the user.
 	 */
-	List<Facility> getAllowedFacilities(PerunSession sess, User user) throws InternalErrorException;
+	List<Facility> getAllowedFacilities(PerunSession sess, User user);
 
 	/**
 	 * Return all allowed facilities of the member.
@@ -195,10 +194,9 @@ public interface FacilitiesManagerImplApi {
 	 *
 	 * @param sess
 	 * @param member
-	 * @return
-	 * @throws InternalErrorException
+	 * @return List of allowed facilities of the member.
 	 */
-	List<Facility> getAllowedFacilities(PerunSession sess, Member member) throws InternalErrorException;
+	List<Facility> getAllowedFacilities(PerunSession sess, Member member);
 
 	/**
 	 * Returns all resources assigned to the facility.

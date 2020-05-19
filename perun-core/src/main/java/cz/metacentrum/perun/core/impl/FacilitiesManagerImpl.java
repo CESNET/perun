@@ -450,7 +450,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Facility> getAllowedFacilities(PerunSession sess, User user) throws InternalErrorException {
+	public List<Facility> getAllowedFacilities(PerunSession sess, User user) {
 		try  {
 			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources" +
 							" join groups on groups_resources.group_id=groups.id" +
@@ -461,15 +461,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" where members.user_id=? and members.status!=? and members.status!=?",
 					FACILITY_MAPPER, user.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public List<Facility> getAllowedFacilities(PerunSession sess, Member member) throws InternalErrorException {
+	public List<Facility> getAllowedFacilities(PerunSession sess, Member member) {
 		try  {
 			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from groups_resources" +
 							" join groups on groups_resources.group_id=groups.id" +
@@ -480,8 +478,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" where members.id=? and members.status!=? and members.status!=?",
 					FACILITY_MAPPER, member.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

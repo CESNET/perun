@@ -466,12 +466,12 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<Facility> getAllowedFacilities(PerunSession sess, User user) throws InternalErrorException {
+	public List<Facility> getAllowedFacilities(PerunSession sess, User user) {
 		return getFacilitiesManagerImpl().getAllowedFacilities(sess, user);
 	}
 
 	@Override
-	public List<Facility> getAllowedFacilities(PerunSession sess, Member member) throws InternalErrorException {
+	public List<Facility> getAllowedFacilities(PerunSession sess, Member member) {
 		return getFacilitiesManagerImpl().getAllowedFacilities(sess, member);
 	}
 
