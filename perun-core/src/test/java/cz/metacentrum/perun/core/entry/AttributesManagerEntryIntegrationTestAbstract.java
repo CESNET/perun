@@ -5608,7 +5608,6 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						case "member_group":
 							attributesManager.setAttribute(sess, member1OfUser1, group1InVo1, a);
 							attributesManager.setAttribute(sess, member2OfUser2, group2InVo1, b);
-							//attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
 							break;
 						case "user_facility":
 							attributesManager.setAttribute(sess, facility1, user1, a);

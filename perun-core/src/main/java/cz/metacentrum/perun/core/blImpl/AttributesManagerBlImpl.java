@@ -364,6 +364,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Group group, Member member, Resource resource, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException, MemberGroupMismatchException {
 		checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+		checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
 		List<Attribute> attributes = getAttributes(sess, member, resource, attrNames, workWithUserAttributes);
 
 		if (attrNames.isEmpty()) {
