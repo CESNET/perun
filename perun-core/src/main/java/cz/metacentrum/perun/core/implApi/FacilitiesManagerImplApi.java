@@ -167,7 +167,9 @@ public interface FacilitiesManagerImplApi {
 	List<Vo> getAllowedVos(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
-	 * Return all members, which are "allowed" on facility.
+	 * Return all members, which are "allowed" on facility through any resource disregarding
+	 * their possible expired status in a group. All members include all group statuses, through which they can
+	 * be filtered if necessary.
 	 *
 	 * @param sess
 	 * @param facility
@@ -177,6 +179,16 @@ public interface FacilitiesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Return all users, which are "allowed" on facility through any member/resource.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of allowed users
+	 * @throws InternalErrorException
+	 */
+	List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Return all allowed facilities of the user.

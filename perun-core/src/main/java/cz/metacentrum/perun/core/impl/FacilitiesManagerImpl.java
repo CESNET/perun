@@ -427,8 +427,10 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<Vo> getAllowedVos(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			// Select only unique Vos
-			return jdbc.query("select distinct "+ VosManagerImpl.voMappingSelectQuery +" from resources join vos on resources.vo_id=vos.id " +
-				"where resources.facility_id=?", VosManagerImpl.VO_MAPPER, facility.getId());
+			return jdbc.query("select distinct "+ VosManagerImpl.voMappingSelectQuery +" from resources" +
+					" join vos on resources.vo_id=vos.id" +
+					" where resources.facility_id=?",
+					VosManagerImpl.VO_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -437,10 +439,32 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException {
 		try  {
-			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
-							" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
+			// we do include all group statuses for such members
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources" +
+							" join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id" +
+							" join members on groups_members.member_id=members.id " +
 							" join resources on groups_resources.resource_id=resources.id " +
-							" where resources.facility_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
+							" where resources.facility_id=? and members.status!=? and members.status!=?",
+					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
+					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException {
+		try  {
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from resources" +
+							" join groups_resources on groups_resources.resource_id=resources.id"+
+							" join groups_members on groups_resources.group_id=groups_members.group_id" +
+							" join members on groups_members.member_id=members.id" +
+							" join users on members.user_id=users.id" +
+							" where resources.facility_id=? and members.status!=? and members.status!=?",
+					UsersManagerImpl.USER_MAPPER, facility.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -500,8 +524,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 			if (specificVo != null && specificService != null) {
 
-				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
-						"resource_services.resource_id=resources.id where facility_id=? and vo_id=? and service_id=?",
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services" +
+								" join resources on resource_services.resource_id=resources.id" +
+								" where facility_id=? and vo_id=? and service_id=?",
 						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId(), specificService.getId());
 
 			} else if (specificVo != null) {
@@ -511,8 +536,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 			} else if (specificService != null) {
 
-				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
-						"resource_services.resource_id=resources.id where facility_id=? and service_id=?",
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services" +
+								" join resources on resource_services.resource_id=resources.id" +
+								" where facility_id=? and service_id=?",
 						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificService.getId());
 
 			} else {
@@ -530,8 +556,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
-					+ facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id join facilities on "
-					+ "resources.facility_id=facilities.id  left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.facility_id=?", ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR, facility.getId());
+					+ facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources" +
+					" join vos on resources.vo_id=vos.id" +
+					" join facilities on resources.facility_id=facilities.id" +
+					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
+					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+					" where resources.facility_id=?",
+					ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -540,8 +571,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<Facility> getOwnerFacilities(PerunSession sess, Owner owner) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities join facility_owners on facilities.id=facility_owners.facility_id " +
-					"where facility_owners.owner_id=?", FACILITY_MAPPER, owner.getId());
+			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities" +
+					" join facility_owners on facilities.id=facility_owners.facility_id" +
+					" where facility_owners.owner_id=?", FACILITY_MAPPER, owner.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -602,7 +634,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
 			}
 
-			return new ArrayList(setOfAdmins);
+			return new ArrayList<>(setOfAdmins);
 
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -772,11 +804,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<User> getAssignedUsers(PerunSession sess, Facility facility)throws InternalErrorException{
 		try {
-			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users "
-					+ "inner join members on users.id = members.user_id "
-					+ "inner join groups_members on members.id = groups_members.member_id "
-					+ "inner join groups_resources on groups_members.group_id = groups_resources.group_id "
-					+ "inner join resources on resources.id = groups_resources.resource_id and resources.facility_id=? ",
+			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users"
+					+ " join members on users.id = members.user_id"
+					+ " join groups_members on members.id = groups_members.member_id"
+					+ " join groups_resources on groups_members.group_id = groups_resources.group_id"
+					+ " join resources on resources.id = groups_resources.resource_id and resources.facility_id=?",
 					UsersManagerImpl.USER_MAPPER, facility.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -786,12 +818,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service)throws InternalErrorException{
 		try {
-			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users "
-					+ "inner join members on users.id = members.user_id "
-					+ "inner join groups_members on members.id = groups_members.member_id "
-					+ "inner join groups_resources on groups_members.group_id = groups_resources.group_id "
-					+ "inner join resources on resources.id = groups_resources.resource_id and resources.facility_id=? "
-					+ "inner join resource_services on resources.id=resource_services.resource_id and resource_services.service_id=? ",
+			// FIXME - can we optimize this to start from most limited table (resources.facility_id)?
+			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users"
+					+ " join members on users.id = members.user_id"
+					+ " join groups_members on members.id = groups_members.member_id"
+					+ " join groups_resources on groups_members.group_id = groups_resources.group_id"
+					+ " join resources on resources.id = groups_resources.resource_id and resources.facility_id=?"
+					+ " join resource_services on resources.id=resource_services.resource_id and resource_services.service_id=?",
 					UsersManagerImpl.USER_MAPPER, facility.getId(),service.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -1144,10 +1177,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + facilityMappingSelectQuery +
-							" from facilities inner join (" +
-							"select security_teams_facilities.facility_id from security_teams_facilities where security_team_id=?" +
-							") " + Compatibility.getAsAlias("assigned_ids")+ " ON facilities.id=assigned_ids.facility_id",
+			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities" +
+							" join ( select security_teams_facilities.facility_id from security_teams_facilities where security_team_id=? ) "+
+							Compatibility.getAsAlias("assigned_ids") + " ON facilities.id=assigned_ids.facility_id",
 					FACILITY_MAPPER, securityTeam.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);

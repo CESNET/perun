@@ -295,8 +295,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<User> getAllowedUsersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException {
-		return getResourcesManagerImpl().getAllowedUsersNotExpired(sess, resource);
+	public List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException {
+		return getResourcesManagerImpl().getAllowedUsersNotExpiredInGroup(sess, resource);
 	}
 
 	@Override
@@ -331,8 +331,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<Member> getAllowedMembersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException {
-		return getResourcesManagerImpl().getAllowedMembersNotExpired(sess, resource);
+	public List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException {
+		return getResourcesManagerImpl().getAllowedMembersNotExpiredInGroup(sess, resource);
 	}
 
 	@Override
@@ -437,13 +437,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}
 
 		//check attributes and set new correct values if necessary
-		List<Member> groupsMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		List<User> groupsUsers = getPerunBl().getGroupsManagerBl().getGroupUsers(sess, group);
 		Facility facility = getFacility(sess, resource);
 		List<User> allowedUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-		for(Member member : groupsMembers) {
-			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			if(!allowedUsers.contains(user)) { //user don't have acess to facility now
-				//his attributes can keep original value
+		for(User user : groupsUsers) {
+			if(!allowedUsers.contains(user)) {
+
+				// user from removed group is no longer "allowed" on facility
 
 				//find required user-facility attributes (that which are not required can keep original value)
 				List<Attribute> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user);
@@ -504,8 +504,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Group group) throws InternalErrorException {
-		Vo vo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
-		return getResourcesManagerImpl().getAssignedResources(sess, vo, group);
+		return getResourcesManagerImpl().getAssignedResources(sess, group);
 	}
 
 	@Override
