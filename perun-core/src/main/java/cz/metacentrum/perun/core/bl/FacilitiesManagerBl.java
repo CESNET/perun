@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
@@ -25,19 +24,16 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsExceptio
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -410,15 +406,22 @@ public interface FacilitiesManagerBl {
 	List<Facility> getAssignedFacilities(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
-	 * Get facilities where the user have access.
+	 * Get facilities where the user is allowed.
 	 *
 	 * @param sess
 	 * @param user
-	 * @return
-	 *
-	 * @throws InternalErrorException
+	 * @return List of allowed facilities of the user.
 	 */
-	List<Facility> getAllowedFacilities(PerunSession sess, User user) throws InternalErrorException;
+	List<Facility> getAllowedFacilities(PerunSession sess, User user);
+
+	/**
+	 * Get facilities where member is allowed.
+	 *
+	 * @param sess
+	 * @param member
+	 * @return List of allowed facilities of the member.
+	 */
+	List<Facility> getAllowedFacilities(PerunSession sess, Member member);
 
 	/**
 	 * Get facilities where the services is defined.

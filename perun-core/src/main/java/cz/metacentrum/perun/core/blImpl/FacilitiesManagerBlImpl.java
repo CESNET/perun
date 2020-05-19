@@ -466,17 +466,13 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<Facility> getAllowedFacilities(PerunSession sess, User user) throws InternalErrorException {
-		List<Member> members = perunBl.getMembersManagerBl().getMembersByUser(sess, user);
+	public List<Facility> getAllowedFacilities(PerunSession sess, User user) {
+		return getFacilitiesManagerImpl().getAllowedFacilities(sess, user);
+	}
 
-		Set<Facility> assignedFacilities = new HashSet<>();
-		for(Member member : members) {
-			if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-				assignedFacilities.addAll(this.getAssignedFacilities(sess, member));
-			}
-		}
-
-		return new ArrayList<>(assignedFacilities);
+	@Override
+	public List<Facility> getAllowedFacilities(PerunSession sess, Member member) {
+		return getFacilitiesManagerImpl().getAllowedFacilities(sess, member);
 	}
 
 	@Override
