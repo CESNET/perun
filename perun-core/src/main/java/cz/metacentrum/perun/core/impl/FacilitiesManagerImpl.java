@@ -804,7 +804,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<User> getAssignedUsers(PerunSession sess, Facility facility)throws InternalErrorException{
 		try {
-			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users"
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users"
 					+ " join members on users.id = members.user_id"
 					+ " join groups_members on members.id = groups_members.member_id"
 					+ " join groups_resources on groups_members.group_id = groups_resources.group_id"
@@ -819,7 +819,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service)throws InternalErrorException{
 		try {
 			// FIXME - can we optimize this to start from most limited table (resources.facility_id)?
-			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users"
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users"
 					+ " join members on users.id = members.user_id"
 					+ " join groups_members on members.id = groups_members.member_id"
 					+ " join groups_resources on groups_members.group_id = groups_resources.group_id"

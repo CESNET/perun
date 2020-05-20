@@ -336,6 +336,17 @@ public interface ResourcesManagerBl {
 	void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
 
 	/**
+	 * Returns all users assigned to the resource.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @return list of users assigned to the resource
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getAssignedUsers(PerunSession perunSession, Resource resource) throws InternalErrorException;
+
+	/**
 	 * List all groups associated with the resource.
 	 *
 	 * @param perunSession

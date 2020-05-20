@@ -306,18 +306,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) throws InternalErrorException {
-		if (this.isUserAssigned(sess, user, resource)) {
-			Vo vo = this.getVo(sess, resource);
-			Member member;
-			try {
-				member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
-			} catch (MemberNotExistsException e) {
-				throw new ConsistencyErrorException("Non-existent member is assigned to the resource.", e);
-			}
-			return !getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID);
-		} else {
-			return false;
-		}
+		return getResourcesManagerImpl().isUserAllowed(sess, user, resource);
 	}
 
 	@Override
@@ -490,6 +479,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		for(Resource r: resources) {
 			this.removeGroupFromResource(perunSession, group, r);
 		}
+	}
+
+	@Override
+	public List<User> getAssignedUsers(PerunSession sess, Resource resource) throws InternalErrorException {
+		return getResourcesManagerImpl().getAssignedUsers(sess, resource);
 	}
 
 	@Override

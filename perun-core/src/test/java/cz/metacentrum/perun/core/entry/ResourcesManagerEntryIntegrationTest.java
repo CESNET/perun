@@ -40,6 +40,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -574,7 +575,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
-
 	@Test
 	public void getAssignedGroups() throws Exception {
 		System.out.println(CLASS_NAME + "getAssignedGroups");
@@ -679,8 +679,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
-	public void getAssignedResourcesForMember() throws Exception {
-		System.out.println(CLASS_NAME + "getAssignedResourcesForMember");
+	public void getAssignedResourcesForMemberAndService() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedResourcesForMemberAndService");
 
 		vo = setUpVo();
 		member = setUpMember(vo);
@@ -702,8 +702,43 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
-	public void getAssignedRichResourcesForMember() throws Exception {
-		System.out.println(CLASS_NAME + "getAssignedRichResourcesForMember");
+	public void getAssignedResourcesForMember() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedResourcesForMember");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		Resource sndResource = setUpResource2();
+
+		// both the resources assign to the group
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, sndResource);
+
+		List<Resource> resources = resourcesManager.getAssignedResources(sess, member);
+		assertTrue("member should be assigned to 2 resources",resources.size() == 2);
+		assertTrue("assigned resources should be in returned list",resources.containsAll(Arrays.asList(resource, sndResource)));
+
+		// disabling member shouldn't have any effect
+		perun.getMembersManagerBl().disableMember(sess, member);
+
+		resources = resourcesManager.getAssignedResources(sess, member);
+		assertTrue("member should be assigned to 2 resources",resources.size() == 2);
+		assertTrue("assigned resources should be in returned list",resources.containsAll(Arrays.asList(resource, sndResource)));
+
+		// removing group should have effect
+		resourcesManager.removeGroupFromResource(sess, group, sndResource);
+
+		resources = resourcesManager.getAssignedResources(sess, member);
+		assertTrue("member should be assigned to single resources",resources.size() == 1);
+		assertTrue("assigned resource should be in returned list",resources.contains(resource));
+
+	}
+
+	@Test
+	public void getAssignedRichResourcesForMemberAndService() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedRichResourcesForMemberAndService");
 
 		vo = setUpVo();
 		member = setUpMember(vo);
@@ -712,6 +747,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		RichResource richResource = new RichResource(resource);
 		richResource.setFacility(facility);
+		richResource.setVo(vo);
 		Resource sndResource = setUpResource2();
 		service = setUpService();
 
@@ -724,6 +760,93 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, member, service);
 		assertTrue("there should have been only 1 assigned rich resource",resources.size() == 1);
 		assertTrue("our rich resource should be in our resource list",resources.contains(richResource));
+
+	}
+
+	@Test
+	public void getAssignedRichResourcesForMember() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedRichResourcesForMember");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		RichResource richResource = new RichResource(resource);
+		richResource.setFacility(facility);
+		richResource.setVo(vo);
+		Resource sndResource = setUpResource2();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, sndResource);
+
+		RichResource rr = perun.getResourcesManagerBl().getRichResourceById(sess, resource.getId());
+		RichResource rr2 = perun.getResourcesManagerBl().getRichResourceById(sess, sndResource.getId());
+
+		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, member);
+		assertTrue("member should be assigned to 2 resources",resources.size() == 2);
+		assertTrue("assigned resources should be in returned list",resources.containsAll(Arrays.asList(rr, rr2)));
+
+		// disabling member shouldn't have any effect
+		perun.getMembersManagerBl().disableMember(sess, member);
+
+		resources = resourcesManager.getAssignedRichResources(sess, member);
+		assertTrue("member should be assigned to 2 resources",resources.size() == 2);
+		assertTrue("assigned resources should be in returned list",resources.containsAll(Arrays.asList(rr, rr2)));
+
+		// removing group should have effect
+		resourcesManager.removeGroupFromResource(sess, group, sndResource);
+
+		resources = resourcesManager.getAssignedRichResources(sess, member);
+		assertTrue("member should be assigned to single resources",resources.size() == 1);
+		assertTrue("assigned resource should be in returned list",resources.contains(rr));
+
+	}
+
+	@Test
+	public void getAssignedMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedMembers");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		Resource sndResource = setUpResource2();
+
+		// both the resources assign to the group
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignGroupToResource(sess, group, sndResource);
+
+		List<Member> members = resourcesManager.getAssignedMembers(sess, resource);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
+
+		members = resourcesManager.getAssignedMembers(sess, sndResource);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
+
+		// disabling member shouldn't have any effect
+		perun.getMembersManagerBl().disableMember(sess, member);
+
+		members = resourcesManager.getAssignedMembers(sess, resource);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
+
+		members = resourcesManager.getAssignedMembers(sess, sndResource);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
+
+		// removing group should have effect
+		resourcesManager.removeGroupFromResource(sess, group, sndResource);
+
+		members = resourcesManager.getAssignedMembers(sess, resource);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
+
+		members = resourcesManager.getAssignedMembers(sess, sndResource);
+		assertTrue(members.isEmpty());
+
 	}
 
 	@Test

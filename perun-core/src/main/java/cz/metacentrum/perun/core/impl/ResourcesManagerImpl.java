@@ -438,6 +438,20 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
+	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) throws InternalErrorException {
+		try {
+			return (0 < jdbc.queryForInt("select count(*) from groups_resources" +
+					" join groups on groups_resources.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id" +
+					" join members on groups_members.member_id=members.id" +
+					" where groups_resources.resource_id=? and members.user_id=? and members.status!=? and members.status!=?",
+					resource.getId(), user.getId(), String.valueOf(Status.INVALID.getCode()),
+					String.valueOf(Status.DISABLED.getCode())));
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 
 	@Override
 	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, GroupAlreadyAssignedException {
