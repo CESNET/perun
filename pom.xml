@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 
 	<!-- Spring Boot Starter Parent as parent project - this project inherits versions of dependencies and plugins -->
-	<!-- see https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-build-systems.html#using-boot-maven-parent-pom -->
+	<!-- see https://docs.spring.io/spring-boot/docs/current/maven-plugin/reference/html/#using-parent-pom -->
 	<!-- update Spring by changing the version here to the current release displayed at https://projects.spring.io/spring-boot/ -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
