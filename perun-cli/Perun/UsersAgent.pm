@@ -183,4 +183,14 @@ sub removeSpecificUserOwner
 	return Perun::Common::callManagerMethod('removeSpecificUserOwner', 'null', @_);
 }
 
+sub reserveRandomPassword
+{
+	return Perun::Common::callManagerMethod('reserveRandomPassword', 'null', @_);
+}
+
+sub validatePassword
+{
+	return Perun::Common::callManagerMethod('validatePassword', 'null', @_);
+}
+
 1;

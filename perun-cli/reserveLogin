@@ -1,0 +1,121 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Term::ReadKey;
+use Perun::Common qw(printMessage);
+#use Data::Dumper;
+
+sub help {
+	return qq{
+	Adds a Vo member. Search string and vo id or vo short name are required fields.
+	Searches the users in all assigned external sources using search string.
+	------------------------------------
+	Available options:
+	--voId         | -v vo id (default 3829) 
+	--voShortName  | -V vo short name
+	--firstName    | -F first name
+	--lastName     | -L last name
+	--middleName   | -M middle name
+	--titleAfter   | -A title after name
+	--titleBefore  | -B title before name
+	--login        | -l logname
+	--email        | -E e-mail
+	--org          | -o organization
+	--extSourceId  | -e external source Id (default 2911)
+	--batch        | -b batch
+	--help         | -h prints this help
+
+	};
+}
+
+our $batch;
+
+my ($voId, $voShortName, $firstName, $lastName, $middleName, $titleAfter, $titleBefore, $login, $email, $org, $extSourceId);
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, 
+	"batch|b"      => \$batch,
+	"voId|v=i"        => \$voId, 
+	"voShortName|V=s" => \$voShortName,
+	"firstName|F=s"   => \$firstName,
+	"lastName|L=s"    => \$lastName,
+	"middleName|M=s"  => \$middleName,
+	"titleAfter|A=s"  => \$titleAfter,
+	"titleBefore|B=s" => \$titleBefore,
+	"login|l=s"       => \$login,
+	"email|E=s"       => \$email,
+	"org|o=s"         => \$org,
+	"extSource|e=i"   => \$extSourceId
+	) || die help();
+
+# There can be PERUN_BATCH env set, so check it
+$batch = $batch || $ENV{'PERUN_BATCH'};
+
+# Check options
+unless (defined($voShortName) or defined($voId)) {$voId=3829;}
+unless (defined($extSourceId)) {$extSourceId=2911;}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $membersAgent = $agent->getMembersAgent;
+my $extSourcesAgent = $agent->getExtSourcesAgent;
+my $attributesAgent = $agent->getAttributesAgent;
+my $usersAgent = $agent->getUsersAgent;
+
+if (!defined($voId)) {
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
+	$voId = $vo->getId;
+}
+
+my $extSource = $extSourcesAgent->getExtSourceById ( id => $extSourceId );
+
+my $attrName1="urn:perun:member:attribute-def:def:mail";
+my $attrName2="urn:perun:user:attribute-def:def:login-namespace:einfra";
+my $attrName3="urn:perun:member:attribute-def:def:organization";
+my $namespace="einfra";
+
+my $candidate = Perun::beans::Candidate->new;
+$candidate->setFirstName($firstName);
+$candidate->setLastName($lastName);
+$candidate->setMiddleName($middleName) if $middleName;
+$candidate->setTitelaAfter($titleAfter) if $titleAfter;
+$candidate->setTitleBefore($titleBefore) if $titleBefore;
+
+my %attributes;
+$attributes{$attrName1}=$email;
+$attributes{$attrName2}=$login;
+$attributes{$attrName3}=$org;
+$candidate->setAttributes(\%attributes);
+
+my @additionalUserExtSources=();
+$candidate->setAdditionalUserExtSources(@additionalUserExtSources);
+
+my $userExtSource = Perun::beans::UserExtSource->new;
+my $userExtSourceId=0;
+$userExtSource->setId($userExtSourceId);
+$userExtSource->setExtSource($extSource);
+$userExtSource->setLogin($login);
+my $userId=-1;
+$userExtSource->setUserId($userId);
+my $loa=0;
+$userExtSource->setLoa($loa);
+my $persistent=0;
+$userExtSource->setPersistent($persistent);
+
+$candidate->setUserExtSource($userExtSource);
+
+my $member = $membersAgent->createMember( vo => $voId, candidate => $candidate );
+printMessage ("Member created ID:".$member->getId, $batch);
+$membersAgent->validateMemberAsync (member => $member->getId);
+
+$userId=$member->getUserId;
+
+$usersAgent->reserveRandomPassword (user => $userId, namespace => $namespace);
+$usersAgent->validatePassword (user => $userId, namespace => $namespace);
+
+
