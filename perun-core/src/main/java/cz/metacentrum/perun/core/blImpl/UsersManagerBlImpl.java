@@ -854,22 +854,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) {
 		return getUsersManagerImpl().getAssignedResources(sess, facility, user);
 	}
 
 	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException {
+	public List<Resource> getAllowedResources(PerunSession sess, User user) {
 		return getUsersManagerImpl().getAllowedResources(sess, user);
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, User user) {
 		return getUsersManagerImpl().getAssignedResources(sess, user);
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException {
+	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) {
 		return getUsersManagerImpl().getAssignedRichResources(sess, user);
 	}
 

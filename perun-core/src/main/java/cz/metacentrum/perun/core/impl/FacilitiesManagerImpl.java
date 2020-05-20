@@ -456,7 +456,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<User> getAllowedUsers(PerunSession sess, Facility facility) {
 		try  {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from resources" +
 							" join groups_resources on groups_resources.resource_id=resources.id"+
@@ -466,8 +466,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" where resources.facility_id=? and members.status!=? and members.status!=?",
 					UsersManagerImpl.USER_MAPPER, facility.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

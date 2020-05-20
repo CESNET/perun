@@ -179,7 +179,7 @@ public interface FacilitiesManager {
 	 *
 	 * @return list of users
 	 */
-	List<User> getAllowedUsers(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+	List<User> getAllowedUsers(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 
 	/**

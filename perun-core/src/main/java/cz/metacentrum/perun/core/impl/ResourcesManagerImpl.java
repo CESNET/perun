@@ -439,7 +439,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) throws InternalErrorException {
+	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) {
 		try {
 			return (0 < jdbc.queryForInt("select count(*) from groups_resources" +
 					" join groups on groups_resources.group_id=groups.id" +

@@ -1389,22 +1389,20 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, User user) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources join groups_resources on resources.id=groups_resources.resource_id " +
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id " +
 					" join members on groups_members.member_id=members.id " +
 					" where members.user_id=?", RESOURCE_MAPPER, user.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException {
+	public List<Resource> getAllowedResources(PerunSession sess, User user) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources join groups_resources on resources.id=groups_resources.resource_id " +
 					" join groups on groups_resources.group_id=groups.id" +
@@ -1412,15 +1410,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" join members on groups_members.member_id=members.id " +
 					" where members.user_id=? and members.status!=? and members.status!=?",
 					RESOURCE_MAPPER, user.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources "+
 							" join groups_resources on groups_resources.resource_id=resources.id" +
@@ -1428,15 +1424,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" join members on members.id=groups_members.member_id" +
 							" where resources.facility_id=? and members.user_id=?",
 					RESOURCE_MAPPER, facility.getId(), user.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		}	catch (RuntimeException e) {
+		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException {
+	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) {
 		try  {
 			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
@@ -1449,8 +1443,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
 					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
 					" where members.user_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, user.getId());
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

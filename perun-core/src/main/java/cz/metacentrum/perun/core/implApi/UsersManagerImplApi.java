@@ -779,9 +779,8 @@ public interface UsersManagerImplApi {
 	 * @param sess
 	 * @param user
 	 * @return All resources where user is assigned
-	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, User user);
 
 	/**
 	 * Return all resources, where user is allowed by all his members.
@@ -789,9 +788,8 @@ public interface UsersManagerImplApi {
 	 * @param sess
 	 * @param user
 	 * @return All resources where user is allowed
-	 * @throws InternalErrorException
 	 */
-	List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException;
+	List<Resource> getAllowedResources(PerunSession sess, User user);
 
 	/**
 	 * Return all resources of specified facility, where user is assigned through all his members.
@@ -800,9 +798,8 @@ public interface UsersManagerImplApi {
 	 * @param facility
 	 * @param user
 	 * @return All resources where user is assigned
-	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user);
 
 	/**
 	 * Return all rich resources, where user is assigned through all his members.
@@ -810,8 +807,7 @@ public interface UsersManagerImplApi {
 	 * @param sess
 	 * @param user
 	 * @return All resources where user is assigned
-	 * @throws InternalErrorException
 	 */
-	List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException;
+	List<RichResource> getAssignedRichResources(PerunSession sess, User user);
 
 }

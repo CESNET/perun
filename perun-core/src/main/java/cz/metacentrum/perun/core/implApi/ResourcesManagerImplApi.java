@@ -153,9 +153,8 @@ public interface ResourcesManagerImplApi {
 	 * @param user
 	 * @param resource
 	 * @return true if the user is allowed as a member on the selected resource.
-	 * @throws InternalErrorException
 	 */
-	boolean isUserAllowed(PerunSession sess, User user, Resource resource) throws InternalErrorException;
+	boolean isUserAllowed(PerunSession sess, User user, Resource resource);
 
 	/**
 	 * List all resources associated with the group.

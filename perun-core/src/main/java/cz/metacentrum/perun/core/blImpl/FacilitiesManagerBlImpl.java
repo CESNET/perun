@@ -215,7 +215,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<User> getAllowedUsers(PerunSession sess, Facility facility) {
 		return getFacilitiesManagerImpl().getAllowedUsers(sess, facility);
 	}
 

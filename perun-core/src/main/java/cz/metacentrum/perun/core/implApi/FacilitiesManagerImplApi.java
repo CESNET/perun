@@ -186,9 +186,8 @@ public interface FacilitiesManagerImplApi {
 	 * @param sess
 	 * @param facility
 	 * @return list of allowed users
-	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<User> getAllowedUsers(PerunSession sess, Facility facility);
 
 	/**
 	 * Return all allowed facilities of the user.

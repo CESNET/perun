@@ -238,9 +238,8 @@ public interface FacilitiesManagerBl {
 	 * @param sess
 	 * @param facility
 	 * @return list of users
-	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<User> getAllowedUsers(PerunSession sess, Facility facility);
 
 	/**
 	 * Return all users who can use this facility
