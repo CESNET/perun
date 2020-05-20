@@ -1438,7 +1438,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException {
 		try  {
-			return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 					" join vos on resources.vo_id=vos.id " +
 					" join facilities on resources.facility_id=facilities.id " +
@@ -1446,7 +1446,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" join groups on groups_resources.group_id=groups.id " +
 					" join groups_members on groups.id=groups_members.group_id " +
 					" join members on groups_members.member_id=members.id " +
-					" left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
+					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
 					" where members.user_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, user.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();

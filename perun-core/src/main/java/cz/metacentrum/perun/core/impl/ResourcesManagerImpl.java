@@ -549,7 +549,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 		try {
 			// FIXME - can we optimize SQL to limit joined data at start (start select from groups_resources) ?
-			return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 					" join vos on resources.vo_id=vos.id" +
 					" join facilities on resources.facility_id=facilities.id" +
@@ -568,7 +568,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException {
 		try  {
-			return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 					" join vos on resources.vo_id=vos.id" +
 					" join facilities on resources.facility_id=facilities.id" +
@@ -589,7 +589,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
 		try  {
-			return jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
 					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
 							" join vos on resources.vo_id=vos.id" +
 							" join facilities on resources.facility_id=facilities.id" +

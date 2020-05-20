@@ -555,7 +555,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
 					+ facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources" +
 					" join vos on resources.vo_id=vos.id" +
 					" join facilities on resources.facility_id=facilities.id" +
