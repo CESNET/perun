@@ -3530,24 +3530,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+		this.checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
 		if (!workWithUserAttributes) {
 			getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_GROUP_ATTR);
-			this.checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
 
 			for (Attribute attribute : attributes) {
 				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute)) continue;
 				getAttributesManagerImpl().checkAttributeSemantics(sess, member, group, attribute);
 			}
 		} else {
-			this.checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
-			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 
+			User user = null;
 			for (Attribute attribute : attributes) {
 				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
 					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute))
 						continue;
 					getAttributesManagerImpl().checkAttributeSemantics(sess, member, group, attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
+					// lazy load user
+					if (user == null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
 					getAttributesManagerImpl().checkAttributeSemantics(sess, user, attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
