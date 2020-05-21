@@ -1321,17 +1321,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
-
-		PasswordManagerModule module = getPasswordManagerModule(session, namespace);
-		if (module != null) {
-			return module.generateAccount(session, parameters);
-		}
-		return null;
-
-	}
-
-	@Override
 	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
 
 		if (namespace == null || namespace.isEmpty()) throw new InternalErrorException("Login-namespace to get password manager module must be specified.");
@@ -1341,7 +1330,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		try {
 			return (PasswordManagerModule) Class.forName("cz.metacentrum.perun.core.impl.modules.pwdmgr." + namespace + "PasswordManagerModule").newInstance();
-		} catch (Exception ex) {
+		} catch (ClassNotFoundException ex) {
+			return null;
+		} catch (InstantiationException | IllegalAccessException ex) {
 			throw new InternalErrorException("Unable to instantiate password manager module.", ex);
 		}
 

@@ -809,38 +809,6 @@ public interface UsersManager {
 	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang)
 			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
-
-	/**
-	 * Creates the password in external system. User must not exists.
-	 *
-	 * @param sess
-	 * @param userLogin string representation of the userLogin
-	 * @param loginNamespace
-	 * @param password
-	 * @throws InternalErrorException
-	 * @throws PasswordCreationFailedException
-	 */
-	@Deprecated
-	void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-	throws InternalErrorException, PasswordCreationFailedException, PrivilegeException;
-
-	/**
-	 * Creates the password in external system. User must exists.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param loginNamespace
-	 * @param password
-	 * @throws InternalErrorException
-	 * @throws PasswordCreationFailedException
-	 * @throws UserNotExistsException
-	 * @throws LoginNotExistsException
-	 * @throws PrivilegeException
-	 */
-	@Deprecated
-	void createPassword(PerunSession sess, User user, String loginNamespace, String password)
-	throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException;
-
 	/**
 	 * Reserves random password in external system. User must not exists.
 	 *

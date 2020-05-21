@@ -724,30 +724,13 @@ public interface UsersManagerImplApi {
 	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
 
 	/**
-	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 * Return instance of PasswordManagerModule for specified namespace or NULL if class for module is not found.
+	 * Throws exception if class can't be instantiated.
 	 *
-	 * This method consumes optional parameters map. Requirements are implementation-dependant
-	 * for each login-namespace.
-	 *
-	 * Returns map with
-	 * 1: key=login-namespace attribute urn, value=generated login
-	 * 2: rest of opt response attributes...
-	 *
-	 * @param session
-	 * @param namespace Namespace to generate account in
-	 * @param parameters Optional parameters
-	 * @return Map of data from backed response
-	 * @throws InternalErrorException
-	 */
-	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException;
-
-	/**
-	 * Return instance of PasswordManagerModule for specified namespace or throw exception.
-	 *
-	 * @param session
+	 * @param session Session with authz
 	 * @param namespace Namespace to get PWDMGR module.
-	 * @return
-	 * @throws InternalErrorException
+	 * @return Instance of password manager module or NULL if not exists for passed namespace.
+	 * @throws InternalErrorException When module can't be instantiated.
 	 */
 	PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
 
