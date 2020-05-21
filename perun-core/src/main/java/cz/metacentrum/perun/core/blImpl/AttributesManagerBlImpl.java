@@ -5599,113 +5599,93 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_USER_FACILITY_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, facility, user, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(facility, user, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_MEMBER_RESOURCE_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, member, resource, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(member, resource, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_MEMBER_GROUP_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, member, group, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(member, group, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Facility facility, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_FACILITY_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, facility, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(facility, null, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Host host, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_HOST_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, host, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(host, null, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Resource resource, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_RESOURCE_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, resource, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(resource, null, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Vo vo, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_VO_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, vo, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(vo, null, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Group group, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_GROUP_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, group, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(group, null, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Member member, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_MEMBER_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, member, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(member, null, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, User user, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_USER_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, user, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(user, null, attributes));
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -5713,14 +5693,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<RichAttribute> richAttrs = new ArrayList<>();
 		for (Attribute attr : attributes) {
 			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_UES_ATTR)) {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, ues, null, attributes);
-		checkAttributesDependencies(sess, richAttrs);
+		checkAttributesDependencies(sess, convertToRichAttributes(ues, null, attributes));
 	}
 
 	@SuppressWarnings("SameParameterValue")
@@ -5738,10 +5716,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			constructRichAttributes(richAttrs, group, resource, groupResourceAttributes);
-			constructRichAttributes(richAttrs, group, null, groupAttributes);
+			richAttrs.addAll(convertToRichAttributes(group, resource, groupResourceAttributes));
+			richAttrs.addAll(convertToRichAttributes(group, null, groupAttributes));
 		} else {
-			constructRichAttributes(richAttrs, resource, group, attributes);
+			richAttrs.addAll(convertToRichAttributes(resource, group, attributes));
 		}
 		checkAttributesDependencies(sess, richAttrs);
 	}
@@ -5761,10 +5739,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			constructRichAttributes(richAttrs, member, null, memberAttributes);
-			constructRichAttributes(richAttrs, user, null, userAttributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
 		} else {
-			constructRichAttributes(richAttrs, member, null, attributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, attributes));
 		}
 		checkAttributesDependencies(sess, richAttrs);
 	}
@@ -5788,10 +5766,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, member, null, memberAttributes);
-		constructRichAttributes(richAttrs, user, null, userAttributes);
-		constructRichAttributes(richAttrs, user, facility, userFacilityAttributes);
-		constructRichAttributes(richAttrs, member, resource, memberResourceAttributes);
+		richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, facility, userFacilityAttributes));
+		richAttrs.addAll(convertToRichAttributes(member, resource, memberResourceAttributes));
 		checkAttributesDependencies(sess, richAttrs);
 	}
 
@@ -5817,11 +5795,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		constructRichAttributes(richAttrs, member, null, memberAttributes);
-		constructRichAttributes(richAttrs, user, null, userAttributes);
-		constructRichAttributes(richAttrs, user, facility, userFacilityAttributes);
-		constructRichAttributes(richAttrs, member, resource, memberResourceAttributes);
-		constructRichAttributes(richAttrs, member, group, memberGroupAttributes);
+		richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, facility, userFacilityAttributes));
+		richAttrs.addAll(convertToRichAttributes(member, resource, memberResourceAttributes));
+		richAttrs.addAll(convertToRichAttributes(member, group, memberGroupAttributes));
 		checkAttributesDependencies(sess, richAttrs);
 	}
 
@@ -5847,12 +5825,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			constructRichAttributes(richAttrs, member, null, memberAttributes);
-			constructRichAttributes(richAttrs, user, null, userAttributes);
-			constructRichAttributes(richAttrs, user, facility, userFacilityAttributes);
-			constructRichAttributes(richAttrs, member, resource, memberResourceAttributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, facility, userFacilityAttributes));
+			richAttrs.addAll(convertToRichAttributes(member, resource, memberResourceAttributes));
 		} else {
-			constructRichAttributes(richAttrs, member, resource, attributes);
+			richAttrs.addAll(convertToRichAttributes(member, resource, attributes));
 		}
 		checkAttributesDependencies(sess, richAttrs);
 	}
@@ -5875,21 +5853,23 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			constructRichAttributes(richAttrs, member, null, memberAttributes);
-			constructRichAttributes(richAttrs, user, null, userAttributes);
-			constructRichAttributes(richAttrs, member, group, memberGroupAttributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+			richAttrs.addAll(convertToRichAttributes(member, group, memberGroupAttributes));
 		} else {
-			constructRichAttributes(richAttrs, member, group, attributes);
+			richAttrs.addAll(convertToRichAttributes(member, group, attributes));
 		}
 		checkAttributesDependencies(sess, richAttrs);
 	}
 
-	private void constructRichAttributes(List<RichAttribute> richAttrs, Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) {
+	private List<RichAttribute> convertToRichAttributes(Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (attributes != null && !attributes.isEmpty()) {
 			for (Attribute attr : attributes) {
 				richAttrs.add(new RichAttribute<>(primaryHolder, secondaryHolder, attr));
 			}
 		}
+		return richAttrs;
 	}
 
 	@Override
