@@ -1003,29 +1003,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Creates a password in external authz system.
-	 *
-	 * @param login String Login
-	 * @param namespace String Namespace
-	 * @param password String password
-	 */
-	@Deprecated
-	createPassword {
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
-			if (parms.contains("user")) {
-				ac.getUsersManager().createPassword(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"), parms.readString("password"));
-			} else {
-				ac.getUsersManager().createPassword(ac.getSession(), parms.readString("login"), parms.readString("namespace"), parms.readString("password"));
-			}
-
-			return null;
-
-		}
-	},
-	/*#
 	 * Reserves a random password in external authz system. User shouldn't be able to log-in (account disabled, password unknown to him).
 	 * This is usefull when manager create account for others and later send them password reset request.
 	 *

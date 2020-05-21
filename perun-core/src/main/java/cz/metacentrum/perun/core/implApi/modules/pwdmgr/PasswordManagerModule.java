@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.implApi.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 import java.util.Map;
@@ -25,6 +26,7 @@ public interface PasswordManagerModule {
 	String PASSWORD_KEY = "password";
 	//prefix for output, add namespace
 	String LOGIN_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":";
+	String ALT_PASSWORD_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
 
 	Map<String,String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException;
 
@@ -39,5 +41,9 @@ public interface PasswordManagerModule {
 	void validatePassword(PerunSession sess, String userLogin);
 
 	void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException;
+
+	void createAlternativePassword(PerunSession sess, User user, String passwordId, String password);
+
+	void deleteAlternativePassword(PerunSession sess, User user, String passwordId);
 
 }

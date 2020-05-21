@@ -42,6 +42,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 
 import java.util.List;
 import java.util.Map;
@@ -924,35 +925,6 @@ public interface UsersManagerBl {
 			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
-	 * Creates the password in external system. User must not exists.
-	 *
-	 * @param sess
-	 * @param userLogin      string representation of the userLogin
-	 * @param loginNamespace
-	 * @param password
-	 * @throws InternalErrorException
-	 * @throws PasswordCreationFailedException
-	 */
-	@Deprecated
-	void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-			throws InternalErrorException, PasswordCreationFailedException;
-
-	/**
-	 * Creates the password in external system. User must exists.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param loginNamespace
-	 * @param password
-	 * @throws InternalErrorException
-	 * @throws PasswordCreationFailedException
-	 * @throws LoginNotExistsException
-	 */
-	@Deprecated
-	void createPassword(PerunSession sess, User user, String loginNamespace, String password)
-			throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
-
-	/**
 	 * Reserves random password in external system. User must exists.
 	 *
 	 * @param sess
@@ -1347,6 +1319,17 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException;
+
+	/**
+	 * Returns password manager module for specified login-namespace or falls back on generic password manager module.
+	 * Throws exception if no module implementation is found or it can't be instantiated.
+	 *
+	 * @param session session with authz
+	 * @param namespace specific namespace
+	 * @return Password manager module for namespace or 'generic' module.
+	 * @throws InternalErrorException When module instantiation fails or no module implementation is found by class loader.
+	 */
+	PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
 
 	/**
 	 * Removes all user's external sources.
