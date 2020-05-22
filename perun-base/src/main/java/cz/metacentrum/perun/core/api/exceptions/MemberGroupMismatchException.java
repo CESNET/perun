@@ -1,11 +1,17 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+
 /**
  * This exception is thrown when the member and group are not in the same VO
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class MemberGroupMismatchException extends PerunException {
+
+	private Member member;
+	private Group group;
 
 	/**
 	 * Constructor with a Throwable object
@@ -36,6 +42,26 @@ public class MemberGroupMismatchException extends PerunException {
 	 * Constructor with no arguments
 	 */
 	public MemberGroupMismatchException() {
+	}
+
+	public MemberGroupMismatchException(String message, Member member, Group group) {
+		super(message);
+		this.member = member;
+		this.group = group;
+	}
+
+	public MemberGroupMismatchException(String message, Throwable cause, Member member, Group group) {
+		super(message, cause);
+		this.member = member;
+		this.group = group;
+	}
+
+	public Member getMember() {
+		return member;
+	}
+
+	public Group getGroup() {
+		return group;
 	}
 
 }

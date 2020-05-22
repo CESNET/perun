@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -507,7 +508,7 @@ public class ExpirationNotifScheduler {
 					try {
 						perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
 						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration").getValue());
-					} catch (InternalErrorException e) {
+					} catch (InternalErrorException | MemberGroupMismatchException e) {
 						log.error("Consistency error while trying to expire member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
 						log.warn("Synchronizer: checkGroupMembersState, attribute definition for membershipExpiration in group doesn't exist.", e);
@@ -543,7 +544,7 @@ public class ExpirationNotifScheduler {
 					try {
 						perun.getGroupsManagerBl().validateMemberInGroup(sess, member, group);
 						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration").getValue());
-					} catch (InternalErrorException e) {
+					} catch (InternalErrorException | MemberGroupMismatchException e) {
 						log.error("Error during validating member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
 						log.warn("Synchronizer: checkGroupMemberValidation, attribute definition for membershipExpiration in group doesn't exist.", e);
