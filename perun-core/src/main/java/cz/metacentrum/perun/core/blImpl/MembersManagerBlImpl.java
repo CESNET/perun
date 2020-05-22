@@ -56,6 +56,7 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
@@ -896,7 +897,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		List<RichMember> richMembersWithAttributes;
 		try {
 			richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, resource, richMembers, attrsDef);
-		} catch (MemberResourceMismatchException ex) {
+		} catch (MemberResourceMismatchException | MemberGroupMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 		return richMembersWithAttributes;
@@ -911,14 +912,26 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
 		}
-		return this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
+		List<RichMember> richMembersWithAttributes = null;
+		try {
+			richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
+		} catch (MemberGroupMismatchException e) {
+			throw new InternalErrorException(e);
+		}
+		return richMembersWithAttributes;
 	}
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException {
 		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		return this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
+		List<RichMember> richMembersWithAttributes = null;
+		try {
+			richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
+		} catch (MemberGroupMismatchException e) {
+			throw new InternalErrorException(e);
+		}
+		return richMembersWithAttributes;
 	}
 
 	@Override
@@ -1064,7 +1077,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @throws GroupResourceMismatchException
 	 * @throws MemberResourceMismatchException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, Resource resource, List<RichMember> richMembers, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException {
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, Resource resource, List<RichMember> richMembers, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException, MemberGroupMismatchException {
 		List<String> attrNames = new ArrayList<>();
 		for(AttributeDefinition attributeDefinition: attrsDef) {
 			attrNames.add(attributeDefinition.getName());
@@ -1150,7 +1163,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @return list of rich members with userAttributes and memberAttributes filled
 	 * @throws InternalErrorException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, List<RichMember> richMembers, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberGroupMismatchException {
 		List<AttributeDefinition> usersAttributesDef = new ArrayList<>();
 		List<AttributeDefinition> membersAttributesDef = new ArrayList<>();
 		List<AttributeDefinition> memberGroupAttributesDef = new ArrayList<>();

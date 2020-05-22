@@ -127,6 +127,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
 	 * @throw MemberResourceMismatchException When Member is not from the same Vo as Resource.
 	 * @throw GroupResourceMismatchException When Group is not from the same Vo as Resource.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns all non-empty Group-Resource attributes for selected Group and Resource.
@@ -187,6 +188,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Specified Member-Group attributes
 	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
 	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns all non-empty Member attributes for selected Member.
@@ -213,6 +215,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Specified Member-Group attributes
 	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
 	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns all specified Member attributes for selected Member.
@@ -231,6 +234,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> All Member-Group attributes
 	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
 	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns all non-empty User attributes for selected User.
@@ -495,6 +499,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource <code>id</code>
 	 * @param group in Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
+	 * @throw UserNotExistsException When User not exists by its <code>id</code>.
+	 * @throw FacilityNotExistsException When Facility not exists by its <code>id</code>.
+	 * @throw ResourceNotExistsException When Resource not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw GroupResourceMismatchException When Group is not from the same Vo as Resource.
+	 * @throw MemberResourceMismatchException When Member is not from the same Vo as Resource.
 	 */
 	/*#
 	 * Sets the attributes.
@@ -564,6 +576,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @param workWithUserAttributes boolean If <code>true</code>, store also User and Member attributes. <code>False</code> is default.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Sets the attributes.
@@ -578,6 +593,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Sets the attributes.
@@ -773,6 +791,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns an Attribute by its <code>id</code>.
@@ -860,6 +881,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributeName String Attribute name
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 * @return Attribute Found Attribute
 	 */
 	/*#
@@ -1214,6 +1238,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attribute Attribute JSON object
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Sets an Attribute.
@@ -1232,7 +1259,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param attribute Attribute JSON object
-	 *
 	 */
 	/*#
 	 * Sets an Attribute.
@@ -1468,6 +1494,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
 	 * @return List<Attribute> Required Attributes
+	 * @throw ServiceNotExistsException When Service not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns member-group attributes required by specified service.
@@ -1476,6 +1506,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @return List<Attribute> Required Attributes
+	 * @throw ServiceNotExistsException When Service not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns facility attributes required by specified service.
@@ -1553,6 +1587,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @return List<Attribute> Required Attributes
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns member and member-group required attributes.
@@ -1562,6 +1599,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Returns required user attributes.
@@ -1775,6 +1815,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
 	 * @return List<Attribute> Member-group attributes
+	 * @throw ResourceNotExistsException When Resource not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Gets member-group attributes.
@@ -1784,6 +1828,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @return List<Attribute> Member-group attributes
+	 * @throw ResourceNotExistsException When Resource not exists by its <code>id</code>.
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Gets member attributes.
@@ -2021,6 +2069,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Tries to fill member attribute.
@@ -2159,6 +2210,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param attributes List<Attribute> List of attributes
 	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>False</code> is default.
 	 * @return List<Attribute> attributes which MAY have filled value
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Tries to fill member-group attributes.
@@ -2167,6 +2221,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
+	 * @throw MemberNotExistsException When Member not exists by its <code>id</code>.
+	 * @throw GroupNotExistsException When Group not exists by its <code>id</code>.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Tries to fill member attributes.
@@ -2608,6 +2665,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 */
 	/*#
 	 * Checks if this member attribute has valid syntax.
@@ -2822,6 +2880,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
@@ -3216,6 +3275,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if these member-group attributes have valid semantics.
@@ -3223,6 +3288,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if these member attributes have valid semantics.
@@ -3399,6 +3470,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if these member-group attributes have valid syntax.
@@ -3406,6 +3483,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if these member attributes have valid syntax.
@@ -3529,6 +3612,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
+	 * @throw FacilityNotExistsException When the Facility with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Remove attributes of namespace:
@@ -3620,6 +3713,32 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Remove attributes of namespace:
+	 *
+	 * member-group, optionally also member and user
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+	 * @param attributes List<Integer> List of attributes IDs to remove
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Remove attributes of namespace:
@@ -3832,6 +3951,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attribute int <code>id</code> of attribute to remove
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Remove attribute of namespace:
@@ -4005,6 +4132,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw MemberGroupMismatchException When Member is not from the same Vo as Group.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Unset all member attributes.

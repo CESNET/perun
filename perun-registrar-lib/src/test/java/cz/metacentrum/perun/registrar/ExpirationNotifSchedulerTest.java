@@ -324,12 +324,6 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	// ----------------- PRIVATE METHODS -------------------------------------------
 
 	private Group setUpGroup() throws Exception {
-
-		Vo vo = new Vo();
-		vo.setName("test Vo");
-		vo.setShortName("testVo");
-		perun.getVosManagerBl().createVo(session, vo);
-
 		Group group = new Group();
 		group.setName("Test group");
 		return perun.getGroupsManagerBl().createGroup(session, vo, group);
