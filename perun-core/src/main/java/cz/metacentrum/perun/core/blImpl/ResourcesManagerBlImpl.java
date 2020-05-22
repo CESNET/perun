@@ -295,7 +295,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getResourcesManagerImpl().getAllowedUsersNotExpiredInGroup(sess, resource);
 	}
 
@@ -320,7 +320,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getResourcesManagerImpl().getAllowedMembersNotExpiredInGroup(sess, resource);
 	}
 

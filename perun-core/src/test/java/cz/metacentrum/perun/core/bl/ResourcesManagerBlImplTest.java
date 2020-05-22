@@ -260,74 +260,74 @@ public class ResourcesManagerBlImplTest {
 
 	@Test
 	public void getAllowedUsersNotExpiredTest() throws Exception {
-		System.out.println("ResourcesManagerBlImpl.getAllowedUsersNotExpired(resource)");
+		System.out.println("ResourcesManagerBlImpl.getAllowedUsersNotExpiredInGrouús(resource)");
 
-		List<User> users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroup(sess, resource);
+		List<User> users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
 		Assert.assertEquals(1, users.size());
 		Assert.assertTrue(users.contains(user));
 
-		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroup(sess, resource2);
+		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource2);
 		Assert.assertEquals(1, users.size());
 		Assert.assertTrue(users.contains(user));
 
-		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroup(sess, resource3);
+		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource3);
 		Assert.assertEquals(1, users.size());
 		Assert.assertTrue(users.contains(user));
 
 		// expiring member2 in group2 should have effect
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, member2, group2);
 
-		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroup(sess, resource);
+		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
 		Assert.assertEquals(1, users.size());
 		Assert.assertTrue(users.contains(user));
 
-		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroup(sess, resource2);
+		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource2);
 		Assert.assertTrue(users.isEmpty());
 
-		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroup(sess, resource3);
+		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource3);
 		Assert.assertTrue(users.isEmpty());
 
 		// disabling member should have effect too
 		perun.getMembersManagerBl().disableMember(sess, member);
 
-		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroup(sess, resource);
+		users = perun.getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource);
 		Assert.assertTrue(users.isEmpty());
 
 	}
 
 	@Test
 	public void getAllowedMembersNotExpiredInGroup() throws Exception {
-		System.out.println("ResourcesManagerBlImpl.getAllowedMembersNotExpired(resource)");
+		System.out.println("ResourcesManagerBlImpl.getAllowedMembersNotExpiredInGroups(resource)");
 
-		List<Member> members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource);
+		List<Member> members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
 		Assert.assertEquals(1, members.size());
 		Assert.assertTrue(members.contains(member));
 
-		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource2);
+		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource2);
 		Assert.assertEquals(1, members.size());
 		Assert.assertTrue(members.contains(member2));
 
-		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource3);
+		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource3);
 		Assert.assertEquals(1, members.size());
 		Assert.assertTrue(members.contains(member2));
 
 		// expiring member2 in group2 should have effect
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, member2, group2);
 
-		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource);
+		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
 		Assert.assertEquals(1, members.size());
 		Assert.assertTrue(members.contains(member));
 
-		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource2);
+		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource2);
 		Assert.assertTrue(members.isEmpty());
 
-		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource3);
+		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource3);
 		Assert.assertTrue(members.isEmpty());
 
 		// disabling member should have effect too
 		perun.getMembersManagerBl().disableMember(sess, member);
 
-		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource);
+		members = perun.getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
 		Assert.assertTrue(members.isEmpty());
 
 	}

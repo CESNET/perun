@@ -267,7 +267,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+	List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
 	 * Return all members, which are "allowed" on facility.

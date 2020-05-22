@@ -326,7 +326,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		List<Member> members;
 		if (filterExpiredMembers) {
-			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource);
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
 		} else {
 			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
@@ -368,7 +368,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		List<Member> members;
 		if (filterExpiredMembers) {
-			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroup(sess, resource);
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
 		} else {
 			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
@@ -519,7 +519,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		ServiceAttributes allUsersServiceAttributes = new ServiceAttributes();
 		List<User> facilityUsers;
 		if (filterExpiredMembers) {
-			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsersNotExpiredInGroup(sess, facility, null, service);
+			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsersNotExpiredInGroups(sess, facility, null, service);
 		} else {
 			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
 		}

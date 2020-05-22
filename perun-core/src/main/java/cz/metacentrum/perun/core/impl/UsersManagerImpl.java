@@ -1391,7 +1391,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, User user) {
 		try  {
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources join groups_resources on resources.id=groups_resources.resource_id " +
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+					" join groups_resources on resources.id=groups_resources.resource_id " +
 					" join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id " +
 					" join members on groups_members.member_id=members.id " +
@@ -1404,11 +1405,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, User user) {
 		try  {
-			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources join groups_resources on resources.id=groups_resources.resource_id " +
-					" join groups on groups_resources.group_id=groups.id" +
-					" join groups_members on groups.id=groups_members.group_id " +
-					" join members on groups_members.member_id=members.id " +
-					" where members.user_id=? and members.status!=? and members.status!=?",
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+							" join groups_resources on resources.id=groups_resources.resource_id " +
+							" join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id " +
+							" join members on groups_members.member_id=members.id " +
+							" where members.user_id=? and members.status!=? and members.status!=?",
 					RESOURCE_MAPPER, user.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

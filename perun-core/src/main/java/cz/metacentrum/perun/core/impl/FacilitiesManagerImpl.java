@@ -553,13 +553,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", "
-					+ facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources" +
-					" join vos on resources.vo_id=vos.id" +
-					" join facilities on resources.facility_id=facilities.id" +
-					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
-					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
-					" where resources.facility_id=?",
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+							facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources" +
+							" join vos on resources.vo_id=vos.id" +
+							" join facilities on resources.facility_id=facilities.id" +
+							" left outer join tags_resources on resources.id=tags_resources.resource_id" +
+							" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+							" where resources.facility_id=?",
 					ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
