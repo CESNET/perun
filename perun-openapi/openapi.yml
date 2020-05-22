@@ -3639,6 +3639,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getAttributes/user-facility:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getUserFacilityAttributes
+      summary: Returns all non-empty User-Facility attributes for selected User and Facility.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/attributesManager/getAttribute/name-user_facility:
     get:
       tags:
@@ -3866,6 +3881,21 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/AttributeResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getAttributes/group-resource:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getGroupResourceAttributes
+      summary: Returns all non-empty Group-Resource attributes for selected Group and Resource.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -4151,6 +4181,34 @@ paths:
                 user: { type: integer, description: "user id" }
                 attribute: { $ref: '#/components/schemas/Attribute' }
 
+  /json/attributesManager/setAttributes/facility-user:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setUserFacilityAttributes
+      summary: Sets Attributes for User and Facility.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetUserFacilityAttributes
+              description: "input to setUserFacilityAttributes"
+              type: object
+              required:
+                - user
+                - facility
+                - attributes
+              properties:
+                user: { type: integer, description: "user id" }
+                facility: { type: integer, description: "facility id" }
+                attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
+
   /json/attributesManager/setAttribute/facility-user:
     post:
       tags:
@@ -4338,6 +4396,34 @@ paths:
                 member: { type: integer, description: "member id" }
                 resource: { type: integer, description: "resource id" }
                 attribute: { $ref: '#/components/schemas/Attribute' }
+
+  /json/attributesManager/setAttributes/group-resource:
+    post:
+      tags:
+        - AttributesManager
+      operationId: setGroupResourceAttributes
+      summary: Sets Attributes for Group and Resource.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetGroupResourceAttributes
+              description: "input to setGroupResourceAttributes"
+              type: object
+              required:
+                - group
+                - resource
+                - attributes
+              properties:
+                group: { type: integer, description: "group id" }
+                resource: { type: integer, description: "resource id" }
+                attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
 
   /json/attributesManager/setAttribute/group-resource:
     post:
