@@ -21,9 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,9 +47,9 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
 
 	Attribute preferredMailAttr = setUpUserAttribute(1, "preferredMail", String.class.getName(), email1);
 	Attribute isMailAttr = setUpUserAttribute(2, "ISMail", String.class.getName(), email2);
-	Attribute publicMailsAttr = setUpUserAttribute(3, "o365EmailAddresses:mu", ArrayList.class.getName(), new ArrayList(Arrays.asList(email3, email4)));
-	Attribute privateMailsAttr = setUpUserAttribute(4, "publicAliasMails", ArrayList.class.getName(), new ArrayList(Arrays.asList(email4, email5)));
-	Attribute o365MailsAttr = setUpUserAttribute(5, "privateAliasMails", ArrayList.class.getName(), new ArrayList(Arrays.asList(email1, email3, email5)));
+	Attribute o365MailsAttr = setUpUserAttribute(3, "o365EmailAddresses:mu", ArrayList.class.getName(), new ArrayList<>(Arrays.asList(email3, email4)));
+	Attribute publicMailsAttr = setUpUserAttribute(4, "publicAliasMails", ArrayList.class.getName(), new ArrayList<>(Arrays.asList(email4, email5)));
+	Attribute privateMailsAttr = setUpUserAttribute(5, "privateAliasMails", ArrayList.class.getName(), new ArrayList<>(Arrays.asList(email1, email3, email5)));
 
 	private final String expectedTestOfMessage = "friendlyName=<tcsMails:mu>";
 
@@ -67,11 +66,9 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
 		when(sess.getPerunBl()).thenReturn(perunBl);
 		when(perunBl.getAttributesManagerBl()).thenReturn(am);
 		when(perunBl.getUsersManagerBl()).thenReturn(um);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, preferredMailAttr.getName())).thenReturn(preferredMailAttr);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, isMailAttr.getName())).thenReturn(isMailAttr);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, publicMailsAttr.getName())).thenReturn(publicMailsAttr);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, privateMailsAttr.getName())).thenReturn(privateMailsAttr);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, o365MailsAttr.getName())).thenReturn(o365MailsAttr);
+		when(sess.getPerunBl().getAttributesManagerBl().getAttributes(sess, user, Arrays.asList(preferredMailAttr.getName(),
+				isMailAttr.getName(), o365MailsAttr.getName(), publicMailsAttr.getName(), privateMailsAttr.getName())))
+				.thenReturn(Arrays.asList(preferredMailAttr, isMailAttr, o365MailsAttr, publicMailsAttr, privateMailsAttr));
 		when(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, tcsMailsAttrDef.getName())).thenReturn(tcsMailsAttrDef);
 	}
 
@@ -88,15 +85,15 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
 
 	@Test
 	public void getAttributeValue() {
-		@SuppressWarnings("unchecked") ArrayList<String> attributeValue = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef).valueAsList();
-		assertThat(attributeValue, is(notNullValue()));
+		ArrayList<String> attributeValue = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef).valueAsList();
+		assertNotNull(attributeValue);
 		//we want to be sure, that preferredEmail is first (defined by sorting in module)
-		assertTrue(attributeValue.get(0).equals(email1));
-		assertTrue(attributeValue.get(1).equals(email2));
-		assertTrue(attributeValue.get(2).equals(email3));
-		assertTrue(attributeValue.get(3).equals(email4));
-		assertTrue(attributeValue.get(4).equals(email5));
-		assertThat(attributeValue.size(), is(5));
+		assertEquals(attributeValue.get(0), email1);
+		assertEquals(attributeValue.get(1), email2);
+		assertEquals(attributeValue.get(2), email3);
+		assertEquals(attributeValue.get(3), email4);
+		assertEquals(attributeValue.get(4), email5);
+		assertEquals(5, attributeValue.size());
 	}
 
 	@Test

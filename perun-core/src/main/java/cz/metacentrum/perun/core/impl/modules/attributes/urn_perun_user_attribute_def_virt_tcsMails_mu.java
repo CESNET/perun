@@ -10,9 +10,6 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
@@ -23,8 +20,11 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Get all emails from Perun for purpose of TCS.
@@ -52,14 +52,31 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 
 		Attribute attribute = new Attribute(attributeDefinition);
+
 		SortedSet<String> tcsMailsValue = new TreeSet<>();
 
-		tcsMailsValue.addAll(getEmailValues(sess, user, A_U_D_preferredMail));
-		tcsMailsValue.addAll(getEmailValues(sess, user, A_U_D_ISMail));
-		tcsMailsValue.addAll(getEmailValues(sess, user, A_U_D_o365EmailAddressesMU));
-		tcsMailsValue.addAll(getEmailValues(sess, user, A_U_D_publicAliasMails));
-		tcsMailsValue.addAll(getEmailValues(sess, user, A_U_D_privateAliasMails));
+		List<String> namesOfAttributes = Arrays.asList(A_U_D_preferredMail, A_U_D_ISMail, A_U_D_o365EmailAddressesMU, A_U_D_publicAliasMails, A_U_D_privateAliasMails);
 
+		List<Attribute> sourceAttributes = sess.getPerunBl().getAttributesManagerBl().getAttributes(sess, user, namesOfAttributes);
+		Map<String,Attribute> attributesMap = sourceAttributes.stream().collect(Collectors.toMap(Attribute::getName, Function.identity()));
+
+		// ensure attributes order
+		for (String attrName : namesOfAttributes) {
+			Attribute sourceAttribute = attributesMap.get(attrName);
+			if (sourceAttribute != null) {
+				// gather values of all attributes
+				if (sourceAttribute.getType().equals(String.class.getName())) {
+					if (sourceAttribute.getValue() != null) tcsMailsValue.add(sourceAttribute.valueAsString());
+				} else if (sourceAttribute.getType().equals(ArrayList.class.getName())) {
+					if (sourceAttribute.getValue() != null) tcsMailsValue.addAll(sourceAttribute.valueAsList());
+				} else {
+					//unexpected type of value, log it and skip the attribute
+					log.error("Unexpected type of attribute (should be String or ArrayList) {}. It will be skipped.", sourceAttribute);
+				}
+			} else {
+				log.warn("When counting value of attribute {} we are missing source attribute {}. It will be skipped.", this.getAttributeDefinition(), attrName);
+			}
+		}
 		attribute.setValue(new ArrayList<>(tcsMailsValue));
 
 		return attribute;
@@ -101,41 +118,6 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
 		else if(privateMailsFriendlyName.equals(nameOfAttribute)) return true;
 
 		return false;
-	}
-
-	/**
-	 * Return email values as sorted set from attribute by name.
-	 *
-	 * It works only for String and List attributes. If attribute has different type of value, it will be logged and skipped.
-	 * If attribute has empty value, it will return empty set.
-	 * If attribute not exists, it will be logged and skipped.
-	 *
-	 * @param sess perun session
-	 * @param user user to get values for
-	 * @param nameOfAttribute name of attribute for which values should be returned
-	 *
-	 * @return sorted set of values of attribute defined by name
-	 */
-	private SortedSet<String> getEmailValues(PerunSessionImpl sess, User user, String nameOfAttribute) {
-		SortedSet<String> valuesToAdd = new TreeSet<>();
-		try {
-			Attribute sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, nameOfAttribute);
-			if (sourceAttribute.getType().equals(String.class.getName())) {
-				if (sourceAttribute.getValue() != null) valuesToAdd.add(sourceAttribute.valueAsString());
-			} else if (sourceAttribute.getType().equals(ArrayList.class.getName())) {
-				if (sourceAttribute.getValue() != null) valuesToAdd.addAll(sourceAttribute.valueAsList());
-			} else {
-				//unexpected type of value, log it and skip the attribute
-				log.error("Unexpected type of attribute (should be String or ArrayList) {}. It will be skipped.", sourceAttribute);
-			}
-		} catch (AttributeNotExistsException ex) {
-			//we can log this situation and skip the attribute from computing
-			log.warn("When counting value of attribute {} we are missing source attribute {}. Exception: {}. It will be skipped.", this.getAttributeDefinition(), nameOfAttribute, ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		return valuesToAdd;
 	}
 
 	@Override
