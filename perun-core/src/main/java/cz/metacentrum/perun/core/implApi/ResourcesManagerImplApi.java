@@ -109,7 +109,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsers(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<User> getAssignedUsers(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Assign group to a resource.
@@ -136,20 +136,6 @@ public interface ResourcesManagerImplApi {
 	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws InternalErrorException, GroupAlreadyRemovedFromResourceException;
 
 	/**
-	 * List all groups' id associated with the resource.
-	 *
-	 * @param perunSession
-	 * @param resource
-	 * @param withSubGroups get all group (and subgroups) if it's true
-	 *                      get only immediate groups (without subgroups) if it's false
-	 *
-	 * @throws InternalErrorException
-	 * @return list of assigned groups' id
-	 */
-	// GROUPER OUT
-	//List<Integer> getAssignedGroupsIds(PerunSession perunSession, Resource resource, boolean withSubGroups) throws InternalErrorException;
-
-	/**
 	 * Check if the user is assigned as a member on the selected resource.
 	 *
 	 * @param sess
@@ -161,16 +147,25 @@ public interface ResourcesManagerImplApi {
 	boolean isUserAssigned(PerunSession sess, User user, Resource resource) throws InternalErrorException;
 
 	/**
+	 * Check if the user is allowed as a member on the selected resource.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param resource
+	 * @return true if the user is allowed as a member on the selected resource.
+	 */
+	boolean isUserAllowed(PerunSession sess, User user, Resource resource);
+
+	/**
 	 * List all resources associated with the group.
 	 *
 	 * @param perunSession
-	 * @param vo
 	 * @param group
 	 *
 	 * @throws InternalErrorException
 	 * @return list of assigned resources
 	 */
-	List<Resource> getAssignedResources(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * List of all rich resources associated with the group.
@@ -203,18 +198,6 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
-
-	/**
-	 * List of all resources assigned to the member defined by user and vo.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param vo
-	 * @return list of assigned resources
-	 * @throws InternalErrorException
-	 */
-	// GROUPER OUT
-	//List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) throws InternalErrorException;
 
 	/**
 	 * List all services' id associated with the resource.
@@ -357,24 +340,24 @@ public interface ResourcesManagerImplApi {
 	List<User> getAllowedUsers(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Returns all users who are allowed on the defined resource and not expired in at least one group.
+	 * Returns all users which are allowed on the resource and are not expired within their assigned groups.
+	 * It means if user is allowed on the resource, but only through expired groups, it is filtered out.
 	 *
 	 * @param sess
 	 * @param resource
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException;
-
+	List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Return all resources which are under the facility and has member of the user with status other than INVALID.
+	 * Return all resources through which user is allowed on facility.
 	 *
 	 * @param sess
 	 * @param facility
 	 * @param user
 	 *
-	 * @return list of resources allowed for user (user has there member with status other than INVALID)
+	 * @return List of allowed resources for the user on facility
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException;
@@ -390,7 +373,8 @@ public interface ResourcesManagerImplApi {
 	List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Returns all members who are allowed on the defined resource.
+	 * Returns all members who are "allowed" on the resource disregarding their possible expired status
+	 * in a group. All members include all group statuses, through which they can be filtered if necessary.
 	 *
 	 * @param sess
 	 * @param resource
@@ -400,14 +384,15 @@ public interface ResourcesManagerImplApi {
 	List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Returns all members who are allowed on the defined resource and also valid in at least one group associated to the resources.
+	 * Returns all members which are allowed on the resource and are not expired within their assigned groups.
+	 * It means if member is allowed on the resource, but only through expired groups, it is filtered out.
 	 *
 	 * @param sess
 	 * @param resource
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getAllowedMembersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Returns all resources where the member is assigned through the groups.
@@ -420,7 +405,7 @@ public interface ResourcesManagerImplApi {
 	List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
-	 * Returns all resources where the service and the member are assigned through the groups.
+	 * Returns all resources where member and service are assigned together.
 	 *
 	 * @param sess
 	 * @param member
@@ -431,7 +416,8 @@ public interface ResourcesManagerImplApi {
 	List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
 
 	/**
-	 * Returns all resources where the user is assigned through the vo and groups.
+	 * Returns all resources where the user is assigned through the specified vo and its groups.
+	 * @see #getAssignedResources(PerunSession, Member)
 	 *
 	 * @param sess
 	 * @param user

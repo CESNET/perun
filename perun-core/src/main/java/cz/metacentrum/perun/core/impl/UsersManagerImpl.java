@@ -4,12 +4,16 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -50,6 +54,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPER;
+import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RICH_RESOURCE_WITH_TAGS_EXTRACTOR;
+import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceMappingSelectQuery;
+import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceTagMappingSelectQuery;
 
 /**
  * UsersManager implementation.
@@ -1369,4 +1378,67 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 
 	}
+
+	@Override
+	public List<Resource> getAssignedResources(PerunSession sess, User user) {
+		try  {
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+					" join groups_resources on resources.id=groups_resources.resource_id " +
+					" join groups on groups_resources.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id " +
+					" join members on groups_members.member_id=members.id " +
+					" where members.user_id=?", RESOURCE_MAPPER, user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getAllowedResources(PerunSession sess, User user) {
+		try  {
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + " from resources" +
+							" join groups_resources on resources.id=groups_resources.resource_id " +
+							" join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id " +
+							" join members on groups_members.member_id=members.id " +
+							" where members.user_id=? and members.status!=? and members.status!=?",
+					RESOURCE_MAPPER, user.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources "+
+							" join groups_resources on groups_resources.resource_id=resources.id" +
+							" join groups_members on groups_members.group_id=groups_resources.group_id" +
+							" join members on members.id=groups_members.member_id" +
+							" where resources.facility_id=? and members.user_id=?",
+					RESOURCE_MAPPER, facility.getId(), user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) {
+		try  {
+			return jdbc.query("select distinct " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+resourceTagMappingSelectQuery+" from resources" +
+					" join vos on resources.vo_id=vos.id " +
+					" join facilities on resources.facility_id=facilities.id " +
+					" join groups_resources on resources.id=groups_resources.resource_id " +
+					" join groups on groups_resources.group_id=groups.id " +
+					" join groups_members on groups.id=groups_members.group_id " +
+					" join members on groups_members.member_id=members.id " +
+					" left outer join tags_resources on resources.id=tags_resources.resource_id" +
+					" left outer join res_tags on tags_resources.tag_id=res_tags.id" +
+					" where members.user_id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 }

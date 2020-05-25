@@ -3,10 +3,13 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -752,4 +755,42 @@ public interface UsersManagerImplApi {
 	 * Implements search for #UsersManagerBl.findUsersWithExtSourceAttributeValueEnding().
 	 */
 	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws InternalErrorException;
+
+	/**
+	 * Return all resources, where user is assigned through all his members.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return All resources where user is assigned
+	 */
+	List<Resource> getAssignedResources(PerunSession sess, User user);
+
+	/**
+	 * Return all resources, where user is allowed by all his members.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return All resources where user is allowed
+	 */
+	List<Resource> getAllowedResources(PerunSession sess, User user);
+
+	/**
+	 * Return all resources of specified facility, where user is assigned through all his members.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param user
+	 * @return All resources where user is assigned
+	 */
+	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user);
+
+	/**
+	 * Return all rich resources, where user is assigned through all his members.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return All resources where user is assigned
+	 */
+	List<RichResource> getAssignedRichResources(PerunSession sess, User user);
+
 }

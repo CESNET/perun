@@ -651,9 +651,8 @@ public interface UsersManagerBl {
 	 * @param facility
 	 * @param user
 	 * @return list of resources which have the user access on
-	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user);
 
 	/**
 	 * Get all resources which have the user access on.
@@ -661,9 +660,8 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param user
 	 * @return list of resources which have the user access on
-	 * @throws InternalErrorException
 	 */
-	List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException;
+	List<Resource> getAllowedResources(PerunSession sess, User user);
 
 	/**
 	 * Get all resources where the user is assigned.
@@ -671,9 +669,8 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param user
 	 * @return list of resources which have the user access on
-	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, User user);
 
 	/**
 	 * Get all rich resources where the user is assigned.
@@ -681,9 +678,8 @@ public interface UsersManagerBl {
 	 * @param sess
 	 * @param user
 	 * @return list of rich resources which have the user access on
-	 * @throws InternalErrorException
 	 */
-	List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException;
+	List<RichResource> getAssignedRichResources(PerunSession sess, User user);
 
 	/**
 	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.

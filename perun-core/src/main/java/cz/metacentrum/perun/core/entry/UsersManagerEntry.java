@@ -741,7 +741,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+	public List<Resource> getAllowedResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
@@ -755,7 +755,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&

@@ -206,7 +206,7 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getAllowedMembersNotExpired(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<Member> getAllowedMembersNotExpiredInGroups(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Returns all members assigned to the resource.
@@ -248,7 +248,7 @@ public interface ResourcesManagerBl {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Assign group to a resource. Check if attributes for each member form group are valid. Fill members' attributes with missing value.
@@ -334,6 +334,17 @@ public interface ResourcesManagerBl {
 	 * @throws GroupAlreadyRemovedFromResourceException
 	 */
 	void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException;
+
+	/**
+	 * Returns all users assigned to the resource.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @return list of users assigned to the resource
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getAssignedUsers(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
 	 * List all groups associated with the resource.
