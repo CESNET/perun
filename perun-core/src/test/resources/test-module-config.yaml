@@ -1,0 +1,14 @@
+integer: 1
+string: John Doe
+null:
+integerList:
+  - 1
+  - 2
+stringList:
+  - one
+  - two
+innerIntegerList:
+  list:
+    - 1
+    - 2
+    - 3
