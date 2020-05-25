@@ -375,7 +375,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException{
+	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

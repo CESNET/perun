@@ -41,7 +41,6 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -215,16 +214,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException {
-		//Get all facilities resources
-		List<Resource> resources = this.getAssignedResources(sess, facility);
-
-		Set<User> users = new TreeSet<>();
-		for (Resource resource: resources) {
-			users.addAll(getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource));
-		}
-
-		return new ArrayList<>(users);
+	public List<User> getAllowedUsers(PerunSession sess, Facility facility) {
+		return getFacilitiesManagerImpl().getAllowedUsers(sess, facility);
 	}
 
 	@Override
@@ -242,14 +233,14 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<User> getAllowedUsersNotExpired(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+	public List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
 
 		//Get all facilities resources
 		List<Resource> resources = getAssignedResources(sess, facility, specificVo, specificService);
 
 		Set<User> users = new TreeSet<>();
 		for (Resource resource: resources) {
-			users.addAll(getPerunBl().getResourcesManagerBl().getAllowedUsersNotExpired(sess, resource));
+			users.addAll(getPerunBl().getResourcesManagerBl().getAllowedUsersNotExpiredInGroups(sess, resource));
 		}
 
 		return new ArrayList<>(users);

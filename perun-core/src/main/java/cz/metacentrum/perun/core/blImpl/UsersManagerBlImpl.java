@@ -854,51 +854,23 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
-		List<Resource> allowedResources = new ArrayList<>();
-
-		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-		for(Resource resource : resources) {
-			if (getPerunBl().getResourcesManagerBl().isUserAssigned(sess, user, resource)) {
-				allowedResources.add(resource);
-			}
-		}
-		return allowedResources;
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) {
+		return getUsersManagerImpl().getAssignedResources(sess, facility, user);
 	}
 
 	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException {
-		//TODO do this method in more efficient way
-		Set<Resource> resources = new HashSet<>();
-		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-		for(Member member : members) {
-			if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-				resources.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member));
-			}
-		}
-		return new ArrayList<>(resources);
+	public List<Resource> getAllowedResources(PerunSession sess, User user) {
+		return getUsersManagerImpl().getAllowedResources(sess, user);
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException {
-		Set<Resource> resources = new HashSet<>();
-		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-
-		for(Member member : members) {
-			resources.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member));
-		}
-		return new ArrayList<>(resources);
+	public List<Resource> getAssignedResources(PerunSession sess, User user) {
+		return getUsersManagerImpl().getAssignedResources(sess, user);
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException {
-		Set<RichResource> resources = new HashSet<>();
-		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-
-		for(Member member : members) {
-			resources.addAll(getPerunBl().getResourcesManagerBl().getAssignedRichResources(sess, member));
-		}
-		return new ArrayList<>(resources);
+	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) {
+		return getUsersManagerImpl().getAssignedRichResources(sess, user);
 	}
 
 	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
