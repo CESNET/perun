@@ -217,6 +217,58 @@ components:
         createdAt: { type: string }
         createdByUid: { type: integer }
 
+    ActionType:
+      type: string
+      description: "Action types for attributes."
+      enum:
+        - "WRITE"
+        - "WRITE_VO"
+        - "WRITE_PUBLIC"
+        - "READ"
+        - "READ_VO"
+        - "READ_PUBLIC"
+
+    AttributeRights:
+      type: object
+      required:
+        - attributeId
+        - rights
+        - role
+      properties:
+        attributeId: { type: integer }
+        role: { type: string }
+        rights:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionType'
+
+    Facility:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            name: { type: string }
+            description: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    RichFacility:
+      allOf:
+        - $ref: '#/components/schemas/Facility'
+        - properties:
+            facilityOwners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
+          required:
+            - facilityOwners
+      discriminator:
+        propertyName: beanName
+
+    Host:
+      allOf:
+        - $ref: '#/components/schemas/Auditable'
+        - properties:
+            hostname: { type: string }
+      discriminator:
+        propertyName: beanName
+
     PublicationSystem:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
