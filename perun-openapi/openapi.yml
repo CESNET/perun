@@ -326,10 +326,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
         - properties:
-            publicationId: { type: int }
-            ownerId: { type: int }
+            publicationId: { type: integer }
+            ownerId: { type: integer }
             createdBy: { type: string }
-            createdByUid: { type: int }
+            createdByUid: { type: integer }
             createdDate: { type: string, format: date }
       discriminator:
         propertyName: beanName
@@ -346,11 +346,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
         - properties:
-            publicationId: { type: int }
-            userId: { type: int }
+            publicationId: { type: integer }
+            userId: { type: integer }
             createdBy: { type: string }
             createdDate: { type: string, format: date }
-            createdByUid: { type: int }
+            createdByUid: { type: integer }
       discriminator:
         propertyName: beanName
 
@@ -895,10 +895,10 @@ components:
     DoubleResponse:
       description: "returns Double"
       content:
-       application/json:
-         schema:
-           type: number
-           format: double
+        application/json:
+          schema:
+            type: number
+            format: double
 
     LongResponse:
       description: "returns Long"
@@ -938,7 +938,7 @@ components:
           schema:
             type: object
             additionalProperties:
-                type: string
+              type: string
 
     UserResponse:
       description: returns User
@@ -1349,7 +1349,7 @@ components:
       content:
         application/json:
           schema:
-              $ref: "#/components/schemas/Application"
+            $ref: "#/components/schemas/Application"
 
     ListOfApplicationsResponse:
       description: "returns List<Application>"
@@ -1815,14 +1815,14 @@ components:
       required: true
 
     memberIds:
-        name: "members[]"
-        description: "id of Member"
-        schema:
-          type: array
-          items:
-            type: integer
-        in: query
-        required: true
+      name: "members[]"
+      description: "id of Member"
+      schema:
+        type: array
+        items:
+          type: integer
+      in: query
+      required: true
 
     optionalMemberId:
       name: member
@@ -2070,7 +2070,7 @@ components:
       name: resultGroup
       description: "id of Group to have removed 'operandGroup' from subgroups"
       schema:
-         type: integer
+        type: integer
       in: query
       required: true
 
@@ -2099,12 +2099,12 @@ components:
       required: true
 
     complementaryObjectName:
-        name: complementaryObjectName
-        description: "Property beanName of complementaryObject, meaning object type (Vo | Group | Facility | ... )"
-        schema:
-          type: string
-        in: query
-        required: true
+      name: complementaryObjectName
+      description: "Property beanName of complementaryObject, meaning object type (Vo | Group | Facility | ... )"
+      schema:
+        type: string
+      in: query
+      required: true
 
     role:
       name: role
@@ -2158,7 +2158,7 @@ components:
       name: searchString
       description: 'Text to search by'
       schema:
-       type: string
+        type: string
       in: query
       required: true
 
@@ -2429,7 +2429,7 @@ paths:
         }
       responses:
         '200':
-          $ref: "#/components/schemas/ListOfRichUsersResponse"
+          $ref: "#/components/responses/ListOfRichUsersResponse"
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -3250,10 +3250,10 @@ paths:
                 user: { type: integer, description: "user id", nullable: false }
                 member: { type: integer, description: "member id", nullable: false }
                 attributes:
-                 type: array
-                 nullable: false
-                 items:
-                   $ref: '#/components/schemas/Attribute'
+                  type: array
+                  nullable: false
+                  items:
+                    $ref: '#/components/schemas/Attribute'
 
   /json/attributesManager/setAttributes/f-r-u-m:
     post:
@@ -4359,10 +4359,10 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-##
-# combinations:
-#  (facility), (user), (user,facility), (vo), (member), (group), (resource),
-#  (member,group), (member,resource), (group,resource),(userExtSource), (host), (key)
+  ##
+  # combinations:
+  #  (facility), (user), (user,facility), (vo), (member), (group), (resource),
+  #  (member,group), (member,resource), (group,resource),(userExtSource), (host), (key)
 
   /json/attributesManager/setAttribute/facility:
     post:
@@ -4985,7 +4985,7 @@ paths:
         - AttributesManager
       operationId: getRequiredAttributesMemberResource
       summary: Returns member-resource attributes required by specified list of services.
-               If workWithUserAttributes == TRUE, then returns also user attributes.
+        If workWithUserAttributes == TRUE, then returns also user attributes.
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/resourceId'
@@ -5086,25 +5086,25 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
 
-#TODO getRequiredAttributesDefinition
+  #TODO getRequiredAttributesDefinition
 
-#TODO getResourceRequiredAttributes
+  #TODO getResourceRequiredAttributes
 
-#TODO fillAttribute
+  #TODO fillAttribute
 
-#TODO fillAttributes
+  #TODO fillAttributes
 
-#TODO checkAttributeValue
+  #TODO checkAttributeValue
 
-#TODO checkAttributeSyntax
+  #TODO checkAttributeSyntax
 
-#TODO checkAttributeSemantics
+  #TODO checkAttributeSemantics
 
-#TODO checkAttributesValue
+  #TODO checkAttributesValue
 
-#TODO checkAttributesSemantics
+  #TODO checkAttributesSemantics
 
-#TODO checkAttributesSyntax
+  #TODO checkAttributesSyntax
 
   /urlinjsonout/attributesManager/removeAttributes/m-workWithUserAttributes:
     post:
@@ -5579,7 +5579,7 @@ paths:
 
   #TODO removeAllAttributes
 
-#TODO getLogins
+  #TODO getLogins
 
   /json/attributesManager/updateAttributeDefinition:
     post:
@@ -5607,7 +5607,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-#TODO doTheMagic
+  #TODO doTheMagic
 
   /json/attributesManager/getAttributeRights:
     get:
@@ -5654,7 +5654,7 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
 
-#TODO convertAttributeToUnique
+  #TODO convertAttributeToUnique
 
   /json/attributesManager/getAttributeModulesDependenciesGraphText:
     get:
@@ -5848,7 +5848,7 @@ paths:
       summary: |
         Log arbitrary auditer message/event to the audit log.
       parameters:
-        -  { name: msg, in: query, schema: { type: string }, description: "Message to be logged", required: true }
+        - { name: msg, in: query, schema: { type: string }, description: "Message to be logged", required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -5951,7 +5951,7 @@ paths:
     post:
       tags:
         - CabinetManager
-      operationId: createCategory
+      operationId: createCategoryCat
       summary: |
         Creates new Category for Publications with specified name and rank.
         Category object's parameter name must be non-empty, max 128 chars long and rank must be double
@@ -5978,7 +5978,7 @@ paths:
     post:
       tags:
         - CabinetManager
-      operationId: createCategory
+      operationId: createCategoryNR
       summary: Creates new Category for Publications with specified name and rank.
       responses:
         '200':
@@ -6436,7 +6436,7 @@ paths:
           in: query
           schema:
             type: string
-          description: 	(MU or ZCU)
+          description:    (MU or ZCU)
           required: true
       responses:
         '200':
@@ -6520,7 +6520,7 @@ paths:
     get:
       tags:
         - CabinetManager
-      operationId: findSimilarPublicationsTitle
+      operationId: findSimilarPublicationsTitleIsbnDoi
       summary: Finds similar publications
       parameters:
         - $ref: '#/components/parameters/title'
@@ -7728,9 +7728,9 @@ paths:
         - FacilitiesManager
       operationId: getFacilityAdminUsers
       description: |
-          Get list of all facility administrators for supported role and given facility.
-          If onlyDirectAdmins is true, return only direct admins of the group for supported role.
-          Supported roles: FacilityAdmin
+        Get list of all facility administrators for supported role and given facility.
+        If onlyDirectAdmins is true, return only direct admins of the group for supported role.
+        Supported roles: FacilityAdmin
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)"}
@@ -8526,15 +8526,15 @@ paths:
       operationId: getGroupUnions
       summary: Return all operand groups for specified result groups (all INCLUDED groups). If "reverseDirection" is TRUE than return all result groups for specified operand group (where group is INCLUDED).
       parameters:
-         - $ref: '#/components/parameters/groupId'
-         - { name: reverseDirection,
-             description: "FALSE (default) return INCLUDED groups / TRUE = return groups where INCLUDED",
-             schema: {
-               type: boolean
-             },
-             in: query,
-             required: true
-         }
+        - $ref: '#/components/parameters/groupId'
+        - { name: reverseDirection,
+            description: "FALSE (default) return INCLUDED groups / TRUE = return groups where INCLUDED",
+            schema: {
+              type: boolean
+            },
+            in: query,
+            required: true
+        }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8629,9 +8629,9 @@ paths:
         - ResourcesManager
       operationId: copyResource
       summary: |
-                Copy "template" settings from user's another existing resource and create new resource with this template.
-                The settings are attributes, services, tags (if exists), groups and their members (if the resources are from the same VO and withGroups is true)
-                Template Resource can be from any of user's facilities.
+        Copy "template" settings from user's another existing resource and create new resource with this template.
+        The settings are attributes, services, tags (if exists), groups and their members (if the resources are from the same VO and withGroups is true)
+        Template Resource can be from any of user's facilities.
       responses:
         '200':
           $ref: '#/components/responses/ResourceResponse'
@@ -9010,7 +9010,7 @@ paths:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
-            $ref: '#/components/responses/ExceptionResponse'
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/resourcesManager/getAdmins:
     get:
@@ -10929,7 +10929,7 @@ paths:
         - ServicesManager
       operationId: blockAllServicesOnFacility
       summary: Block all services currently assigned on this facility.
-              Newly assigned services are still allowed for propagation.
+        Newly assigned services are still allowed for propagation.
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
@@ -10944,7 +10944,7 @@ paths:
         - ServicesManager
       operationId: blockAllServicesOnDestinationById
       summary: Block all services currently assigned on this destination.
-               Newly assigned services are still allowed for propagation.
+        Newly assigned services are still allowed for propagation.
       parameters:
         - $ref: '#/components/parameters/destinationId'
       responses:
@@ -11078,8 +11078,8 @@ paths:
         - ServicesManager
       operationId: unblockServiceOnFacility
       summary: Free the denial of the Service on this facility. If the Service was banned
-              on this facility, it will be freed. In case the Service was not banned on
-              this facility, nothing will happen.
+        on this facility, it will be freed. In case the Service was not banned on
+        this facility, nothing will happen.
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
@@ -11095,8 +11095,8 @@ paths:
         - ServicesManager
       operationId: unblockServiceOnDestinationById
       summary: Free the denial of the Service on this destination. If the Service was banned on
-         this destination, it will be freed. In case the Service was not banned on this
-         destination, nothing will happen.
+        this destination, it will be freed. In case the Service was not banned on this
+        destination, nothing will happen.
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/destinationId'
@@ -11130,7 +11130,7 @@ paths:
         - ServicesManager
       operationId: forceServicePropagation
       summary: Forces service propagation on defined facility.
-              Return int 1 = true if it is possible, 0 = false if not
+        Return int 1 = true if it is possible, 0 = false if not
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/optionalFacilityId'
@@ -11162,7 +11162,7 @@ paths:
         - ServicesManager
       operationId: getFacilityAssignedServicesForGUI
       summary: Return list of ServiceForGUI assigned on facility, (Service with "allowedOnFacility" property filled).
-              1 - allowed / 0 - service is service is denied.
+        1 - allowed / 0 - service is service is denied.
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
@@ -11537,7 +11537,7 @@ paths:
         - ServicesManager
       operationId: addRequiredAttribute
       summary: Mark the attribute as required for the service. Required attributes are requisite for Service to run.
-           If you add attribute which has a default attribute then this default attribute will be automatically add too.
+        If you add attribute which has a default attribute then this default attribute will be automatically add too.
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/attributeId'
@@ -11767,8 +11767,8 @@ paths:
         - ServicesManager
       operationId: addDestinationsDefinedByHostsOnFacilityWithServiceAndFacility
       summary: Add services destinations for all services currently available on facility
-          (assigned to all facility's resources). Destinations names are taken from
-          all facility's host hostnames.
+        (assigned to all facility's resources). Destinations names are taken from
+        all facility's host hostnames.
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
@@ -11784,7 +11784,7 @@ paths:
         - ServicesManager
       operationId: addDestinationsDefinedByHostsOnFacilityWithListOfServiceAndFacility
       summary: Add services destinations for list of services. Destinations names are taken from
-                all facility's host hostnames.
+        all facility's host hostnames.
       responses:
         '200':
           $ref: '#/components/responses/ListOfDestinationsResponse'
@@ -11814,7 +11814,7 @@ paths:
         - ServicesManager
       operationId: addDestinationsDefinedByHostsOnFacilityWithFacility
       summary: Add services destinations for one service. Destinations names are taken from
-                all facility's host hostnames.
+        all facility's host hostnames.
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
