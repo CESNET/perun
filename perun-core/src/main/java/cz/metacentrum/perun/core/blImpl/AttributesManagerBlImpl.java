@@ -716,7 +716,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, facility, attributesToSet);
-		checkAttributesDependencies(sess, facility, null, attributesToSet);
+		checkAttributesDependencies(sess, facility, attributesToSet);
 	}
 
 	@Override
@@ -748,7 +748,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, vo, attributesToSet);
-		this.checkAttributesDependencies(sess, vo, null, attributesToSet);
+		checkAttributesDependencies(sess, vo, attributesToSet);
 	}
 
 	@Override
@@ -776,7 +776,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, group, attributesToSet);
-		this.checkAttributesDependencies(sess, group, null, attributesToSet);
+		checkAttributesDependencies(sess, group, attributesToSet);
 	}
 
 	@Override
@@ -804,7 +804,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, resource, attributesToSet);
-		this.checkAttributesDependencies(sess, resource, null, attributesToSet);
+		checkAttributesDependencies(sess, resource, attributesToSet);
 	}
 
 	@Override
@@ -855,7 +855,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		// if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, member, group, attributesToSet, workWithUserAttributes);
-		this.checkAttributesDependencies(sess, member, group, attributesToSet, workWithUserAttributes);
+		checkAttributesDependencies(sess, member, group, attributesToSet, workWithUserAttributes);
 	}
 
 	@Override
@@ -900,7 +900,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, member, attributesToSet, workWithUserAttributes);
-		this.checkAttributesDependencies(sess, member, attributesToSet, workWithUserAttributes);
+		checkAttributesDependencies(sess, member, attributesToSet, workWithUserAttributes);
 	}
 
 
@@ -953,7 +953,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, member, resource, attributesToSet, workWithUserAttributes);
-		this.checkAttributesDependencies(sess, resource, member, attributesToSet, workWithUserAttributes);
+		checkAttributesDependencies(sess, member, resource, attributesToSet, workWithUserAttributes);
 	}
 
 	@Override
@@ -993,7 +993,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, facility, resource, user, member, attributesToSet);
-		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesToSet);
+		checkAttributesDependencies(sess, resource, member, user, facility, attributesToSet);
 	}
 
 	@Override
@@ -1035,7 +1035,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, facility, resource, group, user, member, attributesToSet);
-		this.checkAttributesDependencies(sess, resource, group, member, user, facility, attributesToSet);
+		checkAttributesDependencies(sess, resource, group, member, user, facility, attributesToSet);
 	}
 
 	@Override
@@ -1068,7 +1068,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, member, attributesToSet);
-		this.checkAttributesDependencies(sess, member, null, attributesToSet);
+		checkAttributesDependencies(sess, member, attributesToSet);
 	}
 
 	@Override
@@ -1097,7 +1097,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, facility, user, attributesToSet);
-		this.checkAttributesDependencies(sess, facility, user, attributesToSet);
+		checkAttributesDependencies(sess, facility, user, attributesToSet);
 	}
 
 	@Override
@@ -1130,7 +1130,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, user, attributesToSet);
-		this.checkAttributesDependencies(sess, user, null, attributesToSet);
+		checkAttributesDependencies(sess, user, attributesToSet);
 	}
 
 	@Override
@@ -1162,7 +1162,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, host, attributesToSet);
-		this.checkAttributesDependencies(sess, host, null, attributesToSet);
+		checkAttributesDependencies(sess, host, attributesToSet);
 	}
 
 	@Override
@@ -1189,7 +1189,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, resource, group, attributesToSet);
-		this.checkAttributesDependencies(sess, resource, group, attributesToSet);
+		checkAttributesDependencies(sess, resource, group, attributesToSet);
 	}
 
 	@Override
@@ -1227,7 +1227,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 			//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 			checkAttributesSemantics(sess, resource, group, attributesToSet, true);
-			this.checkAttributesDependencies(sess, resource, group, attributesToSet, true);
+			checkAttributesDependencies(sess, group, resource, attributesToSet, true);
 		}
 	}
 
@@ -1261,7 +1261,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, ues, attributesToSet);
-		this.checkAttributesDependencies(sess, ues, null, attributesToSet);
+		checkAttributesDependencies(sess, ues, attributesToSet);
 	}
 
 	private void setCoreAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -1771,7 +1771,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		//Check all attributes dependencies
-		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
+		checkAttributesDependencies(sess, resource, member, user, facility, attributes);
 	}
 
 	@Override
@@ -1809,7 +1809,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, facility, attribute);
 		if (setAttributeWithoutCheck(sess, facility, attribute)) {
 			checkAttributeSemantics(sess, facility, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(facility, null, attribute));
 		}
 	}
 
@@ -1842,7 +1842,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, vo, attribute);
 		if (setAttributeWithoutCheck(sess, vo, attribute)) {
 			checkAttributeSemantics(sess, vo, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(vo, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(vo, null, attribute));
 		}
 	}
 
@@ -1875,7 +1875,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, group, attribute);
 		if (setAttributeWithoutCheck(sess, group, attribute)) {
 			checkAttributeSemantics(sess, group, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(group, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(group, null, attribute));
 		}
 	}
 
@@ -1894,7 +1894,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, resource, attribute);
 		if (setAttributeWithoutCheck(sess, resource, attribute)) {
 			checkAttributeSemantics(sess, resource, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(resource, null, attribute));
 		}
 	}
 
@@ -1953,7 +1953,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, member, resource, attribute);
 		if (setAttributeWithoutCheck(sess, member, resource, attribute, false)) {
 			checkAttributeSemantics(sess, member, resource, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
 		}
 	}
 
@@ -1967,7 +1967,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, member, group, attribute);
 		if (setAttributeWithoutCheck(sess, member, group, attribute, false)) {
 			checkAttributeSemantics(sess, member, group, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(member, group, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(member, group, attribute));
 		}
 	}
 
@@ -2104,7 +2104,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, member, attribute);
 		if (setAttributeWithoutCheck(sess, member, attribute)) {
 			checkAttributeSemantics(sess, member, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(member, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(member, null, attribute));
 		}
 	}
 
@@ -2150,7 +2150,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, facility, user, attribute);
 		if (setAttributeWithoutCheck(sess, facility, user, attribute)) {
 			checkAttributeSemantics(sess, facility, user, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, user, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(facility, user, attribute));
 		}
 	}
 
@@ -2164,7 +2164,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, user, attribute);
 		if (setAttributeWithoutCheck(sess, user, attribute)) {
 			checkAttributeSemantics(sess, user, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(user, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(user, null, attribute));
 		}
 	}
 
@@ -2204,7 +2204,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, host, attribute);
 		if (setAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeSemantics(sess, host, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(host, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(host, null, attribute));
 		}
 	}
 
@@ -2238,7 +2238,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, resource, group, attribute);
 		if (setAttributeWithoutCheck(sess, resource, group, attribute)) {
 			checkAttributeSemantics(sess, resource, group, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, group, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(resource, group, attribute));
 		}
 	}
 
@@ -2332,7 +2332,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, key, attribute);
 		if (setAttributeWithoutCheck(sess, key, attribute)) {
 			checkAttributeSemantics(sess, key, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(key, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(key, null, attribute));
 		}
 	}
 
@@ -2346,7 +2346,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributeSyntax(sess, ues, attribute);
 		if (setAttributeWithoutCheck(sess, ues, attribute)) {
 			checkAttributeSemantics(sess, ues, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute<>(ues, null, attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(ues, null, attribute));
 		}
 	}
 
@@ -3748,7 +3748,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!workWithGroupAttribute) {
-			this.checkAttributesSemantics(sess, resource, group, attributes);
+			checkAttributesSemantics(sess, resource, group, attributes);
 		}
 		for (Attribute attribute : attributes) {
 			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
@@ -4143,8 +4143,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, key, attribute)) {
-			this.checkAttributeSemantics(sess, key, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(key, null, new Attribute(attribute)));
+			checkAttributeSemantics(sess, key, new Attribute(attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(key, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4165,8 +4165,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, facility, attribute)) {
-			this.checkAttributeSemantics(sess, facility, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, null, new Attribute(attribute)));
+			checkAttributeSemantics(sess, facility, new Attribute(attribute));
+			checkAttributeDependencies(sess, new RichAttribute<>(facility, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4181,8 +4181,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					if (removeAttributeWithoutCheck(sess, member, attribute)) attributesToCheck.add(attribute);
 				}
 			}
-			this.checkAttributesSemantics(sess, member, attributesFromDefinitions(attributesToCheck));
-			this.checkAttributesDependencies(sess, member, null, attributesFromDefinitions(attributesToCheck));
+			checkAttributesSemantics(sess, member, attributesFromDefinitions(attributesToCheck));
+			checkAttributesDependencies(sess, member, attributesFromDefinitions(attributesToCheck));
 		} else {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -4198,9 +4198,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					}
 				}
 			}
-			this.checkAttributesSemantics(sess, member, attributesFromDefinitions(attributesToCheck), true);
+			checkAttributesSemantics(sess, member, attributesFromDefinitions(attributesToCheck), true);
 			//noinspection ConstantConditions
-			this.checkAttributesDependencies(sess, member, attributesFromDefinitions(attributesToCheck), workWithUserAttributes);
+			checkAttributesDependencies(sess, member, attributesFromDefinitions(attributesToCheck), workWithUserAttributes);
 		}
 	}
 
@@ -4214,8 +4214,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				if (removeAttributeWithoutCheck(sess, facility, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		this.checkAttributesSemantics(sess, facility, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, facility, null, attributesFromDefinitions(attributesToCheck));
+		checkAttributesSemantics(sess, facility, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4240,8 +4240,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 		}
-		this.checkAttributesSemantics(sess, facility, resource, user, member, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesFromDefinitions(attributesToCheck));
+		checkAttributesSemantics(sess, facility, resource, user, member, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, resource, member, user, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4269,8 +4269,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 		}
-		this.checkAttributesSemantics(sess, facility, resource, group, user, member, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, resource, group, member, user, facility, attributesFromDefinitions(attributesToCheck));
+		checkAttributesSemantics(sess, facility, resource, group, user, member, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, resource, group, member, user, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4284,7 +4284,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, facility, attributes);
-			this.checkAttributesDependencies(sess, facility, null, attributes);
+			checkAttributesDependencies(sess, facility, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4316,7 +4316,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			for (User user : facilityUsers) {
 				try {
 					checkAttributesSemantics(sess, facility, user, userFacilityAttributes);
-					this.checkAttributesDependencies(sess, facility, user, userFacilityAttributes);
+					checkAttributesDependencies(sess, facility, user, userFacilityAttributes);
 				} catch (WrongAttributeAssignmentException ex) {
 					throw new ConsistencyErrorException(ex);
 				}
@@ -4332,7 +4332,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (removeAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeSemantics(sess, host, new Attribute(attribute));
 			try {
-				this.checkAttributeDependencies(sess, new RichAttribute<>(host, null, new Attribute(attribute)));
+				checkAttributeDependencies(sess, new RichAttribute<>(host, null, new Attribute(attribute)));
 			} catch (WrongReferenceAttributeValueException ex) {
 				throw new WrongAttributeValueException(ex);
 			}
@@ -4364,9 +4364,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				if (removeAttributeWithoutCheck(sess, host, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		this.checkAttributesSemantics(sess, host, attributesFromDefinitions(attributesToCheck));
+		checkAttributesSemantics(sess, host, attributesFromDefinitions(attributesToCheck));
 		try {
-			this.checkAttributesDependencies(sess, host, null, attributesFromDefinitions(attributesToCheck));
+			checkAttributesDependencies(sess, host, attributesFromDefinitions(attributesToCheck));
 		} catch (WrongReferenceAttributeValueException ex) {
 			throw new WrongAttributeValueException(ex);
 		}
@@ -4383,7 +4383,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, host, attributes);
-			this.checkAttributesDependencies(sess, host, null, attributes);
+			checkAttributesDependencies(sess, host, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongReferenceAttributeValueException ex) {
@@ -4399,7 +4399,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, vo, attribute)) {
 			checkAttributeSemantics(sess, vo, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(vo, null, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(vo, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4429,7 +4429,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, vo, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, vo, null, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, vo, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4443,7 +4443,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, vo, attributes);
-			this.checkAttributesDependencies(sess, vo, null, attributes);
+			checkAttributesDependencies(sess, vo, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4457,7 +4457,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, group, attribute)) {
 			checkAttributeSemantics(sess, group, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(group, null, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(group, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4491,7 +4491,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, group, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, group, null, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, group, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4505,7 +4505,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, group, attributes);
-			this.checkAttributesDependencies(sess, group, null, attributes);
+			checkAttributesDependencies(sess, group, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4524,7 +4524,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		boolean changed = removeAttributeWithoutCheck(sess, resource, attribute);
 		if (changed) {
 			checkAttributeSemantics(sess, resource, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, null, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(resource, null, new Attribute(attribute)));
 		}
 		return changed;
 	}
@@ -4564,7 +4564,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, resource, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, resource, null, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, resource, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4582,7 +4582,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, resource, attributes);
-			this.checkAttributesDependencies(sess, resource, null, attributes);
+			checkAttributesDependencies(sess, resource, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4600,7 +4600,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, member, resource, attribute)) {
 			checkAttributeSemantics(sess, member, resource, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(resource, member, new Attribute(attribute)));
 		}
 	}
 
@@ -4631,7 +4631,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, member, resource, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, member, resource, attributesFromDefinitions(attributesToCheck));
 	}
 
 	private void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
@@ -4659,7 +4659,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 			checkAttributesSemantics(sess, member, resource, attributesFromDefinitions(attributesToCheck), true);
-			this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck), true);
+			checkAttributesDependencies(sess, member, resource, attributesFromDefinitions(attributesToCheck), true);
 		}
 	}
 
@@ -4689,7 +4689,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		if (removeAttributeWithoutCheck(sess, member, group, attribute)) {
 			checkAttributeSemantics(sess, member, group, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(member, group, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(member, group, new Attribute(attribute)));
 		}
 	}
 
@@ -4728,7 +4728,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 			checkAttributesSemantics(sess, member, group, attributesFromDefinitions(attributesToCheck));
-			this.checkAttributesDependencies(sess, member, group, attributesFromDefinitions(attributesToCheck));
+			checkAttributesDependencies(sess, member, group, attributesFromDefinitions(attributesToCheck));
 		} else {
 			List<AttributeDefinition> attributesToCheck = new ArrayList<>();
 			for (AttributeDefinition attribute : attributes) {
@@ -4747,7 +4747,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 			checkAttributesSemantics(sess, member, group, attributesFromDefinitions(attributesToCheck), true);
-			this.checkAttributesDependencies(sess, member, group, attributesFromDefinitions(attributesToCheck), true);
+			checkAttributesDependencies(sess, member, group, attributesFromDefinitions(attributesToCheck), true);
 		}
 	}
 
@@ -4776,7 +4776,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, member, attribute)) {
 			checkAttributeSemantics(sess, member, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(member, null, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(member, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4813,7 +4813,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, member, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, member, null, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, member, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4827,7 +4827,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, member, attributes);
-			this.checkAttributesDependencies(sess, member, null, attributes);
+			checkAttributesDependencies(sess, member, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4845,7 +4845,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, facility, user, attribute)) {
 			checkAttributeSemantics(sess, facility, user, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, user, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(facility, user, new Attribute(attribute)));
 		}
 	}
 
@@ -4886,7 +4886,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, facility, user, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, facility, user, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, facility, user, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4909,7 +4909,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, facility, user, attributes);
-			this.checkAttributesDependencies(sess, facility, user, attributes);
+			checkAttributesDependencies(sess, facility, user, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4933,7 +4933,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (RichAttribute<User, Facility> richAttribute : userFacilitiesAttributes) {
 			try {
 				checkAttributeSemantics(sess, richAttribute.getSecondaryHolder(), richAttribute.getPrimaryHolder(), new Attribute(richAttribute.getAttribute()));
-				this.checkAttributeDependencies(sess, richAttribute);
+				checkAttributeDependencies(sess, richAttribute);
 			} catch (WrongAttributeAssignmentException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
@@ -4947,7 +4947,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, user, attribute)) {
 			checkAttributeSemantics(sess, user, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(user, null, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(user, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4981,7 +4981,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, user, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, user, null, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, user, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -4995,7 +4995,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, user, attributes);
-			this.checkAttributesDependencies(sess, user, null, attributes);
+			checkAttributesDependencies(sess, user, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -5013,7 +5013,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, resource, group, attribute)) {
 			checkAttributeSemantics(sess, resource, group, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, group, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(resource, group, new Attribute(attribute)));
 		}
 	}
 
@@ -5044,7 +5044,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if (removeAttributeWithoutCheck(sess, resource, group, attribute)) attributesToCheck.add(attribute);
 		}
 		checkAttributesSemantics(sess, resource, group, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -5070,7 +5070,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 			}
 			checkAttributesSemantics(sess, resource, group, attributesFromDefinitions(attributesToCheck), true);
-			this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck), true);
+			checkAttributesDependencies(sess, group, resource, attributesFromDefinitions(attributesToCheck), true);
 		}
 	}
 
@@ -5091,7 +5091,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, resource, group, attributes);
-			this.checkAttributesDependencies(sess, resource, group, attributes);
+			checkAttributesDependencies(sess, resource, group, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -5105,7 +5105,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, ues, attribute)) {
 			checkAttributeSemantics(sess, ues, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute<>(ues, null, new Attribute(attribute)));
+			checkAttributeDependencies(sess, new RichAttribute<>(ues, null, new Attribute(attribute)));
 		}
 	}
 
@@ -5134,7 +5134,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		checkAttributesSemantics(sess, ues, attributesFromDefinitions(attributesToCheck));
-		this.checkAttributesDependencies(sess, ues, null, attributesFromDefinitions(attributesToCheck));
+		checkAttributesDependencies(sess, ues, attributesFromDefinitions(attributesToCheck));
 	}
 
 	@Override
@@ -5148,7 +5148,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesSemantics(sess, ues, attributes);
-			this.checkAttributesDependencies(sess, ues, null, attributes);
+			checkAttributesDependencies(sess, ues, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -5533,7 +5533,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler) throws WrongAttributeAssignmentException, InternalErrorException {
-		this.checkAttributeAssignment(sess, attributeDefinition, handler, null);
+		checkAttributeAssignment(sess, attributeDefinition, handler, null);
 	}
 
 	public void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler1, PerunBean handler2) throws WrongAttributeAssignmentException, InternalErrorException {
@@ -5598,8 +5598,112 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().updateAttributeDefinition(perunSession, attributeDefinition);
 	}
 
+	private void checkAttributesDependencies(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_USER_FACILITY_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(facility, user, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_MEMBER_RESOURCE_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(member, resource, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_MEMBER_GROUP_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(member, group, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Facility facility, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_FACILITY_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(facility, null, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Host host, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_HOST_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(host, null, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Resource resource, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_RESOURCE_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(resource, null, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Vo vo, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_VO_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(vo, null, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Group group, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_GROUP_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(group, null, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Member member, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_MEMBER_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(member, null, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, User user, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_USER_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(user, null, attributes));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		checkAttributesDependencies(sess, group, resource, attributes, false);
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Attribute attr : attributes) {
+			if (!getAttributesManagerImpl().isFromNamespace(attr, NS_UES_ATTR)) {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, convertToRichAttributes(ues, null, attributes));
+	}
+
 	@SuppressWarnings("SameParameterValue")
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Group group, Resource resource, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (workWithGroupAttributes) {
 			List<Attribute> groupAttributes = new ArrayList<>();
 			List<Attribute> groupResourceAttributes = new ArrayList<>();
@@ -5612,14 +5716,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			checkAttributesDependencies(sess, resource, group, groupResourceAttributes);
-			checkAttributesDependencies(sess, group, null, groupAttributes);
+			richAttrs.addAll(convertToRichAttributes(group, resource, groupResourceAttributes));
+			richAttrs.addAll(convertToRichAttributes(group, null, groupAttributes));
 		} else {
-			checkAttributesDependencies(sess, resource, group, attributes);
+			richAttrs.addAll(convertToRichAttributes(resource, group, attributes));
 		}
+		checkAttributesDependencies(sess, richAttrs);
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			List<Attribute> userAttributes = new ArrayList<>();
@@ -5633,14 +5739,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			checkAttributesDependencies(sess, member, null, memberAttributes);
-			checkAttributesDependencies(sess, user, null, userAttributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
 		} else {
-			checkAttributesDependencies(sess, member, null, attributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, attributes));
 		}
+		checkAttributesDependencies(sess, richAttrs);
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, User user, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		List<Attribute> userAttributes = new ArrayList<>();
 		List<Attribute> memberAttributes = new ArrayList<>();
 		List<Attribute> memberResourceAttributes = new ArrayList<>();
@@ -5658,13 +5766,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		checkAttributesDependencies(sess, member, null, memberAttributes);
-		checkAttributesDependencies(sess, user, null, userAttributes);
-		checkAttributesDependencies(sess, facility, user, userFacilityAttributes);
-		checkAttributesDependencies(sess, resource, member, memberResourceAttributes);
+		richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, facility, userFacilityAttributes));
+		richAttrs.addAll(convertToRichAttributes(member, resource, memberResourceAttributes));
+		checkAttributesDependencies(sess, richAttrs);
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, Member member, User user, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		List<Attribute> userAttributes = new ArrayList<>();
 		List<Attribute> memberAttributes = new ArrayList<>();
 		List<Attribute> memberResourceAttributes = new ArrayList<>();
@@ -5685,14 +5795,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new WrongAttributeAssignmentException(attr);
 			}
 		}
-		checkAttributesDependencies(sess, member, null, memberAttributes);
-		checkAttributesDependencies(sess, user, null, userAttributes);
-		checkAttributesDependencies(sess, facility, user, userFacilityAttributes);
-		checkAttributesDependencies(sess, resource, member, memberResourceAttributes);
-		checkAttributesDependencies(sess, member, group, memberGroupAttributes);
+		richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+		richAttrs.addAll(convertToRichAttributes(user, facility, userFacilityAttributes));
+		richAttrs.addAll(convertToRichAttributes(member, resource, memberResourceAttributes));
+		richAttrs.addAll(convertToRichAttributes(member, group, memberGroupAttributes));
+		checkAttributesDependencies(sess, richAttrs);
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
@@ -5713,16 +5825,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			checkAttributesDependencies(sess, member, null, memberAttributes);
-			checkAttributesDependencies(sess, user, null, userAttributes);
-			checkAttributesDependencies(sess, facility, user, userFacilityAttributes);
-			checkAttributesDependencies(sess, resource, member, memberResourceAttributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, facility, userFacilityAttributes));
+			richAttrs.addAll(convertToRichAttributes(member, resource, memberResourceAttributes));
 		} else {
-			checkAttributesDependencies(sess, resource, member, attributes);
+			richAttrs.addAll(convertToRichAttributes(member, resource, attributes));
 		}
+		checkAttributesDependencies(sess, richAttrs);
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			List<Attribute> userAttributes = new ArrayList<>();
@@ -5739,34 +5853,51 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new WrongAttributeAssignmentException(attr);
 				}
 			}
-			checkAttributesDependencies(sess, member, null, memberAttributes);
-			checkAttributesDependencies(sess, user, null, userAttributes);
-			checkAttributesDependencies(sess, member, group, memberGroupAttributes);
+			richAttrs.addAll(convertToRichAttributes(member, null, memberAttributes));
+			richAttrs.addAll(convertToRichAttributes(user, null, userAttributes));
+			richAttrs.addAll(convertToRichAttributes(member, group, memberGroupAttributes));
 		} else {
-			checkAttributesDependencies(sess, member, group, attributes);
+			richAttrs.addAll(convertToRichAttributes(member, group, attributes));
 		}
+		checkAttributesDependencies(sess, richAttrs);
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private List<RichAttribute> convertToRichAttributes(Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) {
+		List<RichAttribute> richAttrs = new ArrayList<>();
 		if (attributes != null && !attributes.isEmpty()) {
 			for (Attribute attr : attributes) {
-				checkAttributeDependencies(sess, new RichAttribute<>(primaryHolder, secondaryHolder, attr));
+				richAttrs.add(new RichAttribute<>(primaryHolder, secondaryHolder, attr));
 			}
 		}
+		return richAttrs;
 	}
 
 	@Override
 	public void checkAttributeDependencies(PerunSession sess, RichAttribute richAttr) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		checkAttributesDependencies(sess, Collections.singletonList(richAttr));
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, List<RichAttribute> richAttrs) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+
+		// check input
 		if (getAllDependencies() == null || getAllDependencies().isEmpty())
 			log.error("Map of all dependencies is empty. If this is not test, its an error probably.");
-		if (richAttr == null || richAttr.getAttribute() == null)
-			throw new InternalErrorException("RichAttribute or Attribute in it can't be null!");
-		else {
-			//Get All attributeDef which are dependencies
+		if (richAttrs == null) throw new InternalErrorException("List of RichAttributes can't be null!");
+
+		for (RichAttribute richAttr : richAttrs) {
+			if (richAttr == null || richAttr.getAttribute() == null)
+				throw new InternalErrorException("RichAttribute or Attribute in it can't be null!");
+		}
+
+		// this is a unique set of all attributes with values and holders we will check at once
+		Set<RichAttribute> richAttributesToCheck = new HashSet<>();
+
+		// now actually get all those dependant attributes with values and holders
+		for (RichAttribute richAttr : richAttrs) {
+
 			Set<AttributeDefinition> dependencies = getAllDependencies().get(new AttributeDefinition(richAttr.getAttribute()));
 			if (dependencies != null && !dependencies.isEmpty()) {
 				for (AttributeDefinition dependency : dependencies) {
-					List<RichAttribute> richAttributesToCheck;
 					if (attributesManagerImpl.isVirtAttribute(sess, dependency)) {
 						AttributesModuleImplApi module = (AttributesModuleImplApi) attributesManagerImpl.getAttributesModule(sess, dependency);
 						if (module.getClass().isAnnotationPresent(SkipValueCheckDuringDependencyCheck.class)) {
@@ -5774,184 +5905,188 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						}
 					}
 					try {
-						richAttributesToCheck = getRichAttributesWithHoldersForAttributeDefinition(sess, dependency, richAttr);
+						richAttributesToCheck.addAll(getRichAttributesWithHoldersForAttributeDefinition(sess, dependency, richAttr));
 					} catch (AttributeNotExistsException | VoNotExistsException | UserNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException | MemberGroupMismatchException ex) {
 						throw new InternalErrorException(ex);
 					}
-					for (RichAttribute richAttribute : richAttributesToCheck) {
-						if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_VO_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Vo) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for VO Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Vo) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For VO Attribute there must be VO in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Group Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Group Attribute there must be Group in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Member Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Member Attribute there must be Member in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for User Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For User Attribute there must be User in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_RESOURCE_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Resource Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Resource Attribute there must be Resource in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_FACILITY_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Facility Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Facility Attribute there must be Facility in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_ENTITYLESS_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof String) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Entityless Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (String) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Entityless Attribute there must be String in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_HOST_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Host) {
-								if (richAttribute.getSecondaryHolder() != null) {
-									throw new InternalErrorException("Secondary Holder for Host Attribute must be null!");
-								} else {
-									this.checkAttributeSemantics(sess, (Host) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								}
-							} else {
-								throw new InternalErrorException("For Host Attribute there must be Host in primaryHolder");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_RESOURCE_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
-									try {
-										this.checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-									} catch (GroupResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
-									try {
-										this.checkAttributeSemantics(sess, (Resource) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-									} catch (GroupResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
-								}
-							} else {
-								throw new InternalErrorException("For Group_Resource Attribute there must be Group or Resource in primaryHolder.");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_RESOURCE_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-									} catch (MemberResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Resource) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-									} catch (MemberResourceMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
-								}
-							} else {
-								throw new InternalErrorException("For Member_Resource Attribute there must be Member or Resource in primaryHolder.");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_GROUP_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-									} catch (MemberGroupMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
-									try {
-										this.checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-									} catch (MemberGroupMismatchException ex) {
-										throw new ConsistencyErrorException(ex);
-									}
-								} else {
-									throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
-								}
-							} else {
-								throw new InternalErrorException("For Member_Group Attribute there must be Member or Group in primaryHolder.");
-							}
-						} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_FACILITY_ATTR)) {
-							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
-								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof User) {
-									this.checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), (User) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
-								} else {
-									throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
-								}
-							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Facility) {
-								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
-									this.checkAttributeSemantics(sess, (Facility) richAttribute.getSecondaryHolder(), (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
-								} else {
-									throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
-								}
-							} else {
-								throw new InternalErrorException("For Facility_User Attribute there must be Facility or User in primaryHolder.");
-							}
-						}
+				}
+			}
+
+		}
+
+		// now check those dependant attributes only once
+		for (RichAttribute richAttribute : richAttributesToCheck) {
+			if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_VO_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Vo) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for VO Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (Vo) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
 					}
+				} else {
+					throw new InternalErrorException("For VO Attribute there must be VO in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Group Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Group Attribute there must be Group in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Member Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Member Attribute there must be Member in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for User Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For User Attribute there must be User in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_RESOURCE_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Resource Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Resource Attribute there must be Resource in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_FACILITY_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Facility Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Facility Attribute there must be Facility in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_ENTITYLESS_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof String) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Entityless Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (String) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Entityless Attribute there must be String in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), AttributesManager.NS_HOST_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Host) {
+					if (richAttribute.getSecondaryHolder() != null) {
+						throw new InternalErrorException("Secondary Holder for Host Attribute must be null!");
+					} else {
+						checkAttributeSemantics(sess, (Host) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					}
+				} else {
+					throw new InternalErrorException("For Host Attribute there must be Host in primaryHolder");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_GROUP_RESOURCE_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
+						try {
+							checkAttributeSemantics(sess, (Resource) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+						} catch (GroupResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
+						try {
+							checkAttributeSemantics(sess, (Resource) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+						} catch (GroupResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Group_Resource Attribute is null or its not group or resource");
+					}
+				} else {
+					throw new InternalErrorException("For Group_Resource Attribute there must be Group or Resource in primaryHolder.");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_RESOURCE_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
+						try {
+							checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+						} catch (MemberResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
+						try {
+							checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Resource) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+						} catch (MemberResourceMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Resource Attribute is null or its not member or resource");
+					}
+				} else {
+					throw new InternalErrorException("For Member_Resource Attribute there must be Member or Resource in primaryHolder.");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_MEMBER_GROUP_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Group) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
+						try {
+							checkAttributeSemantics(sess, (Member) richAttribute.getSecondaryHolder(), (Group) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+						} catch (MemberGroupMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Group) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
+						try {
+							checkAttributeSemantics(sess, (Member) richAttribute.getPrimaryHolder(), (Group) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+						} catch (MemberGroupMismatchException ex) {
+							throw new ConsistencyErrorException(ex);
+						}
+					} else {
+						throw new InternalErrorException("Secondary Holder for Member_Group Attribute is null or its not member or group");
+					}
+				} else {
+					throw new InternalErrorException("For Member_Group Attribute there must be Member or Group in primaryHolder.");
+				}
+			} else if (getAttributesManagerImpl().isFromNamespace(richAttribute.getAttribute(), NS_USER_FACILITY_ATTR)) {
+				if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Facility) {
+					if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof User) {
+						checkAttributeSemantics(sess, (Facility) richAttribute.getPrimaryHolder(), (User) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+					} else {
+						throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
+					}
+				} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Facility) {
+					if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof User) {
+						checkAttributeSemantics(sess, (Facility) richAttribute.getSecondaryHolder(), (User) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+					} else {
+						throw new InternalErrorException("Secondary Holder for Facility_User Attribute is null or its not facility or user");
+					}
+				} else {
+					throw new InternalErrorException("For Facility_User Attribute there must be Facility or User in primaryHolder.");
 				}
 			}
 		}
+
 	}
 
 	@Override
