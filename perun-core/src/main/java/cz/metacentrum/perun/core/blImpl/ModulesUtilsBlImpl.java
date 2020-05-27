@@ -27,12 +27,19 @@ import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1164,11 +1171,48 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return new Pair<>(number, unit);
 	}
 
+	/**
+	 * Extracts expiration of the given certificates.
+	 *
+	 * @param certificates as a map where the key is a DN and the value is a certificate
+	 * @return map where the key is certificate DN and the value is a certificate expiration
+	 */
+	public static Map<String, String> retrieveCertificatesExpiration(Map<String, String> certificates) {
+		Utils.notNull(certificates, "certificates");
+		Map<String, String> resultMap = new LinkedHashMap<>();
+		certificates.forEach((key, value) -> resultMap.put(key, getCertificateExpiration(value)));
+		return resultMap;
+	}
+
 	public PerunBl getPerunBl() {
 		return this.perunBl;
 	}
 
 	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
+	}
+
+	/**
+	 * Retrieve expiration of the given certificate
+	 *
+	 * @param certificate in PEM format from which the expiration will be retrieved
+	 * @return Certificate expiration as String
+	 */
+	private static String getCertificateExpiration(String certificate) {
+		Utils.notNull(certificate, "certificate");
+
+		String certWithoutBegin = certificate.replaceFirst("-----BEGIN CERTIFICATE-----", "");
+		String rawCert = certWithoutBegin.replaceFirst("-----END CERTIFICATE-----", "");
+
+		try (ByteArrayInputStream bis = new ByteArrayInputStream(Base64.decodeBase64(rawCert.getBytes()))) {
+			CertificateFactory certFact = CertificateFactory.getInstance("X.509");
+			X509Certificate cert = (X509Certificate)certFact.generateCertificate(bis);
+			DateFormat dateFormat = DateFormat.getDateInstance();
+			return dateFormat.format(cert.getNotAfter());
+		} catch (IllegalArgumentException e) {
+			throw new ConsistencyErrorException("Certificate is not in base64 format!", e);
+		} catch (IOException | CertificateException e) {
+			throw new InternalError(e);
+		}
 	}
 }
