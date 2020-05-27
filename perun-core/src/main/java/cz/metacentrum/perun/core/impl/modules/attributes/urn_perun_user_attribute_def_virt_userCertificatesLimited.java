@@ -15,33 +15,54 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuring
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Get and set specified user certificate expiration
- *
- * @author Michal Šťava <stavamichal@gmail.com>
+ * This attribute module is used to filter user certificates only to ten newest according to certificates expiration
  */
 @SkipValueCheckDuringDependencyCheck
-public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_userCertificatesLimited extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
-		Attribute attribute = new Attribute(attributeDefinition);
-		Map<String, String> certsExpiration = new LinkedHashMap<>();
+		Attribute resultAttribute = new Attribute(attributeDefinition);
+		List<String> result = new ArrayList<>();
 
 		Attribute userCertsAttribute = getUserCertsAttribute(sess, user);
-		Map<String, String> certs = userCertsAttribute.valueAsMap();
-
+		Map<String,String> certs = userCertsAttribute.valueAsMap();
 		if (certs != null) {
-			certsExpiration = ModulesUtilsBlImpl.retrieveCertificatesExpiration(certs);
-			Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
+			Map<String, String> certsExpiration = ModulesUtilsBlImpl.retrieveCertificatesExpiration(certs);
+
+			DateFormat dateFormatInstance = DateFormat.getDateInstance();
+
+			Map<String, Long> certsExpirationInMilliSeconds = new HashMap<>();
+			certsExpiration.forEach((key, value) -> {
+				try {
+					certsExpirationInMilliSeconds.put(key, dateFormatInstance.parse(value).getTime());
+				} catch (ParseException ex) {
+					throw new ConsistencyErrorException(ex);
+				}
+			});
+
+			certsExpirationInMilliSeconds.entrySet().stream()
+				.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+				.limit(10)
+				.forEachOrdered(entry -> result.add(certs.get(entry.getKey())));
+
+			Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, resultAttribute);
 		}
-		attribute.setValue(certsExpiration);
-		return attribute;
+
+		resultAttribute.setValue(result);
+
+		return resultAttribute;
 	}
 
 	private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) {
@@ -49,8 +70,8 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException(e);
+		} catch (AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 	}
 
@@ -63,10 +84,10 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("userCertExpirations");
-		attr.setDisplayName("Certificates expirations");
-		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Expiration of user certificate.");
+		attr.setFriendlyName("userCertificatesLimited");
+		attr.setDisplayName("User certificates limited");
+		attr.setType(ArrayList.class.getName());
+		attr.setDescription("User certificates limited to ten newest certificates.");
 		return attr;
 	}
 }
