@@ -10,6 +10,8 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.ModulesConfigLoader;
+import cz.metacentrum.perun.core.impl.modules.ModulesYamlConfigLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +23,20 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_surf_ram_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_surf_ram_persistent_shadow.class);
-	private final static String extSourceNameSurfRam = "https://proxy.acc.surf-ram.eduteams.org/proxy";
-	private final static String domainNameSurfRam = "@acc.surf-ram.eduteams.org";
 	private final static String attrNameSurfRam = "login-namespace:surf-ram-persistent-shadow";
+
+	private final static String CONFIG_EXT_SOURCE_NAME_SURF_RAM = "extSourceNameSurfRam";
+	private final static String CONFIG_DOMAIN_NAME_SURF_RAM = "domainNameSurfRam";
+
+	private ModulesConfigLoader loader = new ModulesYamlConfigLoader();
+	private String extSourceNameSurfRam = null;
+	private String domainNameSurfRam = null;
+
+	public urn_perun_user_attribute_def_def_login_namespace_surf_ram_persistent_shadow() { }
+
+	public urn_perun_user_attribute_def_def_login_namespace_surf_ram_persistent_shadow(ModulesConfigLoader loader) {
+		this.loader = loader;
+	}
 
 	/**
 	 * Filling implemented for login:namespace:surf-ram-persistent attribute
@@ -41,7 +54,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_surf_ram_persisten
 		Attribute filledAttribute = new Attribute(attribute);
 
 		if (attribute.getFriendlyName().equals(attrNameSurfRam)) {
-			filledAttribute.setValue(sha1HashCount(user, domainNameSurfRam).toString() + domainNameSurfRam);
+			String domain = "@" + getDomainNameSurfRam();
+			filledAttribute.setValue(sha1HashCount(user, domain).toString() + domain);
 			return filledAttribute;
 		} else {
 			// without value
@@ -66,7 +80,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_surf_ram_persisten
 			String userNamespace = attribute.getFriendlyNameParameter();
 
 			if(userNamespace.equals("surf-ram-persistent-shadow") && attribute.getValue() != null){
-				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameSurfRam);
+				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, getExtSourceNameSurfRam());
 				UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
 
 				session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
@@ -89,4 +103,17 @@ public class urn_perun_user_attribute_def_def_login_namespace_surf_ram_persisten
 		return attr;
 	}
 
+	public String getExtSourceNameSurfRam() {
+		if (extSourceNameSurfRam == null) {
+			extSourceNameSurfRam = loader.loadString(getClass().getSimpleName(), CONFIG_EXT_SOURCE_NAME_SURF_RAM);
+		}
+		return extSourceNameSurfRam;
+	}
+
+	public String getDomainNameSurfRam() {
+		if (domainNameSurfRam == null) {
+			domainNameSurfRam = loader.loadString(getClass().getSimpleName(), CONFIG_DOMAIN_NAME_SURF_RAM);
+		}
+		return domainNameSurfRam;
+	}
 }
