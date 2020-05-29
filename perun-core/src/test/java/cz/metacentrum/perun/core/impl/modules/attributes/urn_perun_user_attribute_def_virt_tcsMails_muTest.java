@@ -40,15 +40,16 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
 	private final User user = new User(10, "Joe", "Doe", "W.", "", "");
 
 	private final String email1 = "Zemail1@mail.cz";
-	private final String email2 = "email2@mail.cz";
+	private final String email2 = "email2@mail.cz "; // to check for the trim()
 	private final String email3 = "email3@mail.cz";
 	private final String email4 = "email4@mail.cz";
 	private final String email5 = "email5@mail.cz";
+	private final String email6 = " email5@mail.cz"; // to check for the trim() and uniqueness
 
 	Attribute preferredMailAttr = setUpUserAttribute(1, "preferredMail", String.class.getName(), email1);
 	Attribute isMailAttr = setUpUserAttribute(2, "ISMail", String.class.getName(), email2);
 	Attribute o365MailsAttr = setUpUserAttribute(3, "o365EmailAddresses:mu", ArrayList.class.getName(), new ArrayList<>(Arrays.asList(email3, email4)));
-	Attribute publicMailsAttr = setUpUserAttribute(4, "publicAliasMails", ArrayList.class.getName(), new ArrayList<>(Arrays.asList(email4, email5)));
+	Attribute publicMailsAttr = setUpUserAttribute(4, "publicAliasMails", ArrayList.class.getName(), new ArrayList<>(Arrays.asList(email4, email5, email6)));
 	Attribute privateMailsAttr = setUpUserAttribute(5, "privateAliasMails", ArrayList.class.getName(), new ArrayList<>(Arrays.asList(email1, email3, email5)));
 
 	private final String expectedTestOfMessage = "friendlyName=<tcsMails:mu>";
@@ -89,11 +90,13 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
 		assertNotNull(attributeValue);
 		//we want to be sure, that preferredEmail is first (defined by sorting in module)
 		assertEquals(attributeValue.get(0), email1);
-		assertEquals(attributeValue.get(1), email2);
+		assertEquals(attributeValue.get(1), email2.trim()); // check if was trimmed
 		assertEquals(attributeValue.get(2), email3);
 		assertEquals(attributeValue.get(3), email4);
 		assertEquals(attributeValue.get(4), email5);
+		assertEquals(attributeValue.get(4), email6.trim()); // check if was trimmed and then equals "email5"
 		assertEquals(5, attributeValue.size());
+
 	}
 
 	@Test
