@@ -66,9 +66,11 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
 			if (sourceAttribute != null) {
 				// gather values of all attributes
 				if (sourceAttribute.getType().equals(String.class.getName())) {
-					if (sourceAttribute.getValue() != null) tcsMailsValue.add(sourceAttribute.valueAsString());
+					if (sourceAttribute.getValue() != null) tcsMailsValue.add(sourceAttribute.valueAsString().trim());
 				} else if (sourceAttribute.getType().equals(ArrayList.class.getName())) {
-					if (sourceAttribute.getValue() != null) tcsMailsValue.addAll(sourceAttribute.valueAsList());
+					if (sourceAttribute.getValue() != null) {
+						tcsMailsValue.addAll(sourceAttribute.valueAsList().stream().map(String::trim).collect(Collectors.toList()));
+					}
 				} else {
 					//unexpected type of value, log it and skip the attribute
 					log.error("Unexpected type of attribute (should be String or ArrayList) {}. It will be skipped.", sourceAttribute);
