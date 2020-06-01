@@ -98,6 +98,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_ENTITYLESS_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
@@ -3239,18 +3240,34 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException {
+		return getRequiredAttributes(sess, Collections.singletonList(service), resource, group);
+	}
+
+	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
-			List<Integer> attrIds = getRequiredAttributeIds(service);
-			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
+			Set<Integer> attrIds = new HashSet<>();
+			for (Service service : services) {
+				attrIds.addAll(getRequiredAttributeIds(service));
+			}
+			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(new ArrayList<>(attrIds),
+					new Holder(group.getId(), Holder.HolderType.GROUP),
+					new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return this.setValuesOfAttributes(sess, attrs, group, resource);
 		}
 
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
-							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-							"left join    group_resource_attr_values     grp_res     on id=grp_res.attr_id     and   group_id=? and resource_id=? " +
-							"where namespace in (?,?,?)",
-					new GroupResourceAttributeRowMapper(sess, this, group, resource), service.getId(), group.getId(), resource.getId(), AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF, AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT, AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
+					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id "  + Compatibility.getStructureForInClause() +
+					"left join    group_resource_attr_values     grp_res     on id=grp_res.attr_id     and   group_id=? and resource_id=? " +
+					"where namespace in (?,?,?)",
+				new GroupResourceAttributeRowMapper(sess, this, group, resource),
+					services.stream().map(Service::getId).collect(Collectors.toList()),
+					group.getId(),
+					resource.getId(),
+					AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF,
+					AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT,
+					AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3565,18 +3582,33 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws InternalErrorException {
+		return getRequiredAttributes(sess, Collections.singletonList(service), group);
+	}
+
+	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
-			List<Integer> attrIds = getRequiredAttributeIds(service);
-			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP));
+			Set<Integer> attrIds = new HashSet<>();
+			for (Service service : services) {
+				attrIds.addAll(getRequiredAttributeIds(service));
+			}
+			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(new ArrayList<>(attrIds),
+					new Holder(group.getId(), Holder.HolderType.GROUP));
 			return this.setValuesOfAttributes(sess, attrs, group, null);
 		}
 
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
-							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-							"left join      group_attr_values    grp   on      id=grp.attr_id    and  group_id=? " +
-							"where namespace in (?,?,?,?)",
-					new SingleBeanAttributeRowMapper<>(sess, this, group), service.getId(), group.getId(), AttributesManager.NS_GROUP_ATTR_CORE, AttributesManager.NS_GROUP_ATTR_DEF, AttributesManager.NS_GROUP_ATTR_OPT, AttributesManager.NS_GROUP_ATTR_VIRT);
+					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id " + Compatibility.getStructureForInClause() +
+					"left join      group_attr_values    grp   on      id=grp.attr_id    and  group_id=? " +
+					"where namespace in (?,?,?,?)",
+				new SingleBeanAttributeRowMapper<>(sess, this, group),
+					services.stream().map(Service::getId).collect(Collectors.toList()),
+					group.getId(),
+					AttributesManager.NS_GROUP_ATTR_CORE,
+					AttributesManager.NS_GROUP_ATTR_DEF,
+					AttributesManager.NS_GROUP_ATTR_OPT,
+					AttributesManager.NS_GROUP_ATTR_VIRT);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {

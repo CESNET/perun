@@ -8310,6 +8310,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/resourcesManager/assignServices:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: assignServices
+      summary: Assigns services to resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/serviceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/resourcesManager/assignServicesPackage:
     post:
       tags:

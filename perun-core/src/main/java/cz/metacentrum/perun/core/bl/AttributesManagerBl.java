@@ -1469,6 +1469,33 @@ public interface AttributesManagerBl {
 	void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member, boolean forceAttributesChecks) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
 
 	/**
+	 * Get all required attributes for user, user-facility, member and member-resource attributes and set them.
+	 *
+	 * @param sess session
+	 * @param services services
+	 * @param facility facility
+	 * @param resource resource
+	 * @param user user
+	 * @param member member
+	 * @param forceAttributesChecks if true, all required attributes for given resource and user will be semantically
+	 *                              checked, no matter if the user has truly access to the given resource
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeValueException
+	 * @throws MemberResourceMismatchException
+	 */
+	void setRequiredAttributes(
+		PerunSession sess,
+		List<Service> services,
+		Facility facility,
+		Resource resource,
+		User user,
+		Member member,
+		boolean forceAttributesChecks) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException,
+				AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException;
+
+	/**
 	 * Take list of required attributes and set those which are empty and can be filled, then check them all.
 	 *
 	 * Important: this method DO NOT set non-empty attributes in list, just refresh their values and check them
@@ -2365,6 +2392,27 @@ public interface AttributesManagerBl {
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException;
 
 	/**
+	 * Get member, user, member-resource, user-facility attributes which are required by the services.
+	 * The same attributes are returned only once.
+	 *
+	 * @param sess session
+	 * @param services services
+	 * @param facility facility
+	 * @param resource resource
+	 * @param user user
+	 * @param member member
+	 * @return List of member, user, member-resource and user-facility attributes required by given services
+	 * @throws MemberResourceMismatchException member resource mismatch exception
+	 */
+	List<Attribute> getRequiredAttributes(
+		PerunSession sess,
+		List<Service> services,
+		Facility facility,
+		Resource resource,
+		User user,
+		Member member) throws MemberResourceMismatchException;
+
+	/**
 	 * Get group-resource attributes which are required by the service.
 	 *
 	 * @param sess perun session
@@ -2378,6 +2426,25 @@ public interface AttributesManagerBl {
 	 * @throws GroupResourceMismatchException
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean withGroupAttributes) throws InternalErrorException, GroupResourceMismatchException;
+
+  /**
+   * Get group-resource attributes which are required by the services.
+   *
+   * @param sess session
+   * @param services services
+   * @param resource resource
+   * @param group group
+   * @param withGroupAttributes get also group attributes (which is required by the service) for this group
+   * @return list of attributes which are required by the service.
+   * @throws GroupResourceMismatchException group resource mismatch exception
+   */
+  List<Attribute> getRequiredAttributes(
+      PerunSession sess,
+      List<Service> services,
+      Resource resource,
+      Group group,
+      boolean withGroupAttributes)
+      throws GroupResourceMismatchException;
 
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException, GroupResourceMismatchException;
 

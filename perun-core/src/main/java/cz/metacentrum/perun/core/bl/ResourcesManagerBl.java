@@ -420,6 +420,19 @@ public interface ResourcesManagerBl {
 	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Assign services to resource.
+	 *
+	 * @param perunSession session
+	 * @param resource resource
+	 * @param services services to be assigned
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws ServiceAlreadyAssignedException
+	 */
+	void assignServices(PerunSession perunSession, Resource resource, List<Service> services)
+		throws ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Assign all services from services package to resource.
 	 *
 	 * @param perunSession
