@@ -10,6 +10,8 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.ModulesConfigLoader;
+import cz.metacentrum.perun.core.impl.modules.ModulesYamlConfigLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +23,20 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_eduteams_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_eduteams_persistent_shadow.class);
-	private final static String extSourceNameEduteams = "https://proxy.eduteams.org/proxy";
-	private final static String domainNameEduteams = "@eduteams.org";
-	private final static String attrNameEduteams = "login-namespace:eduteams-persistent-shadow";
+	private final static String attrNameEduTeams = "login-namespace:eduteams-persistent-shadow";
+
+	private final static String CONFIG_EXT_SOURCE_NAME_EDUTEAMS = "extSourceNameEduTeams";
+	private final static String CONFIG_DOMAIN_NAME_EDUTEAMS = "domainNameEduTeams";
+
+	private ModulesConfigLoader loader = new ModulesYamlConfigLoader();
+	private String extSourceNameEduTeams = null;
+	private String domainNameEduTeams = null;
+
+	public urn_perun_user_attribute_def_def_login_namespace_eduteams_persistent_shadow() { }
+
+	public urn_perun_user_attribute_def_def_login_namespace_eduteams_persistent_shadow(ModulesConfigLoader loader) {
+		this.loader = loader;
+	}
 
 	/**
 	 * Filling implemented for login:namespace:eduteams-persistent attribute
@@ -40,8 +53,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_persisten
 
 		Attribute filledAttribute = new Attribute(attribute);
 
-		if (attribute.getFriendlyName().equals(attrNameEduteams)) {
-			filledAttribute.setValue(sha1HashCount(user, domainNameEduteams).toString() + domainNameEduteams);
+		if (attribute.getFriendlyName().equals(attrNameEduTeams)) {
+			String domain = "@" + getDomainNameEduTeams();
+			filledAttribute.setValue(sha1HashCount(user, domain).toString() + domain);
 			return filledAttribute;
 		} else {
 			// without value
@@ -66,7 +80,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_persisten
 			String userNamespace = attribute.getFriendlyNameParameter();
 
 			if(userNamespace.equals("eduteams-persistent-shadow") && attribute.getValue() != null){
-				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameEduteams);
+				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, getExtSourceNameEduTeams());
 				UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
 
 				session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
@@ -87,6 +101,20 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_persisten
 		attr.setDescription("Login to eduTEAMS. Do not use it directly! " +
 				"Use \"user:virt:login-namespace:eduteams-persistent\" attribute instead.");
 		return attr;
+	}
+
+	public String getExtSourceNameEduTeams() {
+		if (extSourceNameEduTeams == null) {
+			extSourceNameEduTeams = loader.loadString(getClass().getSimpleName(), CONFIG_EXT_SOURCE_NAME_EDUTEAMS);
+		}
+		return extSourceNameEduTeams;
+	}
+
+	public String getDomainNameEduTeams() {
+		if (domainNameEduTeams == null) {
+			domainNameEduTeams = loader.loadString(getClass().getSimpleName(), CONFIG_DOMAIN_NAME_EDUTEAMS);
+		}
+		return domainNameEduTeams;
 	}
 
 }
