@@ -508,6 +508,16 @@ public interface AttributesManagerImplApi {
 
 	List<Attribute> getAttributes(PerunSession sess, Host host);
 
+	/**
+	 * Get all attributes associated with the host which have name in list attrNames (empty and virtual too).
+	 *
+	 * @param sess perun session
+	 * @param host host to get attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames);
+
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group);
 
 	/**

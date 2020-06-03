@@ -3278,6 +3278,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getAttributes/h-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getHostAttributesByNames
+      description: |
+        Get all non-empty attributes associated with the host which have name in list attrNames (empty too).
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/attributesManager/getAttributes/key:
     get:
       tags:

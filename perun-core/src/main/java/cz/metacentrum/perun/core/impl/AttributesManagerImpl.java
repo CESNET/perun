@@ -970,6 +970,40 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) {
+		if(!CacheManager.isCacheDisabled()) {
+			List<String> controlledAttrNames = new ArrayList<>();
+
+			for(String attributeName: attrNames) {
+				//check namespace
+				if(attributeName.startsWith(AttributesManager.NS_HOST_ATTR)) controlledAttrNames.add(attributeName);
+			}
+
+			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(host.getId(), Holder.HolderType.HOST), null);
+			return this.setValuesOfAttributes(sess, attrs, host, null);
+		}
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("hId", host.getId());
+		parameters.addValue("nSC", AttributesManager.NS_HOST_ATTR_CORE);
+		parameters.addValue("nSO", AttributesManager.NS_HOST_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_HOST_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_HOST_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
+					"left join host_attr_values on id=attr_id and host_id=:hId " +
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+				parameters, new SingleBeanAttributeRowMapper<>(sess, this, host));
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(resource.getId(), Holder.HolderType.RESOURCE));

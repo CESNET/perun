@@ -567,6 +567,20 @@ public interface AttributesManager {
 	List<Attribute> getAttributes(PerunSession sess, Host host) throws HostNotExistsException;
 
 	/**
+	 * Get all attributes associated with the host which have name in list attrNames (empty too).
+	 * <p>
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * @param sess perun session
+	 * @param host host to get attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 * @throws InternalErrorException if an exception raises in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws HostNotExistsException if the host doesn't exist in underlying data source
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) throws InternalErrorException, HostNotExistsException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the group on resource
 	 * <p>
 	 * PRIVILEGE: Get only those attributes the principal has access to.
