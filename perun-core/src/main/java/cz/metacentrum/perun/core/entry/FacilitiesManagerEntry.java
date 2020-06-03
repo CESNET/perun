@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -550,6 +552,30 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		//TODO authorization
 
 		return getFacilitiesManagerBl().getHosts(sess, facility);
+	}
+
+	@Override
+	public List<EnrichedHost> getEnrichedHosts(PerunSession sess, Facility facility, List<String> attrNames) throws AttributeNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		List<Host> hosts = getFacilitiesManagerBl().getHosts(sess, facility);
+		Host host1 = hosts.get(0);
+		List<String> allowedAttributes = new ArrayList<>();
+
+		//Filtering attributes
+		for (String attrName : attrNames) {
+			if (AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
+				allowedAttributes.add(attrName);
+			}
+		}
+
+		List<EnrichedHost> enrichedHosts = new ArrayList<>();
+		for (Host host : hosts) {
+			List<Attribute> hostAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, host, allowedAttributes);
+			enrichedHosts.add(new EnrichedHost(host, hostAttributes));
+		}
+		return enrichedHosts;
 	}
 
 	@Override
