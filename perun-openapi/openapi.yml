@@ -184,6 +184,8 @@ components:
             displayName: { type: string }
             writable: { type: boolean }
             unique: { type: boolean }
+            FriendlyNameParameter: { type: string, readOnly: true }
+            baseFriendlyName: { type: string, readOnly: true }
             entity:
               type: string
               readOnly: true
@@ -6002,6 +6004,28 @@ paths:
       summary: Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
       parameters:
         - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/findRichUsersWithAttributes:
+    get:
+      tags:
+        - UsersManager
+      operationId: findRichUsersWithAttributes
+      summary: Returns list of RichUsers with attributes who matches the searchString.
+      parameters:
+        - $ref: '#/components/parameters/searchString'
+        - name: "attrsNames[]"
+          description: "list of attribute names List<String> or null"
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichUsersResponse'
