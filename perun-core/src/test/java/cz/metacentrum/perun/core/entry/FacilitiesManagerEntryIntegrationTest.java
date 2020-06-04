@@ -850,9 +850,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		EnrichedHost actualEnrichedHost = new EnrichedHost(createdHost, hostAttributes);
 
 		List<EnrichedHost> expectedEnrichedHosts = facilitiesManagerEntry.getEnrichedHosts(sess, facility, attrNames);
-		EnrichedHost expectedHost = expectedEnrichedHosts.get(0);
+		EnrichedHost expectedEnrichedHost = expectedEnrichedHosts.get(0);
 
-		assertEquals("Created and returned enrichedHost should be the same", expectedHost, actualEnrichedHost);
+		assertEquals("Created and returned enrichedHost should be the same", expectedEnrichedHost, actualEnrichedHost);
+		assertEquals("Number of attributes should be same", expectedEnrichedHost.getHostAttributes().size(), actualEnrichedHost.getHostAttributes().size());
+		assertTrue("Returned enrichedHost should have all the desired attributes", expectedEnrichedHost.getHostAttributes().containsAll(hostAttributes));
 	}
 
 	@Test
