@@ -277,7 +277,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
 	 */
 	/*#
-	 * Returns all Host attributes for selected Host which have name in list attrNames (empty too).
+	 * Returns all Host attributes for selected Host which have name in list attrNames (empty too). Empty list attrNames will return no attributes.
 	 *
 	 * @param host int Host <code>id</code>
 	 * @param attrNames List<String> Attribute names

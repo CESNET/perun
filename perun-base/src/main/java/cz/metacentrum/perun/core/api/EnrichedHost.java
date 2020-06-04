@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Host with list of all its attributes
@@ -44,27 +44,15 @@ public class EnrichedHost {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof EnrichedHost))
-			return false;
-		EnrichedHost other = (EnrichedHost) obj;
-		if (host == null) {
-			if (other.host != null)
-				return false;
-		} else if (!host.equals(other.host))
-			return false;
-		if (hostAttributes == null && other.getHostAttributes() == null)
-			return true;
-		if (hostAttributes == null
-			|| other.getHostAttributes() == null
-			|| hostAttributes.size() != other.getHostAttributes().size())
-			return false;
-		Collections.sort(hostAttributes);
-		Collections.sort(other.getHostAttributes());
-		return hostAttributes.equals(other.getHostAttributes());
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EnrichedHost that = (EnrichedHost) o;
+		return Objects.equals(host, that.getHost());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(host);
 	}
 }
