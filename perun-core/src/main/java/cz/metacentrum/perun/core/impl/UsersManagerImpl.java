@@ -1273,8 +1273,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
 
-		Pair<String,String> result = new Pair<>();
 		try {
+			Pair<String,String> result;
 			if (Compatibility.isPostgreSql()) {
 
 				result = jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
@@ -1290,7 +1290,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return result;
 
 		} catch (EmptyResultDataAccessException ex) {
-			return result;
+			return null;
 		}
 
 	}
