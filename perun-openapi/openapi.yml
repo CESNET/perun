@@ -6152,6 +6152,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/usersManager/requestPreferredEmailChange:
+    post:
+      tags:
+        - UsersManager
+      operationId: requestPreferredEmailChange
+      summary: Request to change preferred email address of user. Validation mail is sent on new address. Change is not saved until user validate new email address by calling validatePreferredEmailChange() method with proper set of parameters (sent in validation mail).
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - {name: email, description: "new email address to set", schema: {type: string}, in: query, required: true}
+        - {name: lang, description: "language to get confirmation mail in (optional)", schema: {type: string}, in: query, required: false}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
