@@ -127,7 +127,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getUsersManager().addSpecificUserOwner(ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					ac.getUserById(parms.readInt("specificUser")));
@@ -146,7 +146,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getUsersManager().removeSpecificUserOwner(ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					ac.getUserById(parms.readInt("specificUser")));
@@ -167,7 +167,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			User owner = ac.getUserById(parms.readInt("owner"));
 			User specificUser = ac.getUserById(parms.readInt("specificUser"));
 			SpecificUserType specificUserType = SpecificUserType.valueOf(parms.readString("specificUserType"));
@@ -187,7 +187,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			User specificUser = ac.getUserById(parms.readInt("specificUser"));
 			SpecificUserType specificUserType = SpecificUserType.valueOf(parms.readString("specificUserType"));
 
@@ -265,7 +265,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getUsersManager().getRichUsersFromListOfUsers(ac.getSession(),
 					parms.readList("users", User.class));
@@ -282,7 +282,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getUsersManager().getRichUsersWithAttributesFromListOfUsers(ac.getSession(),
 					parms.readList("users", User.class));
@@ -413,7 +413,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("force") && parms.readBoolean("force")) {
 				ac.getUsersManager().deleteUser(ac.getSession(),
@@ -436,7 +436,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getUsersManager().updateUser(ac.getSession(),
 					parms.read("user", User.class));
@@ -457,7 +457,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getUsersManager().updateNameTitles(ac.getSession(),
 					parms.read("user", User.class));
@@ -474,7 +474,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getUsersManager().updateUserExtSource(ac.getSession(),
 					parms.read("userExtSource", UserExtSource.class));
@@ -535,7 +535,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getUsersManager().addUserExtSource(ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
@@ -554,7 +554,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("force") && parms.readBoolean("force")) {
 				ac.getUsersManager().removeUserExtSource(ac.getSession(),
@@ -580,7 +580,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getUsersManager().moveUserExtSource(ac.getSession(),
 					ac.getUserById(parms.readInt("sourceUser")),
@@ -964,7 +964,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	changePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("login")) {
 				String login = parms.readString("login");
@@ -995,7 +995,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	changeNonAuthzPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"), (parms.contains("lang") ? parms.readString("lang") : null));
 
@@ -1012,7 +1012,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	reserveRandomPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getUsersManager().reserveRandomPassword(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
 
@@ -1037,7 +1037,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	reservePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("user")) {
 				ac.getUsersManager().reservePassword(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"), parms.readString("password"));
@@ -1066,7 +1066,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	validatePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("user")) {
 				ac.getUsersManager().validatePassword(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
@@ -1090,7 +1090,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	validatePasswordAndSetExtSources {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getUsersManager().validatePasswordAndSetExtSources(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("login"), parms.readString("namespace"));
 
@@ -1109,7 +1109,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	setLogin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getUsersManager().setLogin(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"), parms.readString("login"));
 
@@ -1132,7 +1132,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	requestPreferredEmailChange {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			String referer = parms.getServletRequest().getHeader("Referer");
 			if (referer == null || referer.isEmpty()) {
@@ -1260,7 +1260,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getUsersManager().updateUserExtSourceLastAccess(ac.getSession(),
 					ac.getUserExtSourceById(parms.readInt("userExtSource")));
 
@@ -1288,7 +1288,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			return ac.getUsersManager().generateAccount(ac.getSession(),
 					parms.readString("namespace"),
 					parms.read("parameters", HashMap.class));
@@ -1309,7 +1309,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	changePasswordRandom {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getUsersManager().changePasswordRandom(ac.getSession(),
 				ac.getUserById(parms.readInt("userId")),

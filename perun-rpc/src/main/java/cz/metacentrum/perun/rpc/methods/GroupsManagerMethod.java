@@ -94,7 +94,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("group")) {
 				if (parms.contains("parentGroup")) {
@@ -156,7 +156,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getGroupsManager().createGroupUnion(ac.getSession(),
 					ac.getGroupById(parms.readInt("resultGroup")),
@@ -193,7 +193,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if(parms.contains("force") && parms.readBoolean("force")) {
 				ac.getGroupsManager().deleteGroup(ac.getSession(),
@@ -224,7 +224,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			//TODO: optimalizovat?
 			int[] ids = parms.readArrayOfInts("groups");
@@ -255,7 +255,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getGroupsManager().removeGroupUnion(ac.getSession(),
 					ac.getGroupById(parms.readInt("resultGroup")),
@@ -277,7 +277,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getGroupsManager().updateGroup(ac.getSession(),
 					parms.read("group", Group.class));
@@ -309,7 +309,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if(parms.contains("destinationGroup")) {
 				ac.getGroupsManager().moveGroup(ac.getSession(),
@@ -392,7 +392,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	addMembers {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			List<Integer> memberInts = parms.readList("members", Integer.class);
 			if (memberInts == null) {
@@ -440,7 +440,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("group")) {
 				ac.getGroupsManager().addMember(ac.getSession(),
@@ -488,7 +488,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	removeMembers {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			List<Integer> memberInts = parms.readList("members", Integer.class);
 			if (memberInts == null) {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Non-empty list of members not sent.");
@@ -543,7 +543,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	removeMember {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("group")) {
 				ac.getGroupsManager().removeMember(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
@@ -793,7 +793,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	addAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getGroupsManager().addAdmin(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")),
@@ -829,7 +829,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	removeAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getGroupsManager().removeAdmin(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")),
@@ -1171,7 +1171,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getGroupsManager().deleteAllGroups(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")));
@@ -1210,7 +1210,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getGroupsManager().forceGroupStructureSynchronization(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
@@ -1682,7 +1682,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	setGroupsMemberStatus {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			MemberGroupStatus status = MemberGroupStatus.valueOf(parms.readString("status"));
 			return ac.getGroupsManager().setMemberGroupStatus(ac.getSession(),

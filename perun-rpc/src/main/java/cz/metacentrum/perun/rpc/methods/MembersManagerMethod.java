@@ -25,7 +25,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	deleteMember {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getMembersManager().deleteMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
 			return null;
@@ -40,7 +40,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	deleteMembers {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			int[] ids = parms.readArrayOfInts("members");
 			List<Member> members = new ArrayList<>(ids.length);
@@ -82,7 +82,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	createSpecificMember {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("groups") ) {
 				return ac.getMembersManager().createSpecificMember(ac.getSession(),
@@ -118,7 +118,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			return ac.getMembersManager().createSponsoredAccount(ac.getSession(),
 					parms.read("parameters", HashMap.class),
 					parms.readString("namespace"),
@@ -161,7 +161,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	createSponsoredMember {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
-			ac.stateChangingCheck();
+			params.stateChangingCheck();
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
@@ -194,7 +194,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	setSponsorshipForMember {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
-			ac.stateChangingCheck();
+			params.stateChangingCheck();
 			Member sponsoredMember = ac.getMemberById(params.readInt("sponsoredMember"));
 			User sponsor = null;
 			if (params.contains("sponsor")) {
@@ -214,7 +214,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	unsetSponsorshipForMember {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
-			ac.stateChangingCheck();
+			params.stateChangingCheck();
 			Member sponsoredMember = ac.getMemberById(params.readInt("sponsoredMember"));
 			return ac.getMembersManager().unsetSponsorshipForMember(ac.getSession(), sponsoredMember);
 		}
@@ -232,7 +232,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	sponsorMember {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
-			ac.stateChangingCheck();
+			params.stateChangingCheck();
 			Member sponsored = ac.getMemberById(params.readInt("member"));
 			User sponsor = ac.getUserById(params.readInt("sponsor"));
 			return ac.getMembersManager().sponsorMember(ac.getSession(), sponsored, sponsor);
@@ -250,7 +250,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	removeSponsor {
 		@Override
 		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
-			ac.stateChangingCheck();
+			params.stateChangingCheck();
 			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
 			User sponsorToRemove = ac.getUserById(params.readInt("sponsor"));
 			ac.getMembersManager().removeSponsor(ac.getSession(), sponsoredMember, sponsorToRemove);
@@ -271,7 +271,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	extendExpirationForSponsoredMember {
 		@Override
 		public String call(ApiCaller ac, Deserializer params) throws PerunException {
-			ac.stateChangingCheck();
+			params.stateChangingCheck();
 			Member sponsored = ac.getMemberById(params.readInt("member"));
 			User sponsor = ac.getUserById(params.readInt("sponsor"));
 			return ac.getMembersManager().extendExpirationForSponsoredMember(ac.getSession(), sponsored, sponsor);
@@ -418,7 +418,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	createMember {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("extSourceName") && parms.contains("extSourceType") && parms.contains("login")) {
 				if (parms.contains("groups")) {
@@ -869,7 +869,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	deleteAllMembers {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getMembersManager().deleteAllMembers(ac.getSession(), ac.getVoById(parms.readInt("vo")));
 			return null;
@@ -1139,7 +1139,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	setStatus {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Status status = Status.valueOf(parms.readString("status"));
 			if (parms.contains("message")){
@@ -1160,7 +1160,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	suspendMemberTo {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			String suspendedToString = parms.readString("suspendedTo");
 
@@ -1187,7 +1187,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	unsuspendMember {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getMembersManager().unsuspendMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
 
@@ -1227,7 +1227,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	validateMemberAsync {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getMembersManager().validateMemberAsync(ac.getSession(), ac.getMemberById(parms.readInt("member")));
 		}
@@ -1356,7 +1356,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	sendPasswordResetLinkEmail {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getMembersManager().sendPasswordResetLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
 					parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString(),
