@@ -32,7 +32,7 @@ public enum SearcherMethod implements ManagerMethod {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getSearcher().getUsers(ac.getSession(),
 					parms.read("attributesWithSearchingValues", LinkedHashMap.class));
@@ -61,7 +61,7 @@ public enum SearcherMethod implements ManagerMethod {
 
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getSearcher().getMembersByUserAttributes(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")),
@@ -85,7 +85,7 @@ public enum SearcherMethod implements ManagerMethod {
 	getFacilities {
 		@Override
 		public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getSearcher().getFacilities(ac.getSession(),
 					parms.read("attributesWithSearchingValues", LinkedHashMap.class));
@@ -122,7 +122,7 @@ public enum SearcherMethod implements ManagerMethod {
 	getResources {
 		@Override
 		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("allowPartialMatchForString")) {
 				return ac.getSearcher().getResources(ac.getSession(),

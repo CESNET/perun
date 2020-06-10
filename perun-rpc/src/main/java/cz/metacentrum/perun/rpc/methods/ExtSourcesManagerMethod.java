@@ -25,7 +25,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("extSource")) {
 				return ac.getExtSourcesManager().createExtSource(ac.getSession(), parms.read("extSource", ExtSource.class), null);
@@ -47,7 +47,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getExtSourcesManager().deleteExtSource(ac.getSession(), ac.getExtSourceById(parms.readInt("id")));
 			return null;
 		}
@@ -140,7 +140,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms)
 		throws PerunException {
-		ac.stateChangingCheck();
+		parms.stateChangingCheck();
 
 		if(parms.contains("vo")) {
 			ac.getExtSourcesManager().addExtSource(ac.getSession(),
@@ -175,7 +175,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms)
 		throws PerunException {
-		ac.stateChangingCheck();
+		parms.stateChangingCheck();
 
 		if(parms.contains("vo")) {
 			ac.getExtSourcesManager().removeExtSource(ac.getSession(),

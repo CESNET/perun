@@ -54,7 +54,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	deleteVo {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("force")) {
 				ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readBoolean("force"));
@@ -92,7 +92,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	createVo {
 		@Override
 		public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("vo")) {
 				return ac.getVosManager().createVo(ac.getSession(), parms.read("vo", Vo.class));
@@ -118,7 +118,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	updateVo {
 		@Override
 		public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getVosManager().updateVo(ac.getSession(), parms.read("vo", Vo.class));
 		}
@@ -281,7 +281,7 @@ public enum VosManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms)
 				throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getVosManager().addAdmin(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
@@ -317,7 +317,7 @@ public enum VosManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms)
 				throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			Vo vo = ac.getVoById(parms.readInt("vo"));
 			if (parms.contains("user")) {
 				ac.getVosManager().addSponsorRole(ac.getSession(), vo, ac.getUserById(parms.readInt("user")));
@@ -352,7 +352,7 @@ public enum VosManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms)
 				throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getVosManager().removeAdmin(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
@@ -389,7 +389,7 @@ public enum VosManagerMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms)
 				throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getVosManager().removeSponsorRole(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),

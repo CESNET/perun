@@ -62,7 +62,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	createSecurityTeam {
 		@Override
 		public SecurityTeam call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("securityTeam")) {
 				return ac.getSecurityTeamsManager().createSecurityTeam(ac.getSession(), parms.read("securityTeam", SecurityTeam.class));
@@ -89,7 +89,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	updateSecurityTeam {
 		@Override
 		public SecurityTeam call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getSecurityTeamsManager().updateSecurityTeam(ac.getSession(), parms.read("securityTeam", SecurityTeam.class));
 		}
@@ -111,7 +111,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	deleteSecurityTeam {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("force")) {
 				ac.getSecurityTeamsManager().deleteSecurityTeam(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")), parms.readBoolean("force"));
@@ -193,7 +193,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	addAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("group")) {
 				ac.getSecurityTeamsManager().addAdmin(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")),
@@ -221,7 +221,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	removeAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("group")) {
 				ac.getSecurityTeamsManager().removeAdmin(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")),
@@ -243,7 +243,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	addUserToBlacklist {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getSecurityTeamsManager().addUserToBlacklist(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")),
 					ac.getUserById(parms.readInt("user")),
@@ -261,7 +261,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	removeUserFromBlacklist {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getSecurityTeamsManager().removeUserFromBlacklist(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")),
 					ac.getUserById(parms.readInt("user")));

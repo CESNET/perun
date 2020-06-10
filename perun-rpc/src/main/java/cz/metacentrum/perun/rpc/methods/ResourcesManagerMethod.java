@@ -89,7 +89,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("resource")) {
 				return ac.getResourcesManager().createResource(ac.getSession(),
@@ -125,7 +125,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	copyResource {
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getResourcesManager().copyResource(ac.getSession(),
 					parms.read("templateResource", Resource.class),
@@ -144,7 +144,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getResourcesManager().updateResource(ac.getSession(),
 					parms.read("resource", Resource.class));
@@ -160,7 +160,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().deleteResource(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")));
@@ -238,7 +238,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().assignGroupToResource(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
@@ -257,7 +257,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			List<Integer> ids = parms.readList("groups", Integer.class);
 			List<Group> groups = new ArrayList<Group>();
@@ -281,7 +281,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			List<Integer> ids = parms.readList("resources", Integer.class);
 			List<Resource> resources = new ArrayList<Resource>();
@@ -306,7 +306,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().removeGroupFromResource(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
@@ -326,7 +326,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			List<Integer> ids = parms.readList("groups", Integer.class);
 			List<Group> groups = new ArrayList<Group>();
@@ -351,7 +351,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			List<Integer> ids = parms.readList("resources", Integer.class);
 			List<Resource> resources = new ArrayList<Resource>();
@@ -504,7 +504,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	addAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getResourcesManager().addAdmin(ac.getSession(),
 						ac.getResourceById(parms.readInt("resource")),
@@ -533,7 +533,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	removeAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getResourcesManager().removeAdmin(ac.getSession(),
 						ac.getResourceById(parms.readInt("resource")),
@@ -678,7 +678,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().assignService(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),
@@ -697,7 +697,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().assignServicesPackage(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),
@@ -716,7 +716,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().removeService(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),
@@ -735,7 +735,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().removeServicesPackage(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),
@@ -803,7 +803,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().deleteAllResources(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")));
@@ -1020,7 +1020,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public BanOnResource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getResourcesManager().setBan(ac.getSession(),
 					parms.read("banOnResource", BanOnResource.class));
@@ -1107,7 +1107,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public BanOnResource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getResourcesManager().updateBan(ac.getSession(),
 					parms.read("banOnResource", BanOnResource.class));
@@ -1130,7 +1130,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if(parms.contains("banId")) {
 				ac.getResourcesManager().removeBan(ac.getSession(),
@@ -1152,7 +1152,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	addResourceSelfServiceUser {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().addResourceSelfServiceUser(ac.getSession(),
 				ac.getResourceById(parms.readInt("resourceId")), ac.getUserById(parms.readInt("userId")));
@@ -1170,7 +1170,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	addResourceSelfServiceGroup {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().addResourceSelfServiceGroup(ac.getSession(),
 				ac.getResourceById(parms.readInt("resourceId")), ac.getGroupById(parms.readInt("groupId")));
@@ -1188,7 +1188,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	removeResourceSelfServiceUser {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().removeResourceSelfServiceUser(ac.getSession(),
 				ac.getResourceById(parms.readInt("resourceId")), ac.getUserById(parms.readInt("userId")));
@@ -1206,7 +1206,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	removeResourceSelfServiceGroup {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getResourcesManager().removeResourceSelfServiceGroup(ac.getSession(),
 				ac.getResourceById(parms.readInt("resourceId")), ac.getGroupById(parms.readInt("groupId")));

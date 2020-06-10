@@ -70,7 +70,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	setLastProcessedId {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getAuditMessagesManager().setLastProcessedId(ac.getSession(), parms.readString("consumerName"),
 			  parms.readInt("lastProcessedId"));
 			return null;
@@ -86,7 +86,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	createAuditerConsumer {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getAuditMessagesManager().createAuditerConsumer(ac.getSession(), parms.readString("consumerName"));
 			return null;
 		}
@@ -136,7 +136,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	log {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getAuditMessagesManager().log(ac.getSession(), parms.readString("msg"));
 			return null;
 		}

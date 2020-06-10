@@ -680,9 +680,6 @@ public class Api extends HttpServlet {
 				out.close();
 			}
 
-			// In case of GET requests (read ones) set changing state to false
-			caller.setStateChanging(!isGet);
-
 			// Store identification of the request only if supported by app (it passed unique callbackName)
 			if (callbackName != null) {
 

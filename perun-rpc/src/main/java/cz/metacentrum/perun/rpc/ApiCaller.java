@@ -451,22 +451,6 @@ public class ApiCaller {
 		return session;
 	}
 
-	private boolean stateChanging = true;
-
-	public boolean isStateChanging() {
-		return stateChanging;
-	}
-
-	public void setStateChanging(boolean stateChanging) {
-		this.stateChanging = stateChanging;
-	}
-
-	public void stateChangingCheck() throws RpcException {
-		if (!stateChanging) {
-			throw new RpcException(RpcException.Type.STATE_CHANGING_CALL, "This is a state changing operation. Please use HTTP POST request.");
-		}
-	}
-
 	public Object call(String managerName, String methodName, Deserializer parms) throws PerunException {
 		return PerunManager.call(managerName, methodName, this, parms);
 	}

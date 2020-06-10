@@ -41,7 +41,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	deletePublicationSystem {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getCabinetManager().deletePublicationSystem(ac.getSession(), ac.getPublicationSystemById(parms.readInt("id")));
 			return null;
 		}
@@ -55,7 +55,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	createPublicationSystem {
 		public PublicationSystem call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			return ac.getCabinetManager().createPublicationSystem(ac.getSession(), parms.read("pubsys", PublicationSystem.class));
 		}
 	},
@@ -68,7 +68,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	updatePublicationSystem {
 		public PublicationSystem call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			return ac.getCabinetManager().updatePublicationSystem(ac.getSession(), parms.read("pubsys", PublicationSystem.class));
 		}
 	},
@@ -104,7 +104,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	createCategory {
 		public Category call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("category")) {
 				return ac.getCabinetManager().createCategory(ac.getSession(), parms.read("category", Category.class));
 			} else if (parms.contains("name") && parms.contains("rank")) {
@@ -131,7 +131,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	updateCategory {
 		public Category call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			return ac.getCabinetManager().updateCategory(ac.getSession(), parms.read("category", Category.class));
 		}
 	},
@@ -145,7 +145,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	deleteCategory {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getCabinetManager().deleteCategory(ac.getSession(), ac.getCategoryById(parms.readInt("id")));
 			return null;
 		}
@@ -159,7 +159,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	createThanks {
 		public Thanks call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			return ac.getCabinetManager().createThanks(ac.getSession(), parms.read("thanks", Thanks.class));
 		}
 	},
@@ -172,7 +172,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	deleteThanks {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getCabinetManager().deleteThanks(ac.getSession(), ac.getThanksById(parms.readInt("id")));
 			return null;
 		}
@@ -200,7 +200,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	createAuthorship {
 		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			Authorship auth = parms.read("authorship", Authorship.class);
 			if (ac.getCabinetManager().authorshipExists(auth)) {
 				// exists - return existing
@@ -221,7 +221,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	deleteAuthorship {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			Authorship authorship = ac.getCabinetManager().getAuthorshipByUserAndPublicationId(parms.readInt("userId"),parms.readInt("publicationId"));
 			ac.getCabinetManager().deleteAuthorship(ac.getSession(), authorship);
 			return null;
@@ -285,7 +285,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	createPublication {
 		public Publication call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			Publication pub = parms.read("publication", Publication.class);
 			if (ac.getCabinetManager().publicationExists(pub)) {
 				// get for external pubs
@@ -310,7 +310,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	updatePublication {
 		public PublicationForGUI call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			Publication pub = parms.read("publication", Publication.class);
 			ac.getCabinetManager().updatePublication(ac.getSession(), pub);
 			return ac.getCabinetManager().getRichPublicationById(pub.getId());
@@ -327,7 +327,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	deletePublication {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getCabinetManager().deletePublication(ac.getSession(), ac.getPublicationById(parms.readInt("id")));
 			return null;
 		}
@@ -453,7 +453,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	lockPublications {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			List<Publication> pubs = parms.readList("publications", Publication.class);
 			boolean lock = parms.readBoolean("lock");
 			ac.getCabinetManager().lockPublications(ac.getSession(), lock, pubs);

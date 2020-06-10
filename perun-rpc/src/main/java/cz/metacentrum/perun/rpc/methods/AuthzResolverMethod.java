@@ -238,7 +238,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	setRole {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			//get role by name
 			String roleName = parms.readString("role");
 			if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {
@@ -401,7 +401,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	unsetRole {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			//get role by name
 			String roleName = parms.readString("role");
 			if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(roleName)) {

@@ -35,7 +35,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	createOwner {
 		@Override
 		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("owner")) {
 				return ac.getOwnersManager().createOwner(ac.getSession(),
@@ -61,7 +61,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	deleteOwner {
 		@Override
 		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getOwnersManager().deleteOwner(ac.getSession(),
 					ac.getOwnerById(parms.readInt("owner")));
