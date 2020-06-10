@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,13 +33,14 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		originConfig = BeansUtils.getCoreConfig();
 		// this config has to be mocked, because it is used in the module's super class
 		BeansUtils.setConfig(mockedCoreConfig);
-		module = new urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow(mockedModulesConfigLoader);
+		module = new urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_shadow();
+		ReflectionTestUtils.setField(module, "loader", mockedModulesConfigLoader);
 	}
 
 	@After
 	public void tearDown() {
 		BeansUtils.setConfig(originConfig);
-		Mockito.reset(mockedModulesConfigLoader);
+		Mockito.reset(mockedModulesConfigLoader, mockedCoreConfig);
 	}
 
 	@Test
@@ -47,7 +49,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		when(mockedModulesConfigLoader.loadString(any(), any()))
 			.thenReturn(testValue);
 
-		assertThat(module.getExtSourceNameFenix()).isEqualTo(testValue);
+		assertThat(module.getExtSourceName()).isEqualTo(testValue);
 	}
 
 	@Test
@@ -56,7 +58,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		when(mockedModulesConfigLoader.loadString(any(), any()))
 			.thenReturn(testValue);
 
-		assertThat(module.getDomainNameFenix()).isEqualTo(testValue);
+		assertThat(module.getDomainName()).isEqualTo(testValue);
 	}
 
 	@Test
@@ -66,8 +68,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		when(mockedModulesConfigLoader.loadString(any(), any()))
 			.thenReturn(testValue);
 
-		module.getExtSourceNameFenix();
-		module.getExtSourceNameFenix();
+		module.getExtSourceName();
+		module.getExtSourceName();
 
 		verify(mockedModulesConfigLoader, times(1)).loadString(any(), eq("extSourceNameFenix"));
 	}
@@ -79,8 +81,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 		when(mockedModulesConfigLoader.loadString(any(), any()))
 			.thenReturn(testValue);
 
-		module.getDomainNameFenix();
-		module.getDomainNameFenix();
+		module.getDomainName();
+		module.getDomainName();
 
 		verify(mockedModulesConfigLoader, times(1)).loadString(any(), eq("domainNameFenix"));
 	}
