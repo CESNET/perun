@@ -625,7 +625,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("facility")) {
 				if (parms.contains("user")) {
@@ -1276,7 +1276,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("facility")) {
 				if (parms.contains("user")) {
@@ -1374,7 +1374,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("attribute")) {
 				return ac.getAttributesManager().createAttribute(ac.getSession(),
@@ -1405,7 +1405,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getAttributesManager().deleteAttribute(ac.getSession(),
 					ac.getAttributeDefinitionById(parms.readInt("attribute")));
@@ -1422,7 +1422,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	deleteAttributes {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			List<Integer> attDefs = parms.readList("attributes", Integer.class);
 			for (Integer id : attDefs) {
 				ac.getAttributesManager().deleteAttribute(ac.getSession(),
@@ -2091,7 +2091,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Attribute call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("host")) {
 				Host host = ac.getHostById(parms.readInt("host"));
@@ -2258,7 +2258,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Attribute> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			List<Attribute> attributes = new ArrayList<Attribute>();
 			if (parms.contains("attributes")) {
@@ -3784,7 +3784,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			int[] ids = parms.readArrayOfInts("attributes");
 			List<AttributeDefinition> attributes = new ArrayList<AttributeDefinition>(ids.length);
@@ -4012,7 +4012,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("facility")) {
 				if (parms.contains("user")) {
@@ -4170,7 +4170,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("facility")) {
 				if (parms.contains("user")) {
@@ -4265,7 +4265,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getAttributesManager().updateAttributeDefinition(ac.getSession(),
 					parms.read("attributeDefinition", AttributeDefinition.class));
@@ -4317,7 +4317,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	setAttributeRights {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getAttributesManager().setAttributeRights(ac.getSession(),
 					parms.readList("rights", AttributeRights.class));
@@ -4337,7 +4337,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	convertAttributeToUnique {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws InternalErrorException, AttributeAlreadyMarkedUniqueException, PrivilegeException, AttributeNotExistsException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getAttributesManager().convertAttributeToUnique(ac.getSession(), parms.readInt("attrDefId"));
 			return null;
 		}

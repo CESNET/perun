@@ -100,7 +100,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("userId")) {
 				if (parms.contains("groupId")) {
@@ -156,7 +156,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.readString("mailType").equals("APP_REJECTED_USER")) {
 
@@ -317,7 +317,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("vo")) {
 				return ac.getRegistrarManager().updateFormItems(ac.getSession(),
@@ -346,7 +346,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ApplicationForm form = parms.read("form", ApplicationForm.class);
 			int result = ac.getRegistrarManager().updateForm(ac.getSession(), form);
@@ -375,7 +375,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ApplicationFormItem item = parms.read("formItem", ApplicationFormItem.class);
 			if (parms.contains("locale")) {
@@ -590,7 +590,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<ApplicationFormItemData> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Application app = parms.read("app", Application.class);
 			List<ApplicationFormItemData> data = parms.readList("data", ApplicationFormItemData.class);
@@ -610,7 +610,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Application app = ac.getRegistrarManager().getApplicationById(ac.getSession(), parms.readInt("id"));
 			ac.getRegistrarManager().deleteApplication(ac.getSession(), app);
@@ -631,7 +631,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getRegistrarManager().approveApplication(ac.getSession(), parms.readInt("id"));
 
@@ -676,7 +676,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("reason")) {
 				return ac.getRegistrarManager().rejectApplication(ac.getSession(), parms.readInt("id"), parms.readString("reason"));
@@ -699,7 +699,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getRegistrarManager().verifyApplication(ac.getSession(), parms.readInt("id"));
 
@@ -752,7 +752,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public ApplicationFormItem call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("vo")) {
 				return ac.getRegistrarManager().addFormItem(ac.getSession(),
@@ -792,7 +792,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("vo")) {
 				ac.getRegistrarManager().deleteFormItem(ac.getSession(),
@@ -844,7 +844,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("fromVo")) {
 
@@ -918,7 +918,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("fromVo")) {
 
@@ -1009,7 +1009,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("vo")) {
 				return ac.getRegistrarManager().getMailManager().addMail(ac.getSession(),
@@ -1045,7 +1045,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("vo")) {
 				ac.getRegistrarManager().getMailManager().deleteMailById(ac.getSession(),
@@ -1074,7 +1074,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getRegistrarManager().getMailManager().updateMailById(ac.getSession(), parms.read("mail", ApplicationMail.class));
 			return null;
 		}
@@ -1107,7 +1107,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getRegistrarManager().getMailManager().setSendingEnabled(ac.getSession(),
 					parms.readList("mails", ApplicationMail.class),
@@ -1261,7 +1261,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			ac.getRegistrarManager().updateFormItemData(ac.getSession(), parms.readInt("appId"), parms.read("data", ApplicationFormItemData.class));
 			return null;
 		}

@@ -160,4 +160,14 @@ public abstract class Deserializer {
 		throw new UnsupportedOperationException("getServletRequest()");
 	}
 
+	/**
+	 * Check whether method that changes state is not GET.
+	 *
+	 * @throws RpcException if method is GET
+	 */
+	public void stateChangingCheck() throws RpcException {
+		if (getServletRequest().getMethod().equals("GET")) {
+			throw new RpcException(RpcException.Type.STATE_CHANGING_CALL, "This is a state changing operation. Please use HTTP POST request.");
+		}
+	}
 }

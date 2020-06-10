@@ -490,7 +490,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	addHosts {
 		@Override
 		public List<Host> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Facility facility = ac.getFacilityById(parms.readInt("facility"));
 
@@ -508,7 +508,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	removeHosts {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Facility facility = ac.getFacilityById(parms.readInt("facility"));
 
@@ -535,7 +535,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	addHost {
 		@Override
 		public Host call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Facility facility = ac.getFacilityById(parms.readInt("facility"));
 
@@ -554,7 +554,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	removeHost {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			int id = parms.readInt("host");
 
@@ -626,7 +626,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	addAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getFacilitiesManager().addAdmin(ac.getSession(),
 						ac.getFacilityById(parms.readInt("facility")),
@@ -655,7 +655,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	removeAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getFacilitiesManager().removeAdmin(ac.getSession(),
 						ac.getFacilityById(parms.readInt("facility")),
@@ -909,7 +909,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getFacilitiesManager().copyOwners(ac.getSession(),
 					ac.getFacilityById(parms.readInt("srcFacility")),
@@ -931,7 +931,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getFacilitiesManager().copyManagers(ac.getSession(),
 					ac.getFacilityById(parms.readInt("srcFacility")),
@@ -953,7 +953,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getFacilitiesManager().copyAttributes(ac.getSession(),
 					ac.getFacilityById(parms.readInt("srcFacility")),
@@ -1048,7 +1048,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	addFacilityContacts {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getFacilitiesManager().addFacilityContacts(ac.getSession(),
 					parms.readList("contactGroupsToAdd", ContactGroup.class));
@@ -1065,7 +1065,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	addFacilityContact {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getFacilitiesManager().addFacilityContact(ac.getSession(),
 					parms.read("contactGroupToAdd", ContactGroup.class));
@@ -1082,7 +1082,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	removeFacilityContacts {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getFacilitiesManager().removeFacilityContacts(ac.getSession(),
 					parms.readList("contactGroupsToRemove", ContactGroup.class));
@@ -1099,7 +1099,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	removeFacilityContact {
 		@Override
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getFacilitiesManager().removeFacilityContact(ac.getSession(),
 					parms.read("contactGroupToRemove", ContactGroup.class));
@@ -1168,7 +1168,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getFacilitiesManager().setBan(ac.getSession(),
 					parms.read("banOnFacility", BanOnFacility.class));
@@ -1255,7 +1255,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			return ac.getFacilitiesManager().updateBan(ac.getSession(),
 					parms.read("banOnFacility", BanOnFacility.class));
@@ -1278,7 +1278,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if(parms.contains("banId")) {
 				ac.getFacilitiesManager().removeBan(ac.getSession(),

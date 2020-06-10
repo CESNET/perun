@@ -338,7 +338,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Service call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("service")) {
 				return ac.getServicesManager().createService(ac.getSession(),
@@ -364,7 +364,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().deleteService(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")));
@@ -381,7 +381,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().updateService(ac.getSession(),
 					parms.read("service", Service.class));
@@ -1002,7 +1002,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ServicesPackage call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if (parms.contains("servicesPackage")) {
 				return ac.getServicesManager().createServicesPackage(ac.getSession(),
@@ -1027,7 +1027,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().deleteServicesPackage(ac.getSession(),
 					ac.getServicesPackageById(parms.readInt("servicesPackage")));
@@ -1044,7 +1044,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().updateServicesPackage(ac.getSession(),
 					parms.read("servicesPackage", ServicesPackage.class));
@@ -1062,7 +1062,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().addServiceToServicesPackage(ac.getSession(),
 					ac.getServicesPackageById(parms.readInt("servicesPackage")),
@@ -1081,7 +1081,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().removeServiceFromServicesPackage(ac.getSession(),
 					ac.getServicesPackageById(parms.readInt("servicesPackage")),
@@ -1116,7 +1116,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().addRequiredAttribute(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
@@ -1135,7 +1135,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			int[] ids = parms.readArrayOfInts("attributes");
 			List<AttributeDefinition> attributes = new ArrayList<AttributeDefinition>(ids.length);
@@ -1161,7 +1161,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().removeRequiredAttribute(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
@@ -1180,7 +1180,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			int[] ids = parms.readArrayOfInts("attributes");
 			List<AttributeDefinition> attributes = new ArrayList<AttributeDefinition>(ids.length);
@@ -1205,7 +1205,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().removeAllRequiredAttributes(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")));
@@ -1335,7 +1335,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Destination call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Destination destination;
 
@@ -1382,7 +1382,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			Destination destination;
 
@@ -1426,7 +1426,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			if(parms.contains("service")) {
 				return ac.getServicesManager().addDestinationsDefinedByHostsOnFacility(ac.getSession(),
@@ -1456,7 +1456,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().removeDestination(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
@@ -1477,7 +1477,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
+			parms.stateChangingCheck();
 
 			ac.getServicesManager().removeAllDestinations(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
