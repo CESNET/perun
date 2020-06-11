@@ -24,6 +24,7 @@ import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.ItemTexts;
+import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.*;
@@ -1321,6 +1322,26 @@ public class RegistrarFormItemGenerator {
 								}
 								validationTrigger.triggerValidation();
 							}
+
+							@Override
+							public void onError(PerunError error) {
+
+								if(!str.equals(strValueBox.getValue())){
+									// value changed before request finished, don't update the valid value
+									return;
+								}
+								if ("InvalidLoginException".equalsIgnoreCase(error.getType())) {
+									validMap.put(str,false);
+									statusCellWrapper.setWidget(new FormInputStatusWidget("Login has invalid syntax." + error.getErrorInfo(), Status.ERROR));
+								} else {
+									// generic error
+									statusCellWrapper.setWidget(new FormInputStatusWidget("Unable to check if login is available!", Status.ERROR));
+								}
+								validating = false;
+								validationTrigger.triggerValidation();
+
+							}
+
 						}).retrieveData();
 
 

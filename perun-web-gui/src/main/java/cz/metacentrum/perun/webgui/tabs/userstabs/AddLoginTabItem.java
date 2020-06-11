@@ -170,6 +170,12 @@ public class AddLoginTabItem implements TabItem {
 		layout.setWidget(2, 0, notice);
 		layout.getFlexCellFormatter().addStyleName(2, 0, "inputFormInlineComment");
 
+		HTML help = new HTML("Login must<ul><li>start with lower-cased letter<li>be 2-15 characters long<li>consist only of<ul><li>lower-cased non-accented letters<li>digits<li>hyphens and underscores</ul></ul>");
+		help.setVisible(false);
+		layout.getFlexCellFormatter().setColSpan(3, 0, 2);
+		layout.setWidget(3, 0, help);
+		layout.getFlexCellFormatter().addStyleName(3, 0, "inputFormInlineComment");
+
 		TabMenu menu = new TabMenu();
 		menu.addWidget(createLogin);
 
@@ -224,8 +230,17 @@ public class AddLoginTabItem implements TabItem {
 						@Override
 						public void onError(PerunError error) {
 							if (value.equals(userLogin.getTextBox().getValue().trim())) {
-								userLogin.setProcessing(false);
-								userLogin.setHardError("Unable to check if login is available!");
+								if ("InvalidLoginException".equalsIgnoreCase(error.getType())) {
+									userLogin.setProcessing(false);
+									String text = error.getErrorInfo();
+									text = text.split(":", 2)[1];
+									text = (text == null || text.isEmpty()) ? error.getErrorInfo() : text;
+									userLogin.setHardError(text);
+								} else {
+									// generic error
+									userLogin.setProcessing(false);
+									userLogin.setHardError("Unable to check if login is available!");
+								}
 							}
 						}
 						}).retrieveData();
@@ -235,6 +250,12 @@ public class AddLoginTabItem implements TabItem {
 
 			namespace.addChangeHandler(new ChangeHandler() {
 				public void onChange(ChangeEvent changeEvent) {
+
+					if (namespace.getSelectedValue().equals("einfra")) {
+						help.setVisible(true);
+					} else {
+						help.setVisible(false);
+					}
 
 					if (namespace.getSelectedValue().equals("mu")) {
 
@@ -321,6 +342,8 @@ public class AddLoginTabItem implements TabItem {
 			userLogin.getTextBox().setEnabled(false);
 			notice.setVisible(true);
 
+		} else if (namespace.getSelectedValue().equals("einfra")) {
+			help.setVisible(true);
 		}
 
 		vp.add(menu);
