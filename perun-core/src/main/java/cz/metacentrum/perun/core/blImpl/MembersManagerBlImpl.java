@@ -54,6 +54,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
@@ -65,6 +66,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -348,7 +350,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	@Deprecated
-	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException {
+	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException, PasswordStrengthException, InvalidLoginException {
 		String loginNamespaceUri = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + namespace;
 		boolean passwordPresent = params.get("password") != null;
 		if (params.get(loginNamespaceUri) == null) {
@@ -2350,7 +2352,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException {
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
 		//check that sponsoring user has role SPONSOR for the VO
 		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
 			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());

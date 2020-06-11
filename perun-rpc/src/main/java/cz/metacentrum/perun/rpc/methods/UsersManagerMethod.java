@@ -910,12 +910,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Checks if the login is available in the namespace.
+	 * Checks if the login is available in the namespace. Return 1 if yes, 0 if no.
 	 *
 	 * @param loginNamespace String Namespace
 	 * @param login String Login
 	 * @exampleResponse 1
 	 * @return int 1: login available, 0: login not available
+	 * @throw InvalidLoginException When login to check has invalid syntax or is not allowed
 	 */
 	isLoginAvailable {
 
@@ -951,6 +952,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param newPassword String New password
 	 * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
 	 * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	/*#
 	 * Changes user password in defined login-namespace.
@@ -960,6 +963,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param newPassword String New password
 	 * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
 	 * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	changePassword {
 		@Override
@@ -985,12 +991,15 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Changes user's password in namespace based on encrypted parameters
+	 * Changes user's password in namespace based on encrypted input parameters.
 	 *
 	 * @param i String first encrypted parameter
 	 * @param m String second encrypted parameter
 	 * @param password String new password
 	 * @param lang String language to get notifications in (optional).
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	changeNonAuthzPassword {
 		@Override
@@ -1008,6 +1017,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param user int User <code>id</code>
 	 * @param namespace String Namespace
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	reserveRandomPassword {
 		@Override
@@ -1026,6 +1037,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param namespace String Namespace
 	 * @param password String password
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	/*#
 	 * Reserves password for a user in specified login-namespace.
@@ -1033,6 +1047,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param login String Login
 	 * @param namespace String Namespace
 	 * @param password String password
+	 * @throw InvalidLoginException When login has invalid syntax (is not allowed)
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	reservePassword {
 		@Override
@@ -1055,6 +1071,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param user int User <code>id</code>
 	 * @param namespace String Namespace
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	/*#
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
@@ -1062,6 +1080,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param login String Login
 	 * @param namespace String Namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	validatePassword {
 		@Override
@@ -1086,6 +1105,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param login String Login
 	 * @param namespace String Namespace
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 */
 	validatePasswordAndSetExtSources {
 		@Override
@@ -1105,6 +1126,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param login String Login
 	 * @param namespace String Namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw LoginExistsException When login is already taken by another user
 	 */
 	setLogin {
 		@Override
@@ -1282,7 +1305,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param parameters Map
 	 *
 	 * @return Map<String, String> Map of data from backed response
-	 * @throws InternalErrorException
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
 	 */
 	generateAccount {
 

@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginExistsException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
@@ -35,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -880,7 +882,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException {
+	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization - must be public since it's used to check anonymous users input on registration form
@@ -928,7 +930,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
-			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -954,7 +956,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void changePassword(PerunSession sess, String login , String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
-			PrivilegeException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			PrivilegeException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 
 		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
@@ -980,7 +982,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -994,7 +996,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			PrivilegeException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1013,7 +1015,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1028,7 +1030,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException {
+			PrivilegeException, PasswordCreationFailedException, InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1046,7 +1048,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, InvalidLoginException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1065,7 +1067,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
+			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1081,7 +1083,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException {
+			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1107,7 +1109,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException {
+	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(description, "description");
 		Utils.notNull(loginNamespace, "loginNamespace");
@@ -1252,7 +1254,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginExistsException {
+	public void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginExistsException, InvalidLoginException {
 
 		// checks
 		Utils.checkPerunSession(sess);
@@ -1326,7 +1328,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 
 		Utils.checkPerunSession(sess);
 
@@ -1361,7 +1363,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public Map<String,String> generateAccount(PerunSession sess, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException {
+	public Map<String,String> generateAccount(PerunSession sess, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1393,7 +1395,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public String changePasswordRandom(PerunSession sess, User user, String loginNamespace)	throws InternalErrorException, PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException {
+	public String changePasswordRandom(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

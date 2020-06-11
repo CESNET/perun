@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -236,17 +237,50 @@ public interface ModulesUtilsBl {
 	void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException;
 
 	/**
-	 * Check if value of login attribute is unpermitted.
-	 * If not, its ok.
-	 * If yes, throw WrongAttributeValueException.
-	 * If attribute is null, then it's ok.
-	 * For unpermitted user logins this method firstly tries to read perun-namespaces.properties file.
-	 * If there is no property in this file, it reads the default hardcoded values.
+	 * Check login value against regex defined for login-namespace.
+	 * It throws InvalidLoginException if matching fails.
 	 *
-	 * @param loginAttribute login-namespace
-	 * @throws WrongAttributeValueException
+	 * Regex for each namespace can be defined in /etc/perun/perun-namespaces.properties
+	 * You can define login exceptions, which override these syntactically wrong login names in the same file.
+	 * It is to support historically wrong values or specific exception within existing namespaces.
+	 * @see #isLoginException(String, String)
+	 *
+	 * @param namespace Namespace to perform check in
+	 * @param login Login to check
+	 * @param defaultRegex Default regex can be used if namespace doesn't define own.
+	 * @throws InvalidLoginException If login value doesn't matches the regex
 	 */
-	void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException;
+	void checkLoginNamespaceRegex(String namespace, String login, Pattern defaultRegex) throws InvalidLoginException;
+
+	/**
+	 * Check if value of login is permitted within the namespace.
+	 * Returns FALSE, if login value is not permitted within the namespace (eg. matches system user)
+	 *
+	 * Reserved login names can be defined for each namespace in /etc/perun/perun-namespaces.properties
+	 * If property for namespace is not found, then check is done against hardcoded defaults.
+	 *
+	 * You can define login exceptions, which override these reserved login names in the same file.
+	 * This method returns TRUE for such exceptions.
+	 * It is to support historically wrong values or specific exception within existing namespaces.
+	 * @see #isLoginException(String, String)
+	 *
+	 * @param namespace Namespace to perform check in
+	 * @param login Login to check
+	 * @return TRUE if login value is permitted within the namespace / FALSE otherwise
+	 */
+	boolean checkIfUserLoginIsPermitted(String namespace, String login);
+
+	/**
+	 * Return true, if login value is "exception" within its namespace rules.
+	 * Eg. when syntax check normally doesn't allow such value, but its manually allowed here
+	 * in order to support already existing (historic) wrong values.
+	 * It can be defined for each namespace in /etc/perun/perun-namespaces.properties
+	 *
+	 * @param namespace Namespace to perform check in
+	 * @param login Login to check
+	 * @return TRUE if login value is within exceptions / FALSE otherwise
+	 */
+	boolean isLoginException(String namespace, String login);
 
 	/**
 	 * Get value of attribute A_F_Def_unixGroupName-Namespace

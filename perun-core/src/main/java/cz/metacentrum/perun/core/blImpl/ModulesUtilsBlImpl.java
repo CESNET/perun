@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -88,7 +89,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		        "gdm", "glite", "gnats", "haldaemon", "identd", "irc", "libuuid", "list", "lp", "mail", "man",
 		        "messagebus", "news", "nobody", "ntp", "openslp", "pcp", "polkituser", "postfix", "proxy",
 		        "pulse", "puppet", "root", "saned", "smmsp", "smmta", "sshd", "statd", "suse-ncc", "sync",
-		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "tomcat6", "tomcat7", "tomcat8",
+		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "tomcat6", "tomcat7", "tomcat8", "tomcat",
 		        "nn", "dn", "rm", "nm", "sn", "jn", "jhs", "http", "yarn", "hdfs", "mapred", "hadoop", "hsqldb", "derby",
 		        "jetty", "hbase", "zookeeper", "hive", "hue", "oozie", "httpfs");
 
@@ -539,20 +540,66 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException {
-		if(loginAttribute == null) return;
+	public void checkLoginNamespaceRegex(String namespace, String login, Pattern defaultRegex) throws InvalidLoginException {
+		Utils.notNull(namespace, "namespace to check login syntax");
+		Utils.notNull(login, "login to check syntax for");
+
 		checkPerunNamespacesMap();
 
-		String unpermittedNames = perunNamespaces.get(loginAttribute.getFriendlyName() + ":reservedNames");
-		if (unpermittedNames != null) {
-			List<String> unpermittedNamesList = Arrays.asList(unpermittedNames.split("\\s*,\\s*"));
-			if (unpermittedNamesList.contains(loginAttribute.valueAsString()))
-				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+		String regex = perunNamespaces.get("login-namespace:"+namespace+":regex");
+		if (regex != null) {
+			//Check if regex is valid
+			try {
+				Pattern.compile(regex);
+			} catch (PatternSyntaxException e) {
+				log.error("Regex pattern \"{}\" from \"login-namespace:{}:regex\" property of perun-namespaces.properties file is invalid.", regex, namespace);
+				throw new InternalErrorException("Regex pattern \""+regex+"\" from \"login-namespace:"+namespace+":regex\" property of perun-namespaces.properties file is invalid.");
+			}
+			// check syntax or if its between exceptions
+			if(!login.matches(regex) && !isLoginException(namespace, login)) {
+				log.warn("Login '{}' in {} namespace doesn't match regex: {}", login, namespace, regex);
+				throw new InvalidLoginException("Login doesn't matches expected regex: \"" + regex +"\"");
+			}
+		} else {
+			// Regex property not found in our attribute map, so use the default hardcoded regex
+			// check syntax or if its between exceptions
+			if (!defaultRegex.matcher(login).matches() && !isLoginException(namespace, login)) {
+				log.warn("Login '{}' in {} namespace doesn't match regex: {}", login, namespace, regex);
+				throw new InvalidLoginException("Login doesn't matches expected regex: \"" + defaultRegex +"\"");
+			}
+		}
+	}
+
+	@Override
+	public boolean checkIfUserLoginIsPermitted(String namespace, String login) {
+		Utils.notNull(namespace, "namespace to check unpermited logins in");
+		if(login == null) return true;
+
+		checkPerunNamespacesMap();
+
+		String prohibitedNames = perunNamespaces.get("login-namespace:" + namespace + ":reservedNames");
+		if (prohibitedNames != null) {
+			List<String> prohibitedNamesList = Arrays.asList(prohibitedNames.split("\\s*,\\s*"));
+			return !prohibitedNamesList.contains(login) || isLoginException(namespace, login);
 		} else {
 			//Property not found in our attribute map, so we will use the default hardcoded values instead
-			if (unpermittedNamesForUserLogins.contains(loginAttribute.valueAsString()))
-				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+			return !unpermittedNamesForUserLogins.contains(login) || isLoginException(namespace, login);
 		}
+	}
+
+	@Override
+	public boolean isLoginException(String namespace, String login) {
+		Utils.notNull(namespace, "namespace to check allowed exceptions for login in");
+		if(login == null) return false;
+
+		checkPerunNamespacesMap();
+
+		String exceptionNames = perunNamespaces.get("login-namespace:" + namespace + ":allowedExceptions");
+		if (exceptionNames != null) {
+			List<String> exceptionNamesList = Arrays.asList(exceptionNames.split("\\s*,\\s*"));
+			return exceptionNamesList.contains(login);
+		}
+		return false;
 	}
 
 	@Override

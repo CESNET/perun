@@ -5,7 +5,8 @@ import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordChangeFailedRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
@@ -13,8 +14,11 @@ import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntime
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDoesntMatchRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordOperationTimeoutRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntimeException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Generic implementation of {@link PasswordManagerModule}. It runs generic password manger script
@@ -32,6 +37,10 @@ import java.util.Map;
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
 public class GenericPasswordManagerModule implements PasswordManagerModule {
+
+	private final static Logger log = LoggerFactory.getLogger(GenericPasswordManagerModule.class);
+
+	protected final static Pattern defaultLoginPattern = Pattern.compile("^[a-zA-Z0-9_][-A-z0-9_.@/]*$");
 
 	protected static final String PASSWORD_VALIDATE = "validate";
 	protected static final String PASSWORD_CREATE = "create";
@@ -55,31 +64,33 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException {
+	public Map<String, String> generateAccount(PerunSession sess, Map<String, String> parameters) {
 		// account generation is not supported
 		return null;
 	}
 
 	@Override
-	public void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException {
-		if (StringUtils.isBlank(password)) {
-			throw new EmptyPasswordRuntimeException("Password for " + actualLoginNamespace + ":" + userLogin + " cannot be empty.");
-		}
+	public void reservePassword(PerunSession sess, String userLogin, String password) throws InvalidLoginException, PasswordStrengthException {
+		checkLoginFormat(sess, userLogin);
+		checkPasswordStrength(sess, userLogin, password);
 		Process process = createPwdManagerProcess(PASSWORD_RESERVE, actualLoginNamespace, userLogin);
 		sendPassword(process, password);
 		handleExit(process, actualLoginNamespace, userLogin);
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException {
+	public void reserveRandomPassword(PerunSession sess, String userLogin) throws InvalidLoginException {
+		checkLoginFormat(sess, userLogin);
 		Process process = createPwdManagerProcess(PASSWORD_RESERVE_RANDOM, actualLoginNamespace, userLogin);
 		handleExit(process, actualLoginNamespace, userLogin);
 	}
 
 	@Override
 	public void checkPassword(PerunSession sess, String userLogin, String password) {
+		// use custom check instead of strength, since this is about empty input
+		// we must allow checks for old weaker passwords
 		if (StringUtils.isBlank(password)) {
-			throw new EmptyPasswordRuntimeException("Password for " + actualLoginNamespace + ":" + userLogin + " cannot be empty.");
+			throw new InternalErrorException("Password for " + actualLoginNamespace + ":" + userLogin + " cannot be empty.");
 		}
 		Process process = createPwdManagerProcess(PASSWORD_CHECK, actualLoginNamespace, userLogin);
 		sendPassword(process, password);
@@ -87,32 +98,31 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
-		if (StringUtils.isBlank(newPassword)) {
-			throw new EmptyPasswordRuntimeException("Password for " + actualLoginNamespace + ":" + userLogin + " cannot be empty.");
-		}
+	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InvalidLoginException, PasswordStrengthException {
+		checkLoginFormat(sess, userLogin);
+		checkPasswordStrength(sess, userLogin, newPassword);
 		Process process = createPwdManagerProcess(PASSWORD_CHANGE, actualLoginNamespace, userLogin);
 		sendPassword(process, newPassword);
 		handleExit(process, actualLoginNamespace, userLogin);
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin) {
+	public void validatePassword(PerunSession sess, String userLogin) throws InvalidLoginException {
+		checkLoginFormat(sess, userLogin);
 		Process process = createPwdManagerProcess(PASSWORD_VALIDATE, actualLoginNamespace, userLogin);
 		handleExit(process, actualLoginNamespace, userLogin);
 	}
 
 	@Override
-	public void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException {
+	public void deletePassword(PerunSession sess, String userLogin) throws InvalidLoginException {
+		checkLoginFormat(sess, userLogin);
 		Process process = createPwdManagerProcess(PASSWORD_DELETE, actualLoginNamespace, userLogin);
 		handleExit(process, actualLoginNamespace, userLogin);
 	}
 
 	@Override
-	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) {
-		if (StringUtils.isBlank(password)) {
-			throw new EmptyPasswordRuntimeException("Password for " + actualLoginNamespace + ":" + passwordId + " cannot be empty.");
-		}
+	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) throws PasswordStrengthException {
+		checkPasswordStrength(sess, passwordId, password);
 		Process process = createAltPwdManagerProcess(PASSWORD_CREATE, actualLoginNamespace, user, passwordId);
 		sendPassword(process, password);
 		handleAltPwdManagerExit(process, user, actualLoginNamespace, passwordId);
@@ -122,6 +132,32 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
 		Process process = createAltPwdManagerProcess(PASSWORD_DELETE, actualLoginNamespace, user, passwordId);
 		handleAltPwdManagerExit(process, user, actualLoginNamespace, passwordId);
+	}
+
+	@Override
+	public void checkLoginFormat(PerunSession sess, String login) throws InvalidLoginException {
+
+		// check login syntax/format
+		((PerunBl)sess.getPerun()).getModulesUtilsBl().checkLoginNamespaceRegex(actualLoginNamespace, login, defaultLoginPattern);
+
+		// check if login is permitted
+		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().checkIfUserLoginIsPermitted(actualLoginNamespace, login)) {
+			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
+			throw new InvalidLoginException("Login '"+login+"' is not allowed in '"+actualLoginNamespace+"' namespace by configuration.");
+		}
+
+	}
+
+	@Override
+	public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
+
+		if (StringUtils.isBlank(password)) {
+			log.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
+		}
+
+		// TODO - some more generic checks ???
+
 	}
 
 	/**

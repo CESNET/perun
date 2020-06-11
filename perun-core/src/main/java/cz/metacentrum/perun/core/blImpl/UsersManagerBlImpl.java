@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -56,6 +57,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
@@ -511,6 +513,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.deletePassword(sess, login.getRight(), login.getLeft());
 			} catch (LoginNotExistsException e) {
 				// OK - User hasn't assigned any password with this login
+			} catch (InvalidLoginException e) {
+				throw new InternalErrorException("We are deleting login of user, but its syntax is not allowed by namespace configuration.", e);
 			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
 					log.error("Error during deletion of an account at {} for user {} with login {}.", login.getLeft(), user, login.getRight());
@@ -532,6 +536,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.deletePassword(sess, (String) loginAttribute.getValue(), loginAttribute.getFriendlyNameParameter());
 			} catch (LoginNotExistsException e) {
 				// OK - User hasn't assigned any password with this login
+			} catch (InvalidLoginException e) {
+				throw new InternalErrorException("We are deleting login of user, but its syntax is not allowed by namespace configuration.", e);
 			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
 					log.error("Error during deletion of the account at {} for user {} with login {}.", loginAttribute.getFriendlyNameParameter(), user, loginAttribute.getValue());
@@ -974,13 +980,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException {
+	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InvalidLoginException {
 		if (loginNamespace == null || login == null) {
 			throw new InternalErrorException(new NullPointerException("loginNamespace cannot be null, nor login"));
 		}
 
-		// Create Attribute
 		try {
+
+			// fake attribute
 			AttributeDefinition attributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
 			Attribute attribute = new Attribute(attributeDefinition);
 
@@ -988,6 +995,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 			// Create empty user
 			User user = new User();
+
+			// check if login is allowed (has valid syntax and is not prohibited)
+			getPasswordManagerModule(sess,loginNamespace).checkLoginFormat(sess, login);
 
 			// Check attribute value, if the login is already occupied, then WrongReferenceAttributeValueException exception is thrown
 			getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, user, attribute);
@@ -999,7 +1009,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			return false;
 		}
 
-		//TODO Check also reserved logins in Registrar
 	}
 	/**
 	 * Gets the usersManagerImpl for this instance.
@@ -1126,7 +1135,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException {
 
 		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
@@ -1148,6 +1157,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				throw new PasswordOperationTimeoutException(e);
 			} catch (PasswordStrengthFailedRuntimeException e) {
 				throw new PasswordStrengthFailedException(e);
+			} catch (InvalidLoginException e) {
+				throw e;
 			} catch (Exception ex) {
 				// fallback for exception compatibility
 				throw new PasswordCreationFailedException("Password creation failed for " + loginNamespace + ":" + attr.valueAsString() + ".", ex);
@@ -1161,7 +1172,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-			PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Reserve the password
@@ -1174,6 +1185,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new PasswordOperationTimeoutException(e);
 		} catch (PasswordStrengthFailedRuntimeException e) {
 			throw new PasswordStrengthFailedException(e);
+		} catch (InvalidLoginException | PasswordStrengthException e) {
+			throw e;
 		} catch (Exception ex) {
 			// fallback for exception compatibility
 			throw new PasswordCreationFailedException("Password creation failed for " + loginNamespace + ":" + userLogin + ".", ex);
@@ -1182,7 +1195,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-			PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get login.
@@ -1203,6 +1216,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				throw new PasswordOperationTimeoutException(e);
 			} catch (PasswordStrengthFailedRuntimeException e) {
 				throw new PasswordStrengthFailedException(e);
+			} catch (InvalidLoginException | PasswordStrengthException e) {
+				throw e;
 			} catch (Exception ex) {
 				// fallback for exception compatibility
 				throw new PasswordCreationFailedException("Password creation failed for " + loginNamespace + ":" + attr.valueAsString() + ".", ex);
@@ -1216,7 +1231,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-			PasswordCreationFailedException {
+			PasswordCreationFailedException, InvalidLoginException {
 		log.info("Validating password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Validate the password
@@ -1230,7 +1245,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
-			PasswordCreationFailedException, LoginNotExistsException {
+			PasswordCreationFailedException, LoginNotExistsException, InvalidLoginException {
 		log.info("Validating password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get login.
@@ -1256,7 +1271,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, InvalidLoginException {
 		/*
 		 * FIXME This method is very badly writen - it should be rewrited or refactored
 		 */
@@ -1522,7 +1537,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException, LoginNotExistsException,
-			PasswordDeletionFailedException, PasswordOperationTimeoutException {
+			PasswordDeletionFailedException, PasswordOperationTimeoutException, InvalidLoginException {
 		log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Delete the password
@@ -1535,6 +1550,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new LoginNotExistsException(e);
 		}  catch (PasswordOperationTimeoutRuntimeException e) {
 			throw new PasswordOperationTimeoutException(e);
+		} catch (InvalidLoginException e) {
+			throw e;
 		} catch (Exception ex) {
 			// fallback for exception compatibility
 			throw new PasswordDeletionFailedException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".", ex);
@@ -1543,7 +1560,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		log.info("Changing password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get User login in loginNamespace
@@ -1581,6 +1598,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new PasswordOperationTimeoutException(e);
 		} catch (PasswordStrengthFailedRuntimeException e) {
 			throw new PasswordStrengthFailedException(e);
+		} catch (InvalidLoginException | PasswordStrengthException e) {
+			throw e;
 		} catch (Exception ex) {
 			// fallback for exception compatibility
 			throw new PasswordChangeFailedException("Password change failed for " + loginNamespace + ":" + userLogin + ".", ex);
@@ -1597,7 +1616,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException {
+	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordStrengthException {
 
 		String passwordId = Long.toString(System.currentTimeMillis());
 		log.info("Creating alternative password for {} in login-namespace {} with description {} and passwordId {}.", user, loginNamespace, description, passwordId);
@@ -1629,6 +1648,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new PasswordCreationFailedException(ex);
 		} catch(LoginNotExistsRuntimeException ex) {
 			throw new LoginNotExistsException(ex);
+		} catch (PasswordStrengthException e) {
+			throw e;
 		} catch (Exception ex) {
 			// fallback for exception compatibility
 			throw new PasswordCreationFailedException("Alternative password creation failed for " + loginNamespace + ":" + passwordId + " of "+user+".", ex);
@@ -1890,7 +1911,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws InternalErrorException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws InternalErrorException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 
 		String requestId = Utils.cipherInput(m, true);
 		Pair<String,String> resetRequest = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
@@ -1991,7 +2012,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public Map<String,String> generateAccount(PerunSession sess, String loginNamespace, Map<String, String> parameters) throws InternalErrorException {
+	public Map<String,String> generateAccount(PerunSession sess, String loginNamespace, Map<String, String> parameters) throws InternalErrorException, PasswordStrengthException {
 		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 		return module.generateAccount(sess, parameters);
 	}
@@ -2043,7 +2064,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, InternalErrorException, PasswordChangeFailedException {
+	public String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, InternalErrorException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException {
 
 		char[] possibleCharacters =
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?"

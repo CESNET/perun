@@ -6,27 +6,27 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 /**
  * This module allows us to set alternative password for Samba share services.
- * We do not have logins in du-samba namespace at all. It uses "einfra" namespace login instead.
+ * We do not have logins in du-samba namespace at all. It uses "einfra" namespace login instead,
+ * so this module extends its password manager, disables normal password management
+ * and overrides alternative password management only.
+ * It reuses login format and strength checks from einfra module.
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
-public class SambaduPasswordManagerModule extends GenericPasswordManagerModule {
+public class SambaduPasswordManagerModule extends EinfraPasswordManagerModule {
 
 	private final static Logger log = LoggerFactory.getLogger(SambaduPasswordManagerModule.class);
 
@@ -48,17 +48,17 @@ public class SambaduPasswordManagerModule extends GenericPasswordManagerModule {
 	}
 
 	@Override
-	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException {
+	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) {
 		throw new InternalErrorException("Generating account in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
-	public void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException {
+	public void reservePassword(PerunSession session, String userLogin, String password) {
 		throw new InternalErrorException("Reserving password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException {
+	public void reserveRandomPassword(PerunSession session, String userLogin) {
 		throw new InternalErrorException("Reserving random password in login namespace 'samba-du' is not supported.");
 	}
 
@@ -68,7 +68,7 @@ public class SambaduPasswordManagerModule extends GenericPasswordManagerModule {
 	}
 
 	@Override
-	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
+	public void changePassword(PerunSession sess, String userLogin, String newPassword) {
 		throw new InternalErrorException("Changing password in login namespace 'samba-du' is not supported.");
 	}
 
@@ -78,16 +78,13 @@ public class SambaduPasswordManagerModule extends GenericPasswordManagerModule {
 	}
 
 	@Override
-	public void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException {
+	public void deletePassword(PerunSession sess, String userLogin) {
 		throw new InternalErrorException("Deleting password in login namespace 'samba-du' is not supported.");
 	}
 
 	@Override
-	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) {
-		if (StringUtils.isBlank(password)) {
-			throw new EmptyPasswordRuntimeException("Password for " + actualLoginNamespace + ":" + passwordId + " cannot be empty.");
-		}
-		// TODO - enforce EINFRA password checks
+	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) throws PasswordStrengthException {
+		checkPasswordStrength(sess, passwordId, password);
 
 		ProcessBuilder pb = new ProcessBuilder(altPasswordManagerProgram);
 		// pass variables as ENV
