@@ -1444,6 +1444,13 @@ components:
           schema:
             $ref: "#/components/schemas/RTMessage"
 
+    UserExtSourceResponse:
+      description: "returns userExtSource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserExtSource"
+
 
   #####################################################
   #                                                   #
@@ -6167,6 +6174,32 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/addUserExtSource:
+    post:
+      tags:
+        - UsersManager
+      operationId: addUserExtSource
+      summary: Adds user's external sources.
+      responses:
+        '200':
+          $ref: '#/components/responses/UserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: AddUserExtSourceInput
+              description: "input to addUserExtSource"
+              type: object
+              required:
+                - user
+                - userExtSource
+              properties:
+                user: { type: integer}
+                userExtSource: { $ref: '#/components/schemas/UserExtSource' }
 
   #################################################
   #                                               #
