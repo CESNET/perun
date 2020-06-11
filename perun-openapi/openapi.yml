@@ -1777,27 +1777,27 @@ components:
 
     isbn:
       name: isbn
-      description: ISBN
+      description: "ISBN"
       schema:
         type: string
       in: query
-      required: true
+      required: false
 
     doi:
       name: doi
-      description: DOI
+      description: "DOI"
       schema:
         type: string
       in: query
-      required: true
+      required: false
 
     title:
       name: title
-      description: Title
+      description: "Title"
       schema:
         type: string
       in: query
-      required: true
+      required: false
 
     userIdLiterally:
       name: userId
@@ -5896,7 +5896,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/cabinetManager/createPublicationSystem:
+  /json/cabinetManager/createPublicationSystem:
     post:
       tags:
         - CabinetManager
@@ -5920,7 +5920,7 @@ paths:
               properties:
                 pubsys: { $ref: '#/components/schemas/PublicationSystem' }
 
-  /urlinjsonout/cabinetManager/updatePublicationSystem:
+  /json/cabinetManager/updatePublicationSystem:
     post:
       tags:
         - CabinetManager
@@ -5956,7 +5956,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/cabinetManager/createCategory/cat:
+  /json/cabinetManager/createCategory/cat:
     post:
       tags:
         - CabinetManager
@@ -5983,7 +5983,7 @@ paths:
               properties:
                 category: { $ref: '#/components/schemas/Category' }
 
-  /urlinjsonout/cabinetManager/createCategory/n-r:
+  /json/cabinetManager/createCategory/n-r:
     post:
       tags:
         - CabinetManager
@@ -6009,7 +6009,7 @@ paths:
                 name: { type: string, description: 'name of the category' }
                 rank: { type: number, format: double, description: 'the rank of the category' }
 
-  /urlinjsonout/cabinetManager/updateCategory:
+  /json/cabinetManager/updateCategory:
     post:
       tags:
         - CabinetManager
@@ -6050,7 +6050,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/cabinetManager/createThanks:
+  /json/cabinetManager/createThanks:
     post:
       tags:
         - CabinetManager
@@ -6102,7 +6102,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/cabinetManager/createAuthorship:
+  /json/cabinetManager/createAuthorship:
     post:
       tags:
         - CabinetManager
@@ -6151,12 +6151,7 @@ paths:
       operationId: getRank
       summary: Gets overall rank of given user as sum of all his publications Authorships.
       parameters:
-        - name: user
-          in: query
-          schema:
-            type: integer
-          description: ID of user to get Rank for
-          required: true
+        - $ref: '#/components/parameters/userId'
       responses:
         '200':
           $ref: '#/components/responses/DoubleResponse'
@@ -6198,19 +6193,14 @@ paths:
         Find new Authors for Publication. Empty list of none found.
         Used by users to search for colleagues to add them as co-authors.
       parameters:
-        - name: searchString
-          in: query
-          schema:
-            type: string
-          description: Search string to find new Authors by
-          required: true
+        - $ref: '#/components/parameters/searchString'
       responses:
         '200':
           $ref: '#/components/responses/ListOfAuthorResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/cabinetManager/createPublication:
+  /json/cabinetManager/createPublication:
     post:
       tags:
         - CabinetManager
@@ -6235,7 +6225,7 @@ paths:
               properties:
                 publication: { $ref: '#/components/schemas/Publication' }
 
-  /urlinjsonout/cabinetManager/updatePublication:
+  /json/cabinetManager/updatePublication:
     post:
       tags:
         - CabinetManager
@@ -6302,23 +6292,14 @@ paths:
         yearTill = if year <= yearTill userId = exact match or 0 If you don't want to filter by publication params,
         do not include the attribute in the query.
       parameters:
+        - $ref: '#/components/parameters/title'
+        - $ref: '#/components/parameters/isbn'
+        - $ref: '#/components/parameters/doi'
         - name: id
           in: query
           schema:
             type: integer
           description: Publication id
-          required: false
-        - name: title
-          in: query
-          schema:
-            type: string
-          description: Title
-          required: false
-        - name: isbn
-          in: query
-          schema:
-            type: string
-          description: ISBN
           required: false
         - name: year
           in: query
@@ -6331,12 +6312,6 @@ paths:
           schema:
             type: integer
           description: Category
-          required: false
-        - name: doi
-          in: query
-          schema:
-            type: string
-          description: DOI
           required: false
         - name: yearSince
           in: query
@@ -6393,7 +6368,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/cabinetManager/lockPublications:
+  /json/cabinetManager/lockPublications:
     post:
       tags:
         - CabinetManager
@@ -6453,13 +6428,15 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/cabinetManager/findSimilarPublications/isbn:
+  /json/cabinetManager/findSimilarPublications:
     get:
       tags:
         - CabinetManager
-      operationId: findSimilarPublicationsIsbn
+      operationId: findSimilarPublications
       summary: Finds similar publications
       parameters:
+        - $ref: '#/components/parameters/title'
+        - $ref: '#/components/parameters/doi'
         - $ref: '#/components/parameters/isbn'
       responses:
         '200':
@@ -6467,79 +6444,6 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/cabinetManager/findSimilarPublications/isbn-doi:
-    get:
-      tags:
-        - CabinetManager
-      operationId: findSimilarPublicationsIsbnDoi
-      summary: Finds similar publications
-      parameters:
-        - $ref: '#/components/parameters/isbn'
-        - $ref: '#/components/parameters/doi'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfPublicationForGUIResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/cabinetManager/findSimilarPublications/title:
-    get:
-      tags:
-        - CabinetManager
-      operationId: findSimilarPublicationsTitle
-      summary: Finds similar publications
-      parameters:
-        - $ref: '#/components/parameters/title'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfPublicationForGUIResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/cabinetManager/findSimilarPublications/title-doi:
-    get:
-      tags:
-        - CabinetManager
-      operationId: findSimilarPublicationsTitleDoi
-      summary: Finds similar publications
-      parameters:
-        - $ref: '#/components/parameters/title'
-        - $ref: '#/components/parameters/doi'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfPublicationForGUIResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/cabinetManager/findSimilarPublications/doi:
-    get:
-      tags:
-        - CabinetManager
-      operationId: findSimilarPublicationsDoi
-      summary: Finds similar publications
-      parameters:
-        - $ref: '#/components/parameters/doi'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfPublicationForGUIResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
-
-  /json/cabinetManager/findSimilarPublications/title-isbn-doi:
-    get:
-      tags:
-        - CabinetManager
-      operationId: findSimilarPublicationsTitleIsbnDoi
-      summary: Finds similar publications
-      parameters:
-        - $ref: '#/components/parameters/title'
-        - $ref: '#/components/parameters/isbn'
-        - $ref: '#/components/parameters/doi'
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfPublicationForGUIResponse'
-        default:
-          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
