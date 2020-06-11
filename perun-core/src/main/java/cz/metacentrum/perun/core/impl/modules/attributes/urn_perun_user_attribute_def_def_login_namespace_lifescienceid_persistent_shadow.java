@@ -11,8 +11,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserPersistentShadow
 public class urn_perun_user_attribute_def_def_login_namespace_lifescienceid_persistent_shadow
 		extends UserPersistentShadowAttribute {
 
-	private final static String extSourceNamelifescienceid = "https://proxy.lifescienceid.org/proxy";
-	private final static String domainNamelifescienceid = "lifescienceid.org";
+	private final static String extSourceNamelifescienceid = "https://proxy.aai.lifescience-ri.eu/proxy";
+	private final static String domainNamelifescienceid = "lifescience-ri.eu";
 	private final static String attrNamelifescienceid = "login-namespace:lifescienceid-persistent-shadow";
 
 	@Override
