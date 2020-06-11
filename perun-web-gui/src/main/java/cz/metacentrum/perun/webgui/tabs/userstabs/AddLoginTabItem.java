@@ -230,7 +230,7 @@ public class AddLoginTabItem implements TabItem {
 						@Override
 						public void onError(PerunError error) {
 							if (value.equals(userLogin.getTextBox().getValue().trim())) {
-								if ("InvalidLoginException".equalsIgnoreCase(error.getType())) {
+								if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
 									userLogin.setProcessing(false);
 									String text = error.getErrorInfo();
 									text = text.split(":", 2)[1];

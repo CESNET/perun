@@ -455,7 +455,8 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								button.addClickHandler(new ClickHandler() {
 									public void onClick(ClickEvent clickEvent) {
 
-										if (!validator.validateTextBox() && !validator2.validateTextBox()) {
+										if (!validator.validateTextBox() || !validator2.validateTextBox()) {
+											// one of input boxes for passwords is wrong
 											return;
 										}
 
@@ -634,8 +635,11 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								ft.setHTML(1, 0, "Re-type&nbsp;password:");
 								ft.setWidget(1, 1, serviceUserPassword2);
 								ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
-
-								ft.setHTML(2, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+								if ("einfra".equals(namespace.getSelectedValue())) {
+									ft.setHTML(2, 0, "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
+								} else {
+									ft.setHTML(2, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+								}
 								ft.getFlexCellFormatter().setColSpan(2, 0, 2);
 								ft.getCellFormatter().setStyleName(2, 0,"inputFormInlineComment");
 
@@ -772,7 +776,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 						public void onError(PerunError error) {
 							// response is relevant to current value
 							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-								if ("InvalidLoginException".equalsIgnoreCase(error.getType())) {
+								if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
 									serviceUserLogin.setProcessing(false);
 									String text = error.getErrorInfo();
 									text = text.split(":", 2)[1];
@@ -843,7 +847,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 							public void onError(PerunError error) {
 								// response is relevant to current value
 								if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-									if ("InvalidLoginException".equalsIgnoreCase(error.getType())) {
+									if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
 										serviceUserLogin.setProcessing(false);
 										String text = error.getErrorInfo();
 										text = text.split(":", 2)[1];

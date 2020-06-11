@@ -1330,7 +1330,7 @@ public class RegistrarFormItemGenerator {
 									// value changed before request finished, don't update the valid value
 									return;
 								}
-								if ("InvalidLoginException".equalsIgnoreCase(error.getType())) {
+								if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
 									validMap.put(str,false);
 									statusCellWrapper.setWidget(new FormInputStatusWidget("Login has invalid syntax." + error.getErrorInfo(), Status.ERROR));
 								} else {

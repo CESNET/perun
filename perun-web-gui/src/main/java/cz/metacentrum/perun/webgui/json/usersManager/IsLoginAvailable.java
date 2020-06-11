@@ -142,7 +142,7 @@ public class IsLoginAvailable implements JsonCallback {
 
 	public void onError(PerunError error) {
 
-		if (error != null && !"InvalidLoginException".equalsIgnoreCase(error.getType())) {
+		if (error != null && !"InvalidLoginException".equalsIgnoreCase(error.getName())) {
 			// creates a alert box
 			JsonErrorHandler.alertBox(error);
 		}
