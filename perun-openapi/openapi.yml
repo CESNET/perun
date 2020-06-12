@@ -2002,6 +2002,14 @@ components:
       in: query
       required: true
 
+    ownerName:
+      name: owner
+      description: "name of Owner"
+      schema:
+        type: string
+      in: query
+      required: true
+
     serviceId:
       name: service
       description: "id of Service"
@@ -8442,6 +8450,20 @@ paths:
       summary: Returns Owner by its id.
       parameters:
         - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/OwnerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/ownersManager/getOwnerByName:
+    get:
+      tags:
+        - OwnersManager
+      operationId: getOwnerByName
+      summary: Returns Owner by its name.
+      parameters:
+        - $ref: '#/components/parameters/ownerName'
       responses:
         '200':
           $ref: '#/components/responses/OwnerResponse'

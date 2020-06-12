@@ -126,6 +126,17 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	}
 
 	@Override
+	public Owner getOwnerByName(PerunSession sess, String name) throws OwnerNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + ownerMappingSelectQuery + " from owners where name=?", OWNER_MAPPER, name);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new OwnerNotExistsException("Owner name=" + name, ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Owner> getOwners(PerunSession sess) {
 		try {
 			return jdbc.query("select " + ownerMappingSelectQuery + " from owners", OWNER_MAPPER);

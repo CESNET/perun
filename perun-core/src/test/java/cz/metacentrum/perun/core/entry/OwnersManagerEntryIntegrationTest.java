@@ -79,6 +79,18 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	/**
+	 * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwnerByName(cz.metacentrum.perun.core.api.PerunSession, String)}.
+	 */
+	@Test
+	public void testGetOwnerByName() throws Exception {
+		System.out.println(CLASS_NAME + "getOwnerByName");
+
+		final Owner result = ownersManagerEntry.getOwnerByName(sess, createdOwner.getName());
+
+		assertEquals(createdOwner, result);
+	}
+
+	/**
 	 * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwners(cz.metacentrum.perun.core.api.PerunSession)}.
 	 */
 	@Test

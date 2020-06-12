@@ -73,6 +73,19 @@ public interface OwnersManagerImplApi {
 	Owner getOwnerById(PerunSession perunSession, int id) throws OwnerNotExistsException;
 
 	/**
+	 * Find owner by name.
+	 *
+	 * @param perunSession perun session
+	 * @param name name of the owner
+	 *
+	 * @return Owner with specified name
+	 *
+	 * @throws OwnerNotExistsException if owner with given name does not exist
+	 * @throws InternalErrorException
+	 */
+	Owner getOwnerByName(PerunSession perunSession, String name) throws OwnerNotExistsException, InternalErrorException;
+
+	/**
 	 * Return all owners.
 	 *
 	 * @param perunSession

@@ -84,6 +84,11 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 	}
 
 	@Override
+	public Owner getOwnerByName(PerunSession sess, String name) throws OwnerNotExistsException {
+		return getOwnersManagerImpl().getOwnerByName(sess, name);
+	}
+
+	@Override
 	public List<Owner> getOwners(PerunSession sess) {
 		return getOwnersManagerImpl().getOwners(sess);
 	}
