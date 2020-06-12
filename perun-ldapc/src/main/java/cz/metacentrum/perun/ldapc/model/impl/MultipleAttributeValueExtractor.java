@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute.MultipleValuesExtractor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -59,6 +60,8 @@ public class MultipleAttributeValueExtractor<T extends PerunBean> extends Attrib
 										: valueTransformer.getValue((String) value, attribute)
 						};
 				}
+				// values must unique, otherwise ldap server rejects them
+				result = Arrays.asList(result).stream().distinct().toArray(String[]::new);
 				return result;
 			}
 		}
