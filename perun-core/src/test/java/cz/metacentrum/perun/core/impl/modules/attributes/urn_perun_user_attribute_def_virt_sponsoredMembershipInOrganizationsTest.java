@@ -87,7 +87,6 @@ public class urn_perun_user_attribute_def_virt_sponsoredMembershipInOrganization
 		ArrayList<String> attributeValue = classInstance.getAttributeValue(sess, user, sponsoredMembershipInOrganizationsAttrDef).valueAsList();
 
 		assertNotNull(attributeValue);
-		//we want to be sure, that preferredEmail is first (defined by sorting in module)
 		assertEquals(2, attributeValue.size());
 		assertTrue(attributeValue.contains(value1));
 		assertTrue(attributeValue.contains(value2));
