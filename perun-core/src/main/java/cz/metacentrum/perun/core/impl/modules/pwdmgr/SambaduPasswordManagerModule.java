@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -34,6 +35,10 @@ public class SambaduPasswordManagerModule extends EinfraPasswordManagerModule {
 
 		// set proper namespace
 		this.actualLoginNamespace = "samba-du";
+
+		// re-init config since Einfra pwd module already modified it
+		this.passwordManagerProgram = BeansUtils.getCoreConfig().getPasswordManagerProgram();
+		this.altPasswordManagerProgram = BeansUtils.getCoreConfig().getAlternativePasswordManagerProgram();
 
 		// if we are not faking password manager by using /bin/true value in the config,
 		// then append namespace to the script path to trigger correct password manager script.
