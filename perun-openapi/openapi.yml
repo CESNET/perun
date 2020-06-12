@@ -1752,6 +1752,14 @@ components:
       in: query
       required: true
 
+    facilityName:
+      name: facility
+      description: "name of Facility"
+      schema:
+        type: string
+      in: query
+      required: true
+
     optionalFacilityId:
       name: facility
       description: "id of Facility"
@@ -7397,6 +7405,26 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAssignedUsers/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedUsersByFacilityName
+      summary: Lists all users assigned to facility containing resources where service is assigned.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - name: service
+          description: "id of Service"
+          schema:
+            type: integer
+          in: query
+          required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getRichFacilities:
     get:
       tags:
@@ -7481,6 +7509,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getOwners/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityOwnersByFacilityName
+      summary: Returns owners of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfOwnersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addOwner:
     post:
       tags:
@@ -7490,6 +7532,51 @@ paths:
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/ownerId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwner/f-o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnerByFacilityNameOwnerName
+      summary: Adds owner of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwner/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnerByFacilityName
+      summary: Adds owner of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addOwner/o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityOwnerByOwnerName
+      summary: Adds owner of a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerName'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7511,6 +7598,51 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeOwner/f-o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnerByFacilityNameOwnerName
+      summary: Removes owner from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeOwner/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnerByFacilityName
+      summary: Removes owner from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/ownerId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeOwner/o-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityOwnerByOwnerName
+      summary: Removes owner from a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/ownerName'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/getAllowedVos:
     post:
       tags:
@@ -7525,6 +7657,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/getAllowedVos/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedVosByFacilityName
+      summary: Return all VO which can use a facility. (VO must have the resource which belongs to this facility.)
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getAllowedGroups:
     get:
       tags:
@@ -7533,6 +7679,22 @@ paths:
       summary: Get all assigned groups on Facility, optionally filtered by Vo or Service or both.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+        - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
+        - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAllowedGroups/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedGroupsByFacilityName
+      summary: Get all assigned groups on Facility, optionally filtered by Vo or Service or both.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
         - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
         - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
       responses:
@@ -7558,6 +7720,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAllowedRichGroupsWithAttributes/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedRichGroupsWithAttributesByFacilityName
+      summary: Get all assigned RichGroups on Facility with specified set of attributes, optionally filtered by Vo or Service or both.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/attrNames'
+        - { name: vo, description: "id of Vo", schema: { type: integer },  in: query, required: false }
+        - { name: service, description: "id of Service", schema: { type: integer },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getAssignedResources:
     get:
       tags:
@@ -7572,6 +7751,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAssignedResources/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedResourcesForFacilityByFacilityName
+      summary: Returns all resources assigned to a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getAssignedRichResources:
     get:
       tags:
@@ -7580,6 +7773,20 @@ paths:
       summary: Returns all rich resources assigned to a facility with VO property filled.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAssignedRichResources/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedRichResourcesForFacilityByFacilityName
+      summary: Returns all rich resources assigned to a facility with VO property filled.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichResourcesResponse'
@@ -7609,6 +7816,20 @@ paths:
       summary: Deletes a facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/deleteFacility/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: deleteFacilityByFacilityName
+      summary: Deletes a facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7661,6 +7882,20 @@ paths:
       summary: Returns Hosts of a Facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfHostsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getHosts/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getHostsByFacilityName
+      summary: Returns Hosts of a Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
       responses:
         '200':
           $ref: '#/components/responses/ListOfHostsResponse'
@@ -7723,6 +7958,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getHostsCount/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getHostsCountByFacilityName
+      summary: Count hosts of Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addHosts:
     post:
       tags:
@@ -7731,6 +7980,21 @@ paths:
       summary: Adds hosts to the Facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/hostnames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfHostsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/addHosts/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addHostsByFacilityName
+      summary: Adds hosts to the Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/hostnames'
       responses:
         '200':
@@ -7753,6 +8017,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeHosts/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeHostsByFacilityName
+      summary: Remove hosts from a Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/listOfHostIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addHost:
     post:
       tags:
@@ -7768,6 +8047,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addHost/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addHostByFacilityName
+      summary: Adds a host to the Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - { name: hostname, description: "DNS name of host", schema: { type: string },  in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfHostsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/removeHost:
     post:
       tags:
@@ -7776,6 +8070,20 @@ paths:
       summary: Removes a host.
       parameters:
         - $ref: '#/components/parameters/hostId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeHostByHostname:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeHostByHostname
+      summary: Remove host from the Facility based on hostname. If there is ambiguity, method throws exception and no host is removed.
+      parameters:
+        - { name: hostname, schema: { type: string }, in: query, required: true, description: "specific hostname"}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7853,6 +8161,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addAdmin/user/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityAdminUserByFacilityName
+      summary: Adds a user as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/addAdmin/group:
     post:
       tags:
@@ -7868,6 +8191,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/addAdmin/group/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: addFacilityAdminGroupByFacilityName
+      summary: Adds a group as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/authorizedGroup'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /urlinjsonout/facilitiesManager/removeAdmin/user:
     post:
@@ -7884,6 +8221,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/removeAdmin/user/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityAdminUserByFacilityName
+      summary: Removes a user as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/removeAdmin/group:
     post:
       tags:
@@ -7892,6 +8244,21 @@ paths:
       summary: Removes a group as a Facility admin.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/authorizedGroup'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeAdmin/group/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeFacilityAdminGroupByFacilityName
+      summary: Removes a group as a Facility admin.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/authorizedGroup'
       responses:
         '200':
@@ -7918,6 +8285,24 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAdmins/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityAdminUsersByFacilityName
+      description: |
+        Get list of all facility administrators for supported role and given facility.
+        If onlyDirectAdmins is true, return only direct admins of the group for supported role.
+        Supported roles: FacilityAdmin
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getAdminGroups:
     get:
       tags:
@@ -7926,6 +8311,20 @@ paths:
       summary: Get all Facility group admins.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getAdminGroups/f-name:
+    get:
+      tags:
+        - FacilitiesManagerByFacilityName
+      operationId: getFacilityAdminGroupsByFacilityName
+      summary: Get all Facility group admins.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
@@ -7976,6 +8375,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAllowedUsers/v-f-s/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAllowedUsersOfFacilityByFacilityName
+      summary: Return all users which can use this facility
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO"}
+        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #TODO getAllowedUsers - another future versions
 
   /urlinjsonout/facilitiesManager/copyOwners:
@@ -7987,6 +8402,51 @@ paths:
       parameters:
         - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
         - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyOwners/src-dest-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyOwnersBySourceDestinationNames
+      summary: Copy owners from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyOwners/src-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyOwnersBySourceName
+      summary: Copy owners from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyOwners/dest-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyOwnersByDestinationName
+      summary: Copy owners from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8008,6 +8468,51 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/copyManagers/src-dest-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyManagersBySourceDestinationNames
+      summary: Copy managers from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyManagers/src-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyManagersBySourceName
+      summary: Copy managers from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyManagers/dest-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyManagersByDestinationName
+      summary: Copy managers from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/copyAttributes:
     post:
       tags:
@@ -8017,6 +8522,51 @@ paths:
       parameters:
         - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
         - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyAttributes/src-dest-names:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyAttributesBySourceDestinationNames
+      summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyAttributes/src-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyAttributesBySourceName
+      summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/copyAttributes/dest-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: copyAttributesByDestinationName
+      summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
+      parameters:
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8079,6 +8629,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getFacilityContactGroups/facility/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupsForFacilityByFacilityName
+      summary: Get list of contact groups for the Facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getFacilityContactGroup:
     get:
       tags:
@@ -8087,6 +8651,21 @@ paths:
       summary: Get contact group for the facility and the name.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+        - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group"}
+      responses:
+        '200':
+          $ref: '#/components/responses/ContactGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilityContactGroup/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilityContactGroupByFacilityName
+      summary: Get contact group for the facility and the name.
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
         - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group"}
       responses:
         '200':
@@ -8222,6 +8801,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAssignedSecurityTeams/f-name:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedSecurityTeamsByFacilityName
+      summary: Return assigned security teams for specific facility
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/assignSecurityTeam:
     post:
       tags:
@@ -8237,6 +8830,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/facilitiesManager/assignSecurityTeam/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: assignSecurityTeamByFacilityName
+      summary: Assign given security team to given facility (means the facility trusts the security team)
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/facilitiesManager/removeSecurityTeam:
     post:
       tags:
@@ -8245,6 +8853,21 @@ paths:
       summary: Remove (Unassign) given security team from given facility
       parameters:
         - $ref: '#/components/parameters/facilityId'
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/facilitiesManager/removeSecurityTeam/f-name:
+    post:
+      tags:
+        - FacilitiesManager
+      operationId: removeSecurityTeamByFacilityName
+      summary: Remove (Unassign) given security team from given facility
+      parameters:
+        - $ref: '#/components/parameters/facilityName'
         - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
       responses:
         '200':
