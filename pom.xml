@@ -16,8 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.0.RELEASE</version>
-		<relativePath/>
+		<version>2.3.1.RELEASE</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -63,6 +62,7 @@
 
 		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
 		<tomcat.version>8.5.34</tomcat.version>
+		<oracle-database.version>19.6.0.0</oracle-database.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.4</commons-cli.version>
@@ -77,7 +77,6 @@
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20190722</json.version>
-		<oracle.version>19.6.0.0</oracle.version>
 		<reflections.version>0.9.11</reflections.version>
 	</properties>
 
@@ -231,19 +230,6 @@
 	-->
 	<dependencyManagement>
 		<dependencies>
-
-			<!-- Oracle jdbc driver -->
-			<dependency>
-				<groupId>com.oracle.database.jdbc</groupId>
-				<artifactId>ojdbc8</artifactId>
-				<version>${oracle.version}</version>
-			</dependency>
-			<!-- Oracle internationalization -->
-			<dependency>
-				<groupId>com.oracle.database.nls</groupId>
-				<artifactId>orai18n</artifactId>
-				<version>${oracle.version}</version>
-			</dependency>
 
 			<dependency>
 				<groupId>net.jcip</groupId>
