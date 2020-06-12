@@ -1,11 +1,15 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModule;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,12 +28,21 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickn
 		session = mock(PerunSessionImpl.class);
 		user = new User();
 		attributeToCheck = new Attribute();
+		attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attributeToCheck.setFriendlyName("login-namespace:eduteams-acc-nickname");
 
 		PerunBl perunBl = mock(PerunBl.class);
 		when(session.getPerunBl()).thenReturn(perunBl);
 
 		ModulesUtilsBl modulesUtilsBl = mock(ModulesUtilsBl.class);
 		when(perunBl.getModulesUtilsBl()).thenReturn(modulesUtilsBl);
+
+		UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
+		when(perunBl.getUsersManagerBl()).thenReturn(usersManagerBl);
+
+		PasswordManagerModule module = mock(GenericPasswordManagerModule.class);
+		when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "eduteams-acc-nickname")).thenReturn(module);
+
 	}
 
 	@Test

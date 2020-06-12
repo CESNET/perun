@@ -2083,6 +2083,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				false, possibleCharacters, new SecureRandom());
 
 		try {
+			// FIXME - we want to re-generate password if it was considered weak
 			changePassword(session, user, loginNamespace, null, newRandomPassword, false);
 		} catch (PasswordDoesntMatchException | PasswordStrengthFailedException e) {
 			// should not happen when we are not using the old password
