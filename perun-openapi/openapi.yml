@@ -567,6 +567,7 @@ components:
         i18n:
           type: object
           additionalProperties: { $ref: '#/components/schemas/ItemTexts' }
+        forDelete: { type: boolean }
 
     ApplicationFormItemData:
       type: object
