@@ -238,17 +238,10 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.opencsv</groupId>
-				<artifactId>opencsv</artifactId>
-				<version>${opencsv.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
 				<version>${commons-text.version}</version>
 			</dependency>
-
 
 			<dependency>
 				<groupId>com.google.apis</groupId>
@@ -272,12 +265,6 @@
 				<groupId>dumbster</groupId>
 				<artifactId>dumbster</artifactId>
 				<version>${dumbster.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>jivesoftware</groupId>
-				<artifactId>smackx</artifactId>
-				<version>${smackx.version}</version>
 			</dependency>
 
 			<dependency>
