@@ -993,6 +993,29 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
+	public void removeHostByHostname(PerunSession sess, String hostname) throws HostNotExistsException, HostAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
+
+		List<Host> hosts = getFacilitiesManagerBl().getHostsByHostname(sess, hostname);
+
+		Iterator<Host> hostIterator = hosts.iterator();
+		while (hostIterator.hasNext()) {
+			Host host = hostIterator.next();
+			Facility facility = getFacilitiesManagerBl().getFacilityForHost(sess, host);
+
+			// Authorization
+			if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				hostIterator.remove();
+			}
+		}
+
+		if (hosts.size() != 1) throw new HostNotExistsException("There is no unique host with this hostname: " + hostname);
+		Host host = hosts.get(0);
+
+		getFacilitiesManagerBl().removeHost(sess, host);
+	}
+
+	@Override
 	public Host getHostById(PerunSession sess, int hostId) throws HostNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

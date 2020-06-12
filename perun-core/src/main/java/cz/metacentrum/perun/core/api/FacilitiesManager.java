@@ -332,6 +332,14 @@ public interface FacilitiesManager {
 	void removeHost(PerunSession perunSession, Host host) throws HostNotExistsException, PrivilegeException, HostAlreadyRemovedException;
 
 	/**
+	 * Remove host from the Facility based on hostname. If there is ambiguity, method throws exception and no host is removed.
+	 *
+	 * @throws HostAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 * @throws HostNotExistsException if there is ambiguity in host to remove
+	 */
+	void removeHostByHostname(PerunSession perunSession, String Hostname) throws InternalErrorException, HostNotExistsException, HostAlreadyRemovedException;
+
+	/**
 	 * Get the host by its ID.
 	 *
 	 * @return host

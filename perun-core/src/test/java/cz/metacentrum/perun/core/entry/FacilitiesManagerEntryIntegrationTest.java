@@ -31,7 +31,9 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
+import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
@@ -844,6 +846,44 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		facilitiesManagerEntry.removeHosts(sess, hosts, emptyFac);
 		// shouldn't find facility
+	}
+
+	@Test
+	public void removeHostByHostname()throws Exception{
+		System.out.println(CLASS_NAME + "removeHostByHostname");
+
+		facilitiesManagerEntry.addHosts(sess, hosts, facility);
+		// set this host for deletion - host is created after adding to facility !!
+		hostsForDeletion.add(hosts.get(0));
+
+		facilitiesManagerEntry.removeHostByHostname(sess, "FacilitiesManagerTest");
+	}
+
+	@Test(expected=HostNotExistsException.class)
+	public void removeHostByHostnameNotUniqueHostname()throws Exception{
+		System.out.println(CLASS_NAME + "removeHostByHostnameNotUniqueHostname");
+
+		Host createdHost2 = new Host();
+		createdHost2.setHostname("FacilitiesManagerTest");
+		hosts.add(createdHost2);
+
+		facilitiesManagerEntry.addHosts(sess, hosts, facility);
+		// set this host for deletion - host is created after adding to facility !!
+		hostsForDeletion.add(hosts.get(0));
+		hostsForDeletion.add(hosts.get(1));
+
+		facilitiesManagerEntry.removeHostByHostname(sess, "FacilitiesManagerTest");
+	}
+
+	@Test(expected=HostNotExistsException.class)
+	public void removeHostByHostnameNoneFound()throws Exception{
+		System.out.println(CLASS_NAME + "removeHostByHostnameNoneFound");
+
+		facilitiesManagerEntry.addHosts(sess, hosts, facility);
+		// set this host for deletion - host is created after adding to facility !!
+		hostsForDeletion.add(hosts.get(0));
+
+		facilitiesManagerEntry.removeHostByHostname(sess, "FacilitiesManagerTest2");
 	}
 
 	@Test
