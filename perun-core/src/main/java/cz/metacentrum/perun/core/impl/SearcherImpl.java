@@ -65,6 +65,22 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
+	public List<Group> getGroups(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) {
+		StringBuilder query = new StringBuilder();
+		query.append("select distinct " + GroupsManagerImpl.groupMappingSelectQuery + " from groups ");
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "group_attr_values", "group", "groups", attributesWithSearchingValues, false);
+
+		try {
+			return jdbc.query(query.toString(), parameters, GroupsManagerImpl.GROUP_MAPPER);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date, int days) throws InternalErrorException {
 
 		// this would default to now
