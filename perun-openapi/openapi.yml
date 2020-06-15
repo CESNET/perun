@@ -11263,6 +11263,33 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/submitApplication:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: submitApplication
+      summary: Creates a new application and if succeeds, trigger validation and approval.
+        The method triggers approval for VOs with auto-approved applications.
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSubmitApplication
+              description: "input to submitApplication"
+              type: object
+              required:
+                - app
+                - data
+              properties:
+                app: { $ref: '#/components/schemas/Application' }
+                data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+
   #################################################
   #                                               #
   # ServicesManager                               #

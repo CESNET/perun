@@ -1064,77 +1064,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	@Deprecated
 	public List<ApplicationFormItemData> createApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
-
-		// If user is known in Perun but unknown in GUI (user joined identity by consolidator)
-		if (application.getUser() == null && session.getPerunPrincipal().getUser() != null) {
-			application.setUser(session.getPerunPrincipal().getUser());
-		}
-
-		// lock to prevent multiple submission of same application on server side
-		String key = getLockKeyForApplication(application);
-
-		synchronized(runningCreateApplication) {
-			if (runningCreateApplication.contains(key)) {
-				throw new AlreadyProcessingException("Your application submission is being processed already.");
-			} else {
-				runningCreateApplication.add(key);
-			}
-		}
-
-		// store user-ext-source attributes from session to application object
-		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
-		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
-		application.setFedInfo(additionalAttrs);
-
-		Application app;
-		try {
-
-			// throws exception if user already submitted application or is already a member or can't submit it by VO/Group expiration rules.
-			checkDuplicateRegistrationAttempt(session, application.getType(), (application.getGroup() != null) ? getFormForGroup(application.getGroup()) : getFormForVo(application.getVo()));
-
-			// using this to init inner transaction
-			// all minor exceptions inside are catched, if not, it's ok to throw them out
-			app = this.registrarManager.createApplicationInternal(session, application, data);
-		} catch (Exception ex) {
-			// clear flag and re-throw exception, since application was processed with exception
-			synchronized (runningCreateApplication) {
-				runningCreateApplication.remove(key);
-			}
-			throw ex;
-		}
-
-		// try to verify (or even auto-approve) application
-		try {
-			boolean verified = tryToVerifyApplication(session, app);
-			if (verified) {
-				// try to APPROVE if auto approve
-				tryToAutoApproveApplication(session, app);
-			} else {
-				// send request validation notification
-				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
-			}
-			// refresh current session, if submission was successful,
-			// since user might have been created.
-			AuthzResolverBlImpl.refreshSession(session);
-		} catch (Exception ex) {
-			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
-			// clear flag and re-throw exception, since application was processed with exception
-			synchronized (runningCreateApplication) {
-				runningCreateApplication.remove(key);
-			}
-			throw ex;
-		}
-
-		// clear flag, since application was processed
-		synchronized (runningCreateApplication) {
-			runningCreateApplication.remove(key);
-		}
-
-		return data;
-
+		int appId = processApplication(session, application, data);
+		return getApplicationDataById(session, appId);
 	}
 
+	@Override
+	public Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+		int appId = processApplication(session, application, data);
+		return getApplicationById(appId);
+	}
 
 	@Override
 	@Transactional(rollbackFor = ApplicationNotCreatedException.class)
@@ -3458,6 +3398,77 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				getApplicationById(filteredApplications.get(0).getId()),
 				getApplicationDataById(registrarSession, filteredApplications.get(0).getId()));
 		}
+	}
+
+	private int processApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+
+		// If user is known in Perun but unknown in GUI (user joined identity by consolidator)
+		if (application.getUser() == null && session.getPerunPrincipal().getUser() != null) {
+			application.setUser(session.getPerunPrincipal().getUser());
+		}
+
+		// lock to prevent multiple submission of same application on server side
+		String key = getLockKeyForApplication(application);
+
+		synchronized(runningCreateApplication) {
+			if (runningCreateApplication.contains(key)) {
+				throw new AlreadyProcessingException("Your application submission is being processed already.");
+			} else {
+				runningCreateApplication.add(key);
+			}
+		}
+
+		// store user-ext-source attributes from session to application object
+		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
+		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
+		application.setFedInfo(additionalAttrs);
+
+		Application app;
+		try {
+
+			// throws exception if user already submitted application or is already a member or can't submit it by VO/Group expiration rules.
+			checkDuplicateRegistrationAttempt(session, application.getType(), (application.getGroup() != null) ? getFormForGroup(application.getGroup()) : getFormForVo(application.getVo()));
+
+			// using this to init inner transaction
+			// all minor exceptions inside are catched, if not, it's ok to throw them out
+			app = this.registrarManager.createApplicationInternal(session, application, data);
+		} catch (Exception ex) {
+			// clear flag and re-throw exception, since application was processed with exception
+			synchronized (runningCreateApplication) {
+				runningCreateApplication.remove(key);
+			}
+			throw ex;
+		}
+
+		// try to verify (or even auto-approve) application
+		try {
+			boolean verified = tryToVerifyApplication(session, app);
+			if (verified) {
+				// try to APPROVE if auto approve
+				tryToAutoApproveApplication(session, app);
+			} else {
+				// send request validation notification
+				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
+			}
+			// refresh current session, if submission was successful,
+			// since user might have been created.
+			AuthzResolverBlImpl.refreshSession(session);
+		} catch (Exception ex) {
+			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
+			// clear flag and re-throw exception, since application was processed with exception
+			synchronized (runningCreateApplication) {
+				runningCreateApplication.remove(key);
+			}
+			throw ex;
+		}
+
+		// clear flag, since application was processed
+		synchronized (runningCreateApplication) {
+			runningCreateApplication.remove(key);
+		}
+
+		return app.getId();
+
 	}
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------

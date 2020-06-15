@@ -582,6 +582,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Creates a new application.
 	 * The method triggers approval for VOs with auto-approved applications.
 	 *
+	 * @deprecated See submitApplication()
 	 * @param app Application Application JSON object
 	 * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
 	 * @return List<ApplicationFormItemData> Stored app data
@@ -596,6 +597,29 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			List<ApplicationFormItemData> data = parms.readList("data", ApplicationFormItemData.class);
 
 			return ac.getRegistrarManager().createApplication(ac.getSession(), app, data);
+
+		}
+
+	},
+
+	/*#
+	 * Creates a new application.
+	 * The method triggers approval for VOs with auto-approved applications.
+	 *
+	 * @param app Application Application JSON object
+	 * @param data List<ApplicationFormItemData> List of ApplicationFormItemData JSON objects
+	 * @return Application Submitted application
+	 */
+	submitApplication {
+
+		@Override
+		public Application call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			Application app = parms.read("app", Application.class);
+			List<ApplicationFormItemData> data = parms.readList("data", ApplicationFormItemData.class);
+
+			return ac.getRegistrarManager().submitApplication(ac.getSession(), app, data);
 
 		}
 
