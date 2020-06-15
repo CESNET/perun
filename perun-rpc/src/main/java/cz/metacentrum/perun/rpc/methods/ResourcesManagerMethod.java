@@ -3,6 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -683,6 +684,32 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			ac.getResourcesManager().assignService(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")),
 					ac.getServiceById(parms.readInt("service")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Assign services to resource.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param services List<Integer> list of services IDs
+	 */
+	assignServices {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			List<Integer> ids = parms.readList("services", Integer.class);
+			List<Service> services = new ArrayList<>();
+
+			for (Integer id : ids) {
+				services.add(ac.getServiceById(id));
+			}
+
+			ac.getResourcesManager().assignServices(ac.getSession(),
+					ac.getResourceById(parms.readInt("resource")),
+					services);
 			return null;
 		}
 	},

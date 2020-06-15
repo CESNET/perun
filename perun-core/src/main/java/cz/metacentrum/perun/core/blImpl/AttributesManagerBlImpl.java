@@ -1706,7 +1706,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean forceAttributesChecks) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean forceAttributesChecks) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
 		//fill attributes and get back only those which were really filled with new value
 		List<Attribute> filledAttributes = this.fillAttributes(sess, facility, resource, user, member, attributes, true);
 
@@ -1797,6 +1797,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		List<Attribute> attributes = this.getRequiredAttributes(sess, service, facility, resource, user, member);
 
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes, forceAttributesChecks);
+	}
+
+	@Override
+	public void setRequiredAttributes(PerunSession sess, List<Service> services, Facility facility, Resource resource, User user, Member member, boolean forceAttributesChecks) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
+		//get all attributes (for member, resource, facility, user and service) with values
+		List<Attribute> attributes = getRequiredAttributes(sess, services, facility, resource, user, member);
+
+		setRequiredAttributes(sess, facility, resource, user, member, attributes, forceAttributesChecks);
 	}
 
 	@Override
@@ -3030,6 +3038,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Facility facility, Resource resource, User user, Member member) throws MemberResourceMismatchException {
+		Set<Attribute> attributes = new HashSet<>();
+		for (Service service : services) {
+			attributes.addAll(getRequiredAttributes(sess, service, facility, resource, user, member));
+		}
+		return new ArrayList<>(attributes);
+	}
+
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean withGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!withGroupAttributes)
@@ -3040,6 +3057,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, group));
 		return attributes;
 
+	}
+
+	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource, Group group, boolean withGroupAttributes) throws GroupResourceMismatchException {
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+
+		List<Attribute> attributes = getAttributesManagerImpl().getRequiredAttributes(sess, services, resource, group);
+		if (withGroupAttributes) {
+			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, services, group));
+		}
+		return attributes;
 	}
 
 	@Override
