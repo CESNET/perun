@@ -543,6 +543,23 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public void assignServices(PerunSession sess, Resource resource, List<Service> services) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+
+		for (Service service : services) {
+			getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		}
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "assignServices");
+		}
+
+		getResourcesManagerBl().assignServices(sess, resource, services);
+	}
+
+	@Override
 	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 
