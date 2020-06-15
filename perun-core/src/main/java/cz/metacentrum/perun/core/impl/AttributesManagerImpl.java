@@ -69,6 +69,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -3257,17 +3258,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
-					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id "  + Compatibility.getStructureForInClause() +
-					"left join    group_resource_attr_values     grp_res     on id=grp_res.attr_id     and   group_id=? and resource_id=? " +
-					"where namespace in (?,?,?)",
-				new GroupResourceAttributeRowMapper(sess, this, group, resource),
-					services.stream().map(Service::getId).collect(Collectors.toList()),
-					group.getId(),
-					resource.getId(),
-					AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF,
-					AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT,
-					AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
+
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+			List<String> namespace = new ArrayList<>();
+			namespace.add(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+			namespace.add(AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT);
+			namespace.add(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
+
+			parameters.addValue("serviceIds", services.stream().map(Service::getId).collect(Collectors.toList()));
+			parameters.addValue("groupId", group.getId());
+			parameters.addValue("resourceId", resource.getId());
+			parameters.addValue("namespaces", namespace);
+
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
+					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id in (:serviceIds) " +
+					"left join    group_resource_attr_values     grp_res     on id=grp_res.attr_id     and   group_id=:groupId and resource_id=:resourceId " +
+					"where namespace in (:namespaces)",
+				parameters,
+				new GroupResourceAttributeRowMapper(sess, this, group, resource));
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3597,18 +3606,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return this.setValuesOfAttributes(sess, attrs, group, null);
 		}
 
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+		List<String> namespace = new ArrayList<>();
+		namespace.add(AttributesManager.NS_GROUP_ATTR_CORE);
+		namespace.add(AttributesManager.NS_GROUP_ATTR_DEF);
+		namespace.add(AttributesManager.NS_GROUP_ATTR_OPT);
+		namespace.add(AttributesManager.NS_GROUP_ATTR_VIRT);
+
+		parameters.addValue("serviceIds", services.stream().map(Service::getId).collect(Collectors.toList()));
+		parameters.addValue("groupId", group.getId());
+		parameters.addValue("namespaces", namespace);
+
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
-					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id " + Compatibility.getStructureForInClause() +
-					"left join      group_attr_values    grp   on      id=grp.attr_id    and  group_id=? " +
-					"where namespace in (?,?,?,?)",
-				new SingleBeanAttributeRowMapper<>(sess, this, group),
-					services.stream().map(Service::getId).collect(Collectors.toList()),
-					group.getId(),
-					AttributesManager.NS_GROUP_ATTR_CORE,
-					AttributesManager.NS_GROUP_ATTR_DEF,
-					AttributesManager.NS_GROUP_ATTR_OPT,
-					AttributesManager.NS_GROUP_ATTR_VIRT);
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id in (:serviceIds) " +
+					"left join      group_attr_values    grp   on      id=grp.attr_id    and  group_id=:groupId " +
+					"where namespace in (:namespaces)",
+				parameters,
+				new SingleBeanAttributeRowMapper<>(sess, this, group));
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
