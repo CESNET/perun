@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -24,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Searcher Class for searching objects by Map of Attributes
@@ -82,6 +84,37 @@ public class SearcherBlImpl implements SearcherBl {
 			}
 		}
 		return this.getUsersForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues);
+	}
+
+	@Override
+	public List<Group> getGroups(PerunSession sess, Vo vo, Map<String, String> attributesWithSearchingValues) throws AttributeNotExistsException {
+		return this.getGroups(sess, attributesWithSearchingValues).stream()
+			.filter( group -> group.getVoId() == vo.getId())
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Group> getGroups(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws AttributeNotExistsException {
+		//If there is no attribute, so every group match
+		if(attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
+			return perunBl.getVosManagerBl().getVos(sess).stream()
+				.flatMap( vo -> perunBl.getGroupsManagerBl().getAllGroups(sess, vo).stream())
+				.collect(Collectors.toList());
+		}
+
+		Map<Attribute, String> mapOfAttrsWithValues = new HashMap<>();
+		for(String name: attributesWithSearchingValues.keySet()) {
+			if(name == null || name.isEmpty()) throw new AttributeNotExistsException("There is attribute with no specific name!");
+			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, name);
+			if(getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attrDef)) {
+				//skip core attributes, there are unsupported at this moment
+				continue;
+			} else {
+				mapOfAttrsWithValues.put(new Attribute(attrDef), attributesWithSearchingValues.get(name));
+			}
+		}
+
+		return getSearcherImpl().getGroups(sess, mapOfAttrsWithValues);
 	}
 
 	@Override
