@@ -578,6 +578,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public void removeServices(PerunSession sess, Resource resource, List<Service> services) throws InternalErrorException, ServiceNotAssignedException {
+		for (Service service : services) {
+			removeService(sess, resource, service);
+		}
+	}
+
+	@Override
 	public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException {
 		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
 			try {

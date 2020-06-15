@@ -15,7 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.resourcesManager.AssignService;
+import cz.metacentrum.perun.webgui.json.resourcesManager.AssignServices;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedServices;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetServices;
 import cz.metacentrum.perun.webgui.model.Resource;
@@ -137,15 +137,8 @@ public class AssignServiceTabItem implements TabItem {
 			public void onClick(ClickEvent event) {
 				ArrayList<Service> servicesToAssign = services.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(servicesToAssign)) {
-					for (int i=0; i<servicesToAssign.size(); i++ ) {
-						if (i != servicesToAssign.size()-1) {	                 // call json normaly
-							AssignService request = new AssignService(JsonCallbackEvents.disableButtonEvents(assignButton));
-							request.assignService(servicesToAssign.get(i).getId(), resourceId);
-						} else {                                                // last change - call json with update
-							AssignService request = new AssignService(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab, true));
-							request.assignService(servicesToAssign.get(i).getId(), resourceId);
-						}
-					}
+					AssignServices request = new AssignServices(JsonCallbackEvents.closeTabDisableButtonEvents(assignButton, tab, true));
+					request.assignService(resourceId, servicesToAssign);
 				}
 			}
 		});

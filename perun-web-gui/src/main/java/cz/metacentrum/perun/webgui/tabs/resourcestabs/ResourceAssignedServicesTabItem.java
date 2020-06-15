@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedServices;
-import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveService;
+import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveServices;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.ResourcesTabs;
@@ -123,16 +123,8 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 				UiElements.showDeleteConfirm(servicesForRemoving, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD USE ONLY ONE CALLBACK TO CORE !!
-						for (int i = 0; i < servicesForRemoving.size(); i++) {
-							if (i == servicesForRemoving.size()-1) {
-								RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeServicesButton, localEvents));
-								request.removeService(servicesForRemoving.get(i).getId(), resourceId);
-							} else {
-								RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeServicesButton));
-								request.removeService(servicesForRemoving.get(i).getId(), resourceId);
-							}
-						}
+						RemoveServices request = new RemoveServices(JsonCallbackEvents.disableButtonEvents(removeServicesButton, localEvents));
+						request.removeServices(resourceId, servicesForRemoving);
 					}
 				});
 			}
