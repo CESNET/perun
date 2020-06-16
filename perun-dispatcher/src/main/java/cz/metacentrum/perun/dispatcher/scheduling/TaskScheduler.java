@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
-import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
+import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerFactory;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.TaskScheduled;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
@@ -56,7 +56,7 @@ public class TaskScheduler extends AbstractRunner {
 	private SchedulingPool schedulingPool;
 	private Perun perun;
 	private Properties dispatcherProperties;
-	private EngineMessageProducerPool engineMessageProducerPool;
+	private EngineMessageProducerFactory engineMessageProducerFactory;
 	private DelayQueue<TaskSchedule> waitingTasksQueue;
 	private DelayQueue<TaskSchedule> waitingForcedTasksQueue;
 	private TasksManagerBl tasksManagerBl;
@@ -90,13 +90,13 @@ public class TaskScheduler extends AbstractRunner {
 		this.dispatcherProperties = dispatcherProperties;
 	}
 
-	public EngineMessageProducerPool getEngineMessageProducerPool() {
-		return engineMessageProducerPool;
+	public EngineMessageProducerFactory getEngineMessageProducerPool() {
+		return engineMessageProducerFactory;
 	}
 
 	@Autowired
-	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
-		this.engineMessageProducerPool = engineMessageProducerPool;
+	public void setEngineMessageProducerPool(EngineMessageProducerFactory engineMessageProducerPool) {
+		this.engineMessageProducerFactory = engineMessageProducerPool;
 	}
 
 	public DelayQueue<TaskSchedule> getWaitingTasksQueue() {
@@ -253,36 +253,15 @@ public class TaskScheduler extends AbstractRunner {
 			return DB_ERROR;
 		}
 
-		EngineMessageProducer engineMessageProducer = null;
+		EngineMessageProducer engineMessageProducer = engineMessageProducerFactory.getProducer();
 
 		log.debug("[{}] Scheduling {}.", task.getId(), task);
 
-		try {
-			engineMessageProducer = schedulingPool.getEngineMessageProducerForTask(task);
-			log.debug("[{}] Task is assigned to queue {}.", task.getId(), (engineMessageProducer == null) ? "null" : engineMessageProducer.getClientID());
-		} catch (InternalErrorException e) {
-			log.warn("[{}] Task is not assigned to any queue.", task.getId());
-		}
-		// check if the engine is still registered
-		if (engineMessageProducer != null &&
-				!engineMessageProducerPool.isThereProducerForClient(engineMessageProducer.getClientID())) {
-			engineMessageProducer = null;
-		}
-		if (engineMessageProducer == null) {
-			// where should we send the task?
-			engineMessageProducer = engineMessageProducerPool.getAvailableProducer();
-			if (engineMessageProducer != null) {
-				try {
-					schedulingPool.setEngineMessageProducerForTask(task, engineMessageProducer);
-				} catch (InternalErrorException e) {
-					log.error("[{}] Could not set client queue for task: {}.", task.getId(), e.getMessage());
-					return QUEUE_ERROR;
-				}
-				log.debug("[{}] Assigned new queue {} to task.", task.getId(), engineMessageProducer.getQueueName());
-			} else {
-				log.error("[{}] Task has no engine assigned and there are no engines registered.", task.getId());
-				return QUEUE_ERROR;
-			}
+		if (engineMessageProducer != null) {
+			log.debug("[{}] Assigned queue {} to task.", task.getId(), engineMessageProducer.getQueueName());
+		} else {
+			log.error("[{}] There are no engines registered.", task.getId());
+			return QUEUE_ERROR;
 		}
 
 		if (service.isEnabled()) {
@@ -304,7 +283,7 @@ public class TaskScheduler extends AbstractRunner {
 			return ERROR;
 		}
 
-		// task|[engine_id]|[task_id][is_forced][exec_service_id][facility]|[destination_list]|[dependency_list]
+		// task|[task_id][is_forced][exec_service_id][facility]|[destination_list]|[dependency_list]
 		// - the task|[engine_id] part is added by dispatcherQueue
 		List<Destination> destinations = task.getDestinations();
 		if (task.isSourceUpdated() || destinations == null || destinations.isEmpty()) {
@@ -356,7 +335,7 @@ public class TaskScheduler extends AbstractRunner {
 					result.setTimestamp(new Date(System.currentTimeMillis()));
 					result.setStatus(TaskResult.TaskResultStatus.DENIED);
 					try {
-						schedulingPool.onTaskDestinationComplete(engineMessageProducer.getClientID(), result);
+						schedulingPool.onTaskDestinationComplete(result);
 					} catch (Exception ex) {
 						log.warn("Couldn't store fake TaskResult about blocked destination.");
 					}

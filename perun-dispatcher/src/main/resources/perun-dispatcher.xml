@@ -49,15 +49,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<!-- EventQueue -->
 	<bean id="eventQueue" class="java.util.concurrent.LinkedBlockingQueue"/>
 
-	<!-- DAOs -->
-	<bean id="rulesDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.RulesDaoJdbc">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-
-	<bean id="processingRuleDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.ProcessingRuleDaoJdbc">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-
 	<!-- Dispatcher properties -->
 
 	<!-- default properties values in all Spring profiles-->

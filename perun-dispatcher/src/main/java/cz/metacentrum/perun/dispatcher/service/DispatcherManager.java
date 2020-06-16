@@ -23,13 +23,6 @@ public interface DispatcherManager {
 	void stopPerunHornetQServer();
 
 	/**
-	 * Load all processing rules and engines from DB and create JMS queues for them.
-	 *
-	 * @throws PerunHornetQServerException When HornetQ server is not running.
-	 */
-	void prefetchRulesAndDispatcherQueues() throws PerunHornetQServerException;
-
-	/**
 	 * Start processing JMS messages sent from Engine
 	 */
 	void startProcessingSystemMessages();

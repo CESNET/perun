@@ -18,7 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
-import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
+import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerFactory;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -61,7 +61,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
 
-	private final Map<Integer, EngineMessageProducer> enginesByTaskId = new HashMap<>();
 	private PerunSession sess;
 
 	private DelayQueue<TaskSchedule> waitingTasksQueue;
@@ -69,18 +68,20 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	private Properties dispatcherProperties;
 	private TaskStore taskStore;
 	private TasksManagerBl tasksManagerBl;
-	private EngineMessageProducerPool engineMessageProducerPool;
+	private EngineMessageProducerFactory engineMessageProducerFactory;
 	private Perun perun;
 
 	public SchedulingPoolImpl() {
 	}
 
-	public SchedulingPoolImpl(Properties dispatcherPropertiesBean, TaskStore taskStore,
-							  TasksManagerBl tasksManagerBl, EngineMessageProducerPool engineMessageProducerPool) {
+	public SchedulingPoolImpl(Properties dispatcherPropertiesBean, 
+				TaskStore taskStore,
+				TasksManagerBl tasksManagerBl, 
+				EngineMessageProducerFactory engineMessageProducerFactory) {
 		this.dispatcherProperties = dispatcherPropertiesBean;
 		this.taskStore = taskStore;
 		this.tasksManagerBl = tasksManagerBl;
-		this.engineMessageProducerPool = engineMessageProducerPool;
+		this.engineMessageProducerFactory = engineMessageProducerFactory;
 	}
 
 
@@ -132,13 +133,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		this.tasksManagerBl = tasksManagerBl;
 	}
 
-	public EngineMessageProducerPool getEngineMessageProducerPool() {
-		return engineMessageProducerPool;
+	public EngineMessageProducerFactory getEngineMessageProducerPool() {
+		return engineMessageProducerFactory;
 	}
 
 	@Autowired
-	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
-		this.engineMessageProducerPool = engineMessageProducerPool;
+	public void setEngineMessageProducerPool(EngineMessageProducerFactory engineMessageProducerPool) {
+		this.engineMessageProducerFactory = engineMessageProducerPool;
 	}
 
 	public Perun getPerun() {
@@ -356,18 +357,17 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	 * @throws TaskStoreException
 	 */
 	@Override
-	public int addToPool(Task task, EngineMessageProducer engineMessageProducer) throws TaskStoreException {
+	public int addToPool(Task task) throws TaskStoreException {
 
-		int engineId = (engineMessageProducer == null) ? -1 : engineMessageProducer.getClientID();
 		if (task.getId() == 0) {
 			if (getTask(task.getFacility(), task.getService()) == null) {
-				int id = tasksManagerBl.scheduleNewTask(task, engineId);
+				int id = tasksManagerBl.scheduleNewTask(task);
 				task.setId(id);
 				log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 			} else {
 				Task existingTask = tasksManagerBl.getTaskById(task.getId());
 				if (existingTask == null) {
-					int id = tasksManagerBl.scheduleNewTask(task, engineId);
+					int id = tasksManagerBl.scheduleNewTask(task);
 					task.setId(id);
 					log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 				} else {
@@ -377,7 +377,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			}
 		}
 		addTask(task);
-		enginesByTaskId.put(task.getId(), engineMessageProducer);
 		log.debug("[{}] Task added to the pool: {}", task.getId(), task);
 		return getSize();
 	}
@@ -385,31 +384,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public Task removeTask(int id) throws TaskStoreException {
 		return taskStore.removeTask(id);
-	}
-
-	@Override
-	public EngineMessageProducer getEngineMessageProducerForTask(Task task) throws InternalErrorException {
-		if (task == null) {
-			log.error("Supplied Task is null.");
-			throw new IllegalArgumentException("Task cannot be null");
-		}
-		EngineMessageProducer entry = enginesByTaskId.get(task.getId());
-		if (entry == null) {
-			throw new InternalErrorException("No Task with ID " + task.getId());
-		}
-		return entry;
-	}
-
-
-	@Override
-	public List<Task> getTasksForEngine(int clientID) {
-		List<Task> result = new ArrayList<Task>();
-		for (Map.Entry<Integer, EngineMessageProducer> entry : enginesByTaskId.entrySet()) {
-			if (entry.getValue() != null && clientID == entry.getValue().getClientID()) {
-				result.add(getTask(entry.getKey()));
-			}
-		}
-		return result;
 	}
 
 	@Override
@@ -439,7 +413,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public void clear() {
 		taskStore.clear();
-		enginesByTaskId.clear();
 		waitingTasksQueue.clear();
 		waitingForcedTasksQueue.clear();
 	}
@@ -451,12 +424,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 		this.clear();
 
-		for (Pair<Task, Integer> pair : tasksManagerBl.listAllTasksAndClients()) {
-			Task task = pair.getLeft();
-			EngineMessageProducer queue = engineMessageProducerPool.getProducerByClient(pair.getRight());
+		EngineMessageProducer queue = engineMessageProducerFactory.getProducer();
+
+		for (Task task : tasksManagerBl.listAllTasks()) {
 			try {
 				// just add DB Task to in-memory structure
-				addToPool(task, queue);
+				addToPool(task);
 			} catch (TaskStoreException e) {
 				log.error("Adding Task {} and Queue {} into SchedulingPool failed, so the Task will be lost.", task, queue);
 			}
@@ -479,40 +452,20 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
-	public void setEngineMessageProducerForTask(Task task, EngineMessageProducer messageProducer) throws InternalErrorException {
-		Task found = getTask(task.getId());
-		if (found == null) {
-			throw new InternalErrorException("no task by id " + task.getId());
-		} else {
-			enginesByTaskId.put(task.getId(), messageProducer);
-		}
-		// if queue is removed, set -1 to task as it's done on task creation if queue is null
-		int queueId = (messageProducer != null) ? messageProducer.getClientID() : -1;
-		tasksManagerBl.updateTaskEngine(task, queueId);
-	}
+	public void closeTasksForEngine() {
 
-	@Override
-	public void closeTasksForEngine(int clientID) {
-
-		List<Task> tasks = getTasksForEngine(clientID);
-		List<TaskStatus> engineStates = new ArrayList<>();
-		engineStates.add(TaskStatus.PLANNED);
-		engineStates.add(TaskStatus.GENERATING);
-		engineStates.add(TaskStatus.GENERATED);
-		engineStates.add(TaskStatus.SENDING);
-
+		List<Task> tasks = taskStore.getTasksWithStatus(
+				TaskStatus.PLANNED, 
+				TaskStatus.GENERATING,
+				TaskStatus.GENERATED,
+				TaskStatus.SENDING
+				);
+ 
 		// switch all processing tasks to error, remove the engine queue association
-		log.debug("Switching processing tasks on engine {} to ERROR, the engine went down...", clientID);
+		log.debug("Switching processing tasks on engine to ERROR, the engine went down...");
 		for (Task task : tasks) {
-			if (engineStates.contains(task.getStatus())) {
-				log.info("[{}] Switching Task to ERROR, the engine it was running on went down.", task.getId());
-				task.setStatus(TaskStatus.ERROR);
-			}
-			try {
-				setEngineMessageProducerForTask(task, null);
-			} catch (InternalErrorException e) {
-				log.error("[{}] Could not remove dispatcher queue for task: {}.", task.getId(), e.getMessage());
-			}
+			log.info("[{}] Switching Task to ERROR, the engine it was running on went down.", task.getId());
+			task.setStatus(TaskStatus.ERROR);
 		}
 
 	}
@@ -571,10 +524,10 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
-	public void onTaskDestinationComplete(int clientID, String string) {
+	public void onTaskDestinationComplete(String string) {
 
 		if (string == null || string.isEmpty()) {
-			log.error("Could not parse TaskResult message from Engine {}.", clientID);
+			log.error("Could not parse TaskResult message from Engine.");
 			return;
 		}
 
@@ -582,23 +535,23 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			List<PerunBean> listOfBeans = AuditParser.parseLog(string);
 			if (!listOfBeans.isEmpty()) {
 				TaskResult taskResult = (TaskResult) listOfBeans.get(0);
-				log.debug("[{}] Received TaskResult for Task from Engine {}.", taskResult.getTaskId(), clientID);
-				onTaskDestinationComplete(clientID, taskResult);
+				log.debug("[{}] Received TaskResult for Task from Engine.", taskResult.getTaskId());
+				onTaskDestinationComplete(taskResult);
 			} else {
-				log.error("No TaskResult found in message from Engine {}: {}.", clientID, string);
+				log.error("No TaskResult found in message from Engine: {}.", string);
 			}
 		} catch (Exception e) {
-			log.error("Could not save TaskResult from Engine {}, {}, {}", clientID, string, e.getMessage());
+			log.error("Could not save TaskResult from Engine {}, {}", string, e.getMessage());
 		}
 
 	}
 
 	@Override
-	public void onTaskDestinationComplete(int clientID, TaskResult taskResult) {
+	public void onTaskDestinationComplete(TaskResult taskResult) {
 		try {
-			tasksManagerBl.insertNewTaskResult(taskResult, clientID);
+			tasksManagerBl.insertNewTaskResult(taskResult);
 		} catch (Exception e) {
-			log.error("Could not save TaskResult from Engine {}, {}, {}", clientID, taskResult, e.getMessage());
+			log.error("Could not save TaskResult from Engine, {}, {}", taskResult, e.getMessage());
 		}
 	}
 

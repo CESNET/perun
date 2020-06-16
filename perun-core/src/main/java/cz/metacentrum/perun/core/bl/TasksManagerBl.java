@@ -139,11 +139,9 @@ public interface TasksManagerBl {
 
 	Task getTask(Service service, Facility facility);
 
-	int insertTask(Task task, int engineID);
+	int insertTask(Task task);
 
 	List<Task> listAllTasks();
-
-	List<Pair<Task, Integer>> listAllTasksAndClients();
 
 	/**
 	 * Returns all tasks associated with selected facility
@@ -161,35 +159,13 @@ public interface TasksManagerBl {
 
 	Task getTask(int serviceId, int facilityId);
 
-	int scheduleNewTask(Task task, int engineID);
-
-	Task getTask(Service service, Facility facility, int engineID);
-
-	Task getTask(int serviceId, int facilityId, int engineID);
+	int scheduleNewTask(Task task);
 
 	Task getTaskById(int id);
 
-	Task getTaskById(int id, int engineID);
-
-	List<Task> listAllTasks(int engineID);
-
-	List<Task> listAllTasksInState(Task.TaskStatus state, int engineID);
-
-	void updateTask(Task task, int engineID);
-
-	void updateTaskEngine(Task task, int engineID) throws InternalErrorException;
-
-	boolean isThereSuchTask(Service service, Facility facility, int engineID);
-
-	void removeTask(Service service, Facility facility, int engineID);
-
 	void removeTask(Service service, Facility facility);
 
-	void removeTask(int id, int engineID);
-
-	int countTasks(int engineID);
-
-	List<Task> listAllTasksNotInState(Task.TaskStatus state, int engineID);
+	List<Task> listAllTasksNotInState(Task.TaskStatus state);
 
 	/**
 	 * List newest TaskResults tied to a certain task
@@ -223,19 +199,9 @@ public interface TasksManagerBl {
 	 */
 	int clearAll();
 
-	int insertNewTaskResult(TaskResult taskResult, int engineID) throws InternalErrorException;
+	int insertNewTaskResult(TaskResult taskResult) throws InternalErrorException;
 
-	List<TaskResult> getTaskResults(int engineID);
-
-	TaskResult getTaskResultById(int taskResultId, int engineID);
-
-	int clearByTask(int taskId, int engineID);
-
-	int clearAll(int engineID);
-
-	int clearOld(int engineID, int numDays);
-
-	List<TaskResult> getTaskResultsByTask(int taskId, int engineID);
+	int clearOld(int numDays);
 
 	/**
 	 * Returns list of tasks results for defined destinations (string representation).

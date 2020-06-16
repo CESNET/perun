@@ -47,23 +47,8 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public int insertNewTaskResult(TaskResult taskResult, int engineID) throws InternalErrorException {
-		return getTasksManagerImpl().insertNewTaskResult(taskResult, engineID);
-	}
-
-	@Override
-	public List<TaskResult> getTaskResults(int engineID) {
-		return getTasksManagerImpl().getTaskResults(engineID);
-	}
-
-	@Override
-	public TaskResult getTaskResultById(int taskResultId, int engineID) {
-		return getTasksManagerImpl().getTaskResultById(taskResultId, engineID);
-	}
-
-	@Override
-	public int clearByTask(int taskId, int engineID) {
-		return getTasksManagerImpl().clearByTask(taskId, engineID);
+	public int insertNewTaskResult(TaskResult taskResult) throws InternalErrorException {
+		return getTasksManagerImpl().insertNewTaskResult(taskResult);
 	}
 
 	@Override
@@ -72,23 +57,13 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public int clearAll(int engineID) {
-		return getTasksManagerImpl().clearAll(engineID);
-	}
-
-	@Override
 	public int clearAll() {
 		return getTasksManagerImpl().clearAll();
 	}
 
 	@Override
-	public int clearOld(int engineID, int numDays) {
-		return getTasksManagerImpl().clearOld(engineID, numDays);
-	}
-
-	@Override
-	public List<TaskResult> getTaskResultsByTask(int taskId, int engineID) {
-		return getTasksManagerImpl().getTaskResultsByTask(taskId, engineID);
+	public int clearOld(int numDays) {
+		return getTasksManagerImpl().clearOld(numDays);
 	}
 
 	@Override
@@ -106,13 +81,13 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public int scheduleNewTask(Task task, int engineID) {
-		return getTasksManagerImpl().scheduleNewTask(task, engineID);
+	public int scheduleNewTask(Task task) {
+		return getTasksManagerImpl().scheduleNewTask(task);
 	}
 
 	@Override
-	public int insertTask(Task task, int engineID) {
-		return getTasksManagerImpl().insertTask(task, engineID);
+	public int insertTask(Task task) {
+		return getTasksManagerImpl().insertTask(task);
 	}
 
 	@Override
@@ -126,16 +101,6 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public Task getTask(Service service, Facility facility, int engineID) {
-		return getTasksManagerImpl().getTask(service.getId(), facility.getId(), engineID);
-	}
-
-	@Override
-	public Task getTask(int serviceId, int facilityId, int engineID) {
-		return getTasksManagerImpl().getTask(serviceId, facilityId, engineID);
-	}
-
-	@Override
 	public List<Task> listAllTasksForFacility(int facilityId) {
 		return getTasksManagerImpl().listAllTasksForFacility(facilityId);
 	}
@@ -146,23 +111,8 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public Task getTaskById(int id, int engineID) {
-		return getTasksManagerImpl().getTaskById(id, engineID);
-	}
-
-	@Override
 	public List<Task> listAllTasks() {
 		return getTasksManagerImpl().listAllTasks();
-	}
-
-	@Override
-	public List<Task> listAllTasks(int engineID) {
-		return getTasksManagerImpl().listAllTasks(engineID);
-	}
-
-	@Override
-	public List<Pair<Task, Integer>> listAllTasksAndClients() {
-		return getTasksManagerImpl().listAllTasksAndClients();
 	}
 
 	@Override
@@ -171,18 +121,8 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public List<Task> listAllTasksInState(Task.TaskStatus state, int engineID) {
-		return getTasksManagerImpl().listAllTasksInState(state, engineID);
-	}
-
-	@Override
-	public List<Task> listAllTasksNotInState(Task.TaskStatus state, int engineID) {
-		return getTasksManagerImpl().listAllTasksNotInState(state, engineID);
-	}
-
-	@Override
-	public void updateTask(Task task, int engineID) {
-		getTasksManagerImpl().updateTask(task, engineID);
+	public List<Task> listAllTasksNotInState(Task.TaskStatus state) {
+		return getTasksManagerImpl().listAllTasksNotInState(state);
 	}
 
 	@Override
@@ -191,38 +131,13 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public void updateTaskEngine(Task task, int engineID) throws InternalErrorException {
-		getTasksManagerImpl().updateTaskEngine(task, engineID);
-	}
-
-	@Override
-	public boolean isThereSuchTask(Service service, Facility facility, int engineID) {
-		return getTasksManagerImpl().isThereSuchTask(service, facility, engineID);
-	}
-
-	@Override
-	public void removeTask(Service service, Facility facility, int engineID) {
-		getTasksManagerImpl().removeTask(service, facility, engineID);
-	}
-
-	@Override
 	public void removeTask(Service service, Facility facility) {
 		getTasksManagerImpl().removeTask(service, facility);
 	}
 
 	@Override
-	public void removeTask(int id, int engineID) {
-		getTasksManagerImpl().removeTask(id, engineID);
-	}
-
-	@Override
 	public void removeTask(int id) {
 		getTasksManagerImpl().removeTask(id);
-	}
-
-	@Override
-	public int countTasks(int engineID) {
-		return getTasksManagerImpl().countTasks(engineID);
 	}
 
 	@Override

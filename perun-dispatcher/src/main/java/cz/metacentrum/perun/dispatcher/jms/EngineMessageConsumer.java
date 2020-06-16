@@ -104,7 +104,7 @@ public class EngineMessageConsumer extends AbstractRunner {
 						log.debug("System message received [" + messageReceived.getText() + "]");
 					}
 					try {
-						engineMessageProcessor.processDispatcherQueueAndMatchingRule(messageReceived.getText());
+						engineMessageProcessor.processEngineMessage(messageReceived.getText());
 					} catch (MessageFormatException ex) {
 						// engine sent wrongly formatted messages
 						// shouldn't kill whole messaging process
