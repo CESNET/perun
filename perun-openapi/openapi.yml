@@ -6343,6 +6343,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/resourcesManager/removeServices:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: removeServices
+      summary: Removes services from a resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/serviceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/resourcesManager/removeServicesPackage:
     post:
       tags:

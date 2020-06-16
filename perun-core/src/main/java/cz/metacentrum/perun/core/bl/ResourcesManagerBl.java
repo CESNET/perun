@@ -458,6 +458,19 @@ public interface ResourcesManagerBl {
 		ServiceNotAssignedException;
 
 	/**
+	 * Remove services from resource.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param services
+	 *
+	 * @throws InternalErrorException
+	 * @throws ServiceNotAssignedException
+	 */
+	void removeServices(PerunSession perunSession, Resource resource, List<Service> services) throws InternalErrorException,
+			ServiceNotAssignedException;
+
+	/**
 	 * Remove from resource all services from services package.
 	 *
 	 * @param perunSession

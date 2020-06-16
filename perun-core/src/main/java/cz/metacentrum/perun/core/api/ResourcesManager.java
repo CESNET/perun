@@ -442,6 +442,21 @@ public interface ResourcesManager {
 	void removeService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
 
 	/**
+	 * Remove services from resource.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param services
+	 *
+	 * @throws InternalErrorException
+	 * @throws ResourceNotExistsException
+	 * @throws PrivilegeException
+	 * @throws ServiceNotExistsException
+	 * @throws ServiceNotAssignedException
+	 */
+	void removeServices(PerunSession perunSession, Resource resource, List<Service> services) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
+
+	/**
 	 * Remove from resource all services from services package.
 	 *
 	 * @param perunSession
