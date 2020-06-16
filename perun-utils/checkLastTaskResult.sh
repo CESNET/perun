@@ -1,5 +1,8 @@
 #!/bin/bash
 
-source /etc/perun/perun-engine
-KRB5CCNAME=/tmp/krb5cc_perun-engine-nagios
-/opt/perun-cli/bin/checkLastTaskResult $* 2>&1 || exit 2
+# source ENGINE identity and API URL
+. /etc/perun/perun-engine
+# overwrite cookie to ours
+export PERUN_COOKIE=/var/lib/nagios/.perun-nagios-cookie.txt
+# run tool
+/opt/perun-cli/bin/checkLastTaskResult "$@" 2>&1 || exit 2
