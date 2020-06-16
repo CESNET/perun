@@ -33,8 +33,7 @@ public class EventProcessorImpl implements EventProcessor {
 		try {
 			task = eventParser.parseEvent(event);
 
-		} catch (InvalidEventMessageException | ServiceNotExistsException |
-				InternalErrorException | PrivilegeException e) {
+		} catch (InvalidEventMessageException | InternalErrorException e) {
 			log.error(e.toString());
 		}
 

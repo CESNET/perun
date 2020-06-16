@@ -32,9 +32,8 @@ public class EventParserImpl implements EventParser {
 	private Properties propertiesBean;
 
 	@Override
-	public Task parseEvent(String event) throws InvalidEventMessageException,
-			ServiceNotExistsException,
-			PrivilegeException {
+	public Task parseEvent(String event) throws InvalidEventMessageException {
+
 
 		log.info("Going to process event: {}", event);
 
