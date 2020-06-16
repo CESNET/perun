@@ -2644,6 +2644,8 @@ paths:
       summary: |
         Returns list of group's role names. Perun system uses role names in the upper case format. However,
         for now, they are converted to the lower case format because of the compatibility with external systems.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfStringsResponse'
