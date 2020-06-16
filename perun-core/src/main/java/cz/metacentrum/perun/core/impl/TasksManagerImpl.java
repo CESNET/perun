@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.TasksManagerImplApi;
@@ -125,16 +124,14 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 				"insert into tasks_results(" +
 					"id, " +
 					"task_id, " +
-					"engine_id, " +
 					"destination_id, " +
 					"status, " +
 					"err_message, " +
 					"std_message, " +
 					"return_code, " +
-					"timestamp) values (?,?,?,?,?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ")",
+					"timestamp) values (?,?,?,?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ")",
 				newTaskResultId,
 				taskResult.getTaskId(),
-				1,
 				taskResult.getDestinationId(),
 				taskResult.getStatus().toString(),
 				errorMessage == null ? null : new String(errorMessage, StandardCharsets.UTF_8),
@@ -433,38 +430,21 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	};
 
 	@Override
-	public int scheduleNewTask(Task task) {
+	public int insertTask(Task task) {
 		int newTaskId = 0;
 		try {
 			newTaskId = Utils.getNewId(getMyJdbcTemplate(), "tasks_id_seq");
 			// jdbc template cannot be null
 			getMyJdbcTemplate().update(
-				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
-				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null);
+				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?)",
+				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString());
 			log.debug("Added task with ID {}", newTaskId);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
 			log.error("Data: id, service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getServiceId() + ", " + task.getFacilityId() + ", "
 				+ task.getSchedule().format(getDateTimeFormatter()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
 		} catch (Exception ex) {
-			log.error("ERRORSTR: {}", ex);
-		}
-		return 0;
-	}
-
-	@Override
-	public int insertTask(Task task) {
-		int newTaskId = 0;
-		try {
-			newTaskId = task.getId();
-			// jdbc template cannot be null
-			getMyJdbcTemplate().update(
-				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
-				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null);
-			return newTaskId;
-		} catch (DataIntegrityViolationException ex) {
-			log.error("Data: id, service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getServiceId() + ", " + task.getFacilityId() + ", "
-				+ task.getSchedule().format(getDateTimeFormatter()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+			log.error("Failed to insert new Task.", ex);
 		}
 		return 0;
 	}
@@ -530,7 +510,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		// jdbc template cannot be null
 		return getMyJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left where tasks.status = ?",
+				"left join facilities on facilities.id = tasks.facility_id where tasks.status = ?",
 			TASK_ROWMAPPER, textState);
 	}
 

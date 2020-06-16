@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.Task;
@@ -38,8 +37,6 @@ public interface TasksManagerImplApi {
 	int countTasks();
 
 	Task getTask(int serviceId, int facilityId);
-
-	int scheduleNewTask(Task task);
 
 	Task getTask(Service service, Facility facility);
 

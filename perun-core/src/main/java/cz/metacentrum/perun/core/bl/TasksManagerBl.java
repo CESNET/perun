@@ -4,7 +4,6 @@ import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Vo;
@@ -158,8 +157,6 @@ public interface TasksManagerBl {
 	void removeTask(int id);
 
 	Task getTask(int serviceId, int facilityId);
-
-	int scheduleNewTask(Task task);
 
 	Task getTaskById(int id);
 

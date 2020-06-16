@@ -3,7 +3,6 @@ package cz.metacentrum.perun.dispatcher.scheduling.impl;
 import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
@@ -11,7 +10,6 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -34,13 +32,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.DelayQueue;
 
@@ -74,9 +69,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	public SchedulingPoolImpl() {
 	}
 
-	public SchedulingPoolImpl(Properties dispatcherPropertiesBean, 
+	public SchedulingPoolImpl(Properties dispatcherPropertiesBean,
 				TaskStore taskStore,
-				TasksManagerBl tasksManagerBl, 
+				TasksManagerBl tasksManagerBl,
 				EngineMessageProducerFactory engineMessageProducerFactory) {
 		this.dispatcherProperties = dispatcherPropertiesBean;
 		this.taskStore = taskStore;
@@ -352,7 +347,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	 * Adds Task and associated dispatcherQueue into scheduling pools internal maps and also to the database.
 	 *
 	 * @param task            Task which will be added and persisted.
-	 * @param engineMessageProducer dispatcherQueue associated with the Task which will be added and persisted.
 	 * @return Number of Tasks in the pool.
 	 * @throws TaskStoreException
 	 */
@@ -361,13 +355,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 		if (task.getId() == 0) {
 			if (getTask(task.getFacility(), task.getService()) == null) {
-				int id = tasksManagerBl.scheduleNewTask(task);
+				int id = tasksManagerBl.insertTask(task);
 				task.setId(id);
 				log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 			} else {
 				Task existingTask = tasksManagerBl.getTaskById(task.getId());
 				if (existingTask == null) {
-					int id = tasksManagerBl.scheduleNewTask(task);
+					int id = tasksManagerBl.insertTask(task);
 					task.setId(id);
 					log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 				} else {
@@ -455,12 +449,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	public void closeTasksForEngine() {
 
 		List<Task> tasks = taskStore.getTasksWithStatus(
-				TaskStatus.PLANNED, 
+				TaskStatus.PLANNED,
 				TaskStatus.GENERATING,
 				TaskStatus.GENERATED,
 				TaskStatus.SENDING
 				);
- 
+
 		// switch all processing tasks to error, remove the engine queue association
 		log.debug("Switching processing tasks on engine to ERROR, the engine went down...");
 		for (Task task : tasks) {
