@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * Instance of Engine message queue producer for sending messages to Engine.
  * For each Engine own producer (message queue) is created, and stored in EngineMessageProducerPool.
  *
- * @see cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool
+ * @see cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerFactory
  *
  * @author Michal Karm Babacek
  * @author Michal Voců
@@ -28,17 +28,14 @@ public class EngineMessageProducer {
 	private Queue queue;
 	private Session session;
 	private MessageProducer producer;
-	private int clientID;
 	private String queueName;
 
 	// this one is to allow for mock objects which extend this class
-	public EngineMessageProducer(int clientID, String queueName) {
-		this.clientID = clientID;
+	public EngineMessageProducer(String queueName) {
 		this.queueName = queueName;
 	}
 
-	public EngineMessageProducer(int clientID, String queueName, Session session) {
-		this.clientID = clientID;
+	public EngineMessageProducer(String queueName, Session session) {
 		this.queueName = queueName;
 		this.session = session;
 		try {
@@ -70,7 +67,7 @@ public class EngineMessageProducer {
 
 		try {
 			// Step 7. Create a Text Message
-			TextMessage message = session.createTextMessage("task|" + clientID + "|" + text);
+			TextMessage message = session.createTextMessage("task|" + text);
 			// Step 8. Send...
 			producer.send(message);
 			if (log.isDebugEnabled()) {
@@ -85,15 +82,6 @@ public class EngineMessageProducer {
 	}
 
 	/**
-	 * Get ID of engine.
-	 *
-	 * @return ID of engine
-	 */
-	public int getClientID() {
-		return clientID;
-	}
-
-	/**
 	 * Get name of the queue for engine.
 	 *
 	 * @return Name of queue
@@ -102,4 +90,16 @@ public class EngineMessageProducer {
 		return queueName;
 	}
 
+	/** 
+	 * Shutdown before destroying the producer.
+	 * 
+	 */
+	public void shutdown() {
+		try {
+			producer.close();
+			session.close();
+		} catch (JMSException e) {
+			log.error(e.toString(), e);
+		}
+	}
 }

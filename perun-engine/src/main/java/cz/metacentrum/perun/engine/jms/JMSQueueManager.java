@@ -116,8 +116,7 @@ public class JMSQueueManager {
 			// Step 6. Create a JMS Message Producer
 			producer = session.createProducer(queue);
 
-			TextMessage message = session.createTextMessage("register:"
-					+ propertiesBean.getProperty("engine.unique.id"));
+			TextMessage message = session.createTextMessage("register");
 
 			// Step 8. Send the Message
 			producer.send(message);
@@ -125,9 +124,7 @@ public class JMSQueueManager {
 			Thread.sleep(1000);
 
 			// Execute receiver
-			messageReceiver.setUp(
-					"queue" + propertiesBean.getProperty("engine.unique.id"),
-					session);
+			messageReceiver.setUp("queue", session);
 			// taskExecutorMessageProcess.execute(messageReceiver);
 			messageReceiver.run();
 			receivingMessages = true;
@@ -163,8 +160,7 @@ public class JMSQueueManager {
 	}
 
 	public void reportTaskResult(TaskResult taskResult) throws JMSException {
-		TextMessage message = session.createTextMessage("taskresult:" + propertiesBean.getProperty("engine.unique.id")
-				+ ":" + taskResult.serializeToString());
+		TextMessage message = session.createTextMessage("taskresult:" + taskResult.serializeToString());
 		synchronized(producer) {
 			producer.send(message, DeliveryMode.PERSISTENT, 2, 0);
 		}
@@ -174,7 +170,6 @@ public class JMSQueueManager {
 
 	public void reportTaskStatus(int id, Task.TaskStatus status, long miliseconds) throws JMSException {
 		TextMessage message = session.createTextMessage("task:"
-				+ propertiesBean.getProperty("engine.unique.id") + ":"
 				+ id + ":" + status + ":" + miliseconds);
 		producer.send(message, DeliveryMode.PERSISTENT, 6, 0);
 		log.info("[{}] Task state {} sent to dispatcher.", id, status);
@@ -182,8 +177,7 @@ public class JMSQueueManager {
 
 	public void sendGoodByeAndClose() {
 		try {
-			TextMessage message = session.createTextMessage("goodbye:"
-					+ propertiesBean.getProperty("engine.unique.id"));
+			TextMessage message = session.createTextMessage("goodbye");
 			// Step 8. Send the Message
 			synchronized(producer) {
 				producer.send(message);

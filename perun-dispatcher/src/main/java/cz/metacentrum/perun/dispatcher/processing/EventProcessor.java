@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.dispatcher.exceptions.InvalidEventMessageException;
-import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
+import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerFactory;
 import cz.metacentrum.perun.dispatcher.model.Event;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 
@@ -59,7 +59,7 @@ public class EventProcessor extends AbstractRunner {
 	private final static Logger log = LoggerFactory.getLogger(EventProcessor.class);
 
 	private BlockingQueue<Event> eventQueue;
-	private EngineMessageProducerPool engineMessageProducerPool;
+	private EngineMessageProducerFactory engineMessageProducerFactory;
 	private EventServiceResolver eventServiceResolver;
 	private SchedulingPool schedulingPool;
 	private Perun perun;
@@ -77,13 +77,13 @@ public class EventProcessor extends AbstractRunner {
 		this.eventQueue = eventQueue;
 	}
 
-	public EngineMessageProducerPool getEngineMessageProducerPool() {
-		return engineMessageProducerPool;
+	public EngineMessageProducerFactory getEngineMessageProducerFactory() {
+		return engineMessageProducerFactory;
 	}
 
 	@Autowired
-	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
-		this.engineMessageProducerPool = engineMessageProducerPool;
+	public void setEngineMessageProducerFactory(EngineMessageProducerFactory engineMessageProducerFactory) {
+		this.engineMessageProducerFactory = engineMessageProducerFactory;
 	}
 
 	public EventServiceResolver getEventServiceResolver() {
@@ -134,7 +134,7 @@ public class EventProcessor extends AbstractRunner {
 			try {
 				Event event = eventQueue.take();
 				createTaskFromEvent(event);
-				log.debug("Remaining events in a Queue = {}, Engines = {}", eventQueue.size(), engineMessageProducerPool.poolSize());
+				log.debug("Remaining events in a Queue = {}", eventQueue.size());
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
@@ -240,7 +240,7 @@ public class EventProcessor extends AbstractRunner {
 					task.setSourceUpdated(false);
 					task.setPropagationForced(isForced);
 					try {
-						schedulingPool.addToPool(task, null);
+						schedulingPool.addToPool(task);
 						log.debug("[{}] New Task added to pool. {}.", task.getId(), task);
 					} catch (TaskStoreException e) {
 						log.error("[{}] Could not add Task to pool. Task {} will be lost: {}", task.getId(), task, e);

@@ -40,36 +40,24 @@ public class EventParserImpl implements EventParser {
 
 		/*
 		 * Expected string format:
-		 * "task|[engine_id]|[task_id][is_forced]|[service]|[facility]|[destination_list]|[dependency_list]"
+		 * "task|[task_id][is_forced]|[service]|[facility]|[destination_list]|[dependency_list]"
 		 *
 		 *  String eventParsingPattern =
 		 * "^event\\|([0-9]{1,6})\\|\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
 		 */
-		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]$";
+		String eventParsingPattern = "^task\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]$";
 		Pattern pattern = Pattern.compile(eventParsingPattern);
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
 
 		if (matchFound) {
 			log.debug("Message format matched ok...");
-			String thisEngineID = matcher.group(1);
-			// This should indeed match the current Engine instance ID, so let's compare it...
-			try {
-				if (Integer.parseInt(thisEngineID) != Integer
-						.parseInt((String) propertiesBean.get("engine.unique.id"))) {
-					throw new InvalidEventMessageException("Wrong Engine ID. Was:"
-							+ thisEngineID + ", Expected:"
-							+ propertiesBean.get("engine.unique.id"));
-				}
-			} catch (Exception e) {
-				throw new InvalidEventMessageException("Wrong Engine ID: parse exception", e);
-			}
 			// Data should provide information regarding the target Service (Processing rule).
-			String eventTaskId = matcher.group(2);
-			String eventIsForced = matcher.group(3);
-			String eventService = matcher.group(4);
-			String eventFacility = matcher.group(5);
-			String eventDestinationList = matcher.group(6);
+			String eventTaskId = matcher.group(1);
+			String eventIsForced = matcher.group(2);
+			String eventService = matcher.group(3);
+			String eventFacility = matcher.group(4);
+			String eventDestinationList = matcher.group(5);
 
 			// check possible enconding
 			if (!eventService.startsWith("Service")) {
