@@ -2144,7 +2144,7 @@ paths:
   #                                               #
   #################################################
 
-  /json/aithzResolver/getPrincipalRoleNames:
+  /json/authzResolver/getPrincipalRoleNames:
     get:
       tags:
         - AuthzResolver
@@ -2421,7 +2421,12 @@ paths:
       operationId: getGroupRoles
       summary: Returns all roles as an AuthzRoles object for a given group.
       parameters:
-        - $ref: '#/components/parameters/groupId'
+        - name: groupId
+          description: "id of Group"
+          schema:
+            type: integer
+          in: query
+          required: true
       responses:
         '200':
           $ref: '#/components/responses/AuthzRolesResponse'
@@ -2454,12 +2459,7 @@ paths:
       operationId: isGroupAdmin
       summary: Returns 1 if User has Group manager role (GROUPADMIN) or for specific Group defined by id
       parameters:
-        - name: group
-          description: "id of Group"
-          schema:
-            type: integer
-          in: query
-          required: false
+        - $ref: '#/components/parameters/optionalGroupId'
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
@@ -2473,12 +2473,7 @@ paths:
       operationId: isFacilityAdmin
       summary: Returns 1 if User has Facility manager role (FACILITYADMIN) or for specific Facility defined by id
       parameters:
-        - name: facility
-          description: "id of Facility"
-          schema:
-            type: integer
-          in: query
-          required: false
+        - $ref: '#/components/parameters/optionalFacilityId'
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
