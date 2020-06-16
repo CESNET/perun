@@ -14,9 +14,9 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.resourcesManager.AssignService;
+import cz.metacentrum.perun.webgui.json.resourcesManager.AssignServices;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedServices;
-import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveService;
+import cz.metacentrum.perun.webgui.json.resourcesManager.RemoveServices;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetServices;
 import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -214,7 +214,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 					return;
 				}
 				final Service service = servicesListbox.getSelectedObject();
-				AssignService request = new AssignService(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents(){
+				AssignServices request = new AssignServices(JsonCallbackEvents.disableButtonEvents(assignButton, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						alreadyAddedList.add(service);
@@ -231,7 +231,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 					return;
 				}
 				final Service service = servicesListbox.getSelectedObject();
-				RemoveService request = new RemoveService(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
+				RemoveServices request = new RemoveServices(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						Iterator<Service> iter = alreadyAddedList.iterator();

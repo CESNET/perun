@@ -397,6 +397,21 @@ public interface ResourcesManager {
 	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Assign services to resource.
+	 *
+	 * @param perunSession perun session
+	 * @param resource resource
+	 * @param services services to be assigned
+	 * @throws ResourceNotExistsException
+	 * @throws PrivilegeException
+	 * @throws ServiceNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws ServiceAlreadyAssignedException
+	 */
+	void assignServices(PerunSession perunSession, Resource resource, List<Service> services) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Assign all services from services package to resouce.
 	 *
 	 * @param perunSession
@@ -425,6 +440,21 @@ public interface ResourcesManager {
 	 * @throws ServiceNotAssignedException
 	 */
 	void removeService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
+
+	/**
+	 * Remove services from resource.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param services
+	 *
+	 * @throws InternalErrorException
+	 * @throws ResourceNotExistsException
+	 * @throws PrivilegeException
+	 * @throws ServiceNotExistsException
+	 * @throws ServiceNotAssignedException
+	 */
+	void removeServices(PerunSession perunSession, Resource resource, List<Service> services) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException;
 
 	/**
 	 * Remove from resource all services from services package.

@@ -45,7 +45,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
@@ -69,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -473,33 +473,89 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		getResourcesManagerImpl().assignService(sess, resource, service);
-		getPerunBl().getAuditer().log(sess, new ServiceAssignedToResource(service, resource));
+		assignServices(sess, resource, Collections.singletonList(service));
+	}
 
-		AttributesManagerBl attributesManagerBl = getPerunBl().getAttributesManagerBl();
-
+	@Override
+	public void assignServices(PerunSession sess, Resource resource, List<Service> services) throws ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		for (Service service : services) {
+			getResourcesManagerImpl().assignService(sess, resource, service);
+			getPerunBl().getAuditer().log(sess, new ServiceAssignedToResource(service, resource));
+		}
 		try {
-			//group and group-resource
-			List<Group> groups = getAssignedGroups(sess, resource);
-			for(Group group : groups) {
-				List<Attribute> attributes;
-				attributes = attributesManagerBl.getRequiredAttributes(sess, service, resource, group, true);
-				attributes = attributesManagerBl.fillAttributes(sess, resource, group, attributes, true);
-				attributesManagerBl.setAttributes(sess, resource, group, attributes, true);
-			}
+			fillAndSetRequiredAttributesForGroups(sess, services, resource);
 
-			// call check of facility's resource's member's user's attributes
-			Facility facility = getFacility(sess, resource);
-			attributesManagerBl.checkAttributesSemantics(sess, facility, attributesManagerBl.getRequiredAttributes(sess, facility));
-			attributesManagerBl.checkAttributesSemantics(sess, resource, attributesManagerBl.getRequiredAttributes(sess, resource));
-			List<Member> members = getAllowedMembers(sess, resource);
-			for(Member member : members) {
-				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				// use complex method for getting and setting member-resource, member, user-facility and user-facility required attributes for the service
-				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, service, facility, resource, user, member, true);
-			}
-		} catch(WrongAttributeAssignmentException | GroupResourceMismatchException | MemberResourceMismatchException | AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
+			checkSemanticsOfFacilityAndResourceRequiredAttributes(sess, resource);
+
+			updateAllRequiredAttributesForAllowedMembers(sess, resource, services);
+		} catch (WrongAttributeAssignmentException | GroupResourceMismatchException |
+				MemberResourceMismatchException | AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+	}
+
+	/**
+	 * For given resource, finds all allowed members and sets them attributes,
+	 * (member-resource, member, user-facility and user) that are required by given services.
+	 *
+	 * @param sess session
+	 * @param resource resource from where allowed members are taken
+	 * @param services services, for which the required attributes are set
+	 * @throws MemberResourceMismatchException MemberResourceMismatchException
+	 * @throws WrongAttributeAssignmentException WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException AttributeNotExistsException
+	 * @throws WrongReferenceAttributeValueException WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException WrongAttributeValueException
+	 */
+	public void updateAllRequiredAttributesForAllowedMembers(PerunSession sess, Resource resource, List<Service> services) throws MemberResourceMismatchException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+		Facility facility = getFacility(sess, resource);
+		List<Member> members = getAllowedMembers(sess, resource);
+		for(Member member : members) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			getPerunBl().getAttributesManagerBl()
+				.setRequiredAttributes(sess, services, facility, resource, user, member, true);
+		}
+	}
+
+	/**
+	 * Checks semantics of all required attributes of given resource and its facility.
+	 *
+	 * @param sess session
+	 * @param resource resource used to get facility and attributes
+	 * @throws WrongReferenceAttributeValueException WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException WrongAttributeAssignmentException
+	 */
+	public void checkSemanticsOfFacilityAndResourceRequiredAttributes(PerunSession sess, Resource resource) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		AttributesManagerBl attributesManagerBl = getPerunBl().getAttributesManagerBl();
+		Facility facility = getFacility(sess, resource);
+
+		List<Attribute> facilityRequiredAttributes = attributesManagerBl.getRequiredAttributes(sess, facility);
+		List<Attribute> resourceRequiredAttributes = attributesManagerBl.getRequiredAttributes(sess, resource);
+
+		attributesManagerBl.checkAttributesSemantics(sess, facility, facilityRequiredAttributes);
+		attributesManagerBl.checkAttributesSemantics(sess, resource, resourceRequiredAttributes);
+	}
+
+	/**
+	 * Fill and set group and group-resource attributes required by given services
+	 * for all groups which are assigned to the given resource.
+	 *
+	 * @param sess session
+	 * @param services services of which required attributes are set
+	 * @param resource resource
+	 * @throws GroupResourceMismatchException GroupResourceMismatchException
+	 * @throws WrongAttributeAssignmentException WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException WrongReferenceAttributeValueException
+	 */
+	public void fillAndSetRequiredAttributesForGroups(PerunSession sess, List<Service> services, Resource resource) throws GroupResourceMismatchException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		AttributesManagerBl attributesManagerBl = getPerunBl().getAttributesManagerBl();
+		List<Group> groups = getAssignedGroups(sess, resource);
+		for(Group group : groups) {
+			List<Attribute> attributes;
+			attributes = attributesManagerBl.getRequiredAttributes(sess, services, resource, group, true);
+			attributes = attributesManagerBl.fillAttributes(sess, resource, group, attributes, true);
+			attributesManagerBl.setAttributes(sess, resource, group, attributes, true);
 		}
 	}
 
@@ -519,6 +575,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	public void removeService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotAssignedException {
 		getResourcesManagerImpl().removeService(sess, resource, service);
 		getPerunBl().getAuditer().log(sess, new ServiceRemovedFromResource(service, resource));
+	}
+
+	@Override
+	public void removeServices(PerunSession sess, Resource resource, List<Service> services) throws InternalErrorException, ServiceNotAssignedException {
+		for (Service service : services) {
+			removeService(sess, resource, service);
+		}
 	}
 
 	@Override

@@ -35,8 +35,8 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 	public void eventProcessorTest() {
 		System.out.println("EventProcessor.eventProcessorTest()");
 
-		EngineMessageProducer engineMessageProducer = new EngineMessageProducerMock(1, "testQueue");
-		eventProcessor.getEngineMessageProducerPool().addProducer(engineMessageProducer);
+		EngineMessageProducer engineMessageProducer = new EngineMessageProducerMock("testQueue");
+		eventProcessor.getEngineMessageProducerFactory().setProducer(engineMessageProducer);
 
 		LinkedBlockingQueue<Event> mockQueue = new LinkedBlockingQueue<>();
 
@@ -67,8 +67,8 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 
 	private class EngineMessageProducerMock extends EngineMessageProducer {
 
-		public EngineMessageProducerMock(int clientID, String queueName) {
-			super(clientID, queueName);
+		public EngineMessageProducerMock(String queueName) {
+			super(queueName);
 		}
 
 	}
@@ -84,7 +84,7 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 		}
 
 		@Override
-		public int addToPool(Task task, EngineMessageProducer engineMessageProducer) {
+		public int addToPool(Task task) {
 			tasks.add(task);
 			adds += 1;
 			if (adds == expectedAdds) {

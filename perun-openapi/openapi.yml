@@ -271,6 +271,103 @@ components:
       discriminator:
         propertyName: beanName
 
+    PublicationSystem:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            friendlyName: { type: string }
+            url: { type: string }
+            username: { type: string }
+            password: { type: string }
+            loginNamespace: { type: string }
+            type: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    Publication:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            authors: { type: array, items: { $ref: '#/components/schemas/Author' } }
+            externalId: { type: integer }
+            publicationSystemId: { type: integer }
+            title: { type: string }
+            year: { type: integer }
+            main: { type: string }
+            isbn: { type: string }
+            doi: { type: string }
+            categoryId: { type: integer }
+            rank: { type: number, format: double }
+            locked: { type: boolean }
+            createdBy: { type: string }
+            createdByUid: { type: integer }
+            createdDate: { type: string, format: date }
+      discriminator:
+        propertyName: beanName
+
+    PublicationForGUI:
+      allOf:
+        - $ref: '#/components/schemas/Publication'
+        - properties:
+            pubSystemName: { type: string }
+            categoryName: { type: string }
+            thanks: { type: array, items: { $ref: '#/components/schemas/ThanksForGUI' } }
+      discriminator:
+        propertyName: beanName
+
+    Category:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            name: { type: string }
+            rank: { type: number, format: double }
+      discriminator:
+        propertyName: beanName
+
+    Thanks:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            publicationId: { type: integer }
+            ownerId: { type: integer }
+            createdBy: { type: string }
+            createdByUid: { type: integer }
+            createdDate: { type: string, format: date }
+      discriminator:
+        propertyName: beanName
+
+    ThanksForGUI:
+      allOf:
+        - $ref: '#/components/schemas/Thanks'
+        - properties:
+            ownerName: { type: string }
+      discriminator:
+        propertyName: beanName
+
+    Authorship:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            publicationId: { type: integer }
+            userId: { type: integer }
+            createdBy: { type: string }
+            createdDate: { type: string, format: date }
+            createdByUid: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+    Author:
+      allOf:
+        - $ref: '#/components/schemas/PerunBean'
+        - properties:
+            firstName: { type: string }
+            lastName: { type: string }
+            middleName: { type: string }
+            titleBefore: { type: string }
+            titleAfter: { type: string }
+            attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+            authorships: { type: array, items: { $ref: '#/components/schemas/Authorship' } }
+
     Owner:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -470,6 +567,7 @@ components:
         i18n:
           type: object
           additionalProperties: { $ref: '#/components/schemas/ItemTexts' }
+        forDelete: { type: boolean }
 
     ApplicationFormItemData:
       type: object
@@ -797,6 +895,14 @@ components:
           schema:
             type: integer
 
+    DoubleResponse:
+      description: "returns Double"
+      content:
+        application/json:
+          schema:
+            type: number
+            format: double
+
     LongResponse:
       description: "returns Long"
       content:
@@ -950,6 +1056,100 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/AuditMessage"
+
+    PublicationSystemResponse:
+      description: "returns PublicationSystem"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PublicationSystem"
+
+    ListOfPublicationSystemsResponse:
+      description: "returns List<PublicationSystem>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/PublicationSystem"
+
+    CategoryResponse:
+      description: "returns Category"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Category"
+
+    ListOfCategoryResponse:
+      description: "returns List<Category>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Category'
+
+    ThanksResponse:
+      description: "returns Thanks"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Thanks"
+
+    ListOfThanksForGUIResponse:
+      description: "returns List<ThanksForGUI>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ThanksForGUI'
+
+    AuthorshipResponse:
+      description: "returns Authorship"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Authorship"
+
+    ListOfAuthorResponse:
+      description: "returns List<Author>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Author'
+
+    PublicationResponse:
+      description: "return Publication"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Publication"
+
+    ListOfPublicationResponse:
+      description: "return List<Publication>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Publication'
+
+    PublicationForGUIResponse:
+      description: "return PublicationForGUI"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PublicationForGUI"
+
+    ListOfPublicationForGUIResponse:
+      description: "return List<PublicationForGUI>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PublicationForGUI"
 
     AttributeDefinitionResponse:
       description: "returns AttributeDefinition"
@@ -1568,6 +1768,38 @@ components:
       in: query
       required: true
 
+    publicationId:
+      name: publication
+      description: "id of publication"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    isbn:
+      name: isbn
+      description: "ISBN"
+      schema:
+        type: string
+      in: query
+      required: false
+
+    doi:
+      name: doi
+      description: "DOI"
+      schema:
+        type: string
+      in: query
+      required: false
+
+    title:
+      name: title
+      description: "Title"
+      schema:
+        type: string
+      in: query
+      required: false
+
     userIdLiterally:
       name: userId
       description: "id of User"
@@ -1997,6 +2229,10 @@ tags:
     description: AuditMessage RPC API in Perun
     externalDocs:
       url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AuditMessagesManager.html
+  - name: CabinetManager
+    description: CabinetManager RPC API in Perun
+    externalDocs:
+      url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-CabinetManager.html
   - name: UsersManager
     description: UsersManager RPC API in Perun
     externalDocs:
@@ -5761,6 +5997,585 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  #################################################
+  #                                               #
+  # CabinetManager                                #
+  #                                               #
+  #################################################
+
+  /json/cabinetManager/getPublicationSystems:
+    get:
+      tags:
+        - CabinetManager
+      operationId: getPublicationSystems
+      summary: Get all PublicationSystems in Perun. If none, return empty list.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfPublicationSystemsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/cabinetManager/deletePublicationSystem:
+    post:
+      tags:
+        - CabinetManager
+      operationId: deletePublicationSystem
+      summary: Deletes PublicationSystem by its ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/createPublicationSystem:
+    post:
+      tags:
+        - CabinetManager
+      operationId: createPublicationSystem
+      summary: Creates new PublicationSystem.
+      responses:
+        '200':
+          $ref: '#/components/responses/PublicationSystemResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreatePublicationSystem
+              description: 'input to createPublicationSystem'
+              type: object
+              required:
+                - pubsys
+              properties:
+                pubsys: { $ref: '#/components/schemas/PublicationSystem' }
+
+  /json/cabinetManager/updatePublicationSystem:
+    post:
+      tags:
+        - CabinetManager
+      operationId: updatePublicationSystem
+      summary: Updates PublicationSystem by its ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/PublicationSystemResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdatePublicationSystem
+              description: 'input to updatePublicationSystem'
+              type: object
+              required:
+                - pubsys
+              properties:
+                pubsys: { $ref: '#/components/schemas/PublicationSystem' }
+
+  /json/cabinetManager/getCategories:
+    get:
+      tags:
+        - CabinetManager
+      operationId: getCategories
+      summary: Return list of all Categories in Perun or empty list of none present.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfCategoryResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/createCategory/cat:
+    post:
+      tags:
+        - CabinetManager
+      operationId: createCategoryCat
+      summary: |
+        Creates new Category for Publications with specified name and rank.
+        Category object's parameter name must be non-empty, max 128 chars long and rank must be double
+        with single digit after decimal point. Other parameters are ignored.
+      responses:
+        '200':
+          $ref: '#/components/responses/CategoryResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateCategory
+              description: 'input to createCategory'
+              type: object
+              required:
+                - category
+              properties:
+                category: { $ref: '#/components/schemas/Category' }
+
+  /json/cabinetManager/createCategory/n-r:
+    post:
+      tags:
+        - CabinetManager
+      operationId: createCategoryNR
+      summary: Creates new Category for Publications with specified name and rank.
+      responses:
+        '200':
+          $ref: '#/components/responses/CategoryResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateCategory
+              description: 'input to createCategory'
+              type: object
+              required:
+                - name
+                - rank
+              properties:
+                name: { type: string, description: 'name of the category' }
+                rank: { type: number, format: double, description: 'the rank of the category' }
+
+  /json/cabinetManager/updateCategory:
+    post:
+      tags:
+        - CabinetManager
+      operationId: updateCategory
+      summary: |
+        Updates publications category in Perun. Category to update is found by ID.
+        When category rank is changed, priorityCoefficient for all authors of books from this category,
+        is recalculated.
+      responses:
+        '200':
+          $ref: '#/components/responses/CategoryResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateCategory
+              description: 'input to updateCategory'
+              type: object
+              required:
+                - category
+              properties:
+                category: { $ref: '#/components/schemas/Category' }
+
+  /urlinjsonout/cabinetManager/deleteCategory:
+    post:
+      tags:
+        - CabinetManager
+      operationId: deleteCategory
+      summary: Delete category by its ID. If category contains any publications, it can't be deleted.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/createThanks:
+    post:
+      tags:
+        - CabinetManager
+      operationId: createThanks
+      summary: Creates new Thanks for Publication
+      responses:
+        '200':
+          $ref: '#/components/responses/ThanksResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateThanks
+              description: 'input to createThanks'
+              type: object
+              required:
+                - category
+              properties:
+                thanks: { $ref: '#/components/schemas/Thanks' }
+
+  /urlinjsonout/cabinetManager/deleteThanks:
+    post:
+      tags:
+        - CabinetManager
+      operationId: deleteThanks
+      summary: Delete Thanks by its ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/getRichThanksByPublicationId:
+    get:
+      tags:
+        - CabinetManager
+      operationId: getRichThanksByPublicationId
+      summary: Get ThanksForGUI of Publication specified by its ID or empty list.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfThanksForGUIResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/createAuthorship:
+    post:
+      tags:
+        - CabinetManager
+      operationId: createAutorship
+      summary: |
+        Creates Authorship. Everything except current date must be already set in Authorship object.
+        Authorship is checked for existence before creation, if exists, existing object is returned.
+        When authorship is successfully created, users priority coefficient is updated.
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthorshipResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateAuthorship
+              description: 'input to createAuthorship'
+              type: object
+              required:
+                - authorship
+              properties:
+                authorship: { $ref: '#/components/schemas/Authorship' }
+
+  /urlinjsonout/cabinetManager/deleteAuthorship:
+    post:
+      tags:
+        - CabinetManager
+      operationId: deleteAuthorship
+      summary: Delete Authorship by its userId and publicationId.
+      parameters:
+        - $ref: '#/components/parameters/publicationId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/getRank:
+    get:
+      tags:
+        - CabinetManager
+      operationId: getRank
+      summary: Gets overall rank of given user as sum of all his publications Authorships.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/DoubleResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/findAuthorsByPublicationId:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findAuthorsByPublicationId
+      summary: Return all Authors of Publication specified by its ID. Empty list of none found.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuthorResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/findAllAuthors:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findAllAuthors
+      summary: Return all Authors of Publications. Empty list of none found.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuthorResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/findNewAuthors:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findNewAuthors
+      summary: |
+        Find new Authors for Publication. Empty list of none found.
+        Used by users to search for colleagues to add them as co-authors.
+      parameters:
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAuthorResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/createPublication:
+    post:
+      tags:
+        - CabinetManager
+      operationId: createPublication
+      summary: |
+        Create Publication. If exists by its ID or EXT_ID,PUB_SYS_ID then existing publication is returned.
+      responses:
+        '200':
+          $ref: '#/components/responses/PublicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreatePublication
+              description: 'input to createPublication'
+              type: object
+              required:
+                - publication
+              properties:
+                publication: { $ref: '#/components/schemas/Publication' }
+
+  /json/cabinetManager/updatePublication:
+    post:
+      tags:
+        - CabinetManager
+      operationId: updatePublication
+      summary: Update existing publication by its ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/PublicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdatePublication
+              description: 'input to updatePublication'
+              type: object
+              required:
+                - publication
+              properties:
+                publication: { $ref: '#/components/schemas/Publication' }
+
+  /urlinjsonout/cabinetManager/deletePublication:
+    post:
+      tags:
+        - CabinetManager
+      operationId: deletePublication
+      summary: |
+        Delete publication by its ID. Only Author of the record or PerunAdmin can do this. -
+        Author deletes Authorships and Thanks from publication. - PerunAdmin also delete publication record.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/findPublicationById:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findPublicationById
+      summary: |
+        Return Publication by its ID.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/PublicationForGUIResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/findPublicationsByGUIFilter:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findPublicationsByGUIFilter
+      summary: |
+        Finds rich publications in Cabinet by GUI filter: id = exact match
+        (used when search for publication of authors) title = if "like" this substring year = exact match
+        isbn = if "like" this substring category = exact match yearSince = if year >= yearSince
+        yearTill = if year <= yearTill userId = exact match or 0 If you don't want to filter by publication params,
+        do not include the attribute in the query.
+      parameters:
+        - $ref: '#/components/parameters/title'
+        - $ref: '#/components/parameters/isbn'
+        - $ref: '#/components/parameters/doi'
+        - name: id
+          in: query
+          schema:
+            type: integer
+          description: Publication id
+          required: false
+        - name: year
+          in: query
+          schema:
+            type: integer
+          description: Year
+          required: false
+        - name: category
+          in: query
+          schema:
+            type: integer
+          description: Category
+          required: false
+        - name: yearSince
+          in: query
+          schema:
+            type: integer
+          description: Year since
+          required: false
+        - name: yearTill
+          in: query
+          schema:
+            type: integer
+          description: Year till
+          required: false
+        - name: userId
+          in: query
+          schema:
+            type: integer
+          description: User id
+          required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfPublicationForGUIResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/findPublicationsByFilter:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findPublicationsByFilter
+      summary: Finds publications in Cabinet by filter.
+      parameters:
+        - name: yearSince
+          in: query
+          schema:
+            type: integer
+          description: Year since
+          required: false
+        - name: yearTill
+          in: query
+          schema:
+            type: integer
+          description: Year till
+          required: false
+        - name: userId
+          in: query
+          schema:
+            type: integer
+          description: User id
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfPublicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/lockPublications:
+    post:
+      tags:
+        - CabinetManager
+      operationId: lockPublications
+      summary: (Un)Lock passed Publications for changes.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputLockPublications
+              description: 'input to lockPublications'
+              type: object
+              required:
+                - lock
+                - publications
+              properties:
+                publications: { type: array, items: { $ref: '#/components/schemas/Publication' } }
+                lock: { type: boolean }
+
+  /json/cabinetManager/findExternalPublications:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findExternalPublications
+      summary: |
+        Finds publications of perun's user specified in param
+        Search is done in external publication systems (MU, ZCU) All parameters are required.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - name: yearSince
+          in: query
+          schema:
+            type: integer
+          description: Year since
+          required: true
+        - name: yearTill
+          in: query
+          schema:
+            type: integer
+          description: Year till
+          required: true
+        - name: pubSysNamespace
+          in: query
+          schema:
+            type: string
+          description:    (MU or ZCU)
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfPublicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/cabinetManager/findSimilarPublications:
+    get:
+      tags:
+        - CabinetManager
+      operationId: findSimilarPublications
+      summary: Finds similar publications
+      parameters:
+        - $ref: '#/components/parameters/title'
+        - $ref: '#/components/parameters/doi'
+        - $ref: '#/components/parameters/isbn'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfPublicationForGUIResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
 
   #################################################
@@ -8442,6 +9257,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/resourcesManager/assignServices:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: assignServices
+      summary: Assigns services to resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/serviceIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/resourcesManager/assignServicesPackage:
     post:
       tags:
@@ -8466,6 +9296,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/resourceId'
         - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/resourcesManager/removeServices:
+    post:
+      tags:
+        - ResourcesManager
+      operationId: removeServices
+      summary: Removes services from a resource.
+      parameters:
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/serviceIds'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

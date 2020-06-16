@@ -37,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
@@ -543,6 +544,23 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public void assignServices(PerunSession sess, Resource resource, List<Service> services) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+
+		for (Service service : services) {
+			getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		}
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "assignServices");
+		}
+
+		getResourcesManagerBl().assignServices(sess, resource, services);
+	}
+
+	@Override
 	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 
@@ -564,12 +582,29 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
-			throw new PrivilegeException(sess, "removeServices");
+			throw new PrivilegeException(sess, "removeService");
 		}
 
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 
 		getResourcesManagerBl().removeService(sess, resource, service);
+	}
+
+	@Override
+	public void removeServices(PerunSession sess, Resource resource, List<Service> services) throws PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceNotAssignedException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+
+		for (Service service : services) {
+			getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		}
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "removeServices");
+		}
+
+		getResourcesManagerBl().removeServices(sess, resource, services);
 	}
 
 	@Override

@@ -42,8 +42,6 @@ public abstract class AbstractEngineTest {
 
 	PerunSession sess;
 
-	public int engineId = 0;
-
 	// base objects needed as test environment
 	public Facility facility;
 	public Service service;
@@ -65,10 +63,6 @@ public abstract class AbstractEngineTest {
 
 	@Before
 	public void setup() throws Exception {
-
-		// determine engine ID
-
-		engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
 
 		// create session
 		sess = perun.getPerunSession(
@@ -116,7 +110,7 @@ public abstract class AbstractEngineTest {
 		task1.setService(service);
 		task1.setSchedule(LocalDateTime.now());
 		task1.setStatus(Task.TaskStatus.PLANNED);
-		task1.setId(tasksManagerImpl.scheduleNewTask(task1, engineId));
+		task1.setId(tasksManagerImpl.scheduleNewTask(task1));
 
 		task2 = new Task();
 		task2.setDestinations(destinations);
@@ -124,7 +118,7 @@ public abstract class AbstractEngineTest {
 		task2.setService(service2);
 		task2.setSchedule(LocalDateTime.now());
 		task2.setStatus(Task.TaskStatus.PLANNED);
-		task2.setId(tasksManagerImpl.scheduleNewTask(task2, engineId));
+		task2.setId(tasksManagerImpl.scheduleNewTask(task2));
 
 		sendTask1 = new SendTask(task1, destination1);
 		sendTask1.setStartTime(new Date(System.currentTimeMillis()));

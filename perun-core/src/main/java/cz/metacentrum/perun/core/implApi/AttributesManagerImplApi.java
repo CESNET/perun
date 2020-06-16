@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -1361,9 +1362,30 @@ public interface AttributesManagerImplApi {
 
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException;
 
+	/**
+	 * Get group-resource attributes which are required by the services.
+	 *
+	 * @param sess session
+	 * @param services services
+	 * @param resource resource
+	 * @param group group
+	 * @return list of attributes which are required by the service.
+	 */
+	List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource, Group group);
+
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws InternalErrorException;
 
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws InternalErrorException;
+
+	/**
+	 * Get group attributes which are required by the given services.
+	 *
+	 * @param sess session
+	 * @param services services
+	 * @param group group
+	 * @return list of group attributes which are required by the given services
+	 */
+	List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Group group);
 	/**
 	 * This method try to fill a value of the resource attribute. Value may be copied from some facility attribute.
 	 *
