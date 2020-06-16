@@ -556,14 +556,14 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 				throw new InternalErrorException("Regex pattern \""+regex+"\" from \"login-namespace:"+namespace+":regex\" property of perun-namespaces.properties file is invalid.");
 			}
 			// check syntax or if its between exceptions
-			if(!login.matches(regex) && !isLoginException(namespace, login)) {
+			if(!login.matches(regex) && !isLoginExceptionallyAllowed(namespace, login)) {
 				log.warn("Login '{}' in {} namespace doesn't match regex: {}", login, namespace, regex);
 				throw new InvalidLoginException("Login doesn't matches expected regex: \"" + regex +"\"");
 			}
 		} else {
 			// Regex property not found in our attribute map, so use the default hardcoded regex
 			// check syntax or if its between exceptions
-			if (!defaultRegex.matcher(login).matches() && !isLoginException(namespace, login)) {
+			if (!defaultRegex.matcher(login).matches() && !isLoginExceptionallyAllowed(namespace, login)) {
 				log.warn("Login '{}' in {} namespace doesn't match regex: {}", login, namespace, regex);
 				throw new InvalidLoginException("Login doesn't matches expected regex: \"" + defaultRegex +"\"");
 			}
@@ -571,7 +571,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public boolean checkIfUserLoginIsPermitted(String namespace, String login) {
+	public boolean isUserLoginPermitted(String namespace, String login) {
 		Utils.notNull(namespace, "namespace to check unpermited logins in");
 		if(login == null) return true;
 
@@ -580,15 +580,15 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		String prohibitedNames = perunNamespaces.get("login-namespace:" + namespace + ":reservedNames");
 		if (prohibitedNames != null) {
 			List<String> prohibitedNamesList = Arrays.asList(prohibitedNames.split("\\s*,\\s*"));
-			return !prohibitedNamesList.contains(login) || isLoginException(namespace, login);
+			return !prohibitedNamesList.contains(login) || isLoginExceptionallyAllowed(namespace, login);
 		} else {
 			//Property not found in our attribute map, so we will use the default hardcoded values instead
-			return !unpermittedNamesForUserLogins.contains(login) || isLoginException(namespace, login);
+			return !unpermittedNamesForUserLogins.contains(login) || isLoginExceptionallyAllowed(namespace, login);
 		}
 	}
 
 	@Override
-	public boolean isLoginException(String namespace, String login) {
+	public boolean isLoginExceptionallyAllowed(String namespace, String login) {
 		Utils.notNull(namespace, "namespace to check allowed exceptions for login in");
 		if(login == null) return false;
 

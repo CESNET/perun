@@ -134,7 +134,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		((PerunBl)sess.getPerun()).getModulesUtilsBl().checkLoginNamespaceRegex("mu", login, GenericPasswordManagerModule.defaultLoginPattern);
 
 		// check if login is permitted
-		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().checkIfUserLoginIsPermitted("mu", login)) {
+		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted("mu", login)) {
 			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, "mu");
 			throw new InvalidLoginException("Login '"+login+"' is not allowed in 'mu' namespace by configuration.");
 		}

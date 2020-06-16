@@ -87,8 +87,8 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 
 	@Override
 	public void checkPassword(PerunSession sess, String userLogin, String password) {
-		// use custom check instead of strength, since this is about empty input
-		// we must allow checks for old weaker passwords
+		// use custom check instead of checkPasswordStrength(), since this is only about empty input
+		// and we must allow checks for older (weaker) passwords
 		if (StringUtils.isBlank(password)) {
 			throw new InternalErrorException("Password for " + actualLoginNamespace + ":" + userLogin + " cannot be empty.");
 		}
@@ -141,7 +141,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 		((PerunBl)sess.getPerun()).getModulesUtilsBl().checkLoginNamespaceRegex(actualLoginNamespace, login, defaultLoginPattern);
 
 		// check if login is permitted
-		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().checkIfUserLoginIsPermitted(actualLoginNamespace, login)) {
+		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted(actualLoginNamespace, login)) {
 			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
 			throw new InvalidLoginException("Login '"+login+"' is not allowed in '"+actualLoginNamespace+"' namespace by configuration.");
 		}

@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 /**
  * Password manager for EINFRA login-namespace. It provides custom checks on login format
- * adn password strength. Also implementation for alternative passwords is customized.
+ * and password strength. Also implementation for alternative passwords is customized.
  *
  * It calls generic pwd manager script logic with ".einfra"
  *
@@ -121,7 +121,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		((PerunBl)sess.getPerun()).getModulesUtilsBl().checkLoginNamespaceRegex(actualLoginNamespace, login, einfraLoginPattern);
 
 		// check if login is permitted
-		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().checkIfUserLoginIsPermitted(actualLoginNamespace, login)) {
+		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted(actualLoginNamespace, login)) {
 			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
 			throw new InvalidLoginException("Login '"+login+"' is not allowed in '"+actualLoginNamespace+"' namespace by configuration.");
 		}

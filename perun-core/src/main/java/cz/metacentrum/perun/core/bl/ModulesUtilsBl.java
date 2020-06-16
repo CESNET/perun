@@ -243,7 +243,7 @@ public interface ModulesUtilsBl {
 	 * Regex for each namespace can be defined in /etc/perun/perun-namespaces.properties
 	 * You can define login exceptions, which override these syntactically wrong login names in the same file.
 	 * It is to support historically wrong values or specific exception within existing namespaces.
-	 * @see #isLoginException(String, String)
+	 * @see #isLoginExceptionallyAllowed(String, String)
 	 *
 	 * @param namespace Namespace to perform check in
 	 * @param login Login to check
@@ -262,13 +262,13 @@ public interface ModulesUtilsBl {
 	 * You can define login exceptions, which override these reserved login names in the same file.
 	 * This method returns TRUE for such exceptions.
 	 * It is to support historically wrong values or specific exception within existing namespaces.
-	 * @see #isLoginException(String, String)
+	 * @see #isLoginExceptionallyAllowed(String, String)
 	 *
 	 * @param namespace Namespace to perform check in
 	 * @param login Login to check
 	 * @return TRUE if login value is permitted within the namespace / FALSE otherwise
 	 */
-	boolean checkIfUserLoginIsPermitted(String namespace, String login);
+	boolean isUserLoginPermitted(String namespace, String login);
 
 	/**
 	 * Return true, if login value is "exception" within its namespace rules.
@@ -280,7 +280,7 @@ public interface ModulesUtilsBl {
 	 * @param login Login to check
 	 * @return TRUE if login value is within exceptions / FALSE otherwise
 	 */
-	boolean isLoginException(String namespace, String login);
+	boolean isLoginExceptionallyAllowed(String namespace, String login);
 
 	/**
 	 * Get value of attribute A_F_Def_unixGroupName-Namespace

@@ -1292,10 +1292,9 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor)
-			throws InternalErrorException, PrivilegeException, AlreadyMemberException,
-			LoginNotExistsException, PasswordCreationFailedException,
-			ExtendMembershipException,
-			WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
+			throws InternalErrorException, PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
+			ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
+			UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");
