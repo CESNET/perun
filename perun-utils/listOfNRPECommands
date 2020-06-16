@@ -19,7 +19,7 @@ my $CHECK_COMMAND = '/opt/perun-utils/checkLastTaskResult.sh';
 sub help {
 	return qq{
 	Returns list of commands for NRPE server in format:
-	"command[SERVICE+DESTINATION]=PATH/CHECK_COMMAND -S SERVICE 
+	"command[SERVICE+DESTINATION]=PATH/CHECK_COMMAND -S SERVICE
 	-D DESTINATION" per line where '+' is needed separator,
 	PATH is where CLI scripts are and CHECK_COMMAND is command for checking
 	if the newest task_result for combination SERVICE and DESTINATION (names)
