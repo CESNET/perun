@@ -10,12 +10,10 @@ import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.DirectoryScopes;
 import com.google.api.services.admin.directory.model.Member;
 import com.google.api.services.admin.directory.model.Members;
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,7 @@ import java.util.Map;
  * @author Sona Mastrakova
  * @date 05.08.2015
  */
-public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
+public class ExtSourceGoogle extends ExtSourceImpl implements ExtSourceApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceGoogle.class);
 
@@ -42,8 +40,6 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	private Directory service = null;
 	private String domainName = null;
 	private String groupName = null;
-
-	private static PerunBlImpl perunBl;
 
 	/**
 	 * Application name.
@@ -610,15 +606,5 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 				.setApplicationName(APPLICATION_NAME).build();
 
 		return serviceLocal;
-	}
-
-	protected Map<String,String> getAttributes() throws InternalErrorException {
-		return perunBl.getExtSourcesManagerBl().getAttributes(this);
-	}
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
 	}
 }

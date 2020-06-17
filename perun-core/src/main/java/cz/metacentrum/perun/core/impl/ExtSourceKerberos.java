@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceKerberos extends ExtSource implements ExtSourceSimpleApi {
+public class ExtSourceKerberos extends ExtSourceImpl implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceKerberos.class);
 

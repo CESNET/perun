@@ -1,11 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
@@ -41,7 +39,7 @@ import java.util.regex.Pattern;
 /**
  * @author Michal Stava stavamichal@gmail.com
  */
-public class ExtSourceXML extends ExtSource implements ExtSourceApi {
+public class ExtSourceXML extends ExtSourceImpl implements ExtSourceApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceXML.class);
 
@@ -49,14 +47,6 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private String loginQuery = null;
 	private String file = null;
 	private String uri = null;
-
-	private static PerunBlImpl perunBl;
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
-	}
 
 	//URL connection
 	private HttpURLConnection con = null;
@@ -512,7 +502,4 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		this.con = con;
 	}
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
-		return perunBl.getExtSourcesManagerBl().getAttributes(this);
-	}
 }

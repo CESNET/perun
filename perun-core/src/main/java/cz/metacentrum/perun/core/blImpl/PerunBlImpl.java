@@ -570,6 +570,14 @@ public class PerunBlImpl implements PerunBl {
 		}
 	}
 
+	/**
+	 * Called when Perun is shutting down to clean up opened resources.
+	 */
+	public void destroy() {
+		log.debug("destroying");
+		this.extSourcesManagerBl.destroy();
+	}
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + ":[" +

@@ -1,11 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +31,7 @@ import java.util.regex.Pattern;
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
+public class ExtSourceLdap extends ExtSourceImpl implements ExtSourceApi {
 
 	protected Map<String, String> mapping;
 
@@ -47,14 +45,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			initContext();
 		}
 		return dirContext;
-	}
-
-	private static PerunBlImpl perunBl;
-
-	// filled by spring (perun-core.xml)
-	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-		perunBl = perun;
-		return perun;
 	}
 
 	@Override
@@ -416,9 +406,4 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		// We can call original implementation, since LDAP always return whole entry and not just login
 		return findSubjectsLogins(searchString, maxResults);
 	}
-
-	protected Map<String,String> getAttributes() throws InternalErrorException {
-		return perunBl.getExtSourcesManagerBl().getAttributes(this);
-	}
-
 }

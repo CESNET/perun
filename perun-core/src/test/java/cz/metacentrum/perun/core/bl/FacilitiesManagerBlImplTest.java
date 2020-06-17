@@ -84,6 +84,7 @@ public class FacilitiesManagerBlImplTest {
 		sess = perun.getPerunSession(
 				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());
+		perun.getExtSourcesManagerBl().loadExtSourcesDefinitions(sess);
 
 
 		vo = new Vo(0, "FacilitiesManagerBlImplTestVo", "FacMgrBlImplTestVo");

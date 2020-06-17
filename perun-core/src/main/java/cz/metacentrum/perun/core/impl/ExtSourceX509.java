@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceX509 extends ExtSource implements ExtSourceSimpleApi {
+public class ExtSourceX509 extends ExtSourceImpl implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceX509.class);
 

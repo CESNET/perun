@@ -1,12 +1,10 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,20 +30,13 @@ import static cz.metacentrum.perun.core.impl.Utils.parseCommonName;
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 12.09.2016
  */
-public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
+public class ExtSourceUnity extends ExtSourceImpl implements ExtSourceApi {
 
     private final static Logger log = LoggerFactory.getLogger(ExtSourceUnity.class);
     private String username;
     private String password;
     private String uriAll;
     private String uriEntity;
-    private static PerunBlImpl perunBl;
-
-    // filled by spring (perun-core.xml)
-    public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
-        perunBl = perun;
-        return perun;
-    }
 
     @Override
     public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
@@ -140,10 +131,6 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     @Override
     public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException();
-    }
-
-    protected Map<String, String> getAttributes() throws InternalErrorException {
-        return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
 
     private void prepareEnvironment() throws InternalErrorException {

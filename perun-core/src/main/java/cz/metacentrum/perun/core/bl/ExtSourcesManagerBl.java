@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,11 @@ public interface ExtSourcesManagerBl {
 	 * Initialize manager.
 	 */
 	void initialize(PerunSession sess);
+
+	/**
+	 * Destroy manager. Clean resources.
+	 */
+	void destroy();
 
 	/**
 	 * Creates an external source.
@@ -127,7 +133,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
+	void addExtSourceToVo(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
 
 	/**
 	 * Associate external source definition with the GROUP.
@@ -139,7 +145,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceAlreadyAssignedException
 	 */
-	void addExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
+	void addExtSourceToGroup(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
 
 	/**
 	 * Remove association of the external source from the VO.
@@ -152,7 +158,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws ExtSourceNotAssignedException
 	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete from DB
 	 */
-	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSourceFromVo(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Remove association of the external source from the GROUP.
@@ -165,7 +171,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 * @throws ExtSourceNotAssignedException
 	 */
-	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSourceFromGroup(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Checks whether the ExtSource exists, if not, then the ExtSource is created.
@@ -280,4 +286,11 @@ public interface ExtSourcesManagerBl {
 	 */
 	List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> groupSubjectsData, ExtSource source) throws InternalErrorException;
 
+	/**
+	 * Returns a database connection pool.
+	 *
+	 * @param poolName named defined in perun-extSources.xml
+	 * @return database connection pool
+	 */
+	DataSource getDataSource(String poolName);
 }
