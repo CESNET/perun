@@ -5312,13 +5312,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_USER_ATTR);
-		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-		for (Member member : members) {
-			List<Resource> allowedResources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
-			for (Resource resource : allowedResources) {
-				if (getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition))
-					return true;
-			}
+		List<Resource> allowedResources = getPerunBl().getUsersManagerBl().getAllowedResources(sess, user);
+		for (Resource resource : allowedResources) {
+			if (getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition))
+				return true;
 		}
 		return false;
 	}
@@ -5341,6 +5338,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkNamespace(sess, attributeDefinition, NS_MEMBER_RESOURCE_ATTR);
+		// FIXME - replace it with isMemberAllowed(member, resource), which must be added to the resources manager
 		List<Member> allowedMembers = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		return allowedMembers.contains(member) && getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition);
 	}
@@ -5349,6 +5347,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, MemberGroupMismatchException {
 		this.checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
 		this.checkNamespace(sess, attributeDefinition, NS_MEMBER_GROUP_ATTR);
+		// FIXME - we should check, that member is allowed on such resource - add isMemberAllowed(member, resource, group) - which must be added to the resources manager
 		List<Resource> assignedResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for (Resource resource : assignedResources) {
 			if (getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition))
@@ -5360,8 +5359,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	private boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		this.checkNamespace(sess, attributeDefinition, NS_GROUP_RESOURCE_ATTR);
-		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-		return assignedGroups.contains(group) && getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition);
+		return getPerunBl().getResourcesManagerBl().isGroupAssigned(sess, group, resource) &&
+				getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition);
 	}
 
 	@Override
