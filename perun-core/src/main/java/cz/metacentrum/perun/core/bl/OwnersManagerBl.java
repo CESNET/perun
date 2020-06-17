@@ -73,9 +73,9 @@ public interface OwnersManagerBl {
 	 *
 	 * @return Owner with specified name
 	 *
-	 * @throws InternalErrorException
+	 * @throws OwnerNotExistsException if owner with given name does not exist
 	 */
-	Owner getOwnerByName(PerunSession perunSession, String name) throws InternalErrorException, OwnerNotExistsException;
+	Owner getOwnerByName(PerunSession perunSession, String name) throws OwnerNotExistsException;
 
 	/**
 	 * Return all owners.

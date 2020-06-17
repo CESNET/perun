@@ -750,6 +750,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Remove host from the Facility based on hostname. If there is ambiguity, method throws exception and no host is removed.
 	 *
 	 * @param hostname String hostname
+	 * @throw HostNotExistsException When host doesn't exist or is not unique by name
 	 */
 	removeHostByHostname {
 		@Override

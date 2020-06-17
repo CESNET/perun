@@ -80,10 +80,9 @@ public interface OwnersManager {
 	 * @return Owner with specified name
 	 *
 	 * @throws OwnerNotExistsException if owner with given name does not exist
-	 * @throws InternalErrorException
 	 * @throws PrivilegeException if user does not have sufficient permissions
 	 */
-	Owner getOwnerByName(PerunSession perunSession, String name) throws OwnerNotExistsException, InternalErrorException, PrivilegeException;
+	Owner getOwnerByName(PerunSession perunSession, String name) throws OwnerNotExistsException, PrivilegeException;
 
 	/**
 	 * Return all owners.
