@@ -296,16 +296,21 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 		candidateGroup.setExtSource(source);
 		candidateGroup.asGroup().setName(groupSubjectData.get(GroupsManagerBlImpl.GROUP_NAME));
+		candidateGroup.setLogin(groupSubjectData.get(GroupsManagerBlImpl.GROUP_LOGIN));
+
+		if(candidateGroup.getLogin() == null || candidateGroup.getLogin().isEmpty()) {
+			throw new InternalErrorException("Group subject data has to contain valid group login!");
+		}
 
 		// Check if the group name is not null and if it is in valid format.
 		if(candidateGroup.asGroup().getName() != null) {
 			Matcher name = groupNamePattern.matcher(candidateGroup.asGroup().getName());
-			if(!name.matches()) throw new InternalErrorException("Group subject data has to contains valid group name!");
+			if(!name.matches()) throw new InternalErrorException("Group subject data has to contain valid group name!");
 		} else {
 			throw new InternalErrorException("group name cannot be null in Group subject data!");
 		}
 
-		candidateGroup.setParentGroupName(groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_NAME));
+		candidateGroup.setParentGroupLogin(groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
 		candidateGroup.asGroup().setDescription(groupSubjectData.get(GroupsManagerBlImpl.GROUP_DESCRIPTION));
 
 		return candidateGroup;

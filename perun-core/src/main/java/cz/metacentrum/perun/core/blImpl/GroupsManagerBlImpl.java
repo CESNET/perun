@@ -163,7 +163,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private final Integer maxConcurrentGroupsStructuresToSynchronize;
 	private final SynchronizationPool poolOfSynchronizations;
 
-	public static final String PARENT_GROUP_NAME = "parentGroupName";
+	public static final String GROUP_LOGIN = "login";
+	public static final String PARENT_GROUP_LOGIN = "parentGroupLogin";
 	public static final String GROUP_NAME = "groupName";
 	public static final String GROUP_DESCRIPTION = "description";
 
@@ -1693,19 +1694,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		log.info("Group structure synchronization {}: started.", baseGroup);
 
+		//get extSource for group structure
 		ExtSource source = getGroupExtSourceForSynchronization(sess, baseGroup);
+
+		//get login attribute for structure
+		AttributeDefinition loginAttributeDefinition = getLoginAttributeForGroupStructure(sess, baseGroup);
 
 		List<CandidateGroup> candidateGroupsToAdd = new ArrayList<>();
 		Map<CandidateGroup, Group> groupsToUpdate = new HashMap<>();
 		List<Group> groupsToRemove = new ArrayList<>();
 
-		List<Group> actualGroups = getAllSubGroups(sess, baseGroup);
-
+		Map<String, Group> actualGroups = getAllSubGroupsWithLogins(sess, baseGroup, loginAttributeDefinition);
 		List<Map<String, String>> subjectGroups = getSubjectGroupsFromExtSource(sess, source, baseGroup);
 
 		if (isThisFlatSynchronization(sess, baseGroup)) {
 			for(Map<String, String> subjectGroup : subjectGroups) {
-				subjectGroup.put(PARENT_GROUP_NAME, null);
+				subjectGroup.put(PARENT_GROUP_LOGIN, null);
 			}
 		}
 
@@ -1713,8 +1717,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		categorizeGroupsForSynchronization(actualGroups, candidateGroups, candidateGroupsToAdd, groupsToUpdate, groupsToRemove);
 
-		addMissingGroupsWhileSynchronization(sess, baseGroup, candidateGroupsToAdd, skippedGroups);
-		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, skippedGroups);
+		addMissingGroupsWhileSynchronization(sess, baseGroup, candidateGroupsToAdd, loginAttributeDefinition, skippedGroups);
+		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, loginAttributeDefinition, skippedGroups);
 		removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
 
 		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source);
@@ -2893,6 +2897,67 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
+	 * Get login attribute by login attribute name from base group. It is used for identifying groups
+	 * in structure of groups.
+	 *
+	 * @param sess
+	 * @param baseGroup base group to get login attribute for
+	 *
+	 * @return login attribute as attribute definition
+	 *
+	 * @throws InternalErrorException if some internal error happens or login attribute from extSource is null or empty
+	 * @throws AttributeNotExistsException when attribute login from extSource not exists in Perun DB
+	 */
+	private AttributeDefinition getLoginAttributeForGroupStructure(PerunSession sess, Group baseGroup) throws AttributeNotExistsException {
+		String loginAttributeName;
+
+		try {
+			Attribute loginAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME);
+			loginAttributeName = loginAttribute.valueAsString();
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		if(loginAttributeName == null || loginAttributeName.isEmpty()) {
+			throw new InternalErrorException("Missing login name for group structure under base group: " + baseGroup);
+		}
+
+		try {
+			return getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, loginAttributeName);
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException("There is missing attribute login '" + loginAttributeName + "' for structure under base group:" + baseGroup, ex);
+		}
+	}
+
+	/**
+	 * Get map of all sub groups of defined base group with their logins as keys in map.
+	 *
+	 * @param sess
+	 * @param baseGroup base group to get all subgroups for
+	 * @param loginAttributeDefinition attribute to get login for every sub group in structure
+	 * @return map of all groups with logins as keys
+	 *
+	 */
+	private Map<String, Group> getAllSubGroupsWithLogins(PerunSession sess, Group baseGroup, AttributeDefinition loginAttributeDefinition) {
+		Map<String, Group> listOfSubGroupsWithLogins = new HashMap<>();
+
+		List<Group> groups = this.getAllSubGroups(sess, baseGroup);
+		for(Group group: groups) {
+			try {
+				Attribute loginValue = perunBl.getAttributesManagerBl().getAttribute(sess, group, loginAttributeDefinition.getName());
+				listOfSubGroupsWithLogins.put(loginValue.valueAsString(), group);
+			} catch (WrongAttributeAssignmentException ex) {
+				//it does mean wrong behavior of other methods
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("There is missing attribute login " + loginAttributeDefinition + " for group " + group + " in structure under base group " + baseGroup, ex);
+			}
+		}
+
+		return listOfSubGroupsWithLogins;
+	}
+
+	/**
 	 * From membersSource extSource get attribute mergeMemberAttributes and prepare
 	 * list of attributes names to be overwrite for synchronized users.
 	 *
@@ -3785,22 +3850,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param candidateGroupsToAdd  New groups
 	 * @param groupsToRemove Former groups which are not in synchronized ExtSource now
 	 */
-	private void categorizeGroupsForSynchronization(List<Group> currentGroups, List<CandidateGroup> candidateGroups, List<CandidateGroup> candidateGroupsToAdd, Map<CandidateGroup, Group> groupsToUpdate, List<Group> groupsToRemove) {
+	private void categorizeGroupsForSynchronization(Map<String, Group> currentGroups, List<CandidateGroup> candidateGroups, List<CandidateGroup> candidateGroupsToAdd, Map<CandidateGroup, Group> groupsToUpdate, List<Group> groupsToRemove) {
 		candidateGroupsToAdd.addAll(candidateGroups);
-		groupsToRemove.addAll(currentGroups);
-		Map<String, Group> mappingStructure = new HashMap<>();
+		groupsToRemove.addAll(currentGroups.values());
 
-		for(Group group: currentGroups) {
-			mappingStructure.put(group.getShortName(), group);
-		}
+		for(CandidateGroup candidateGroup : candidateGroups) {
+			String loginOfCandidateGroup = candidateGroup.getLogin();
 
-		for(CandidateGroup candidateGroup: candidateGroups) {
-			String candidateShortName = candidateGroup.asGroup().getShortName();
-			// if the candidate group exists in perun remove it from groupsToAdd and groupsToRemove
-			if(mappingStructure.containsKey(candidateShortName)) {
-				groupsToUpdate.put(candidateGroup, mappingStructure.get(candidateShortName));
+			if(currentGroups.containsKey(loginOfCandidateGroup)) {
+				groupsToUpdate.put(candidateGroup, currentGroups.get(loginOfCandidateGroup));
 				candidateGroupsToAdd.remove(candidateGroup);
-				groupsToRemove.remove(mappingStructure.get(candidateShortName));
+				groupsToRemove.remove(currentGroups.get(loginOfCandidateGroup));
 			}
 		}
 	}
@@ -3876,15 +3936,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess
 	 * @param baseGroup under which will be group structure synchronized
 	 * @param groupsToUpdate list of groups for updating in Perun by information from extSource
+	 * @param loginAttributeDefinition attribute definition for login of group
+	 * @param skippedGroups groups to be skipped because of any expected problem
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void updateExistingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, Map<CandidateGroup, Group> groupsToUpdate, List<String> skippedGroups) throws InternalErrorException {
+	private void updateExistingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, Map<CandidateGroup, Group> groupsToUpdate, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups) throws InternalErrorException {
 
 		for(CandidateGroup candidateGroup: groupsToUpdate.keySet()) {
 			Group groupToUpdate = groupsToUpdate.get(candidateGroup);
 
-			Group newParentGroup = specifyParentForUpdatedGroup(sess, groupToUpdate, baseGroup, candidateGroup);
+			Group newParentGroup = specifyParentForUpdatedGroup(sess, groupToUpdate, baseGroup, candidateGroup, loginAttributeDefinition.getName());
 
 			if(newParentGroup != null) {
 				try {
@@ -3923,40 +3985,99 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param groupToUpdate for which will be parent specified
 	 * @param baseGroup under which may be new parent
 	 * @param candidateGroup with potential new parent group
+	 * @param loginAttributeName attribute name for login of group
 	 * @return updated parent group (if null, parent group hasn't changed)
 	 * @throws InternalErrorException
 	 */
-	private Group specifyParentForUpdatedGroup(PerunSession sess, Group groupToUpdate, Group baseGroup, CandidateGroup candidateGroup) throws InternalErrorException {
+	private Group specifyParentForUpdatedGroup(PerunSession sess, Group groupToUpdate, Group baseGroup, CandidateGroup candidateGroup, String loginAttributeName) throws InternalErrorException {
+		//get current parent of updated group, if there is no group (null), it means the group is under the base group
+		String oldParentGroupLogin = getOldParentGroupLogin(sess, groupToUpdate, baseGroup, loginAttributeName);
 
-		String actualParentName;
-		try {
-			actualParentName = getGroupById(sess, groupToUpdate.getParentGroupId()).getShortName();
-		} catch (GroupNotExistsException e) {
-			throw new InternalErrorException(e);
+		//check if there is difference between parents of current and new group, if not, return null
+		if(Objects.equals(oldParentGroupLogin, candidateGroup.getParentGroupLogin())) return null;
+
+		//if there is difference, we need to find a new parent group
+		Group newParentGroup = getNewParentGroup(sess, candidateGroup, baseGroup, loginAttributeName);
+
+		//check if the new parent group is also under the base group somewhere (if not, set base group as new parent group)
+		if(!newParentGroup.equals(baseGroup) && !getAllSubGroups(sess, baseGroup).contains(newParentGroup)) {
+			newParentGroup = baseGroup;
 		}
 
-		Group newParentGroup = null;
-
-		//If candidate group doesn't have parent and actual parent is not base group, specify base group as parent
-		if (candidateGroup.getParentGroupName() == null) {
-			if(!actualParentName.equals(baseGroup.getShortName())) {
-				newParentGroup = baseGroup;
-			}
-		} else if (!actualParentName.equals(candidateGroup.getParentGroupName())) {
-			//If actualParentName does not equal candidate group parent name, set baseGroup as newParentGroup (default option which can be changed)
-			if(!actualParentName.equals(baseGroup.getShortName())) {
-				newParentGroup = baseGroup;
-			}
-			// if the parent exists in the structure of the baseGroup, change newParentGroup from baseGroup to to that subGroup
-			List<Group> subGroups = getAllSubGroups(sess, baseGroup);
-			for (Group subGroup : subGroups) {
-				if (subGroup.getShortName().equals(candidateGroup.getParentGroupName())) {
-					newParentGroup = subGroup;
-					break;
-				}
-			}
+		//check situation, where group is already under base group and the destination parent group is now base group too
+		if(oldParentGroupLogin == null && newParentGroup.equals(baseGroup)) {
+			return null;
 		}
+
 		return newParentGroup;
+	}
+
+	/**
+	 * Return parent group for the candidate group
+	 *
+	 * @param sess perun session
+	 * @param candidateGroup candidate group
+	 * @param baseGroup base group in structure
+	 * @param loginAttributeName attribute name of login in the structure
+	 * @return parent group of candidate group, if there is none, return base group
+	 */
+	private Group getNewParentGroup(PerunSession sess, CandidateGroup candidateGroup, Group baseGroup, String loginAttributeName) {
+		Group newParentGroup = baseGroup;
+
+		//if parent group login is not null, we need to find this new parent group (otherwise it is base group)
+		if(candidateGroup.getParentGroupLogin() != null) {
+			try {
+				//we need to have vo to filter groups, base group has to be from the same vo as new parent of candidate group
+				Vo baseGroupVo = getPerunBl().getVosManagerBl().getVoById(sess, baseGroup.getVoId());
+				List<Group> groupsWithLogin = getPerunBl().getSearcherBl().getGroups(sess, baseGroupVo, Collections.singletonMap(loginAttributeName, candidateGroup.getParentGroupLogin()));
+				//if there is missing the destination parent group, set base group as parent, there could be missing parent group in the extSource data
+				if (!groupsWithLogin.isEmpty()) {
+					//if there are more than one group with login, there is no way how to choose correct behavior
+					if (groupsWithLogin.size() > 1)
+						throw new InternalErrorException("More than 1 group has login attribute '" + loginAttributeName + "' set with the same login " + candidateGroup.getParentGroupLogin());
+					//our new parent group is exactly the one with the login set
+					return groupsWithLogin.get(0);
+				}
+			} catch (VoNotExistsException ex) {
+				throw new InternalErrorException("Vo of base group: " + baseGroup + " can't be found. Unexpected situation, can't continue.");
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("Can't find attribute definition for '" + loginAttributeName + "'.");
+			}
+		}
+
+		return newParentGroup;
+	}
+
+	/**
+	 * Return parent group login for the group to update in the group structure.
+	 *
+	 * @param sess perun session
+	 * @param groupToUpdate group to update
+	 * @param baseGroup base group in structure
+	 * @param loginAttributeName attribute name of login in the structure
+	 * @return current parent group login of group to update, null if there is none (it means base group should be parent)
+	 */
+	private String getOldParentGroupLogin(PerunSession sess, Group groupToUpdate, Group baseGroup, String  loginAttributeName) {
+		String oldParentGroupLogin = null;
+
+		//if group to update has parent group, return it and also it's login in the structure
+		if(groupToUpdate.getParentGroupId() != null && groupToUpdate.getParentGroupId() != baseGroup.getId()) {
+			try {
+				Group actualParentGroup = getGroupById(sess, groupToUpdate.getParentGroupId());
+				Attribute parentGroupLoginAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, actualParentGroup, loginAttributeName);
+				//if there is missing login attribute of parent, throw an exception
+				if(parentGroupLoginAttribute.getValue() == null) throw new InternalErrorException("Can't work with parent group " + actualParentGroup + " without proper login attribute set.");
+				oldParentGroupLogin = parentGroupLoginAttribute.valueAsString();
+			} catch (WrongAttributeAssignmentException | GroupNotExistsException ex) {
+				//group should exist and wrong assignment means problem with setting of structure login attribute
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				//parent group need to have login or we can't really work with it
+				throw new InternalErrorException("Can't work with parent group of group: " + groupToUpdate + " without proper login attribute set.", ex);
+			}
+		}
+
+		return oldParentGroupLogin;
 	}
 
 	/**
@@ -4007,18 +4128,29 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess
 	 * @param baseGroup under which we will be synchronizing groups
 	 * @param candidateGroupsToAdd list of new groups (candidateGroups)
+	 * @param loginAttributeDefinition attribute definition for login of group
+	 * @param skippedGroups groups to be skipped because of any expected problem
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void addMissingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, List<CandidateGroup> candidateGroupsToAdd, List<String> skippedGroups) throws InternalErrorException {
+	private void addMissingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, List<CandidateGroup> candidateGroupsToAdd, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups) throws InternalErrorException {
 		Map<CandidateGroup, Group> groupsToUpdate = new HashMap<>();
 
+		//create all groups under base group first
 		for (CandidateGroup candidateGroup: candidateGroupsToAdd) {
-			Group destinationGroup = specifyDestinationGroupForAddedGroup(sess, baseGroup, candidateGroup);
 			try {
-				Group createdGroup = createGroup(sess, destinationGroup, candidateGroup.asGroup());
+				//create group
+				Group createdGroup = createGroup(sess, baseGroup, candidateGroup.asGroup());
 				groupsToUpdate.put(candidateGroup, createdGroup);
 				log.info("Group structure synchronization under base group {}: New Group id {} created during synchronization.", baseGroup, createdGroup.getId());
+
+				//set login for group
+				String login = candidateGroup.getLogin();
+				if(login == null) throw new InternalErrorException("Login of candidate group " + candidateGroup + " can't be null!");
+				Attribute loginAttribute = new Attribute(loginAttributeDefinition);
+				loginAttribute.setValue(login);
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, createdGroup, loginAttribute);
+
 			} catch (GroupExistsException e) {
 				log.warn("Group {} was added to group structure {} before adding process. Skip this group.", candidateGroup, baseGroup);
 				skippedGroups.add("GroupEntry:[" + candidateGroup + "] was skipped because it was added to group structure before adding process: Exception: " + e.getName() + " => " + e.getMessage() + "]");
@@ -4028,36 +4160,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (GroupRelationAlreadyExists e) {
 				log.warn("Can't create group from candidate group {} due to group relation already exists exception {}.", candidateGroup, e);
 				skippedGroups.add("GroupEntry:[" + candidateGroup + "] was skipped because group relation already exists: Exception: " + e.getName() + " => " + e.getMessage() + "]");
+			} catch (WrongAttributeAssignmentException ex) {
+				//this means wrong setting of login attribute
+				throw new InternalErrorException(ex);
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+				throw new InternalErrorException("Group login can't be set because of wrong value!", ex);
 			}
 		}
-		// update newly added groups in case some of them came in wrong order (the hierarchy would be incorect)
-		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, skippedGroups);
-	}
-
-	/**
-	 * Specify where the new group will be added while synchronization.
-	 *
-	 * Method is used by group structure synchronization.
-	 *
-	 * @param sess
-	 * @param destinationGroup where new group will be added
-	 * @param candidateGroup which will be added
-	 * @return destination group where candidate group will be added
-	 * @throws InternalErrorException if some internal error occurs
-	 */
-	private Group specifyDestinationGroupForAddedGroup(PerunSession sess, Group destinationGroup, CandidateGroup candidateGroup) throws InternalErrorException {
-		String parent = candidateGroup.getParentGroupName();
-		//If parent is not null try to find that parent in the hierarchy of the destination group
-		//If parent is null or it cannot be find in the hierarchy return destinationGroup unchanged
-		if (parent != null) {
-			List<Group> subGroups = getAllSubGroups(sess, destinationGroup);
-			for (Group subGroup : subGroups) {
-				if (subGroup.getShortName().equals(parent)) {
-					destinationGroup = subGroup;
-				}
-			}
-		}
-		return destinationGroup;
+		// update newly added groups cause the hierarchy could be incorrect
+		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, loginAttributeDefinition, skippedGroups);
 	}
 
 	/**
