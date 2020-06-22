@@ -189,6 +189,80 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
 			public boolean validateTextBox() {
+
+				if (serviceUserPassword.getTextBox().getValue().trim().equals("")) {
+					serviceUserPassword.setError("Password can't be empty!");
+					return false;
+				}
+
+				// einfra check
+				if ("einfra".equals(namespace.getSelectedValue())) {
+
+					RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
+					if(regExp2.exec(serviceUserPassword.getTextBox().getValue()) == null){
+						serviceUserPassword.setError("Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
+						return false;
+					}
+
+					// Check that password contains at least 3 of 4 character groups
+
+					RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");
+					RegExp regExpLower = RegExp.compile("^.*[a-z].*$");
+					RegExp regExpUpper = RegExp.compile("^.*[A-Z].*$");
+					RegExp regExpSpec = RegExp.compile("^.*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*$"); // FIXME - are those correct printable specific chars?
+
+					int matchCounter = 0;
+					if (regExpDigit.exec(serviceUserPassword.getTextBox().getValue()) != null) matchCounter++;
+					if (regExpLower.exec(serviceUserPassword.getTextBox().getValue()) != null) matchCounter++;
+					if (regExpUpper.exec(serviceUserPassword.getTextBox().getValue()) != null) matchCounter++;
+					if (regExpSpec.exec(serviceUserPassword.getTextBox().getValue()) != null) matchCounter++;
+
+					if(matchCounter < 3){
+						serviceUserPassword.setError("Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
+						return false;
+					}
+
+					// check length
+					if (serviceUserPassword.getTextBox().getValue().length() < 10) {
+						serviceUserPassword.setError("Password must be <b>at least 10 characters</b> long!");
+						return false;
+					}
+
+				}
+
+				if (!serviceUserPassword.getTextBox().getValue().equals(serviceUserPassword2.getTextBox().getValue())) {
+					serviceUserPassword.setOk();
+					serviceUserPassword2.setError("Password in both textboxes must be the same!");
+					return false;
+				}
+
+				serviceUserPassword.setOk();
+				return true;
+
+			}
+		};
+		serviceUserPassword.setValidator(validator);
+
+		final ExtendedTextBox.TextBoxValidator validator2 = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+
+				if (!serviceUserPassword2.getTextBox().getValue().equals(serviceUserPassword.getTextBox().getValue())) {
+					serviceUserPassword2.setError("Password in both textboxes must be the same!");
+					return false;
+				} else {
+					serviceUserPassword2.setOk();
+					return true;
+				}
+
+			}
+		};
+		serviceUserPassword2.setValidator(validator2);
+
+		/*
+		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
 				if (serviceUserPassword.getTextBox().getValue().trim().isEmpty()) {
 					serviceUserPassword.setError("Password can't be empty !");
 					return false;
@@ -221,7 +295,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 			}
 		};
 		serviceUserPassword2.setValidator(validator2);
-
+		*/
 
 		final ExtendedTextBox.TextBoxValidator certDNValidator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
@@ -381,7 +455,8 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								button.addClickHandler(new ClickHandler() {
 									public void onClick(ClickEvent clickEvent) {
 
-										if (!validator.validateTextBox() && !validator2.validateTextBox()) {
+										if (!validator.validateTextBox() || !validator2.validateTextBox()) {
+											// one of input boxes for passwords is wrong
 											return;
 										}
 
@@ -560,8 +635,11 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								ft.setHTML(1, 0, "Re-type&nbsp;password:");
 								ft.setWidget(1, 1, serviceUserPassword2);
 								ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
-
-								ft.setHTML(2, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+								if ("einfra".equals(namespace.getSelectedValue())) {
+									ft.setHTML(2, 0, "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
+								} else {
+									ft.setHTML(2, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+								}
 								ft.getFlexCellFormatter().setColSpan(2, 0, 2);
 								ft.getCellFormatter().setStyleName(2, 0,"inputFormInlineComment");
 
@@ -696,9 +774,19 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 						}
 						@Override
 						public void onError(PerunError error) {
+							// response is relevant to current value
 							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-								serviceUserLogin.setProcessing(false);
-								serviceUserLogin.setHardError("Unable to check if login is available!");
+								if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
+									serviceUserLogin.setProcessing(false);
+									String text = error.getErrorInfo();
+									text = text.split(":", 2)[1];
+									text = (text == null || text.isEmpty()) ? error.getErrorInfo() : text;
+									serviceUserLogin.setHardError(text);
+								} else {
+									// generic error
+									serviceUserLogin.setProcessing(false);
+									serviceUserLogin.setHardError("Unable to check if login is available!");
+								}
 							}
 						}
 					}).retrieveData();
@@ -714,6 +802,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 					// do not set login
 					serviceUserLogin.getTextBox().setEnabled(false);
 					serviceUserLogin.getTextBox().setValue(null);
+					loginValidator.validateTextBox();
 					label.setVisible(false);
 				} else if (namespace.getSelectedValue().equals("mu")) {
 					serviceUserLogin.getTextBox().setEnabled(false);
@@ -723,40 +812,57 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 					label.setVisible(false);
 				}
 
-				final String login = serviceUserLogin.getTextBox().getValue().trim();
-				final String loginNamespace = namespace.getValue(namespace.getSelectedIndex());
-				if ((!login.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(login)) || serviceUserLogin.isHardError()) {
-					new IsLoginAvailable(loginNamespace, login, new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							// UPDATE RESULT ONLY IF CONTENT OF LOGIN BOX IS SAME AS ON CALLBACK START
-							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-								serviceUserLogin.setProcessing(false);
-								BasicOverlayType bo = jso.cast();
-								if (!bo.getBoolean()) {
-									serviceUserLogin.setHardError("Login is already in use!");
-								} else {
+				if (namespace.getSelectedIndex() != 0) {
+					// do not check login if not desired to set
+
+					final String login = serviceUserLogin.getTextBox().getValue().trim();
+					final String loginNamespace = namespace.getValue(namespace.getSelectedIndex());
+					if ((!login.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(login)) || serviceUserLogin.isHardError()) {
+						new IsLoginAvailable(loginNamespace, login, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								// UPDATE RESULT ONLY IF CONTENT OF LOGIN BOX IS SAME AS ON CALLBACK START
+								if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+									serviceUserLogin.setProcessing(false);
+									BasicOverlayType bo = jso.cast();
+									if (!bo.getBoolean()) {
+										serviceUserLogin.setHardError("Login is already in use!");
+									} else {
+										serviceUserLogin.removeHardError();
+										loginValidator.validateTextBox();
+									}
+								}
+							}
+
+							@Override
+							public void onLoadingStart() {
+								if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
 									serviceUserLogin.removeHardError();
+									serviceUserLogin.setProcessing(true);
 									loginValidator.validateTextBox();
 								}
 							}
-						}
-						@Override
-						public void onLoadingStart(){
-							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-								serviceUserLogin.removeHardError();
-								serviceUserLogin.setProcessing(true);
-								loginValidator.validateTextBox();
+
+							@Override
+							public void onError(PerunError error) {
+								// response is relevant to current value
+								if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+									if ("InvalidLoginException".equalsIgnoreCase(error.getName())) {
+										serviceUserLogin.setProcessing(false);
+										String text = error.getErrorInfo();
+										text = text.split(":", 2)[1];
+										text = (text == null || text.isEmpty()) ? error.getErrorInfo() : text;
+										serviceUserLogin.setHardError(text);
+									} else {
+										// generic error
+										serviceUserLogin.setProcessing(false);
+										serviceUserLogin.setHardError("Unable to check if login is available!");
+									}
+								}
 							}
-						}
-						@Override
-						public void onError(PerunError error) {
-							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-								serviceUserLogin.setProcessing(false);
-								serviceUserLogin.setHardError("Unable to check if login is available!");
-							}
-						}
-					}).retrieveData();
+						}).retrieveData();
+					}
+
 				}
 			}
 		});

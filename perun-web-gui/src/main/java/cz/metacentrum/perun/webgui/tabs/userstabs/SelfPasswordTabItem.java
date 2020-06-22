@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -176,14 +177,52 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 				if (newPass.getTextBox().getValue().trim().equals("")) {
 					newPass.setError("Password can't be empty!");
 					return false;
-				} else if (!newPass.getTextBox().getValue().equals(confPass.getTextBox().getValue())) {
-					newPass.setError("Password in both textboxes must be the same!");
-					return false;
-				} else {
-					newPass.setOk();
-					confPass.setOk();
-					return true;
 				}
+
+				// einfra check
+				if ("einfra".equals(namespace)) {
+
+					RegExp regExp2 = RegExp.compile("^[\\x20-\\x7E]{1,}$");
+					if(regExp2.exec(newPass.getTextBox().getValue()) == null){
+						newPass.setError("Password <b>can`t contain accented characters (diacritics)</b> or non-printing and control characters!");
+						return false;
+					}
+
+					// Check that password contains at least 3 of 4 character groups
+
+					RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");
+					RegExp regExpLower = RegExp.compile("^.*[a-z].*$");
+					RegExp regExpUpper = RegExp.compile("^.*[A-Z].*$");
+					RegExp regExpSpec = RegExp.compile("^.*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*$");
+
+					int matchCounter = 0;
+					if (regExpDigit.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
+					if (regExpLower.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
+					if (regExpUpper.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
+					if (regExpSpec.exec(newPass.getTextBox().getValue()) != null) matchCounter++;
+
+					if(matchCounter < 3){
+						newPass.setError("Password must consist of <b>at least 3 of 4</b> character groups<ul><li>lower-case letters</li><li>upper-case letters</li><li>digits</li><li>special characters</li></ul>");
+						return false;
+					}
+
+					// check length
+					if (newPass.getTextBox().getValue().length() < 10) {
+						newPass.setError("Password must be <b>at least 10 characters</b> long!");
+						return false;
+					}
+
+				}
+
+				if (!newPass.getTextBox().getValue().equals(confPass.getTextBox().getValue())) {
+					newPass.setOk();
+					confPass.setError("Password in both textboxes must be the same!");
+					return false;
+				}
+
+				newPass.setOk();
+				return true;
+
 			}
 		};
 
@@ -191,17 +230,14 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 			@Override
 			public boolean validateTextBox() {
 
-				if (confPass.getTextBox().getValue().trim().equals("")) {
-					confPass.setError("Password can't be empty!");
-					return false;
-				} else if (!confPass.getTextBox().getValue().equals(newPass.getTextBox().getValue())) {
+				if (!confPass.getTextBox().getValue().equals(newPass.getTextBox().getValue())) {
 					confPass.setError("Password in both textboxes must be the same!");
 					return false;
 				} else {
 					confPass.setOk();
-					newPass.setOk();
 					return true;
 				}
+
 			}
 		};
 
@@ -444,7 +480,11 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 		}
 
 		int row = layout.getRowCount();
-		layout.setHTML(row, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+		if ("einfra".equals(namespace)) {
+			layout.setHTML(row, 0, "Password must <ul><li>contain only printing (non-accented) characters<li>be at least 10 characters long<li>consist of at least 3 of 4 character groups<ul><li>lower-case letters<li>upper-case letters<li>digits<li>special characters</ul></ul>");
+		} else {
+			layout.setHTML(row, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+		}
 		layout.getFlexCellFormatter().setColSpan(row, 0, 2);
 		layout.getCellFormatter().setStyleName(row, 0,"inputFormInlineComment");
 		layout.setWidth("400px");

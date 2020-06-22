@@ -1219,8 +1219,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(session, dstAttr);
 					String loginNamespace = loginAttribute.getFriendlyNameParameter();
 
+					boolean loginAvailable = false;
+					try {
+						loginAvailable = usersManager.isLoginAvailable(session, loginNamespace, login);
+					} catch (InvalidLoginException ex) {
+						log.error("[REGISTRAR] Unable to store login: {} in namespace: {} due to {}", login, loginNamespace, ex);
+						throw new ApplicationNotCreatedException("Application was not created. Reason: Login: "+login+" in namespace: "+loginNamespace+" is not allowed. Please choose different login.", login, loginNamespace);
+					}
+
 					// try to book new login in namespace if the application hasn't been approved yet
-					if (usersManager.isLoginAvailable(session, loginNamespace, login)) {
+					if (loginAvailable) {
 						try {
 							// Reserve login
 							jdbc.update("insert into application_reserved_logins(login,namespace,app_id,created_by,created_at) values(?,?,?,?,?)",
@@ -1569,7 +1577,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws PerunException
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException {
+	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException {
 
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");
@@ -3287,7 +3295,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 *
 	 * @return List of login/namespace pairs which are purely new and can be set to user and validated in KDC
 	 */
-	private List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(List<Pair<String, String>> logins, User user) throws InternalErrorException, PasswordDeletionFailedException, PasswordOperationTimeoutException, LoginNotExistsException {
+	private List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(List<Pair<String, String>> logins, User user) throws InternalErrorException, PasswordDeletionFailedException, PasswordOperationTimeoutException, LoginNotExistsException, InvalidLoginException {
 
 		List<Pair<String, String>> result = new ArrayList<>();
 

@@ -78,6 +78,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
@@ -308,6 +309,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					getPerunBl().getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
 				} catch (LoginNotExistsException ex) {
 					log.error("Login: {} not exists in namespace: {} while deleting passwords.", login.getRight(), login.getLeft());
+				} catch (InvalidLoginException e) {
+					throw new InternalErrorException("We are deleting reserved login from group applications, but its syntax is not allowed by namespace configuration.", e);
 				} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException ex) {
 					throw new InternalErrorException("Failed to delete reserved login "+login.getRight()+" from KDC.", ex);
 				}

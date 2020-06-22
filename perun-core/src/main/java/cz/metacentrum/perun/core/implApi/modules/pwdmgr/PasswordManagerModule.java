@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 
 import java.util.Map;
 
@@ -28,22 +30,26 @@ public interface PasswordManagerModule {
 	String LOGIN_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":";
 	String ALT_PASSWORD_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
 
-	Map<String,String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException;
+	Map<String,String> generateAccount(PerunSession sess, Map<String, String> parameters) throws PasswordStrengthException;
 
-	void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException;
+	void reservePassword(PerunSession sess, String userLogin, String password) throws InvalidLoginException, PasswordStrengthException;
 
-	void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException;
+	void reserveRandomPassword(PerunSession sess, String userLogin) throws InvalidLoginException;
 
 	void checkPassword(PerunSession sess, String userLogin, String password);
 
-	void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException;
+	void changePassword(PerunSession sess, String userLogin, String newPassword) throws InvalidLoginException, PasswordStrengthException;
 
-	void validatePassword(PerunSession sess, String userLogin);
+	void validatePassword(PerunSession sess, String userLogin) throws InvalidLoginException;
 
-	void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException;
+	void deletePassword(PerunSession sess, String userLogin) throws InvalidLoginException;
 
-	void createAlternativePassword(PerunSession sess, User user, String passwordId, String password);
+	void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) throws PasswordStrengthException;
 
 	void deleteAlternativePassword(PerunSession sess, User user, String passwordId);
+
+	void checkLoginFormat(PerunSession sess, String login) throws InvalidLoginException;
+
+	void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException;
 
 }
