@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributes;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetRequiredAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.json.membersManager.GetMemberByUser;
@@ -297,7 +298,8 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 				header.setWidget(0, 1, a);
 				header.setTitle("Click to show setting for resource "+r.getName());
 				settings.setHeader(header);
-				vp.add(loadSettings(settings, r)); // load content for each resource
+				loadSettings(settings, r);  // load content for each resource
+				vp.add(settings);
 			}
 		}
 		});
@@ -336,13 +338,53 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 	 *
 	 * @return settings content for each resource
 	 */
-	private Widget loadSettings(final DisclosurePanel settings, final Resource resource) {
+	private void loadSettings(final DisclosurePanel settings, final Resource resource) {
 
 		// create content table
 		final FlexTable layoutx = new FlexTable();
 		layoutx.setCellSpacing(5);
 
+		GetAttributesV2 resourceAttrsCall = new GetAttributesV2();
+		Map<String, Integer> ids = new HashMap<String, Integer>();
+		ids.put("resource", resource.getId());
+		resourceAttrsCall.setIds(ids);
 
+		resourceAttrsCall.setEvents(new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				boolean disableOptOut = false;
+				ArrayList<Attribute> attrs = JsonUtils.jsoAsList(jso);
+				for (Attribute a : attrs) {
+					if ("urn:perun:resource:attribute-def:def:disableMailingListOptOut".equals(a.getName())) {
+						disableOptOut = true;
+						break;
+					}
+				}
+				loadContent(layoutx, resource, disableOptOut);
+			}
+			public void onLoadingStart() {
+				AjaxLoaderImage loader = new AjaxLoaderImage(true);
+				layoutx.setWidget(0, 0, loader.loadingStart());
+			}
+			public void onError(PerunError error) {
+				AjaxLoaderImage loader = new AjaxLoaderImage(true);
+				layoutx.setWidget(0, 0, loader.loadingError(error));
+			}
+		});
+
+		// load content on open
+		settings.addOpenHandler(new OpenHandler<DisclosurePanel>(){
+			public void onOpen(OpenEvent<DisclosurePanel> event) {
+				if (settings.getContent() == null) {
+					resourceAttrsCall.retrieveData();
+					settings.setContent(layoutx); // set content
+				}
+			}
+		});
+
+	}
+
+	private void loadContent(final FlexTable layoutx, final Resource resource, final boolean disableOptOut) {
 
 		// get member
 		final GetMemberByUser callMember = new GetMemberByUser(resource.getVoId(), userId, new JsonCallbackEvents(){
@@ -596,21 +638,26 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 											public void onFinished(JavaScriptObject jso) {
 												layoutx.setWidget(rowMail, 1, exclude);
 											}
-										@Override
-										public void onLoadingStart() {
-											layoutx.setWidget(rowMail, 1, new AjaxLoaderImage(true));
-										}
-										@Override
-										public void onError(PerunError error) {
-											layoutx.setWidget(rowMail, 1, exclude);
-											// change back since we were not able to change value in Perun
-											exclude.setValue(!exclude.getValue());
-										}
+											@Override
+											public void onLoadingStart() {
+												layoutx.setWidget(rowMail, 1, new AjaxLoaderImage(true));
+											}
+											@Override
+											public void onError(PerunError error) {
+												layoutx.setWidget(rowMail, 1, exclude);
+												// change back since we were not able to change value in Perun
+												exclude.setValue(!exclude.getValue());
+											}
 										});
 										set.setAttributes(ids, ls);
 									}
 								});
-								layoutx.setWidget(row, 1, exclude);
+								// enable only if opt-out is allowed
+								if (disableOptOut) {
+									layoutx.setHTML(row, 1, "Your membership in this mailing list is mandatory.");
+								} else {
+									layoutx.setWidget(row, 1, exclude);
+								}
 								empty = false;
 							}
 						}
@@ -632,18 +679,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 			}
 		});
 
-
-		// load content on open
-		settings.addOpenHandler(new OpenHandler<DisclosurePanel>(){
-			public void onOpen(OpenEvent<DisclosurePanel> event) {
-				if (settings.getContent() == null) {
-					callMember.retrieveData();
-					settings.setContent(layoutx); // set content
-				}
-			}
-		});
-
-		return settings;
+		callMember.retrieveData();
 
 	}
 
