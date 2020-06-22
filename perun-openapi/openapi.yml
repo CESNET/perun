@@ -2380,6 +2380,20 @@ paths:
   #                                               #
   #################################################
 
+  /json/authzResolver/getPrincipalRoleNames:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getPrincipalRoleNames
+      summary: |
+        Returns list of caller's role names. Perun system uses role names in the upper case format. However,
+        for now, they are converted to the lower case format because of the compatibility with external systems.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/authzResolver/getPerunPrincipal:
     get:
       tags:
@@ -2439,7 +2453,7 @@ paths:
         }
       responses:
         '200':
-          $ref: "#/components/responses/ListOfRichUsersResponse"
+          $ref: '#/components/responses/ListOfRichUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -2611,12 +2625,132 @@ paths:
       tags:
         - AuthzResolver
       operationId: getUserRoleNames
-      summary: Returns list of user's role names. Perun system uses role names in the upper case format. However, for now, they are converted to the lower case format because of the compatibility with external systems.
+      summary: |
+        Returns list of user's role names. Perun system uses role names in the upper case format. However,
+        for now, they are converted to the lower case format because of the compatibility with external systems.
       parameters:
         - $ref: '#/components/parameters/userId'
       responses:
         '200':
           $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getGroupRoleNames:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getGroupRoleNames
+      summary: |
+        Returns list of group's role names. Perun system uses role names in the upper case format. However,
+        for now, they are converted to the lower case format because of the compatibility with external systems.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/authzResolver/getGroupRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getGroupRoles
+      summary: Returns all roles as an AuthzRoles object for a given group.
+      parameters:
+        - name: groupId
+          description: "id of Group"
+          schema:
+            type: integer
+          in: query
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthzRolesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/authzResolver/isVoAdmin:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isVoAdmin
+      summary: Returns 1 if User has VO manager role (VOADMIN) or for specific VO defined by id
+      parameters:
+        - name: vo
+          description: "id of Vo"
+          schema:
+            type: integer
+          in: query
+          required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/authzResolver/isGroupAdmin:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isGroupAdmin
+      summary: Returns 1 if User has Group manager role (GROUPADMIN) or for specific Group defined by id
+      parameters:
+        - $ref: '#/components/parameters/optionalGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/authzResolver/isFacilityAdmin:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isFacilityAdmin
+      summary: Returns 1 if User has Facility manager role (FACILITYADMIN) or for specific Facility defined by id
+      parameters:
+        - $ref: '#/components/parameters/optionalFacilityId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/isPerunAdmin:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: isPerunAdmin
+      summary: Returns 1 if User has Perun admin role (perunadmin).
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getLoggedUser:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getLoggedUser
+      summary: Returns User which is associated with credentials used to log-in to Perun.
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/keepAlive:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: keepAlive
+      summary: Returns "OK" string. Helper method for GUI check if connection is alive.
+      responses:
+        '200':
+          $ref: '#/components/responses/StringResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
