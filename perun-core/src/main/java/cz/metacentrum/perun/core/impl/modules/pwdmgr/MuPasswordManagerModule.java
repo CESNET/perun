@@ -7,9 +7,12 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +48,7 @@ import java.util.Random;
 
 /**
  * Password manager implementation for MU login-namespace.
+ * !! It doesn't reuse generic password manager !!
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -54,7 +58,13 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	private final static String CRLF = "\r\n"; // Line separator required by multipart/form-data.
 
 	@Override
-	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException {
+	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws PasswordStrengthException {
+
+		String password = null;
+		if (parameters.get(PASSWORD_KEY) != null && !parameters.get(PASSWORD_KEY).isEmpty()) {
+			password = parameters.get(PASSWORD_KEY);
+		}
+		checkPasswordStrength(session, "--not yet known--", password);
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;
@@ -83,7 +93,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
+	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws PasswordStrengthException {
+		checkPasswordStrength(sess, userLogin, newPassword);
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;
@@ -102,7 +113,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException {
+	public void deletePassword(PerunSession sess, String userLogin) {
 		throw new InternalErrorException("Deleting user/password in login namespace 'mu' is not supported.");
 	}
 
@@ -114,6 +125,32 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	@Override
 	public void deleteAlternativePassword(PerunSession sess, User user, String passwordId) {
 		throw new InternalErrorException("Deleting alternative password in login namespace 'mu' is not supported.");
+	}
+
+	@Override
+	public void checkLoginFormat(PerunSession sess, String login) throws InvalidLoginException {
+
+		// check login syntax/format
+		((PerunBl)sess.getPerun()).getModulesUtilsBl().checkLoginNamespaceRegex("mu", login, GenericPasswordManagerModule.defaultLoginPattern);
+
+		// check if login is permitted
+		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted("mu", login)) {
+			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, "mu");
+			throw new InvalidLoginException("Login '"+login+"' is not allowed in 'mu' namespace by configuration.");
+		}
+
+	}
+
+	@Override
+	public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
+
+		if (StringUtils.isBlank(password)) {
+			log.warn("Password for {}:{} cannot be empty.", "mu", login);
+			throw new PasswordStrengthException("Password for mu:" + login + " cannot be empty.");
+		}
+
+		// TODO - some more generic checks ???
+
 	}
 
 	/**

@@ -6,8 +6,9 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntimeException;
@@ -19,10 +20,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
- * Password manager for EINFRA login-namespace. It performs custom checks
- * on password strength and login format.
+ * Password manager for EINFRA login-namespace. It provides custom checks on login format
+ * and password strength. Also implementation for alternative passwords is customized.
  *
  * It calls generic pwd manager script logic with ".einfra"
  *
@@ -31,6 +33,13 @@ import java.util.Map;
 public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 
 	private final static Logger log = LoggerFactory.getLogger(EinfraPasswordManagerModule.class);
+
+	protected final Pattern einfraLoginPattern = Pattern.compile("^[a-z][a-z0-9_-]{1,14}$");
+
+	protected final Pattern einfraPasswordContainsDigit = Pattern.compile(".*[0-9].*");
+	protected final Pattern einfraPasswordContainsLower = Pattern.compile(".*[a-z].*");
+	protected final Pattern einfraPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
+	protected final Pattern einfraPasswordContainsSpec = Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
 
 	public EinfraPasswordManagerModule() {
 
@@ -51,31 +60,14 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 	}
 
 	@Override
-	public void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException {
-		checkLoginFormat(userLogin);
-		checkPasswordStrength(password);
-		super.reservePassword(session, userLogin, password);
+	public void reserveRandomPassword(PerunSession sess, String userLogin) throws InvalidLoginException {
+		// FIXME - probably generate password for einfra here and perform standard reservation
+		super.reserveRandomPassword(sess, userLogin);
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException {
-		// FIXME - probably generate password here and perform standard reservation
-		checkLoginFormat(userLogin);
-		super.reserveRandomPassword(session, userLogin);
-	}
-
-	@Override
-	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
-		checkPasswordStrength(newPassword);
-		super.changePassword(sess, userLogin, newPassword);
-	}
-
-	@Override
-	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) {
-		if (StringUtils.isBlank(password)) {
-			throw new EmptyPasswordRuntimeException("Password for " + actualLoginNamespace + ":" + passwordId + " cannot be empty.");
-		}
-		checkPasswordStrength(password);
+	public void createAlternativePassword(PerunSession sess, User user, String passwordId, String password) throws PasswordStrengthException {
+		checkPasswordStrength(sess, passwordId, password);
 
 		ProcessBuilder pb = new ProcessBuilder(altPasswordManagerProgram, PASSWORD_CREATE);
 		// pass variables as ENV
@@ -122,6 +114,66 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 
 	}
 
+	@Override
+	public void checkLoginFormat(PerunSession sess, String login) throws InvalidLoginException {
+
+		// check login syntax/format
+		((PerunBl)sess.getPerun()).getModulesUtilsBl().checkLoginNamespaceRegex(actualLoginNamespace, login, einfraLoginPattern);
+
+		// check if login is permitted
+		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted(actualLoginNamespace, login)) {
+			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
+			throw new InvalidLoginException("Login '"+login+"' is not allowed in '"+actualLoginNamespace+"' namespace by configuration.");
+		}
+
+		// TODO - we will probably want to split regex checks on multiple conditions and let user know about all problems at once
+
+	}
+
+	@Override
+	public void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException {
+
+		if (StringUtils.isBlank(password)) {
+			log.warn("Password for {}:{} cannot be empty.", actualLoginNamespace, login);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " cannot be empty.");
+		}
+
+		if (password.length() < 10) {
+			log.warn("Password for {}:{} is too short. At least 10 characters is required.", actualLoginNamespace, login);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too short. At least 10 characters is required.");
+		}
+
+		String backwardPassword = StringUtils.reverse(password);
+
+		if (password.equalsIgnoreCase(login) ||
+				backwardPassword.equalsIgnoreCase(login) ||
+				password.toLowerCase().contains(login.toLowerCase()) ||
+				backwardPassword.toLowerCase().contains(login.toLowerCase())) {
+			log.warn("Password for {}:{} must not match/contain login or backwards login.", actualLoginNamespace, login);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " must not match/contain login or backwards login.");
+		}
+
+		// TODO - fetch user and get names to make sure they are not part of password
+
+		if (!StringUtils.isAsciiPrintable(password)) {
+			log.warn("Password for {}:{} must contain only printable characters.", actualLoginNamespace, login);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " must contain only printable characters.");
+		}
+
+		// check that it contains at least 3 groups of 4
+		int groupsCounter = 0;
+		if (einfraPasswordContainsDigit.matcher(password).matches()) groupsCounter++;
+		if (einfraPasswordContainsUpper.matcher(password).matches()) groupsCounter++;
+		if (einfraPasswordContainsLower.matcher(password).matches()) groupsCounter++;
+		if (einfraPasswordContainsSpec.matcher(password).matches()) groupsCounter++;
+
+		if (groupsCounter < 3) {
+			log.warn("Password for {}:{} is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", actualLoginNamespace, login);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
+		}
+
+	}
+
 	private void handleAltPwdManagerExit(Process process, PerunRuntimeException exToThrow) {
 		try {
 			if (process.waitFor() != 0) {
@@ -135,16 +187,16 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 	/**
 	 * Retrieve "einfra" login of the user, since its necessary for alternative password backend
 	 *
-	 * @param session session
+	 * @param sess Session
 	 * @param user user to get login for
 	 * @return einfra login
 	 * @throws LoginNotExistsRuntimeException if user doesn't have "einfra" login
 	 */
-	private String getEinfraLogin(PerunSession session, User user) {
+	private String getEinfraLogin(PerunSession sess, User user) {
 
 		String login = null;
 		try {
-			Attribute attribute = ((PerunBl)session.getPerun()).getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF+":login-namespace:einfra");
+			Attribute attribute = ((PerunBl)sess.getPerun()).getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":login-namespace:einfra");
 			if (attribute.getValue() == null) {
 				log.warn("{} doesn't have login in namespace 'einfra', so the alternative password can't be set.", user);
 				throw new LoginNotExistsRuntimeException(user+" doesn't have login in namespace 'einfra', so the alternative password can't be set.");
@@ -162,14 +214,14 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 	/**
 	 * Retrieve users preferred mail
 	 *
-	 * @param session session
+	 * @param sess session
 	 * @param user user to get mail for
 	 * @return users preferred mail
 	 */
-	private String getMail(PerunSession session, User user) {
+	private String getMail(PerunSession sess, User user) {
 
 		try {
-			Attribute attribute = ((PerunBl)session.getPerun()).getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
+			Attribute attribute = ((PerunBl)sess.getPerun()).getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
 			return attribute.valueAsString();
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 			// shouldn't happen
@@ -177,14 +229,6 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			throw new InternalErrorException("We couldn't retrieve mail for the "+user+" to create/delete alternative password.");
 		}
 
-	}
-
-	private void checkLoginFormat(String userLogin) {
-		// TODO
-	}
-
-	private void checkPasswordStrength(String password) {
-		// TODO
 	}
 
 }

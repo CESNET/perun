@@ -1,13 +1,21 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModule;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,9 +33,15 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitecTest {
 		session = mock(PerunSessionImpl.class);
 		user = new User();
 		attributeToCheck = new Attribute();
+		attributeToCheck.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attributeToCheck.setFriendlyName("login-namespace:ceitec");
 
 		PerunBl perunBl = mock(PerunBl.class);
 		when(session.getPerunBl()).thenReturn(perunBl);
+		UsersManagerBl usersManagerBl = mock(UsersManagerBl.class);
+		when(session.getPerunBl().getUsersManagerBl()).thenReturn(usersManagerBl);
+		PasswordManagerModule module = mock(GenericPasswordManagerModule.class);
+		when(session.getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, "ceitec")).thenReturn(module);
 
 		ModulesUtilsBl modulesUtilsBl = mock(ModulesUtilsBl.class);
 		when(perunBl.getModulesUtilsBl()).thenReturn(modulesUtilsBl);

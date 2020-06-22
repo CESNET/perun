@@ -6,6 +6,7 @@ import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
@@ -81,6 +82,7 @@ public class IsLoginAvailable implements JsonCallback {
 	private void isLoginAvailable(String namespace){
 		// sending data
 		JsonClient req = new JsonClient();
+		req.setHidden(true);
 		req.retrieveData(JSON_URL, "login=" + login + "&loginNamespace=" + namespace, this);
 	}
 
@@ -139,6 +141,12 @@ public class IsLoginAvailable implements JsonCallback {
 	}
 
 	public void onError(PerunError error) {
+
+		if (error != null && !"InvalidLoginException".equalsIgnoreCase(error.getName())) {
+			// creates a alert box
+			JsonErrorHandler.alertBox(error);
+		}
+
 		finalEvents.onError(error);
 	}
 
