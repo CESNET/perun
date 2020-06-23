@@ -28,7 +28,7 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 	private static final String A_FAC_uidNamespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 			if(uidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);
@@ -46,7 +46,7 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 		if(uidNamespaceAttribute.getValue() == null) return attribute;
@@ -55,7 +55,7 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 		if(uidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);
 		Attribute namespaceMaxUidAttribute = getNamespaceMaxUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
@@ -67,12 +67,12 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 	}
 
 	@Override
-	public void removeAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 		//Not suported yet.
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
 	}
 
-	private Attribute getNamespaceMaxUidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException {
+	private Attribute getNamespaceMaxUidAttribute(PerunSessionImpl sess, String uidNamespace) {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceMaxUID);
 		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);
@@ -80,7 +80,7 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 		}
 	}
 
-	private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
+	private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_uidNamespace);
 		} catch(AttributeNotExistsException | WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);

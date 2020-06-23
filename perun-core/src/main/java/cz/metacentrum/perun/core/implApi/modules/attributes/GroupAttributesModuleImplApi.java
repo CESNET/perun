@@ -26,7 +26,7 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of this group attribute has valid semantics.
@@ -40,7 +40,7 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
 	 */
 
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.
@@ -53,7 +53,7 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -62,5 +62,5 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @param group the group
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
 }

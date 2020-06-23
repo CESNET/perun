@@ -29,7 +29,7 @@ public class ListOfFacilityOwners extends PerunCommand {
 	}
 
 	@Override
-	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
+	public void executeCommand(PerunCLI.CommandContext ctx) {
 		int facilityId = this.getFacilityId(ctx, true);
 		List<Owner> owners = ctx.getPerunRPC().getFacilitiesManager().getFacilityOwners(facilityId);
 		this.sort(ctx, owners, Comparator.comparing(Owner::getName));

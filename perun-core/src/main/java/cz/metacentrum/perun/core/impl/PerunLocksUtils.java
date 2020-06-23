@@ -43,7 +43,7 @@ public class PerunLocksUtils {
 	 * @throws InterruptedException
 	 */
 	@SuppressWarnings("ConstantConditions")
-	public static void lockGroupMembership(Group group, List<Member> members) throws InternalErrorException {
+	public static void lockGroupMembership(Group group, List<Member> members) {
 		if(group == null) throw new InternalErrorException("Group can't be null when creating lock for group and list of members.");
 		if(members == null) throw new InternalErrorException("Members can't be null or empty when creating lock for group and list of members.");
 
@@ -105,7 +105,7 @@ public class PerunLocksUtils {
 	 * @throws InterruptedException
 	 */
 	@SuppressWarnings("ConstantConditions")
-	public static void lockGroupMembership(Group group) throws InternalErrorException {
+	public static void lockGroupMembership(Group group) {
 		if(group == null) throw new InternalErrorException("Group can't be null when creating lock for group.");
 
 		List<Lock> returnedLocks = new ArrayList<>();
@@ -142,7 +142,7 @@ public class PerunLocksUtils {
 	 * @param groups list of groups
 	 * @throws InternalErrorException
 	 */
-	public static void lockGroupMembership(List<Group> groups) throws InternalErrorException {
+	public static void lockGroupMembership(List<Group> groups) {
 		if(groups != null) {
 			for(Group group: groups) {
 				lockGroupMembership(group);

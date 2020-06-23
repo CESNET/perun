@@ -60,7 +60,7 @@ public interface RegistrarModule {
 	 * @param session who approves the application
 	 * @param app application
 	 */
-	Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, InternalErrorException, GroupNotExistsException, VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException, NotGroupMemberException;
+	Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, GroupNotExistsException, VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException, NotGroupMemberException;
 
 	/**
 	 * Manually rejects an application. Expected to be called as a result of direct VO administrator action in the web UI.
@@ -81,7 +81,7 @@ public interface RegistrarModule {
 	 * @throws RegistrarException When implementation fails
 	 * @throws PrivilegeException When caller is not authorized
 	 */
-	Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, InternalErrorException, RegistrarException, PrivilegeException;
+	Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, RegistrarException, PrivilegeException;
 
 	/**
 	 * Custom logic for checking method before application approval from GUI.

@@ -37,7 +37,7 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas extends Mem
 	public static final String A_MR_dataQuotasOverride = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotasOverride";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		//get resource quotas

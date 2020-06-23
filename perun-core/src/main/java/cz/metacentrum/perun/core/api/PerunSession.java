@@ -45,7 +45,7 @@ public abstract class PerunSession {
 		return perun;
 	}
 
-	public void destroy() throws InternalErrorException {
+	public void destroy() {
 		perun = null;
 		principal = null;
 	}

@@ -152,7 +152,7 @@ public class EventProcessor extends AbstractRunner {
 	 * @throws InternalErrorException  When implementation fails
 	 * @throws PrivilegeException  When dispatcher lack privileges to call core methods
 	 */
-	private void createTaskFromEvent(Event event) throws ServiceNotExistsException, InvalidEventMessageException, InternalErrorException, PrivilegeException {
+	private void createTaskFromEvent(Event event) throws ServiceNotExistsException, InvalidEventMessageException, PrivilegeException {
 
 		Map<Facility, Set<Service>> resolvedServices = eventServiceResolver.resolveEvent(event.getData());
 

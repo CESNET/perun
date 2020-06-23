@@ -62,7 +62,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 		// can be empty
 		if (attribute.getValue() == null) return;
@@ -93,7 +93,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		String firstName = user.getFirstName();
 		String lastName = user.getLastName();
@@ -139,7 +139,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 		// map of reserved vsup mails
 		Attribute reservedMailsAttribute;

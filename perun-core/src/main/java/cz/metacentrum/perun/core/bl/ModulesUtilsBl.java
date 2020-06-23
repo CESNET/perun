@@ -47,7 +47,7 @@ public interface ModulesUtilsBl {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	boolean isNamespaceEqualsToFacilityUnixGroupNameNamespace(PerunSessionImpl sess, Facility facility, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	boolean isNamespaceEqualsToFacilityUnixGroupNameNamespace(PerunSessionImpl sess, Facility facility, String namespace) throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method get if the resource has the same attribute "attr" with the same namespace and same or different values
@@ -63,7 +63,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException if something is not correct
 	 * @throws WrongAttributeAssignmentException if attribute name is not RESOURCE attribute
 	 */
-	int haveTheSameAttributeWithTheSameNamespace(PerunSessionImpl sess, Resource resource, Attribute attr) throws InternalErrorException, WrongAttributeAssignmentException;
+	int haveTheSameAttributeWithTheSameNamespace(PerunSessionImpl sess, Resource resource, Attribute attr) throws WrongAttributeAssignmentException;
 
 	/**
 	 * This method get if the group has the same attribute "attr" with the same namespace and same or different values
@@ -79,7 +79,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException if something is not correct
 	 * @throws WrongAttributeAssignmentException if attribute name is not GROUP attribute
 	 */
-	int haveTheSameAttributeWithTheSameNamespace(PerunSessionImpl sess, Group group, Attribute attr) throws InternalErrorException, WrongAttributeAssignmentException;
+	int haveTheSameAttributeWithTheSameNamespace(PerunSessionImpl sess, Group group, Attribute attr) throws WrongAttributeAssignmentException;
 
 	/**
 	 * This method is looking for exactly one commonGID for all objects in list.
@@ -97,7 +97,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Integer getCommonGIDOfResourcesWithSameNameInSameNamespace(PerunSessionImpl sess, List<Resource> resourcesWithSameGroupNameInSameNamespace, String nameOfAttribute, Integer commonGID) throws InternalErrorException, WrongAttributeAssignmentException;
+	Integer getCommonGIDOfResourcesWithSameNameInSameNamespace(PerunSessionImpl sess, List<Resource> resourcesWithSameGroupNameInSameNamespace, String nameOfAttribute, Integer commonGID) throws WrongAttributeAssignmentException;
 
 	/**
 	 * Check if list of gids in arguments is free in the namespace
@@ -111,7 +111,7 @@ public interface ModulesUtilsBl {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
+	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
 
 	/**
 	 * This method is looking for exactly one commonGID for all objects in list.
@@ -129,7 +129,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Integer getCommonGIDOfGroupsWithSameNameInSameNamespace(PerunSessionImpl sess, List<Group> groupsWithSameGroupNameInSameNamespace, String nameOfAttribute, Integer commonGID) throws InternalErrorException, WrongAttributeAssignmentException;
+	Integer getCommonGIDOfGroupsWithSameNameInSameNamespace(PerunSessionImpl sess, List<Group> groupsWithSameGroupNameInSameNamespace, String nameOfAttribute, Integer commonGID) throws WrongAttributeAssignmentException;
 
 	/**
 	 * Get free gid for resource or group.
@@ -142,7 +142,7 @@ public interface ModulesUtilsBl {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Integer getFreeGID(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	Integer getFreeGID(PerunSessionImpl sess, Attribute attribute) throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if gid in arguments is free in the namespace
@@ -156,7 +156,7 @@ public interface ModulesUtilsBl {
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Return true if i have right on any of groups or resources to WRITE the attribute
@@ -170,7 +170,7 @@ public interface ModulesUtilsBl {
 	 * @return true if such group or resource exists, false if not
 	 * @throws InternalErrorException if something is not correct or attribute is null
 	 */
-	boolean haveRightToWriteAttributeInAnyGroupOrResource(PerunSessionImpl sess, List<Group> groups, List<Resource> resources, AttributeDefinition groupAttribute, AttributeDefinition resourceAttribute) throws InternalErrorException;
+	boolean haveRightToWriteAttributeInAnyGroupOrResource(PerunSessionImpl sess, List<Group> groups, List<Resource> resources, AttributeDefinition groupAttribute, AttributeDefinition resourceAttribute);
 
 	/**
 	 * Take list of groupGID attributes and return list of the same GID attributes only for resource (with the same original value)
@@ -181,7 +181,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException if something is not correct or attribute is null
 	 * @throws AttributeNotExistsException
 	 */
-	List<Attribute> getListOfResourceGIDsFromListOfGroupGIDs(PerunSessionImpl sess, List<Attribute> groupGIDs) throws InternalErrorException, AttributeNotExistsException;
+	List<Attribute> getListOfResourceGIDsFromListOfGroupGIDs(PerunSessionImpl sess, List<Attribute> groupGIDs) throws AttributeNotExistsException;
 
 	/**
 	 * Take list of resourceGID attributes and return list of the same GID attributes only for group (with the same original value)
@@ -192,7 +192,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException if something is not correct or attribute is null
 	 * @throws AttributeNotExistsException
 	 */
-	List<Attribute> getListOfGroupGIDsFromListOfResourceGIDs(PerunSessionImpl sess, List<Attribute> resourceGIDs) throws InternalErrorException, AttributeNotExistsException;
+	List<Attribute> getListOfGroupGIDsFromListOfResourceGIDs(PerunSessionImpl sess, List<Attribute> resourceGIDs) throws AttributeNotExistsException;
 
 	/**
 	 * Get list of facilities and namespace of group or resource attribute unixGroupName-namespace and
@@ -206,7 +206,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Set<String> getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws InternalErrorException, WrongAttributeAssignmentException;
+	Set<String> getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws WrongAttributeAssignmentException;
 
 	/**
 	 * Get list of facilities and namespace of group or resource attribute unixGID-namespace and
@@ -221,7 +221,7 @@ public interface ModulesUtilsBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	Set<String> getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	Set<String> getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of groupName attribute is not reserved String.
@@ -292,7 +292,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if value of unixGroupName-namespace attribute is null
 	 */
-	Attribute getUnixGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException;
+	Attribute getUnixGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Get value of attribute A_F_Def_googleGroupName-Namespace
@@ -304,7 +304,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if value of googleGroupName-namespace attribute is null
 	 */
-	Attribute getGoogleGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException;
+	Attribute getGoogleGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Get value of attribute A_F_Def_unixGID-Namespace
@@ -316,7 +316,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	Attribute getUnixGIDNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException;
+	Attribute getUnixGIDNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * This method return true if there exists some Facility (get from assigned resources) where is
@@ -333,7 +333,7 @@ public interface ModulesUtilsBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	boolean isGroupUnixGIDNamespaceFillable(PerunSessionImpl sess, Group group, Attribute groupUnixGIDNamespace) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	boolean isGroupUnixGIDNamespaceFillable(PerunSessionImpl sess, Group group, Attribute groupUnixGIDNamespace) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if shell has the right format.
@@ -366,7 +366,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkAttributeRegex(Attribute attribute, Pattern defaultRegex) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeRegex(Attribute attribute, Pattern defaultRegex) throws WrongAttributeValueException;
 
 	/**
 	 * Check if quotaToCheck is in limit of limitQuota.
@@ -394,7 +394,7 @@ public interface ModulesUtilsBl {
 	 * @throws QuotaNotInAllowedLimitException throw this exception, if check quota is not in limit of limit quota
 	 * @throws InternalErrorException if any of inputs is in unexpected format
 	 */
-	void checkIfQuotasIsInLimit(Map<String, Pair<BigDecimal, BigDecimal>> quotaToCheck, Map<String, Pair<BigDecimal, BigDecimal>> limitQuota) throws QuotaNotInAllowedLimitException, InternalErrorException;
+	void checkIfQuotasIsInLimit(Map<String, Pair<BigDecimal, BigDecimal>> quotaToCheck, Map<String, Pair<BigDecimal, BigDecimal>> limitQuota);
 
 	/**
 	 * Check if value in quotas attribute are in the right format.
@@ -420,7 +420,7 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException if first mandatory placeholder is null
 	 * @throws WrongAttributeValueException if something is wrong in format of attribute
 	 */
-	Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws InternalErrorException, WrongAttributeValueException;
+	Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws WrongAttributeValueException;
 
 	/**
 	 * Reverse method for checkAndTransferQuotas method.
@@ -435,7 +435,7 @@ public interface ModulesUtilsBl {
 	 * @return not transfered map for saving to attribute value
 	 * @throws InternalErrorException
 	 */
-	Map<String, String> transferQuotasBackToAttributeValue(Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotasMap, boolean withMetrics) throws InternalErrorException;
+	Map<String, String> transferQuotasBackToAttributeValue(Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotasMap, boolean withMetrics);
 
 	/**
 	 * Merge resource default quotas and member-resource specific quotas together. Use override if exists instead.
@@ -492,7 +492,7 @@ public interface ModulesUtilsBl {
 	 * @return user if found or null if not found
 	 * @throws InternalErrorException
 	 */
-	User getUserFromMessage(PerunSessionImpl sess, String message) throws InternalErrorException;
+	User getUserFromMessage(PerunSessionImpl sess, String message);
 
 	/**
 	 * Take attribute with gidRanges value (map of strings) and check if all records of this value are valid ranges.
@@ -522,5 +522,5 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException if attribute in parameter of method is null
 	 * @throws WrongAttributeValueException if value of attribute in parameter does not contain valid ranges without overlaps
 	 */
-	Map<Integer, Integer> checkAndConvertGIDRanges(Attribute gidRangesAttribute) throws InternalErrorException, WrongAttributeValueException;
+	Map<Integer, Integer> checkAndConvertGIDRanges(Attribute gidRangesAttribute) throws WrongAttributeValueException;
 }

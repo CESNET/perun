@@ -24,20 +24,20 @@ import java.util.List;
 public abstract class FacilityVirtualAttributesModuleAbstract extends FacilityAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		return false;
 	}
 
-	public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) {
 
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		return new ArrayList<>();
 	}
 

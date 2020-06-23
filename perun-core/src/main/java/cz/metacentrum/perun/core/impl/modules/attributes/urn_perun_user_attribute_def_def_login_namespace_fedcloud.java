@@ -39,7 +39,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends u
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.valueAsString() == null) return;
 
 		//Check attribute regex
@@ -57,7 +57,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends u
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		Attribute filledAttribute = new Attribute(attribute);
 
 		// Get all attributes urn:perun:user:attribute-def:def:login-namespace:[login-namespace], then we can get the new login

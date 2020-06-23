@@ -30,7 +30,7 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
 	 */
-	public abstract String readString(String name) throws RpcException;
+	public abstract String readString(String name);
 
 	/**
 	 * Reads value as {@code String}.
@@ -39,7 +39,7 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
 	 */
-	public abstract String readString() throws RpcException;
+	public abstract String readString();
 
 
 	/**
@@ -50,7 +50,7 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException if the specified value cannot be parsed as {@code int} or if it is not supplied
 	 */
-	public abstract int readInt(String name) throws RpcException;
+	public abstract int readInt(String name);
 
 	/**
 	 * Reads value as {@code int}.
@@ -59,13 +59,13 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException if the specified value cannot be parsed as {@code int} or if it is not supplied
 	 */
-	public abstract int readInt() throws RpcException;
+	public abstract int readInt();
 
-	public int[] readArrayOfInts(String name) throws RpcException {
+	public int[] readArrayOfInts(String name) {
 		throw new UnsupportedOperationException("readArrayOfInts(String name)");
 	}
 
-	public int[] readArrayOfInts() throws RpcException {
+	public int[] readArrayOfInts() {
 		throw new UnsupportedOperationException("readArrayOfInts(String name)");
 	}
 
@@ -79,7 +79,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> T read(String name, Class<T> valueType) throws RpcException {
+	public <T> T read(String name, Class<T> valueType) {
 		throw new UnsupportedOperationException("read(String name, Class<T> valueType)");
 	}
 
@@ -92,7 +92,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> T read(Class<T> valueType) throws RpcException {
+	public <T> T read(Class<T> valueType) {
 		throw new UnsupportedOperationException("read(String name, Class<T> valueType)");
 	}
 
@@ -106,7 +106,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(String name, Class<T> valueType) {
 		throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
 	}
 
@@ -119,7 +119,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> List<T> readList(Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(Class<T> valueType) {
 		throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
 	}
 }

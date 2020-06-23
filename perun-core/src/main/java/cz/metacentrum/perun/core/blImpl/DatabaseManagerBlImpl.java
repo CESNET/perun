@@ -31,27 +31,27 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 	}
 
 	@Override
-	public String getCurrentDatabaseVersion() throws InternalErrorException {
+	public String getCurrentDatabaseVersion() {
 		return getDatabaseManagerImpl().getCurrentDatabaseVersion();
 	}
 
 	@Override
-	public String getDatabaseDriverInformation() throws InternalErrorException {
+	public String getDatabaseDriverInformation() {
 		return getDatabaseManagerImpl().getDatabaseDriverInformation();
 	}
 
 	@Override
-	public String getDatabaseInformation() throws InternalErrorException {
+	public String getDatabaseInformation() {
 		return getDatabaseManagerImpl().getDatabaseInformation();
 	}
 
 	@Override
-	public void updateDatabaseVersion(List<DBVersion> dbVersions) throws InternalErrorException {
+	public void updateDatabaseVersion(List<DBVersion> dbVersions) {
 		this.databaseManagerImpl.updateDatabaseVersion(dbVersions);
 	}
 
 	@Override
-	public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException {
+	public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) {
 		return this.databaseManagerImpl.getChangelogVersions(currentDBVersion, fileName);
 	}
 
@@ -75,7 +75,7 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 		return this.databaseManagerImpl.getJdbcPerunTemplate();
 	}
 
-	protected void initialize() throws InternalErrorException {
+	protected void initialize() {
 		log.debug("Initialize manager starts!");
 
 		//This part of code probably need to be replaced by readOnly setting for every connection in perun

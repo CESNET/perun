@@ -51,7 +51,7 @@ public class DefaultRegistrarModule implements RegistrarModule {
 	}
 
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, InternalErrorException, GroupNotExistsException, VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException, NotGroupMemberException {
+	public Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, GroupNotExistsException, VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException, NotGroupMemberException {
 		// return unmodified data
 		return app;
 	}
@@ -63,7 +63,7 @@ public class DefaultRegistrarModule implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, InternalErrorException, RegistrarException, PrivilegeException {
+	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, RegistrarException, PrivilegeException {
 		// return unmodified data
 		return app;
 	}

@@ -204,7 +204,7 @@ public class BeansUtils {
 	 * @throws InternalErrorException
 	 */
 	@SuppressWarnings("unchecked")
-	public static String attributeValueToString(Object attributeValue, String type) throws InternalErrorException {
+	public static String attributeValueToString(Object attributeValue, String type) {
 		Attribute a = new Attribute();
 		a.setType(type);
 		a.setValue(attributeValue);
@@ -221,7 +221,7 @@ public class BeansUtils {
 	 * @throws InternalErrorException
 	 */
 	@SuppressWarnings("unchecked")
-	public static String attributeValueToString(Attribute attribute) throws InternalErrorException {
+	public static String attributeValueToString(Attribute attribute) {
 		if(attribute == null) throw new InternalErrorException(new NullPointerException("attribute is null"));
 		if(attribute.getValue() == null) return null;
 
@@ -343,7 +343,7 @@ public class BeansUtils {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public static Object stringToAttributeValue(String stringValue, String type) throws InternalErrorException {
+	public static Object stringToAttributeValue(String stringValue, String type) {
 		if(stringValue == null || stringValue.isEmpty()) return null;
 
 		Class<?> attributeClass;
@@ -570,7 +570,7 @@ public class BeansUtils {
 	 * @param propertyName name of the property
 	 * @return value of the property
 	 */
-	public static String getPropertyFromCustomConfiguration(String propertyFile, String propertyName) throws InternalErrorException {
+	public static String getPropertyFromCustomConfiguration(String propertyFile, String propertyName) {
 		log.trace("Entering getPropertyFromCustomConfiguration: propertyFile='" +  propertyFile + "' propertyName='" +  propertyName + "'");
 		notNull(propertyName, "propertyName");
 		notNull(propertyFile, "propertyFile");
@@ -601,7 +601,7 @@ public class BeansUtils {
 	 * @param propertyFile name of properties file
 	 * @return all properties with values
 	 */
-	public static Map<String, String> getAllPropertiesFromCustomConfiguration(String propertyFile) throws InternalErrorException {
+	public static Map<String, String> getAllPropertiesFromCustomConfiguration(String propertyFile) {
 		log.trace("Entering getAllPropertiesFromCustomConfiguration: propertyFile='" + propertyFile + "'");
 		notNull(propertyFile, "propertyFile");
 
@@ -687,7 +687,7 @@ public class BeansUtils {
 	 * @param name
 	 * @throws InternalErrorException which wraps NullPointerException
 	 */
-	public static void notNull(Object e, String name) throws InternalErrorException {
+	public static void notNull(Object e, String name) {
 		if(e == null){
 			throw new InternalErrorException(new NullPointerException("'" + name + "' is null"));
 		}

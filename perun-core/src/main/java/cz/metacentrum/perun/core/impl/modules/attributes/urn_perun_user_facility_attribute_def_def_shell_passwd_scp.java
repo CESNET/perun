@@ -41,7 +41,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		try {
 			Attribute shellOnFacilityAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeDefinition.getFriendlyName());

@@ -61,7 +61,7 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdminTest  extends
 
     }
 
-    private User setUpUser() throws InternalErrorException, PrivilegeException {
+    private User setUpUser() throws PrivilegeException {
         User newUser = new User();
         newUser.setFirstName("adam");
         newUser.setMiddleName("");

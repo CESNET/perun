@@ -36,7 +36,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String name = attribute.valueAsString();
 		if (name == null) return;
 
@@ -48,7 +48,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String name = attribute.valueAsString();
 		if (name == null) return;
 

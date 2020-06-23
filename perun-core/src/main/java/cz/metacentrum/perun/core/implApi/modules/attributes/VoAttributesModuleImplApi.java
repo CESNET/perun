@@ -38,7 +38,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of this vo attribute has valid semantics.

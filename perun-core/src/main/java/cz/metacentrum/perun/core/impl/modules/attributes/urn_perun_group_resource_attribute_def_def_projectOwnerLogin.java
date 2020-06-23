@@ -33,7 +33,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 	private static final String A_UF_V_login = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login";
 	private static final Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
 
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String ownerLogin = attribute.valueAsString();
 		if (ownerLogin == null) return;
 
@@ -45,7 +45,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String ownerLogin = attribute.valueAsString();
 		if (ownerLogin == null) return;
 

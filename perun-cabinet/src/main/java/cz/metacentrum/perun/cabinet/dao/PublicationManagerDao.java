@@ -27,7 +27,7 @@ public interface PublicationManagerDao {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	Publication createPublication(PerunSession sess, Publication publication) throws InternalErrorException;
+	Publication createPublication(PerunSession sess, Publication publication);
 
 	/**
 	 * Update existing publication by its ID.
@@ -39,7 +39,7 @@ public interface PublicationManagerDao {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException;
 
 	/**
 	 * Delete publication by its ID.
@@ -49,7 +49,7 @@ public interface PublicationManagerDao {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	public void deletePublication(Publication publication) throws CabinetException, InternalErrorException;
+	public void deletePublication(Publication publication) throws CabinetException;
 
 	/**
 	 * Return Publication by its ID.
@@ -59,7 +59,7 @@ public interface PublicationManagerDao {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException;
+	public Publication getPublicationById(int id) throws CabinetException;
 
 	/**
 	 * Return Publication by its External ID and PublicationSystem ID.
@@ -70,7 +70,7 @@ public interface PublicationManagerDao {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException;
 
 	/**
 	 * Return Publications by their Category ID or empty list.
@@ -79,7 +79,7 @@ public interface PublicationManagerDao {
 	 * @return Publications by their category ID
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException;
+	public List<Publication> getPublicationsByCategoryId(int categoryId);
 
 	/**
 	 * Return PublicationForGUI by its ID.
@@ -89,7 +89,7 @@ public interface PublicationManagerDao {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException;
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException;
 
 	/**
 	 * Return Publication by its External ID and PublicationSystem ID.
@@ -100,7 +100,7 @@ public interface PublicationManagerDao {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException;
 
 	/**
 	 * Return PublicationForGUI with every property set directly from DB.
@@ -121,7 +121,7 @@ public interface PublicationManagerDao {
 	 * @param yearTill year range
 	 * @return publication with everything set
 	 */
-	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException;
+	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill);
 
 	/**
 	 * Return Publications for specified author and optionally years range.
@@ -131,7 +131,7 @@ public interface PublicationManagerDao {
 	 * @param yearTill year range
 	 * @return publications
 	 */
-	List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException;
+	List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill);
 
 	/**
 	 * (Un)Lock passed Publications for changes.
@@ -140,6 +140,6 @@ public interface PublicationManagerDao {
 	 * @param publications Publications to (un)lock
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void lockPublications(boolean lockState, List<Publication> publications) throws InternalErrorException;
+	void lockPublications(boolean lockState, List<Publication> publications);
 
 }

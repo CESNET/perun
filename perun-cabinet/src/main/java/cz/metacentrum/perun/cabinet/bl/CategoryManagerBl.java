@@ -22,7 +22,7 @@ public interface CategoryManagerBl {
 	 * @return Created Category with ID set
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Category createCategory(PerunSession sess, Category category) throws CabinetException, InternalErrorException;
+	Category createCategory(PerunSession sess, Category category) throws CabinetException;
 
 	/**
 	 * Updates publications category in Perun. Category to update
@@ -35,7 +35,7 @@ public interface CategoryManagerBl {
 	 * @throws CabinetException When Category doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Category updateCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException;
+	Category updateCategory(PerunSession sess, Category category) throws CabinetException;
 
 	/**
 	 * Delete category by its ID. If category contains any publications,
@@ -46,7 +46,7 @@ public interface CategoryManagerBl {
 	 * @throws CabinetException When Category doesn't exists or has publications
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void deleteCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException;
+	void deleteCategory(PerunSession sess, Category category) throws CabinetException;
 
 	/**
 	 * Return list of all Categories in Perun or empty list of none present.
@@ -54,7 +54,7 @@ public interface CategoryManagerBl {
 	 * @return List of all categories
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Category> getCategories() throws InternalErrorException;
+	List<Category> getCategories();
 
 	/**
 	 * Get Category by its ID. Throws exception, if not exists.
@@ -64,6 +64,6 @@ public interface CategoryManagerBl {
 	 * @throws CabinetException When Category doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Category getCategoryById(int id) throws CabinetException, InternalErrorException;
+	Category getCategoryById(int id) throws CabinetException;
 
 }

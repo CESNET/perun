@@ -25,7 +25,7 @@ public interface RTMessagesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws InternalErrorException;
+	RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text);
 
 	/**
 	 * This method get needed information and by predefined service user send message to RT which try to create new ticket
@@ -40,7 +40,7 @@ public interface RTMessagesManagerBl {
 	 * @return RTMessage with information about success or not
 	 * @throws InternalErrorException
 	 */
-	RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException;
+	RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text);
 
 	/**
 	 * This method get needed information and by predefined service user send message to RT which try to create new ticket
@@ -55,7 +55,7 @@ public interface RTMessagesManagerBl {
 	 * @return RTMessage with information about success or not
 	 * @throws InternalErrorException
 	 */
-	RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException;
+	RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text);
 
 	/**
 	 * This method get needed information and by predefined service user send message to RT which try to create new ticket
@@ -72,5 +72,5 @@ public interface RTMessagesManagerBl {
 	 * @return RTMessage with information about success or not
 	 * @throws InternalErrorException
 	 */
-	RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException;
+	RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text);
 }

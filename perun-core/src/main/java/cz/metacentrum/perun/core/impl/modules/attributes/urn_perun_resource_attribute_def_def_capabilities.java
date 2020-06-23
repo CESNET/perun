@@ -36,7 +36,7 @@ public class urn_perun_resource_attribute_def_def_capabilities extends ResourceA
 
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) return;
 		List<String> values = attribute.valueAsList();
 		for (String value : values) {

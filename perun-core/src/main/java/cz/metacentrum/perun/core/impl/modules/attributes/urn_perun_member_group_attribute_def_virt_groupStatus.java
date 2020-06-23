@@ -36,7 +36,7 @@ public class urn_perun_member_group_attribute_def_virt_groupStatus extends Membe
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
 
 		// Source member object can't be trusted to hold correct group membership status, since we don't know in which context
 		// it was originally retrieved. Hence we get member of a group once more.

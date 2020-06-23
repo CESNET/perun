@@ -87,22 +87,22 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public Resource getResourceById(PerunSession sess, int id) throws InternalErrorException, ResourceNotExistsException {
+	public Resource getResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
 		return getResourcesManagerImpl().getResourceById(sess, id);
 	}
 
 	@Override
-	public RichResource getRichResourceById(PerunSession sess, int id) throws InternalErrorException, ResourceNotExistsException {
+	public RichResource getRichResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
 		return getResourcesManagerImpl().getRichResourceById(sess, id);
 	}
 
 	@Override
-	public Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws InternalErrorException, ResourceNotExistsException {
+	public Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws ResourceNotExistsException {
 		return getResourcesManagerImpl().getResourceByName(sess, vo, facility, name);
 	}
 
 	@Override
-	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, ResourceExistsException {
+	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws ResourceExistsException {
 		try{
 			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, vo, facility, resource.getName());
 			throw new ResourceExistsException(existingResource);
@@ -115,7 +115,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException {
+	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException {
 		Resource newResource = new Resource();
 		Vo destinationVo = this.getVo(sess, destinationResource);
 		Facility destinationFacility = this.getFacility(sess, destinationResource);
@@ -184,7 +184,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteResource(PerunSession sess, Resource resource) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		//Get facility for audit messages
 		Facility facility = this.getFacility(sess, resource);
 
@@ -265,14 +265,14 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteAllResources(PerunSession sess, Vo vo) throws ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		for(Resource r: this.getResources(sess, vo)) {
 			deleteResource(sess, r);
 		}
 	}
 
 	@Override
-	public Facility getFacility(PerunSession sess, Resource resource) throws InternalErrorException {
+	public Facility getFacility(PerunSession sess, Resource resource) {
 		try {
 			return getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
 		} catch (FacilityNotExistsException e) {
@@ -281,7 +281,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public Vo getVo(PerunSession sess, Resource resource) throws InternalErrorException {
+	public Vo getVo(PerunSession sess, Resource resource) {
 		try {
 			return getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
 		} catch (VoNotExistsException e) {
@@ -290,60 +290,60 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<User> getAllowedUsers(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<User> getAllowedUsers(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAllowedUsers(sess, resource);
 	}
 
 	@Override
-	public List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAllowedUsersNotExpiredInGroup(sess, resource);
 	}
 
 	@Override
-	public boolean isUserAssigned(PerunSession sess, User user, Resource resource) throws InternalErrorException {
+	public boolean isUserAssigned(PerunSession sess, User user, Resource resource) {
 		return getResourcesManagerImpl().isUserAssigned(sess, user, resource);
 	}
 
 	@Override
-	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) throws InternalErrorException {
+	public boolean isUserAllowed(PerunSession sess, User user, Resource resource) {
 		return getResourcesManagerImpl().isUserAllowed(sess, user, resource);
 	}
 
 	@Override
-	public boolean isGroupAssigned(PerunSession sess, Group group, Resource resource) throws InternalErrorException {
+	public boolean isGroupAssigned(PerunSession sess, Group group, Resource resource) {
 		return getResourcesManagerImpl().isGroupAssigned(sess, group, resource);
 	}
 
 	@Override
-	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAllowedMembers(sess, resource);
 	}
 
 	@Override
-	public List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Member> getAllowedMembersNotExpiredInGroups(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAllowedMembersNotExpiredInGroup(sess, resource);
 	}
 
 	@Override
-	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAssignedMembers(sess, resource);
 	}
 
 	@Override
-	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) {
 		List<Member> listOfMembers = getResourcesManagerImpl().getAssignedMembers(sess, resource);
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, listOfMembers);
 	}
 
 
 	@Override
-	public List<Service> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Service> getAssignedServices(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAssignedServices(sess, resource);
 	}
 
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
 		Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 
 		// Check if the group and resource belongs to the same VO
@@ -384,21 +384,21 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
 		for(Group g: groups) {
 			this.assignGroupToResource(perunSession, g, resource);
 		}
 	}
 
 	@Override
-	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
 		for(Resource r: resources) {
 			this.assignGroupToResource(perunSession, group, r);
 		}
 	}
 
 	@Override
-	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
 		Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 
 		// Check if the group and resource belongs to the same VO
@@ -433,46 +433,46 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupsFromResource(PerunSession perunSession, List<Group> groups, Resource resource) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
 		for(Group g: groups) {
 			this.removeGroupFromResource(perunSession, g, resource);
 		}
 	}
 
 	@Override
-	public void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws InternalErrorException, GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
+	public void removeGroupFromResources(PerunSession perunSession, Group group, List<Resource> resources) throws GroupNotDefinedOnResourceException, GroupAlreadyRemovedFromResourceException {
 		for(Resource r: resources) {
 			this.removeGroupFromResource(perunSession, group, r);
 		}
 	}
 
 	@Override
-	public List<User> getAssignedUsers(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<User> getAssignedUsers(PerunSession sess, Resource resource) {
 		return getResourcesManagerImpl().getAssignedUsers(sess, resource);
 	}
 
 	@Override
-	public List<Group> getAssignedGroups(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Group> getAssignedGroups(PerunSession sess, Resource resource) {
 		return getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource);
 	}
 
 	@Override
-	public List<Group> getAssignedGroups(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+	public List<Group> getAssignedGroups(PerunSession sess, Resource resource, Member member) {
 		return getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource, member);
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Group group) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Group group) {
 		return getResourcesManagerImpl().getAssignedResources(sess, group);
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, Group group) throws InternalErrorException {
+	public List<RichResource> getAssignedRichResources(PerunSession sess, Group group) {
 		return getResourcesManagerImpl().getAssignedRichResources(sess, group);
 	}
 
 	@Override
-	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignService(PerunSession sess, Resource resource, Service service) throws ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		assignServices(sess, resource, Collections.singletonList(service));
 	}
 
@@ -560,7 +560,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
 			try {
 				this.assignService(sess, resource, service);
@@ -572,20 +572,20 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void removeService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotAssignedException {
+	public void removeService(PerunSession sess, Resource resource, Service service) throws ServiceNotAssignedException {
 		getResourcesManagerImpl().removeService(sess, resource, service);
 		getPerunBl().getAuditer().log(sess, new ServiceRemovedFromResource(service, resource));
 	}
 
 	@Override
-	public void removeServices(PerunSession sess, Resource resource, List<Service> services) throws InternalErrorException, ServiceNotAssignedException {
+	public void removeServices(PerunSession sess, Resource resource, List<Service> services) throws ServiceNotAssignedException {
 		for (Service service : services) {
 			removeService(sess, resource, service);
 		}
 	}
 
 	@Override
-	public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException {
+	public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) {
 		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
 			try {
 				//FIXME odstranit pouze v pripade ze tato service neni v jinem servicesPackage prirazenem na resource
@@ -597,27 +597,27 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<RichResource> getRichResources(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<RichResource> getRichResources(PerunSession sess, Vo vo) {
 		return getResourcesManagerImpl().getRichResources(sess, vo);
 	}
 
 	@Override
-	public List<Resource> getResources(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<Resource> getResources(PerunSession sess, Vo vo) {
 		return getResourcesManagerImpl().getResources(sess, vo);
 	}
 
 	@Override
-	public int getResourcesCount(PerunSession sess, Vo vo) throws InternalErrorException {
+	public int getResourcesCount(PerunSession sess, Vo vo) {
 		return getResourcesManagerImpl().getResourcesCount(sess, vo);
 	}
 
 	@Override
-	public int getResourcesCount(PerunSession sess) throws InternalErrorException {
+	public int getResourcesCount(PerunSession sess) {
 		return getResourcesManagerImpl().getResourcesCount(sess);
 	}
 
 	@Override
-	public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws WrongAttributeAssignmentException {
 		getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_RESOURCE_ATTR);
 		if(!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute))) throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");
 		return getResourcesManagerImpl().getResourcesByAttribute(sess, attribute);
@@ -625,7 +625,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, Member member) throws InternalErrorException {
+	public List<Resource> getAllowedResources(PerunSession sess, Member member) {
 		if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID) &&
 				!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.DISABLED)) {
 			return getAssignedResources(sess, member);
@@ -635,54 +635,54 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) {
 		return getResourcesManagerImpl().getAllowedResources(sess, facility, user);
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) {
 		return getResourcesManagerImpl().getAssignedResources(sess, user, vo);
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Member member) {
 		return getResourcesManagerImpl().getAssignedResources(sess, member);
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) {
 		return getResourcesManagerImpl().getAssignedResources(sess, member, service);
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException {
+	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member) {
 		return getResourcesManagerImpl().getAssignedRichResources(sess, member);
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException {
+	public List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) {
 		return getResourcesManagerImpl().getAssignedRichResources(sess, member, service);
 	}
 
 	@Override
-	public ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) throws InternalErrorException {
+	public ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) {
 		return getResourcesManagerImpl().createResourceTag(perunSession, resourceTag, vo);
 	}
 
 	@Override
-	public ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
+	public ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
 		return getResourcesManagerImpl().updateResourceTag(perunSession, resourceTag);
 	}
 
 	@Override
-	public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, ResourceTagAlreadyAssignedException {
+	public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws ResourceTagAlreadyAssignedException {
 		List<Resource> tagResources = this.getAllResourcesByResourceTag(perunSession, resourceTag);
 		if(!tagResources.isEmpty()) throw new ResourceTagAlreadyAssignedException("The resourceTag is alreadyUsed for some resources.", resourceTag);
 		getResourcesManagerImpl().deleteResourceTag(perunSession, resourceTag);
 	}
 
 	@Override
-	public void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException, ResourceTagAlreadyAssignedException {
+	public void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws ResourceTagAlreadyAssignedException {
 		List<ResourceTag> resourcesTagForVo = this.getAllResourcesTagsForVo(perunSession, vo);
 		for(ResourceTag rt: resourcesTagForVo) {
 			List<Resource> tagResources = this.getAllResourcesByResourceTag(perunSession, rt);
@@ -692,51 +692,51 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException, ResourceTagAlreadyAssignedException {
+	public void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws ResourceTagAlreadyAssignedException {
 		List<ResourceTag> allResourceTags = this.getAllResourcesTagsForResource(perunSession, resource);
 		if(allResourceTags.contains(resourceTag)) throw new ResourceTagAlreadyAssignedException(resourceTag);
 		getResourcesManagerImpl().assignResourceTagToResource(perunSession, resourceTag, resource);
 	}
 
 	@Override
-	public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException, ResourceTagNotAssignedException {
+	public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws ResourceTagNotAssignedException {
 		List<ResourceTag> allResourceTags = this.getAllResourcesTagsForResource(perunSession, resource);
 		if(!allResourceTags.contains(resourceTag)) throw new ResourceTagNotAssignedException(resourceTag);
 		getResourcesManagerImpl().removeResourceTagFromResource(perunSession, resourceTag, resource);
 	}
 
 	@Override
-	public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
+	public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) {
 		getResourcesManagerImpl().removeAllResourcesTagFromResource(perunSession, resource);
 	}
 
 	@Override
-	public List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
+	public List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) {
 		return getResourcesManagerImpl().getAllResourcesByResourceTag(perunSession, resourceTag);
 	}
 
 	@Override
-	public List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException {
+	public List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) {
 		return getResourcesManagerImpl().getAllResourcesTagsForVo(perunSession, vo);
 	}
 
 	@Override
-	public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
+	public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) {
 		return getResourcesManagerImpl().getAllResourcesTagsForResource(perunSession, resource);
 	}
 
 	@Override
-	public void checkResourceExists(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException {
+	public void checkResourceExists(PerunSession sess, Resource resource) throws ResourceNotExistsException {
 		getResourcesManagerImpl().checkResourceExists(sess, resource);
 	}
 
 	@Override
-	public void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws InternalErrorException, ResourceTagNotExistsException {
+	public void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws ResourceTagNotExistsException {
 		getResourcesManagerImpl().checkResourceTagExists(sess, resourceTag);
 	}
 
 	@Override
-	public Resource updateResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceExistsException {
+	public Resource updateResource(PerunSession sess, Resource resource) throws ResourceExistsException {
 		Facility facility = getFacility(sess, resource);
 		Vo vo = getVo(sess, resource);
 
@@ -761,7 +761,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws WrongReferenceAttributeValueException {
 		List<Attribute> sourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceResource);
 		List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationResource);
 
@@ -786,7 +786,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		for (Service owner : getAssignedServices(sess, sourceResource)) {
 			try {
 				assignService(sess, destinationResource, owner);
@@ -797,7 +797,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException {
+	public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) {
 		for (Group group: getAssignedGroups(sess, sourceResource)) {
 			try {
 				assignGroupToResource(sess, group, destinationResource);
@@ -810,7 +810,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins) throws InternalErrorException {
+	public List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins) {
 		if(onlyDirectAdmins) {
 			return getResourcesManagerImpl().getDirectAdmins(perunSession, resource);
 		} else {
@@ -819,7 +819,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Resource resource, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Resource resource, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, resource, onlyDirectAdmins);
 		List<RichUser> richUsers;
 
@@ -836,32 +836,32 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) {
 		return resourcesManagerImpl.getResourcesWhereUserIsAdmin(sess, user);
 	}
 
 	@Override
-	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) throws InternalErrorException {
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) {
 		return getResourcesManagerImpl().getResourcesWhereUserIsAdmin(sess, facility, vo, authorizedUser);
 	}
 
 	@Override
-	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) throws InternalErrorException {
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) {
 		return getResourcesManagerImpl().getResourcesWhereUserIsAdmin(sess, vo, authorizedUser);
 	}
 
 	@Override
-	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) throws InternalErrorException {
+	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) {
 		return getResourcesManagerImpl().getResourcesWhereGroupIsAdmin(sess, facility, vo, authorizedGroup);
 	}
 
     @Override
-    public List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException {
+    public List<Group> getAdminGroups(PerunSession sess, Resource resource) {
         return resourcesManagerImpl.getAdminGroups(sess, resource);
     }
 
 	@Override
-	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, BanAlreadyExistsException {
+	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws BanAlreadyExistsException {
 		if(this.banExists(sess, banOnResource.getMemberId(), banOnResource.getResourceId())) throw new BanAlreadyExistsException(banOnResource);
 		banOnResource = getResourcesManagerImpl().setBan(sess, banOnResource);
 		getPerunBl().getAuditer().log(sess, new BanSetForResource(banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId()));
@@ -869,73 +869,73 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+	public BanOnResource getBanById(PerunSession sess, int banId) throws BanNotExistsException {
 		return getResourcesManagerImpl().getBanById(sess, banId);
 	}
 
 	@Override
-	public boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException {
+	public boolean banExists(PerunSession sess, int memberId, int resourceId) {
 		return getResourcesManagerImpl().banExists(sess, memberId, resourceId);
 	}
 
 	@Override
-	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
+	public boolean banExists(PerunSession sess, int banId) {
 		return getResourcesManagerImpl().banExists(sess, banId);
 	}
 
 	@Override
-	public void checkBanExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+	public void checkBanExists(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException {
 		if(!getResourcesManagerImpl().banExists(sess, memberId, resourceId)) throw new BanNotExistsException("Ban for member " + memberId + " and resource " + resourceId + " not exists!");
 	}
 
 	@Override
-	public void checkBanExists(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+	public void checkBanExists(PerunSession sess, int banId) throws BanNotExistsException {
 		if(!getResourcesManagerImpl().banExists(sess, banId)) throw new BanNotExistsException("Ban with id " + banId + " not exists!");
 	}
 
 	@Override
-	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException {
 		return getResourcesManagerImpl().getBan(sess, memberId, resourceId);
 	}
 
 	@Override
-	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException {
+	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) {
 		return getResourcesManagerImpl().getBansForMember(sess, memberId);
 	}
 
 	@Override
-	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws InternalErrorException {
+	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) {
 		return getResourcesManagerImpl().getBansForResource(sess, resourceId);
 	}
 
 	@Override
-	public List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException {
+	public List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) {
 		return getResourcesManagerImpl().getAllExpiredBansOnResources(sess);
 	}
 
 	@Override
-	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException {
+	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) {
 		banOnResource = getResourcesManagerImpl().updateBan(sess, banOnResource);
 		getPerunBl().getAuditer().log(sess, new BanUpdatedForResource(banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId()));
 		return banOnResource;
 	}
 
 	@Override
-	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+	public void removeBan(PerunSession sess, int banId) throws BanNotExistsException {
 		BanOnResource ban = this.getBanById(sess, banId);
 		getResourcesManagerImpl().removeBan(sess, banId);
 		getPerunBl().getAuditer().log(sess, new BanRemovedForResource(ban, ban.getMemberId(), ban.getResourceId()));
 	}
 
 	@Override
-	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+	public void removeBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException {
 		BanOnResource ban = this.getBan(sess, memberId, resourceId);
 		getResourcesManagerImpl().removeBan(sess, memberId, resourceId);
 		getPerunBl().getAuditer().log(sess, new BanRemovedForResource(ban, memberId, resourceId));
 	}
 
 	@Override
-	public void removeAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException {
+	public void removeAllExpiredBansOnResources(PerunSession sess) {
 		List<BanOnResource> expiredBans = this.getAllExpiredBansOnResources(sess);
 		for(BanOnResource expiredBan: expiredBans) {
 			try {
@@ -948,30 +948,30 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<Resource> getResources(PerunSession sess) throws InternalErrorException {
+	public List<Resource> getResources(PerunSession sess) {
 		return getResourcesManagerImpl().getResources(sess);
 	}
 
 	@Override
-	public void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws AlreadyAdminException, InternalErrorException {
+	public void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws AlreadyAdminException {
 		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCESELFSERVICE);
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceAddedForUser(resource, user));
 	}
 
 	@Override
-	public void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException, InternalErrorException {
+	public void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException {
 		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCESELFSERVICE);
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceAddedForGroup(resource, group));
 	}
 
 	@Override
-	public void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws UserNotAdminException, InternalErrorException {
+	public void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws UserNotAdminException {
 		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCESELFSERVICE);
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceRemovedForUser(resource, user));
 	}
 
 	@Override
-	public void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException, InternalErrorException {
+	public void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException {
 		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCESELFSERVICE);
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceRemovedForGroup(resource, group));
 	}

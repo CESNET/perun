@@ -166,7 +166,7 @@ public enum PerunManager {
 		}
 	};
 
-	protected abstract ManagerMethod getMethod(String methodName) throws IllegalArgumentException;
+	protected abstract ManagerMethod getMethod(String methodName);
 
 	public Object call(String methodName, ApiCaller ac, Deserializer parms) throws PerunException {
 		ManagerMethod method;

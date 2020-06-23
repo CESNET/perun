@@ -40,7 +40,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws ResourceNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Resource getResourceById(PerunSession perunSession, int id) throws InternalErrorException, ResourceNotExistsException;
+	Resource getResourceById(PerunSession perunSession, int id) throws ResourceNotExistsException;
 
 	/**
 	 * Searches for the Rich Resource with specified id.
@@ -51,7 +51,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws ResourceNotExistsException
 	 * @throws InternalErrorException
 	 */
-	RichResource getRichResourceById(PerunSession perunSession, int id) throws InternalErrorException, ResourceNotExistsException;
+	RichResource getRichResourceById(PerunSession perunSession, int id) throws ResourceNotExistsException;
 
 	/**
 	 * Return resource by its name.
@@ -64,7 +64,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 */
-	Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws InternalErrorException, ResourceNotExistsException;
+	Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws ResourceNotExistsException;
 
 	/**
 	 * Creates the resource.
@@ -76,7 +76,7 @@ public interface ResourcesManagerImplApi {
 	 * @return newly created resource with id
 	 * @throws InternalErrorException
 	 */
-	Resource createResource(PerunSession perunSession, Vo vo, Resource resource, Facility facility) throws InternalErrorException;
+	Resource createResource(PerunSession perunSession, Vo vo, Resource resource, Facility facility);
 
 	/**
 	 *  Deletes resource by id.
@@ -87,7 +87,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteResource(PerunSession perunSession, Vo vo, Resource resource) throws InternalErrorException, ResourceAlreadyRemovedException;
+	void deleteResource(PerunSession perunSession, Vo vo, Resource resource) throws ResourceAlreadyRemovedException;
 
 	/**
 	 * Get facility id which belongs to the concrete resource.
@@ -98,7 +98,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getFacilityId(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	int getFacilityId(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Returns all user assigned to the resource.
@@ -109,7 +109,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAssignedUsers(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<User> getAssignedUsers(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Assign group to a resource.
@@ -121,7 +121,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyAssignedException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws InternalErrorException, GroupAlreadyAssignedException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyAssignedException;
 
 	/**
 	 * Remove group from a resource.
@@ -133,7 +133,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyRemovedFromResourceException if there are 0 rows affected by removing group from resource
 	 */
-	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws InternalErrorException, GroupAlreadyRemovedFromResourceException;
+	void removeGroupFromResource(PerunSession perunSession, Group group, Resource resource) throws GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Check if the user is assigned as a member on the selected resource.
@@ -144,7 +144,7 @@ public interface ResourcesManagerImplApi {
 	 * @return true if the user is assigned as a member on the selected resource.
 	 * @throws InternalErrorException
 	 */
-	boolean isUserAssigned(PerunSession sess, User user, Resource resource) throws InternalErrorException;
+	boolean isUserAssigned(PerunSession sess, User user, Resource resource);
 
 	/**
 	 * Check if the user is allowed as a member on the selected resource.
@@ -165,7 +165,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return list of assigned resources
 	 */
-	List<Resource> getAssignedResources(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession perunSession, Group group);
 
 	/**
 	 * List of all rich resources associated with the group.
@@ -176,7 +176,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return list of assigned rich resources
 	 */
-	List<RichResource> getAssignedRichResources(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<RichResource> getAssignedRichResources(PerunSession perunSession, Group group);
 
 	/**
 	 * Returns all rich resources where the member is assigned through the groups.
@@ -186,7 +186,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of rich resources
 	 * @throws InternalErrorException
 	 */
-	List<RichResource> getAssignedRichResources(PerunSession sess, Member member) throws InternalErrorException;
+	List<RichResource> getAssignedRichResources(PerunSession sess, Member member);
 
 	/**
 	 * Returns all rich resources where the service and the member are assigned through the groups.
@@ -197,7 +197,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of rich resources
 	 * @throws InternalErrorException
 	 */
-	List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
+	List<RichResource> getAssignedRichResources(PerunSession sess, Member member, Service service);
 
 	/**
 	 * List all services' id associated with the resource.
@@ -208,7 +208,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return list of assigned service' id
 	 */
-	List<Service> getAssignedServices(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<Service> getAssignedServices(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Assign service to resource.
@@ -220,7 +220,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ServiceAlreadyAssignedException
 	 */
-	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
+	void assignService(PerunSession perunSession, Resource resource, Service service) throws ServiceAlreadyAssignedException;
 
 	/**
 	 * Remove service from resource.
@@ -232,7 +232,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ServiceNotAssignedException
 	 */
-	void removeService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceNotAssignedException;
+	void removeService(PerunSession perunSession, Resource resource, Service service) throws ServiceNotAssignedException;
 
 	/**
 	 * Check if resource exists in underlaying data source.
@@ -243,7 +243,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean resourceExists(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	boolean resourceExists(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Check if resource exists in underlaying data source.
@@ -254,7 +254,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 */
-	void checkResourceExists(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException;
+	void checkResourceExists(PerunSession perunSession, Resource resource) throws ResourceNotExistsException;
 
 	/**
 	 * Check if resource tag exists in underlaying data source.
@@ -264,7 +264,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ResourceTagNotExistsException
 	 */
-	void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws InternalErrorException, ResourceTagNotExistsException;
+	void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws ResourceTagNotExistsException;
 
 	/**
 	 * Get all VO resources.
@@ -275,7 +275,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return list of resources
 	 */
-	List<Resource> getResources(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<Resource> getResources(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get all resources.
@@ -284,7 +284,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of resources
 	 * @throws InternalErrorException internal error
 	 */
-	List<Resource> getResources(PerunSession sess) throws InternalErrorException;
+	List<Resource> getResources(PerunSession sess);
 
 	/**
 	 * Get all VO rich resources.
@@ -295,7 +295,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return list of rich resources
 	 */
-	List<RichResource> getRichResources(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<RichResource> getRichResources(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get all VO resources count.
@@ -306,7 +306,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return count of vo resources
 	 */
-	int getResourcesCount(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	int getResourcesCount(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get count of all resources.
@@ -317,7 +317,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getResourcesCount(PerunSession perunSession) throws InternalErrorException;
+	int getResourcesCount(PerunSession perunSession);
 
 	/**
 	 * Returns all resources which have set the attribute with the value. Searching only def and opt attributes.
@@ -327,7 +327,7 @@ public interface ResourcesManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException;
+	List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute);
 
 	/**
 	 * Returns all users who are allowed on the defined resource.
@@ -337,7 +337,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsers(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<User> getAllowedUsers(PerunSession sess, Resource resource);
 
 	/**
 	 * Returns all users which are allowed on the resource and are not expired within their assigned groups.
@@ -348,7 +348,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<User> getAllowedUsersNotExpiredInGroup(PerunSession sess, Resource resource);
 
 	/**
 	 * Return all resources through which user is allowed on facility.
@@ -360,7 +360,7 @@ public interface ResourcesManagerImplApi {
 	 * @return List of allowed resources for the user on facility
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user);
 
 	/**
 	 * Returns all members who are assigned on the defined resource.
@@ -370,7 +370,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Member> getAssignedMembers(PerunSession sess, Resource resource);
 
 	/**
 	 * Returns all members who are "allowed" on the resource disregarding their possible expired status
@@ -381,7 +381,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Member> getAllowedMembers(PerunSession sess, Resource resource);
 
 	/**
 	 * Returns all members which are allowed on the resource and are not expired within their assigned groups.
@@ -392,7 +392,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Member> getAllowedMembersNotExpiredInGroup(PerunSession sess, Resource resource);
 
 	/**
 	 * Returns all resources where the member is assigned through the groups.
@@ -402,7 +402,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of resources
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, Member member) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, Member member);
 
 	/**
 	 * Returns all resources where member and service are assigned together.
@@ -413,7 +413,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of resources
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, Member member, Service service) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, Member member, Service service);
 
 	/**
 	 * Returns all resources where the user is assigned through the specified vo and its groups.
@@ -425,7 +425,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of resources
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo);
 
 
 	/**
@@ -436,7 +436,7 @@ public interface ResourcesManagerImplApi {
 	 * @return true if the group is assigned to the current resource.
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupAssigned(PerunSession sess, Group group, Resource resource) throws InternalErrorException;
+	boolean isGroupAssigned(PerunSession sess, Group group, Resource resource);
 
 	/**
 	 * Updates Resource.
@@ -446,7 +446,7 @@ public interface ResourcesManagerImplApi {
 	 * @return returns updated Resource
 	 * @throws InternalErrorException
 	 */
-	Resource updateResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	Resource updateResource(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Create new Resource tag.
@@ -457,7 +457,7 @@ public interface ResourcesManagerImplApi {
 	 * @return new created resourceTag
 	 * @throws InternalErrorException
 	 */
-	ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) throws InternalErrorException;
+	ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo);
 
 	/**
 	 * Update existing Resource tag.
@@ -467,7 +467,7 @@ public interface ResourcesManagerImplApi {
 	 * @return updated ResourceTag
 	 * @throws InternalErrorException
 	 */
-	ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException;
+	ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag);
 
 	/**
 	 * Delete existing Resource tag.
@@ -476,7 +476,7 @@ public interface ResourcesManagerImplApi {
 	 * @param resourceTag
 	 * @throws InternalErrorException
 	 */
-	void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException;
+	void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag);
 
 	/**
 	 * Delete all ResourcesTags for specific VO.
@@ -485,7 +485,7 @@ public interface ResourcesManagerImplApi {
 	 * @param vo
 	 * @throws InternalErrorException
 	 */
-	void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Assign existing ResourceTag on existing Resource.
@@ -494,7 +494,7 @@ public interface ResourcesManagerImplApi {
 	 * @param resource
 	 * @throws InternalErrorException
 	 */
-	void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException;
+	void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource);
 
 	/**
 	 * Remove specific ResourceTag from existing Resource.
@@ -504,7 +504,7 @@ public interface ResourcesManagerImplApi {
 	 * @param resource
 	 * @throws InternalErrorException
 	 */
-	void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException;
+	void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource);
 
 	/**
 	 * Remove all existing Resource tags for specific resource.
@@ -513,7 +513,7 @@ public interface ResourcesManagerImplApi {
 	 * @param resource
 	 * @throws InternalErrorException
 	 */
-	void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Get all resources in specific Vo (specific by resourceTag.getVoId) for existing resourceTag
@@ -523,7 +523,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of Resources
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException;
+	List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag);
 
 	/**
 	 * Get all resourcesTags for existing Vo.
@@ -533,7 +533,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of all resourcesTags for existing Vo
 	 * @throws InternalErrorException
 	 */
-	List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get all resourcesTags for existing Resource
@@ -543,7 +543,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of ResourcesTags
 	 * @throws InternalErrorException
 	 */
-	List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Gets list of all user administrators of the Resource.
@@ -554,7 +554,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of users who are admins in the resource
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, Resource resource);
 
 	/**
 	 * Gets list of direct user administrators of the Resource.
@@ -565,7 +565,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of direct admins of the resource
 	 * @throws InternalErrorException
 	 */
-	List<User> getDirectAdmins(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Returns list of resources, where the user is an admin.
@@ -576,7 +576,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of resources, where the user is an admin
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException;
+	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user);
 
 	/**
 	 * Return all resources for the facility and the vo where user is authorized as resource manager.
@@ -590,7 +590,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) throws InternalErrorException;
+	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser);
 
 	/**
 	 * Return all resources for the vo where user is authorized as resource manager.
@@ -603,7 +603,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser) throws InternalErrorException;
+	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Vo vo, User authorizedUser);
 
 	/**
 	 * Return all resources for the facility and the vo where the group is authorized as resource manager.
@@ -616,7 +616,7 @@ public interface ResourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) throws InternalErrorException;
+	List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup);
 
 	/**
 	 * Gets list of all group administrators of the Resource.
@@ -626,7 +626,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of groups who are admins in the resource
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession sess, Resource resource);
 
 	/**
 	 * Get true if any ban for member and resource exists.
@@ -637,7 +637,7 @@ public interface ResourcesManagerImplApi {
 	 * @return true if ban exists
 	 * @throws InternalErrorException
 	 */
-	boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException;
+	boolean banExists(PerunSession sess, int memberId, int resourceId);
 
 	/**
 	 * Get true if any band defined by id exists for any member and resource.
@@ -647,7 +647,7 @@ public interface ResourcesManagerImplApi {
 	 * @return true if ban exists
 	 * @throws InternalErrorException
 	 */
-	boolean banExists(PerunSession sess, int banId) throws InternalErrorException;
+	boolean banExists(PerunSession sess, int banId);
 
 	/**
 	 * Set ban for member on resource
@@ -657,7 +657,7 @@ public interface ResourcesManagerImplApi {
 	 * @return ban on resource
 	 * @throws InternalErrorException
 	 */
-	BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException;
+	BanOnResource setBan(PerunSession sess, BanOnResource banOnResource);
 
 	/**
 	 * Get Ban for member on resource by it's id
@@ -668,7 +668,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+	BanOnResource getBanById(PerunSession sess, int banId) throws BanNotExistsException;
 
 	/**
 	 * Get specific resource ban.
@@ -680,7 +680,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException;
+	BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException;
 
 	/**
 	 * Get all resources bans for member.
@@ -690,7 +690,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of bans for member on any resource
 	 * @throws InternalErrorException
 	 */
-	List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException;
+	List<BanOnResource> getBansForMember(PerunSession sess, int memberId);
 
 	/**
 	 * Get all members bans for resource
@@ -700,7 +700,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of all members bans on resource
 	 * @throws InternalErrorException
 	 */
-	List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws InternalErrorException;
+	List<BanOnResource> getBansForResource(PerunSession sess, int resourceId);
 
 	/**
 	 * Get all expired bans on any resource to now date
@@ -709,7 +709,7 @@ public interface ResourcesManagerImplApi {
 	 * @return list of expired bans for any resource
 	 * @throws InternalErrorException
 	 */
-	List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException;
+	List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess);
 
 	/**
 	 * Update description and validity timestamp of specific ban.
@@ -719,7 +719,7 @@ public interface ResourcesManagerImplApi {
 	 * @return updated ban
 	 * @throws InternalErrorException
 	 */
-	BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException;
+	BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource);
 
 	/**
 	 * Remove ban by id from resources bans.
@@ -729,7 +729,7 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+	void removeBan(PerunSession sess, int banId) throws BanNotExistsException;
 
 	/**
 	 * Remove ban by member_id and facility_id
@@ -740,5 +740,5 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException;
+	void removeBan(PerunSession sess, int memberId, int resourceId) throws BanNotExistsException;
 }

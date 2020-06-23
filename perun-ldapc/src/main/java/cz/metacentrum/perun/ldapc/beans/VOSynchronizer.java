@@ -28,7 +28,7 @@ public class VOSynchronizer extends AbstractSynchronizer {
 	@Autowired
 	protected PerunVO perunVO;
 
-	public void synchronizeVOs() throws InternalErrorException {
+	public void synchronizeVOs() {
 		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		boolean shouldWriteExceptionLog = true;
 		try {

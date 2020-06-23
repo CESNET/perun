@@ -20,7 +20,7 @@ public interface PerunNotifTemplateDao {
 	 *
 	 * @return
 	 */
-	public List<PerunNotifTemplate> getAllPerunNotifTemplates() throws InternalErrorException;
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates();
 
 	/**
 	 * Updates only data of template
@@ -28,7 +28,7 @@ public interface PerunNotifTemplateDao {
 	 * @param template
 	 * @return
 	 */
-	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) throws InternalErrorException;
+	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template);
 
 	/**
 	 * Gets receiver by id
@@ -37,7 +37,7 @@ public interface PerunNotifTemplateDao {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifReceiver getPerunNotifReceiverById(int id) throws InternalErrorException;
+	public PerunNotifReceiver getPerunNotifReceiverById(int id);
 
 	/**
 	 * Returns all PerunNotifReceivers from db.
@@ -53,7 +53,7 @@ public interface PerunNotifTemplateDao {
      * @return perunNotifReceiver with new id set
      * @param receiver
      */
-    public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+    public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver);
 
 	/**
 	 * Updates perunNotifReceiver
@@ -62,7 +62,7 @@ public interface PerunNotifTemplateDao {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver);
 
 	/**
 	 * Gets perunNotifTemplate by id from db
@@ -71,7 +71,7 @@ public interface PerunNotifTemplateDao {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifTemplate getPerunNotifTemplateById(int id) throws InternalErrorException;
+	public PerunNotifTemplate getPerunNotifTemplateById(int id);
 
 	/**
 	 * Saves data about transaction to db, not dependencies
@@ -80,7 +80,7 @@ public interface PerunNotifTemplateDao {
 	 * @return perunNotifTemplate with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) throws InternalErrorException;
+	public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template);
 
 	/**
 	 * Removes perunNotifReceiver by id
@@ -88,7 +88,7 @@ public interface PerunNotifTemplateDao {
 	 * @param id
 	 * @throws InternalErrorException
 	 */
-	public void removePerunNotifReceiverById(int id) throws InternalErrorException;
+	public void removePerunNotifReceiverById(int id);
 
 	/**
 	 * get perunNotifTemplateMessage from db by id
@@ -96,7 +96,7 @@ public interface PerunNotifTemplateDao {
 	 * @param id
 	 * @return template message of null (when message with id was not found)
 	 */
-	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws InternalErrorException;
+	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id);
 
 	/**
 	 * Returns all PerunNotifTemplateMessages.
@@ -111,7 +111,7 @@ public interface PerunNotifTemplateDao {
 	 * @return perunNotifTemplateMessage with new id set
 	 * @param message
 	 */
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message);
 
 	/**
 	 * Update perunNotifTemplateMessage in db
@@ -119,14 +119,14 @@ public interface PerunNotifTemplateDao {
 	 * @param message
 	 * @return
 	 */
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message);
 
 	/**
 	 * Remove perunNotifTemplateMessage from db
 	 *
 	 * @param id
 	 */
-	public void removePerunNotifTemplateMessage(int id) throws InternalErrorException;
+	public void removePerunNotifTemplateMessage(int id);
 
 	/**
 	 * Removes template by id
@@ -141,5 +141,5 @@ public interface PerunNotifTemplateDao {
 	 * @param templateId
 	 * @param regexId
 	 */
-	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException;
+	public void saveTemplateRegexRelation(int templateId, Integer regexId);
 }

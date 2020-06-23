@@ -32,7 +32,7 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
 	 */
-	public abstract String readString(String name) throws RpcException;
+	public abstract String readString(String name);
 
 	/**
 	 * Reads value with the specified name as {@code Boolean}.
@@ -42,7 +42,7 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
 	 */
-	public abstract Boolean readBoolean(String name) throws RpcException;
+	public abstract Boolean readBoolean(String name);
 
 	/**
 	 * Reads value with the specified name as {@code int}.
@@ -52,9 +52,9 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException if the specified value cannot be parsed as {@code int} or if it is not supplied
 	 */
-	public abstract int readInt(String name) throws RpcException;
+	public abstract int readInt(String name);
 
-	public int[] readArrayOfInts(String name) throws RpcException {
+	public int[] readArrayOfInts(String name) {
 		throw new UnsupportedOperationException("readArrayOfInts(String name)");
 	}
 
@@ -68,7 +68,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> T read(String name, Class<T> valueType) throws RpcException {
+	public <T> T read(String name, Class<T> valueType) {
 		throw new UnsupportedOperationException("read(String name, Class<T> valueType)");
 	}
 
@@ -81,7 +81,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> T read(Class<T> valueType) throws RpcException {
+	public <T> T read(Class<T> valueType) {
 		throw new UnsupportedOperationException("read(Class<T> valueType)");
 	}
 
@@ -95,7 +95,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(String name, Class<T> valueType) {
 		throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
 	}
 
@@ -108,7 +108,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
 	 */
-	public <T> List<T> readList(Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(Class<T> valueType) {
 		throw new UnsupportedOperationException("readList(Class<T> valueType)");
 	}
 
@@ -121,7 +121,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code perunBean} or if it is not supplied
 	 */
-	public PerunBean readPerunBean(String name) throws RpcException {
+	public PerunBean readPerunBean(String name) {
 		throw new UnsupportedOperationException("readListPerunBeans(String name)");
 	}
 
@@ -134,7 +134,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 * @throws RpcException if the specified value cannot be parsed as {@code perunBean} or if it is not supplied
 	 */
-	public List<PerunBean> readListPerunBeans(String name) throws RpcException {
+	public List<PerunBean> readListPerunBeans(String name) {
 		throw new UnsupportedOperationException("readListPerunBeans(String name)");
 	}
 
@@ -144,7 +144,7 @@ public abstract class Deserializer {
 	 * @return string containing all variables
 	 * @throws RpcException
 	 */
-	public abstract String readAll() throws RpcException;
+	public abstract String readAll();
 
 	/**
 	 * Return HttpServletRequest related to concrete call this deserializer is used to process.
@@ -156,7 +156,7 @@ public abstract class Deserializer {
 	 * @return HttpServletRequest related to concrete call
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 */
-	public HttpServletRequest getServletRequest() throws UnsupportedOperationException {
+	public HttpServletRequest getServletRequest() {
 		throw new UnsupportedOperationException("getServletRequest()");
 	}
 
@@ -165,7 +165,7 @@ public abstract class Deserializer {
 	 *
 	 * @throws RpcException if method is GET
 	 */
-	public void stateChangingCheck() throws RpcException {
+	public void stateChangingCheck() {
 		if (getServletRequest().getMethod().equals("GET")) {
 			throw new RpcException(RpcException.Type.STATE_CHANGING_CALL, "This is a state changing operation. Please use HTTP POST request.");
 		}

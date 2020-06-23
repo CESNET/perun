@@ -29,7 +29,7 @@ public class Synchronizer {
 	public Synchronizer() {
 	}
 
-	public Synchronizer(PerunBl perunBl) throws InternalErrorException {
+	public Synchronizer(PerunBl perunBl) {
 		this.perunBl = perunBl;
 		initialize();
 	}
@@ -101,7 +101,7 @@ public class Synchronizer {
 		}
 	}
 
-	public void initialize() throws InternalErrorException {
+	public void initialize() {
 		String synchronizerPrincipal = "perunSynchronizer";
 		this.sess = perunBl.getPerunSession(
 				new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),

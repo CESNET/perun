@@ -30,7 +30,7 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * This method checks semantics of Member's attribute value at a specified resource.
@@ -46,7 +46,7 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 *         the parameter is to be compared is not available
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method MAY fill Member's attributes at a specified resource.
@@ -70,5 +70,5 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 * @throws InternalErrorException if there is any internal error
 	 * @throws WrongReferenceAttributeValueException if there is problem to process the change hook because of the value of referenced attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
 }

@@ -38,7 +38,7 @@ public class urn_perun_group_resource_attribute_def_def_adName extends GroupReso
 	private static final Pattern pattern = Pattern.compile("(\\w|-|\\.)*");
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		//Attribute can be null
 		if (attribute.getValue() == null) return;
 
@@ -48,7 +48,7 @@ public class urn_perun_group_resource_attribute_def_def_adName extends GroupReso
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//Attribute can be null
 		if(attribute.getValue() == null) {
 			return;

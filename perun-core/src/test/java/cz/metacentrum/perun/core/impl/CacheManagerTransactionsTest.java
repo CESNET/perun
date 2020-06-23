@@ -824,7 +824,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttributeForCacheManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute", "GroupAttribute");
 	}
 
-	private Attribute setUpGroupAttributeForAttributesManager() throws InternalErrorException, AttributeDefinitionExistsException {
+	private Attribute setUpGroupAttributeForAttributesManager() throws AttributeDefinitionExistsException {
 		return setUpAttributeForAttributesManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute", "GroupAttribute");
 	}
 
@@ -832,7 +832,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttributeForCacheManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute1", "GroupAttribute1");
 	}
 
-	private Attribute setUpGroupAttribute1ForAttributesManager() throws InternalErrorException, AttributeDefinitionExistsException {
+	private Attribute setUpGroupAttribute1ForAttributesManager() throws AttributeDefinitionExistsException {
 		return setUpAttributeForAttributesManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute1", "GroupAttribute1");
 	}
 
@@ -844,7 +844,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttributeForAttributesManager(AttributesManager.NS_ENTITYLESS_ATTR_DEF, "entityless-test-attribute", "EntitylessAttribute");
 	}
 
-	private AttributeDefinition setUpAttributeDefinitionForAttributesManager(String namespace, String friendlyName) throws AttributeDefinitionExistsException, InternalErrorException {
+	private AttributeDefinition setUpAttributeDefinitionForAttributesManager(String namespace, String friendlyName) throws AttributeDefinitionExistsException {
 		AttributeDefinition attributeDefinition = setUpAttributeDefinition(namespace, friendlyName);
 		return ((PerunBlImpl)perun).getAttributesManagerImpl().createAttribute(sess, attributeDefinition);
 	}
@@ -877,7 +877,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttribute(attributeDefinition, value);
 	}
 
-	private Attribute setUpAttributeForAttributesManager(String namespace, String friendlyName, String value) throws InternalErrorException, AttributeDefinitionExistsException {
+	private Attribute setUpAttributeForAttributesManager(String namespace, String friendlyName, String value) throws AttributeDefinitionExistsException {
 		AttributeDefinition attributeDefinition = setUpAttributeDefinitionForAttributesManager(namespace, friendlyName);
 		return setUpAttribute(attributeDefinition, value);
 	}

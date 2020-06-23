@@ -21,7 +21,7 @@ import java.util.List;
  */
 public abstract class GroupVirtualAttributesModuleAbstract extends GroupAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi{
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

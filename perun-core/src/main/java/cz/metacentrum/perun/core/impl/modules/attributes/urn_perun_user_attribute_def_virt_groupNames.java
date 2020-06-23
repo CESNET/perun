@@ -59,7 +59,7 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 	};
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		Set<String> groupNames = new TreeSet<>();
 		List<Pair<String, String>> names;
@@ -94,7 +94,7 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
@@ -122,7 +122,7 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 		return resolvingMessages;
 	}
 
-	private AuditEvent resolveEvent (PerunSessionImpl sess, Member member) throws InternalErrorException, AttributeNotExistsException {
+	private AuditEvent resolveEvent (PerunSessionImpl sess, Member member) throws AttributeNotExistsException {
 		User user = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_GROUP_NAMES);
 		return new AttributeChangedForUser(new Attribute(attributeDefinition), user);

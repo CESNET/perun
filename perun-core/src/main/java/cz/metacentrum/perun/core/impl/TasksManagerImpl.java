@@ -105,7 +105,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public int insertNewTaskResult(TaskResult taskResult) throws InternalErrorException {
+	public int insertNewTaskResult(TaskResult taskResult) {
 		int newTaskResultId = Utils.getNewId(jdbc, "tasks_results_id_seq");
 
 		// There was probably an issue with too long a String for VARCHAR2 datatype http://goo.gl/caVxp.
@@ -262,7 +262,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			TASKRESULT_ROWMAPPER, taskId, destinationId);
 	}
 
-	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) throws InternalErrorException {
+	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) {
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("destinations", destinationsNames);
@@ -593,7 +593,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		getMyJdbcTemplate().update("delete from tasks where id = ?", id);
 	}
 
-	private int queryForInt(String sql, Object... args) throws DataAccessException {
+	private int queryForInt(String sql, Object... args) {
 		// jdbc template cannot be null
 		Integer i = getMyJdbcTemplate().queryForObject(sql, args, Integer.class);
 		return (i != null ? i : 0);

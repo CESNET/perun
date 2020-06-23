@@ -111,16 +111,16 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 		);
 	}
 
-	public void addUser(User user) throws InternalErrorException {
+	public void addUser(User user) {
 		addEntry(user);
 	}
 
-	public void deleteUser(User user) throws InternalErrorException {
+	public void deleteUser(User user) {
 		deleteEntry(user);
 	}
 
 	@Override
-	public void updateUser(User user) throws InternalErrorException {
+	public void updateUser(User user) {
 		modifyEntry(user);
 	}
 
@@ -129,21 +129,21 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	}
 
 	@Override
-	public void addPrincipal(User user, String login) throws InternalErrorException {
+	public void addPrincipal(User user, String login) {
 		DirContextOperations entry = findByDN(buildDN(user));
 		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
 		ldapTemplate.modifyAttributes(entry);
 	}
 
 	@Override
-	public void removePrincipal(User user, String login) throws InternalErrorException {
+	public void removePrincipal(User user, String login) {
 		DirContextOperations entry = findByDN(buildDN(user));
 		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
 		ldapTemplate.modifyAttributes(entry);
 	}
 
 	@Override
-	public void addAsVoAdmin(User user, Vo vo) throws InternalErrorException {
+	public void addAsVoAdmin(User user, Vo vo) {
 		DirContextOperations entry = findByDN(buildDN(user));
 		Name voDN = addBaseDN(perunVO.getEntryDN(String.valueOf(vo.getId())));
 		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAdminOfVo, voDN.toString());
@@ -232,7 +232,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	@Override
 	public void synchronizeUser(User user, Iterable<Attribute> attrs, Set<Integer> voIds, List<Group> groups,
 	                            List<UserExtSource> extSources,
-	                            List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException {
+	                            List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) {
 		SyncOperation syncOp = beginSynchronizeEntry(user, attrs);
 		doSynchronizeMembership(syncOp.getEntry(), voIds, groups);
 		doSynchronizePrincipals(syncOp.getEntry(), extSources);
@@ -268,7 +268,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	}
 
 	@Override
-	protected void mapToContext(User bean, DirContextOperations context) throws InternalErrorException {
+	protected void mapToContext(User bean, DirContextOperations context) {
 		context.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrObjectClass,
 				Arrays.asList(PerunAttribute.PerunAttributeNames.objectClassPerson,
 						PerunAttribute.PerunAttributeNames.objectClassOrganizationalPerson,
@@ -294,7 +294,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	}
 
 	@Override
-	public List<Name> listEntries() throws InternalErrorException {
+	public List<Name> listEntries() {
 		return ldapTemplate.search(query().
 						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerson),
 				getNameMapper());

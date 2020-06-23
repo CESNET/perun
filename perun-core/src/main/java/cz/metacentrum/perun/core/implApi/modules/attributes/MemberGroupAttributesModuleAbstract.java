@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class MemberGroupAttributesModuleAbstract extends AttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 
@@ -31,7 +31,7 @@ public abstract class MemberGroupAttributesModuleAbstract extends AttributesModu
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) {
 
 	}
 }

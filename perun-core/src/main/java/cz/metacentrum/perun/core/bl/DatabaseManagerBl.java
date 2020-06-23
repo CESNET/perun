@@ -31,7 +31,7 @@ public interface DatabaseManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	String getCurrentDatabaseVersion() throws InternalErrorException;
+	String getCurrentDatabaseVersion();
 
 	/**
 	 * Get DB driver information from datasource (name-version)
@@ -40,7 +40,7 @@ public interface DatabaseManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	String getDatabaseDriverInformation() throws InternalErrorException;
+	String getDatabaseDriverInformation();
 
 	/**
 	 * Get DB information from datasource (name-version)
@@ -49,7 +49,7 @@ public interface DatabaseManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	String getDatabaseInformation() throws InternalErrorException;
+	String getDatabaseInformation();
 
 	/**
 	 * Method updates database to the current code version. It takes list of dbVersions and executes all the commands from them.
@@ -59,7 +59,7 @@ public interface DatabaseManagerBl {
 	 *
 	 * @throws InternalErrorException if any of the commands fails to execute
 	 */
-	void updateDatabaseVersion(List<DBVersion> dbVersions) throws InternalErrorException;
+	void updateDatabaseVersion(List<DBVersion> dbVersions);
 
 	/**
 	 * Parses all new database versions from DB changelog file and creates from them list of DBVersion objects.
@@ -72,7 +72,7 @@ public interface DatabaseManagerBl {
 	 *
 	 * @throws InternalErrorException if 1.there is an error reading file, 2.currentDBVersion was not found 3.DBVersion does not match pattern 4.DB versions are not ordered as they should be
 	 */
-	List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException;
+	List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName);
 
 	/**
 	 * Take list of perunBeans and generate an array of ids in sql database from it.
@@ -84,7 +84,7 @@ public interface DatabaseManagerBl {
 	 * @throws SQLException if any sql exception has been thrown
 	 * @throws InternalErrorException if oracle method to work with an array can't be get or invoked
 	 */
-	static java.sql.Array prepareSQLArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException, InternalErrorException {
+	static java.sql.Array prepareSQLArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException {
 		List<Integer> listOfBeansIds = perunBeans.stream().map(PerunBean::getId).collect(Collectors.toList());
 		return prepareSQLArrayOfNumbersFromIntegers(listOfBeansIds, preparedStatement);
 	}
@@ -99,7 +99,7 @@ public interface DatabaseManagerBl {
 	 * @throws SQLException if any sql exception has been thrown
 	 * @throws InternalErrorException if oracle method to work with an array can't be get or invoked
 	 */
-	static java.sql.Array prepareSQLArrayOfNumbersFromIntegers(List<Integer> integers, PreparedStatement preparedStatement) throws SQLException, InternalErrorException {
+	static java.sql.Array prepareSQLArrayOfNumbersFromIntegers(List<Integer> integers, PreparedStatement preparedStatement) throws SQLException {
 		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
 		if(Compatibility.isOracle()) {
 			int[] arrayOfInts = integers.stream().mapToInt(i -> i).toArray();
@@ -125,7 +125,7 @@ public interface DatabaseManagerBl {
 	 * @throws SQLException if any sql exception has been thrown
 	 * @throws InternalErrorException if oracle method to work with an array can't be get or invoked
 	 */
-	static java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorException {
+	static java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException {
 		String[] arrayOfStrings = strings.toArray(new String[0]);
 		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
 		if(Compatibility.isOracle()) {

@@ -19,7 +19,7 @@ public interface PerunUser extends PerunEntry<User> {
 	 * @param user user from perun
 	 * @throws InternalErrorException if NameNotFoundException occurs
 	 */
-	public void addUser(User user) throws InternalErrorException;
+	public void addUser(User user);
 
 
 	/**
@@ -29,9 +29,9 @@ public interface PerunUser extends PerunEntry<User> {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	public void deleteUser(User user) throws InternalErrorException;
+	public void deleteUser(User user);
 
-	public void updateUser(User user) throws InternalErrorException;
+	public void updateUser(User user);
 
 	/**
 	 * Return true if user attribute 'password' in ldap already exists.
@@ -53,13 +53,13 @@ public interface PerunUser extends PerunEntry<User> {
 
 	public void removeFromFacilityAdmins(User user, Facility facility);
 
-	public void addPrincipal(User user, String login) throws InternalErrorException;
+	public void addPrincipal(User user, String login);
 
-	public void removePrincipal(User user, String login) throws InternalErrorException;
+	public void removePrincipal(User user, String login);
 
 	public void synchronizeUser(User user, Iterable<Attribute> attrs, Set<Integer> voIds, List<Group> groups,
 	                            List<UserExtSource> extSources,
-	                            List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException;
+	                            List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities);
 
 	public void synchronizeMembership(User user, Set<Integer> voIds, List<Group> groups);
 

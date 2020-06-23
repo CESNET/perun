@@ -34,7 +34,7 @@ public class LifescienceHostel extends DefaultRegistrarModule {
 	 * Create proper UserExtSource
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException, ExtSourceNotExistsException {
+	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, AttributeNotExistsException, ExtSourceNotExistsException {
 
 		PerunBl perun = (PerunBl)session.getPerun();
 

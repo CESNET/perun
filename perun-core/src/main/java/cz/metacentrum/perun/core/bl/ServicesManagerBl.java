@@ -53,7 +53,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServiceAlreadyBannedException
 	 */
-	void blockServiceOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException;
+	void blockServiceOnFacility(PerunSession perunSession, Service service, Facility facility) throws ServiceAlreadyBannedException;
 
 	/**
 	 * Bans Service on destination.
@@ -65,7 +65,7 @@ public interface ServicesManagerBl {
 	 * @param destinationId The destination on which we want to ban the Service
 	 * @throws InternalErrorException
 	 */
-	void blockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException;
+	void blockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException;
 
 	/**
 	 * Block all services currently assigned on this facility.
@@ -77,7 +77,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void blockAllServicesOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
+	void blockAllServicesOnFacility(PerunSession perunSession, Facility facility) throws FacilityNotExistsException, PrivilegeException;
 
 	/**
 	 * Block all services currently assigned on this destination.
@@ -89,7 +89,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void blockAllServicesOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException;
+	void blockAllServicesOnDestination(PerunSession perunSession, int destinationId) throws PrivilegeException, DestinationNotExistsException;
 
 	/**
 	 * List all the Services that are banned on this facility.
@@ -238,7 +238,7 @@ public interface ServicesManagerBl {
 	 * @throws FacilityNotExistsException
 	 * @throws InternalErrorException
 	 */
-	List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException;
+	List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Creates new service.
@@ -247,7 +247,7 @@ public interface ServicesManagerBl {
 	 * @param service
 	 * @return new service
 	 */
-	Service createService(PerunSession perunSession, Service service) throws InternalErrorException, ServiceExistsException;
+	Service createService(PerunSession perunSession, Service service) throws ServiceExistsException;
 
 	/** Deletes the service.
 	 *
@@ -257,14 +257,14 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteService(PerunSession perunSession, Service service) throws InternalErrorException, RelationExistsException, ServiceAlreadyRemovedException;
+	void deleteService(PerunSession perunSession, Service service) throws RelationExistsException, ServiceAlreadyRemovedException;
 
 	/** Updates the service.
 	 *
 	 * @param perunSession
 	 * @param service
 	 */
-	void updateService(PerunSession perunSession, Service service) throws InternalErrorException;
+	void updateService(PerunSession perunSession, Service service);
 
 	/**
 	 * Get service by id.
@@ -275,7 +275,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Service getServiceById(PerunSession perunSession, int id) throws InternalErrorException, ServiceNotExistsException;
+	Service getServiceById(PerunSession perunSession, int id) throws ServiceNotExistsException;
 
 	/**
 	 * Get service by name.
@@ -287,7 +287,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 */
-	Service getServiceByName(PerunSession perunSession, String name) throws InternalErrorException, ServiceNotExistsException;
+	Service getServiceByName(PerunSession perunSession, String name) throws ServiceNotExistsException;
 
 	/**
 	 * get all services in perun
@@ -297,7 +297,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Service> getServices(PerunSession perunSession) throws InternalErrorException;
+	List<Service> getServices(PerunSession perunSession);
 
 	/**
 	 * Get all services with given attribute.
@@ -308,7 +308,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Get all resources where the service is defined.
@@ -318,7 +318,7 @@ public interface ServicesManagerBl {
 	 * @return list of resources where the service is defined
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession sess, Service service);
 
 	/**
 	 * Generates the list of attributes per each member associated with the resource.
@@ -331,7 +331,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException;
+	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers);
 
 	/**
 	 * Generates the list of attributes per each resource associated with the facility and filtered by service. Next it generates list of attributes
@@ -346,7 +346,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException;
+	ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers);
 
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups.
@@ -365,7 +365,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException;
+	ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers);
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
@@ -382,7 +382,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 */
-	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, VoNotExistsException;
+	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws VoNotExistsException;
 
 	/**
 	 * List packages
@@ -393,7 +393,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ServicesPackage> getServicesPackages(PerunSession perunSession) throws InternalErrorException;
+	List<ServicesPackage> getServicesPackages(PerunSession perunSession);
 
 	/**
 	 * Get package by Id
@@ -406,7 +406,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServicesPackageNotExistsException
 	 */
-	ServicesPackage getServicesPackageById(PerunSession perunSession, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException;
+	ServicesPackage getServicesPackageById(PerunSession perunSession, int servicesPackageId) throws ServicesPackageNotExistsException;
 
 	/**
 	 * Get package by name
@@ -419,7 +419,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServicesPackageNotExistsException
 	 */
-	ServicesPackage getServicesPackageByName(PerunSession perunSession, String name) throws InternalErrorException, ServicesPackageNotExistsException;
+	ServicesPackage getServicesPackageByName(PerunSession perunSession, String name) throws ServicesPackageNotExistsException;
 
 	/**
 	 * Insert a new package
@@ -432,7 +432,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServicesPackageExistsException
 	 */
-	ServicesPackage createServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageExistsException;
+	ServicesPackage createServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws ServicesPackageExistsException;
 
 	/**
 	 * Update package
@@ -442,7 +442,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void updateServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
+	void updateServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 
 	/**
 	 * Remove the package
@@ -452,7 +452,7 @@ public interface ServicesManagerBl {
 	 * @throws RelationExistsException
 	 * @throws InternalErrorException
 	 */
-	void deleteServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException, RelationExistsException;
+	void deleteServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws RelationExistsException;
 
 	/**
 	 * Add the service to the package
@@ -464,7 +464,7 @@ public interface ServicesManagerBl {
 	 * @throws ServiceAlreadyAssignedException
 	 * @throws InternalErrorException
 	 */
-	void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
+	void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyAssignedException;
 	/**
 	 * Remove Service from Services Package
 	 *
@@ -475,7 +475,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from servicePackage in DB
 	 */
-	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyRemovedFromServicePackageException;
+	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyRemovedFromServicePackageException;
 
 	/**
 	 * List services stored in the packages
@@ -486,7 +486,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
+	List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage);
 
 	/*
 		 getRequiredAttributes(PerunSession perunSession, Service service);
@@ -503,13 +503,13 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws AttributeAlreadyAssignedException
 	 */
-	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeAlreadyAssignedException;
+	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException;
 
 	/**
 	 *  Batch version of addRequiredAttribute
 	 *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
 	 */
-	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeAlreadyAssignedException;
+	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException;
 
 	/**
 	 * Remove required attribute from service.
@@ -522,13 +522,13 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws AttributeNotAssignedException
 	 */
-	void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeNotAssignedException;
+	void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws AttributeNotAssignedException;
 
 	/**
 	 *  Batch version of removeRequiredAttribute
 	 *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,AttributeDefinition)
 	 */
-	void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotAssignedException;
+	void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws AttributeNotAssignedException;
 
 	/**
 	 * Detate all required attributes from service.
@@ -538,7 +538,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void removeAllRequiredAttributes(PerunSession perunSession, Service service) throws InternalErrorException;
+	void removeAllRequiredAttributes(PerunSession perunSession, Service service);
 
 	/**
 	 * Adds an destination for the facility and service. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
@@ -552,7 +552,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws DestinationAlreadyAssignedException
 	 */
-	Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException;
+	Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException;
 
 	/**
 	 * Adds an destination for the facility and all services. Destination id doesn't need to be filled. If destination doesn't exist it will be created.
@@ -564,7 +564,7 @@ public interface ServicesManagerBl {
 	 * @return destination with it's id set
 	 * @throws InternalErrorException
 	 */
-	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException;
+	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination);
 
 	/**
 	 * Adds destination for all services defined on the facility.
@@ -576,7 +576,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws DestinationAlreadyAssignedException
 	 */
-	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException;
+	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws DestinationAlreadyAssignedException;
 
 	/**
 	 * Defines service destination for all hosts using theirs hostnames.
@@ -588,7 +588,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws DestinationAlreadyAssignedException
 	 */
-	List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException;
+	List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws DestinationAlreadyAssignedException;
 
 	/**
 	 * Defines services destination for all hosts using their hostnames.
@@ -601,7 +601,7 @@ public interface ServicesManagerBl {
 	 * @return list of added destinations (even if they already was added before)
 	 * @throws InternalErrorException
 	 */
-	List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws InternalErrorException;
+	List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility);
 
 	/**
 	 * Defines services destination for all hosts using their hostnames.
@@ -614,7 +614,7 @@ public interface ServicesManagerBl {
 	 * @return list of added destinations (even if they already was added before)
 	 * @throws InternalErrorException
 	 */
-	List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility);
 
 
 	/**
@@ -627,7 +627,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws DestinationAlreadyRemovedException
 	 */
-	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyRemovedException;
+	void removeDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyRemovedException;
 
 	/**
 	 * Get destination by id
@@ -638,7 +638,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws DestinationNotExistsException
 	 */
-	Destination getDestinationById(PerunSession perunSession, int id) throws InternalErrorException, DestinationNotExistsException;
+	Destination getDestinationById(PerunSession perunSession, int id) throws DestinationNotExistsException;
 
 	/**
 	 * Get list of all destinations defined for the service and facility.
@@ -649,7 +649,7 @@ public interface ServicesManagerBl {
 	 * @return list list of destinations defined for the service and facility
 	 * @throws InternalErrorException
 	 */
-	List<Destination> getDestinations(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+	List<Destination> getDestinations(PerunSession perunSession, Service service, Facility facility);
 
 	/**
 	 * Get list of all destinations.
@@ -658,7 +658,7 @@ public interface ServicesManagerBl {
 	 * @return list of all destinations for session
 	 * @throws InternalErrorException
 	 */
-	List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException;
+	List<Destination> getDestinations(PerunSession perunSession);
 
 	/**
 	 * Get lists of all destinations for specific Facility
@@ -668,7 +668,7 @@ public interface ServicesManagerBl {
 	 * @return lists of all destinations for specific Facility
 	 * @throws InternalErrorException
 	 */
-	List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Destination> getDestinations(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Get list of all rich destinations defined for the facility.
@@ -678,7 +678,7 @@ public interface ServicesManagerBl {
 	 * @return list of rich destinations defined for the facility
 	 * @throws InternalErrorException
 	 */
-	List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Get list of all rich destinations defined for the service.
@@ -688,7 +688,7 @@ public interface ServicesManagerBl {
 	 * @return list of rich destinations defined for the service
 	 * @throws InternalErrorException
 	 */
-	List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws InternalErrorException;
+	List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service);
 
 	/**
 	 * Get list of all rich destinations defined for the service and the facility
@@ -699,7 +699,7 @@ public interface ServicesManagerBl {
 	 * @return list of rich destinations defined for the service and the facility
 	 * @throws InternalErrorException
 	 */
-	List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws InternalErrorException;
+	List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service);
 
 	/**
 	 * Removes all defined destinations for the service and facility.
@@ -709,7 +709,7 @@ public interface ServicesManagerBl {
 	 * @param facility
 	 * @throws InternalErrorException
 	 */
-	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility);
 
 	/**
 	 * Removes all defined destinations for the facility.
@@ -718,7 +718,7 @@ public interface ServicesManagerBl {
 	 * @param facility the facility
 	 * @throws InternalErrorException
 	 */
-	void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	void removeAllDestinations(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Check if the service exits.
@@ -728,7 +728,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 */
-	void checkServiceExists(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException;
+	void checkServiceExists(PerunSession sess, Service service) throws ServiceNotExistsException;
 
 	/**
 	 * Check if the service package exists.
@@ -738,7 +738,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServicesPackageNotExistsException
 	 */
-	void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException;
+	void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws ServicesPackageNotExistsException;
 
 	/**
 	 * Returns Destinations ID based on destination name and type.
@@ -750,7 +750,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws DestinationNotExistsException
 	 */
-	int getDestinationIdByName(PerunSession sess, String name, String type) throws InternalErrorException, DestinationNotExistsException;
+	int getDestinationIdByName(PerunSession sess, String name, String type) throws DestinationNotExistsException;
 
 	/**
 	 * List all services associated with the facility (via resource).
@@ -762,7 +762,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @return list of services assigned  to facility
 	 */
-	List<Service> getAssignedServices(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Service> getAssignedServices(PerunSession perunSession, Facility facility);
 
 	/**
 	 * List all destinations for all facilities which are joined by resources to the VO.
@@ -773,7 +773,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo);
 
 	/**
 	 * Get count of all destinations.
@@ -784,5 +784,5 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getDestinationsCount(PerunSession perunSession) throws InternalErrorException;
+	int getDestinationsCount(PerunSession perunSession);
 }

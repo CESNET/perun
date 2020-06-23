@@ -66,7 +66,7 @@ public class urn_perun_user_attribute_def_virt_userOrganizationsTest extends Abs
 		assertEquals("different value should be a value to short name of second vo.", "different value", value.get(vo2.getShortName()));
 	}
 
-	private User setUpUser() throws InternalErrorException {
+	private User setUpUser() {
 		User newUser = new User();
 		return perun.getUsersManagerBl().createUser(sess, newUser);
 	}

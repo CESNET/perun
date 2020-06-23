@@ -170,7 +170,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 	 * failure
 	 * @throws EmailSendException in case of failure when sending a message
 	 */
-	protected void doSend(MimeMessage[] mimeMessages, List<String> contents) throws EmailException {
+	protected void doSend(MimeMessage[] mimeMessages, List<String> contents) {
 		Map<Object, Exception> failedMessages = new LinkedHashMap<Object, Exception>();
 
 		Transport transport;

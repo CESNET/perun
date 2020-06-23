@@ -22,7 +22,7 @@ import java.util.List;
 public abstract class MemberGroupVirtualAttributesModuleAbstract extends MemberGroupAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

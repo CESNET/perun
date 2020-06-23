@@ -4350,7 +4350,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	convertAttributeToUnique {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws InternalErrorException, AttributeAlreadyMarkedUniqueException, PrivilegeException, AttributeNotExistsException {
+		public Void call(ApiCaller ac, Deserializer parms) throws AttributeAlreadyMarkedUniqueException, PrivilegeException, AttributeNotExistsException {
 			parms.stateChangingCheck();
 			ac.getAttributesManager().convertAttributeToUnique(ac.getSession(), parms.readInt("attrDefId"));
 			return null;
@@ -4380,7 +4380,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	getAttributeModulesDependenciesGraphText {
 		@Override
-		public GraphDTO call(ApiCaller ac, Deserializer parms) throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+		public GraphDTO call(ApiCaller ac, Deserializer parms) throws PrivilegeException, AttributeNotExistsException {
 			String formatString = parms.readString("format").toUpperCase();
 
 			GraphTextFormat format;

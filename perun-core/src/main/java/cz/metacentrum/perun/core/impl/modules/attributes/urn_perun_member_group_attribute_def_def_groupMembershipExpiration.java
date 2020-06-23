@@ -43,7 +43,7 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration 
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) {
 		String value = null;
 		if(attribute.getValue() != null) value = (String) attribute.getValue();
 		//If there is some value and member is in status expired or disabled

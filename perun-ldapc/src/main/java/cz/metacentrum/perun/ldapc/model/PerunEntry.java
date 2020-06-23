@@ -27,20 +27,20 @@ public interface PerunEntry<T extends PerunBean> {
 	 * @param bean
 	 * @throws InternalErrorException
 	 */
-	void addEntry(T bean) throws InternalErrorException;
+	void addEntry(T bean);
 
 	/**
 	 * @param bean
 	 * @throws InternalErrorException
 	 */
-	void modifyEntry(T bean) throws InternalErrorException;
+	void modifyEntry(T bean);
 
 	/**
 	 * @param bean
 	 * @param attrNames
 	 * @throws InternalErrorException
 	 */
-	void modifyEntry(T bean, String... attrNames) throws InternalErrorException;
+	void modifyEntry(T bean, String... attrNames);
 
 	/**
 	 * @param bean
@@ -48,7 +48,7 @@ public interface PerunEntry<T extends PerunBean> {
 	 * @param attrNames
 	 * @throws InternalErrorException
 	 */
-	void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames) throws InternalErrorException;
+	void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames);
 
 	/**
 	 * @param bean
@@ -56,7 +56,7 @@ public interface PerunEntry<T extends PerunBean> {
 	 * @param attr
 	 * @throws InternalErrorException
 	 */
-	void modifyEntry(T bean, AttributeDefinition attr) throws InternalErrorException;
+	void modifyEntry(T bean, AttributeDefinition attr);
 
 	/**
 	 * @param bean
@@ -64,56 +64,56 @@ public interface PerunEntry<T extends PerunBean> {
 	 * @param attr
 	 * @throws InternalErrorException
 	 */
-	void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr) throws InternalErrorException;
+	void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr);
 
 	/**
 	 * @param bean
 	 * @throws InternalErrorException
 	 */
-	void deleteEntry(T bean) throws InternalErrorException;
+	void deleteEntry(T bean);
 
 	/**
 	 *
 	 */
-	void deleteEntry(Name dn) throws InternalErrorException;
+	void deleteEntry(Name dn);
 
 	/**
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Name> listEntries() throws InternalErrorException;
+	List<Name> listEntries();
 
 	/**
 	 * @param bean
 	 * @throws InternalErrorException
 	 */
-	SyncOperation beginSynchronizeEntry(T bean) throws InternalErrorException;
+	SyncOperation beginSynchronizeEntry(T bean);
 
 	/**
 	 * @param bean
 	 * @param attrs
 	 * @throws InternalErrorException
 	 */
-	SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException;
+	SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs);
 
 	/**
 	 * @param op
 	 * @throws InternalErrorException
 	 */
-	void commitSyncOperation(SyncOperation op) throws InternalErrorException;
+	void commitSyncOperation(SyncOperation op);
 
 	/**
 	 * @param bean
 	 * @throws InternalErrorException
 	 */
-	void synchronizeEntry(T bean) throws InternalErrorException;
+	void synchronizeEntry(T bean);
 
 	/**
 	 * @param bean
 	 * @param attrs
 	 * @throws InternalErrorException
 	 */
-	void synchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException;
+	void synchronizeEntry(T bean, Iterable<Attribute> attrs);
 
 	/**
 	 * @param dn

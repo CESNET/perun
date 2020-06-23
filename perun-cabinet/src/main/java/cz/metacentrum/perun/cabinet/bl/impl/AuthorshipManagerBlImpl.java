@@ -99,7 +99,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	// business methods ===================================
 
 	@Override
-	public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
+	public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
 
 		if (authorshipExists(authorship)) throw new CabinetException(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
 		if (authorship.getCreatedDate() == null) {
@@ -129,7 +129,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	}
 
 	@Override
-	public boolean authorshipExists(Authorship authorship) throws InternalErrorException {
+	public boolean authorshipExists(Authorship authorship) {
 		if (authorship == null) throw new NullPointerException("Authorship cannot be null");
 
 		if (authorship.getId() != 0) {
@@ -152,7 +152,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	}
 
 	@Override
-	public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
+	public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
 
 		getAuthorshipManagerDao().deleteAuthorship(sess, authorship);
 		log.debug("{} deleted.", authorship);
@@ -171,33 +171,33 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	}
 
 	@Override
-	public Authorship getAuthorshipById(int id) throws CabinetException, InternalErrorException {
+	public Authorship getAuthorshipById(int id) throws CabinetException {
 		return getAuthorshipManagerDao().getAuthorshipById(id);
 	}
 
 	@Override
-	public List<Authorship> getAuthorshipsByUserId(int id) throws InternalErrorException {
+	public List<Authorship> getAuthorshipsByUserId(int id) {
 		return getAuthorshipManagerDao().getAuthorshipsByUserId(id);
 	}
 
 	@Override
-	public List<Authorship> getAuthorshipsByPublicationId(int id) throws InternalErrorException {
+	public List<Authorship> getAuthorshipsByPublicationId(int id) {
 		return getAuthorshipManagerDao().getAuthorshipsByPublicationId(id);
 	}
 
 	@Override
-	public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException, InternalErrorException {
+	public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException {
 		return getAuthorshipManagerDao().getAuthorshipByUserAndPublicationId(userId, publicationId);
 	}
 
 	@Override
-	public double calculateNewRank(int userId) throws CabinetException, InternalErrorException {
+	public double calculateNewRank(int userId) throws CabinetException {
 		List<Authorship> reports = getAuthorshipsByUserId(userId);
 		return calculateNewRank(reports);
 	}
 
 	@Override
-	public synchronized double calculateNewRank(List<Authorship> authorships) throws InternalErrorException, CabinetException {
+	public synchronized double calculateNewRank(List<Authorship> authorships) throws CabinetException {
 
 		double rank = DEFAULT_RANK;
 		for (Authorship r : authorships) {
@@ -211,22 +211,22 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	}
 
 	@Override
-	public Author getAuthorById(int id) throws CabinetException, InternalErrorException {
+	public Author getAuthorById(int id) throws CabinetException {
 		return convertAuthorToAuthorWithAttributes(getAuthorshipManagerDao().getAuthorById(id));
 	}
 
 	@Override
-	public List<Author> getAllAuthors() throws InternalErrorException {
+	public List<Author> getAllAuthors() {
 		return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAllAuthors());
 	}
 
 	@Override
-	public List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException {
+	public List<Author> getAuthorsByPublicationId(int id) {
 		return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAuthorsByPublicationId(id));
 	}
 
 	@Override
-	public List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException {
+	public List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException {
 		List<Author> result = new ArrayList<Author>();
 
 		Authorship report = getAuthorshipManagerDao().getAuthorshipById(id);
@@ -243,7 +243,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	}
 
 	@Override
-	public List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException, InternalErrorException {
+	public List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException {
 
 		List<String> attrs = Arrays.asList(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail",
 				AttributesManager.NS_USER_ATTR_DEF + ":organization");

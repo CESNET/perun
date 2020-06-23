@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 public class urn_perun_group_attribute_def_def_uniqueID  extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Group group, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		Attribute filledAttribute = new Attribute(attribute);
 		filledAttribute.setValue(sha1HashCount(group).toString());
 		return filledAttribute;
@@ -41,7 +41,7 @@ public class urn_perun_group_attribute_def_def_uniqueID  extends GroupAttributes
 	 * @return Builder to get string ID
 	 * @throws InternalErrorException When generation fails
 	 */
-	protected StringBuilder sha1HashCount(Group group) throws InternalErrorException {
+	protected StringBuilder sha1HashCount(Group group) {
 		try {
 			String salt = BeansUtils.getCoreConfig().getInstanceId();
 			MessageDigest mDigest = MessageDigest.getInstance("SHA1");

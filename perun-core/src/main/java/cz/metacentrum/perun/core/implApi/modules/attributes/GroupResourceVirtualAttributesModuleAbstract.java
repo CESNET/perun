@@ -22,11 +22,11 @@ import java.util.List;
 public abstract class GroupResourceVirtualAttributesModuleAbstract extends GroupResourceAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		return false;
 	}
 

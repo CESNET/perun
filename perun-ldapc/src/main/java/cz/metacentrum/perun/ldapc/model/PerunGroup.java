@@ -18,7 +18,7 @@ public interface PerunGroup extends PerunEntry<Group> {
 	 * @param group group from Perun
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void addGroup(Group group) throws InternalErrorException;
+	public void addGroup(Group group);
 
 	/**
 	 * Remove group from LDAP
@@ -26,9 +26,9 @@ public interface PerunGroup extends PerunEntry<Group> {
 	 * @param group group from Perun
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void removeGroup(Group group) throws InternalErrorException;
+	public void removeGroup(Group group);
 
-	public void updateGroup(Group group) throws InternalErrorException;
+	public void updateGroup(Group group);
 
 	/**
 	 * The same behavior like method 'addGroup'.
@@ -38,7 +38,7 @@ public interface PerunGroup extends PerunEntry<Group> {
 	 * @param parentGroup (is not used now, can be null) IMPORTANT
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void addGroupAsSubGroup(Group group, Group parentGroup) throws InternalErrorException;
+	public void addGroupAsSubGroup(Group group, Group parentGroup);
 
 
 	//-----------------------------MEMBER METHODS---------------------------------
@@ -52,7 +52,7 @@ public interface PerunGroup extends PerunEntry<Group> {
 	 * @param group  the group
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void addMemberToGroup(Member member, Group group) throws InternalErrorException;
+	public void addMemberToGroup(Member member, Group group);
 
 	/**
 	 * Remove member from group in LDAP.
@@ -63,7 +63,7 @@ public interface PerunGroup extends PerunEntry<Group> {
 	 * @param group
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void removeMemberFromGroup(Member member, Group group) throws InternalErrorException;
+	public void removeMemberFromGroup(Member member, Group group);
 
 	/**
 	 * Return true if member has already attribute 'memberOf' for this group in LDAP
@@ -97,7 +97,7 @@ public interface PerunGroup extends PerunEntry<Group> {
 	public void removeFromFacilityAdmins(Group group, Facility facility);
 
 	public void synchronizeGroup(Group group, Iterable<Attribute> attrs, List<Member> members, List<Resource> resources,
-	                             List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException;
+	                             List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities);
 
 	public void synchronizeMembers(Group group, List<Member> members);
 

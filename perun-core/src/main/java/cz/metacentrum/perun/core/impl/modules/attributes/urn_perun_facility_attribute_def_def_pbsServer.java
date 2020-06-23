@@ -21,7 +21,7 @@ import java.util.List;
 public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		String pbsServer = attribute.valueAsString();
 
 		if (pbsServer == null) throw new WrongReferenceAttributeValueException(attribute, "PbsServer cannot be null.");

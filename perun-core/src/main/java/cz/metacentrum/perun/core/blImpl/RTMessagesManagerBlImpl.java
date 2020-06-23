@@ -67,23 +67,23 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException {
+	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) {
 		return sendMessageToRT(sess, voId, null, subject, text);
 	}
 
 	@Override
 	@Deprecated
-	public RTMessage sendMessageToRT(PerunSession sess, Member meber, String queue, String subject, String text) throws InternalErrorException {
+	public RTMessage sendMessageToRT(PerunSession sess, Member meber, String queue, String subject, String text) {
 		throw new InternalErrorException("This method is not supported now!");
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException {
+	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) {
 		return sendMessageToRT(sess, 0, queue, subject, text);
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException {
+	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
 		log.debug("Parameters of rtMessage are queue='" + queue +"', subject='{}' and text='{}'", subject, text);
 
 		//Get Email from User who get from session
@@ -205,7 +205,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 
 	}
 
-	private String findUserPreferredEmail(PerunSession sess, User user) throws InternalErrorException {
+	private String findUserPreferredEmail(PerunSession sess, User user) {
 		String email = null;
 		Attribute userPreferredMail;
 		try {
@@ -233,7 +233,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		return email;
 	}
 
-	private HttpUriRequest prepareDataAndGetHttpRequest(PerunSession sess, int voId, String queue, String requestor, String subject, String text) throws InternalErrorException {
+	private HttpUriRequest prepareDataAndGetHttpRequest(PerunSession sess, int voId, String queue, String requestor, String subject, String text) {
 		//Ticket from this part is already evidet like 'new'
 		String id = "ticket/new";
 		//If there is no requestor, it is uknown requestor

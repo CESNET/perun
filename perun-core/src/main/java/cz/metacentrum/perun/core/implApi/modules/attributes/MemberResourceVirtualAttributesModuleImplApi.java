@@ -25,7 +25,7 @@ public interface MemberResourceVirtualAttributesModuleImplApi extends MemberReso
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
+	Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attribute);
 
 	/**
 	 * Method sets attributes' values which are dependent on this virtual attribute.

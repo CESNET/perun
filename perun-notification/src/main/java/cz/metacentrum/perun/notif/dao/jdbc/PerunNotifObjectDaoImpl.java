@@ -25,7 +25,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifObjectDao.class);
 
 	@Override
-	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
 
 		logger.debug("Saving PerunNotifObject: {} to db.", object);
 		int newPerunNotifObjectId = Utils.getNewId(this.getJdbcTemplate(), "pn_object_id_seq");
@@ -37,7 +37,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	}
 
 	@Override
-	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
 
 		logger.debug("Updating object in db: {}", object);
 		this.getJdbcTemplate().update("update pn_object set properties = ?, name = ?, class_name = ? where id = ?", object.getSerializedProperties(), object.getName(), object.getObjectClass().getName(), object.getId());
@@ -49,7 +49,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	}
 
 	@Override
-	public void removePerunNotifObjectById(int id) throws InternalErrorException {
+	public void removePerunNotifObjectById(int id) {
 
 		logger.debug("Removing relations of object and regex from db, object id: {}", id);
 		this.getJdbcTemplate().update("delete from pn_regex_object where object_id = ?", id);
@@ -59,7 +59,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	}
 
 	@Override
-	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException {
+	public PerunNotifObject getPerunNotifObjectById(int id) {
 
 		logger.debug("Getting PerunNotifObject from db by id: {}", id);
 		try {
@@ -88,7 +88,7 @@ public class PerunNotifObjectDaoImpl extends JdbcDaoSupport implements PerunNoti
 	}
 
 	@Override
-	public void saveObjectRelation(int templateId, Integer objectId) throws InternalErrorException {
+	public void saveObjectRelation(int templateId, Integer objectId) {
 
 		logger.debug("Saving relation bewteen templateId: {}, and objectId: {} to db.", Arrays.asList(templateId, objectId));
 		int newId = Utils.getNewId(this.getJdbcTemplate(), "pn_regex_object_seq");

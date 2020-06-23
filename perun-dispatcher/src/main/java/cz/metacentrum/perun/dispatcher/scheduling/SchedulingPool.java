@@ -38,7 +38,7 @@ public interface SchedulingPool extends TaskStore {
 	 * @throws InternalErrorException When implementation fails.
 	 * @throws TaskStoreException When Task can't be added.
 	 */
-	int addToPool(Task task) throws InternalErrorException, TaskStoreException;
+	int addToPool(Task task) throws TaskStoreException;
 
 	/**
 	 * Adds supplied Task into DelayQueue and reset its source updated flag to false if Task is eligible for running.

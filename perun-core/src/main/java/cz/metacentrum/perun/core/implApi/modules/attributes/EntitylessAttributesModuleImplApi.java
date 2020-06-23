@@ -25,7 +25,7 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of this entityless attribute has valid semantics.
@@ -39,7 +39,7 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
 	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
 	 */
 
-	void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.

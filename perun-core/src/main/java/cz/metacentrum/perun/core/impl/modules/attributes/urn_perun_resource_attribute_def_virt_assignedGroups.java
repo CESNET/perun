@@ -38,7 +38,7 @@ public class urn_perun_resource_attribute_def_virt_assignedGroups extends Resour
 	private static final String A_R_isAssignedWithSubgroups = AttributesManager.NS_RESOURCE_ATTR_DEF + ":isAssignedWithSubgroups";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		Set<String> allUniqueGroupNames = new HashSet<>();
 

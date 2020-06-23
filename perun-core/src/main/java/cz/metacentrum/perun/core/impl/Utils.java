@@ -153,7 +153,7 @@ public class Utils {
 	 * @return List<UserExtSource> all additional ExtSources from the subject, returned list will never contain null value
 	 * @throws InternalErrorException
 	 */
-	public static List<UserExtSource> extractAdditionalUserExtSources(PerunSession sess, Map<String, String> subjectFromExtSource) throws InternalErrorException {
+	public static List<UserExtSource> extractAdditionalUserExtSources(PerunSession sess, Map<String, String> subjectFromExtSource) {
 		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
 		for (String attrName : subjectFromExtSource.keySet()) {
 			if(attrName != null &&
@@ -235,7 +235,7 @@ public class Utils {
 	public static final RowMapper<String> STRING_MAPPER = (resultSet, i) -> resultSet.getString("value");
 
 	// FIXME prijde odstranit
-	public static void checkPerunSession(PerunSession sess) throws InternalErrorException {
+	public static void checkPerunSession(PerunSession sess) {
 		notNull(sess, "sess");
 	}
 
@@ -263,7 +263,7 @@ public class Utils {
 	 * @param name
 	 * @throws InternalErrorException which wraps NullPointerException
 	 */
-	public static void notNull(Object e, String name) throws InternalErrorException {
+	public static void notNull(Object e, String name) {
 		if(e == null){
 			throw new InternalErrorException(new NullPointerException("'" + name + "' is null"));
 		}
@@ -277,7 +277,7 @@ public class Utils {
 	 * @param minLength minimal length
 	 * @throws MinSizeExceededException when length of actualValue is lower than minLength or null
 	 */
-	public static void checkMinLength(String propertyName, String actualValue, int minLength) throws MinSizeExceededException {
+	public static void checkMinLength(String propertyName, String actualValue, int minLength) {
 		if (actualValue == null) {
 			throw new MinSizeExceededException("The property '" + propertyName + "' does not have a minimal length equal to '" + minLength + "' because it is null.");
 		}
@@ -294,7 +294,7 @@ public class Utils {
 	 * @param maxLength max length
 	 * @throws MaxSizeExceededException when length of actualValue is higher than maxLength
 	 */
-	public static void checkMaxLength(String propertyName, String actualValue, int maxLength) throws MaxSizeExceededException {
+	public static void checkMaxLength(String propertyName, String actualValue, int maxLength) {
 		if (actualValue == null) {
 			return;
 		}
@@ -309,7 +309,7 @@ public class Utils {
 	 * @param name name of entity
 	 * @throws DiacriticNotAllowedException
 	 */
-	public static void checkWithoutDiacritic(String name) throws DiacriticNotAllowedException{
+	public static void checkWithoutDiacritic(String name) {
 
 		if(!Normalizer.isNormalized(name, Form.NFKD))throw new DiacriticNotAllowedException("Name of the entity is not in the normalized form NFKD (diacritic not allowed)!");
 
@@ -322,7 +322,7 @@ public class Utils {
 	 * @param name name of entity
 	 * @throws SpecialCharsNotAllowedException
 	 */
-	public static void checkWithoutSpecialChars(String name) throws SpecialCharsNotAllowedException{
+	public static void checkWithoutSpecialChars(String name) {
 
 		if(!name.matches("^[0-9 \\p{L}]*$")) throw new SpecialCharsNotAllowedException("The special chars in the name of entity are not allowed!");
 	}
@@ -337,7 +337,7 @@ public class Utils {
 	 * @param allowedSpecialChars this String must contain only special chars which are allowed
 	 * @throws SpecialCharsNotAllowedException
 	 */
-	public static void checkWithoutSpecialChars(String name, String allowedSpecialChars) throws SpecialCharsNotAllowedException{
+	public static void checkWithoutSpecialChars(String name, String allowedSpecialChars) {
 
 		if(!name.matches("^([0-9 \\p{L}" + allowedSpecialChars + "])*$")) throw new SpecialCharsNotAllowedException("The special chars (except " + allowedSpecialChars + ") in the name of entity are not allowed!");
 	}
@@ -348,7 +348,7 @@ public class Utils {
 	 * @param name
 	 * @throws NumbersNotAllowedException
 	 */
-	public static void checkWithoutNumbers(String name) throws NumbersNotAllowedException{
+	public static void checkWithoutNumbers(String name) {
 
 		if(!name.matches("^([^0-9])*$")) throw new NumbersNotAllowedException("The numbers in the name of entity are not allowed!");
 	}
@@ -359,7 +359,7 @@ public class Utils {
 	 * @param name
 	 * @throws SpaceNotAllowedException
 	 */
-	public static void checkWithoutSpaces(String name)throws SpaceNotAllowedException{
+	public static void checkWithoutSpaces(String name) {
 
 		if(name.contains(" ")) throw new SpaceNotAllowedException("The spaces in the name of entity are not allowed!");
 	}
@@ -373,7 +373,7 @@ public class Utils {
 	 * @param highestValue
 	 * @throws NumberNotInRangeException
 	 */
-	public static void checkRangeOfNumbers(int number, int lowestValue, int highestValue) throws NumberNotInRangeException {
+	public static void checkRangeOfNumbers(int number, int lowestValue, int highestValue) {
 
 		if(number<lowestValue || number>highestValue) throw new NumberNotInRangeException("Number is not in range, Lowest="+lowestValue+" < Number="+number+" < Highest="+highestValue);
 	}
@@ -386,7 +386,7 @@ public class Utils {
 	 * @return new ID
 	 * @throws InternalErrorException
 	 */
-	public static int getNewId(JdbcTemplate jdbc, String sequenceName) throws InternalErrorException {
+	public static int getNewId(JdbcTemplate jdbc, String sequenceName) {
 		String dbType;
 		String url = "";
 		String query;
@@ -486,7 +486,7 @@ public class Utils {
 		return s.length() > limit ? s.substring(0, limit) : s;
 	}
 
-	public static User createUserFromNameMap(Map<String, String> name) throws InternalErrorException {
+	public static User createUserFromNameMap(Map<String, String> name) {
 		User user = new User();
 		if (name.get(FIRST_NAME) == null || name.get(LAST_NAME) == null || name.get(FIRST_NAME).isEmpty() || name.get(LAST_NAME).isEmpty()) {
 			throw new InternalErrorException("First name/last name is either empty or null when creating user");
@@ -506,7 +506,7 @@ public class Utils {
 	 * @param fullNameRequired if true, throw exception if firstName or lastName is missing, do not throw exception otherwise
 	 * @return user
 	 */
-	public static User parseUserFromCommonName(String rawName, boolean fullNameRequired) throws ParseUserNameException {
+	public static User parseUserFromCommonName(String rawName, boolean fullNameRequired) {
 		Map<String, String> m = parseCommonName(rawName, fullNameRequired);
 		return createUserFromNameMap(m);
 	}
@@ -552,7 +552,7 @@ public class Utils {
 	 * @return map string to string where are 4 keys (titleBefore,titleAfter,firstName and lastName) with their values (value can be null)
 	 * @throws ParseUserNameException when method was unable to parse both first name and last name from the rawName
 	 */
-	public static Map<String, String> parseCommonName(String rawName, boolean fullNameRequired) throws ParseUserNameException {
+	public static Map<String, String> parseCommonName(String rawName, boolean fullNameRequired) {
 		// prepare variables and result map
 		Map<String, String> parsedName = new HashMap<>();
 		String titleBefore = "";
@@ -891,7 +891,7 @@ public class Utils {
 	 * @param content Template message or null
 	 * @throws InternalErrorException
 	 */
-	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content) throws InternalErrorException {
+	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content) {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -982,7 +982,7 @@ public class Utils {
 	 * @param subject subject of the email
 	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) throws InternalErrorException {
+	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) {
 
 		// create mail sender
 		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
@@ -1146,7 +1146,7 @@ public class Utils {
 	 * @return en/decrypted text
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException if anything fails
 	 */
-	public static String cipherInput(String plainText, boolean decrypt) throws InternalErrorException {
+	public static String cipherInput(String plainText, boolean decrypt) {
 
 		try {
 
@@ -1184,7 +1184,7 @@ public class Utils {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException if destination is null
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongPatternException if destination is not of the right type
 	 */
-	public static void checkDestinationType(Destination destination) throws InternalErrorException, WrongPatternException  {
+	public static void checkDestinationType(Destination destination) throws WrongPatternException  {
 		if (destination == null) {
 			throw new InternalErrorException("Destination is null.");
 		}
@@ -1213,7 +1213,7 @@ public class Utils {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException when the actor has not right to get the attribute
 	 * @throws cz.metacentrum.perun.core.api.exceptions.UserNotExistsException when given user does not exist
 	 */
-	public static void sendSMS(PerunSession sess, User user, String message) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public static void sendSMS(PerunSession sess, User user, String message) throws PrivilegeException, UserNotExistsException {
 		if (user == null) {
 			throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("user is null");
 		}
@@ -1244,7 +1244,7 @@ public class Utils {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException when the actor has not right to get the attribute
 	 * @throws cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException when given member does not exist
 	 */
-	public static void sendSMS(PerunSession sess, Member member, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public static void sendSMS(PerunSession sess, Member member, String message) throws PrivilegeException, MemberNotExistsException {
 		String telNumber;
 		try {
 			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, member, memberPhoneAttribute).getValue();
@@ -1268,7 +1268,7 @@ public class Utils {
 	 * @throws InternalErrorException when there is something wrong with external program
 	 * @throws IllegalArgumentException when the phone or message has a wrong format
 	 */
-	public static void sendSMS(String telNumber, String message) throws InternalErrorException {
+	public static void sendSMS(String telNumber, String message) {
 		log.debug("Sending SMS with text \"{}\" to tel. number {}.", message, telNumber);
 
 		try {
@@ -1328,7 +1328,7 @@ public class Utils {
 	 * @param quota in big natural number
 	 * @return string with number and metric
 	 */
-	public static String bigDecimalBytesToReadableStringWithMetric(BigDecimal quota) throws InternalErrorException {
+	public static String bigDecimalBytesToReadableStringWithMetric(BigDecimal quota) {
 		if(quota == null) throw new InternalErrorException("Quota in BigDecimal can't be null if we want to convert it to number with metric.");
 		//Prepare variable for result
 		String stringWithMetric;
@@ -1493,7 +1493,7 @@ public class Utils {
 	 * @throws InternalErrorException when the period has wrong format,
 	 * allowed format is given by regex "\\+([0-9]+)([dmy]?)"
 	 */
-	public static LocalDate extendDateByPeriod(LocalDate localDate, String period) throws InternalErrorException {
+	public static LocalDate extendDateByPeriod(LocalDate localDate, String period) {
 		// We will add days/months/years
 		Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
 		Matcher m = p.matcher(period);
@@ -1560,7 +1560,7 @@ public class Utils {
 	 * @throws InternalErrorException when given matcher contains invalid data
 	 * @throws IllegalArgumentException when matcher does not match gracePeriod format
 	 */
-	public static Pair<Integer, TemporalUnit> prepareGracePeriodDate(Matcher matcher) throws InternalErrorException {
+	public static Pair<Integer, TemporalUnit> prepareGracePeriodDate(Matcher matcher) {
 		if (!matcher.matches()) {
 			throw new IllegalArgumentException("Wrong format of gracePeriod.");
 		}

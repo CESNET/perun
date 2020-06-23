@@ -194,7 +194,7 @@ public class VOOTMainAndFilterIntegrationTest extends AbstractVOOTTest {
 	}
 
 	@Override
-	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException, GroupNotExistsException {
+	public void setUpBackground() throws VoExistsException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException, GroupNotExistsException {
 
 		setMail(user1,"james.bond@mi6.co.uk");
 
@@ -226,7 +226,7 @@ public class VOOTMainAndFilterIntegrationTest extends AbstractVOOTTest {
 		perun.getGroupsManagerBl().addMember(session, group1OfVo2, member2OfUser2);
 	}
 
-	private void setMail(User user, String mailValue) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	private void setMail(User user, String mailValue) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		AttributeDefinition attributeDefinition = new AttributeDefinition(perun.getAttributesManagerBl().getAttributeDefinition(session, "urn:perun:user:attribute-def:def:preferredMail"));
 		Attribute mail = new Attribute(attributeDefinition);
 		mail.setValue(mailValue);

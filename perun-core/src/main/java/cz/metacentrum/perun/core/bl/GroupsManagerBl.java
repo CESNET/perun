@@ -78,7 +78,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException if group.name contains ':' or other internal error occur
 	 * @throws GroupExistsException
 	 */
-	Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, InternalErrorException;
+	Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException;
 
 	/**
 	 * Creates a new subgroup of the existing group.
@@ -93,7 +93,7 @@ public interface GroupsManagerBl {
 	 * @throws GroupRelationNotAllowed
 	 * @throws GroupRelationAlreadyExists
 	 */
-	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
+	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
 
 	/**
 	 * Gets all groups which have enabled synchronization.
@@ -103,7 +103,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	List<Group> getGroupsToSynchronize(PerunSession sess) throws InternalErrorException;
+	List<Group> getGroupsToSynchronize(PerunSession sess);
 
 	/**
 	 * If forceDelete is false, delete only group and if this group has members or subgroups, throw an exception.
@@ -121,7 +121,7 @@ public interface GroupsManagerBl {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
@@ -147,7 +147,7 @@ public interface GroupsManagerBl {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Deletes built-in members group.
@@ -161,7 +161,7 @@ public interface GroupsManagerBl {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteMembersGroup(PerunSession sess, Vo vo) throws GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Deletes all groups under the VO except built-in groups (members, admins groups).
@@ -175,7 +175,7 @@ public interface GroupsManagerBl {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteAllGroups(PerunSession perunSession, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteAllGroups(PerunSession perunSession, Vo vo) throws GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Updates group by ID.
@@ -191,7 +191,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupExistsException if group with same name already exists in the same VO
 	 */
-	Group updateGroup(PerunSession perunSession, Group group) throws InternalErrorException, GroupExistsException;
+	Group updateGroup(PerunSession perunSession, Group group) throws GroupExistsException;
 
 	/**
 	 * Updates parentGroupId.
@@ -205,7 +205,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Group updateParentGroupId(PerunSession perunSession, Group group) throws InternalErrorException;
+	Group updateParentGroupId(PerunSession perunSession, Group group);
 
 	/**
 	 * Search for the group with specified id in all VOs.
@@ -217,7 +217,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	Group getGroupById(PerunSession perunSession, int id) throws InternalErrorException, GroupNotExistsException;
+	Group getGroupById(PerunSession perunSession, int id) throws GroupNotExistsException;
 
 	/**
 	 * Search for the group with specified name in specified VO.
@@ -233,7 +233,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws InternalErrorException, GroupNotExistsException;
+	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException;
 
 
 	/**
@@ -248,7 +248,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
 	 */
-	void addMember(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
+	void addMember(PerunSession perunSession, Group group,  Member member) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Return true if Member is direct member of the Group
@@ -261,7 +261,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isDirectGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
+	boolean isDirectGroupMember(PerunSession sess, Group group, Member member);
 
 
 
@@ -277,7 +277,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
 	 */
-	void addMember(PerunSession perunSession, List<Group> groups,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
+	void addMember(PerunSession perunSession, List<Group> groups,  Member member) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Adds members of the VO to the group in the same VO. But not to administrators and members group.
@@ -291,7 +291,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
 	 */
-	void addMembers(PerunSession perunSession, Group group,  List<Member> members) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
+	void addMembers(PerunSession perunSession, Group group,  List<Member> members) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 
 	/**
@@ -306,7 +306,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
 	 */
-	void addMemberToMembersGroup(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
+	void addMemberToMembersGroup(PerunSession perunSession, Group group,  Member member) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Return list of assigned groups on the resource (without subgroups unless they are assigned too)
@@ -318,7 +318,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Return list of assigned groups on the resource (without subgroups unless they are assigned too),
@@ -332,7 +332,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) throws InternalErrorException;
+	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member);
 
 	/** Return list of assigned groups on the resource.
 	 *
@@ -344,7 +344,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, boolean withSubGroups) throws InternalErrorException;
+	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, boolean withSubGroups);
 
 	/** Return list of assigned groups on all facility resources (without subgroups unless they are assigned too)
 	 *
@@ -355,7 +355,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Removes member form the group. But not from members or administrators group.
@@ -368,7 +368,7 @@ public interface GroupsManagerBl {
 	 * @throws NotGroupMemberException
 	 * @throws GroupNotExistsException
 	 */
-	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException;
+	void removeMember(PerunSession perunSession, Group group, Member member) throws NotGroupMemberException, GroupNotExistsException;
 
 	/**
 	 * Removes members from the group. But not from members or administrators group.
@@ -381,7 +381,7 @@ public interface GroupsManagerBl {
 	 * @throws NotGroupMemberException
 	 * @throws GroupNotExistsException
 	 */
-	void removeMembers(PerunSession perunSession, Group group, List<Member> members) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException;
+	void removeMembers(PerunSession perunSession, Group group, List<Member> members) throws NotGroupMemberException, GroupNotExistsException;
 
 	/**
 	 * Removes member from groups. But not from members or administrators group.
@@ -394,7 +394,7 @@ public interface GroupsManagerBl {
 	 * @throws NotGroupMemberException
 	 * @throws GroupNotExistsException
 	 */
-	void removeMember(PerunSession perunSession, List<Group> groups, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException;
+	void removeMember(PerunSession perunSession, List<Group> groups, Member member) throws NotGroupMemberException, GroupNotExistsException;
 
 
 
@@ -410,7 +410,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void removeMemberFromMembersOrAdministratorsGroup(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void removeMemberFromMembersOrAdministratorsGroup(PerunSession perunSession, Group group, Member member) throws NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Return all group members.
@@ -421,7 +421,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getGroupMembers(PerunSession perunSession, Group group);
 
 	/**
 	 * Get group member by member ID.
@@ -433,7 +433,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws NotGroupMemberException
 	 */
-	Member getGroupMemberById(PerunSession sess, Group group, int memberId) throws InternalErrorException, NotGroupMemberException;
+	Member getGroupMemberById(PerunSession sess, Group group, int memberId) throws NotGroupMemberException;
 
 	/**
 	 * Return all direct group members.
@@ -443,7 +443,7 @@ public interface GroupsManagerBl {
 	 * @return list of direct members
 	 * @throws InternalErrorException internal error
 	 */
-	List<Member> getGroupDirectMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getGroupDirectMembers(PerunSession perunSession, Group group);
 
 	/**
 	 * Return all members of the group who are active (valid) in the group.
@@ -455,7 +455,7 @@ public interface GroupsManagerBl {
 	 * @return list of active (valid) members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getActiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getActiveGroupMembers(PerunSession perunSession, Group group);
 
 	/**
 	 * Return all members of the group who are active (valid) in the group and have specific status in the Vo.
@@ -468,7 +468,7 @@ public interface GroupsManagerBl {
 	 * @return list of active (valid) members with specific status in the Vo
 	 * @throws InternalErrorException
 	 */
-	List<Member> getActiveGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException;
+	List<Member> getActiveGroupMembers(PerunSession sess, Group group, Status status);
 
 	/**
 	 * Return all members of the group who are inactive (expired) in the group.
@@ -480,7 +480,7 @@ public interface GroupsManagerBl {
 	 * @return list of inactive (expired) members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getInactiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getInactiveGroupMembers(PerunSession perunSession, Group group);
 
 	/**
 	 * Return all members of the group who are inactive (expired) in the group and have specific status in the Vo.
@@ -493,7 +493,7 @@ public interface GroupsManagerBl {
 	 * @return list of inactive (expired) members with specific status in the Vo
 	 * @throws InternalErrorException
 	 */
-	List<Member> getInactiveGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException;
+	List<Member> getInactiveGroupMembers(PerunSession sess, Group group, Status status);
 
 	/**
 	 * Return all members of the group who has specific status in the group and also specific status in the Vo.
@@ -507,7 +507,7 @@ public interface GroupsManagerBl {
 	 * @return list of members with specific status in group and specific status in the Vo
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession sess, Group group, MemberGroupStatus statusInGroup, Status status) throws InternalErrorException;
+	List<Member> getGroupMembers(PerunSession sess, Group group, MemberGroupStatus statusInGroup, Status status);
 
 	/**
 	 * Return only valid, suspended, expired and disabled group members.
@@ -519,7 +519,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembersExceptInvalid(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getGroupMembersExceptInvalid(PerunSession perunSession, Group group);
 
 	/**
 	 * Return only valid, suspended and expired group members.
@@ -531,7 +531,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembersExceptInvalidAndDisabled(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getGroupMembersExceptInvalidAndDisabled(PerunSession perunSession, Group group);
 
 	/**
 	 * Return group members.
@@ -544,7 +544,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException;
+	List<Member> getGroupMembers(PerunSession perunSession, Group group, Status status);
 
 	/**
 	 * Return group users sorted by name.
@@ -553,7 +553,7 @@ public interface GroupsManagerBl {
 	 * @param group
 	 * @return list users sorted or empty list if there are no users on specified page
 	 */
-	List<User> getGroupUsers(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<User> getGroupUsers(PerunSession perunSession, Group group);
 
 	/**
 	 * Returns group members in the RichMember object, which contains Member+User data.
@@ -564,7 +564,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichMembers
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getGroupRichMembers(PerunSession sess, Group group);
 
 	/**
 	 * Returns direct group members in the RichMember object, which contains Member+User data.
@@ -574,7 +574,7 @@ public interface GroupsManagerBl {
 	 * @return list of direct RichMembers
 	 * @throws InternalErrorException internal error
 	 */
-	List<RichMember> getGroupDirectRichMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getGroupDirectRichMembers(PerunSession sess, Group group);
 
 	/**
 	 * Returns only valid, suspended and expired group members in the RichMember object, which contains Member+User data.
@@ -585,7 +585,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichMembers
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getGroupRichMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getGroupRichMembersExceptInvalid(PerunSession sess, Group group);
 
 	/**
 	 * Returns group members in the RichMember object, which contains Member+User data.
@@ -597,7 +597,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichMembers
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getGroupRichMembers(PerunSession sess, Group group, Status status) throws InternalErrorException;
+	List<RichMember> getGroupRichMembers(PerunSession sess, Group group, Status status);
 
 	/**
 	 * Returns group members in the RichMember object, which contains Member+User data. Also contains user and member attributes.
@@ -608,7 +608,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichMembers
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group);
 
 	/**
 	 * Returns only valid, suspended and expired group members in the RichMember object, which contains Member+User data. Also contains user and member attributes.
@@ -619,7 +619,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichMembers
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getGroupRichMembersWithAttributesExceptInvalid(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getGroupRichMembersWithAttributesExceptInvalid(PerunSession sess, Group group);
 
 	/**
 	 * Returns group members in the RichMember object, which contains Member+User data. Also contains user and member attributes.
@@ -631,7 +631,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichMembers
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException;
+	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status);
 
 	/**
 	 * @param perunSession
@@ -641,7 +641,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getGroupMembersCount(PerunSession perunSession, Group group) throws InternalErrorException;
+	int getGroupMembersCount(PerunSession perunSession, Group group);
 
 	/**
 	 * Checks whether the user is member of the group.
@@ -652,7 +652,7 @@ public interface GroupsManagerBl {
 	 * @return true if the user is member of the group
 	 * @throws InternalErrorException
 	 */
-	boolean isUserMemberOfGroup(PerunSession sess, User user, Group group) throws InternalErrorException;
+	boolean isUserMemberOfGroup(PerunSession sess, User user, Group group);
 
 	/**
 	 * Get all groups of the VO.
@@ -664,7 +664,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllGroups(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Group> getAllGroups(PerunSession sess, Vo vo);
 
 	/**
 	 * Get all groups of the VO stored in the map reflecting the hierarchy.
@@ -676,7 +676,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo) throws InternalErrorException;
+	Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo);
 
 	/**
 	 * Get parent group.
@@ -688,7 +688,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ParentGroupNotExistsException
 	 */
-	Group getParentGroup(PerunSession sess, Group group) throws InternalErrorException, ParentGroupNotExistsException;
+	Group getParentGroup(PerunSession sess, Group group) throws ParentGroupNotExistsException;
 
 	/**
 	 * Get all subgroups of the parent group under the VO.
@@ -699,7 +699,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups
 	 * @throws InternalErrorException
 	 */
-	List<Group> getSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException;
+	List<Group> getSubGroups(PerunSession sess, Group parentGroup);
 
 	/**
 	 * Get all subgroups of the parentGroup recursively.
@@ -711,7 +711,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException;
+	List<Group> getAllSubGroups(PerunSession sess, Group parentGroup);
 
 	/**
 	 * Get list of all user administrators for supported role and specific group.
@@ -728,7 +728,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws InternalErrorException;
+	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins);
 
 	/**
 	 * Get list of all richUser administrators for the group and supported role with specific attributes.
@@ -750,7 +750,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException;
 
 	/**
 	 * Gets list of all user administrators of this group.
@@ -764,7 +764,7 @@ public interface GroupsManagerBl {
 	 * @return list of administrators
 	 */
 	@Deprecated
-	List<User> getAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<User> getAdmins(PerunSession perunSession, Group group);
 
 	/**
 	 * Gets list of direct user administrators of this group.
@@ -778,7 +778,7 @@ public interface GroupsManagerBl {
 	 * @return list of direct administrators
 	 */
 	@Deprecated
-	List<User> getDirectAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession perunSession, Group group);
 
 	/**
 	 * Gets list of all group administrators of this group.
@@ -790,7 +790,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @return list of group administrators
 	 */
-	List<Group> getAdminGroups(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession perunSession, Group group);
 
 	/**
 	 * Gets list of all administrators of this group like RichUsers without attributes.
@@ -801,7 +801,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group);
 
 	/**
 	 * Gets list of all administrators of this group, which are assigned directly, like RichUsers without attributes.
@@ -812,7 +812,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group);
 
 	/**
 	 * Gets list of all administrators of this group like RichUsers with attributes.
@@ -824,7 +824,7 @@ public interface GroupsManagerBl {
 	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws UserNotExistsException;
 
 	/**
 	 * Get list of Group administrators with specific attributes.
@@ -837,7 +837,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException;
+	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes);
 
 	/**
 	 * Get list of Group administrators, which are directly assigned (not by group membership) with specific attributes.
@@ -850,7 +850,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException;
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes);
 
 	/**
 	 * Get all groups of users under the VO.
@@ -862,7 +862,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @return list of groups
 	 */
-	List<Group> getGroups(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Group> getGroups(PerunSession sess, Vo vo);
 
 	/**
 	 * @param sess
@@ -872,7 +872,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getGroupsCount(PerunSession sess, Vo vo) throws InternalErrorException;
+	int getGroupsCount(PerunSession sess, Vo vo);
 
 	/**
 	 * Get count of all groups.
@@ -883,7 +883,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getGroupsCount(PerunSession perunSession) throws InternalErrorException;
+	int getGroupsCount(PerunSession perunSession);
 
 	/**
 	 * Returns number of immediate subgroups of the parent group.
@@ -895,7 +895,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getSubGroupsCount(PerunSession sess, Group parentGroup) throws InternalErrorException;
+	int getSubGroupsCount(PerunSession sess, Group parentGroup);
 
 	/**
 	 * Gets the Vo which is owner of the group.
@@ -907,7 +907,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Vo getVo(PerunSession sess, Group group) throws InternalErrorException;
+	Vo getVo(PerunSession sess, Group group);
 
 	/**
 	 * Get members from parent group. If the parent group doesn't exist (this is top level group) return all VO (from which the group is) members instead.
@@ -918,7 +918,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getParentGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<Member> getParentGroupMembers(PerunSession sess, Group group);
 
 	/**
 	 * Get members form the parent group in RichMember format.
@@ -927,7 +927,7 @@ public interface GroupsManagerBl {
 	 * @return list of parent group rich members
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getParentGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getParentGroupRichMembers(PerunSession sess, Group group);
 
 	/**
 	 * Get members form the parent group in RichMember format including user/member attributes.
@@ -936,7 +936,7 @@ public interface GroupsManagerBl {
 	 * @return list of parent group rich members
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getParentGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getParentGroupRichMembersWithAttributes(PerunSession sess, Group group);
 
 	/**
 	 * Synchronizes the group with the external group without checking if the synchronization is already in progress.
@@ -952,7 +952,7 @@ public interface GroupsManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 * @throws GroupNotExistsException
 	 */
-	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, GroupNotExistsException;
+	List<String> synchronizeGroup(PerunSession sess, Group group) throws AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, GroupNotExistsException;
 
 	/**
 	 * Synchronize the group with external group. It checks if the synchronization of the same group is already in progress.
@@ -962,7 +962,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupSynchronizationAlreadyRunningException
 	 */
-	void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupSynchronizationAlreadyRunningException;
+	void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException;
 
 	/**
 	 * Synchronize the group structure with an external group structure. It checks if the synchronization of the same group is already in progress.
@@ -971,21 +971,21 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupStructureSynchronizationAlreadyRunningException
 	 */
-	void forceGroupStructureSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupStructureSynchronizationAlreadyRunningException;
+	void forceGroupStructureSynchronization(PerunSession sess, Group group) throws GroupStructureSynchronizationAlreadyRunningException;
 
 	/**
 	 * Synchronize all groups which have enabled synchronization. This method is run by the scheduler every 5 minutes.
 	 *
 	 * @throws InternalErrorException
 	 */
-	void synchronizeGroups(PerunSession sess) throws InternalErrorException;
+	void synchronizeGroups(PerunSession sess);
 
 	/**
 	 * Synchronize all groups structures which have enabled group structure synchronization. This method is run by the scheduler every 5 minutes.
 	 *
 	 * @throws InternalErrorException
 	 */
-	void synchronizeGroupsStructures(PerunSession sess) throws InternalErrorException;
+	void synchronizeGroupsStructures(PerunSession sess);
 
 	/**
 	 * Returns all members groups. Except 'members' group.
@@ -995,7 +995,7 @@ public interface GroupsManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getMemberGroups(PerunSession sess, Member member);
 
 	/**
 	 * Get all groups (except member groups) where member has direct membership.
@@ -1005,7 +1005,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups where member is direct member (not members group), empty list if there is no such group
 	 * @throws InternalErrorException
 	 */
-	List<Group> getMemberDirectGroups(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getMemberDirectGroups(PerunSession sess, Member member);
 
 	/**
 	 * Method return list of groups for selected member which (groups) has set specific attribute.
@@ -1020,7 +1020,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, InternalErrorException;
+	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * Return all member's groups. Included members and administrators groups.
@@ -1030,7 +1030,7 @@ public interface GroupsManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getAllMemberGroups(PerunSession sess, Member member);
 
 	/**
 	 * Returns all member's groups where member is in active state (is valid there)
@@ -1041,7 +1041,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups where member is in active state (valid)
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getGroupsWhereMemberIsActive(PerunSession sess, Member member);
 
 	/**
 	 * Returns all member's groups where member is in inactive state (it is not valid and it is expired there)
@@ -1052,7 +1052,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups where member is in inactive state (expired)
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsWhereMemberIsInactive(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getGroupsWhereMemberIsInactive(PerunSession sess, Member member);
 
 	/**
 	 * Returns all member's groups where member is in active state (is valid there)
@@ -1063,7 +1063,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups where member is in active state (valid)
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member);
 
 
 	/**
@@ -1075,7 +1075,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * Returns all group-resource which have set the attribute with the value. Searching only def and opt attributes.
@@ -1086,7 +1086,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Pair<Group, Resource>> getGroupResourcePairsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Pair<Group, Resource>> getGroupResourcePairsByAttribute(PerunSession sess, Attribute attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * Return true if Member is member of the Group
@@ -1098,7 +1098,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
+	boolean isGroupMember(PerunSession sess, Group group, Member member);
 
 	/**
 	 * Returns list of groups connected with a member
@@ -1108,7 +1108,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups connected with member
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByPerunBean(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getGroupsByPerunBean(PerunSession sess, Member member);
 
 	/**
 	 * Returns list of groups connected with a resource
@@ -1118,7 +1118,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups connected with resource
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Group> getGroupsByPerunBean(PerunSession sess, Resource resource);
 
 	/**
 	 * Returns list of groups connected with a user
@@ -1128,7 +1128,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups connected with user
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByPerunBean(PerunSession sess, User user) throws InternalErrorException;
+	List<Group> getGroupsByPerunBean(PerunSession sess, User user);
 
 	/**
 	 * Returns list of groups connected with a host
@@ -1138,7 +1138,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups connected with host
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByPerunBean(PerunSession sess, Host host) throws InternalErrorException;
+	List<Group> getGroupsByPerunBean(PerunSession sess, Host host);
 
 	/**
 	 * Returns list of groups connected with a facility
@@ -1148,7 +1148,7 @@ public interface GroupsManagerBl {
 	 * @return list of groups connected with facility
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Group> getGroupsByPerunBean(PerunSession sess, Facility facility);
 
 	/**
 	 * Returns list of groups connected with a vo
@@ -1158,9 +1158,9 @@ public interface GroupsManagerBl {
 	 * @return list of groups connected with vo
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Group> getGroupsByPerunBean(PerunSession sess, Vo vo);
 
-	void checkGroupExists(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException;
+	void checkGroupExists(PerunSession sess, Group group) throws GroupNotExistsException;
 
 	/**
 	 * This method take list of members (also with duplicit) and:
@@ -1180,7 +1180,7 @@ public interface GroupsManagerBl {
 	 * @return richGroup with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	RichGroup filterOnlyAllowedAttributes(PerunSession sess, RichGroup richGroup) throws InternalErrorException;
+	RichGroup filterOnlyAllowedAttributes(PerunSession sess, RichGroup richGroup);
 
 	/**
 	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
@@ -1190,7 +1190,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichGroups with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups) throws InternalErrorException;
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups);
 
 	/**
 	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
@@ -1210,7 +1210,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichGroups with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Resource resource, boolean useContext) throws InternalErrorException;
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Resource resource, boolean useContext);
 
 	/**
 	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
@@ -1231,7 +1231,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichGroups with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Member member, Resource resource, boolean useContext) throws InternalErrorException;
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Member member, Resource resource, boolean useContext);
 
 	/**
 	 * This method takes group and creates RichGroup containing all attributes
@@ -1241,7 +1241,7 @@ public interface GroupsManagerBl {
 	 * @return RichGroup
 	 * @throws InternalErrorException
 	 */
-	RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group) throws InternalErrorException;
+	RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group);
 
 	/**
 	 * This method takes group and creates RichGroup containing selected attributes
@@ -1252,7 +1252,7 @@ public interface GroupsManagerBl {
 	 * @return RichGroup
 	 * @throws InternalErrorException
 	 */
-	RichGroup convertGroupToRichGroupWithAttributesByName(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException;
+	RichGroup convertGroupToRichGroupWithAttributesByName(PerunSession sess, Group group, List<String> attrNames);
 
 	/**
 	 * This method takes list of groups and creates list of RichGroups containing all attributes
@@ -1262,7 +1262,7 @@ public interface GroupsManagerBl {
 	 * @return RichGroup
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups) throws InternalErrorException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups);
 
 	/**
 	 * This method takes list of groups and resource and then creates list of RichGroups containing all group and group-resource attributes
@@ -1274,7 +1274,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupResourceMismatchException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, GroupResourceMismatchException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws GroupResourceMismatchException;
 
 	/**
 	 * This method takes list of groups and creates list of RichGroups containing selected attributes
@@ -1285,7 +1285,7 @@ public interface GroupsManagerBl {
 	 * @return RichGroup
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups, List<String> attrNames);
 
 	/**
 	 * This method takes list of groups, resource and list of attrNames and then creates list of RichGroups containing
@@ -1302,7 +1302,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupResourceMismatchException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws GroupResourceMismatchException;
 
 	/**
 	 * This method takes list of groups, resource, member and list of attrNames and then creates list of RichGroups containing
@@ -1323,7 +1323,7 @@ public interface GroupsManagerBl {
 	 * @throws MemberResourceMismatchException if member is not assigned to group
 	 * @throws MemberGroupMismatchException if member is not in the same vo as group
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException;
 
 	/**
 	 * Get all RichGroups with selected attributes assigned to the resource.
@@ -1336,7 +1336,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichGroups with selected attributes assigned to the resource
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames);
 
 	/**
 	 * Get list of all richGroups with selected attributes assigned to the resource filtered by specific member.
@@ -1354,7 +1354,7 @@ public interface GroupsManagerBl {
 	 * @return list of RichGroup objects with specific attributes specified by object Resource and object Member
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Member member, Resource resource, List<String> attrNames);
 
 	/**
 	 * Return all RichGroups for specified member, containing selected attributes.
@@ -1370,7 +1370,7 @@ public interface GroupsManagerBl {
 	 * @return list of rich groups with selected attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames);
 
 	/**
 	 * Returns all RichGroups containing selected attributes
@@ -1381,7 +1381,7 @@ public interface GroupsManagerBl {
 	 * @return List of RichGroups
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames);
 
 	/**
 	 * Returns RichSubGroups from parentGroup containing selected attributes (only 1 level subgroups)
@@ -1392,7 +1392,7 @@ public interface GroupsManagerBl {
 	 * @return List of RichGroups
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames);
 
 	/**
 	 * Returns all RichSubGroups from parentGroup containing selected attributes (all levels subgroups)
@@ -1403,7 +1403,7 @@ public interface GroupsManagerBl {
 	 * @return List of RichGroups
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames);
 
 	/**
 	 * Returns RichGroup selected by id containing selected attributes
@@ -1415,7 +1415,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
+	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws GroupNotExistsException;
 
 	/**
 	 * This method will set timestamp, synchronization start time and exceptionMessage to group attributes for the group.
@@ -1443,7 +1443,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupSynchronizationInNewTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronizationInNewTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * This method will set timestamp, synchronization start time and exceptionMessage to group attributes for the group.
@@ -1471,7 +1471,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupSynchronizationInNestedTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronizationInNestedTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 
 	/**
@@ -1498,7 +1498,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupStructureSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupStructureSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
@@ -1524,7 +1524,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupStructureSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupStructureSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Get all groups in specific vo with assigned extSource
@@ -1535,7 +1535,7 @@ public interface GroupsManagerBl {
 	 * @return l
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
+	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo);
 
 	/**
 	 * Method recalculates all relations between groups. Method recursively adds members from
@@ -1556,7 +1556,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws GroupNotExistsException
 	 */
-	void addRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
+	void addRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Method recalculates all relations between groups. Method recursively removes members from
@@ -1577,7 +1577,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	void removeRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws WrongReferenceAttributeValueException, NotGroupMemberException, WrongAttributeValueException, InternalErrorException, GroupNotExistsException;
+	void removeRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws WrongReferenceAttributeValueException, NotGroupMemberException, WrongAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Performs union operation on two groups. Members from operand group are added to result group as indirect.
@@ -1595,7 +1595,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws GroupNotExistsException
 	 */
-	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException, GroupRelationAlreadyExists, GroupRelationNotAllowed, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
+	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupRelationAlreadyExists, GroupRelationNotAllowed, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.
@@ -1610,7 +1610,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, GroupNotExistsException;
+	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, GroupNotExistsException;
 
 	/**
 	 * Get list of group unions for specified group.
@@ -1622,7 +1622,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException;
+	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection);
 
 	/**
 	 * Move one group structure under another group in same vo or as top level group
@@ -1635,7 +1635,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Set member's status in given group to EXPIRED
@@ -1645,7 +1645,7 @@ public interface GroupsManagerBl {
 	 * @param group group in which given member will be expired
 	 * @throws InternalErrorException internal error
 	 */
-	void expireMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	void expireMemberInGroup(PerunSession sess, Member member, Group group);
 
 	/**
 	 * Set member's status in given group to VALID
@@ -1655,7 +1655,7 @@ public interface GroupsManagerBl {
 	 * @param group group in which given member will be validated
 	 * @throws InternalErrorException internal error
 	 */
-	void validateMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	void validateMemberInGroup(PerunSession sess, Member member, Group group);
 
 	/**
 	 * Returns members direct status in given group. This method doesn't
@@ -1668,7 +1668,7 @@ public interface GroupsManagerBl {
 	 * @return status of member in given group
 	 * @throws InternalErrorException internal error
 	 */
-	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group);
 
 	/**
 	 * Returns total member's status in given group.
@@ -1680,7 +1680,7 @@ public interface GroupsManagerBl {
 	 * @return total status of member in given group
 	 * @throws InternalErrorException internal error
 	 */
-	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group);
 
 	/**
 	 * Calculates the state of given member in given group and calls
@@ -1690,7 +1690,7 @@ public interface GroupsManagerBl {
 	 * @param group group
 	 * @throws InternalErrorException internal error
 	 */
-	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group);
 
 	/**
 	 * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
@@ -1701,7 +1701,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException internal error
 	 * @throws ExtendMembershipException extend membership exception
 	 */
-	void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException;
+	void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws ExtendMembershipException;
 
 	/**
 	 * Returns true if member in given group can extend membership or if no rules were set for the membershipExpiration
@@ -1712,7 +1712,7 @@ public interface GroupsManagerBl {
 	 * @return true if given member can extend membership in given group  or if no rules were set for the
 	 * membership expiration, false otherwise
 	 */
-	boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group);
 
 	/**
 	 * Returns true if member in given group can extend membership or throws exception with reason why use can't extends membership
@@ -1723,7 +1723,7 @@ public interface GroupsManagerBl {
 	 * @throws ExtendMembershipException reason why user can't extend membership
 	 * @return true if given member can extend membership in given group or throws exception with reason why not
 	 */
-	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException;
+	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws ExtendMembershipException;
 
 	/**
 	 * Synchronize a group structure with an external source group structure under the group.
@@ -1738,7 +1738,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	List<String> synchronizeGroupStructure(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	List<String> synchronizeGroupStructure(PerunSession sess, Group group) throws AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if the group or its subgroups are defined as synchronized from an external source at this moment.
@@ -1748,7 +1748,7 @@ public interface GroupsManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupInStructureSynchronizationTree(PerunSession session, Group group) throws InternalErrorException;
+	boolean isGroupInStructureSynchronizationTree(PerunSession session, Group group);
 
 	/**
 	 * Check if the group is defined as synchronized from an external source at this moment.
@@ -1758,7 +1758,7 @@ public interface GroupsManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group) throws InternalErrorException;
+	boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group);
 
 	/**
 	 * Check if there is a subgroup of the group, which is defined as synchronized from an external source at this moment.
@@ -1768,7 +1768,7 @@ public interface GroupsManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	boolean hasGroupSynchronizedChild(PerunSession session, Group group) throws InternalErrorException;
+	boolean hasGroupSynchronizedChild(PerunSession session, Group group);
 
 	/**
 	 *  Get list of groups where the given group is given the admin role.
@@ -1809,5 +1809,5 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException internal error
 	 * @throws MemberNotExistsException if given member is not member of given group
 	 */
-	void reactivateMember(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException;
+	void reactivateMember(PerunSession sess, Member member, Group group) throws MemberNotExistsException;
 }

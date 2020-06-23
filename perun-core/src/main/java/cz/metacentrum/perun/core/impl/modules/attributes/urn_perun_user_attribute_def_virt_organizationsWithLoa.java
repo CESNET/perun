@@ -29,7 +29,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 	final Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<>();
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		HashMap<String, String> organizationsWithLoa = new LinkedHashMap<>();
 

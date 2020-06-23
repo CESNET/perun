@@ -103,7 +103,7 @@ public interface TasksManagerImplApi {
 	 */
 	int clearAll();
 
-	int insertNewTaskResult(TaskResult taskResult) throws InternalErrorException;
+	int insertNewTaskResult(TaskResult taskResult);
 
 	int clearOld(int numDays);
 
@@ -114,6 +114,6 @@ public interface TasksManagerImplApi {
 	 * @return list of tasks results
 	 * @throws InternalErrorException
 	 */
-	List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) throws InternalErrorException;
+	List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames);
 
 }

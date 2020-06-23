@@ -135,7 +135,7 @@ public class JsonDeserializer extends Deserializer {
 	 * @throws IOException if an IO error occurs
 	 * @throws RpcException if content of {@code in} is wrongly formatted
 	 */
-	public JsonDeserializer(InputStream in) throws IOException, RpcException {
+	public JsonDeserializer(InputStream in) throws IOException {
 		try {
 			root = mapper.readTree(in);
 		} catch (JsonProcessingException ex) {
@@ -155,7 +155,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public String readString(String name) throws RpcException {
+	public String readString(String name) {
 		JsonNode node;
 
 		if (name == null) {
@@ -176,12 +176,12 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public String readString() throws RpcException {
+	public String readString() {
 		return readString(null);
 	}
 
 	@Override
-	public int readInt(String name) throws RpcException {
+	public int readInt(String name) {
 		JsonNode node;
 
 		if (name == null) {
@@ -212,13 +212,13 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public int readInt() throws RpcException {
+	public int readInt() {
 		return readInt(null);
 	}
 
 
 	@Override
-	public int[] readArrayOfInts(String name) throws RpcException {
+	public int[] readArrayOfInts(String name) {
 		JsonNode node;
 
 		if (name == null) {
@@ -248,12 +248,12 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public int[] readArrayOfInts() throws RpcException {
+	public int[] readArrayOfInts() {
 		return readArrayOfInts(null);
 	}
 
 	@Override
-	public <T> T read(String name, Class<T> valueType) throws RpcException {
+	public <T> T read(String name, Class<T> valueType) {
 		JsonNode node;
 
 		if (name == null) {
@@ -282,12 +282,12 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public <T> T read(Class<T> valueType) throws RpcException {
+	public <T> T read(Class<T> valueType) {
 		return read(null, valueType);
 	}
 
 	@Override
-	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(String name, Class<T> valueType) {
 		JsonNode node;
 
 		if (name == null) {
@@ -320,7 +320,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public <T> List<T> readList(Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(Class<T> valueType) {
 		return readList(null, valueType);
 	}
 }

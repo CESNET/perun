@@ -47,7 +47,7 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
+	public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) {
 		StringBuilder query = new StringBuilder();
 		query.append("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users ");
 
@@ -81,7 +81,7 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date, int days) throws InternalErrorException {
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date, int days) {
 
 		// this would default to now
 		if (date == null) date = LocalDate.now();
@@ -110,7 +110,7 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException {
+	public List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) {
 		try {
 			return jdbcTemplate.query("select  " + GroupsManagerImpl.groupMappingSelectQuery + " from groups where groups.id in ( " +
 							"select distinct gr.group_id from groups_resources gr " +
@@ -127,7 +127,7 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
+	public List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) {
 		StringBuilder query = new StringBuilder();
 		query.append("select distinct " + FacilitiesManagerImpl.facilityMappingSelectQuery + " from facilities ");
 
@@ -145,7 +145,7 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException {
+	public List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString) {
 		StringBuilder query = new StringBuilder();
 		query.append("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources ");
 
@@ -175,7 +175,7 @@ public class SearcherImpl implements SearcherImplApi {
 	@SuppressWarnings("ConstantConditions")
 	private void insertWhereClausesAndQueryParametersFromAttributes(StringBuilder query, MapSqlParameterSource parameters,
 	                                                                String attrValueTableName, String entityName, String entityTableName,
-	                                                                Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException {
+	                                                                Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString) {
 		List<String> whereClauses = new ArrayList<>();
 		int counter = 0;
 		for(Attribute key: attributesWithSearchingValues.keySet()) {
@@ -284,7 +284,7 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date, int days) throws InternalErrorException {
+	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date, int days) {
 
 		// if date is null, use today
 		if (date == null) {

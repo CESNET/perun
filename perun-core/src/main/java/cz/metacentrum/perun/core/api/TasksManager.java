@@ -66,7 +66,7 @@ public interface TasksManager {
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
 	 */
-	FacilityState getFacilityState(PerunSession session, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException;
+	FacilityState getFacilityState(PerunSession session, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Return propagation status of all facilities in Perun
@@ -77,7 +77,7 @@ public interface TasksManager {
 	 * @throws InternalErrorException
 	 * @throws FacilityNotExistsException
 	 */
-	List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, FacilityNotExistsException;
+	List<FacilityState> getAllFacilitiesStates(PerunSession session) throws FacilityNotExistsException;
 
 	/**
 	 * Return propagation status of all facilities related to VO resources
@@ -89,7 +89,7 @@ public interface TasksManager {
 	 * @throws FacilityNotExistsException
 	 * @throws VoNotExistsException
 	 */
-	List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException;
+	List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, FacilityNotExistsException;
 
 	// TODO - add more methods
 
@@ -100,7 +100,7 @@ public interface TasksManager {
 	 * @param destinationsNames
 	 * @return list of tasks results
 	 */
-	List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException;
+	List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames);
 
 	/**
 	 * Returns list of ResourceStates for VO.
@@ -112,7 +112,7 @@ public interface TasksManager {
 	 * @throws VoNotExistsException
 	 * @throws InternalErrorException
 	 */
-	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException;
+	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Returns list of ServiceStates for given facility. It lists states for all services, which are currently
@@ -126,7 +126,7 @@ public interface TasksManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException;
+	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws PrivilegeException;
 
 	/**
 	 * Delete Task and it's TaskResults. Use this method only before deleting whole Facility.
@@ -136,6 +136,6 @@ public interface TasksManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	void deleteTask(PerunSession sess, Task task) throws InternalErrorException, PrivilegeException;
+	void deleteTask(PerunSession sess, Task task) throws PrivilegeException;
 
 }

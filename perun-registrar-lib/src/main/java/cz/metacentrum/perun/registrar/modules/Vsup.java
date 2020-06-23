@@ -91,7 +91,7 @@ public class Vsup extends DefaultRegistrarModule {
 	 * If membershipExpiration is null, set 4000-01-01 as unlimited.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws MemberNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, PrivilegeException {
+	public Application approveApplication(PerunSession session, Application app) throws MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, PrivilegeException {
 
 		PerunBl perun = (PerunBl)session.getPerun();
 

@@ -21,7 +21,7 @@ import java.util.List;
 public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi{
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
@@ -29,7 +29,7 @@ public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttrib
 		return false;
 	}
 
-	public void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
 
 	}
 

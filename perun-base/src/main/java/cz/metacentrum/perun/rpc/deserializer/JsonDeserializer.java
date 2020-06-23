@@ -142,7 +142,7 @@ public class JsonDeserializer extends Deserializer {
 	 * @throws IOException if an IO error occurs
 	 * @throws RpcException if content of {@code in} is wrongly formatted
 	 */
-	public JsonDeserializer(HttpServletRequest request) throws IOException, RpcException {
+	public JsonDeserializer(HttpServletRequest request) throws IOException {
 
 		this.req = request;
 
@@ -157,7 +157,7 @@ public class JsonDeserializer extends Deserializer {
 		}
 	}
 
-	public JsonDeserializer(InputStream in) throws IOException, RpcException {
+	public JsonDeserializer(InputStream in) throws IOException {
 		try {
 			root = mapper.readTree(in);
 		} catch (JsonProcessingException ex) {
@@ -171,7 +171,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public String readString(String name) throws RpcException {
+	public String readString(String name) {
 		JsonNode node = root.get(name);
 
 		if (node == null) {
@@ -188,7 +188,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public Boolean readBoolean(String name) throws RpcException {
+	public Boolean readBoolean(String name) {
 		JsonNode node = root.get(name);
 
 		if (node == null) {
@@ -205,7 +205,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public int readInt(String name) throws RpcException {
+	public int readInt(String name) {
 		JsonNode node = root.get(name);
 
 		if (node == null) {
@@ -227,7 +227,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public int[] readArrayOfInts(String name) throws RpcException {
+	public int[] readArrayOfInts(String name) {
 		JsonNode node = root.get(name);
 
 		if (node == null) {
@@ -253,12 +253,12 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public <T> T read(Class<T> valueType) throws RpcException {
+	public <T> T read(Class<T> valueType) {
 		return this.read(null, valueType);
 	}
 
 	@Override
-	public <T> T read(String name, Class<T> valueType) throws RpcException {
+	public <T> T read(String name, Class<T> valueType) {
 		JsonNode node;
 
 		if (name == null) {
@@ -287,7 +287,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(String name, Class<T> valueType) {
 		JsonNode node;
 
 		if (name == null) {
@@ -320,7 +320,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public PerunBean readPerunBean(String name) throws RpcException {
+	public PerunBean readPerunBean(String name) {
 		JsonNode node = root.get(name);
 
 		if (node == null) {
@@ -347,7 +347,7 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public List<PerunBean> readListPerunBeans(String name) throws RpcException {
+	public List<PerunBean> readListPerunBeans(String name) {
 		JsonNode node;
 		if (name == null) {
 			// The object is not under root, but directly in the response
@@ -386,11 +386,11 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
-	public <T> List<T> readList(Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(Class<T> valueType) {
 		return readList(null, valueType);
 	}
 
-	public String readAll() throws RpcException {
+	public String readAll() {
 		return root.toString();
 	}
 

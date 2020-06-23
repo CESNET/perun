@@ -840,7 +840,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(facility.getId(), Holder.HolderType.FACILITY));
 			return this.setValuesOfAttributes(sess, attrs, facility, null);
@@ -862,7 +862,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -895,7 +895,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private List<Attribute> getVirtualAttributes(RowMapper<Attribute> rowMapper, String namespace) throws InternalErrorException {
+	private List<Attribute> getVirtualAttributes(RowMapper<Attribute> rowMapper, String namespace) {
 		try {
 			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names WHERE namespace=?", rowMapper, namespace);
 		} catch (EmptyResultDataAccessException ex) {
@@ -907,7 +907,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.FACILITY, null);
 			return this.setValuesOfAttributes(sess, attrs, facility, null);
@@ -916,7 +916,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.MEMBER, null);
 			return this.setValuesOfAttributes(sess, attrs, member, null);
@@ -925,7 +925,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Vo vo) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.VO, null);
 			return this.setValuesOfAttributes(sess, attrs, vo, null);
@@ -934,7 +934,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Group group) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.GROUP, null);
 			return this.setValuesOfAttributes(sess, attrs, group, null);
@@ -943,7 +943,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Host host) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Host host) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.HOST, null);
 			return this.setValuesOfAttributes(sess, attrs, host, null);
@@ -952,7 +952,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.RESOURCE, null);
 			return this.setValuesOfAttributes(sess, attrs, resource, null);
@@ -961,7 +961,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, User user) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.USER, null);
 			return this.setValuesOfAttributes(sess, attrs, user, null);
@@ -970,7 +970,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.UES, null);
 			return this.setValuesOfAttributes(sess, attrs, ues, null);
@@ -979,7 +979,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.MEMBER, Holder.HolderType.RESOURCE);
 			return this.setValuesOfAttributes(sess, attrs, member, resource);
@@ -988,7 +988,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.USER, Holder.HolderType.FACILITY);
 			return this.setValuesOfAttributes(sess, attrs, user, facility);
@@ -997,7 +997,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.MEMBER, Holder.HolderType.GROUP);
 			return this.setValuesOfAttributes(sess, attrs, member, group);
@@ -1007,7 +1007,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Vo vo) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(vo.getId(), Holder.HolderType.VO));
 			return this.setValuesOfAttributes(sess, attrs, vo, null);
@@ -1026,7 +1026,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Group group) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(group.getId(), Holder.HolderType.GROUP));
 			return this.setValuesOfAttributes(sess, attrs, group, null);
@@ -1045,7 +1045,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Host host) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(host.getId(), Holder.HolderType.HOST));
 			return this.setValuesOfAttributes(sess, attrs, host, null);
@@ -1065,7 +1065,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return this.setValuesOfAttributes(sess, attrs, resource, null);
@@ -1086,7 +1086,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
 			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 
@@ -1107,7 +1107,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
 			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
 
@@ -1127,7 +1127,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1161,7 +1161,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1195,7 +1195,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1229,7 +1229,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) {
 		List<String> controlledAttrNames = new ArrayList<>();
 		for(String attributeName: attrNames) {
 			//check namespace
@@ -1262,7 +1262,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER));
 			return this.setValuesOfAttributes(sess, attrs, member, null);
@@ -1283,7 +1283,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1317,7 +1317,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName) throws InternalErrorException {
+	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllAttributesByStartPartOfName(startPartOfName, new Holder(group.getId(), Holder.HolderType.GROUP));
 			return this.setValuesOfAttributes(sess, attrs, group, null);
@@ -1343,7 +1343,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws InternalErrorException {
+	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllAttributesByStartPartOfName(startPartOfName, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return this.setValuesOfAttributes(sess, attrs, resource, null);
@@ -1369,7 +1369,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1403,7 +1403,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) {
 		//filter only group attribute names
 		List<String> controlledAttrNames = new ArrayList<>();
 		for(String attributeName: attrNames) {
@@ -1437,7 +1437,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1471,7 +1471,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
 			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 
@@ -1490,7 +1490,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getUserFacilityAttributesForAnyUser(facility.getId());
 
 		try {
@@ -1509,7 +1509,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(user.getId(), Holder.HolderType.USER));
 			return this.setValuesOfAttributes(sess, attrs, user, null);
@@ -1530,7 +1530,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1566,7 +1566,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();
 
@@ -1601,7 +1601,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
 			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 
@@ -1620,7 +1620,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, String key) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, String key) {
 		if(!CacheManager.isCacheDisabled()) return perun.getCacheManager().getAllNonEmptyEntitylessAttributes(key);
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
@@ -1635,7 +1635,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(ues.getId(), Holder.HolderType.UES));
 			return this.setValuesOfAttributes(sess, attrs, ues, null);
@@ -1656,7 +1656,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
+	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws AttributeNotExistsException {
 		// We do not want to use attribute cache here because cache does not lock values we are updating from changes from different sources.
 
 		try {
@@ -1673,7 +1673,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws  InternalErrorException {
+	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllNonEmptyEntitylessAttributesByName(attrName);
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
@@ -1688,7 +1688,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getEntitylessAttrKeys(attributeDefinition.getName());
 
 		try {
@@ -1701,7 +1701,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAttributesByAttributeDefinition(attributeDefinition);
 
 		// Get the entity from the name
@@ -1716,7 +1716,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<RichAttribute<User, Facility>> getAllUserFacilityRichAttributes(PerunSession sess, User user) throws InternalErrorException {
+	public List<RichAttribute<User, Facility>> getAllUserFacilityRichAttributes(PerunSession sess, User user) {
 		// We do not want to use attribute cache to retrieve RichAttributes because entities are not stored in cache.
 
 		try {
@@ -1737,7 +1737,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(facility.getId(), Holder.HolderType.FACILITY), null);
 			return setValueOfAttribute(sess, attr, facility, null);
@@ -1753,7 +1753,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName) throws InternalErrorException {
+	public List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllSimilarAttributeNames(startingPartOfAttributeName);
 
 		try {
@@ -1766,7 +1766,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(vo.getId(), Holder.HolderType.VO), null);
 			return setValueOfAttribute(sess, attr, vo, null);
@@ -1782,7 +1782,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(group.getId(), Holder.HolderType.GROUP), null);
 			return setValueOfAttribute(sess, attr, group, null);
@@ -1798,7 +1798,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(resource.getId(), Holder.HolderType.RESOURCE), null);
 			return setValueOfAttribute(sess, attr, resource, null);
@@ -1814,7 +1814,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return setValueOfAttribute(sess, attr, member, resource);
@@ -1836,7 +1836,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
 			return setValueOfAttribute(sess, attr, member, group);
@@ -1857,7 +1857,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(member.getId(), Holder.HolderType.MEMBER), null);
 			return setValueOfAttribute(sess, attr, member, null);
@@ -1877,7 +1877,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 			return setValueOfAttribute(sess, attr, user, facility);
@@ -1896,7 +1896,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(user.getId(), Holder.HolderType.USER), null);
 			return setValueOfAttribute(sess, attr, user, null);
@@ -1917,7 +1917,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(host.getId(), Holder.HolderType.HOST), null);
 			return setValueOfAttribute(sess, attr, host, null);
@@ -1934,7 +1934,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return setValueOfAttribute(sess, attr, group, resource);
@@ -1953,7 +1953,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getEntitylessAttribute(attributeName, key);
 			return setValueOfAttribute(sess, attr, null, null);
@@ -1972,7 +1972,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			Map<String,String> keyValueMap = new HashMap<>();
 			List<String> entitylessAttrKeys = perun.getCacheManager().getEntitylessAttrKeys(attributeName);
@@ -2000,7 +2000,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(ues.getId(), Holder.HolderType.UES), null);
 			return setValueOfAttribute(sess, attr, ues, null);
@@ -2019,7 +2019,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) return perun.getCacheManager().getAttributeDefinition(attributeName);
 
 		try {
@@ -2032,7 +2032,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess) throws InternalErrorException {
+	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAttributesDefinitions();
 
 		try {
@@ -2046,7 +2046,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) throws InternalErrorException {
+	public List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAttributesDefinitionsByNamespace(namespace);
 
 		try {
@@ -2060,7 +2060,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) return perun.getCacheManager().getAttributeDefinition(id);
 
 		try {
@@ -2073,7 +2073,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(facility.getId(), Holder.HolderType.FACILITY), null);
 			return setValueOfAttribute(sess, attr, facility, null);
@@ -2089,7 +2089,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(vo.getId(), Holder.HolderType.VO), null);
 			return setValueOfAttribute(sess, attr, vo, null);
@@ -2105,7 +2105,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(resource.getId(), Holder.HolderType.RESOURCE), null);
 			return setValueOfAttribute(sess, attr, resource, null);
@@ -2121,7 +2121,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return setValueOfAttribute(sess, attr, group, resource);
@@ -2140,7 +2140,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(group.getId(), Holder.HolderType.GROUP), null);
 			return setValueOfAttribute(sess, attr, group, null);
@@ -2159,7 +2159,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(host.getId(), Holder.HolderType.HOST), null);
 			return setValueOfAttribute(sess, attr, host, null);
@@ -2176,7 +2176,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return setValueOfAttribute(sess, attr, member, resource);
@@ -2196,7 +2196,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
 			return setValueOfAttribute(sess, attr, member, group);
@@ -2216,7 +2216,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(member.getId(), Holder.HolderType.MEMBER), null);
 			return setValueOfAttribute(sess, attr, member, null);
@@ -2236,7 +2236,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 			return setValueOfAttribute(sess, attr, user, facility);
@@ -2255,7 +2255,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, User user, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(user.getId(), Holder.HolderType.USER), null);
 			return setValueOfAttribute(sess, attr, user, null);
@@ -2275,7 +2275,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(ues.getId(), Holder.HolderType.UES), null);
 			return setValueOfAttribute(sess, attr, ues, null);
@@ -2291,7 +2291,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setAttribute(final PerunSession sess, final Object object, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public boolean setAttribute(final PerunSession sess, final Object object, final Attribute attribute) throws WrongAttributeAssignmentException, WrongAttributeValueException {
 		String tableName;
 		String columnName;
 		Object identificator;
@@ -2348,7 +2348,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws WrongAttributeAssignmentException, WrongAttributeValueException {
 
 		// get bean names
 		String name1 = bean1.getBeanName().toLowerCase();
@@ -2439,7 +2439,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues, Object holder1, Object holder2) throws InternalErrorException {
+	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues, Object holder1, Object holder2) {
 		try {
 			//check that attribute definition is current, non-altered by upper tiers
 			getAttributeDefinitionById(sess, attribute.getId()).checkEquality(attribute);
@@ -2603,7 +2603,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
+	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) {
 		// add additional SQL values to the list
 		List<Object> values = new ArrayList<>(columnValues);
 		values.add(BeansUtils.attributeValueToString(attribute)); // valueColName
@@ -2624,7 +2624,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
+	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) {
 		// add additional SQL values to the list
 		List<Object> values = new ArrayList<>();
 		values.add(BeansUtils.attributeValueToString(attribute)); // valueColName
@@ -2637,7 +2637,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException {
+	public boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) {
 		try {
 			jdbc.update("insert into entityless_attr_values (attr_id, subject, attr_value, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
 							+ "values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), key, null, null,
@@ -2649,52 +2649,52 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		return getFacilityVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, facility, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException {
+	public boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute) {
 		return getMemberVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, member, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		return getResourceVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, resource, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException {
+	public boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) {
 		return getGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, group, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 		return getFacilityUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, user, facility, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		return getResourceGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, group, resource, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
+	public boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) {
 		return getMemberGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, member, group, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException {
+	public boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) {
 		return getUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, user, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
+	public boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) {
 		return getUserExtSourceVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, ues, attribute);
 	}
 
 	@Override
-	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionExistsException {
+	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws AttributeDefinitionExistsException {
 		if (!attribute.getFriendlyName().matches(AttributesManager.ATTRIBUTES_REGEXP)) {
 			throw new InternalErrorException(new IllegalArgumentException("Wrong attribute name " + attribute.getFriendlyName() + ", attribute name must match " + AttributesManager.ATTRIBUTES_REGEXP));
 		}
@@ -2730,7 +2730,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) {
 		try {
 			// unique attributes get deleted by deletion from entity_attr_values
 			jdbc.update("DELETE FROM "+ attributeToTablePrefix(attribute)+"_attr_values WHERE attr_id=?", attribute.getId());
@@ -2744,7 +2744,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM attributes_authz WHERE attr_id=?", attribute.getId())) {
 				log.debug("All attribute_authz were deleted for {}.", attribute);
@@ -2755,7 +2755,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<AttributeDefinition> getResourceRequiredAttributesDefinition(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<AttributeDefinition> getResourceRequiredAttributesDefinition(PerunSession sess, Resource resource) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<AttributeDefinition> attrDefs = perun.getCacheManager().getAttributesDefinitions(attrIds);
@@ -2800,7 +2800,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -2825,7 +2825,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -2850,7 +2850,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER));
@@ -2875,7 +2875,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -2897,7 +2897,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility, User user) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -2919,7 +2919,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -2941,7 +2941,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, User user) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resource);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
@@ -2964,7 +2964,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(host.getId(), Holder.HolderType.HOST));
@@ -2986,7 +2986,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(group.getId(), Holder.HolderType.GROUP));
@@ -3008,7 +3008,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service) throws InternalErrorException {
+	public List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service) {
 		if(!CacheManager.isCacheDisabled()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			return perun.getCacheManager().getAttributesDefinitions(attrIds);
@@ -3025,7 +3025,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -3049,7 +3049,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(vo.getId(), Holder.HolderType.VO));
@@ -3073,7 +3073,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -3097,7 +3097,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) {
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("serviceIds", serviceIds);
 
@@ -3135,7 +3135,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -3156,7 +3156,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
@@ -3175,7 +3175,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
@@ -3197,7 +3197,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER));
@@ -3219,7 +3219,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, User user) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -3240,7 +3240,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) {
 		return getRequiredAttributes(sess, Collections.singletonList(service), resource, group);
 	}
 
@@ -3285,7 +3285,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
@@ -3343,7 +3343,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		@Override
-		public HashMap<Member, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+		public HashMap<Member, List<Attribute>> extractData(ResultSet rs) throws SQLException {
 			HashMap<Member, List<Attribute>> map = new HashMap<>();
 			HashMap<Integer, Member> memberObjectMap = new HashMap<>();
 
@@ -3400,7 +3400,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		@Override
-		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException {
 			HashMap<User, List<Attribute>> map = new HashMap<>();
 			HashMap<Integer, User> userObjectMap = new HashMap<>();
 
@@ -3429,7 +3429,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			HashMap<Member, List<Attribute>> hashMap = new HashMap<>();
@@ -3464,7 +3464,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException {
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			HashMap<Member, List<Attribute>> hashMap = new HashMap<>();
@@ -3499,7 +3499,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			HashMap<User, List<Attribute>> hashMap = new HashMap<>();
@@ -3534,7 +3534,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			HashMap<User, List<Attribute>> hashMap = new HashMap<>();
@@ -3569,7 +3569,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(host.getId(), Holder.HolderType.HOST));
@@ -3590,7 +3590,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) {
 		return getRequiredAttributes(sess, Collections.singletonList(service), group);
 	}
 
@@ -3633,7 +3633,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = jdbc.queryForList("select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
@@ -3659,7 +3659,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute) {
 		//Use attributes module
 		ResourceAttributesModuleImplApi attributeModule = getResourceAttributeModule(sess, attribute);
 		if (attributeModule == null) {
@@ -3675,7 +3675,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) {
 		//Use attributes module
 		MemberResourceAttributesModuleImplApi attributeModule = getResourceMemberAttributeModule(sess, attribute);
 		if (attributeModule == null) {
@@ -3687,7 +3687,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Group group, Attribute attribute) {
 		//Use attributes module
 		MemberGroupAttributesModuleImplApi attributeModule = getMemberGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) {
@@ -3699,7 +3699,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) {
 		//Use attributes module
 		UserFacilityAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
 		if (attributeModule == null) {
@@ -3715,7 +3715,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, User user, Attribute attribute) {
 		UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
@@ -3729,7 +3729,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) {
 		MemberAttributesModuleImplApi attributeModule = getMemberAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}", attribute.getName());
@@ -3743,7 +3743,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) {
 		GroupResourceAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
@@ -3757,7 +3757,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute) {
 		HostAttributesModuleImplApi attributeModule = getHostAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
@@ -3767,7 +3767,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) {
 		GroupAttributesModuleImplApi attributeModule = getGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
@@ -3781,7 +3781,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) {
 		UserExtSourceAttributesModuleImplApi attributeModule = getUserExtSourceAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
@@ -3791,7 +3791,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) {
 		//Call attribute module
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
 		if (facilityModule == null) return; //facility module doesn't exists
@@ -3799,7 +3799,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, String key, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, String key, Attribute attribute) {
 		//Call attribute module
 		EntitylessAttributesModuleImplApi entitylessModule = getEntitylessAttributeModule(sess, attribute);
 		if (entitylessModule == null) return; //facility module doesn't exists
@@ -3807,7 +3807,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) {
 		//Call attribute module
 		HostAttributesModuleImplApi hostModule = getHostAttributeModule(sess, attribute);
 		if (hostModule == null) return; //host module doesn't exists
@@ -3815,7 +3815,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) {
 		//Call attribute module
 		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
 		if (voModule == null) return; //facility module doesn't exists
@@ -3823,7 +3823,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		GroupAttributesModuleImplApi groupModule = getGroupAttributeModule(sess, attribute);
 		if (groupModule == null) return; //facility module doesn't exists
@@ -3831,7 +3831,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		UserAttributesModuleImplApi userModule = getUserAttributeModule(sess, attribute);
 		if (userModule == null) return; //facility module doesn't exists
@@ -3839,7 +3839,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		MemberAttributesModuleImplApi memberModule = getMemberAttributeModule(sess, attribute);
 		if (memberModule == null) return; //facility module doesn't exists
@@ -3847,7 +3847,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) {
 		//Call attribute module
 		GroupResourceAttributesModuleImplApi resourceGroupModule = getResourceGroupAttributeModule(sess, attribute);
 		if (resourceGroupModule == null) return; //facility module doesn't exists
@@ -3855,7 +3855,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		ResourceAttributesModuleImplApi resourceModule = getResourceAttributeModule(sess, attribute);
 		if (resourceModule == null) return; //facility module doesn't exists
@@ -3863,7 +3863,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
@@ -3871,7 +3871,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) {
 		//Call attribute module
 		MemberGroupAttributesModuleImplApi memberGroupAttributesModule = getMemberGroupAttributeModule(sess, attribute);
 		if (memberGroupAttributesModule == null) return; //memberGroupAttributesModule module doesn't exists
@@ -3879,7 +3879,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) {
 		//Call attribute module
 		UserFacilityAttributesModuleImplApi facilityUserModule = getFacilityUserAttributeModule(sess, attribute);
 		if (facilityUserModule == null) return; //facility module doesn't exists
@@ -3887,7 +3887,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) {
 		//Call attribute module
 		UserExtSourceAttributesModuleImplApi uesModule = getUserExtSourceAttributeModule(sess, attribute);
 		if (uesModule == null) return;
@@ -3895,7 +3895,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
 		if (facilityModule == null) return; //facility module doesn't exists
@@ -3908,7 +3908,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
 		if (voModule == null) return; //module doesn't exists
@@ -3916,7 +3916,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		GroupAttributesModuleImplApi groupModule = getGroupAttributeModule(sess, attribute);
 		if (groupModule == null) return; //module doesn't exists
@@ -3928,7 +3928,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		ResourceAttributesModuleImplApi attributeModule = getResourceAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -3939,14 +3939,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@SuppressWarnings("unused")
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws WrongReferenceAttributeValueException {
 		for (Attribute attribute : attributes) {
 			checkAttributeSemantics(sess, resource, attribute);
 		}
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Call attribute module
 		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
@@ -3958,7 +3958,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) {
 		//Call attribute module
 		MemberGroupAttributesModuleImplApi memberGroupAttributeModule = getMemberGroupAttributeModule(sess, attribute);
 		if (memberGroupAttributeModule == null) return; //memberGroupAttributesModule module doesn't exists
@@ -3966,7 +3966,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 		UserFacilityAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -3977,7 +3977,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 		UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -3988,7 +3988,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws WrongReferenceAttributeValueException {
 		MemberAttributesModuleImplApi attributeModule = getMemberAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -3999,21 +3999,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
+	public void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute) {
 		UserExtSourceAttributesModuleImplApi attributeModule = getUserExtSourceAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSemantics((PerunSessionImpl) sess, ues, attribute);
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException {
+	public void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute) {
 		HostAttributesModuleImplApi attributeModule = getHostAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSemantics((PerunSessionImpl) sess, host, attribute);
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		GroupResourceAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -4024,7 +4024,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws WrongReferenceAttributeValueException {
 		EntitylessAttributesModuleImplApi attributeModule = getEntitylessAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -4035,7 +4035,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		//Call attribute module
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
 		if (facilityModule == null) return; //facility module doesn't exists
@@ -4043,7 +4043,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 		//Call attribute module
 		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
 		if (voModule == null) return; //module doesn't exists
@@ -4051,7 +4051,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//Call attribute module
 		GroupAttributesModuleImplApi groupModule = getGroupAttributeModule(sess, attribute);
 		if (groupModule == null) return; //module doesn't exists
@@ -4059,21 +4059,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		ResourceAttributesModuleImplApi attributeModule = getResourceAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, resource, attribute);
 	}
 
 	@SuppressWarnings("unused")
-	public void checkAttributeSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws WrongAttributeValueException {
 		for (Attribute attribute : attributes) {
 			checkAttributeSyntax(sess, resource, attribute);
 		}
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		//Call attribute module
 		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
@@ -4081,7 +4081,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//Call attribute module
 		MemberGroupAttributesModuleImplApi memberGroupAttributeModule = getMemberGroupAttributeModule(sess, attribute);
 		if (memberGroupAttributeModule == null) return; //memberGroupAttributesModule module doesn't exists
@@ -4089,56 +4089,56 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException {
 		UserFacilityAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, user, facility, attribute);
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, user, attribute);
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeValueException {
 		MemberAttributesModuleImplApi attributeModule = getMemberAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, member, attribute);
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws WrongAttributeValueException {
 		UserExtSourceAttributesModuleImplApi attributeModule = getUserExtSourceAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, ues, attribute);
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws WrongAttributeValueException {
 		HostAttributesModuleImplApi attributeModule = getHostAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, host, attribute);
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws WrongAttributeValueException {
 		GroupResourceAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, group, resource, attribute);
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws WrongAttributeValueException {
 		EntitylessAttributesModuleImplApi attributeModule = getEntitylessAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, key, attribute);
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM entityless_attr_values WHERE attr_id=? AND subject=?", attribute.getId(), key)) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeEntitylessAttribute(attribute, key);
@@ -4152,7 +4152,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) {
 		try {
 			jdbc.update("DELETE FROM group_resource_attr_values WHERE resource_id=?", resource.getId());
 			if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(Holder.HolderType.GROUP, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4162,7 +4162,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) {
 		try {
 			jdbc.update("DELETE FROM member_resource_attr_values WHERE resource_id=?", resource.getId());
 			if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(Holder.HolderType.MEMBER, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4172,7 +4172,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM facility_attr_values WHERE attr_id=? AND facility_id=?", attribute.getId(), facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(facility.getId(), Holder.HolderType.FACILITY), null);
@@ -4186,7 +4186,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Facility facility) {
 		try {
 			if (0 < jdbc.update("DELETE FROM facility_attr_values WHERE facility_id=?", facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -4200,7 +4200,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM vo_attr_values WHERE attr_id=? AND vo_id=?", attribute.getId(), vo.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(vo.getId(), Holder.HolderType.VO), null);
@@ -4214,7 +4214,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Vo vo) {
 		try {
 			if (0 < jdbc.update("DELETE FROM vo_attr_values WHERE vo_id=?", vo.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(vo.getId(), Holder.HolderType.VO));
@@ -4228,7 +4228,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM group_attr_values WHERE attr_id=? AND group_id=?", attribute.getId(), group.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(group.getId(), Holder.HolderType.GROUP), null);
@@ -4242,7 +4242,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Group group) {
 		try {
 			if (0 < jdbc.update("DELETE FROM group_attr_values WHERE group_id=?", group.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(group.getId(), Holder.HolderType.GROUP));
@@ -4256,7 +4256,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM resource_attr_values WHERE attr_id=? AND resource_id=?", attribute.getId(), resource.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(resource.getId(), Holder.HolderType.RESOURCE), null);
@@ -4270,7 +4270,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Resource resource) {
 		try {
 			if (0 < jdbc.update("DELETE FROM resource_attr_values WHERE resource_id=?", resource.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4284,7 +4284,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_resource_attr_values WHERE attr_id=? AND member_id=? AND resource_id=?", attribute.getId(), member.getId(), resource.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4298,7 +4298,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Member member, Resource resource) {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_resource_attr_values WHERE resource_id=? AND member_id=?", resource.getId(), member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4312,7 +4312,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_group_attr_values WHERE attr_id=? AND member_id=? AND group_id=?", attribute.getId(), member.getId(), group.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
@@ -4326,7 +4326,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Member member, Group group) {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_group_attr_values WHERE group_id=? AND member_id=?", group.getId(), member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
@@ -4340,7 +4340,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_attr_values WHERE attr_id=? AND member_id=?", attribute.getId(), member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(member.getId(), Holder.HolderType.MEMBER), null);
@@ -4354,7 +4354,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Member member) {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_attr_values WHERE member_id=?", member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER));
@@ -4368,7 +4368,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_facility_attr_values WHERE attr_id=? AND user_id=? AND facility_id=?", attribute.getId(), user.getId(), facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -4383,7 +4383,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Facility facility, User user) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_facility_attr_values WHERE user_id=? AND facility_id=?", user.getId(), facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -4397,7 +4397,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
+	public boolean removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_facility_attr_values WHERE facility_id=?", facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(Holder.HolderType.USER, new Holder(facility.getId(), Holder.HolderType.FACILITY));
@@ -4411,7 +4411,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException {
+	public boolean removeAllUserFacilityAttributes(PerunSession sess, User user) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_facility_attr_values WHERE user_id=?", user.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(user.getId(), Holder.HolderType.USER), Holder.HolderType.FACILITY);
@@ -4425,22 +4425,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeVirtualAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeVirtualAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) {
 		return getFacilityUserVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, user, facility, attribute);
 	}
 
 	@Override
-	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		return getResourceVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, resource, attribute);
 	}
 
 	@Override
-	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) {
 		return getResourceGroupVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, group, resource, attribute);
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_attr_values WHERE attr_id=? AND user_id=?", attribute.getId(), user.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(user.getId(), Holder.HolderType.USER), null);
@@ -4454,7 +4454,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, User user) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, User user) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_attr_values WHERE user_id=?", user.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(user.getId(), Holder.HolderType.USER));
@@ -4468,7 +4468,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM group_resource_attr_values WHERE attr_id=? AND resource_id=? AND group_id=?", attribute.getId(), resource.getId(), group.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4482,7 +4482,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Resource resource, Group group) {
 		try {
 			if (0 < jdbc.update("DELETE FROM group_resource_attr_values WHERE group_id=? AND resource_id=?", group.getId(), resource.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4496,7 +4496,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM host_attr_values WHERE attr_id=? AND host_id=?", attribute.getId(), host.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(host.getId(), Holder.HolderType.HOST), null);
@@ -4510,7 +4510,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Host host) {
 		try {
 			if (0 < jdbc.update("DELETE FROM host_attr_values WHERE host_id=?", host.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(host.getId(), Holder.HolderType.HOST));
@@ -4524,7 +4524,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_ext_source_attr_values WHERE attr_id=? AND user_ext_source_id=?", attribute.getId(), ues.getId())) {
 				if (!CacheManager.isCacheDisabled()) {
@@ -4540,7 +4540,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, UserExtSource ues) {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_ext_source_attr_values WHERE user_ext_source_id=?", ues.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(ues.getId(), Holder.HolderType.UES));
@@ -4554,7 +4554,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean attributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean attributeExists(PerunSession sess, AttributeDefinition attribute) {
 		Utils.notNull(attribute, "attribute");
 		Utils.notNull(attribute.getName(), "attribute.name");
 		Utils.notNull(attribute.getNamespace(), "attribute.namespace");
@@ -4571,7 +4571,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private boolean actionTypeExists(ActionType actionType) throws InternalErrorException {
+	private boolean actionTypeExists(ActionType actionType) {
 		Utils.notNull(actionType, "actionType");
 		Utils.notNull(actionType.getActionType(), "actionType.actionType");
 
@@ -4583,22 +4583,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws InternalErrorException, ActionTypeNotExistsException {
+	public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException {
 		if (!actionTypeExists(actionType)) throw new ActionTypeNotExistsException("ActionType: " + actionType);
 	}
 
 	@Override
-	public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeNotExistsException {
+	public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws AttributeNotExistsException {
 		if (!attributeExists(sess, attribute)) throw new AttributeNotExistsException("Attribute: " + attribute);
 	}
 
-	private void checkAttributeExists(PerunSession sess, AttributeDefinition attribute, String expectedNamespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private void checkAttributeExists(PerunSession sess, AttributeDefinition attribute, String expectedNamespace) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		checkAttributeExists(sess, attribute);
 		checkNamespace(sess, attribute, expectedNamespace);
 	}
 
 	@Override
-	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotExistsException {
+	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws AttributeNotExistsException {
 		Utils.notNull(attributes, "attributes");
 		for (AttributeDefinition attribute : attributes) {
 			checkAttributeExists(sess, attribute);
@@ -4606,7 +4606,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@SuppressWarnings("unused")
-	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes, String expectedNamespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes, String expectedNamespace) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.notNull(attributes, "attributes");
 		for (AttributeDefinition attribute : attributes) {
 			checkAttributeExists(sess, attribute, expectedNamespace);
@@ -4686,7 +4686,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Object> getAllResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Object> getAllResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.RESOURCE, attributeDefinition);
 
 		try {
@@ -4699,7 +4699,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Object> getAllGroupResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Object> getAllGroupResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.GROUP, Holder.HolderType.RESOURCE, attributeDefinition);
 
 		try {
@@ -4712,7 +4712,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.GROUP, attributeDefinition);
 
 		try {
@@ -4725,7 +4725,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Object> getAllUserValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Object> getAllUserValues(PerunSession sess, AttributeDefinition attributeDefinition) {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.USER, attributeDefinition);
 
 		try {
@@ -4738,7 +4738,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean isAttributeRequiredByFacility(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public boolean isAttributeRequiredByFacility(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) {
 		try {
 			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
@@ -4751,7 +4751,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean isAttributeRequiredByVo(PerunSession sess, Vo vo, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public boolean isAttributeRequiredByVo(PerunSession sess, Vo vo, AttributeDefinition attributeDefinition) {
 		try {
 			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
@@ -4764,7 +4764,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean isAttributeRequiredByGroup(PerunSession sess, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public boolean isAttributeRequiredByGroup(PerunSession sess, Group group, AttributeDefinition attributeDefinition) {
 		try {
 			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
@@ -4777,7 +4777,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean isAttributeRequiredByResource(PerunSession sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public boolean isAttributeRequiredByResource(PerunSession sess, Resource resource, AttributeDefinition attributeDefinition) {
 		try {
 			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=? " +
@@ -4837,7 +4837,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return instance group attribute module
 	 * null if the module doesn't exists
 	 */
-	private GroupAttributesModuleImplApi getGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private GroupAttributesModuleImplApi getGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -4855,7 +4855,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return instance host attribute module
 	 * null if the module doesn't exists
 	 */
-	private HostAttributesModuleImplApi getHostAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private HostAttributesModuleImplApi getHostAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -4873,7 +4873,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return instance vo attribute module
 	 * null if the module doesn't exists
 	 */
-	private VoAttributesModuleImplApi getVoAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private VoAttributesModuleImplApi getVoAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -4891,7 +4891,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return instance resource member attribute module
 	 * null if the module doesn't exists
 	 */
-	private MemberResourceAttributesModuleImplApi getResourceMemberAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private MemberResourceAttributesModuleImplApi getResourceMemberAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -4909,7 +4909,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return instance member group attribute module
 	 * null if the module doesn't exists
 	 */
-	private MemberGroupAttributesModuleImplApi getMemberGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private MemberGroupAttributesModuleImplApi getMemberGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -4927,7 +4927,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return instance facility attribute module
 	 * null if the module doesn't exists
 	 */
-	private FacilityAttributesModuleImplApi getFacilityAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private FacilityAttributesModuleImplApi getFacilityAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -4938,7 +4938,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private EntitylessAttributesModuleImplApi getEntitylessAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private EntitylessAttributesModuleImplApi getEntitylessAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -4955,7 +4955,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance facility attribute module
 	 */
-	private FacilityVirtualAttributesModuleImplApi getFacilityVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private FacilityVirtualAttributesModuleImplApi getFacilityVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -4973,7 +4973,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance of resource attribute module
 	 */
-	private ResourceVirtualAttributesModuleImplApi getResourceVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private ResourceVirtualAttributesModuleImplApi getResourceVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -4987,7 +4987,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -5005,7 +5005,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance of member attribute module
 	 */
-	private MemberVirtualAttributesModuleImplApi getMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private MemberVirtualAttributesModuleImplApi getMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -5023,7 +5023,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance user-facility attribute module, null if the module doesn't exists
 	 */
-	private UserFacilityAttributesModuleImplApi getFacilityUserAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private UserFacilityAttributesModuleImplApi getFacilityUserAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -5040,7 +5040,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance user-facility attribute module, null if the module doesn't exists
 	 */
-	private UserFacilityVirtualAttributesModuleImplApi getFacilityUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private UserFacilityVirtualAttributesModuleImplApi getFacilityUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -5058,7 +5058,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance userattribute module, null if the module doesn't exists
 	 */
-	private UserAttributesModuleImplApi getUserAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private UserAttributesModuleImplApi getUserAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -5075,7 +5075,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance userattribute module, null if the module doesn't exists
 	 */
-	private MemberAttributesModuleImplApi getMemberAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private MemberAttributesModuleImplApi getMemberAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -5092,7 +5092,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance resource attribute module, null if the module doesn't exists
 	 */
-	private ResourceAttributesModuleImplApi getResourceAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private ResourceAttributesModuleImplApi getResourceAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -5109,7 +5109,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance resource attribute module, null if the module doesn't exists
 	 */
-	private GroupResourceAttributesModuleImplApi getResourceGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private GroupResourceAttributesModuleImplApi getResourceGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 		if (attributeModule instanceof GroupResourceAttributesModuleImplApi) {
@@ -5126,7 +5126,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance user ext source attribute module, null if the module doesn't exists
 	 */
-	private UserExtSourceAttributesModuleImplApi getUserExtSourceAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private UserExtSourceAttributesModuleImplApi getUserExtSourceAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
@@ -5143,7 +5143,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance group-resource attribute module, null if the module doesn't exists
 	 */
-	GroupResourceVirtualAttributesModuleImplApi getResourceGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	GroupResourceVirtualAttributesModuleImplApi getResourceGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -5161,7 +5161,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance member-resource attribute module, null if the module doesn't exists
 	 */
-	MemberResourceVirtualAttributesModuleImplApi getResourceMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	MemberResourceVirtualAttributesModuleImplApi getResourceMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -5179,7 +5179,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance member-group attribute module null if the module doesn't exists
 	 */
-	MemberGroupVirtualAttributesModuleImplApi getMemberGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	MemberGroupVirtualAttributesModuleImplApi getMemberGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -5197,7 +5197,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance UserExtSource attribute module, null if the module doesn't exists
 	 */
-	private UserExtSourceVirtualAttributesModuleImplApi getUserExtSourceVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private UserExtSourceVirtualAttributesModuleImplApi getUserExtSourceVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 
 		if (attributeModule == null) {
@@ -5217,7 +5217,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance of member attribute module
 	 */
-	private GroupVirtualAttributesModuleImplApi getGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private GroupVirtualAttributesModuleImplApi getGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
@@ -5235,7 +5235,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute get the attribute module for this attribute
 	 */
 	@Override
-	public Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	public Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) {
 
 		// core attributes doesn't have modules !!
 		if (isCoreAttribute(sess, attribute)) return null;
@@ -5314,7 +5314,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef) throws InternalErrorException {
+	public void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef) {
 		try {
 			String tablePrefix = attributeToTablePrefix(attrDef);
 			jdbc.update(Compatibility.getLockTable(tablePrefix + "_attr_values"));
@@ -5406,7 +5406,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 
-	private static String readAttributeValue(PerunSession session, AttributeDefinition attrDef, ResultSet rs) throws InternalErrorException, SQLException {
+	private static String readAttributeValue(PerunSession session, AttributeDefinition attrDef, ResultSet rs) throws SQLException {
 		if (Utils.isLargeAttribute(session, attrDef)) {
 			if (Compatibility.isOracle()) {
 				//large attributes
@@ -5432,7 +5432,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) {
 		try {
 			Map<String, Object> map = jdbc.queryForMap("SELECT attr_name, friendly_name, namespace, type, dsc, display_name, is_unique FROM attr_names WHERE id=?", attributeDefinition.getId());
 
@@ -5486,7 +5486,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		@Override
-		public List<AttributeRights> extractData(ResultSet rs) throws SQLException, DataAccessException {
+		public List<AttributeRights> extractData(ResultSet rs) throws SQLException {
 
 			Map<String, List<ActionType>> map = new HashMap<>();
 
@@ -5514,7 +5514,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<AttributeRights> getAttributeRights(PerunSession sess, final int attributeId) throws InternalErrorException {
+	public List<AttributeRights> getAttributeRights(PerunSession sess, final int attributeId) {
 
 		List<AttributeRights> rights;
 		try {
@@ -5558,7 +5558,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void setAttributeRight(PerunSession sess, AttributeRights rights) throws InternalErrorException {
+	public void setAttributeRight(PerunSession sess, AttributeRights rights) {
 		try {
 			// get action types of the attribute and role from the database
 			List<ActionType> dbActionTypes = jdbc.query("SELECT action_types.action_type AS action_type FROM attributes_authz JOIN action_types "

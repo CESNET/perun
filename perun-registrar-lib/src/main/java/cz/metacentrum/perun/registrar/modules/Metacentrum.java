@@ -44,7 +44,7 @@ public class Metacentrum extends DefaultRegistrarModule {
 	 * Add all new Metacentrum members to "storage" group.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PrivilegeException, InternalErrorException, VoNotExistsException, GroupNotExistsException, UserNotExistsException, MemberNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, RegistrarException {
+	public Application approveApplication(PerunSession session, Application app) throws PrivilegeException, VoNotExistsException, GroupNotExistsException, UserNotExistsException, MemberNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, RegistrarException {
 
 		// get perun from session
 		PerunBl perun = (PerunBl)session.getPerun();

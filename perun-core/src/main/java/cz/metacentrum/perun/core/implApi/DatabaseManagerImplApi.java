@@ -22,7 +22,7 @@ public interface DatabaseManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	String getCurrentDatabaseVersion() throws InternalErrorException;
+	String getCurrentDatabaseVersion();
 
 	/**
 	 * Get DB driver information from datasource (name-version)
@@ -31,7 +31,7 @@ public interface DatabaseManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	String getDatabaseDriverInformation() throws InternalErrorException;
+	String getDatabaseDriverInformation();
 
 	/**
 	 * Get DB information from datasource (name-version)
@@ -40,7 +40,7 @@ public interface DatabaseManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	String getDatabaseInformation() throws InternalErrorException;
+	String getDatabaseInformation();
 
 	/**
 	 * Returns current code version from dbVersions list (ex. 3.0.1) or currentDBVersion if list is empty (because in that case currentDBVersion = current code version)
@@ -60,7 +60,7 @@ public interface DatabaseManagerImplApi {
 	 *
 	 * @throws InternalErrorException if any of the commands fails to execute
 	 */
-	void updateDatabaseVersion(List<DBVersion> dbVersions) throws InternalErrorException;
+	void updateDatabaseVersion(List<DBVersion> dbVersions);
 
 	/**
 	 * Parses all new database versions from DB changelog file and creates from them list of DBVersion objects.
@@ -73,7 +73,7 @@ public interface DatabaseManagerImplApi {
 	 *
 	 * @throws InternalErrorException if 1.there is error reading file, 2.currentDBVersion was not found 3.db version does not match pattern 4.db versions are not ordered as they should be
 	 */
-	List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException;
+	List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName);
 
 	/**
 	 *	Get time in ns "nanoseconds" of calling 1 simple update query to DB.

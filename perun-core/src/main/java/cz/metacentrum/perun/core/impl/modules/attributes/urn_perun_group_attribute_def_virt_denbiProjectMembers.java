@@ -31,7 +31,7 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
 	private static final String ELIXIR_LOGIN = "urn:perun:user:attribute-def:def:login-namespace:elixir";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) {
 
 		List<User> users = perunSession.getPerunBl().getGroupsManagerBl().getGroupUsers(perunSession, group);
 		JSONArray jsonMembers = new JSONArray();

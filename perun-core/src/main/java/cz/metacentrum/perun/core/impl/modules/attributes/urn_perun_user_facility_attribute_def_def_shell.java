@@ -27,7 +27,7 @@ import java.util.List;
 public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		String shell = attribute.valueAsString();
 
 		if (shell == null) return;
@@ -42,7 +42,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 	 * in allowed shells and also need to have correct format.
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String shell = attribute.valueAsString();
 
 		if (shell == null) return;
@@ -61,7 +61,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 	/**
 	 * Internal method for getting all allowed shells at specified facility
 	 */
-	private List<String> allShellsAtSpecifiedFacility(PerunSessionImpl session, Facility facility, User user) throws InternalErrorException, WrongAttributeAssignmentException {
+	private List<String> allShellsAtSpecifiedFacility(PerunSessionImpl session, Facility facility, User user) throws WrongAttributeAssignmentException {
 		List<Resource> availableResources;
 		availableResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
 		List<String> allowedShells = new ArrayList<>();

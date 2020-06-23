@@ -209,7 +209,7 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 	 * @param a other instance to be checked for equality
 	 * @throws ConsistencyErrorException thrown if any of class attributes differ
 	 */
-	public void checkEquality(AttributeDefinition a) throws ConsistencyErrorException {
+	public void checkEquality(AttributeDefinition a) {
 		if (!this.getFriendlyName().equals(a.getFriendlyName())) throw new ConsistencyErrorException("attribute friendlyName is altered");
 		if (!this.getNamespace().equals(a.getNamespace())) throw new ConsistencyErrorException("attribute namespace is altered");
 		if (!this.getType().equals(a.getType())) throw new ConsistencyErrorException("attribute type is altered");

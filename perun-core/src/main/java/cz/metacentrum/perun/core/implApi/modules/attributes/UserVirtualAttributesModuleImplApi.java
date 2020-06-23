@@ -26,7 +26,7 @@ public interface UserVirtualAttributesModuleImplApi extends UserAttributesModule
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException;
+	Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute);
 
 	/**
 	 * Method sets attributes' values which are dependent on this virtual attribute.
@@ -63,5 +63,5 @@ public interface UserVirtualAttributesModuleImplApi extends UserAttributesModule
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute) throws InternalErrorException;
+	List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute);
 }

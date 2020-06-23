@@ -79,7 +79,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 	 * DNS domains are in keys, country names are in values of the attribute.
 	 */
 	@Override
-	protected DnsMapCtx initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition attr) throws InternalErrorException {
+	protected DnsMapCtx initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition attr) {
 		try {
 			return new DnsMapCtx(sess, user, attr, sess.getPerunBl().getAttributesManagerBl().getEntitylessStringAttributeMapping(sess, DNS_STATE_MAPPING_ATTR.getName()));
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
@@ -113,7 +113,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 	 * For a change in dnsStateMapping attribute, finds all affected users and generates audit message about changing this attribute for each of them.
 	 */
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> messages = super.resolveVirtualAttributeValueChange(sess, message);
 		// react to auditlog message about changing dnsStateMapping
 
@@ -129,7 +129,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 		return messages;
 	}
 
-	private List<AuditEvent> resolveEvent(PerunSessionImpl sess, String key) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
+	private List<AuditEvent> resolveEvent(PerunSessionImpl sess, String key) throws WrongAttributeAssignmentException, AttributeNotExistsException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 
 		List<String> longerDomains =  new ArrayList<>();

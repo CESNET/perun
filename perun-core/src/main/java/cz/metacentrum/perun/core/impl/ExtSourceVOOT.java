@@ -61,12 +61,12 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
+    public List<Map<String, String>> findSubjects(String searchString) {
         return findSubjects(searchString, 0);
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+    public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
         query = getAttributes().get("query");
 
         if (query == null || query.isEmpty()) {
@@ -89,7 +89,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+    public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
         query = getAttributes().get("loginQuery");
 
         if (query == null || query.isEmpty()) {
@@ -127,7 +127,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
         List<Map<String, String>> subjects = new ArrayList<>();
 
         try {
@@ -169,7 +169,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
                 "Using this method is not supported for VOOT");
     }
 
-    private HttpURLConnection createConnection(String uri) throws IOException, InternalErrorException {
+    private HttpURLConnection createConnection(String uri) throws IOException {
         HttpURLConnection connection;
 
         username = getAttributes().get("user");
@@ -199,7 +199,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     // use uriMembership attribute to obtain list of available groups
-    private List<String> getGroupsFromRemote() throws IOException, InternalErrorException {
+    private List<String> getGroupsFromRemote() throws IOException {
         List<String> groups = new ArrayList();
 
         HttpURLConnection connection = createConnection(uriMembership);
@@ -228,7 +228,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         return null;
     }
 
-    private List<Map<String, String>> getUsersFromRemote(List<String> groups, int maxResults) throws InternalErrorException, IOException {
+    private List<Map<String, String>> getUsersFromRemote(List<String> groups, int maxResults) throws IOException {
         List<Map<String, String>> subjects = new ArrayList<>();
 
         for (String group : groups) {
@@ -249,7 +249,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     // use uriMembers attribute to obtain members from available groups
-    private List<Map<String, String>> getUsersFromRemoteGroup(String group) throws IOException, InternalErrorException {
+    private List<Map<String, String>> getUsersFromRemoteGroup(String group) throws IOException {
         List<Map<String, String>> users = new ArrayList();
 
         HttpURLConnection connection = createConnection(uriMembers + "/" + group);
@@ -296,7 +296,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     // method is used by getUsersFromRemoteGroup() method, creates MAP from required user
-    private Map<String, String> jsonParsing(JSONObject user) throws InternalErrorException {
+    private Map<String, String> jsonParsing(JSONObject user) {
         Map<String, String> resultMap = new HashMap<>();
 
         String mapping = getAttributes().get("vootMapping");
@@ -350,7 +350,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         return resultMap;
     }
 
-    protected void prepareEnvironment() throws InternalErrorException {
+    protected void prepareEnvironment() {
         uriMembership = getAttributes().get("uriMembership");
         uriMembers = getAttributes().get("uriMembers");
 
@@ -363,7 +363,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         }
     }
 
-    protected Map<String, String> getAttributes() throws InternalErrorException {
+    protected Map<String, String> getAttributes() {
         return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
 

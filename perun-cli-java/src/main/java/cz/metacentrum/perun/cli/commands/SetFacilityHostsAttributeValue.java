@@ -35,7 +35,7 @@ public class SetFacilityHostsAttributeValue extends PerunCommand {
 	}
 
 	@Override
-	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
+	public void executeCommand(PerunCLI.CommandContext ctx) {
 		int facilityId = this.getFacilityId(ctx, true);
 		int attributeDefinitionId = this.getAttributeDefinitionId(ctx, true);
 		String value = ctx.getCommandLine().getOptionValue("w");

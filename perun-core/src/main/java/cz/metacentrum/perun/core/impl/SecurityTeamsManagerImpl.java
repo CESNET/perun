@@ -63,7 +63,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			resultSet.getInt("security_teams_modified_by_uid") == 0 ? null : resultSet.getInt("security_teams_modified_by_uid"));
 
 	@Override
-	public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) throws InternalErrorException {
+	public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) {
 		try {
 			List<SecurityTeam> list = jdbc.query("select " + securityTeamMappingSelectQuery + " from security_teams", SECURITY_TEAM_MAPPER);
 
@@ -74,7 +74,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) {
 
 		Utils.notNull(securityTeam, "securityTeam");
 		// we do not store empty string in description
@@ -100,7 +100,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
+	public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException {
 
 		Utils.notNull(securityTeam, "securityTeam");
 		// we do not store empty string in description
@@ -130,7 +130,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
+	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException {
 		try {
 			// Delete authz entries for this Security team
 			AuthzResolverBlImpl.removeAllAuthzForSecurityTeam(sess, securityTeam);
@@ -148,7 +148,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws SecurityTeamNotExistsException, InternalErrorException {
+	public SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws SecurityTeamNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + securityTeamMappingSelectQuery + " from security_teams where id=?", SECURITY_TEAM_MAPPER, id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -159,7 +159,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws SecurityTeamNotExistsException, InternalErrorException {
+	public SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws SecurityTeamNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + securityTeamMappingSelectQuery + " from security_teams where name=?", SECURITY_TEAM_MAPPER, name);
 		} catch(EmptyResultDataAccessException ex) {
@@ -170,7 +170,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam) {
 		try {
 			List<User> list = jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
 							" from users inner join (" +
@@ -191,7 +191,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public List<User> getDirectAdmins(PerunSession sess,  SecurityTeam securityTeam) throws InternalErrorException {
+	public List<User> getDirectAdmins(PerunSession sess,  SecurityTeam securityTeam) {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 					"  where authz.security_team_id=? ",
@@ -204,7 +204,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
 					" where authz.security_team_id=?",
@@ -217,7 +217,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
+	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) {
 		if (description != null && description.trim().isEmpty()) {
 			description = null;
 		}
@@ -232,7 +232,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
+	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) {
 		try {
 			jdbc.update("delete from blacklists where security_team_id=? and user_id=?",
 					securityTeam.getId(), user.getId());
@@ -242,7 +242,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException {
+	public void removeUserFromAllBlacklists(PerunSession sess, User user) {
 		try {
 			jdbc.update("delete from blacklists where and user_id=?", user.getId());
 		} catch (RuntimeException e) {
@@ -251,7 +251,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public List<User> getBlacklist(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException {
+	public List<User> getBlacklist(PerunSession sess, List<SecurityTeam> securityTeams) {
 		try {
 			Set<User> blacklisted = new HashSet<>();
 			List<User> list;
@@ -274,7 +274,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
         @Override
-	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException {
+	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, List<SecurityTeam> securityTeams) {
 		try {
 			List<Pair<User, String>> result = new ArrayList<>();
 			for (SecurityTeam st : securityTeams) {
@@ -293,21 +293,21 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
+	public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException {
 		if (!securityTeamExists(securityTeam)) {
 			throw new SecurityTeamNotExistsException("Security Team " + securityTeam + " doesn't exist in DB");
 		}
 	}
 
 	@Override
-	public void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException {
+	public void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException {
 		if (securityTeamExists(securityTeam)) {
 			throw new SecurityTeamExistsException("Security Team " + securityTeam + " already exists in DB");
 		}
 	}
 
 	@Override
-	public void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException {
+	public void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException {
 		try {
 			int number = jdbc.queryForInt("select count(1) from security_teams where name=?", securityTeam.getName());
 			if (number == 1) {
@@ -323,35 +323,35 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, AlreadyAdminException {
+	public void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException {
 		if (isUserSecurityAdmin(user, securityTeam)) {
 			throw new AlreadyAdminException("User " + user + " is already admin of " + securityTeam);
 		}
 	}
 
 	@Override
-	public void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, UserNotAdminException {
+	public void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException {
 		if (!isUserSecurityAdmin(user, securityTeam)) {
 			throw new UserNotAdminException("User " + user + " is not admin of " + securityTeam);
 		}
 	}
 
 	@Override
-	public void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, AlreadyAdminException {
+	public void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException {
 		if (isGroupSecurityAdmin(group, securityTeam)) {
 			throw new AlreadyAdminException("Group " + group + " is already admin of " + securityTeam);
 		}
 	}
 
 	@Override
-	public void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException {
+	public void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException {
 		if (!isGroupSecurityAdmin(group, securityTeam)) {
 			throw new GroupNotAdminException("Group " + group + " is not admin of " + securityTeam);
 		}
 	}
 
 	@Override
-	public boolean isUserBlacklisted(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
+	public boolean isUserBlacklisted(PerunSession sess, SecurityTeam securityTeam, User user) {
 		try {
 			int number = jdbc.queryForInt("select count(1) from blacklists where security_team_id=? and user_id=?", securityTeam.getId(), user.getId());
 			if (number == 1) {
@@ -368,7 +368,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
-	public boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException {
+	public boolean isUserBlacklisted(PerunSession sess, User user) {
 		try {
 			int number = jdbc.queryForInt("select count(1) from blacklists where user_id=?", user.getId());
 			if (number >= 1) return true;
@@ -380,7 +380,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		}
 	}
 
-	private boolean securityTeamExists(SecurityTeam securityTeam) throws InternalErrorException {
+	private boolean securityTeamExists(SecurityTeam securityTeam) {
 		try {
 			int number = jdbc.queryForInt("select count(1) from security_teams where id=?", securityTeam.getId());
 			if (number == 1) {
@@ -396,7 +396,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		}
 	}
 
-	private boolean isUserSecurityAdmin(User user, SecurityTeam securityTeam) throws InternalErrorException {
+	private boolean isUserSecurityAdmin(User user, SecurityTeam securityTeam) {
 		try {
 			int number = jdbc.queryForInt("select count(1) from authz " +
 					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
@@ -413,7 +413,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		}
 	}
 
-	private boolean isGroupSecurityAdmin(Group group, SecurityTeam securityTeam) throws InternalErrorException {
+	private boolean isGroupSecurityAdmin(Group group, SecurityTeam securityTeam) {
 		try {
 			int number = jdbc.queryForInt("select count(1) from authz where authorized_group_id=? and security_team_id=?", group.getId(), securityTeam.getId());
 			if (number == 1) {

@@ -63,7 +63,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 
 
 	@Override
-	public boolean ownerExists(PerunSession sess, Owner owner) throws InternalErrorException {
+	public boolean ownerExists(PerunSession sess, Owner owner) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from owners where id=?", owner.getId());
 			if (numberOfExistences == 1) {
@@ -80,12 +80,12 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	}
 
 	@Override
-	public void checkOwnerExists(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException {
+	public void checkOwnerExists(PerunSession sess, Owner owner) throws OwnerNotExistsException {
 		if(!ownerExists(sess, owner)) throw new OwnerNotExistsException("Owner: " + owner);
 	}
 
 	@Override
-	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException {
+	public Owner createOwner(PerunSession sess, Owner owner) {
 		Utils.notNull(owner.getName(), "owner.getName()");
 		Utils.notNull(owner.getContact(), "owner.getContact()");
 		Utils.notNull(owner.getType(), "owner.getType()");
@@ -105,7 +105,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	}
 
 	@Override
-	public void deleteOwner(PerunSession sess, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException {
+	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerAlreadyRemovedException {
 		try {
 			int numAffected = jdbc.update("delete from owners where id=?", owner.getId());
 			if(numAffected == 0) throw new OwnerAlreadyRemovedException("Owner: " + owner);
@@ -115,7 +115,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	}
 
 	@Override
-	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException {
+	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + ownerMappingSelectQuery + " from owners where id=?", OWNER_MAPPER, id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -126,7 +126,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	}
 
 	@Override
-	public List<Owner> getOwners(PerunSession sess) throws InternalErrorException {
+	public List<Owner> getOwners(PerunSession sess) {
 		try {
 			return jdbc.query("select " + ownerMappingSelectQuery + " from owners", OWNER_MAPPER);
 		} catch(EmptyResultDataAccessException ex) {

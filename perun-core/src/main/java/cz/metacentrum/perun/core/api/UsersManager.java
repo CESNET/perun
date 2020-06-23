@@ -57,7 +57,7 @@ public interface UsersManager {
 	 * @throws UserExtSourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	User getUserByUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException;
+	User getUserByUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns user based on one of the userExtSource.
@@ -69,7 +69,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	User getUserByUserExtSources(PerunSession perunSession, List<UserExtSource> userExtSources) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	User getUserByUserExtSources(PerunSession perunSession, List<UserExtSource> userExtSources) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Return all specificUsers who are owned by the user
@@ -82,7 +82,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws NotSpecificUserExpectedException when the user is service User
 	 */
-	List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException;
+	List<User> getSpecificUsersByUser(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException;
 
 	/**
 	 * Return all users who owns the specific one
@@ -95,7 +95,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws SpecificUserExpectedException when the serviceUser is not really service user (is it normal user)
 	 */
-	List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException;
+	List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws UserNotExistsException, PrivilegeException, SpecificUserExpectedException;
 
 	/**
 	 * Remove specificUser owner (the user)
@@ -112,7 +112,7 @@ public interface UsersManager {
 	 * @throws RelationNotExistsException if there is no such user (the user) to remove
 	 * @throws cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by removing from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException;
 
 	/**
 	 * Add specificUser owner (the user)
@@ -129,7 +129,7 @@ public interface UsersManager {
 	 * @throws NotSpecificUserExpectedException when the user is specific User
 	 * @throws RelationExistsException If there is such user (the user) who try to add
 	 */
-	void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationExistsException;
+	void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationExistsException;
 
 	/**
 	 * Return all specific Users (only specific users)
@@ -139,7 +139,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	List<User> getSpecificUsers(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Returns user by his/her id.
@@ -151,7 +151,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	User getUserById(PerunSession perunSession, int id) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	User getUserById(PerunSession perunSession, int id) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns user by VO member.
@@ -164,7 +164,7 @@ public interface UsersManager {
 	 * @throws MemberNotExistsException
 	 * @throws PrivilegeException
 	 */
-	User getUserByMember(PerunSession perunSession, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException;
+	User getUserByMember(PerunSession perunSession, Member member) throws MemberNotExistsException, PrivilegeException;
 
 	/**
 	 * Get user by extSourceName and extSourceLogin
@@ -179,7 +179,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException, InternalErrorException, PrivilegeException;
+	User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns all users (included specific users).
@@ -188,7 +188,7 @@ public interface UsersManager {
 	 * @return list of all users
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsers(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	List<User> getUsers(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Get User to RichUser without attributes.
@@ -199,7 +199,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	RichUser getRichUser(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Get User to RichUser with attributes.
@@ -210,7 +210,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	RichUser getRichUserWithAttributes(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Get All richUsers with or without specificUsers.
@@ -225,7 +225,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException;
+	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws PrivilegeException;
 
 	/**
 	 * Get All richUsers with or without specificUsers.
@@ -241,7 +241,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * From Users makes RichUsers without attributes.
@@ -253,7 +253,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * From Users makes RichUsers with attributes.
@@ -265,7 +265,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 *  Inserts user into DB.
@@ -276,7 +276,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	@Deprecated
-	User createUser(PerunSession perunSession, User user) throws InternalErrorException, PrivilegeException;
+	User createUser(PerunSession perunSession, User user) throws PrivilegeException;
 
 	/**
 	 * Set specific user type for specific user and set ownership of this user for the owner.
@@ -293,7 +293,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws InternalErrorException, RelationExistsException, UserNotExistsException, PrivilegeException;
+	User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws RelationExistsException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Remove all ownerships of this specific user and unset this specific user type from this specific user.
@@ -308,7 +308,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 *  Deletes user.
@@ -323,7 +323,7 @@ public interface UsersManager {
 	 * @throws UserAlreadyRemovedException
 	 * @throws SpecificUserAlreadyRemovedException
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Deletes user. If forceDelete is true, then removes also associeted members.
@@ -339,7 +339,7 @@ public interface UsersManager {
 	 * @throws UserAlreadyRemovedException
 	 * @throws SpecificUserAlreadyRemovedException
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Updates users data in DB.
@@ -351,7 +351,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	User updateUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	User updateUser(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 *  Updates titles before/after name of user.
@@ -367,7 +367,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	User updateNameTitles(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	User updateNameTitles(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 *  Updates user's userExtSource in DB.
@@ -381,7 +381,7 @@ public interface UsersManager {
 	 * @throws UserExtSourceExistsException When UES with same login/extSource already exists.
 	 * @throws UserExtSourceNotExistsException When UES by its ID doesn't exists
 	 */
-	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserExtSourceExistsException, PrivilegeException;
+	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws UserExtSourceNotExistsException, UserExtSourceExistsException, PrivilegeException;
 
 	/**
 	 * Gets list of all user's external sources of the user.
@@ -393,7 +393,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<UserExtSource> getUserExtSources(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<UserExtSource> getUserExtSources(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Gets list of all user's external sources with attributes.
@@ -405,7 +405,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException if given user doesn't exist
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	List<RichUserExtSource> getRichUserExtSources(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<RichUserExtSource> getRichUserExtSources(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Gets list of all user's external sources with attributes. If any of the attribute names is incorrect
@@ -419,7 +419,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException if given user doesn't exist
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	List<RichUserExtSource> getRichUserExtSources(PerunSession perunSession, User user, List<String> attrsNames) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<RichUserExtSource> getRichUserExtSources(PerunSession perunSession, User user, List<String> attrsNames) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Get the user ext source by its id.
@@ -431,7 +431,7 @@ public interface UsersManager {
 	 * @throws UserExtSourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException, PrivilegeException;
+	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws UserExtSourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Adds user's external sources.
@@ -445,7 +445,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws UserExtSourceExistsException
 	 */
-	UserExtSource addUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, PrivilegeException, UserExtSourceExistsException;
+	UserExtSource addUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws UserNotExistsException, PrivilegeException, UserExtSourceExistsException;
 
 	/**
 	 * Removes user's external source.
@@ -459,7 +459,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
+	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
 
 	/**
 	 * Removes user's external source.
@@ -474,7 +474,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource, boolean forceDelete) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
+	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource, boolean forceDelete) throws UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
 
 	/**
 	 * Take UserExtSource from sourceUser and move it to the targetUser.
@@ -492,7 +492,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException one of the users not exists
 	 * @throws PrivilegeException
 	 */
-	void moveUserExtSource(PerunSession perunSession, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException;
+	void moveUserExtSource(PerunSession perunSession, User sourceUser, User targetUser, UserExtSource userExtSource) throws UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Gets user's external source by the user's external login and external source.
@@ -506,8 +506,8 @@ public interface UsersManager {
 	 * @throws ExtSourceNotExistsException
 	 * @throws UserExtSourceNotExistsException
 	 */
-	UserExtSource getUserExtSourceByExtLogin(PerunSession perunSession, ExtSource source, String extLogin) throws InternalErrorException,
-								PrivilegeException, ExtSourceNotExistsException, UserExtSourceNotExistsException;
+	UserExtSource getUserExtSourceByExtLogin(PerunSession perunSession, ExtSource source, String extLogin) throws
+			PrivilegeException, ExtSourceNotExistsException, UserExtSourceNotExistsException;
 
 	/**
 	 * Returns list of VOs, where the user is an Administrator.
@@ -519,7 +519,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<Vo> getVosWhereUserIsAdmin(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<Vo> getVosWhereUserIsAdmin(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns list of Groups in Perun, where the User is a direct Administrator
@@ -534,7 +534,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<Group> getGroupsWhereUserIsAdmin(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<Group> getGroupsWhereUserIsAdmin(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns list of Groups in selected Vo, where the User is a direct Administrator
@@ -551,7 +551,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException the user not exists in Perun
 	 * @throws VoNotExistsException the vo not exists in Perun
 	 */
-	List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, VoNotExistsException;
+	List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws PrivilegeException, UserNotExistsException, VoNotExistsException;
 
 	/**
 	 * Returns list of VOs, where the user is a member.
@@ -561,7 +561,7 @@ public interface UsersManager {
 	 * @return list of VOs, where the user is a member.
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosWhereUserIsMember(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<Vo> getVosWhereUserIsMember(PerunSession perunSession, User user) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Get all resources from the facility which have the user access on.
@@ -576,7 +576,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException;
+	List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Get all resources which have the user access on.
@@ -610,7 +610,7 @@ public interface UsersManager {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException;
+	List<User> findUsers(PerunSession sess, String searchString) throws PrivilegeException;
 
 	/**
 	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
@@ -622,7 +622,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	List<RichUser> findRichUsers(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<RichUser> findRichUsers(PerunSession sess, String searchString) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Return list of users who matches the searchString, searching name, email and logins
@@ -636,7 +636,7 @@ public interface UsersManager {
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 */
-	List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, VoNotExistsException, PrivilegeException;
+	List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws VoNotExistsException, PrivilegeException;
 
 
 	/**
@@ -647,7 +647,7 @@ public interface UsersManager {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException;
+	List<User> findUsersByName(PerunSession sess, String searchString) throws PrivilegeException;
 
 	/**
 	 * Returns list of users who matches the fields.
@@ -662,7 +662,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException, PrivilegeException;
+	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws PrivilegeException;
 
 	/**
 	 * Returns list of users who exactly matches the searchString
@@ -672,7 +672,7 @@ public interface UsersManager {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException;
+	List<User> findUsersByExactName(PerunSession sess, String searchString) throws PrivilegeException;
 
 	/**
 	 * Checks if the login is available in the namespace. Returns FALSE is is already occupied,
@@ -696,7 +696,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, PrivilegeException;
+	List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws PrivilegeException;
 
 	/**
 	 * Returns all RichUsers with attributes who are not member of any VO.
@@ -707,7 +707,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+	List<RichUser> getRichUsersWithoutVoAssigned(PerunSession sess) throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns all users who have set the attribute with the value. Searching by attributeName. Searching only def and opt attributes.
@@ -721,7 +721,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws AttributeNotExistsException
 	 */
-	List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+	List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue) throws PrivilegeException, AttributeNotExistsException;
 
 	/**
 	 * Returns all users who have the attribute with the value. attributeValue is not converted to the attribute type, it is always type of String.
@@ -734,7 +734,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws AttributeNotExistsException
 	 */
-	List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+	List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) throws PrivilegeException, AttributeNotExistsException;
 
 	/**
 	 * Returns all users who are not member of any VO.
@@ -744,7 +744,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<User> getUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	List<User> getUsersWithoutVoAssigned(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Returns true if the user is PERUNADMIN.
@@ -756,7 +756,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	boolean isUserPerunAdmin(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
@@ -774,7 +774,7 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, String login, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, PrivilegeException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
+			throws PrivilegeException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
@@ -793,7 +793,7 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
+			throws PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 
 	/**
@@ -810,7 +810,7 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang)
-			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
+			throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
 	 * Reserves random password in external system. User must not exists.
@@ -823,7 +823,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 */
-	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException;
+	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException;
 
 	/**
 	 * Reserves the password in external system. User must not exists.
@@ -837,7 +837,7 @@ public interface UsersManager {
 	 * @throws InvalidLoginException
 	 */
 	void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-			throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
+			throws PasswordCreationFailedException, PrivilegeException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
 	 * Reserves the password in external system. User must exists.
@@ -853,7 +853,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	void reservePassword(PerunSession sess, User user, String loginNamespace, String password)
-			throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
+			throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
 	 * Validates the password in external system. User must not exists.
@@ -866,7 +866,7 @@ public interface UsersManager {
 	 * @throws InvalidLoginException
 	 */
 	void validatePassword(PerunSession sess, String userLogin, String loginNamespace)
-			throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, InvalidLoginException;
+			throws PasswordCreationFailedException, PrivilegeException, InvalidLoginException;
 
 	/**
 	 * Validates the password in external system and set user extSources and extSource related attributes. User must exists.
@@ -885,7 +885,7 @@ public interface UsersManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws InvalidLoginException
 	 */
-	void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PrivilegeException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, InvalidLoginException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, InvalidLoginException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 
 	/**
@@ -901,7 +901,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	void validatePassword(PerunSession sess, User user, String loginNamespace)
-		throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, InvalidLoginException;
+		throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, InvalidLoginException;
 
 	/**
 	 * Deletes password in external system. User must not exists.
@@ -915,7 +915,7 @@ public interface UsersManager {
 	 * @throws InvalidLoginException
 	 */
 	void deletePassword(PerunSession sess, String userLogin, String loginNamespace)
-			throws InternalErrorException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException;
+			throws PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException, PasswordOperationTimeoutException, InvalidLoginException;
 
 	/**
 	 * Creates alternative password in external system.
@@ -931,7 +931,7 @@ public interface UsersManager {
 	 * @throws LoginNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordStrengthException;
+	void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordStrengthException;
 
 	/**
 	 * Deletes alternative password in external system.
@@ -946,7 +946,7 @@ public interface UsersManager {
 	 * @throws LoginNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws InternalErrorException, UserNotExistsException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException;
+	void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws UserNotExistsException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException;
 
 
 	/**
@@ -965,7 +965,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 */
 	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers,List<String> attrsNames)
-		throws InternalErrorException, PrivilegeException, UserNotExistsException;
+		throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
@@ -979,7 +979,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrNames)
-		throws InternalErrorException, UserNotExistsException, PrivilegeException;
+		throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
@@ -994,7 +994,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames)
-		throws InternalErrorException, UserNotExistsException, PrivilegeException;
+		throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns list of RichUsers which are not members of any VO and with selected attributes
@@ -1007,7 +1007,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrNames)
-		throws InternalErrorException, UserNotExistsException, PrivilegeException;
+		throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Return list of RichUsers who matches the searchString, searching name, email and logins
@@ -1023,7 +1023,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName)
-		throws InternalErrorException, UserNotExistsException, PrivilegeException;
+		throws UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Allow users to manually add login in supported namespace if same login is not reserved.
@@ -1039,7 +1039,7 @@ public interface UsersManager {
 	 * @throws LoginExistsException
 	 * @throws InvalidLoginException
 	 */
-	void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginExistsException, InvalidLoginException;
+	void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws PrivilegeException, UserNotExistsException, LoginExistsException, InvalidLoginException;
 
 	/**
 	 * Request change of user's preferred email address.
@@ -1057,7 +1057,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Validate change of user's preferred email address.
@@ -1079,7 +1079,7 @@ public interface UsersManager {
 	 *
 	 * @return String return new preferred email
 	 */
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Return list of email addresses of user, which are
@@ -1101,7 +1101,7 @@ public interface UsersManager {
 	 *
 	 * @return List<String> user's email addresses pending validation
 	 */
-	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
 	 * Get count of all users.
@@ -1111,7 +1111,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @return count of all users
 	 */
-	int getUsersCount(PerunSession sess) throws InternalErrorException;
+	int getUsersCount(PerunSession sess);
 
 	/**
 	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
@@ -1123,7 +1123,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserExtSourceNotExistsException
 	 */
-	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException;
+	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws PrivilegeException, UserExtSourceNotExistsException;
 
 	/**
 	 * Generate user account in a backend system associated with login-namespace in Perun.
@@ -1142,7 +1142,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException, PasswordStrengthException;
+	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws PrivilegeException, PasswordStrengthException;
 
 	/**
 	 * Gets list of users that sponsor the member, with attributes.
@@ -1155,7 +1155,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @return list of users which sponsor the member
 	 */
-	List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Generates new random password for given user and returns String representing HTML
@@ -1169,7 +1169,7 @@ public interface UsersManager {
 	 * @param loginNamespace login namespace
 	 * @return String representing HTML with data about new generated password
 	 */
-	String changePasswordRandom(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException;
+	String changePasswordRandom(PerunSession sess, User user, String loginNamespace) throws PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
 	 * Return all groups where user is active (has VALID status in VO and Group together)
@@ -1180,7 +1180,7 @@ public interface UsersManager {
 	 * @param user Only groups where this user is VALID member might be returned
 	 * @return List of groups where user is active (is a VALID vo and group member) on specified resource
 	 */
-	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws PrivilegeException, InternalErrorException;
+	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws PrivilegeException;
 
 	/**
 	 * Return all RichGroups where user is active (has VALID status in VO and Group together)
@@ -1192,7 +1192,7 @@ public interface UsersManager {
 	 * @param attrNames Names (URNs) of group attributes to get with each returned group
 	 * @return List of groups where user is active (is a VALID vo and group member) on specified resource
 	 */
-	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException;
+	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException;
 
 	/**
 	 * Return all groups where user is active (has VALID status in VO and Group together)
@@ -1203,7 +1203,7 @@ public interface UsersManager {
 	 * @param user Only groups where this user is VALID member might be returned
 	 * @return List of groups where user is active (is a VALID vo and group member) on specified facility
 	 */
-	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) throws PrivilegeException, InternalErrorException;
+	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) throws PrivilegeException;
 
 	/**
 	 * Return all groups where user is active (has VALID status in VO and Group together)
@@ -1215,6 +1215,6 @@ public interface UsersManager {
 	 * @param attrNames Names (URNs) of group attributes to get with each returned group
 	 * @return List of groups where user is active (is a VALID vo and group member) on specified facility
 	 */
-	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException;
+	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user, List<String> attrNames) throws PrivilegeException;
 
 }

@@ -33,7 +33,7 @@ import java.util.Map;
 public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends UserFacilityVirtualAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) {
 		Attribute attr = new Attribute(attributeDefinition);
 		try {
 			//first phase: if attribute UF:D:defaultUnixGID is set, it has top priority
@@ -115,7 +115,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if(attribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Attribute can't be null.");
 		try {
 			Attribute defaultUnixGID = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
@@ -127,7 +127,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException {
+	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) {
 		try {
 			Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
 			attributeToSet.setValue(attribute.getValue());

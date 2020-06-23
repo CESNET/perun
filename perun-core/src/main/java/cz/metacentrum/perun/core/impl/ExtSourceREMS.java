@@ -40,19 +40,19 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString) throws ExtSourceUnsupportedOperationException {
 		List<Map<String, String>> subjects = super.findSubjects(searchString);
 		return filterNonExistingUsers(subjects);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
 		List<Map<String, String>> subjects = super.findSubjects(searchString, maxResults);
 		return filterNonExistingUsers(subjects);
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+	public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
 		Map<String, String> subject = super.getSubjectByLogin(login);
 		if (!isExistingUser(subject)) {
 			throw new SubjectNotExistsException("Subject for given login does not exist in Perun");
@@ -61,19 +61,19 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString) {
 		List<Map<String, String>> subjects = super.findSubjectsLogins(searchString);
 		return filterNonExistingUsers(subjects);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) {
 		List<Map<String, String>> subjects = super.findSubjectsLogins(searchString, maxResults);
 		return filterNonExistingUsers(subjects);
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		List<Map<String, String>> subjects = super.getGroupSubjects(attributes);
 		return filterNonExistingUsers(subjects);
 	}
@@ -97,7 +97,7 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	 * @return List without filtered subjects
 	 * @throws InternalErrorException internalError
 	 */
-	private List<Map<String, String>> filterNonExistingUsers(List<Map<String, String>> subjects) throws InternalErrorException {
+	private List<Map<String, String>> filterNonExistingUsers(List<Map<String, String>> subjects) {
 		List<Map<String, String>> existingSubjects = new ArrayList<>();
 
 		for (Map<String, String> subject : subjects) {
@@ -118,7 +118,7 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	 * @return true if the subject has, false otherwise
 	 * @throws InternalErrorException internalError
 	 */
-	private boolean isExistingUser(Map<String, String> subject) throws InternalErrorException {
+	private boolean isExistingUser(Map<String, String> subject) {
 		if (subject == null || subject.isEmpty()) {
 			throw new InternalErrorException("Subject can not be empty or null: " + subject);
 		}
@@ -164,7 +164,7 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	 * @return true if is found existing ues with given login, false otherwise
 	 * @throws InternalErrorException internalError
 	 */
-	private boolean existsSubjectWithUes(String ues) throws InternalErrorException {
+	private boolean existsSubjectWithUes(String ues) {
 		String[] extSourceSplit = ues.split("\\|", 4);
 		if(extSourceSplit.length != 4) {
 			log.error("Ivalid format of additionalues_1. It should be '{extSourceName}|{extSourceClass}|{eppn}|0'. Actual: {}", ues);
@@ -208,7 +208,7 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 		return extSources;
 	}
 
-	private PerunSession getSession() throws InternalErrorException {
+	private PerunSession getSession() {
 		final PerunPrincipal pp = new PerunPrincipal("ExtSourceREMS", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		try {
 			return perunBl.getPerunSession(pp, new PerunClient());

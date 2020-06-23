@@ -13,7 +13,7 @@ import java.util.List;
 public class SingleAttributeValueExtractor<T extends PerunBean> extends AttributeValueExtractor implements SingleValueExtractor<T> {
 
 	@Override
-	public String getValue(T bean, Attribute... attributes) throws InternalErrorException {
+	public String getValue(T bean, Attribute... attributes) {
 		String result;
 		for (Attribute attribute : attributes) {
 			if (this.appliesToAttribute(attribute)) {

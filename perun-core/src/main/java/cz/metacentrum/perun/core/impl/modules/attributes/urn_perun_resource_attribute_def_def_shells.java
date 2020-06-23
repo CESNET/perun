@@ -31,7 +31,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 	 * Fills the list of shells at the specified resource from facility
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		Attribute atr = new Attribute(attribute);
 		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
 
@@ -48,7 +48,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		List<String> shells = attribute.valueAsList();
 
 		if (shells == null) return;
@@ -62,7 +62,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 	 * Checks the attribute with all available shells from resource's facility
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		List<String> shells = attribute.valueAsList();
 
 		if (shells == null) {

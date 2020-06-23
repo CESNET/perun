@@ -18,7 +18,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class HostAttributesModuleAbstract implements HostAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl session, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl session, Host host, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 

@@ -27,7 +27,7 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 	@Autowired
 	protected PerunResource perunResource;
 
-	public void synchronizeResources() throws InternalErrorException {
+	public void synchronizeResources() {
 		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		boolean shouldWriteExceptionLog = true;
 		try {

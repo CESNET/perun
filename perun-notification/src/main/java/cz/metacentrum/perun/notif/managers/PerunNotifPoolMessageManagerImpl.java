@@ -56,7 +56,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 		session = NotifUtils.getPerunSession(perun);
 	}
 
-	public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages) throws InternalErrorException {
+	public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages) {
 
 		for (PerunNotifPoolMessage message : poolMessages) {
 			perunNotifPoolMessageDao.savePerunNotifPoolMessage(message);
@@ -66,7 +66,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public List<PerunNotifPoolMessage> createPerunNotifPoolMessagesForTemplates(Map<Integer, List<PerunNotifTemplate>> templatesWithRegexIds,
-		PerunNotifAuditMessage perunAuditMessage) throws InternalErrorException {
+		PerunNotifAuditMessage perunAuditMessage) {
 
 		List<PerunNotifPoolMessage> result = new ArrayList<PerunNotifPoolMessage>();
 		// We parse recieved message from auditer to get all objects
@@ -406,7 +406,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	}
 
 	@Override
-	public void processPerunNotifPoolMessagesFromDb() throws InternalErrorException {
+	public void processPerunNotifPoolMessagesFromDb() {
 
 		//in format templateId = list<PoolMessage>
 		Map<Integer, List<PoolMessage>> poolMessages = perunNotifPoolMessageDao.getAllPoolMessagesForProcessing();

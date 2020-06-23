@@ -49,7 +49,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
 	 */
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		Utils.notNull(attribute, "attribute");
 		if (unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
@@ -81,7 +81,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 
@@ -151,7 +151,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 		if(attribute.getValue() != null) {
 

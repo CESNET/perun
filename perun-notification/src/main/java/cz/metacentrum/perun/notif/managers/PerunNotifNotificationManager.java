@@ -32,7 +32,7 @@ public interface PerunNotifNotificationManager {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException;
+	public PerunNotifObject getPerunNotifObjectById(int id);
 
 	/**
 	 * Returns all PerunNotifObjects.
@@ -48,7 +48,7 @@ public interface PerunNotifNotificationManager {
 	 * @return perunNotifObject with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object);
 
 	/**
 	 * Updates perunNotifObject in db
@@ -57,7 +57,7 @@ public interface PerunNotifNotificationManager {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object);
 
 	/**
 	 * Removes object and relations to object with regex from db
@@ -65,7 +65,7 @@ public interface PerunNotifNotificationManager {
 	 * @param id
 	 * @throws InternalErrorException
 	 */
-	public void removePerunNotifObjectById(int id) throws InternalErrorException;
+	public void removePerunNotifObjectById(int id);
 
 	/**
 	 * Saves relation between object and regex if not exists
@@ -74,7 +74,7 @@ public interface PerunNotifNotificationManager {
 	 * @param objectId
 	 * @throws InternalErrorException
 	 */
-	public void saveObjectRegexRelation(int regexId, int objectId) throws InternalErrorException;
+	public void saveObjectRegexRelation(int regexId, int objectId);
 
 	/**
 	 * Removes relation between object and regex
@@ -83,7 +83,7 @@ public interface PerunNotifNotificationManager {
 	 * @param objectId
 	 * @throws InternalErrorException
 	 */
-	public void removePerunNotifRegexObjectRelation(int regexId, int objectId) throws InternalErrorException;
+	public void removePerunNotifRegexObjectRelation(int regexId, int objectId);
 
 	/*
 	 * Methods for PerunNotifReceiver
@@ -97,7 +97,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifReceiver getPerunNotifReceiverById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException;
+	public PerunNotifReceiver getPerunNotifReceiverById(PerunSession sess, int id) throws PrivilegeException;
 
 	/**
 	 * Returns all PerunNotifReceivers from db.
@@ -107,7 +107,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public List<PerunNotifReceiver> getAllPerunNotifReceivers(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	public List<PerunNotifReceiver> getAllPerunNotifReceivers(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Saves PerunNotifReceiver to db and crates id
@@ -119,7 +119,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws NotifReceiverAlreadyExistsException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifReceiver createPerunNotifReceiver(PerunSession sess, PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException, PrivilegeException;
+	public PerunNotifReceiver createPerunNotifReceiver(PerunSession sess, PerunNotifReceiver receiver) throws NotifReceiverAlreadyExistsException, PrivilegeException;
 
 	/**
 	 * Updates receiver in db
@@ -131,7 +131,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws NotifReceiverAlreadyExistsException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunSession sess, PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException, PrivilegeException;
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunSession sess, PerunNotifReceiver receiver) throws NotifReceiverAlreadyExistsException, PrivilegeException;
 
 	/**
 	 * Removes PerunNotifReceiver from db
@@ -141,7 +141,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public void removePerunNotifReceiverById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException;
+	public void removePerunNotifReceiverById(PerunSession sess, int id) throws PrivilegeException;
 
 	/*
 	 * Methods for perunNotifRegex
@@ -155,7 +155,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifRegex getPerunNotifRegexById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException;
+	public PerunNotifRegex getPerunNotifRegexById(PerunSession sess, int id) throws PrivilegeException;
 
 	/**
 	 * Returns all PerunNotifRegexes.
@@ -165,7 +165,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	public List<PerunNotifRegex> getAllPerunNotifRegexes(PerunSession sess) throws PrivilegeException, InternalErrorException;
+	public List<PerunNotifRegex> getAllPerunNotifRegexes(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Saves perunNotifRegex to db and creates id, also saves relation
@@ -178,7 +178,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws NotifRegexAlreadyExistsException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifRegex createPerunNotifRegex(PerunSession sess, PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException, PrivilegeException;
+	public PerunNotifRegex createPerunNotifRegex(PerunSession sess, PerunNotifRegex regex) throws NotifRegexAlreadyExistsException, PrivilegeException;
 
 	/**
 	 * Updates PerunNotifRegex in db, also updates relation between regex
@@ -190,7 +190,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifRegex updatePerunNotifRegex(PerunSession sess, PerunNotifRegex regex) throws InternalErrorException, PrivilegeException;
+	public PerunNotifRegex updatePerunNotifRegex(PerunSession sess, PerunNotifRegex regex) throws PrivilegeException;
 
 	/**
 	 * Removes PerunNotifRegex from db, if regex is referenced from template
@@ -202,7 +202,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws PerunNotifRegexUsedException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public void removePerunNotifRegexById(PerunSession sess, int id) throws InternalErrorException, PerunNotifRegexUsedException, PrivilegeException;
+	public void removePerunNotifRegexById(PerunSession sess, int id) throws PerunNotifRegexUsedException, PrivilegeException;
 
 	/**
 	 * Save relation between template and regex if not exists yet.
@@ -213,7 +213,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public void saveTemplateRegexRelation(PerunSession sess, int templateId, Integer regexId) throws InternalErrorException, PrivilegeException;
+	public void saveTemplateRegexRelation(PerunSession sess, int templateId, Integer regexId) throws PrivilegeException;
 
 	/**
 	 * Returns all regexes related to given template.
@@ -224,7 +224,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public List<PerunNotifRegex> getRelatedRegexesForTemplate(PerunSession sess, int templateId) throws InternalErrorException, PrivilegeException;
+	public List<PerunNotifRegex> getRelatedRegexesForTemplate(PerunSession sess, int templateId) throws PrivilegeException;
 
 	/**
 	 * Removes relation between PerunNotifRegex and PerunNotifTemplate
@@ -235,7 +235,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public void removePerunNotifTemplateRegexRelation(PerunSession sess, int templateId, int regexId) throws InternalErrorException, PrivilegeException;
+	public void removePerunNotifTemplateRegexRelation(PerunSession sess, int templateId, int regexId) throws PrivilegeException;
 
 	/*
 	 * Methods for perunNotifTemplateMessage
@@ -249,7 +249,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException;
+	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(PerunSession sess, int id) throws PrivilegeException;
 
 	/**
 	 * Returns all PerunNotifTemplateMessages.
@@ -259,7 +259,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages(PerunSession sess) throws PrivilegeException, InternalErrorException;
+	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Saves perunNotifTemplateMessage to db and creates id
@@ -272,7 +272,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws TemplateMessageSyntaxErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunSession sess, PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException, PrivilegeException;
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunSession sess, PerunNotifTemplateMessage message) throws NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException, PrivilegeException;
 
 	/**
 	 * Update perunNotifTemplateMessage in db.
@@ -284,7 +284,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws TemplateMessageSyntaxErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunSession sess, PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException, PrivilegeException;
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunSession sess, PerunNotifTemplateMessage message) throws TemplateMessageSyntaxErrorException, PrivilegeException;
 
 	/**
 	 * Removes PerunNotifTemplateMessage from db.
@@ -294,7 +294,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public void removePerunNotifTemplateMessage(PerunSession sess, int id) throws InternalErrorException, PrivilegeException;
+	public void removePerunNotifTemplateMessage(PerunSession sess, int id) throws PrivilegeException;
 
 	/*
 	 * Methods for perunNotifTemplate
@@ -308,7 +308,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifTemplate getPerunNotifTemplateById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException;
+	public PerunNotifTemplate getPerunNotifTemplateById(PerunSession sess, int id) throws PrivilegeException;
 
 	/**
 	 * Returns all PerunNotifTemplates.
@@ -318,7 +318,7 @@ public interface PerunNotifNotificationManager {
 	 * @return list of all PerunNotifTemplates
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public List<PerunNotifTemplate> getAllPerunNotifTemplates(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Saves PerunNotifTemplate to db and saves all relations to db
@@ -329,7 +329,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifTemplate createPerunNotifTemplate(PerunSession sess, PerunNotifTemplate template) throws InternalErrorException, PrivilegeException;
+	public PerunNotifTemplate createPerunNotifTemplate(PerunSession sess, PerunNotifTemplate template) throws PrivilegeException;
 
 	/**
 	 * Method will update perunNotifTemplate, also update relations, but not
@@ -341,7 +341,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public PerunNotifTemplate updatePerunNotifTemplate(PerunSession sess, PerunNotifTemplate template) throws InternalErrorException, PrivilegeException;
+	public PerunNotifTemplate updatePerunNotifTemplate(PerunSession sess, PerunNotifTemplate template) throws PrivilegeException;
 
 	/**
 	 * Removes perunNotifTemplate from db
@@ -351,7 +351,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 */
-	public void removePerunNotifTemplateById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException;
+	public void removePerunNotifTemplateById(PerunSession sess, int id) throws PrivilegeException;
 
 	/**
 	 * Method allows to test freeMarkerTemplate, list of beans is provided
@@ -372,7 +372,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	public void stopNotifications(PerunSession sess) throws PrivilegeException, InternalErrorException;
+	public void stopNotifications(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Starts notifications processing, if it was stopped before.
@@ -381,7 +381,7 @@ public interface PerunNotifNotificationManager {
 	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	public void startNotifications(PerunSession sess) throws PrivilegeException, InternalErrorException;
+	public void startNotifications(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Method checks if the notifications module is running at the time.

@@ -40,7 +40,7 @@ public class urn_perun_user_facility_attribute_def_virt_fileQuotas extends UserF
 	public static final String A_MR_V_fileQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":fileQuotas";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		//merge attribute settings for every allowed resource

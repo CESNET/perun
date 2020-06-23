@@ -31,7 +31,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 	private static final String A_F_D_accountExpirationTime = AttributesManager.NS_FACILITY_ATTR_DEF + ":accountExpirationTime";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer accExpTime = attribute.valueAsInteger();
 
 		if (accExpTime == null) {
@@ -56,7 +56,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		Attribute ret = new Attribute(attribute);
 		List<Integer> resourcesExpTimes = new ArrayList<>();
 		Integer resourceExpTime;

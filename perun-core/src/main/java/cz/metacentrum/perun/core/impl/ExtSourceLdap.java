@@ -42,7 +42,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	protected DirContext dirContext = null;
 	protected String filteredQuery = null;
 
-	protected DirContext getContext() throws InternalErrorException {
+	protected DirContext getContext() {
 		if (dirContext == null) {
 			initContext();
 		}
@@ -58,12 +58,12 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) {
 		return findSubjectsLogins(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResults) {
 		// Prepare searchQuery
 		// attributes.get("query") contains query template, e.g. (uid=?), ? will be replaced by the searchString
 		String query = getAttributes().get("query");
@@ -80,7 +80,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+	public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
 		// Prepare searchQuery
 		// attributes.get("loginQuery") contains query template, e.g. (uid=?), ? will be replaced by the login
 		String query = getAttributes().get("loginQuery");
@@ -108,7 +108,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 
 		List<String> ldapGroupSubjects = new ArrayList<>();
 
@@ -168,7 +168,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	protected void initContext() throws InternalErrorException {
+	protected void initContext() {
 		// Load mapping between LDAP attributes and Perun attributes
 		Hashtable<String,String> env = new Hashtable<>();
 
@@ -212,7 +212,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		}
 	}
 
-	protected Map<String,String> getSubjectAttributes(Attributes attributes) throws InternalErrorException {
+	protected Map<String,String> getSubjectAttributes(Attributes attributes) {
 		Pattern pattern = Pattern.compile("\\{([^}])*}");
 		Map<String, String> map = new HashMap<>();
 
@@ -237,7 +237,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return map;
 	}
 
-	protected String getLdapAttributeValue(Attributes attributes, String ldapAttrNameRaw)  throws InternalErrorException {
+	protected String getLdapAttributeValue(Attributes attributes, String ldapAttrNameRaw) {
 		String ldapAttrName;
 		String rule = null;
 		Matcher matcher;
@@ -332,7 +332,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	 * @return List of Map of the LDAP attribute names and theirs values
 	 * @throws InternalErrorException
 	 */
-	protected List<Map<String,String>> querySource(String query, String base, int maxResults) throws InternalErrorException {
+	protected List<Map<String,String>> querySource(String query, String base, int maxResults) {
 
 		NamingEnumeration<SearchResult> results = null;
 		List<Map<String, String>> subjects = new ArrayList<>();
@@ -390,7 +390,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException {
+	public void close() {
 		if (this.dirContext != null) {
 			try {
 				this.dirContext.close();
@@ -407,17 +407,17 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
+	public List<Map<String, String>> findSubjects(String searchString) {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
 		// We can call original implementation, since LDAP always return whole entry and not just login
 		return findSubjectsLogins(searchString, maxResults);
 	}
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
+	protected Map<String,String> getAttributes() {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 

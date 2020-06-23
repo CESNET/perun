@@ -35,7 +35,7 @@ public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAtt
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_attribute_def_def_suspensionInfo.class);
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws WrongReferenceAttributeValueException {
 		if (attribute.getValue() == null) {
 			return;
 		}

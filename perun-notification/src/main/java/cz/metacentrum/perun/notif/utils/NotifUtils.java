@@ -83,7 +83,7 @@ public class NotifUtils {
 		return result;
 	}
 
-	public static PerunSession getPerunSession(PerunBl perun) throws InternalErrorException {
+	public static PerunSession getPerunSession(PerunBl perun) {
 		if (session == null) {
 			if (perun != null) {
 				session = perun.getPerunSession(

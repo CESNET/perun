@@ -38,7 +38,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonEntitlement extends User
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) {
 		//get already filled value obtained from UserExtSources
 		Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
 

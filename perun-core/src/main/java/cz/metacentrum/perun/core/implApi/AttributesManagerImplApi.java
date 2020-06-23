@@ -55,7 +55,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Facility facility);
 
 	/**
 	 * Get all attributes associated with the facility which have name in list attrNames (empty too).
@@ -67,7 +67,7 @@ public interface AttributesManagerImplApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException   if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames);
 
 	/**
 	 * Get all virtual attributes associated with the facility.
@@ -78,7 +78,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility);
 
 	/**
 	 * Get all virtual attributes associated with the member.
@@ -89,7 +89,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Member member) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Member member);
 
 	/**
 	 * Get all virtual attributes associated with the vo.
@@ -100,7 +100,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Vo vo);
 
 	/**
 	 * Get all virtual attributes associated with the group.
@@ -111,7 +111,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Group group) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Group group);
 
 	/**
 	 * Get all virtual attributes associated with the host.
@@ -122,7 +122,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Host host) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Host host);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the vo.
@@ -133,7 +133,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Vo vo);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the group.
@@ -144,7 +144,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Group group) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Group group);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the resource.
@@ -155,7 +155,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Resource resource);
 
 	/**
 	 * Get all virtual attributes associated with the resource.
@@ -166,7 +166,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the member on the resource.
@@ -178,7 +178,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource);
 
 	/**
 	 * Get all virtual attributes associated with the member on the resource.
@@ -190,7 +190,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource);
 
 	/**
 	 * Get all <b>non-empty, non-virtual</b> attributes associated with the member in the group.
@@ -202,7 +202,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Group group);
 
 	/**
 	 * Get all attributes (empty and virtual too) associated with the member in the group which have name in list attrNames.
@@ -215,7 +215,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames);
 
 	/**
 	 * Get all attributes (empty and virtual too) associated with the member on the resource which have name in list attrNames.
@@ -228,7 +228,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames);
 
 	/**
 	 * Get all attributes (empty and virtual too) associated with the group on the resource which have name in list attrNames.
@@ -240,7 +240,7 @@ public interface AttributesManagerImplApi {
 	 * @return list of selected attributes for group and resource objects
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames);
 
 	/**
 	 * Get all attributes (empty and virtual too) associated with the user on the facility which have name in list attrNames.
@@ -253,7 +253,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the member.
@@ -264,7 +264,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Member member);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the group starts with name startPartOfName.
@@ -279,7 +279,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName) throws InternalErrorException;
+	List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the resource starts with name startPartOfName.
@@ -294,7 +294,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws InternalErrorException;
+	List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName);
 
 	/**
 	 * Get all attributes associated with the vo which have name in list attrNames (empty and virtual too).
@@ -306,7 +306,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames);
 
 	/**
 	 * Get all attributes associated with the member which have name in list attrNames (empty and virtual too).
@@ -318,7 +318,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames);
 
 	/**
 	 * Get all attributes associated with the group which have name in list attrNames (empty too).
@@ -330,7 +330,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raises in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames);
 
 	/**
 	 * Get all attributes associated with the resource which have name in list attrNames (empty too).
@@ -342,7 +342,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raises in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames);
 
 	/**
 	 * Get all attributes associated with the UserExtSource which have name in list attrNames (empty and virtual too).
@@ -354,7 +354,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the user on the facility.
@@ -366,7 +366,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Facility facility, User user);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with any user on the facility.
@@ -378,7 +378,7 @@ public interface AttributesManagerImplApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility);
 
 	/**
 	 * Get all entiteless attributes with subject equaled String key
@@ -388,7 +388,7 @@ public interface AttributesManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, String key) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, String key);
 
 	/**
 	 * Get all entityless attributes with attributeName
@@ -397,7 +397,7 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws  InternalErrorException;
+	List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName);
 
 	/**
 	 * Return value of entityless attribute by attr_id and key (subject).
@@ -415,7 +415,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if runtime error exception has been thrown
 	 * @throws AttributeNotExistsException throw exception if attribute with value not exists in DB
 	 */
-	String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException;
+	String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws AttributeNotExistsException;
 
 	/**
 	 * Returns list of Keys which fits the attributeDefinition.
@@ -425,7 +425,7 @@ public interface AttributesManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Returns all attributes with not-null value which fits the attributeDefinition. Can't process core or virtual attributes.
@@ -435,7 +435,7 @@ public interface AttributesManagerImplApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Get all virtual attributes associated with the user on the facility.
@@ -447,7 +447,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user);
 
 	/**
 	 * Get all virtual attributes associated with the member in the group.
@@ -459,7 +459,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the user.
@@ -470,7 +470,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, User user);
 
 	/**
 	 * Get all attributes associated with the user which have name in list attrNames (empty and virtual too).
@@ -482,7 +482,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames);
 
 	/**
 	 * Get all virtual attributes associated with the user.
@@ -493,7 +493,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, User user) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, User user);
 
 	/**
 	 * Get all virtual attributes associated with the UserExtSource.
@@ -504,11 +504,11 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues);
 
-	List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Host host);
 
-	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the UserExtSource.
@@ -519,7 +519,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues);
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the user on the all facilities.
@@ -531,7 +531,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<RichAttribute<User, Facility>> getAllUserFacilityRichAttributes(PerunSession sess, User user) throws InternalErrorException;
+	List<RichAttribute<User, Facility>> getAllUserFacilityRichAttributes(PerunSession sess, User user);
 
 	/**
 	 * Get particular attribute for the facility.
@@ -543,7 +543,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the vo.
@@ -555,7 +555,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the group.
@@ -567,7 +567,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the resource.
@@ -579,7 +579,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member on this resource.
@@ -592,7 +592,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member in this group.
@@ -606,7 +606,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member.
@@ -618,7 +618,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the user on this facility.
@@ -629,7 +629,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the user.
@@ -642,11 +642,11 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, User user, String attributeName) throws AttributeNotExistsException;
 
-	Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws AttributeNotExistsException;
 
-	Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws AttributeNotExistsException;
 
 
 	/**
@@ -658,7 +658,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Gets map from keys to string values for an entityless attribute.
@@ -666,7 +666,7 @@ public interface AttributesManagerImplApi {
 	 * @param attributeName full attribute name
 	 * @return unordered hashmap
 	 */
-	Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the User External Source.
@@ -679,7 +679,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get attributes definition (attribute without defined value).
@@ -690,7 +690,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws AttributeNotExistsException;
 
 	/**
 	 * Get attributes definition (attribute without defined value).
@@ -699,7 +699,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<AttributeDefinition> getAttributesDefinition(PerunSession sess) throws InternalErrorException;
+	List<AttributeDefinition> getAttributesDefinition(PerunSession sess);
 
 	/**
 	 * Get attributes definition (attribute without defined value) with specified namespace.
@@ -711,7 +711,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) throws InternalErrorException;
+	List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace);
 
 	/**
 	 * Get attibute definition (attribute without defined value).
@@ -722,7 +722,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException;
+	AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the facility.
@@ -734,7 +734,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the vo.
@@ -746,7 +746,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the resource.
@@ -758,7 +758,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member on this resource.
@@ -771,7 +771,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member in this group.
@@ -785,7 +785,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member.
@@ -798,7 +798,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Member member, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the user on this facility.
@@ -812,7 +812,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the user.
@@ -825,13 +825,13 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, User user, int id) throws AttributeNotExistsException;
 
-	Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Host host, int id) throws AttributeNotExistsException;
 
-	Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws AttributeNotExistsException;
 
-	Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Group group, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the user external source.
@@ -844,7 +844,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws AttributeNotExistsException;
 
 	/**
 	 * Store the particular attribute associated with the given perun bean. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
@@ -857,7 +857,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if the namespace of the attribute does not match the perunBean
 	 */
-	boolean setAttribute(PerunSession sess, Object object, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	boolean setAttribute(PerunSession sess, Object object, Attribute attribute) throws WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Store the particular attribute associated with the bean1 and bean2. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
@@ -871,7 +871,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttribute(PerunSession sess, PerunBean bean1, PerunBean bean2, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	boolean setAttribute(PerunSession sess, PerunBean bean1, PerunBean bean2, Attribute attribute) throws WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Insert attribute value in DB.
@@ -886,7 +886,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException
 	 */
-	boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
+	boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues);
 
 	/**
 	 * Update attribute value in DB.
@@ -901,7 +901,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException
 	 */
-	boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
+	boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues);
 
 	/**
 	 * Set entityless attribute with null value (for key and attribute). Shouldn't be called from upper layer !!!
@@ -914,7 +914,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if runtimeException is thrown
 	 */
-	boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException;
+	boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute);
 
 	/**
 	 * Store the particular virtual attribute associated with the facility.
@@ -928,7 +928,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongModuleTypeException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the particular virtual attribute associated with the resource.
@@ -942,7 +942,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongModuleTypeException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the particular virtual attribute associated with the group.
@@ -955,7 +955,7 @@ public interface AttributesManagerImplApi {
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
+	boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute);
 
 	/**
 	 * Store the particular virtual attribute associated with the facility and user combination.
@@ -970,7 +970,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongModuleTypeException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the particular virtual attribute associated with the resource and group combination.
@@ -985,7 +985,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongModuleTypeException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the particular virtual attribute associated with the member and group combination.
@@ -999,7 +999,7 @@ public interface AttributesManagerImplApi {
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
+	boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute);
 
 	/**
 	 * Store the particular virtual attribute associated with the member.
@@ -1012,7 +1012,7 @@ public interface AttributesManagerImplApi {
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
+	boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute);
 
 	/**
 	 * Store the particular virtual attribute associated with the user.
@@ -1025,7 +1025,7 @@ public interface AttributesManagerImplApi {
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
+	boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute);
 
 	/**
 	 * Store the particular virtual attribute associated with the user external source.
@@ -1038,7 +1038,7 @@ public interface AttributesManagerImplApi {
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
+	boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute);
 
 	/**
 	 * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace.
@@ -1051,7 +1051,7 @@ public interface AttributesManagerImplApi {
 	 * @throws AttributeDefinitionExistsException if attribute already exists
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionExistsException;
+	AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws AttributeDefinitionExistsException;
 
 	/**
 	 * Deletes the attribute. Definition and all values.
@@ -1060,7 +1060,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute attribute to delete
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
+	void deleteAttribute(PerunSession sess, AttributeDefinition attribute);
 
 	/**
 	 * Delete all authz for the attribute.
@@ -1069,7 +1069,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute the attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorExceptions
 	 */
-	void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
+	void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute);
 
 	/**
 	 * Get attributes definions required by all services assigned on the resource.
@@ -1080,7 +1080,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<AttributeDefinition> getResourceRequiredAttributesDefinition(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<AttributeDefinition> getResourceRequiredAttributesDefinition(PerunSession sess, Resource resource);
 
 	/**
 	 * Get facility attributes which are required by services. Services are known from the resource.
@@ -1092,7 +1092,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility);
 
 	/**
 	 * Get resource attributes which are required by services.
@@ -1104,7 +1104,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds);
 
 	/**
 	 * Get resource attributes which are required by services. Services are known from the resourceToGetServicesFrom.
@@ -1116,7 +1116,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource);
 
 	/**
 	 * Get member attributes which are required by services. Services are known from the resourceToGetServicesFrom.
@@ -1128,7 +1128,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member);
 
 	/**
 	 * Get member-resource attributes which are required by services. Services are known from the resourceToGetServicesFrom.
@@ -1141,7 +1141,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource);
 
 	/**
 	 * Get user-facility attributes which are required by services. Services are known from the resource.
@@ -1154,9 +1154,9 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, User user) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, User user);
 
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group);
 
 	/**
 	 * Get user attributes which are required by services. Services are known from the resource.
@@ -1168,11 +1168,11 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, User user) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, User user);
 
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host);
 
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group);
 	/**
 	 * Get all attributes which are required by service.
 	 * Required attribues are requisite for Service to run.
@@ -1184,7 +1184,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service) throws InternalErrorException;
+	List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service);
 
 	/**
 	 *  Get facility attributes which are required by all services which are connected to this facility.
@@ -1195,7 +1195,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility);
 
 	/**
 	 * Get facility attributes which are required by the service.
@@ -1207,7 +1207,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility);
 
 	/**
 	 * Get vo attributes which are required by the service.
@@ -1219,7 +1219,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo);
 
 	/**
 	 * Get resource attributes which are required by the service.
@@ -1231,7 +1231,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource);
 
 	/**
 	 * Get member-resource attributes which are required by the service.
@@ -1244,7 +1244,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource);
 
 	/**
 	 * Get member-resource attributes which are required by service for each member in list of members.
@@ -1257,7 +1257,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException;
+	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members);
 
 	/**
 	 * Get member attributes which are required by service for each member in list of members.
@@ -1270,7 +1270,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException;
+	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members);
 
 	/**
 	 * Get user-facility attributes which are required by the service for each user in list of users.
@@ -1283,7 +1283,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException;
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users);
 
 	/**
 	 * Get user attributes which are required by the service for each user in list of users.
@@ -1295,7 +1295,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException;
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users);
 
 	/**
 	 * Get member-group attributes which are required by the service.
@@ -1308,7 +1308,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group);
 
 	/**
 	 * Get member-group attributes which are required by services. Services are known from the resourceToGetServicesFrom.
@@ -1321,7 +1321,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group);
 
 	/**
 	 * Get member attributes which are required by the service.
@@ -1333,7 +1333,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member);
 
 	/**
 	 * Get user-facility attributes which are required by the service.
@@ -1346,7 +1346,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, User user) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, User user);
 
 	/**
 	 * Get user attributes which are required by the service.
@@ -1358,9 +1358,9 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user);
 
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group);
 
 	/**
 	 * Get group-resource attributes which are required by the services.
@@ -1373,9 +1373,9 @@ public interface AttributesManagerImplApi {
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource, Group group);
 
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host);
 
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group);
 
 	/**
 	 * Get group attributes which are required by the given services.
@@ -1396,7 +1396,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute);
 
 	/**
 	 * This method try to fill value of the member-resource attribute. This value is automatically generated, but not all atrributes can be filled this way.
@@ -1409,7 +1409,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute);
 
 	/**
 	 * This method tries to fill value of the member-group attribute. This value is automatically generated, but not all attributes can be filled this way.
@@ -1422,7 +1422,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Member member, Group group, Attribute attribute);
 
 	/**
 	 * This method try to fill value of the user-facility attribute. This value is automatically generated, but not all atrributes can be filled this way.
@@ -1435,7 +1435,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute);
 
 	/**
 	 * This method try to fill value of the user attribute. This value is automatically generated, but not all atrributes can be filled this way.
@@ -1447,7 +1447,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, User user, Attribute attribute);
 
 	/**
 	 * This method try to fill value of the member attribute. This value is automatically generated, but not all atrributes can be filled this way.
@@ -1459,13 +1459,13 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute);
 
-	Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute);
 
-	Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute);
 
-	Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute);
 
 	/**
 	 * This method try to fill value of the user external source attribute. This value is automatically generated, but not all atrributes can be filled this way.
@@ -1477,7 +1477,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1487,7 +1487,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1497,7 +1497,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, String key, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, String key, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1507,7 +1507,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1517,7 +1517,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, Host host, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1528,7 +1528,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1539,7 +1539,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1550,7 +1550,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1561,7 +1561,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1572,7 +1572,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1584,7 +1584,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1595,7 +1595,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1606,7 +1606,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1616,7 +1616,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 */
-	void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute);
 
 	/**
 	 * Check if value of this facility attribute has valid semantics.
@@ -1627,7 +1627,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this vo attribute has valid semantics.
@@ -1639,7 +1639,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this group attribute has valid semantics.
@@ -1651,7 +1651,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this resource attribute has valid semantics.
@@ -1662,7 +1662,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this member-resource attribute has valid semantics.
@@ -1676,7 +1676,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this member-group attribute has valid semantics.
@@ -1688,7 +1688,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute);
 
 	/**
 	 * Check if value of this user-facility attribute has valid semantics.
@@ -1702,7 +1702,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this user attribute has valid semantics.
@@ -1715,7 +1715,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this member attribute has valid semantics.
@@ -1728,7 +1728,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this host attribute has valid semantics.
@@ -1739,7 +1739,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
+	void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute);
 
 	/**
 	 * Check if value of this group-resource attribute has valid semantics.
@@ -1752,7 +1752,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this entityless attribute has valid semantics.
@@ -1765,7 +1765,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 */
-	void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this user external source attribute has valid semantics.
@@ -1777,7 +1777,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
+	void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute);
 
 	/**
 	 * Check if value of this facility attribute has valid syntax.
@@ -1789,7 +1789,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this vo attribute has valid syntax.
@@ -1801,7 +1801,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this group attribute has valid syntax.
@@ -1813,7 +1813,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this resource attribute has valid syntax.
@@ -1825,7 +1825,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this member-resource attribute has valid syntax.
@@ -1838,7 +1838,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this member-group attribute has valid syntax.
@@ -1851,7 +1851,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this user-facility attribute has valid syntax.
@@ -1864,7 +1864,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this user attribute has valid syntax.
@@ -1876,7 +1876,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this member attribute has valid syntax.
@@ -1888,7 +1888,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this host attribute has valid syntax.
@@ -1900,7 +1900,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this group-resource attribute has valid syntax.
@@ -1913,7 +1913,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this entityless attribute has valid syntax.
@@ -1925,7 +1925,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of this user external source attribute has valid syntax.
@@ -1938,7 +1938,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Unset particular attribute for the facility.
@@ -1949,7 +1949,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute);
 
 	/**
 	 * Unset particular entityless attribute with subject equals key.
@@ -1960,7 +1960,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, String key, AttributeDefinition attribute);
 
 	/**
 	 * Unset all attributes for the facility.
@@ -1970,7 +1970,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Facility facility);
 
 	/**
 	 * Remove all non-virtual group-resource attribute on selected resource
@@ -1979,7 +1979,7 @@ public interface AttributesManagerImplApi {
 	 * @param resource
 	 * @throws InternalErrorException
 	 */
-	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
+	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource);
 
 	/**
 	 * Remove all non-virtual member-resource attributes assigned to resource
@@ -1988,7 +1988,7 @@ public interface AttributesManagerImplApi {
 	 * @param resource
 	 * @throws InternalErrorException
 	 */
-	void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
+	void removeAllMemberResourceAttributes(PerunSession sess, Resource resource);
 
 	/**
 	 * Unset particular attribute for the vo.
@@ -1999,7 +1999,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute);
 
 	/**
 	 * Unset all attributes for the vo.
@@ -2009,7 +2009,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Vo vo);
 
 	/**
 	 * Unset particular attribute for the group.
@@ -2020,7 +2020,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute);
 
 	/**
 	 * Unset all attributes for the group.
@@ -2030,7 +2030,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Group group);
 
 
 	/**
@@ -2042,7 +2042,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute);
 
 	/**
 	 * Unset all attributes for the resource.
@@ -2052,7 +2052,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Resource resource);
 
 	/**
 	 * Unset particular member-resorce attribute for the member on the resource.
@@ -2064,7 +2064,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute);
 
 	/**
 	 * Unset all (member-resource) attributes for the member on the resource.
@@ -2075,7 +2075,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Member member, Resource resource);
 
 	/**
 	 * Unset particular attribute for the member in the group. Core attributes can't be removed this way.
@@ -2087,7 +2087,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute);
 
 	/**
 	 * Unset all attributes for the member in the group.
@@ -2098,7 +2098,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Member member, Group group);
 
 	/**
 	 * Unset particular member attribute
@@ -2109,7 +2109,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute);
 
 	/**
 	 * Unset all member attributes for the member.
@@ -2119,7 +2119,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Member member);
 
 	/**
 	 * Unset particular user-facility attribute
@@ -2131,7 +2131,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute);
 
 	/**
 	 * Unset all (user-facility) <b>non-virtual</b> attributes for the user on the facility.
@@ -2142,7 +2142,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Facility facility, User user);
 
 	/**
 	 * Unset all (user-facility) <b>non-virtual</b> attributes for any user on the facility.
@@ -2151,7 +2151,7 @@ public interface AttributesManagerImplApi {
 	 * @param facility
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException;
+	boolean removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility);
 
 	/**
 	 * Unset all (user-facility) <b>non-virtual</b> attributes for the user and <b>all facilities</b>
@@ -2161,7 +2161,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException;
+	boolean removeAllUserFacilityAttributes(PerunSession sess, User user);
 
 	/**
 	 * Unset particular user-facility virtual attribute value.
@@ -2173,7 +2173,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeVirtualAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeVirtualAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute);
 
 	/**
 	 * Unset particular resource virtual attribute value.
@@ -2186,7 +2186,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean removeVirtualAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean removeVirtualAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Unset particular group-resource virtual attribute value.
@@ -2198,7 +2198,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException
 	 */
-	boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute);
 
 	/**
 	 * Unset particular user attribute
@@ -2209,7 +2209,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, User user, AttributeDefinition attribute);
 
 	/**
 	 * Unset all user attributes for the user.
@@ -2219,7 +2219,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, User user) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, User user);
 
 	/**
 	 * Unset particular host attribute
@@ -2230,7 +2230,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute);
 	/**
 	 * Unset all user attributes for the host.
 	 *
@@ -2239,7 +2239,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Host host);
 
 	/**
 	 * Unset particular group_resource attribute
@@ -2251,7 +2251,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute);
 
 	/**
 	 * Unset all group_resource attributes
@@ -2262,7 +2262,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Resource resource, Group group);
 
 	/**
 	 * Unset particular user external source attribute
@@ -2273,7 +2273,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute);
 
 	/**
 	 * Unset all UserExtSource attributes for the user external source.
@@ -2283,7 +2283,7 @@ public interface AttributesManagerImplApi {
 	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, UserExtSource ues);
 
 	/**
 	 * Check if attribute exists in underlaying data source.
@@ -2294,7 +2294,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if unexpected error occured
 	 */
-	boolean attributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
+	boolean attributeExists(PerunSession sess, AttributeDefinition attribute);
 
 	/**
 	 * Check if attribute exists in underlaying data source.
@@ -2304,7 +2304,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if unexpected error occured
 	 * @throws AttributeNotExistsException if attribute doesn';t exists
 	 */
-	void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeNotExistsException;
+	void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws AttributeNotExistsException;
 
 	/**
 	 * Check if actionType exists in underlaying data source.
@@ -2314,7 +2314,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if unexpected error occured
 	 * @throws ActionTypeNotExistsException if attriobute doesn't exists
 	 */
-	void checkActionTypeExists(PerunSession sess, ActionType actionType) throws InternalErrorException, ActionTypeNotExistsException;
+	void checkActionTypeExists(PerunSession sess, ActionType actionType) throws ActionTypeNotExistsException;
 
 	/*
 	 * @see cz.metacentrum.perun.core.implApi.AttributesManagerImplApi#checkAttributeExists(PerunSession, AttributeDefinition)
@@ -2326,7 +2326,7 @@ public interface AttributesManagerImplApi {
 	/**
 	 * Batch version of checkAttributeExists
 	 */
-	void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotExistsException;
+	void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws AttributeNotExistsException;
 
 	/*
 	 * @see cz.metacentrum.perun.core.implApi.AttributesManagerImplApi#checkAttributesExists(PerunSession, List)
@@ -2424,7 +2424,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Object> getAllResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<Object> getAllResourceValues(PerunSession sess, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Get all values for specified group-resource attribute. Atibute can't be core or virt.
@@ -2437,7 +2437,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Object> getAllGroupResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<Object> getAllGroupResourceValues(PerunSession sess, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Get all values for specified group attribute. Atibute can't be core or virt.
@@ -2450,7 +2450,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Get all values for specified user attribute. Atibute can't be core or virt.
@@ -2463,7 +2463,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Object> getAllUserValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<Object> getAllUserValues(PerunSession sess, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Check if this attribute is currently required on this facility. Attribute can be from any namespace.
@@ -2475,7 +2475,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isAttributeRequiredByFacility(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	boolean isAttributeRequiredByFacility(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition);
 
         /**
 	 * Check if this attribute is currently required on this vo. Attribute can be from any namespace.
@@ -2487,7 +2487,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isAttributeRequiredByVo(PerunSession sess, Vo vo, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	boolean isAttributeRequiredByVo(PerunSession sess, Vo vo, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Check if this attribute is currently required on this group. Attribute can be from any namespace.
@@ -2499,7 +2499,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isAttributeRequiredByGroup(PerunSession sess, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	boolean isAttributeRequiredByGroup(PerunSession sess, Group group, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Check if this attribute is currently required on this resource. Attribute can be from any namespace.
@@ -2511,7 +2511,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isAttributeRequiredByResource(PerunSession sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	boolean isAttributeRequiredByResource(PerunSession sess, Resource resource, AttributeDefinition attributeDefinition);
 
 	/**
 	 * This method get all similar attr_names which start with partOfAttributeName
@@ -2522,7 +2522,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 */
-	List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName) throws InternalErrorException;
+	List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName);
 
 	/**
 	 * Get the attributeModule for the attribute
@@ -2530,7 +2530,7 @@ public interface AttributesManagerImplApi {
 	 * @param attribute get the attribute module for this attribute
 	 * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getAttributesModule(PerunSession,String)
 	 */
-	Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
+	Object getAttributesModule(PerunSession sess, AttributeDefinition attribute);
 
 	/**
 	 * Updates AttributeDefinition.
@@ -2540,7 +2540,7 @@ public interface AttributesManagerImplApi {
 	 * @return returns updated attributeDefinition
 	 * @throws InternalErrorException
 	 */
-	AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Gets attribute rights of an attribute with id given as a parameter.
@@ -2553,7 +2553,7 @@ public interface AttributesManagerImplApi {
 	 * @return all rights of the attribute
 	 * @throws InternalErrorException
 	 */
-	List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws InternalErrorException;
+	List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId);
 
 	/**
 	 * Sets attribute right given as a parameter.
@@ -2565,7 +2565,7 @@ public interface AttributesManagerImplApi {
 	 * @param right attribute right
 	 * @throws InternalErrorException
 	 */
-	void setAttributeRight(PerunSession sess, AttributeRights right) throws InternalErrorException;
+	void setAttributeRight(PerunSession sess, AttributeRights right);
 
 	/**
 	 * Get user virtual attribute module by the attribute.
@@ -2578,7 +2578,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongModuleTypeException
 	 * @throws ModuleNotExistsException
 	 */
-	UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
+	UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute);
 
 	/**
 	 * Init attribute modules map in Impl layer.
@@ -2606,5 +2606,5 @@ public interface AttributesManagerImplApi {
 	/**
 	 * Copies all values of the attribute to table _attr_u_values which has unique constraint.
 	 */
-	void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef) throws InternalErrorException;
+	void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef);
 }

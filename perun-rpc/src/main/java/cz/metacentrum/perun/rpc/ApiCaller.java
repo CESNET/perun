@@ -423,7 +423,7 @@ public class ApiCaller {
 		return getCabinetManager().getPublicationSystemById(id);
 	}
 
-	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal, PerunClient client) throws InternalErrorException {
+	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal, PerunClient client) {
 		Perun perun = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perun", Perun.class);
 
 		PerunPrincipal rpcPrincipal = new PerunPrincipal(RPCPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);

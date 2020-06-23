@@ -64,7 +64,7 @@ public class ServicesManagerBlImplTest {
 
 
 	@Before
-	public void setUp() throws InternalErrorException, ServiceExistsException, PrivilegeException {
+	public void setUp() throws ServiceExistsException, PrivilegeException {
 		perunSession = perun.getPerunSession(
 				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());

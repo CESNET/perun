@@ -23,7 +23,7 @@ public class urn_perun_member_attribute_def_def_address extends MemberAttributes
 	private static final String A_U_address = AttributesManager.NS_USER_ATTR_DEF + ":address";
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws WrongReferenceAttributeValueException {
 		User user = session.getPerunBl().getUsersManagerBl().getUserByMember(session, member);
 
 		if(attribute.getValue() != null) {

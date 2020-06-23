@@ -99,7 +99,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 	}
 
 
-	public void synchronizeUsers() throws InternalErrorException {
+	public void synchronizeUsers() {
 
 		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 
@@ -235,7 +235,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 
 	@Override
-	public void setApplicationContext(ApplicationContext context) throws BeansException {
+	public void setApplicationContext(ApplicationContext context) {
 		this.context = context;
 	}
 

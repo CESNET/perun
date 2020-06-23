@@ -32,7 +32,7 @@ public class Du extends DefaultRegistrarModule {
 	private final static Logger log = LoggerFactory.getLogger(Du.class);
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, RegistrarException, PrivilegeException, InternalErrorException {
+	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, RegistrarException, PrivilegeException {
 
 		// allow only Education & Research community members
 		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());

@@ -37,7 +37,7 @@ public class urn_perun_user_facility_attribute_def_virt_groupStatus extends User
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		MemberGroupStatus result = sess.getPerunBl().getMembersManagerBl().getUnifiedMemberGroupStatus(sess, user, facility);
 		attribute.setValue((result != null) ? result.toString() : null);
