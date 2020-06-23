@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -109,7 +111,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		System.out.println(CLASS_NAME + "addGroupUnderBaseGroupTest");
 
 		// setup
-		final TestGroup testGroup = new TestGroup("createdGroup", baseGroup.getShortName(), "group is child of base group");
+		final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
 		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -128,30 +130,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	}
 
 	@Test
-	public void addGroupNoParentGroupTest() throws Exception {
-		System.out.println(CLASS_NAME + "addGroupNoParentGroupTest");
-
-		final TestGroup testGroup = new TestGroup("createdGroup", null, "group without parent");
-		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
-		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-
-		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
-
-		assertTrue("No groups should be skipped!", skipped.isEmpty());
-
-		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-
-		assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
-
-		Group createdGroup = subGroups.get(0);
-		assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
-	}
-
-	@Test
 	public void addGroupParentDoesNotExist() throws Exception {
 		System.out.println(CLASS_NAME + "addGroupParentDoesNotExist");
 
-		final TestGroup testGroup = new TestGroup("createdGroup", "nonExistingParent", "group's parent does not exist");
+		final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", "nonExistingParent", "group's parent does not exist");
 		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -171,8 +153,8 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	public void addMultipleGroupsToBaseGroup() throws Exception {
 		System.out.println(CLASS_NAME + "addMultipleGroupsToBaseGroup");
 
-		final TestGroup testGroupA = new TestGroup("groupA", baseGroup.getShortName(), "description of group A");
-		final TestGroup testGroupB = new TestGroup("groupB", baseGroup.getShortName(), "description of group B");
+		final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "description of group A");
+		final TestGroup testGroupB = new TestGroup("groupB", "groupB", null, "description of group B");
 		List<Map<String, String>> subjects = Arrays.asList(testGroupA.toMap(), testGroupB.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -189,8 +171,8 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	public void addGroupsToBaseGroupInDifferentOrder() throws Exception {
 		System.out.println(CLASS_NAME + "addGroupsToBaseGroupInDifferentOrder");
 
-		final TestGroup testGroupA = new TestGroup("groupA", null, "description of group A");
-		final TestGroup testGroupB = new TestGroup("groupB", "groupA", "description of group B");
+		final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "description of group A");
+		final TestGroup testGroupB = new TestGroup("groupB", "groupB", "groupA", "description of group B");
 		List<Map<String, String>> subjects = Arrays.asList(testGroupB.toMap(), testGroupA.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -213,11 +195,13 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		// setup
 		final Group subGroup = new Group("baseSubGroup", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, subGroup);
-		final TestGroup subTestGroup = new TestGroup(subGroup.getShortName(), baseGroup.getShortName(), subGroup.getDescription());
+		setLoginToGroup(baseGroup, subGroup, "baseSubGroup");
+
+		final TestGroup subTestGroup = new TestGroup(subGroup.getShortName(), "baseSubGroup", null, subGroup.getDescription());
 		List<Map<String, String>> subjects = new ArrayList<>();
 		subjects.add(subTestGroup.toMap());
 
-		final TestGroup testGroup = new TestGroup("createdGroup", subGroup.getShortName(), "child of subgroup (baseGroup -> subGroup -> [this group])");
+		final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", "baseSubGroup", "child of subgroup (baseGroup -> subGroup -> [this group])");
 		subjects.add(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -243,7 +227,9 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		final Group childOfBaseGroup = new Group("childOfBaseGroup", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, childOfBaseGroup);
-		final TestGroup subTestGroup = new TestGroup(childOfBaseGroup.getShortName(), baseGroup.getShortName(), childOfBaseGroup.getDescription());
+		setLoginToGroup(baseGroup, childOfBaseGroup, "childOfBaseGroup");
+
+		final TestGroup subTestGroup = new TestGroup(childOfBaseGroup.getShortName(), "childOfBaseGroup", null, childOfBaseGroup.getDescription());
 		subjects.add(subTestGroup.toMap());
 
 		List<Map<String, String>> complexGroupTree = makeComplexGroupTreeSample(childOfBaseGroup.getShortName());
@@ -293,11 +279,13 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		// setup
 		final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "subBaseGroup");
 
 		final Group subGroup = new Group("subGroup", "child of sub base group");
 		groupsManagerBl.createGroup(sess, subBaseGroup, subGroup);
+		setLoginToGroup(baseGroup, subGroup, "subGroup");
 
-		final TestGroup subBaseTestGroup = new TestGroup("subGroup", baseGroup.getShortName(), "child of base group");
+		final TestGroup subBaseTestGroup = new TestGroup("subGroup", "subGroup", null, "child of base group");
 		List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -321,13 +309,18 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "baseSubGroup");
+
 		final Group interGroup = new Group("interGroup", "child of sub base group");
 		groupsManagerBl.createGroup(sess, subBaseGroup, interGroup);
+		setLoginToGroup(baseGroup, interGroup, "interGroup");
+
 		final Group leafGroup = new Group("leafGroup", "leaf group");
 		groupsManagerBl.createGroup(sess, interGroup, leafGroup);
+		setLoginToGroup(baseGroup, leafGroup, "leafGroup");
 
-		final TestGroup subBaseTestGroup = new TestGroup("baseSubGroup", baseGroup.getShortName(), "child of base group");
-		final TestGroup leafTestGroup = new TestGroup("leafGroup", subBaseGroup.getShortName(), "leaf group");
+		final TestGroup subBaseTestGroup = new TestGroup("baseSubGroup", "baseSubGroup", null, "child of base group");
+		final TestGroup leafTestGroup = new TestGroup("leafGroup", "leafGroup", "baseSubGroup", "leaf group");
 		List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), leafTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -356,8 +349,9 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		final Group subBaseGroup = new Group("group1", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "group1");
 
-		final TestGroup modifiedSubBaseTestGroup = new TestGroup("modified", baseGroup.getShortName(), "child of base group");
+		final TestGroup modifiedSubBaseTestGroup = new TestGroup("modified", "modified", null, "child of base group");
 		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -377,8 +371,9 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		final Group subBaseGroup = new Group("group1", "child of base group");
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "group1");
 
-		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", baseGroup.getShortName(), "modified");
+		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "modified");
 		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -398,12 +393,14 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		final Group groupA = new Group("groupA", "group A");
 		groupsManagerBl.createGroup(sess, baseGroup, groupA);
+		setLoginToGroup(baseGroup, groupA, "groupA");
 
 		final Group groupB = new Group("groupB", "group B");
 		groupsManagerBl.createGroup(sess, baseGroup, groupB);
+		setLoginToGroup(baseGroup, groupB, "groupB");
 
-		final TestGroup testGroupA = new TestGroup("groupA", baseGroup.getShortName(), "group A");
-		final TestGroup testGroupB = new TestGroup("groupB", groupA.getShortName(), "group B");
+		final TestGroup testGroupA = new TestGroup("groupA", "groupA", null, "group A");
+		final TestGroup testGroupB = new TestGroup("groupB", "groupB", "groupA", "group B");
 		List<Map<String, String>> subjects = Arrays.asList(testGroupA.toMap(), testGroupB.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 
@@ -432,8 +429,11 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final Group subGroupB = new Group("baseSubGroupB", "child B of base group");
 		final Group subSubGroup1 = new Group("subGroup1", "child 1 of sub group A");
 		groupsManagerBl.createGroup(sess, baseGroup, subGroupA);
+		setLoginToGroup(baseGroup, subGroupA, "subGroupA");
 		groupsManagerBl.createGroup(sess, baseGroup, subGroupB);
+		setLoginToGroup(baseGroup, subGroupB, "subGroupB");
 		groupsManagerBl.createGroup(sess, subGroupA, subSubGroup1);
+		setLoginToGroup(baseGroup, subSubGroup1, "subSubGroup1");
 
 		List<Map<String, String>> subjects = new ArrayList<>();
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
@@ -459,7 +459,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 	}
 
-	public void setUpBaseGroup(Vo vo) throws Exception {
+	private void setUpBaseGroup(Vo vo) throws Exception {
 		extSource = extSourceManagerBl.createExtSource(sess, extSource, null);
 
 		Group returnedGroup = groupsManagerBl.createGroup(sess, vo, baseGroup);
@@ -478,8 +478,21 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		interval.setValue("1");
 		attributesManagerBl.setAttribute(sess, baseGroup, interval);
 
+		AttributeDefinition loginAttrDef = setGroupAttribute("groupLogin");
+
+		Attribute structureLoginName = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME));
+		structureLoginName.setValue(loginAttrDef.getName());
+		attributesManagerBl.setAttribute(sess, baseGroup, structureLoginName);
+
 		// create test Group in database
 		assertNotNull("unable to create testing Group",returnedGroup);
+	}
+
+	private void setLoginToGroup(Group baseGroup, Group groupToSetLoginFor, String login) throws Exception {
+		String baseGroupAttrLoginName = attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME).valueAsString();
+		Attribute loginAttr = new Attribute(attributesManagerBl.getAttributeDefinition(sess, baseGroupAttrLoginName));
+		loginAttr.setValue(login);
+		attributesManagerBl.setAttribute(sess, groupToSetLoginFor, loginAttr);
 	}
 
 	/**
@@ -495,20 +508,20 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	 *                      |
 	 *  Layer 4:        [groupRed]
 	 */
-	private List<Map<String, String>> makeComplexGroupTreeSample(String rootGroupName) {
+	private List<Map<String, String>> makeComplexGroupTreeSample(String rootGroupLogin) {
 		// 1st layer
-		TestGroup groupA = new TestGroup("groupA", rootGroupName, "group A is child of root group");
-		TestGroup groupB = new TestGroup("groupB", rootGroupName, "group B is child of root group");
+		TestGroup groupA = new TestGroup("groupA", "groupA", rootGroupLogin, "group A is child of root group");
+		TestGroup groupB = new TestGroup("groupB", "groupB", rootGroupLogin, "group B is child of root group");
 		// 2nd layer
-		TestGroup group1 = new TestGroup("group1", groupA.getGroupName(), "group 1 is child of group A");
-		TestGroup group2 = new TestGroup("group2", groupA.getGroupName(), "group 2 is child of group A");
-		TestGroup group3 = new TestGroup("group3", groupA.getGroupName(), "group 3 is child of group A");
-		TestGroup group4 = new TestGroup("group4", groupB.getGroupName(), "group 4 is child of group B");
+		TestGroup group1 = new TestGroup("group1", "group1", groupA.getLogin(), "group 1 is child of group A");
+		TestGroup group2 = new TestGroup("group2", "group2", groupA.getLogin(), "group 2 is child of group A");
+		TestGroup group3 = new TestGroup("group3", "group3", groupA.getLogin(), "group 3 is child of group A");
+		TestGroup group4 = new TestGroup("group4", "group4", groupB.getLogin(), "group 4 is child of group B");
 		// 3rd layer
-		TestGroup groupI = new TestGroup("groupI", group2.getGroupName(), "group I is child of group 2");
-		TestGroup groupII = new TestGroup("groupII", group3.getGroupName(), "group II is child of group 3");
+		TestGroup groupI = new TestGroup("groupI", "groupI", group2.getLogin(), "group I is child of group 2");
+		TestGroup groupII = new TestGroup("groupII", "groupII", group3.getLogin(), "group II is child of group 3");
 		// 4th layer
-		TestGroup groupRed = new TestGroup("groupRed", groupI.getGroupName(), "group Red is child of group I");
+		TestGroup groupRed = new TestGroup("groupRed", "groupRed", groupI.getLogin(), "group Red is child of group I");
 
 		return Arrays.asList(groupA.toMap(), groupB.toMap(),
 				group1.toMap(), group2.toMap(), group3.toMap(), group4.toMap(),
@@ -583,17 +596,27 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 	private class TestGroup {
 		private final String groupName;
-		private final String parentGroupName;
+		private final String login;
+		private final String parentGroupLogin;
 		private final String description;
 
-		public TestGroup(String groupName, String parentGroupName, String description) {
+		public TestGroup(String groupName, String login, String parentGroupLogin, String description) {
 			this.groupName = groupName;
-			this.parentGroupName = parentGroupName;
+			this.login = login;
+			this.parentGroupLogin = parentGroupLogin;
 			this.description = description;
 		}
 
 		public String getGroupName() {
 			return groupName;
+		}
+
+		public String getLogin() {
+			return login;
+		}
+
+		public String getParentGroupLogin() {
+			return parentGroupLogin;
 		}
 
 		public String getDescription() {
@@ -603,11 +626,24 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		public Map<String, String> toMap() {
 			Map<String, String> subject = new HashMap<>();
 			subject.put(GroupsManagerBlImpl.GROUP_NAME, groupName);
-			if (parentGroupName != null) {
-				subject.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, parentGroupName);
+			subject.put(GroupsManagerBlImpl.GROUP_LOGIN, login);
+			if (parentGroupLogin != null) {
+				subject.put(GroupsManagerBlImpl.PARENT_GROUP_LOGIN, parentGroupLogin);
 			}
 			subject.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, description);
 			return subject;
 		}
+	}
+
+	private AttributeDefinition setGroupAttribute(String name) throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attrDef.setDescription("Test attribute description");
+		attrDef.setFriendlyName(name);
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		return attribute;
 	}
 }

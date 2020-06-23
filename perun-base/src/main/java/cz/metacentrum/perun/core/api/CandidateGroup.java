@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.api;
 import java.util.Objects;
 
 /**
- * Group obtained from an extSource with the name of its parent in the external source.
+ * Group obtained from an extSource with the login and login of its parent in the external source.
  * It can be then created as a group of a virtual organization in Perun.
  *
  * @date 8/30/17.
@@ -12,7 +12,8 @@ import java.util.Objects;
 public class CandidateGroup extends Auditable {
 
 	private ExtSource extSource;
-	private String parentGroupName;
+	private String login;
+	private String parentGroupLogin;
 	private Group group;
 
 	public CandidateGroup() {
@@ -27,12 +28,20 @@ public class CandidateGroup extends Auditable {
 		this.extSource = extSource;
 	}
 
-	public String getParentGroupName() {
-		return parentGroupName;
+	public String getLogin() {
+		return login;
 	}
 
-	public void setParentGroupName(String parentGroupName) {
-		this.parentGroupName = parentGroupName;
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getParentGroupLogin() {
+		return parentGroupLogin;
+	}
+
+	public void setParentGroupLogin(String parentGroupLogin) {
+		this.parentGroupLogin = parentGroupLogin;
 	}
 
 	public Group asGroup() {
@@ -46,20 +55,22 @@ public class CandidateGroup extends Auditable {
 		if (!super.equals(o)) return false;
 		CandidateGroup that = (CandidateGroup) o;
 		return Objects.equals(getExtSource(), that.getExtSource()) &&
-				Objects.equals(getParentGroupName(), that.getParentGroupName()) &&
+				Objects.equals(getLogin(), that.getLogin()) &&
+				Objects.equals(getParentGroupLogin(), that.getParentGroupLogin()) &&
 				Objects.equals(asGroup(), that.asGroup());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), getExtSource(), getParentGroupName(), asGroup());
+		return Objects.hash(super.hashCode(), getExtSource(), getLogin(), getParentGroupLogin(), asGroup());
 	}
 
 	@Override
 	public String toString() {
 		return "CandidateGroup{" +
 				"extSource=" + extSource +
-				", parentGroupName='" + parentGroupName + '\'' +
+				", login='" + login + + '\'' +
+				", parentGroupLogin='" + parentGroupLogin + '\'' +
 				", group=" + group +
 				'}';
 	}
@@ -71,8 +82,10 @@ public class CandidateGroup extends Auditable {
 		return str.append(this.getClass().getSimpleName())
 				.append(":[extSource=<")
 				.append(getExtSource() == null ? "\\0" : getExtSource().serializeToString())
-				.append(">, parentGroupName=<")
-				.append(getParentGroupName())
+				.append(">, login=<")
+				.append(getLogin())
+				.append(">, parentGroupLogin=<")
+				.append(getParentGroupLogin())
 				.append(">, group=<")
 				.append(asGroup() == null ? "\\0" : asGroup().serializeToString())
 				.append(">]").toString();

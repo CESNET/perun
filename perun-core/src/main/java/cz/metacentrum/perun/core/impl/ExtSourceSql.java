@@ -323,16 +323,22 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 					Map<String, String> map = new HashMap<>();
 
 					try {
+						map.put(GroupsManagerBlImpl.GROUP_LOGIN, rs.getString(GroupsManagerBlImpl.GROUP_LOGIN));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put(GroupsManagerBlImpl.GROUP_LOGIN, null);
+					}
+					try {
 						map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
 					} catch (SQLException e) {
 						// If the column doesn't exists, ignore it
 						map.put(GroupsManagerBlImpl.GROUP_NAME, null);
 					}
 					try {
-						map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_NAME));
+						map.put(GroupsManagerBlImpl.PARENT_GROUP_LOGIN, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
 					} catch (SQLException e) {
 						// If the column doesn't exists, ignore it
-						map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, null);
+						map.put(GroupsManagerBlImpl.PARENT_GROUP_LOGIN, null);
 					}
 					try {
 						map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
