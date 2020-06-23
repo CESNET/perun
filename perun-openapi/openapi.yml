@@ -7150,6 +7150,36 @@ paths:
                 user: { type: integer}
                 userExtSource: { $ref: '#/components/schemas/UserExtSource' }
 
+  /urlinjsonout/usersManager/validatePreferredEmailChange:
+    post:
+      tags:
+        - UsersManager
+      operationId: validatePreferredEmailChange
+      summary: Validate new preferred email address. Request to validate is determined based on encrypted parameters sent in email notice by requestPreferredEmailChange() method.
+      parameters:
+        - {name: i, description: "encrypted request parameter", schema: {type: string}, in: query, required: true}
+        - {name: m, description: "encrypted request parameter", schema: {type: string}, in: query, required: true}
+        - {name: u, description: "id of user you want to validate preferred email request", schema: {type: int}, in: query, required: true}
+      responses:
+        '200':
+          $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getPendingPreferredEmailChanges:
+    get:
+      tags:
+        - UsersManager
+      operationId: getPendingPreferredEmailChanges
+      summary: Return list of email addresses of user, which are awaiting validation and are inside time window for validation. If there is no preferred email change request pending or requests are outside time window for validation, returns empty list.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfStringsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # MembersManager                                #
