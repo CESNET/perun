@@ -167,7 +167,7 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 	 * @return Publication instance
 	 * @throws InternalErrorException
 	 */
-	private Publication convertNodeToPublication(Node node, XPathFactory xPathFactory) throws InternalErrorException, CabinetException {
+	private Publication convertNodeToPublication(Node node, XPathFactory xPathFactory) throws CabinetException {
 
 		Publication publication = new Publication();
 

@@ -396,7 +396,7 @@ public class TaskScheduler extends AbstractRunner {
 		}
 	}
 
-	protected void initPerunSession() throws InternalErrorException {
+	protected void initPerunSession() {
 		if (perunSession == null) {
 			perunSession = perun.getPerunSession(new PerunPrincipal(
 					dispatcherProperties.getProperty("perun.principal.name"),

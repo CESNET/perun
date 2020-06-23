@@ -57,7 +57,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	// methods ------------------------------
 
 	@Override
-	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) throws InternalErrorException {
+	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) {
 		try {
 			// Set the new PS id
 			int newId = Utils.getNewId(jdbc, "cabinet_pub_sys_id_seq");
@@ -72,7 +72,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	}
 
 	@Override
-	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException, InternalErrorException {
+	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException {
 		try {
 			int numAffected = jdbc.update("update cabinet_publication_systems set friendlyName=?,type=?,url=?,loginNamespace=?,modified_by_uid=?" +
 					" where id=?", ps.getFriendlyName(), ps.getType(), ps.getUrl(), ps.getLoginNamespace(), session.getPerunPrincipal().getUserId(), ps.getId());
@@ -85,7 +85,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	}
 
 	@Override
-	public void deletePublicationSystem(PublicationSystem ps) throws CabinetException, InternalErrorException {
+	public void deletePublicationSystem(PublicationSystem ps) throws CabinetException {
 		try {
 			int numAffected = jdbc.update("delete from cabinet_publication_systems where id=?", ps.getId());
 			if(numAffected == 0) throw new CabinetException(ErrorCodes.PUBLICATION_SYSTEM_NOT_EXISTS);
@@ -95,7 +95,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	}
 
 	@Override
-	public List<PublicationSystem> getPublicationSystems() throws InternalErrorException {
+	public List<PublicationSystem> getPublicationSystems() {
 		try {
 			return jdbc.query("select " + PUBLICATION_SYSTEM_SELECT_QUERY +
 					" from cabinet_publication_systems", PUBLICATION_SYSTEM_ROW_MAPPER);
@@ -107,7 +107,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	}
 
 	@Override
-	public PublicationSystem getPublicationSystemById(int id) throws CabinetException, InternalErrorException {
+	public PublicationSystem getPublicationSystemById(int id) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + PUBLICATION_SYSTEM_SELECT_QUERY +
 							" from cabinet_publication_systems where id=?", PUBLICATION_SYSTEM_ROW_MAPPER, id);
@@ -119,7 +119,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	}
 
 	@Override
-	public PublicationSystem getPublicationSystemByName(String name) throws CabinetException, InternalErrorException {
+	public PublicationSystem getPublicationSystemByName(String name) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + PUBLICATION_SYSTEM_SELECT_QUERY +
 							" from cabinet_publication_systems where friendlyName=?", PUBLICATION_SYSTEM_ROW_MAPPER, name);
@@ -131,7 +131,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	}
 
 	@Override
-	public PublicationSystem getPublicationSystemByNamespace(String namespace) throws CabinetException, InternalErrorException {
+	public PublicationSystem getPublicationSystemByNamespace(String namespace) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + PUBLICATION_SYSTEM_SELECT_QUERY +
 					" from cabinet_publication_systems where loginNamespace=?", PUBLICATION_SYSTEM_ROW_MAPPER, namespace);

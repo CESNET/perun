@@ -28,7 +28,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
 	private static final Pattern pattern = Pattern.compile("[^@]+@[^@]+");
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		List<String> idpLogins = new ArrayList<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
@@ -64,7 +64,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
 	}
 
 	@Override
-	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String login) throws InternalErrorException {
+	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String login) {
 		if (login == null) return null;
 		return perunSession.getPerunBl().getUsersManagerBl().getUsersByExtSourceTypeAndLogin(perunSession, ExtSourcesManager.EXTSOURCE_IDP, login);
 	}

@@ -34,7 +34,7 @@ public class ListOfVoMembersWithCertificate extends PerunCommand {
 	}
 
 	@Override
-	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
+	public void executeCommand(PerunCLI.CommandContext ctx) {
 		Integer voId = this.getVoId(ctx, true);
 		AttributesManagerApi attributesManager = ctx.getPerunRPC().getAttributesManager();
 		int prefDNid = attributesManager.getAttributeDefinitionByName("urn:perun:user:attribute-def:def:userPreferredCertDN").getId();

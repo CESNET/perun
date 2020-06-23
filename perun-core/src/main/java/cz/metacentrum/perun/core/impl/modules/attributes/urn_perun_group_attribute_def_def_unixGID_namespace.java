@@ -40,7 +40,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		String gidNamespace = attribute.getFriendlyNameParameter();
 
@@ -118,7 +118,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		try{
 			String gidNamespace = attribute.getFriendlyNameParameter();
 
@@ -215,7 +215,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		String gidNamespace = attribute.getFriendlyNameParameter();
 
 		//get attribute with usedGids for update

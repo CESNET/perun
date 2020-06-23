@@ -152,7 +152,7 @@ public class TasksManagerEntry implements TasksManager {
 	}
 
 	@Override
-	public FacilityState getFacilityState(PerunSession session, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException {
+	public FacilityState getFacilityState(PerunSession session, Facility facility) throws PrivilegeException, FacilityNotExistsException {
 		if (!AuthzResolver.isAuthorized(session, Role.FACILITYADMIN, facility) &&
 				!AuthzResolver.isAuthorized(session, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
@@ -162,12 +162,12 @@ public class TasksManagerEntry implements TasksManager {
 	}
 
 	@Override
-	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, FacilityNotExistsException {
+	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws FacilityNotExistsException {
 		return tasksManagerBl.getAllFacilitiesStates(session);
 	}
 
 	@Override
-	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException {
+	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, FacilityNotExistsException {
 		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(session, "getAllFacilitiesStatesForVo");
@@ -180,13 +180,13 @@ public class TasksManagerEntry implements TasksManager {
 		return tasksManagerBl.getTaskResultById(taskResultId);
 	}
 
-	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException {
+	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) {
 		//FIXME check privileges, probably only some monitoring system can request these data
 		return tasksManagerBl.getTaskResultsForDestinations(session, destinationsNames);
 	}
 
 	@Override
-	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException {
+	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException {
 		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(session, "getResourcesState");
@@ -195,7 +195,7 @@ public class TasksManagerEntry implements TasksManager {
 	}
 
 	@Override
-	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException{
+	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws PrivilegeException{
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
 				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getFacilityServicesState");
@@ -205,7 +205,7 @@ public class TasksManagerEntry implements TasksManager {
 	}
 
 	@Override
-	public void deleteTask(PerunSession sess, Task task) throws InternalErrorException, PrivilegeException {
+	public void deleteTask(PerunSession sess, Task task) throws PrivilegeException {
 		Facility facility = task.getFacility();
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "deleteTask");

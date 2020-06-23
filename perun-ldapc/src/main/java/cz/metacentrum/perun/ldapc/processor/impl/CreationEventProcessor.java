@@ -79,7 +79,7 @@ public class CreationEventProcessor extends AbstractEventProcessor {
 	 * @return List of facility attributes requested by resource
 	 * @throws InternalErrorException if some exception is thrown from RPC
 	 */
-	private List<Attribute> getFacilityAttributes(Resource resource) throws InternalErrorException {
+	private List<Attribute> getFacilityAttributes(Resource resource) {
 
 		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		PerunSession perunSession = ldapcManager.getPerunSession();

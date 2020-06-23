@@ -30,7 +30,7 @@ public interface ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Finds all subjects logins in the external source, that contains searchString, limited by the maxResults.
@@ -44,7 +44,7 @@ public interface ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Finds subject from the external source by the primary login used in external source.
@@ -55,7 +55,7 @@ public interface ExtSourceSimpleApi {
 	 * @throws SubjectNotExistsException if the subject cannot be found
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException;
+	Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException, ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Get the list of the subjects in the external group.
@@ -65,7 +65,7 @@ public interface ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException;
 
 	/**
 	 * If extSource needs to be closed, this method must be called.
@@ -73,7 +73,7 @@ public interface ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	void close() throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	void close() throws ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Get the list of the subject groups in the external source.
@@ -83,7 +83,7 @@ public interface ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Get the list of subjects from the external source.
@@ -93,6 +93,6 @@ public interface ExtSourceSimpleApi {
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
 	@JsonIgnore
-	List<Map<String, String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException;
 
 }

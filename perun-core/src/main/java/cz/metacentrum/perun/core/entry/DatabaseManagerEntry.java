@@ -25,7 +25,7 @@ public class DatabaseManagerEntry implements DatabaseManager {
 	public DatabaseManagerEntry() {}
 
 	@Override
-	public String getCurrentDatabaseVersion(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public String getCurrentDatabaseVersion(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -36,7 +36,7 @@ public class DatabaseManagerEntry implements DatabaseManager {
 	}
 
 	@Override
-	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public String getDatabaseDriverInformation(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -47,7 +47,7 @@ public class DatabaseManagerEntry implements DatabaseManager {
 	}
 
 	@Override
-	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public String getDatabaseInformation(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

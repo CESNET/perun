@@ -69,7 +69,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) {
 		String value = null;
 		if(attribute.getValue() != null) value = (String) attribute.getValue();
 		//If there is some value and member is in status expired or disabled

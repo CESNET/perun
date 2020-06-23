@@ -26,7 +26,7 @@ public class FacilitySynchronizer extends AbstractSynchronizer {
 	@Autowired
 	protected PerunFacility perunFacility;
 
-	public void synchronizeFacilities() throws InternalErrorException {
+	public void synchronizeFacilities() {
 		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		Set<Name> presentFacilities = new HashSet<Name>();
 		boolean shouldWriteExceptionLog = true;

@@ -30,7 +30,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 
 	@Override
 	@Deprecated
-	public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws InternalErrorException, MemberNotExistsException {
+	public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -40,7 +40,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException {
+	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) {
 		Utils.checkPerunSession(sess);
 
 		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
@@ -49,7 +49,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException {
+	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) {
 		Utils.checkPerunSession(sess);
 
 		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
@@ -58,7 +58,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException {
+	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) {
 		Utils.checkPerunSession(sess);
 
 		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.

@@ -36,7 +36,7 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws MemberAlreadyRemovedException if there are 0 rows affected by removing from DB
 	 */
-	void deleteMember(PerunSession perunSession, Member member) throws InternalErrorException, MemberAlreadyRemovedException;
+	void deleteMember(PerunSession perunSession, Member member) throws MemberAlreadyRemovedException;
 
 	/**
 	 * Creates member entry in the database.
@@ -49,7 +49,7 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyMemberException
 	 */
-	Member createMember(PerunSession perunSession, Vo vo, User user) throws InternalErrorException, AlreadyMemberException;
+	Member createMember(PerunSession perunSession, Vo vo, User user) throws AlreadyMemberException;
 
 	/**
 	 * Get member's VO id
@@ -59,7 +59,7 @@ public interface MembersManagerImplApi {
 	 * @return VO id
 	 * @throws InternalErrorException
 	 */
-	int getMemberVoId(PerunSession perunSession, Member member) throws InternalErrorException;
+	int getMemberVoId(PerunSession perunSession, Member member);
 
 	/**
 	 * Find member of this Vo by his login in external source
@@ -71,7 +71,7 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	Member getMemberByUserExtSource(PerunSession perunSession, Vo vo, UserExtSource userExtSource) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberByUserExtSource(PerunSession perunSession, Vo vo, UserExtSource userExtSource) throws MemberNotExistsException;
 
 	/**
 	 * Returns member by his id.
@@ -82,7 +82,7 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	Member getMemberById(PerunSession perunSession, int id) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberById(PerunSession perunSession, int id) throws MemberNotExistsException;
 
 	/**
 	 * Returns member by his user id and vo.
@@ -94,7 +94,7 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	Member getMemberByUserId(PerunSession perunSession, Vo vo, int userId) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberByUserId(PerunSession perunSession, Vo vo, int userId) throws MemberNotExistsException;
 
 	/**
 	 * Return all VO Members of the User.
@@ -104,7 +104,7 @@ public interface MembersManagerImplApi {
 	 * @return List of Members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUser(PerunSession sess, User user) throws InternalErrorException;
+	List<Member> getMembersByUser(PerunSession sess, User user);
 
 	/**
 	 * Return all VO Members of the User, which have specified Status in their VO.
@@ -115,7 +115,7 @@ public interface MembersManagerImplApi {
 	 * @return List of Members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) throws InternalErrorException;
+	List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status);
 
 	/**
 	 * Check if member exists in underlaying data source.
@@ -126,7 +126,7 @@ public interface MembersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean memberExists(PerunSession perunSession, Member member) throws InternalErrorException;
+	boolean memberExists(PerunSession perunSession, Member member);
 
 	/**
 	 * Set date to which will be member suspended in his VO.
@@ -138,7 +138,7 @@ public interface MembersManagerImplApi {
 	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
 	 * @throws InternalErrorException
 	 */
-	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException;
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo);
 
 	/**
 	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
@@ -149,7 +149,7 @@ public interface MembersManagerImplApi {
 	 * @param member member for which the suspend state will be removed
 	 * @throws InternalErrorException
 	 */
-	void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException;
+	void unsuspendMember(PerunSession sess, Member member);
 
 	/**
 	 * Check if member exists in underlaying data source.
@@ -160,7 +160,7 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	void checkMemberExists(PerunSession perunSession, Member member) throws InternalErrorException, MemberNotExistsException;
+	void checkMemberExists(PerunSession perunSession, Member member) throws MemberNotExistsException;
 
 	/**
 	 *  Set status of the member to specified status.
@@ -171,7 +171,7 @@ public interface MembersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException;
+	void setStatus(PerunSession sess, Member member, Status status);
 
 	/**
 	 * Convert list of users' ids into the list of members.
@@ -182,7 +182,7 @@ public interface MembersManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo) throws InternalErrorException;
+	List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo);
 
 	/**
 	 * Convert list of users into the list of members.
@@ -193,7 +193,7 @@ public interface MembersManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo) throws InternalErrorException;
+	List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo);
 
 	/**
 	 * Returns all members from the VO (with every status).
@@ -203,7 +203,7 @@ public interface MembersManagerImplApi {
 	 * @return number of members
 	 * @throws InternalErrorException
 	 */
-	int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException;
+	int getMembersCount(PerunSession sess, Vo vo);
 
 	/**
 	 * Returns number of Vo members with defined status.
@@ -214,7 +214,7 @@ public interface MembersManagerImplApi {
 	 * @return number of members
 	 * @throws InternalErrorException
 	 */
-	int getMembersCount(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
+	int getMembersCount(PerunSession sess, Vo vo, Status status);
 
 	/**
 	 * Store information about password reset request.
@@ -226,12 +226,12 @@ public interface MembersManagerImplApi {
 	 * @return ID of request to be used for validation
 	 * @throws InternalErrorException
 	 */
-	int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail) throws InternalErrorException;
+	int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail);
 
 	/**
 	 * Creates a new member in given Vo with flag "sponsored", and linked to its sponsoring user.
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException, InternalErrorException;
+	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException;
 
 	/**
 	 * Set member to be sponsored by sponsor. Set flag and sponsorship.
@@ -242,7 +242,7 @@ public interface MembersManagerImplApi {
 	 * @return sponsored member
 	 * @throws InternalErrorException
 	 */
-	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException;
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor);
 
 	/**
 	 * Unset member to not be sponsored by anybody from now. Unset flag and remove all sponsorships.
@@ -252,7 +252,7 @@ public interface MembersManagerImplApi {
 	 * @return member which is not sponsored any more
 	 * @throws InternalErrorException
 	 */
-	Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws InternalErrorException;
+	Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember);
 
 	/**
 	 * Adds another sponsoring user for a sponsored member.
@@ -261,7 +261,7 @@ public interface MembersManagerImplApi {
 	 * @param sponsor sponsoring user
 	 * @throws InternalErrorException
 	 */
-	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException;
+	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor);
 
 	/**
 	 * Removes a sponsoring user. In fact marks the link as inactive.
@@ -270,7 +270,7 @@ public interface MembersManagerImplApi {
 	 * @param sponsor sponsoring user
 	 * @throws InternalErrorException
 	 */
-	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor) throws InternalErrorException;
+	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor);
 
 	/**
 	 * Delete all existing sponsorships for defined member. This method will delete them, not just marked.
@@ -279,7 +279,7 @@ public interface MembersManagerImplApi {
 	 * @param sponsoredMember member which is sponsored
 	 * @throws InternalErrorException
 	 */
-	void deleteAllSponsors(PerunSession session, Member sponsoredMember) throws InternalErrorException;
+	void deleteAllSponsors(PerunSession session, Member sponsoredMember);
 
 	/**
 	 * Gets members sponsored by the given user.
@@ -289,7 +289,7 @@ public interface MembersManagerImplApi {
 	 * @return list of members sponsored by the given user
 	 * @throws InternalErrorException
 	 */
-	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor) throws InternalErrorException;
+	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor);
 
 	/**
 	 * Gets list of sponsored members of a VO.
@@ -298,7 +298,7 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException if given parameters are invalid
 	 * @return list of members from given vo who are sponsored
 	 */
-	List<Member> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Member> getSponsoredMembers(PerunSession sess, Vo vo);
 
 	/**
 	 * Deletes all links to sponsors, even those marked as inactive.
@@ -306,7 +306,7 @@ public interface MembersManagerImplApi {
 	 * @param member member which is sponsored
 	 * @throws InternalErrorException
 	 */
-	void deleteSponsorLinks(PerunSession sess, Member member) throws InternalErrorException;
+	void deleteSponsorLinks(PerunSession sess, Member member);
 
 	/**
 	 * Returns unified result of MemberGroupStatus for specified member and resource.
@@ -322,7 +322,7 @@ public interface MembersManagerImplApi {
 	 * @param resource Resource to get unified MemberGroupStatus
 	 * @return MemberGroupStatus for member unified through all his groups assigned to the resource.
 	 */
-	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
+	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource);
 
 	/**
 	 * Returns unified result of MemberGroupStatus for specified user and facility.
@@ -338,7 +338,7 @@ public interface MembersManagerImplApi {
 	 * @param facility Facility to get unified MemberGroupStatus
 	 * @return MemberGroupStatus for user unified throught all his groups assigned to any of resources of facility.
 	 */
-	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException;
+	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility);
 
 	/**
 	 * Return list of members by specific string.

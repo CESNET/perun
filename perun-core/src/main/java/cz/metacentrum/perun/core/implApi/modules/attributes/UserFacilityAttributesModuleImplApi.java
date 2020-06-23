@@ -27,7 +27,7 @@ public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImp
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of assigned attribute in relationship between those two
@@ -42,7 +42,7 @@ public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImp
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws  InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * Tries to fill an attribute in the relationship between a facility and
@@ -58,7 +58,7 @@ public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImp
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl session, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl session, User user, Facility facility, AttributeDefinition attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

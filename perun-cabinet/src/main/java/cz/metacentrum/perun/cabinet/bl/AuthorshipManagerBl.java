@@ -26,7 +26,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When authorship already exists or other exception occurs
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException;
+	Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
 
 	/**
 	 * Resolves whether given authorship exists. Authorship is assumed to exists
@@ -38,7 +38,7 @@ public interface AuthorshipManagerBl {
 	 * @return TRUE if authorship exists / FALSE otherwise
 	 * @throws InternalErrorException When implementation fails
 	 */
-	boolean authorshipExists(Authorship authorship) throws InternalErrorException;
+	boolean authorshipExists(Authorship authorship);
 
 	/**
 	 * Delete Authorship by its ID. After deletion users "priorityCoefficient" is recalculated.
@@ -48,7 +48,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When Authorship by ID doesn't exist
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException;
+	void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
 
 	/**
 	 * Get Authorship by its ID
@@ -58,7 +58,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When Authorship by ID doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship getAuthorshipById(int id) throws CabinetException, InternalErrorException;
+	Authorship getAuthorshipById(int id) throws CabinetException;
 
 
 	/**
@@ -68,7 +68,7 @@ public interface AuthorshipManagerBl {
 	 * @return Authorship by its user ID or empty list
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Authorship> getAuthorshipsByUserId(int id) throws InternalErrorException;
+	List<Authorship> getAuthorshipsByUserId(int id);
 
 	/**
 	 * Get Authorships by its Publication ID or empty list.
@@ -77,7 +77,7 @@ public interface AuthorshipManagerBl {
 	 * @return Authorship by its publication ID or empty list
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Authorship> getAuthorshipsByPublicationId(int id) throws InternalErrorException;
+	List<Authorship> getAuthorshipsByPublicationId(int id);
 
 	/**
 	 * Get Authorship by its user and publication IDs
@@ -88,7 +88,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When Authorship by IDs doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException, InternalErrorException;
+	Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException;
 
 	/**
 	 * Calculates new priorityCoefficient value based on current state of all users publications.
@@ -101,7 +101,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When Category or Publication in users Authorships doesn't exists (consistency)
 	 * @throws InternalErrorException When implementation fails
 	 */
-	double calculateNewRank(int userId) throws CabinetException, InternalErrorException;
+	double calculateNewRank(int userId) throws CabinetException;
 
 	/**
 	 * Calculates new priorityCoefficient value based on passed Authorships.
@@ -116,7 +116,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When Category or Publication in Authorships doesn't exists (consistency)
 	 * @throws InternalErrorException When implementation fails
 	 */
-	double calculateNewRank(List<Authorship> authorships) throws InternalErrorException, CabinetException;
+	double calculateNewRank(List<Authorship> authorships) throws CabinetException;
 
 	/**
 	 * Return Author by its ID. If user is not author of any Publication, exception is thrown.
@@ -126,7 +126,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When Author (User) has no Publications
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Author getAuthorById(int id) throws CabinetException, InternalErrorException;
+	Author getAuthorById(int id) throws CabinetException;
 
 	/**
 	 * Return all Authors of Publications. Empty list of none found.
@@ -134,7 +134,7 @@ public interface AuthorshipManagerBl {
 	 * @return List of all Authors of Publications. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAllAuthors() throws InternalErrorException;
+	List<Author> getAllAuthors();
 
 	/**
 	 * Return all Authors of Publication specified by its ID. Empty list of none found.
@@ -143,7 +143,7 @@ public interface AuthorshipManagerBl {
 	 * @return List of Authors of Publication specified its ID. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException;
+	List<Author> getAuthorsByPublicationId(int id);
 
 	/**
 	 * Return all Authors of Publication specified by Authorships ID. Empty list of none found.
@@ -154,7 +154,7 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException When authorship doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException;
+	List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException;
 
 	/**
 	 * Search through all users of Perun in order to allow publication author to add colleagues as co-authors.
@@ -166,6 +166,6 @@ public interface AuthorshipManagerBl {
 	 * @throws CabinetException
 	 * @throws InternalErrorException
 	 */
-	List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException, InternalErrorException;
+	List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException;
 
 }

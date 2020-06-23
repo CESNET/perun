@@ -39,7 +39,7 @@ public interface SearcherImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException;
+	List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues);
 
 	/**
 	 * This method get Map of Attributes with searching values and try to find all groups, which have specific attributes in format.
@@ -75,7 +75,7 @@ public interface SearcherImplApi {
 	 * @return Members with expiration relative to method params.
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date, int days) throws InternalErrorException;
+	List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date, int days);
 
 	/**
 	 * Return members who should expire in given group and with expiration date set,
@@ -95,7 +95,7 @@ public interface SearcherImplApi {
 	 * @return Members with expiration relative to method params.
 	 * @throws InternalErrorException internal error
 	 */
-	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date, int days) throws InternalErrorException;
+	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date, int days);
 
 	/**
 	 * Return all groups assigned to any resource with following conditions:
@@ -110,7 +110,7 @@ public interface SearcherImplApi {
 	 * @return list of groups with following conditions
 	 * @throws InternalErrorException if any of attributes is null or has empty value, if any of attributes is not in expected namespace
 	 */
-	List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException;
+	List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute);
 
 	/**
 	 * This method get Map of Attributes with searching values and try to find all facilities, which have specific attributes in format.
@@ -131,7 +131,7 @@ public interface SearcherImplApi {
 	 *
 	 * @throws InternalErrorException internal error
 	 */
-	List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException;
+	List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues);
 
 	/**
 	 * This method get Map of Attributes with searching values and try to find all resources, which have specific attributes in format.
@@ -153,5 +153,5 @@ public interface SearcherImplApi {
 	 *
 	 * @throws InternalErrorException internal error
 	 */
-	List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException;
+	List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString);
 }

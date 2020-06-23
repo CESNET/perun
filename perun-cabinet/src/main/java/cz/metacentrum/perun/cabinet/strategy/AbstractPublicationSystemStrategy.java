@@ -60,7 +60,7 @@ public abstract class AbstractPublicationSystemStrategy implements PublicationSy
 	 * @return object extracted from node by xpath
 	 * @throws InternalErrorException
 	 */
-	protected Object getValueFromXpath(Node node, String xpathExpression, QName resultType) throws InternalErrorException {
+	protected Object getValueFromXpath(Node node, String xpathExpression, QName resultType) {
 		//Prepare xpath expression
 		XPathFactory xPathfactory = XPathFactory.newInstance();
 		XPath xpath = xPathfactory.newXPath();

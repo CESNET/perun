@@ -34,7 +34,7 @@ public class PdfSerializer implements Serializer {
 	}
 
 	@Override
-	public void write(Object object) throws IllegalArgumentException, IOException, RpcException {
+	public void write(Object object) throws IOException {
 
 		if (object instanceof String) {
 

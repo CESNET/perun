@@ -106,7 +106,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, User user) throws AlreadyMemberException {
 		Member member;
 		try {
 			// Set the new Member id
@@ -129,7 +129,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws InternalErrorException, MemberNotExistsException {
+	public Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws MemberNotExistsException {
 		try {
 			return jdbc.queryForObject("SELECT " + memberMappingSelectQuery + " FROM" +
 							" members WHERE members.user_id=? AND members.vo_id=?",
@@ -142,7 +142,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getMembersByUser(PerunSession sess, User user) throws InternalErrorException {
+	public List<Member> getMembersByUser(PerunSession sess, User user) {
 		try {
 			return jdbc.query("SELECT " + memberMappingSelectQuery + " FROM" +
 							" members WHERE members.user_id=?",
@@ -155,7 +155,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) throws InternalErrorException {
+	public List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) {
 		try {
 			return jdbc.query("SELECT " + memberMappingSelectQuery + " FROM" +
 							" members WHERE members.user_id=? and members.status"+Compatibility.castToInteger()+"=?",
@@ -168,7 +168,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member getMemberById(PerunSession sess, int id) throws InternalErrorException, MemberNotExistsException {
+	public Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException {
 		try {
 			return jdbc.queryForObject("SELECT " + memberMappingSelectQuery + " FROM members "
 					+ " WHERE members.id=?", MEMBER_MAPPER, id);
@@ -180,7 +180,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void deleteMember(final PerunSession sess, final Member member) throws InternalErrorException, MemberAlreadyRemovedException {
+	public void deleteMember(final PerunSession sess, final Member member) throws MemberAlreadyRemovedException {
 		try {
 			int numAffected = jdbc.update("DELETE FROM members WHERE id=?", member.getId());
 			if (numAffected == 0) throw new MemberAlreadyRemovedException("Member: " + member);
@@ -190,7 +190,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public int getMemberVoId(PerunSession sess, Member member) throws InternalErrorException {
+	public int getMemberVoId(PerunSession sess, Member member) {
 		try {
 			return jdbc.queryForInt("select vo_id from members where id=?", member.getId());
 		} catch (RuntimeException e) {
@@ -199,7 +199,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource userExtSource) throws InternalErrorException, MemberNotExistsException {
+	public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource userExtSource) throws MemberNotExistsException {
 		try {
 			return jdbc.queryForObject("SELECT " + memberMappingSelectQuery + " FROM members, user_ext_sources WHERE " +
 							"user_ext_sources.login_ext=? AND user_ext_sources.ext_sources_id=? AND members.vo_id=? AND members.user_id=user_ext_sources.user_id",
@@ -212,7 +212,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public boolean memberExists(PerunSession sess, Member member) throws InternalErrorException {
+	public boolean memberExists(PerunSession sess, Member member) {
 		Utils.notNull(member, "member");
 		try {
 			int number = jdbc.queryForInt("select count(1) from members where id=?", member.getId());
@@ -230,7 +230,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException {
+	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) {
 		Utils.notNull(member, "member");
 		Utils.notNull(suspendedTo, "suspendedTo");
 		try {
@@ -241,7 +241,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException {
+	public void unsuspendMember(PerunSession sess, Member member) {
 		Utils.notNull(member, "member");
 		try {
 			jdbc.update("update members set suspended_to=?, modified_by=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", null, sess.getPerunPrincipal().getActor(), member.getId());
@@ -251,12 +251,12 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException {
+	public void checkMemberExists(PerunSession sess, Member member) throws MemberNotExistsException {
 		if (!memberExists(sess, member)) throw new MemberNotExistsException("Member: " + member);
 	}
 
 	@Override
-	public void setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException {
+	public void setStatus(PerunSession sess, Member member, Status status) {
 		try {
 			jdbc.update("update members set status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", status.getCode(), sess.getPerunPrincipal().getActor(), member.getId());
 		} catch (RuntimeException ex) {
@@ -265,7 +265,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo) throws InternalErrorException {
+	public List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo) {
 		// If usersIds is empty, we can immediatelly return empty results
 		if (usersIds.size() == 0) {
 			return new ArrayList<>();
@@ -288,7 +288,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo) throws InternalErrorException {
+	public List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo) {
 		// If usersIds is empty, we can immediatelly return empty results
 		if (users.size() == 0) {
 			return new ArrayList<>();
@@ -313,7 +313,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException {
+	public int getMembersCount(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.queryForInt("select count(*) from members where vo_id=?", vo.getId());
 		} catch (RuntimeException e) {
@@ -322,7 +322,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public int getMembersCount(PerunSession sess, Vo vo, Status status) throws InternalErrorException {
+	public int getMembersCount(PerunSession sess, Vo vo, Status status) {
 		try {
 			if (Compatibility.isPostgreSql()) {
 				return jdbc.queryForInt("select count(*) from members where vo_id=? and status=?", vo.getId(), String.valueOf(status.getCode()));
@@ -335,7 +335,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail) throws InternalErrorException {
+	public int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail) {
 
 		int newId = Utils.getNewId(jdbc, "pwdreset_id_seq");
 
@@ -352,13 +352,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException, InternalErrorException {
+	public Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException {
 		Member sponsoredMember = this.createMember(session, vo, sponsored);
 		return setSponsorshipForMember(session, sponsoredMember, sponsor);
 	}
 
 	@Override
-	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException {
+	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) {
 		sponsoredMember.setSponsored(true);
 		try {
 			jdbc.update("UPDATE members SET sponsored="+Compatibility.getTrue()+" WHERE id=?", sponsoredMember.getId());
@@ -370,7 +370,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws InternalErrorException {
+	public Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) {
 		sponsoredMember.setSponsored(false);
 		try {
 			jdbc.update("UPDATE members SET sponsored="+Compatibility.getFalse()+" WHERE id=?", sponsoredMember.getId());
@@ -382,7 +382,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException {
+	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) {
 		try {
 			PerunPrincipal pp = session.getPerunPrincipal();
 			jdbc.update("INSERT INTO members_sponsored (active,sponsored_id,sponsor_id,created_by,created_at,created_by_uid,modified_by,modified_at,modified_by_uid) " +
@@ -394,7 +394,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void removeSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException {
+	public void removeSponsor(PerunSession session, Member sponsoredMember, User sponsor) {
 		try {
 			PerunPrincipal pp = session.getPerunPrincipal();
 			jdbc.update("UPDATE members_sponsored SET active='0',modified_by=?,modified_at="+Compatibility.getSysdate() +",modified_by_uid=? " +
@@ -406,7 +406,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void deleteAllSponsors(PerunSession session, Member sponsoredMember) throws InternalErrorException {
+	public void deleteAllSponsors(PerunSession session, Member sponsoredMember) {
 		try {
 			jdbc.update("DELETE FROM members_sponsored WHERE sponsored_id=?", sponsoredMember.getId() );
 		} catch (RuntimeException e) {
@@ -415,7 +415,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor) throws InternalErrorException {
+	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor) {
 		try {
 			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
 					"WHERE members.vo_id=? AND ms.active='1' AND ms.sponsor_id=?", MEMBER_MAPPER, vo.getId(), sponsor.getId());
@@ -425,7 +425,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
 			        "WHERE members.vo_id=? AND ms.active='1'", MEMBER_MAPPER, vo.getId());
@@ -435,7 +435,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void deleteSponsorLinks(PerunSession sess, Member sponsoredMember) throws InternalErrorException {
+	public void deleteSponsorLinks(PerunSession sess, Member sponsoredMember) {
 		try {
 			jdbc.update("DELETE FROM members_sponsored WHERE sponsored_id=?", sponsoredMember.getId());
 		} catch (RuntimeException e) {
@@ -444,7 +444,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource) {
 
 		try {
 			Member result = jdbc.queryForObject("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery +
@@ -463,7 +463,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException {
+	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) {
 
 		try {
 

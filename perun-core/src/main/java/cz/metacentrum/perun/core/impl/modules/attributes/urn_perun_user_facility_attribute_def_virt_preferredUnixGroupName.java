@@ -32,7 +32,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 	private static final String A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute facilityGroupNameNamespaceAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);
 			if(facilityGroupNameNamespaceAttr.getValue() == null) {
@@ -51,7 +51,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) {
 		Attribute attr = new Attribute(attributeDefinition);
 		Attribute preferredGroupNameAttribute;
 
@@ -74,7 +74,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		AttributeDefinition userPreferredGroupNameDefinition;
 		try {
 			Attribute facilityGroupNameNamespaceAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);

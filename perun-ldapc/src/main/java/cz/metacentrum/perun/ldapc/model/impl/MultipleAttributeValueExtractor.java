@@ -14,7 +14,7 @@ import java.util.List;
 public class MultipleAttributeValueExtractor<T extends PerunBean> extends AttributeValueExtractor implements MultipleValuesExtractor<T> {
 
 	@Override
-	public String[] getValues(T bean, Attribute... attributes) throws InternalErrorException {
+	public String[] getValues(T bean, Attribute... attributes) {
 		String[] result = null;
 		for (Attribute attribute : attributes) {
 			if (this.appliesToAttribute(attribute)) {

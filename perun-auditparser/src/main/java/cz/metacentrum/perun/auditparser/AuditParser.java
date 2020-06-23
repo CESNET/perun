@@ -29,7 +29,7 @@ public class AuditParser {
 	static final Pattern pointyAndSquareBracket = Pattern.compile(".\\[|.\\]|[^\\\\](\\\\\\\\)*(<|>)");
 
 
-	public static List<PerunBean> parseLog(String log) throws InternalErrorException {
+	public static List<PerunBean> parseLog(String log) {
 		List<PerunBean> listPerunBeans = new ArrayList<PerunBean>();
 		PerunBean perunBean = null;
 		//Parse log to List of text Beanss
@@ -287,7 +287,7 @@ public class AuditParser {
 		return user;
 	}
 
-	private static Attribute createAttribute(Map<String, String> beanAttr) throws InternalErrorException {
+	private static Attribute createAttribute(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Attribute attribute = new Attribute();
 		attribute.setId(Integer.valueOf(beanAttr.get("id")));
@@ -384,7 +384,7 @@ public class AuditParser {
 		return host;
 	}
 
-	private static Member createMember(Map<String, String> beanAttr) throws InternalErrorException {
+	private static Member createMember(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Member member = new Member();
 		member.setId(Integer.valueOf(beanAttr.get("id")));
@@ -465,7 +465,7 @@ public class AuditParser {
 		return vo;
 	}
 
-	private static Authorship createAuthorship(Map<String, String> beanAttr) throws InternalErrorException {
+	private static Authorship createAuthorship(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Authorship authorship = new Authorship();
 		authorship.setId(Integer.valueOf(beanAttr.get("id")));
@@ -504,7 +504,7 @@ public class AuditParser {
 		return securityTeam;
 	}
 
-	private static TaskResult createTaskResult(Map<String, String> beanAttr) throws InternalErrorException {
+	private static TaskResult createTaskResult(Map<String, String> beanAttr) {
 		if (beanAttr == null) return null;
 		TaskResult taskResult = new TaskResult();
 		taskResult.setId(Integer.valueOf(beanAttr.get("id")));
@@ -610,7 +610,7 @@ public class AuditParser {
 		return richDestination;
 	}
 
-	private static RichMember createRichMember(Map<String, String> beanAttr) throws InternalErrorException {
+	private static RichMember createRichMember(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Member member = createMember(beanAttr);
 		User user;
@@ -650,7 +650,7 @@ public class AuditParser {
 		return richMember;
 	}
 
-	private static RichUser createRichUser(Map<String, String> beanAttr) throws InternalErrorException {
+	private static RichUser createRichUser(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		User user = createUser(beanAttr);
 		//Parse and get list of UserExtSources
@@ -677,7 +677,7 @@ public class AuditParser {
 		return richUser;
 	}
 
-	private static RichGroup createRichGroup(Map<String, String> beanAttr) throws InternalErrorException {
+	private static RichGroup createRichGroup(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Group group = createGroup(beanAttr);
 
@@ -695,7 +695,7 @@ public class AuditParser {
 		return richGroup;
 	}
 
-	private static RichFacility createRichFacility(Map<String, String> beanAttr) throws InternalErrorException {
+	private static RichFacility createRichFacility(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Facility facility = createFacility(beanAttr);
 		//Parse and get list of Owners

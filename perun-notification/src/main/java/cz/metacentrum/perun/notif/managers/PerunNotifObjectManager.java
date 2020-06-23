@@ -17,7 +17,7 @@ public interface PerunNotifObjectManager {
 	 * @param object
 	 * @return
 	 */
-	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object);
 
 	/**
 	 * Saves paerunNotifObject
@@ -25,7 +25,7 @@ public interface PerunNotifObjectManager {
 	 * @param object
 	 * @return perunNotifObject with new id set
 	 */
-	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object);
 
 	/**
 	 * Method returns perunNotifObject by id
@@ -34,7 +34,7 @@ public interface PerunNotifObjectManager {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException;
+	public PerunNotifObject getPerunNotifObjectById(int id);
 
 	/**
 	 * Removes PerunNotifObject based on id, first object is removed from db
@@ -44,7 +44,7 @@ public interface PerunNotifObjectManager {
 	 * @param id
 	 * @throws InternalErrorException
 	 */
-	public void removePerunNotifObjectById(int id) throws InternalErrorException;
+	public void removePerunNotifObjectById(int id);
 
 	/**
 	 * Saves relation between object and regex if not exists
@@ -52,7 +52,7 @@ public interface PerunNotifObjectManager {
 	 * @param regexId
 	 * @param objectId
 	 */
-	public void saveObjectRegexRelation(int regexId, int objectId) throws InternalErrorException;
+	public void saveObjectRegexRelation(int regexId, int objectId);
 
 	/**
 	 * Removes relation between regex and object
@@ -60,7 +60,7 @@ public interface PerunNotifObjectManager {
 	 * @param objectId
 	 * @param regexId
 	 */
-	public void removePerunNotifRegexObjectRelation(int regexId, int objectId) throws InternalErrorException;
+	public void removePerunNotifRegexObjectRelation(int regexId, int objectId);
 
 	/**
 	 * Returns all PerunNotifObjects.

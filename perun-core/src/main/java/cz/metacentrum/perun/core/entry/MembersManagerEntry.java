@@ -82,7 +82,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
+	public void deleteMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -97,7 +97,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteMembers(PerunSession sess, List<Member> members) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
+	public void deleteMembers(PerunSession sess, List<Member> members) throws MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		for (Member member : members) {
@@ -112,7 +112,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -126,12 +126,12 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
 		return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
 
 	@Override
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(specificUserType, "specificUserType");
 
@@ -166,7 +166,7 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	@Deprecated
-	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, Vo vo, int loa) throws InternalErrorException, PrivilegeException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, AlreadyMemberException, PasswordStrengthFailedException, PasswordOperationTimeoutException, WrongAttributeValueException, PasswordStrengthException, InvalidLoginException {
+	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, Vo vo, int loa) throws PrivilegeException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, AlreadyMemberException, PasswordStrengthFailedException, PasswordOperationTimeoutException, WrongAttributeValueException, PasswordStrengthException, InvalidLoginException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(extSource, "extSource");
 		Utils.notNull(namespace, "namespace");
@@ -188,7 +188,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
 		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
 
@@ -196,7 +196,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// if any group is not from the vo, throw an exception
@@ -224,7 +224,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
 		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
 
@@ -232,7 +232,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -261,7 +261,7 @@ public class MembersManagerEntry implements MembersManager {
 
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
 		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
 
@@ -269,7 +269,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -297,12 +297,12 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, User user) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		return this.createMember(sess, vo, user, new ArrayList<>());
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -326,12 +326,12 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException {
 		return this.createMember(sess, vo, extSource, login, new ArrayList<>());
 	}
 
 	@Override
-	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException {
+	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -377,7 +377,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource uea) throws InternalErrorException, VoNotExistsException, MemberNotExistsException, PrivilegeException {
+	public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource uea) throws VoNotExistsException, MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -393,7 +393,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member getMemberById(PerunSession sess, int id) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
+	public Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		Member member = getMembersManagerBl().getMemberById(sess, id);
@@ -409,7 +409,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member getMemberByUser(PerunSession sess, Vo vo, User user) throws InternalErrorException, MemberNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+	public Member getMemberByUser(PerunSession sess, Vo vo, User user) throws MemberNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -428,7 +428,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> getMembersByUser(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public List<Member> getMembersByUser(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -443,7 +443,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> getMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<Member> getMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -460,7 +460,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> getMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<Member> getMembers(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -477,7 +477,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember getRichMemberById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public RichMember getRichMemberById(PerunSession sess, int id) throws PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, id);
@@ -496,7 +496,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember getRichMemberWithAttributes(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public RichMember getRichMemberWithAttributes(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -516,7 +516,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -533,7 +533,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -550,7 +550,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -567,7 +567,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -584,7 +584,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -601,7 +601,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -618,7 +618,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -635,7 +635,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -652,7 +652,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -669,7 +669,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
@@ -686,7 +686,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, PrivilegeException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -730,7 +730,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -747,7 +747,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -764,7 +764,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeNotExistsException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -781,7 +781,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -798,7 +798,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<RichMember> getRichMembers(PerunSession sess, Group group) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -815,7 +815,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -832,7 +832,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -849,7 +849,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -866,7 +866,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -883,7 +883,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public int getMembersCount(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
@@ -899,7 +899,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public int getMembersCount(PerunSession sess, Vo vo, Status status) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public int getMembersCount(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
@@ -915,7 +915,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Vo getMemberVo(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException {
+	public Vo getMemberVo(PerunSession sess, Member member) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		//TODO Authorization
@@ -926,7 +926,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> findMembersByName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
+	public List<Member> findMembersByName(PerunSession sess, String searchString) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -939,7 +939,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> findMembersByNameInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<Member> findMembersByNameInVo(PerunSession sess, Vo vo, String searchString) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -955,7 +955,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> findMembersInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<Member> findMembersInVo(PerunSession sess, Vo vo, String searchString) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -971,7 +971,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
@@ -987,7 +987,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
@@ -1003,7 +1003,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
+	public List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, getPerunBl().getGroupsManagerBl().getParentGroup(sess, group));
@@ -1020,7 +1020,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findRichMembersWithAttributesInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<RichMember> findRichMembersWithAttributesInParentGroup(PerunSession sess, Group group, String searchString) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
@@ -1036,7 +1036,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -1052,7 +1052,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -1068,7 +1068,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
+	public Member setStatus(PerunSession sess, Member member, Status status) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1082,7 +1082,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member setStatus(PerunSession sess, Member member, Status status, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
+	public Member setStatus(PerunSession sess, Member member, Status status, String message) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1096,7 +1096,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
+	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(suspendedTo, "suspendedTo");
 
@@ -1111,7 +1111,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, MemberNotSuspendedException, PrivilegeException {
+	public void unsuspendMember(PerunSession sess, Member member) throws MemberNotExistsException, MemberNotSuspendedException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1126,7 +1126,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member validateMemberAsync(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public Member validateMemberAsync(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -1141,7 +1141,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void extendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ExtendMembershipException {
+	public void extendMembership(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException, ExtendMembershipException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -1155,7 +1155,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public boolean canExtendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public boolean canExtendMembership(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -1171,7 +1171,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException,
+	public boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws PrivilegeException,
 			MemberNotExistsException, ExtendMembershipException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -1188,7 +1188,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, VoNotExistsException, PrivilegeException {
+	public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
@@ -1204,7 +1204,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException,
+	public boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws
 			VoNotExistsException, ExtendMembershipException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -1221,7 +1221,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException, InternalErrorException, VoNotExistsException, PrivilegeException {
+	public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(extSourceName, "extSourceName");
 		Utils.notNull(extLogin, "extLogin");
@@ -1237,7 +1237,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException {
+	public Date getNewExtendMembership(PerunSession sess, Member member) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -1245,7 +1245,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException, VoNotExistsException, ExtendMembershipException {
+	public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws VoNotExistsException, ExtendMembershipException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		Utils.notNull(loa, "loa");
@@ -1254,7 +1254,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws InternalErrorException, PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException {
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException {
 
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -1292,7 +1292,7 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor)
-			throws InternalErrorException, PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
+			throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
 			ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
 			UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
 		Utils.checkPerunSession(session);
@@ -1321,7 +1321,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException {
+	public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException {
 		Utils.checkPerunSession(session);
 		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
 
@@ -1340,7 +1340,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotExistsException, MemberNotSponsoredException, InternalErrorException, PrivilegeException {
+	public RichMember unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotExistsException, MemberNotSponsoredException, PrivilegeException {
 		Utils.checkPerunSession(session);
 		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
 
@@ -1354,7 +1354,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
+	public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(sponsored, "sponsored");
 		Utils.notNull(sponsor, "sponsor");
@@ -1372,7 +1372,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames) throws AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
@@ -1399,7 +1399,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException {
+	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(user, "user");
@@ -1412,7 +1412,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException {
+	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
 		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
@@ -1424,7 +1424,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException, PrivilegeException {
+	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sponsoredMember, "sponsoredMember");
 		Utils.notNull(sponsorUser, "sponsorUser");
@@ -1435,7 +1435,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException, PrivilegeException {
+	public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sponsoredMember, "sponsoredMember");
 		Utils.notNull(sponsorToRemove, "sponsorToRemove");

@@ -25,7 +25,7 @@ public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttribut
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
+	Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute);
 
 	/**
 	 * Method sets attributes' values which are dependent on this virtual attribute.
@@ -37,7 +37,7 @@ public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttribut
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Currently do nothing.
@@ -51,5 +51,5 @@ public interface ResourceVirtualAttributesModuleImplApi extends ResourceAttribut
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException;
 }

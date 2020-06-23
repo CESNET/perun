@@ -123,7 +123,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 
 	}
 
-	public List<Publication> findExternalPublicationsOfUser(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException, InternalErrorException {
+	public List<Publication> findExternalPublicationsOfUser(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException {
 
 		// get PubSys
 		PublicationSystem ps = getPublicationSystemManagerBl().getPublicationSystemByNamespace(pubSysNamespace);
@@ -225,7 +225,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 	}
 
 	@Override
-	public void setThanksAttribute(int userId) throws CabinetException, InternalErrorException {
+	public void setThanksAttribute(int userId) throws CabinetException {
 
 		List<ThanksForGUI> thanks = getThanksManagerBl().getRichThanksByUserId(userId);
 

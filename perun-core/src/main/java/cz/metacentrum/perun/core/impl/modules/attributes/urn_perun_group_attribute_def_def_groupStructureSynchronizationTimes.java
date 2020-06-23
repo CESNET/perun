@@ -19,7 +19,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationTime
 	private static final Pattern pattern = Pattern.compile("^(([0-1][0-9])|(2[0-3])):[0-5][0,5]$");
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
@@ -34,7 +34,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationTime
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if (attribute.getValue() == null) return;
 		try {
 			Attribute foundAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);

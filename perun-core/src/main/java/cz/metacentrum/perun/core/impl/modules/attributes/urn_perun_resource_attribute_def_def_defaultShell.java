@@ -31,7 +31,7 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 	 * no shells, the exception is thrown otherwise some shell is picked.
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		Attribute atr = new Attribute(attribute);
 		Attribute resourceAttr;
 		try {
@@ -59,7 +59,7 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 	 * new default shell must be included at specified resource.
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if (attribute.getValue() == null) {
 			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value is null.");
 		}

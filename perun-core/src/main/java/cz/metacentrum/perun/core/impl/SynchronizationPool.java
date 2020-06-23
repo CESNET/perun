@@ -44,7 +44,7 @@ public class SynchronizationPool {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public boolean putGroupStructureToPoolOfWaitingGroupsStructures(Group group, boolean asFirst) throws InternalErrorException {
+	public boolean putGroupStructureToPoolOfWaitingGroupsStructures(Group group, boolean asFirst) {
 		try {
 			poolAccessLock.lock();
 			if (poolOfGroupsStructuresToBeSynchronized.putJobIfAbsent(group, asFirst)) {
@@ -65,7 +65,7 @@ public class SynchronizationPool {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public boolean putGroupToPoolOfWaitingGroups(Group group, boolean asFirst) throws InternalErrorException {
+	public boolean putGroupToPoolOfWaitingGroups(Group group, boolean asFirst) {
 		try {
 			poolAccessLock.lock();
 			if (poolOfGroupsToBeSynchronized.putJobIfAbsent(group, asFirst)) {
@@ -85,7 +85,7 @@ public class SynchronizationPool {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public int putGroupsToPoolOfWaitingGroups(List<Group> groups) throws InternalErrorException {
+	public int putGroupsToPoolOfWaitingGroups(List<Group> groups) {
 		int numberOfAddedGroups = 0;
 		try {
 			poolAccessLock.lock();
@@ -111,7 +111,7 @@ public class SynchronizationPool {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public int putGroupsStructuresToPoolOfWaitingGroupsStructures(List<Group> groups) throws InternalErrorException {
+	public int putGroupsStructuresToPoolOfWaitingGroupsStructures(List<Group> groups) {
 		int numberOfAddedGroups = 0;
 		try {
 			poolAccessLock.lock();
@@ -141,7 +141,7 @@ public class SynchronizationPool {
 	 * @throws InterruptedException
 	 * @throws InternalErrorException
 	 */
-	public Group takeGroup(PerunSessionImpl sess) throws InterruptedException, InternalErrorException {
+	public Group takeGroup(PerunSessionImpl sess) throws InterruptedException {
 		while(true) {
 			//I can take only if there is not empty list of waiting jobs
 			notEmptyGroupsPoolSemaphore.acquire();
@@ -195,7 +195,7 @@ public class SynchronizationPool {
 	 * @throws InterruptedException
 	 * @throws InternalErrorException
 	 */
-	public Group takeGroupStructure(PerunSessionImpl sess) throws InterruptedException, InternalErrorException {
+	public Group takeGroupStructure(PerunSessionImpl sess) throws InterruptedException {
 		while(true) {
 			//I can take only if there is not empty list of waiting jobs
 			notEmptyGroupsStructuresPoolSemaphore.acquire();

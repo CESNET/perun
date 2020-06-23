@@ -22,20 +22,20 @@ public interface LdapcManager {
 	 *
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void synchronize() throws InternalErrorException;
+	void synchronize();
 
 	/**
 	 * Synchronize Perun in LDAP (replica) using possibly inconsistent data (REPEATABLE_READ transaction).
 	 *
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void synchronizeReplica() throws InternalErrorException;
+	void synchronizeReplica();
 
 	public Perun getPerunBl();
 
 	public void setPerunBl(Perun perunBl);
 
-	public PerunSession getPerunSession() throws InternalErrorException;
+	public PerunSession getPerunSession();
 
 	public PerunPrincipal getPerunPrincipal();
 

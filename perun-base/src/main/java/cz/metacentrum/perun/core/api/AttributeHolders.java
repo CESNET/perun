@@ -79,7 +79,7 @@ public class AttributeHolders extends Attribute implements Serializable {
 		ID, NAME
 	}
 
-	public AttributeHolders(Attribute attribute, Holder primaryHolder, Holder secondaryHolder, SavedBy savedBy) throws InternalErrorException {
+	public AttributeHolders(Attribute attribute, Holder primaryHolder, Holder secondaryHolder, SavedBy savedBy) {
 		super(attribute, true);
 
 		if (primaryHolder != null && secondaryHolder != null) {
@@ -119,7 +119,7 @@ public class AttributeHolders extends Attribute implements Serializable {
 		this.savedBy = savedBy;
 	}
 
-	public AttributeHolders(Attribute attribute, String subject, SavedBy savedBy) throws InternalErrorException {
+	public AttributeHolders(Attribute attribute, String subject, SavedBy savedBy) {
 		this(attribute, null, null, savedBy);
 		this.subject = subject;
 

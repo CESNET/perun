@@ -34,7 +34,7 @@ public class Elixircz extends DefaultRegistrarModule {
 	final static Logger log = LoggerFactory.getLogger(Elixircz.class);
 
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws MemberNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, ExtendMembershipException {
+	public Application approveApplication(PerunSession session, Application app) throws MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, ExtendMembershipException {
 
 		PerunBl perun = (PerunBl) session.getPerun();
 		Member member = perun.getMembersManagerBl().getMemberByUser(session, app.getVo(), app.getUser());

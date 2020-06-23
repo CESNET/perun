@@ -115,7 +115,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public AuthzRoles getRoles(User user) throws InternalErrorException {
+	public AuthzRoles getRoles(User user) {
 		AuthzRoles authzRoles = new AuthzRoles();
 
 		if (user != null) {
@@ -154,7 +154,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public AuthzRoles getRoles(Group group) throws InternalErrorException {
+	public AuthzRoles getRoles(Group group) {
 		AuthzRoles authzRoles = new AuthzRoles();
 
 		if (group != null) {
@@ -176,14 +176,14 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		return authzRoles;
 	}
 
-	public void initialize() throws InternalErrorException {
+	public void initialize() {
 		if (BeansUtils.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");
 
 		this.perunRolesLoader.loadPerunRoles(jdbc);
 		perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
 	}
 
-	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException {
+	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) {
 		String actType = actionType.getActionType().toLowerCase() + "%";
 		try {
 			List<Pair<String, ActionType>> pairs = jdbc.query("select distinct roles.name, action_types.action_type from attributes_authz " +
@@ -213,7 +213,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllUserAuthz(PerunSession sess, User user) throws InternalErrorException {
+	public void removeAllUserAuthz(PerunSession sess, User user) {
 		try {
 			jdbc.update("delete from authz where user_id=?", user.getId());
 		} catch (RuntimeException e) {
@@ -222,7 +222,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllSponsoredUserAuthz(PerunSession sess, User sponsoredUser) throws InternalErrorException {
+	public void removeAllSponsoredUserAuthz(PerunSession sess, User sponsoredUser) {
 		try {
 			jdbc.update("delete from authz where sponsored_user_id=?", sponsoredUser.getId());
 		} catch (RuntimeException e) {
@@ -231,7 +231,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllAuthzForVo(PerunSession sess, Vo vo) throws InternalErrorException {
+	public void removeAllAuthzForVo(PerunSession sess, Vo vo) {
 		try {
 			jdbc.update("delete from authz where vo_id=?", vo.getId());
 		} catch (RuntimeException err) {
@@ -240,7 +240,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException {
+	public void removeAllAuthzForGroup(PerunSession sess, Group group) {
 		try {
 			jdbc.update("delete from authz where group_id=?", group.getId());
 		} catch (RuntimeException err) {
@@ -249,7 +249,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllAuthzForFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+	public void removeAllAuthzForFacility(PerunSession sess, Facility facility) {
 		try {
 			jdbc.update("delete from authz where facility_id=?", facility.getId());
 		} catch (RuntimeException err) {
@@ -258,7 +258,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllAuthzForResource(PerunSession sess, Resource resource) throws InternalErrorException {
+	public void removeAllAuthzForResource(PerunSession sess, Resource resource) {
 		try {
 			jdbc.update("delete from authz where resource_id=?", resource.getId());
 		} catch (RuntimeException err) {
@@ -267,7 +267,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllAuthzForService(PerunSession sess, Service service) throws InternalErrorException {
+	public void removeAllAuthzForService(PerunSession sess, Service service) {
 		try {
 			jdbc.update("delete from authz where service_id=?", service.getId());
 		} catch (RuntimeException err) {
@@ -276,7 +276,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam) {
 		try {
 			jdbc.update("delete from authz where security_team_id=?", securityTeam.getId());
 		} catch (RuntimeException err) {
@@ -285,7 +285,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Facility facility, User user) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.FACILITYADMIN.toLowerCase(), facility.getId());
 		} catch (DataIntegrityViolationException e) {
@@ -296,7 +296,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Facility facility, Group group) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.FACILITYADMIN.toLowerCase(), facility.getId());
 		} catch (DataIntegrityViolationException e) {
@@ -307,7 +307,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
+	public void removeAdmin(PerunSession sess, Facility facility, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and facility_id=? and role_id=(select id from roles where name=?)", user.getId(), facility.getId(), Role.FACILITYADMIN.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the facility " + facility);
@@ -318,7 +318,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
+	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and facility_id=? and role_id=(select id from roles where name=?)", group.getId(), facility.getId(), Role.FACILITYADMIN.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the facility " + facility);
@@ -329,7 +329,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Resource resource, User user) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, resource_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.RESOURCEADMIN.toLowerCase(), resource.getId());
 		} catch (DataIntegrityViolationException e) {
@@ -340,7 +340,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id, resource_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.RESOURCEADMIN.toLowerCase(), resource.getId());
 		} catch (DataIntegrityViolationException e) {
@@ -351,7 +351,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotAdminException {
+	public void removeAdmin(PerunSession sess, Resource resource, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and resource_id=? and role_id=(select id from roles where name=?)", user.getId(), resource.getId(), Role.RESOURCEADMIN.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the resource " + resource);
@@ -362,7 +362,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException {
+	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and resource_id=? and role_id=(select id from roles where name=?)", group.getId(), resource.getId(), Role.RESOURCEADMIN.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the resource " + resource);
@@ -373,7 +373,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, User sponsoredUser, User user) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, sponsored_user_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.SPONSOR.toLowerCase(), sponsoredUser.getId());
 		} catch (DataIntegrityViolationException e) {
@@ -384,7 +384,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id, sponsored_user_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.SPONSOR.toLowerCase(), sponsoredUser.getId());
 		} catch (DataIntegrityViolationException e) {
@@ -395,7 +395,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, UserNotAdminException {
+	public void removeAdmin(PerunSession sess, User sponsoredUser, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and sponsored_user_id=? and role_id=(select id from roles where name=?)", user.getId(), sponsoredUser.getId(), Role.SPONSOR.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not sponsor of the sponsored user " + sponsoredUser);
@@ -406,7 +406,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, GroupNotAdminException {
+	public void removeAdmin(PerunSession sess, User sponsoredUser, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and sponsored_user_id=? and role_id=(select id from roles where name=?)", group.getId(), sponsoredUser.getId(), Role.SPONSOR.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not sponsor of the sponsored user " + sponsoredUser);
@@ -417,7 +417,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Group group, User user) throws AlreadyAdminException {
 		try {
 			// Add GROUPADMIN role + groupId and voId
 			jdbc.update("insert into authz (user_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)",
@@ -430,7 +430,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id, group_id, vo_id) values (?, (select id from roles where name=?), ?, ?)",
 					authorizedGroup.getId(), Role.GROUPADMIN.toLowerCase(), group.getId(), group.getVoId());
@@ -442,7 +442,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
+	public void removeAdmin(PerunSession sess, Group group, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and group_id=? and role_id=(select id from roles where name=?)",
 						user.getId(), group.getId(), Role.GROUPADMIN.toLowerCase())) {
@@ -454,7 +454,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
+	public void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and group_id=? and role_id=(select id from roles where name=?)",
 						authorizedGroup.getId(), group.getId(), Role.GROUPADMIN.toLowerCase())) {
@@ -466,7 +466,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException {
+	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", user.getId(),
 					Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
@@ -478,7 +478,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException, InternalErrorException {
+	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", group.getId(),
 					Role.SECURITYADMIN.toLowerCase(), securityTeam.getId());
@@ -490,7 +490,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException {
+	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and security_team_id=? and role_id=(select id from roles where name=?)", user.getId(), securityTeam.getId(), Role.SECURITYADMIN.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the security team " + securityTeam);
@@ -501,7 +501,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException, InternalErrorException {
+	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and security_team_id=? and role_id=(select id from roles where name=?)", group.getId(), securityTeam.getId(), Role.SECURITYADMIN.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the security team " + securityTeam);
@@ -512,7 +512,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void makeUserPerunAdmin(PerunSession sess, User user) throws AlreadyAdminException, InternalErrorException {
+	public void makeUserPerunAdmin(PerunSession sess, User user) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNADMIN.toLowerCase());
 		} catch (DataIntegrityViolationException e) {
@@ -523,7 +523,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void makeUserPerunObserver(PerunSession sess, User user) throws AlreadyAdminException, InternalErrorException {
+	public void makeUserPerunObserver(PerunSession sess, User user) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNOBSERVER.toLowerCase());
 		} catch (DataIntegrityViolationException e) {
@@ -534,7 +534,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws AlreadyAdminException, InternalErrorException {
+	public void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (authorized_group_id, role_id) values (?, (select id from roles where name=?))", authorizedGroup.getId(), Role.PERUNOBSERVER.toLowerCase());
 		} catch (DataIntegrityViolationException e) {
@@ -545,7 +545,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removePerunObserverFromAuthorizedGroup(PerunSession sess, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
+	public void removePerunObserverFromAuthorizedGroup(PerunSession sess, Group authorizedGroup) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and role_id=(select id from roles where name=?)", authorizedGroup.getId(), Role.PERUNOBSERVER.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + authorizedGroup.getId() + " is not perun observer.");
@@ -556,7 +556,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException {
+	public void removePerunAdmin(PerunSession sess, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not perun admin.");
@@ -567,7 +567,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removePerunObserver(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException {
+	public void removePerunObserver(PerunSession sess, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNOBSERVER.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not perun observer.");
@@ -578,7 +578,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void makeUserCabinetAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public void makeUserCabinetAdmin(PerunSession sess, User user) {
 		try {
 			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.CABINETADMIN.toLowerCase());
 		} catch (RuntimeException e) {
@@ -587,7 +587,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeCabinetAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException {
+	public void removeCabinetAdmin(PerunSession sess, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.CABINETADMIN.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not cabinet admin.");
@@ -598,7 +598,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addVoRole(PerunSession sess, String role, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
+	public void addVoRole(PerunSession sess, String role, Vo vo, User user) throws AlreadyAdminException {
 		if(!Arrays.asList(Role.SPONSOR,Role.TOPGROUPCREATOR,Role.VOADMIN,Role.VOOBSERVER).contains(role)) {
 			throw new IllegalArgumentException("Role "+role+" cannot be set on VO");
 		}
@@ -613,7 +613,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addVoRole(PerunSession sess, String role, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException {
+	public void addVoRole(PerunSession sess, String role, Vo vo, Group group) throws AlreadyAdminException {
 		if(!Arrays.asList(Role.SPONSOR,Role.TOPGROUPCREATOR,Role.VOADMIN,Role.VOOBSERVER).contains(role)) {
 			throw new IllegalArgumentException("Role "+role+" cannot be set on VO");
 		}
@@ -628,7 +628,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeVoRole(PerunSession sess, String role, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
+	public void removeVoRole(PerunSession sess, String role, Vo vo, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and vo_id=? and role_id=(select id from roles where name=?)", user.getId(), vo.getId(), role.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not "+role+" in the vo " + vo);
@@ -639,7 +639,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeVoRole(PerunSession sess, String role, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
+	public void removeVoRole(PerunSession sess, String role, Vo vo, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and vo_id=? and role_id=(select id from roles where name=?)", group.getId(), vo.getId(), role.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not "+role+" in the vo " + vo);
@@ -670,7 +670,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, String role) throws InternalErrorException {
+	public List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, String role) {
 		try {
 			return jdbc.query("SELECT vo_id FROM authz WHERE role_id=(select id from roles where name=?) and authorized_group_id=? and vo_id is not NULL",
 					new SingleColumnRowMapper<>(Integer.class), role.toLowerCase(), group.getId());
@@ -680,7 +680,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, String role) throws InternalErrorException {
+	public List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, String role) {
 		try {
 			return jdbc.query("SELECT vo_id FROM authz WHERE role_id=(select id from roles where name=?) and user_id=? and vo_id is not NULL",
 					new SingleColumnRowMapper<>(Integer.class), role.toLowerCase(), user.getId() );
@@ -690,7 +690,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addResourceRole(PerunSession sess, User user, String role, Resource resource) throws InternalErrorException, AlreadyAdminException {
+	public void addResourceRole(PerunSession sess, User user, String role, Resource resource) throws AlreadyAdminException {
 		if (!role.equals(Role.RESOURCESELFSERVICE)) {
 			throw new InternalErrorException("Role " + role + " cannot be set on resource.");
 		}
@@ -705,7 +705,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void addResourceRole(PerunSession sess, Group group, String role, Resource resource) throws InternalErrorException, AlreadyAdminException {
+	public void addResourceRole(PerunSession sess, Group group, String role, Resource resource) throws AlreadyAdminException {
 		if (!role.equals(Role.RESOURCESELFSERVICE)) {
 			throw new IllegalArgumentException("Role "+role+" cannot be set on resource.");
 		}
@@ -721,7 +721,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 
 	@Override
-	public void removeResourceRole(PerunSession sess, String role, Resource resource, User user) throws InternalErrorException, UserNotAdminException {
+	public void removeResourceRole(PerunSession sess, String role, Resource resource, User user) throws UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and resource_id=? and role_id=(select id from roles where name=?)", user.getId(), resource.getId(), role.toLowerCase())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not "+role+" in the resource " + resource);
@@ -732,7 +732,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
-	public void removeResourceRole(PerunSession sess, String role, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException {
+	public void removeResourceRole(PerunSession sess, String role, Resource resource, Group group) throws GroupNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and resource_id=? and role_id=(select id from roles where name=?)", group.getId(), resource.getId(), role.toLowerCase())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not "+role+" in the resource " + resource);

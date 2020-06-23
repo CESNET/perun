@@ -58,7 +58,7 @@ public class SchedulingManagerImpl {
 	private final String consumerName = "notifications";
 
 	@PostConstruct
-	public void init() throws InternalErrorException {
+	public void init() {
 		session = NotifUtils.getPerunSession(perun);
 	}
 

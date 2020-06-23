@@ -38,7 +38,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	private String groupName = null;
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		// Get the query for the group
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		//If there is no query for group, throw exception
@@ -69,7 +69,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	}
 
 	@Override
-	protected InputStream createTwoWaySSLConnection(String uri) throws IOException, InternalErrorException {
+	protected InputStream createTwoWaySSLConnection(String uri) throws IOException {
 		//prepare sslFactory
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		HttpsURLConnection.setDefaultSSLSocketFactory(factory);

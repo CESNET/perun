@@ -26,7 +26,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_eduteams_persiste
 	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:eduteams-persistent-shadow";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Attribute eduteamsPersistent = new Attribute(attributeDefinition);
 
 		try {

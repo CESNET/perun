@@ -21,7 +21,7 @@ public abstract interface Serializer {
 	 */
 	String getContentType();
 
-	void write(Object object) throws IllegalArgumentException, IOException, RpcException;
+	void write(Object object) throws IOException;
 
 	/**
 	 * Serializes {@code PerunException}.

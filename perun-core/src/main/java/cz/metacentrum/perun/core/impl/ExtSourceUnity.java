@@ -58,12 +58,12 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
+    public List<Map<String, String>> findSubjects(String searchString) {
         return findSubjects(searchString, 0);
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+    public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
         String query = getAttributes().get("query");
 
         if (query == null || query.isEmpty()) {
@@ -84,7 +84,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+    public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
         String query = getAttributes().get("loginQuery");
 
         if (query == null || query.isEmpty()) {
@@ -113,7 +113,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
         // Get the query for the group subjects
         String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -142,11 +142,11 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         throw new ExtSourceUnsupportedOperationException();
     }
 
-    protected Map<String, String> getAttributes() throws InternalErrorException {
+    protected Map<String, String> getAttributes() {
         return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
 
-    private void prepareEnvironment() throws InternalErrorException {
+    private void prepareEnvironment() {
         uriAll = getAttributes().get("uriAll");
         if (uriAll == null || uriAll.isEmpty()) {
             throw new InternalErrorException("UriAll cannot be empty.");
@@ -157,7 +157,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         }
     }
 
-    private List<Integer> connectAndGetEntitiesId() throws IOException, InternalErrorException {
+    private List<Integer> connectAndGetEntitiesId() throws IOException {
         HttpURLConnection connection = createConnection(uriAll);
         InputStream is = null;
         if (connection != null) {
@@ -177,7 +177,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         return null;
     }
 
-    private List<UnityEntity> connectAndGetValidEntitiesById(List<Integer> ids) throws InternalErrorException, IOException {
+    private List<UnityEntity> connectAndGetValidEntitiesById(List<Integer> ids) throws IOException {
         List<UnityEntity> results = new ArrayList();
 
         for (int id : ids) {
@@ -193,7 +193,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         return results;
     }
 
-    private UnityEntity connectAndGetValidEntityByGroup(int entityId, String groupName) throws InternalErrorException, IOException {
+    private UnityEntity connectAndGetValidEntityByGroup(int entityId, String groupName) throws IOException {
         HttpURLConnection connection = createConnection(checkUri(uriEntity) + entityId + "/groups/");
         JSONArray groups = getJSONArrayFromRemote(connection);
 
@@ -212,7 +212,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @param uri
      * @returns if responseCode to the uri is 200, then returns connection
      */
-    private HttpURLConnection createConnection(String uri) throws InternalErrorException, IOException {
+    private HttpURLConnection createConnection(String uri) throws IOException {
         HttpURLConnection connection;
 
         username = getAttributes().get("user");
@@ -244,7 +244,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @param id entity id
      * @return entity obtained by API call
      */
-    private JSONObject getEntityFromRemote(int id) throws InternalErrorException, IOException {
+    private JSONObject getEntityFromRemote(int id) throws IOException {
         HttpURLConnection connection = createConnection(checkUri(uriEntity) + id + "/");
         InputStream is = null;
         if (connection != null) {
@@ -286,7 +286,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @param obj JSON object obtained from API
      * @return parsed unity entity
      */
-    private UnityEntity parseValidUnityEntity(JSONObject obj) throws InternalErrorException, IOException {
+    private UnityEntity parseValidUnityEntity(JSONObject obj) throws IOException {
         if ("valid".equals(obj.get("state"))) {
             UnityEntity result = new UnityEntity();
             result.setEntityId(obj.get("id").toString());
@@ -338,7 +338,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @param id entity id
      * @return entity attributes obtained by API call
      */
-    private JSONArray getEntityAttributesFromRemote(String id) throws InternalErrorException, IOException {
+    private JSONArray getEntityAttributesFromRemote(String id) throws IOException {
         HttpURLConnection connection = createConnection(checkUri(uriEntity) + id + "/attributes");
 
         return getJSONArrayFromRemote(connection);
@@ -388,7 +388,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         return false;
     }
 
-    private List<Map<String, String>> jsonParsing(String query, int maxResults) throws InternalErrorException {
+    private List<Map<String, String>> jsonParsing(String query, int maxResults) {
         try {
             List<Integer> entitiesIds = connectAndGetEntitiesId();
             List<UnityEntity> validEntities = connectAndGetValidEntitiesById(entitiesIds);
@@ -442,7 +442,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         return null;
     }
 
-    private List<Map<String, String>> jsonParsingGroups(String queryForGroup) throws InternalErrorException {
+    private List<Map<String, String>> jsonParsingGroups(String queryForGroup) {
         try {
             List<Integer> entitiesIds = connectAndGetEntitiesId();
             List<UnityEntity> validEntities = new ArrayList();
@@ -480,7 +480,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @param unityEntity entity, that is transformed to Map
      * @return map containing name and value
      */
-    private Map<String, String> processUnityMapping(UnityEntity unityEntity) throws InternalErrorException {
+    private Map<String, String> processUnityMapping(UnityEntity unityEntity) {
         Map<String, String> map = new HashMap<>();
         if (unityEntity.getFullName() == null) {
             return map;

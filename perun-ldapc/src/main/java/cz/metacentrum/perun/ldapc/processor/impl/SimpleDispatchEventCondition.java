@@ -17,7 +17,7 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 	}
 
 	@Override
-	public void setBeansConditionByClasses(Class... beanClasses) throws InternalErrorException {
+	public void setBeansConditionByClasses(Class... beanClasses) {
 		requiredBeans = 0;
 		for (Class class1 : beanClasses) {
 			addFlagForBeanName(class1.getName());
@@ -25,7 +25,7 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 	}
 
 	@Override
-	public void setBeansConditionByNames(String... names) throws InternalErrorException {
+	public void setBeansConditionByNames(String... names) {
 		requiredBeans = 0;
 		for (String name : names) {
 			addFlagForBeanName(name);
@@ -33,7 +33,7 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 	}
 
 	@Override
-	public void setBeansCondition(List<String> names) throws InternalErrorException {
+	public void setBeansCondition(List<String> names) {
 		requiredBeans = 0;
 		if (names != null && !names.isEmpty())
 			for (String name : names)
@@ -57,7 +57,7 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 		return requiredBeans == presentMask;
 	}
 
-	private void addFlagForBeanName(String name) throws InternalErrorException {
+	private void addFlagForBeanName(String name) {
 		switch (name) {
 			case "cz.metacentrum.perun.core.api.Attribute":
 				requiredBeans |= MessageBeans.ATTRIBUTE_F;

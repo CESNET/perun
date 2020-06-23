@@ -36,7 +36,7 @@ public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttr
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException {
 		List<String> value = new ArrayList<>();
 		try {
 			String loginMU = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:mu").getValue();

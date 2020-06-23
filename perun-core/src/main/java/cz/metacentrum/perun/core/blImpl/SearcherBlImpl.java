@@ -43,7 +43,7 @@ public class SearcherBlImpl implements SearcherBl {
 	}
 
 	@Override
-	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		//If there is no attribute, so every user match
 		if(attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
 			return perunBl.getUsersManagerBl().getUsers(sess);
@@ -68,7 +68,7 @@ public class SearcherBlImpl implements SearcherBl {
 	}
 
 	@Override
-	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
 		if(coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) return users;
 
@@ -118,22 +118,22 @@ public class SearcherBlImpl implements SearcherBl {
 	}
 
 	@Override
-	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws InternalErrorException {
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) {
 		return getSearcherImpl().getMembersByExpiration(sess, operator, null, days);
 	}
 
 	@Override
-	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) throws InternalErrorException {
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) {
 		return getSearcherImpl().getMembersByExpiration(sess, operator, date, 0);
 	}
 
 	@Override
-	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws InternalErrorException {
+	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) {
 		return getSearcherImpl().getMembersByGroupExpiration(sess, group, operator, date, 0);
 	}
 
 	@Override
-	public List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException {
+	public List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) {
 		if(groupResourceAttribute == null || groupResourceAttribute.getValue() == null || resourceAttribute == null || resourceAttribute.getValue() == null) {
 			throw new InternalErrorException("Can't find groups by attributes with null value.");
 		}
@@ -148,7 +148,7 @@ public class SearcherBlImpl implements SearcherBl {
 	}
 
 	@Override
-	public List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
 			return perunBl.getFacilitiesManagerBl().getFacilities(sess);
 		}
@@ -177,7 +177,7 @@ public class SearcherBlImpl implements SearcherBl {
 	}
 
 	@Override
-	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
 			return perunBl.getResourcesManagerBl().getResources(sess);
 		}
@@ -205,7 +205,7 @@ public class SearcherBlImpl implements SearcherBl {
 		return resourcesFromCoreAttributes;
 	}
 
-	private List<Facility> getFacilitiesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<Facility> getFacilitiesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
 			return facilities;
@@ -242,7 +242,7 @@ public class SearcherBlImpl implements SearcherBl {
 	 * @throws AttributeNotExistsException attribute not exist
 	 * @throws WrongAttributeAssignmentException wrong attribute assignment
 	 */
-	private List<Resource> getResourcesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<Resource> getResourcesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues, boolean allowPartialMatchForString) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess);
 		if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
 			return resources;
@@ -282,7 +282,7 @@ public class SearcherBlImpl implements SearcherBl {
 	 * @return true, if the given value corresponds with value of given attribute
 	 * @throws InternalErrorException internal error
 	 */
-	private boolean isAttributeValueMatching(Attribute entityAttribute, String value, boolean allowPartialMatchForString) throws InternalErrorException {
+	private boolean isAttributeValueMatching(Attribute entityAttribute, String value, boolean allowPartialMatchForString) {
 		boolean shouldBeAccepted = true;
 
 		if(entityAttribute.getValue() == null) {
@@ -324,7 +324,7 @@ public class SearcherBlImpl implements SearcherBl {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	private List<User> getUsersForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<User> getUsersForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
 		if(coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) return users;
 

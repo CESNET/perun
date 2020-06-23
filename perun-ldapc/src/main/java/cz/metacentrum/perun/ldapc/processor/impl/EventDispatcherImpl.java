@@ -72,7 +72,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		private Facility facility;
 
 		@Override
-		public void addBean(PerunBean perunBean) throws InternalErrorException {
+		public void addBean(PerunBean perunBean) {
 			if (perunBean == null) {
 				log.warn("Not adding unknown (null) bean");
 				return;
@@ -314,7 +314,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		}
 	}
 
-	protected MessageBeans resolveMessage(String msg, Integer idOfMessage) throws InternalErrorException {
+	protected MessageBeans resolveMessage(String msg, Integer idOfMessage) {
 
 		List<PerunBean> listOfBeans;
 		listOfBeans = AuditParser.parseLog(msg);

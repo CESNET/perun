@@ -27,7 +27,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl session, Member member, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of assigned attribute to the member has valid semantics.
@@ -41,7 +41,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
 	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
 	 */
-	void checkAttributeSemantics(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl session, Member member, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Tries to fill an attribute to the specified member.
@@ -55,7 +55,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl session, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl session, Member member, AttributeDefinition attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -64,5 +64,5 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @param member the member
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws WrongReferenceAttributeValueException;
 }

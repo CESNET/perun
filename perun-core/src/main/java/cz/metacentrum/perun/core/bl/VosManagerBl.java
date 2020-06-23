@@ -45,7 +45,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 * @return List of VOs or empty ArrayList<Vo>
 	 */
-	List<Vo> getVos(PerunSession perunSession) throws InternalErrorException;
+	List<Vo> getVos(PerunSession perunSession);
 
 	/**
 	 * Delete VO.
@@ -54,7 +54,7 @@ public interface VosManagerBl {
 	 * @param vo
 	 * @throws InternalErrorException
 	 */
-	void deleteVo(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	void deleteVo(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Delete VO.
@@ -64,7 +64,7 @@ public interface VosManagerBl {
 	 * @param forceDelete force the deletion of the VO, regardless there are any existing entities associated with the VO (they will be deleted)
 	 * @throws InternalErrorException
 	 */
-	void deleteVo(PerunSession perunSession, Vo vo, boolean forceDelete) throws InternalErrorException;
+	void deleteVo(PerunSession perunSession, Vo vo, boolean forceDelete);
 
 
 	/**
@@ -76,7 +76,7 @@ public interface VosManagerBl {
 	 * @throws VoExistsException
 	 * @throws InternalErrorException
 	 */
-	Vo createVo(PerunSession perunSession, Vo vo) throws VoExistsException, InternalErrorException;
+	Vo createVo(PerunSession perunSession, Vo vo) throws VoExistsException;
 
 	/**
 	 * Updates VO.
@@ -86,7 +86,7 @@ public interface VosManagerBl {
 	 * @return returns updated VO
 	 * @throws InternalErrorException
 	 */
-	Vo updateVo(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	Vo updateVo(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Find existing VO by short name (short name is unique).
@@ -96,7 +96,7 @@ public interface VosManagerBl {
 	 * @return VO with requested shortName or throws  if the VO with specified shortName doesn't exist
 	 * @throws InternalErrorException
 	 */
-	Vo getVoByShortName(PerunSession perunSession, String shortName) throws InternalErrorException, VoNotExistsException;
+	Vo getVoByShortName(PerunSession perunSession, String shortName) throws VoNotExistsException;
 
 	/**
 	 * Finds existing VO by id.
@@ -106,7 +106,7 @@ public interface VosManagerBl {
 	 * @return VO with requested id or throws  if the VO with specified id doesn't exist
 	 * @throws InternalErrorException
 	 */
-	Vo getVoById(PerunSession perunSession, int id) throws InternalErrorException, VoNotExistsException;
+	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException;
 
 	/**
 	 * Finds users, who can join the Vo.
@@ -118,7 +118,7 @@ public interface VosManagerBl {
 	 * @return list of candidates who match the searchString
 	 * @throws InternalErrorException
 	 */
-	List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString, int maxNumOfResults) throws InternalErrorException;
+	List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString, int maxNumOfResults);
 
 	/**
 	 * Finds users, who can join the Vo.
@@ -129,7 +129,7 @@ public interface VosManagerBl {
 	 * @return list of candidates who match the searchString
 	 * @throws InternalErrorException
 	 */
-	List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString) throws InternalErrorException;
+	List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString);
 
 	/**
 	 * Finds users, who can join the group in Vo.
@@ -140,7 +140,7 @@ public interface VosManagerBl {
 	 * @return list of candidates who match the searchString
 	 * @throws InternalErrorException
 	 */
-	List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) throws InternalErrorException;
+	List<Candidate> findCandidates(PerunSession sess, Group group, String searchString);
 
 	/**
 	 * Finds MemberCandidates who can join the Vo.
@@ -152,7 +152,7 @@ public interface VosManagerBl {
 	 * @return list of memberCandidates who match the searchString
 	 * @throws InternalErrorException internal error
 	 */
-	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) throws InternalErrorException;
+	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString);
 
 	/**
 	 * Finds MemberCandidates who can join the Group. If the given vo is not null, it searches only
@@ -167,7 +167,7 @@ public interface VosManagerBl {
 	 * @return list of memberCandidates who match the searchString
 	 * @throws InternalErrorException internal error
 	 */
-	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources) throws InternalErrorException;
+	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources);
 
 	/**
 	 * Get list of all user administrators for supported role and specific vo.
@@ -185,7 +185,7 @@ public interface VosManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws InternalErrorException;
+	List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins);
 
 	/**
 	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
@@ -207,7 +207,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException;
 
 	/**
 	 * Get list of group administrators of the given VO.
@@ -222,7 +222,7 @@ public interface VosManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role);
 
 	/**
 	 * Get list of Vo administrators.
@@ -234,7 +234,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<User> getAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<User> getAdmins(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Gets list of direct user administrators of the VO.
@@ -246,7 +246,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<User> getDirectAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get list of group administrators of the given VO.
@@ -257,7 +257,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<Group> getAdminGroups(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession perunSession, Vo vo);
 
 
 	/**
@@ -269,7 +269,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get list of Vo administrators directly assigned to VO like RichUsers without attributes.
@@ -280,7 +280,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get list of Vo administrators like RichUsers with attributes.
@@ -292,7 +292,7 @@ public interface VosManagerBl {
 	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Vo vo) throws UserNotExistsException;
 
 	/**
 	 * Get list of Vo administrators with specific attributes.
@@ -305,7 +305,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException;
+	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes);
 
 	/**
 	 * Get list of Vo administrators, which are directly assigned (not by group membership) with specific attributes.
@@ -318,7 +318,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException;
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes);
 
 	/**
 	 * Returns list of vos connected with a group
@@ -328,7 +328,7 @@ public interface VosManagerBl {
 	 * @return list of vos connected with group
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosByPerunBean(PerunSession sess, Group group) throws InternalErrorException, VoNotExistsException;
+	List<Vo> getVosByPerunBean(PerunSession sess, Group group) throws VoNotExistsException;
 
 	/**
 	 * Returns list of vos connected with a member
@@ -338,7 +338,7 @@ public interface VosManagerBl {
 	 * @return list of vos connected with member
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosByPerunBean(PerunSession sess, Member member) throws InternalErrorException;
+	List<Vo> getVosByPerunBean(PerunSession sess, Member member);
 
 	/**
 	 * Returns list of vos connected with a resource
@@ -348,7 +348,7 @@ public interface VosManagerBl {
 	 * @return list of vos connected with resource
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException, VoNotExistsException;
+	List<Vo> getVosByPerunBean(PerunSession sess, Resource resource) throws VoNotExistsException;
 
 	/**
 	 * Returns list of vos connected with a user
@@ -358,7 +358,7 @@ public interface VosManagerBl {
 	 * @return list of vos connected with user
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosByPerunBean(PerunSession sess, User user) throws InternalErrorException;
+	List<Vo> getVosByPerunBean(PerunSession sess, User user);
 
 	/**
 	 * Returns list of vos connected with a host
@@ -368,7 +368,7 @@ public interface VosManagerBl {
 	 * @return list of vos connected with host
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosByPerunBean(PerunSession sess, Host host) throws InternalErrorException;
+	List<Vo> getVosByPerunBean(PerunSession sess, Host host);
 
 	/**
 	 * Returns list of vos connected with a facility
@@ -378,9 +378,9 @@ public interface VosManagerBl {
 	 * @return list of vos connected with facility
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Vo> getVosByPerunBean(PerunSession sess, Facility facility);
 
-	void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException;
+	void checkVoExists(PerunSession sess, Vo vo) throws VoNotExistsException;
 
 	/**
 	 * Get count of all vos.
@@ -391,7 +391,7 @@ public interface VosManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getVosCount(PerunSession perunSession) throws InternalErrorException;
+	int getVosCount(PerunSession perunSession);
 
 	/**
 	 * Check whether a user is in a role for a given VO, possibly checking also user's groups.
@@ -403,7 +403,7 @@ public interface VosManagerBl {
 	 * @return true if user is directly in role for the vo, or if "checkGroups" flag is set and at least one of the groups is in the role
 	 * @throws InternalErrorException exception
 	 */
-	boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo, boolean checkGroups) throws InternalErrorException;
+	boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo, boolean checkGroups);
 
 	/**
 	 * Handles a user that lost a role.
@@ -414,7 +414,7 @@ public interface VosManagerBl {
 	 * @param role role of user in VO
 	 * @throws InternalErrorException
 	 */
-	void handleUserLostVoRole(PerunSession sess, User user, Vo vo, String role) throws InternalErrorException;
+	void handleUserLostVoRole(PerunSession sess, User user, Vo vo, String role);
 
 	/**
 	 * Handles a group that lost a role.
@@ -425,5 +425,5 @@ public interface VosManagerBl {
 	 * @param role role of group in VO
 	 * @throws InternalErrorException
 	 */
-	void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, String role) throws InternalErrorException;
+	void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, String role);
 }

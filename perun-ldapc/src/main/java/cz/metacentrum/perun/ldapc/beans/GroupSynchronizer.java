@@ -31,7 +31,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 	@Autowired
 	protected PerunGroup perunGroup;
 
-	public void synchronizeGroups() throws InternalErrorException {
+	public void synchronizeGroups() {
 		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		boolean shouldWriteExceptionLog = true;
 		try {

@@ -34,7 +34,7 @@ public interface EventDispatcher extends Runnable {
 
 		public int getBeansCount();
 
-		public void addBean(PerunBean p) throws InternalErrorException;
+		public void addBean(PerunBean p);
 
 		public Group getGroup();
 
@@ -63,11 +63,11 @@ public interface EventDispatcher extends Runnable {
 
 		public void setBeansConditionByMask(int presentBeansMask);
 
-		public void setBeansConditionByClasses(Class... beanClasses) throws InternalErrorException;
+		public void setBeansConditionByClasses(Class... beanClasses);
 
-		public void setBeansConditionByNames(String... names) throws InternalErrorException;
+		public void setBeansConditionByNames(String... names);
 
-		public void setBeansCondition(List<String> names) throws InternalErrorException;
+		public void setBeansCondition(List<String> names);
 
 		public void setHandlerMethodName(String name);
 

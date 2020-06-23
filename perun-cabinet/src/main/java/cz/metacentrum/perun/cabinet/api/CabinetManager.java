@@ -37,7 +37,7 @@ public interface CabinetManager {
 	 * @return PublicationSystem with ID set
 	 * @throws InternalErrorException When implementation fails
 	 */
-	PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) throws InternalErrorException, PrivilegeException;
+	PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) throws PrivilegeException;
 
 	/**
 	 * Update PublicationSystem in Perun (name,type,url,loginNamespace) by its ID.
@@ -48,7 +48,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When PublicationSystem doesn't exists by its ID.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException, InternalErrorException, PrivilegeException;
+	PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Delete PublicationSystem by its ID.
@@ -58,7 +58,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When PublicationSystem doesn't exists by its ID
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void deletePublicationSystem(PerunSession sess, PublicationSystem ps) throws CabinetException, InternalErrorException, PrivilegeException;
+	void deletePublicationSystem(PerunSession sess, PublicationSystem ps) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Get PublicationSystem by its ID.
@@ -68,7 +68,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When PublicationSystem doesn't exist by its ID.
 	 * @throws InternalErrorException When implementation fails.
 	 */
-	PublicationSystem getPublicationSystemById(int id) throws InternalErrorException, CabinetException;
+	PublicationSystem getPublicationSystemById(int id) throws CabinetException;
 
 	/**
 	 * Get PublicationSystem by its name
@@ -78,7 +78,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When PublicationSystem doesn't exist by its name.
 	 * @throws InternalErrorException When implementation fails.
 	 */
-	PublicationSystem getPublicationSystemByName(String name) throws InternalErrorException, CabinetException;
+	PublicationSystem getPublicationSystemByName(String name) throws CabinetException;
 
 	/**
 	 * Get PublicationSystem by its login-namespace
@@ -88,7 +88,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When PublicationSystem doesn't exist by its login-namespace.
 	 * @throws InternalErrorException When implementation fails.
 	 */
-	PublicationSystem getPublicationSystemByNamespace(String namespace) throws InternalErrorException, CabinetException;
+	PublicationSystem getPublicationSystemByNamespace(String namespace) throws CabinetException;
 
 	/**
 	 * Get all PublicationSystems in Perun. If none, return empty list.
@@ -98,7 +98,7 @@ public interface CabinetManager {
 	 * @return List of all PublicationSystems or empty list.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<PublicationSystem> getPublicationSystems(PerunSession session) throws InternalErrorException;
+	List<PublicationSystem> getPublicationSystems(PerunSession session);
 
 
 	// category -------------------------------------
@@ -112,7 +112,7 @@ public interface CabinetManager {
 	 * @return Created Category with ID set
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Category createCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException, PrivilegeException;
+	Category createCategory(PerunSession sess, Category category) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Updates publications category in Perun. Category to update
@@ -125,7 +125,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Category doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Category updateCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException, PrivilegeException;
+	Category updateCategory(PerunSession sess, Category category) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Delete category by its ID. If category contains any publications,
@@ -136,7 +136,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Category doesn't exists or has publications
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void deleteCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException, PrivilegeException;
+	void deleteCategory(PerunSession sess, Category category) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Return list of all Categories in Perun or empty list of none present.
@@ -144,7 +144,7 @@ public interface CabinetManager {
 	 * @return List of all categories
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Category> getCategories() throws InternalErrorException;
+	List<Category> getCategories();
 
 	/**
 	 * Get Category by its ID. Throws exception, if not exists.
@@ -154,7 +154,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Category doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Category getCategoryById(int id) throws CabinetException, InternalErrorException;
+	Category getCategoryById(int id) throws CabinetException;
 
 
 	// thanks ---------------------------------------
@@ -168,7 +168,7 @@ public interface CabinetManager {
 	 * @return Created Thanks with ID set
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Thanks createThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException, PrivilegeException;
+	Thanks createThanks(PerunSession sess, Thanks thanks) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Delete Thanks by its ID.
@@ -178,7 +178,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Thanks doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException, PrivilegeException;
+	void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Check if same Thanks exists by ID or OwnerId,PublicationId combination.
@@ -187,7 +187,7 @@ public interface CabinetManager {
 	 * @return TRUE = Thanks for same Owner and Publication or with same ID exists / FALSE = Same Thanks not found
 	 * @throws InternalErrorException When implementation fails
 	 */
-	boolean thanksExist(Thanks thanks) throws InternalErrorException;
+	boolean thanksExist(Thanks thanks);
 
 	/**
 	 * Get Thanks by its ID. Throws exception, if not exists.
@@ -197,7 +197,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Thanks doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Thanks getThanksById(int id) throws CabinetException, InternalErrorException;
+	Thanks getThanksById(int id) throws CabinetException;
 
 	/**
 	 * Get Thanks of Publication specified by its ID or empty list.
@@ -207,7 +207,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Publication by ID doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Thanks> getThanksByPublicationId(int publicationId) throws CabinetException, InternalErrorException;
+	List<Thanks> getThanksByPublicationId(int publicationId) throws CabinetException;
 
 	/**
 	 * Get ThanksForGUI of Publication specified by its ID or empty list.
@@ -217,7 +217,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Publication by ID doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) throws CabinetException, InternalErrorException;
+	List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) throws CabinetException;
 
 	/**
 	 * Get ThanksForGUI of User specified by its ID or empty list.
@@ -227,7 +227,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When User by ID doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<ThanksForGUI> getRichThanksByUserId(int userId) throws CabinetException, InternalErrorException;
+	List<ThanksForGUI> getRichThanksByUserId(int userId) throws CabinetException;
 
 
 	// Authorships ------------------------------------------
@@ -244,7 +244,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When authorship already exists or other exception occurs
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException;
+	Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
 
 	/**
 	 * Resolves whether given authorship exists. Authorship is assumed to exists
@@ -256,7 +256,7 @@ public interface CabinetManager {
 	 * @return TRUE if authorship exists / FALSE otherwise
 	 * @throws InternalErrorException When implementation fails
 	 */
-	boolean authorshipExists(Authorship authorship) throws InternalErrorException;
+	boolean authorshipExists(Authorship authorship);
 
 	/**
 	 * Delete Authorship by its ID. After deletion users "priorityCoefficient" is recalculated.
@@ -267,7 +267,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Authorship by ID doesn't exist
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException, PrivilegeException;
+	void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Get Authorship by its ID
@@ -277,7 +277,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Authorship by ID doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship getAuthorshipById(int id) throws CabinetException, InternalErrorException;
+	Authorship getAuthorshipById(int id) throws CabinetException;
 
 	/**
 	 * Get Authorships by its User ID or empty list.
@@ -286,7 +286,7 @@ public interface CabinetManager {
 	 * @return Authorship by its user ID or empty list
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Authorship> getAuthorshipsByUserId(int id) throws InternalErrorException;
+	List<Authorship> getAuthorshipsByUserId(int id);
 
 	/**
 	 * Get Authorships by its Publication ID or empty list.
@@ -295,7 +295,7 @@ public interface CabinetManager {
 	 * @return Authorship by its publication ID or empty list
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Authorship> getAuthorshipsByPublicationId(int id) throws InternalErrorException;
+	List<Authorship> getAuthorshipsByPublicationId(int id);
 
 	/**
 	 * Get Authorship by its user and publication IDs
@@ -306,7 +306,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Authorship by IDs doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException, InternalErrorException;
+	Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException;
 
 	/**
 	 * Gets overall rank of given user as sum of all his publications Authorships.
@@ -314,7 +314,7 @@ public interface CabinetManager {
 	 * @param userId ID of user to get Rank for
 	 * @return Total rank of user or 1.0 if user has no Authorships yet (default rank).
 	 */
-	double getRank(int userId) throws InternalErrorException, CabinetException;
+	double getRank(int userId) throws CabinetException;
 
 	/**
 	 * Return Author by its ID. If user is not author of any Publication, exception is thrown.
@@ -324,7 +324,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When Author (User) has no Publications
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Author getAuthorById(int id) throws CabinetException, InternalErrorException;
+	Author getAuthorById(int id) throws CabinetException;
 
 	/**
 	 * Return all Authors of Publications. Empty list of none found.
@@ -333,7 +333,7 @@ public interface CabinetManager {
 	 * @return List of all Authors of Publications. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAllAuthors(PerunSession session) throws InternalErrorException, CabinetException;
+	List<Author> getAllAuthors(PerunSession session) throws CabinetException;
 
 	/**
 	 * Return all Authors of Publication specified by its ID. Empty list of none found.
@@ -343,7 +343,7 @@ public interface CabinetManager {
 	 * @return List of Authors of Publication specified its ID. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws InternalErrorException, PrivilegeException, CabinetException;
+	List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws PrivilegeException, CabinetException;
 
 	/**
 	 * Return all Authors of Publication specified by Authorships ID. Empty list of none found.
@@ -354,7 +354,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When authorship doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException;
+	List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException;
 
 	/**
 	 * Search through all users of Perun in order to allow publication author to add colleagues as co-authors.
@@ -366,7 +366,7 @@ public interface CabinetManager {
 	 * @throws CabinetException
 	 * @throws InternalErrorException
 	 */
-	List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException, InternalErrorException;
+	List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException;
 
 
 	// Publications ----------------------------------
@@ -381,7 +381,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When same publication already exist
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException;
 
 	/**
 	 * Return TRUE if Publication exists by ID or EXT_ID and PUB_SYS_ID, FALSE otherwise.
@@ -390,7 +390,7 @@ public interface CabinetManager {
 	 * @return TRUE if same Publication exists (by its ID, EXT_ID,PUB_SYS_ID), FALSE otherwise.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	boolean publicationExists(Publication publication) throws InternalErrorException;
+	boolean publicationExists(Publication publication);
 
 	/**
 	 * Update existing publication by its ID.
@@ -401,7 +401,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When publication already exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException, PrivilegeException;
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Delete publication by its ID.
@@ -414,7 +414,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When publication not exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException, PrivilegeException;
+	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, PrivilegeException;
 
 	/**
 	 * Return Publication by its ID.
@@ -424,7 +424,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException;
+	public Publication getPublicationById(int id) throws CabinetException;
 
 	/**
 	 * Return Publication by its External ID and PublicationSystem ID.
@@ -435,7 +435,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException;
 
 	/**
 	 * Return Publications by their Category ID or empty list.
@@ -444,7 +444,7 @@ public interface CabinetManager {
 	 * @return Publications by their category ID
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException;
+	public List<Publication> getPublicationsByCategoryId(int categoryId);
 
 	/**
 	 * Return Publications of author (optionally limited by years range). Empty list if nothing is found.
@@ -455,7 +455,7 @@ public interface CabinetManager {
 	 * @return Publications by their category ID
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException;
+	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill);
 
 	/**
 	 * Return PublicationForGUI by its ID.
@@ -465,7 +465,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException;
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException;
 
 	/**
 	 * Return Publication by its External ID and PublicationSystem ID.
@@ -476,7 +476,7 @@ public interface CabinetManager {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException;
 
 	/**
 	 * Return PublicationForGUI with every property set directly from DB.
@@ -497,7 +497,7 @@ public interface CabinetManager {
 	 * @param yearTill year range
 	 * @return publication with everything set
 	 */
-	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException;
+	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill);
 
 	/**
 	 * (Un)Lock passed Publications for changes.
@@ -507,7 +507,7 @@ public interface CabinetManager {
 	 * @param publications Publications to (un)lock
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void lockPublications(PerunSession sess, boolean lockState, List<Publication> publications) throws InternalErrorException, PrivilegeException;
+	void lockPublications(PerunSession sess, boolean lockState, List<Publication> publications) throws PrivilegeException;
 
 	/**
 	 * Finds publications of perun's user specified in param
@@ -524,6 +524,6 @@ public interface CabinetManager {
 	 * @return list of publications or empty list if nothing is found
 	 * @throws CabinetException
 	 */
-	List<Publication> findExternalPublications(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException, InternalErrorException;
+	List<Publication> findExternalPublications(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException;
 
 }

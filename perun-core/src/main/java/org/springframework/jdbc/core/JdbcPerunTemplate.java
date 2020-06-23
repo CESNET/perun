@@ -33,7 +33,7 @@ public class JdbcPerunTemplate extends JdbcTemplate {
 	 * @throws IncorrectResultSizeDataAccessException if more than one element has been found in the given Collection
 	 * @throws EmptyResultDataAccessException if no element at all has been found in the given Collection
 	 */
-	public <T> T queryForObject(String sql, ResultSetExtractor<? extends List<T>> rse, Object... args) throws DataAccessException {
+	public <T> T queryForObject(String sql, ResultSetExtractor<? extends List<T>> rse, Object... args) {
 		return DataAccessUtils.requiredSingleResult(this.query(sql, rse, args));
 	}
 

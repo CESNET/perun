@@ -23,11 +23,11 @@ import java.util.List;
 public abstract class UserFacilityVirtualAttributesModuleAbstract extends UserFacilityAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		return false;
 	}
 

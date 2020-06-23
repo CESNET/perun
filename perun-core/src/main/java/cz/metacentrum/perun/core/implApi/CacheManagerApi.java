@@ -33,7 +33,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAllNonEmptyAttributes(Holder holder) throws InternalErrorException;
+	List<Attribute> getAllNonEmptyAttributes(Holder holder);
 
 	/**
 	 * Gets all <b>non-empty</b> attributes associated with the primary holder and secondary holder.
@@ -45,7 +45,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAllNonEmptyAttributes(Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException;
+	List<Attribute> getAllNonEmptyAttributes(Holder primaryHolder, Holder secondaryHolder);
 
 	/**
 	 * Gets all attributes associated with the primary holder. Name of attributes starts with startPartOfName.
@@ -57,7 +57,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes whose name starts with startPartOfName
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAllAttributesByStartPartOfName(String startPartOfName, Holder holder) throws InternalErrorException;
+	List<Attribute> getAllAttributesByStartPartOfName(String startPartOfName, Holder holder);
 
 	/**
 	 * Gets all <b>non-empty</b> attributes associated with any user on the facility.
@@ -69,7 +69,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getUserFacilityAttributesForAnyUser(int facilityId) throws InternalErrorException;
+	List<Attribute> getUserFacilityAttributesForAnyUser(int facilityId);
 
 	/**
 	 * Gets all <b>non-empty</b> attributes associated with the user and any facility.
@@ -79,7 +79,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAllUserFacilityAttributes(User user) throws InternalErrorException;
+	List<Attribute> getAllUserFacilityAttributes(User user);
 
 	/**
 	 * Gets all attributes associated with the primary holder and secondary holder which have name in list attrNames (empty and virtual too).
@@ -101,7 +101,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributesByAttributeDefinition(AttributeDefinition attributeDefinition) throws InternalErrorException;
+	List<Attribute> getAttributesByAttributeDefinition(AttributeDefinition attributeDefinition);
 
 	/**
 	 * Gets all virtual attributes associated with the primary holder and secondary holder. If secondary holder is null, it returns attributes for primary holder.
@@ -112,7 +112,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType);
 
 	/**
 	 * Gets particular attribute for the primary holder and secondary holder by name. If secondary holder is null, it returns attribute for primary holder.
@@ -200,7 +200,7 @@ public interface CacheManagerApi {
 	 * @return list of entityless attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAllNonEmptyEntitylessAttributes(String key) throws InternalErrorException;
+	List<Attribute> getAllNonEmptyEntitylessAttributes(String key);
 
 	/**
 	 * Gets all <b>non-empty</b> entityless attributes by attrName.
@@ -211,7 +211,7 @@ public interface CacheManagerApi {
 	 * @return list of entityless attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAllNonEmptyEntitylessAttributesByName(String attrName) throws InternalErrorException;
+	List<Attribute> getAllNonEmptyEntitylessAttributesByName(String attrName);
 
 	/**
 	 * Gets particular entityless attribute by name and key. If such attribute does not exist, it returns attribute definition.
@@ -231,7 +231,7 @@ public interface CacheManagerApi {
 	 * @return attribute value in String
 	 * @throws InternalErrorException
 	 */
-	String getEntitylessAttrValue(int attrId, String key) throws InternalErrorException;
+	String getEntitylessAttrValue(int attrId, String key);
 
 	/**
 	 * Gets list of keys of entityless attributes by attrName.
@@ -276,7 +276,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder) throws InternalErrorException;
+	List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder);
 
 	/**
 	 * Gets all attributes associated with the primary and secondary holder which have id in list attrIds (empty and virtual too).
@@ -288,7 +288,7 @@ public interface CacheManagerApi {
 	 * @return list of attributes
 	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException;
+	List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder, Holder secondaryHolder);
 
 	/**
 	 * Check if attribute exists in underlying data source.
@@ -308,7 +308,7 @@ public interface CacheManagerApi {
 	 * @param secondaryHolder secondary holder
 	 * @throws InternalErrorException
 	 */
-	void setAttribute(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException;
+	void setAttribute(Attribute attribute, Holder primaryHolder, Holder secondaryHolder);
 
 	/**
 	 * Stores the attribute associated with primary holder and secondary holder. If secondary holder is null, it stores the attribute by the primary holder.
@@ -320,7 +320,7 @@ public interface CacheManagerApi {
 	 * @param secondaryHolder secondary holder
 	 * @throws InternalErrorException
 	 */
-	void setAttributeWithExistenceCheck(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException;
+	void setAttributeWithExistenceCheck(Attribute attribute, Holder primaryHolder, Holder secondaryHolder);
 
 	/**
 	 * Stores the attribute definition.
@@ -338,7 +338,7 @@ public interface CacheManagerApi {
 	 * @param key subject of entityless attribute
 	 * @throws InternalErrorException
 	 */
-	void setEntitylessAttribute(Attribute attribute, String key) throws InternalErrorException;
+	void setEntitylessAttribute(Attribute attribute, String key);
 
 	/**
 	 * Stores the entityless attribute.
@@ -349,7 +349,7 @@ public interface CacheManagerApi {
 	 * @param key subject of entityless attribute
 	 * @throws InternalErrorException
 	 */
-	void setEntitylessAttributeWithExistenceCheck(Attribute attribute, String key) throws InternalErrorException;
+	void setEntitylessAttributeWithExistenceCheck(Attribute attribute, String key);
 
 	/**
 	 * Updates attribute definition. It does not update createdBy, createdByUid and createdAt value.
@@ -372,7 +372,7 @@ public interface CacheManagerApi {
 	 * @param attributesManager attributes manager impl
 	 * @throws InternalErrorException
 	 */
-	void deleteAttribute(int id, PerunSession session, AttributesManagerImplApi attributesManager) throws InternalErrorException;
+	void deleteAttribute(int id, PerunSession session, AttributesManagerImplApi attributesManager);
 
 	/**
 	 * Unset particular attribute for holders. If secondary holder is null, it unsets attribute for the primary holder.
@@ -441,5 +441,5 @@ public interface CacheManagerApi {
 	 * @param attributesManagerImpl attributes manager impl
 	 * @throws InternalErrorException
 	 */
-	void initialize(PerunSession sess, AttributesManagerImplApi attributesManagerImpl) throws InternalErrorException;
+	void initialize(PerunSession sess, AttributesManagerImplApi attributesManagerImpl);
 }

@@ -29,7 +29,7 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resour
 public class urn_perun_facility_attribute_def_def_capabilities extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) return;
 		List<String> values = attribute.valueAsList();
 		for (String value : values) {

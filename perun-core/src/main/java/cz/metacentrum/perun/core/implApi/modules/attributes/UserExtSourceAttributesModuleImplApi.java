@@ -26,7 +26,7 @@ public interface UserExtSourceAttributesModuleImplApi extends AttributesModuleIm
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 *
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * This method checks UserExtSource attribute value semantics.

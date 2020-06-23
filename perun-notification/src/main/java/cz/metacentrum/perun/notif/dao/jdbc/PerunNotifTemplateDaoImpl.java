@@ -25,7 +25,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
 	public static final String DELIMITER = ";";
 
-	public List<PerunNotifTemplate> getAllPerunNotifTemplates() throws InternalErrorException {
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates() {
 
 		List<PerunNotifTemplate> result = this.getJdbcTemplate().query("SELECT * from pn_template", PerunNotifTemplate.PERUN_NOTIF_TEMPLATE);
 		for (PerunNotifTemplate template : result) {
@@ -45,7 +45,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) throws InternalErrorException {
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessages) {
 
 		int newPerunNotifTemplateMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_message_id_seq");
 		this.getJdbcTemplate().update("INSERT INTO pn_template_message(id, template_id, message, locale, subject) values(?,?,?,?,?)", newPerunNotifTemplateMessageId, templateMessages.getTemplateId(), templateMessages.getMessage(), templateMessages.getLocale().getLanguage(), templateMessages.getSubject());
@@ -55,7 +55,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessage) throws InternalErrorException {
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage templateMessage) {
 
 		this.getJdbcTemplate().update("update pn_template_message set template_id = ?, message = ?, locale = ?, subject = ? where id = ?", templateMessage.getTemplateId(), templateMessage.getMessage(), templateMessage.getLocale().getLanguage(), templateMessage.getSubject(), templateMessage.getId());
 
@@ -63,7 +63,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) {
 
 		this.getJdbcTemplate().update("update pn_template set name = ?, notify_trigger = ?, oldest_message_time = ?, youngest_message_time=?, primary_properties=?, sender = ? where id = ?", template.getName(), template.getNotifyTrigger().getKey(), template.getOldestMessageTime(), template.getYoungestMessageTime(), template.getSerializedPrimaryProperties(), template.getSender(), template.getId());
 
@@ -71,7 +71,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifReceiver getPerunNotifReceiverById(int id) throws InternalErrorException {
+	public PerunNotifReceiver getPerunNotifReceiverById(int id) {
 
 		try {
 			PerunNotifReceiver object = this.getJdbcTemplate().queryForObject("select * from pn_receiver where id = ?", new Object[]{id}, PerunNotifReceiver.PERUN_NOTIF_RECEIVER);
@@ -89,7 +89,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) {
 
 		int newPerunNotifReceiverId = Utils.getNewId(this.getJdbcTemplate(), "pn_receiver_id_seq");
 
@@ -100,7 +100,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) {
 
 		this.getJdbcTemplate().update("update pn_receiver set target = ?, type_of_receiver = ?, template_id = ?, locale = ? where id = ?", receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale(), receiver.getId());
 
@@ -108,7 +108,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifTemplate getPerunNotifTemplateById(int id) throws InternalErrorException {
+	public PerunNotifTemplate getPerunNotifTemplateById(int id) {
 
 		PerunNotifTemplate template = null;
 		try {
@@ -131,7 +131,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate savePerunNotifTemplateInternals(PerunNotifTemplate template) {
 
 		int newPerunNotifTemplateId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_id_seq");
 
@@ -142,13 +142,13 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public void removePerunNotifReceiverById(int id) throws InternalErrorException {
+	public void removePerunNotifReceiverById(int id) {
 
 		this.getJdbcTemplate().update("delete from pn_receiver where id = ?", id);
 	}
 
 	@Override
-	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws InternalErrorException {
+	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) {
 
 		try {
 			return this.getJdbcTemplate().queryForObject("select * from pn_template_message where id = ?", new Object[]{id}, PerunNotifTemplateMessage.PERUN_NOTIF_TEMPLATE_MESSAGE_ROW_MAPPER);
@@ -163,7 +163,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public void removePerunNotifTemplateMessage(int id) throws InternalErrorException {
+	public void removePerunNotifTemplateMessage(int id) {
 
 		this.getJdbcTemplate().update("delete from pn_template_message where id = ?", id);
 	}
@@ -181,7 +181,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	}
 
 	@Override
-	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) {
 		if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
 			//Relation exists
 			return;

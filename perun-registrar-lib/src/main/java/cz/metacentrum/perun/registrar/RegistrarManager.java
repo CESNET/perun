@@ -56,7 +56,7 @@ public interface RegistrarManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	void createApplicationFormInVo(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException;
+	void createApplicationFormInVo(PerunSession sess, Vo vo) throws PrivilegeException;
 
 	/**
 	 * Create application form for Group
@@ -66,7 +66,7 @@ public interface RegistrarManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	void createApplicationFormInGroup(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException;
+	void createApplicationFormInGroup(PerunSession sess, Group group) throws PrivilegeException;
 
 	/**
 	 * Gets an application form for a given VO. There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,
@@ -77,7 +77,7 @@ public interface RegistrarManager {
 	 * @throws FormNotExistsException When VO has no form
 	 * @throws InternalErrorException When implementation fails
 	 */
-	ApplicationForm getFormForVo(Vo vo) throws InternalErrorException, FormNotExistsException;
+	ApplicationForm getFormForVo(Vo vo) throws FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given Group. There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
@@ -88,7 +88,7 @@ public interface RegistrarManager {
 	 * @throws FormNotExistsException WHen Group has no form
 	 * @throws InternalErrorException When implementation fails
 	 */
-	ApplicationForm getFormForGroup(Group group) throws InternalErrorException, FormNotExistsException;
+	ApplicationForm getFormForGroup(Group group) throws FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given Id.
@@ -100,7 +100,7 @@ public interface RegistrarManager {
 	 * @throws PrivilegeException When caller is not authorized
 	 * @throws FormNotExistsException When form with ID doesn't exists
 	 */
-	ApplicationForm getFormById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, FormNotExistsException;
+	ApplicationForm getFormById(PerunSession sess, int id) throws PrivilegeException, FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given form item ID.
@@ -122,7 +122,7 @@ public interface RegistrarManager {
 	 * @throws InternalErrorException
 	 * @return created ApplicationFormItem with id and ordnum property set
 	 */
-	ApplicationFormItem addFormItem(PerunSession user, ApplicationForm applicationForm, ApplicationFormItem formItem) throws PrivilegeException, InternalErrorException;
+	ApplicationFormItem addFormItem(PerunSession user, ApplicationForm applicationForm, ApplicationFormItem formItem) throws PrivilegeException;
 
 	/**
 	 * Updates whole FormItem object including ItemTexts and associated AppTypes
@@ -134,7 +134,7 @@ public interface RegistrarManager {
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
 	 */
-	int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException, InternalErrorException;
+	int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException;
 
 	/**
 	 * Updates the form attributes, not the form items.
@@ -145,7 +145,7 @@ public interface RegistrarManager {
 	 * @param applicationForm the form
 	 * @return number of updated rows (should be 1)
 	 */
-	int updateForm(PerunSession user, ApplicationForm applicationForm) throws InternalErrorException, PrivilegeException;
+	int updateForm(PerunSession user, ApplicationForm applicationForm) throws PrivilegeException;
 
 	/**
 	 * Removes a form item permanently. The user data associated with it remain in the database, just they lose the foreign key
@@ -155,7 +155,7 @@ public interface RegistrarManager {
 	 * @param form   the form
 	 * @param ordnum index of the item, starting with zero
 	 */
-	void deleteFormItem(PerunSession user, ApplicationForm form, int ordnum) throws InternalErrorException, PrivilegeException;
+	void deleteFormItem(PerunSession user, ApplicationForm form, int ordnum) throws PrivilegeException;
 
 	/**
 	 * Changes position of an item in form.
@@ -165,7 +165,7 @@ public interface RegistrarManager {
 	 * @param ordnum index of the item, starting with zero
 	 * @param up     true for moving up (to lower ord number) or false for moving down (to higher ord number)
 	 */
-	void moveFormItem(PerunSession user, ApplicationForm form, int ordnum, boolean up) throws InternalErrorException, PrivilegeException;
+	void moveFormItem(PerunSession user, ApplicationForm form, int ordnum, boolean up) throws PrivilegeException;
 
 	/**
 	 * Updates internationalized texts for a form item.
@@ -351,7 +351,7 @@ public interface RegistrarManager {
 	 * @throws RegistrarException
 	 * @throws InternalErrorException
 	 */
-	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException;
+	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PrivilegeException, RegistrarException;
 
 	/**
 	 * Returns applications submitted by user
@@ -458,7 +458,7 @@ public interface RegistrarManager {
 	 * @param app Application to update user
 	 * @throws InternalErrorException
 	 */
-	void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException;
+	void updateApplicationUser(PerunSession sess, Application app);
 
 	/**
 	 * Updated data stored for specific application and form item.
@@ -470,7 +470,7 @@ public interface RegistrarManager {
 	 * @throws PrivilegeException
 	 * @throws RegistrarException
 	 */
-	void updateFormItemData(PerunSession session, int applicationId, ApplicationFormItemData data) throws InternalErrorException, PrivilegeException, RegistrarException;
+	void updateFormItemData(PerunSession session, int applicationId, ApplicationFormItemData data) throws PrivilegeException, RegistrarException;
 
 	/**
 	 * Getter for Mail manager used for notifications

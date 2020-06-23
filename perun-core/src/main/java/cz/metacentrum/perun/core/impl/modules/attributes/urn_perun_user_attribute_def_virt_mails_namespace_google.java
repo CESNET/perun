@@ -36,7 +36,7 @@ public class urn_perun_user_attribute_def_virt_mails_namespace_google extends Us
 	private static final String A_UES_MAIL = AttributesManager.NS_UES_ATTR_DEF + ":mail";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Set<String> googleMails = new HashSet<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 

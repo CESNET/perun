@@ -33,7 +33,7 @@ public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModu
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
 
 		Attribute attr = new Attribute(attribute);
 		int uco = Utils.getNewId(sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate(), "vsup_uco_seq");
@@ -51,7 +51,7 @@ public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModu
 	 * @throws InternalErrorException
 	 */
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) {
 
 		if (attribute.getValue() != null) {
 

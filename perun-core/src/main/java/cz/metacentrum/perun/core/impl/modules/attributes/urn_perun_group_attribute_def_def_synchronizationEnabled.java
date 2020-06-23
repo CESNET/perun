@@ -27,7 +27,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 public class urn_perun_group_attribute_def_def_synchronizationEnabled extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
@@ -39,7 +39,7 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeAssignmentException, InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (attribute.getValue() == null) return;
 		try {
 			if (attribute.valueAsString().equals("true")) {

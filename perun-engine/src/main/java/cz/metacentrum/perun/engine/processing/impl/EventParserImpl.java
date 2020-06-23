@@ -33,7 +33,7 @@ public class EventParserImpl implements EventParser {
 
 	@Override
 	public Task parseEvent(String event) throws InvalidEventMessageException,
-			ServiceNotExistsException, InternalErrorException,
+			ServiceNotExistsException,
 			PrivilegeException {
 
 		log.info("Going to process event: {}", event);

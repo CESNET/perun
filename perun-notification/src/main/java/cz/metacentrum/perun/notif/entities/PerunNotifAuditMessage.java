@@ -74,7 +74,7 @@ public class PerunNotifAuditMessage {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public List<PerunBean> getPerunBeanList() throws InternalErrorException {
+	public List<PerunBean> getPerunBeanList() {
 
 		if (perunBeanList == null) {
 			perunBeanList = AuditParser.parseLog(message);

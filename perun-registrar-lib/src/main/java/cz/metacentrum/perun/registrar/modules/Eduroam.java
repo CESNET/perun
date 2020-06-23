@@ -24,7 +24,7 @@ import cz.metacentrum.perun.registrar.model.Application;
 public class Eduroam extends DefaultRegistrarModule {
 
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, InternalErrorException, GroupNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
+	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, GroupNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
 		// Add new member to groups eduroam-admin and eduroam-announce just if its initial application form
 		if (Application.AppType.INITIAL.equals(app.getType())) {
 			// Get perun and beans from session

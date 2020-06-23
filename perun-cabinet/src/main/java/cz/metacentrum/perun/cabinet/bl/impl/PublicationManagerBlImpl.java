@@ -94,7 +94,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	// business methods --------------------------------
 
 	@Override
-	public Publication createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException {
+	public Publication createPublication(PerunSession sess, Publication p) throws CabinetException {
 
 		if (p.getCreatedDate() == null) p.setCreatedDate(new Date());
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
@@ -120,7 +120,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 	@Override
-	public boolean publicationExists(Publication publication) throws InternalErrorException {
+	public boolean publicationExists(Publication publication) {
 		if (publication.getId() !=0) {
 			try {
 				getPublicationManagerDao().getPublicationById(publication.getId());
@@ -137,7 +137,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 	@Override
-	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException {
 
 		if (publication.getId() == 0 || publication.getExternalId() == 0 || publication.getPublicationSystemId() == 0) {
 			// such publication can't exists
@@ -176,7 +176,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 	@Override
-	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
+	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException {
 
 		try {
 
@@ -207,32 +207,32 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 	@Override
-	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException {
+	public Publication getPublicationById(int id) throws CabinetException {
 		return getPublicationManagerDao().getPublicationById(id);
 	}
 
 	@Override
-	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException {
 		return  getPublicationManagerDao().getPublicationByExternalId(externalId, publicationSystem);
 	}
 
 	@Override
-	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException {
+	public List<Publication> getPublicationsByCategoryId(int categoryId) {
 		return getPublicationManagerDao().getPublicationsByCategoryId(categoryId);
 	}
 
 	@Override
-	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException {
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException {
 		return getPublicationManagerDao().getRichPublicationById(id);
 	}
 
 	@Override
-	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException {
 		return getPublicationManagerDao().getRichPublicationByExternalId(externalId, publicationSystem);
 	}
 
 	@Override
-	public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException {
+	public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) {
 		List<PublicationForGUI> publications = getPublicationManagerDao().getRichPublicationsByFilter(p, userId, yearSince, yearTill);
 		if (userId != 0) {
 			// add rest of publication authors, which are omitted by select conditions (userId)
@@ -244,7 +244,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 	@Override
-	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException {
+	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) {
 		List<Publication> publications = getPublicationManagerDao().getPublicationsByFilter(userId, yearSince, yearTill);
 		for (Publication pub : publications) {
 			pub.setAuthors(getAuthorshipManagerBl().getAuthorsByPublicationId(pub.getId()));
@@ -254,7 +254,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 
 
 	@Override
-	public void lockPublications(boolean lockState, List<Publication> publications) throws InternalErrorException {
+	public void lockPublications(boolean lockState, List<Publication> publications) {
 		getPublicationManagerDao().lockPublications(lockState, publications);
 	}
 

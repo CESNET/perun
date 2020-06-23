@@ -55,7 +55,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		// Get the url query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -67,7 +67,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
+	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) {
 
 		// Get the URL, if query was provided it has precedence over url attribute defined in extSource
 		String url;
@@ -168,7 +168,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
+	protected Map<String,String> getAttributes() {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

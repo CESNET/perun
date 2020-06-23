@@ -24,7 +24,7 @@ public class Compatibility {
 		return "hsqldb".equals(getDbType());
 	}
 
-	static String getSequenceNextval(String sequenceName) throws InternalErrorException {
+	static String getSequenceNextval(String sequenceName) {
 		switch (getDbType()) {
 			case "oracle":
 				return sequenceName + ".nextval";
@@ -37,7 +37,7 @@ public class Compatibility {
 		}
 	}
 
-	static String getLockTable(String tableName) throws InternalErrorException {
+	static String getLockTable(String tableName) {
 		switch (getDbType()) {
 			case "oracle":
 			case "postgresql":
@@ -49,7 +49,7 @@ public class Compatibility {
 		}
 	}
 
-	public static String getStructureForInClause() throws InternalErrorException {
+	public static String getStructureForInClause() {
 		switch (getDbType()) {
 			case "oracle":
 				return " IN (SELECT * FROM TABLE(?)) ";
@@ -62,7 +62,7 @@ public class Compatibility {
 		}
 	}
 
-	public static String getTrue() throws InternalErrorException {
+	public static String getTrue() {
 		switch (getDbType()) {
 			case "oracle":
 				return "'1'";
@@ -75,7 +75,7 @@ public class Compatibility {
 		}
 	}
 
-	public static String getFalse() throws InternalErrorException {
+	public static String getFalse() {
 		switch (getDbType()) {
 			case "oracle":
 				return "'0'";
@@ -88,7 +88,7 @@ public class Compatibility {
 		}
 	}
 
-	public static String getSysdate() throws InternalErrorException {
+	public static String getSysdate() {
 		switch (getDbType()) {
 			case "oracle":
 				return "sysdate";
@@ -101,7 +101,7 @@ public class Compatibility {
 		}
 	}
 
-	static Object getDate(long dateInMiliseconds) throws InternalErrorException {
+	static Object getDate(long dateInMiliseconds) {
 		switch (getDbType()) {
 			case "oracle":
 				return new Date(dateInMiliseconds);

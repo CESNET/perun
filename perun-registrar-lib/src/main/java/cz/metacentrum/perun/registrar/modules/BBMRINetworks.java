@@ -60,7 +60,7 @@ public class BBMRINetworks extends DefaultRegistrarModule {
 	 * @return unchanged application
 	 * @throws PerunException in case of internal error in Perun
 	 */
-	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, InternalErrorException, RegistrarException, GroupNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, NotGroupMemberException {
+	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, RegistrarException, GroupNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, NotGroupMemberException {
 		// get perun and beans from session
 		PerunBl perun = (PerunBl)session.getPerun();
 		Vo vo = app.getVo();
@@ -130,7 +130,7 @@ public class BBMRINetworks extends DefaultRegistrarModule {
 	 *
 	 * @return network IDs set
 	 */
-	private Set<String> getNetworkIDsFromApplication(PerunSession session, Application app) throws RegistrarException, PrivilegeException, InternalErrorException {
+	private Set<String> getNetworkIDsFromApplication(PerunSession session, Application app) throws RegistrarException, PrivilegeException {
 		String networksString = null;
 		List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
 		for (ApplicationFormItemData field : formData) {
@@ -158,7 +158,7 @@ public class BBMRINetworks extends DefaultRegistrarModule {
 	 *
 	 * @return Map of collection IDs to group.
 	 */
-	private Map<String, Group> getNetworkIDsToGroupsMap (PerunSession session, PerunBl perun, Group networksGroup) throws GroupNotExistsException, WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException, PrivilegeException {
+	private Map<String, Group> getNetworkIDsToGroupsMap (PerunSession session, PerunBl perun, Group networksGroup) throws GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, PrivilegeException {
 		Map<String, Group> networkIDsToGroupMap = new HashMap<>();
 		for (Group group : perun.getGroupsManagerBl().getSubGroups(session, networksGroup)) {
 			for (Group subgroup : perun.getGroupsManagerBl().getSubGroups(session, group)) {
@@ -172,7 +172,7 @@ public class BBMRINetworks extends DefaultRegistrarModule {
 		return networkIDsToGroupMap;
 	}
 
-	private Set<String> getNetworkIDs(PerunSession session, PerunBl perun, Group collectionsGroup) throws InternalErrorException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException {
+	private Set<String> getNetworkIDs(PerunSession session, PerunBl perun, Group collectionsGroup) throws PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException {
 		return getNetworkIDsToGroupsMap(session, perun, collectionsGroup).keySet();
 	}
 }

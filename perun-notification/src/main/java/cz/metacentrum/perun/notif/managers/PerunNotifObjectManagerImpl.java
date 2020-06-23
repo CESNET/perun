@@ -25,13 +25,13 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
 	private PerunNotifRegexManager perunNotifRegexManager;
 
 	@Override
-	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException {
+	public PerunNotifObject getPerunNotifObjectById(int id) {
 
 		return perunNotifObjectDao.getPerunNotifObjectById(id);
 	}
 
 	@Override
-	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) {
 
 		PerunNotifObject newObject = perunNotifObjectDao.updatePerunNotifObject(object);
 
@@ -41,13 +41,13 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
 	}
 
 	@Override
-	public void removePerunNotifRegexObjectRelation(int regexId, int objectId) throws InternalErrorException {
+	public void removePerunNotifRegexObjectRelation(int regexId, int objectId) {
 
 		perunNotifObjectDao.removePerunNotifObjectRegexRelation(regexId, objectId);
 	}
 
 	@Override
-	public void removePerunNotifObjectById(int id) throws InternalErrorException {
+	public void removePerunNotifObjectById(int id) {
 
 		PerunNotifObject objectToRemove = getPerunNotifObjectById(id);
 		if (objectToRemove == null) {
@@ -59,7 +59,7 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
 	}
 
 	@Override
-	public void saveObjectRegexRelation(int regexId, int objectId) throws InternalErrorException {
+	public void saveObjectRegexRelation(int regexId, int objectId) {
 
 		if (perunNotifObjectDao.isObjectRelation(regexId, objectId)) {
 			logger.debug("Relation between object: {}, template: {} exists", objectId, regexId);
@@ -72,7 +72,7 @@ public class PerunNotifObjectManagerImpl implements PerunNotifObjectManager {
 	}
 
 	@Override
-	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException {
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) {
 
 		PerunNotifObject perunNotifObject = perunNotifObjectDao.createPerunNotifObject(object);
 

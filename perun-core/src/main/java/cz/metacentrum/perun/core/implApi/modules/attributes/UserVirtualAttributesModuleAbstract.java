@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class UserVirtualAttributesModuleAbstract extends UserAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
@@ -37,12 +37,12 @@ public abstract class UserVirtualAttributesModuleAbstract extends UserAttributes
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		return new ArrayList<>();
 	}
 
 	@Override
-	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute) throws InternalErrorException{
+	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute) {
 		return null;
 	}
 

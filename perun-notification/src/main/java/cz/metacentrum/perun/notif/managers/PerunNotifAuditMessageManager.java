@@ -22,7 +22,7 @@ public interface PerunNotifAuditMessageManager {
 	 * @param messasge
 	 * @return
 	 */
-	public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String messasge, PerunSession message) throws InternalErrorException;
+	public PerunNotifAuditMessage saveMessageToPerunAuditerMessage(String messasge, PerunSession message);
 
 	/**
 	 * Removes perunAuditerMessage from db based on id

@@ -45,22 +45,22 @@ public class PerunFacilityImpl extends AbstractPerunEntry<Facility> implements P
 	}
 
 	@Override
-	public void addFacility(Facility facility) throws InternalErrorException {
+	public void addFacility(Facility facility) {
 		addEntry(facility);
 	}
 
 	@Override
-	public void deleteFacility(Facility facility) throws InternalErrorException {
+	public void deleteFacility(Facility facility) {
 		deleteEntry(facility);
 	}
 
 	@Override
-	public void updateFacility(Facility facility) throws InternalErrorException {
+	public void updateFacility(Facility facility) {
 		modifyEntry(facility);
 	}
 
 	@Override
-	public void synchronizeFacility(Facility facility, Iterable<Attribute> attrs) throws InternalErrorException {
+	public void synchronizeFacility(Facility facility, Iterable<Attribute> attrs) {
 		synchronizeEntry(facility, attrs);
 	}
 
@@ -77,13 +77,13 @@ public class PerunFacilityImpl extends AbstractPerunEntry<Facility> implements P
 	}
 
 	@Override
-	protected void mapToContext(Facility bean, DirContextOperations context) throws InternalErrorException {
+	protected void mapToContext(Facility bean, DirContextOperations context) {
 		context.setAttributeValue("objectclass", PerunAttribute.PerunAttributeNames.objectClassPerunFacility);
 		mapToContext(bean, context, getAttributeDescriptions());
 	}
 
 	@Override
-	public List<Name> listEntries() throws InternalErrorException {
+	public List<Name> listEntries() {
 		return ldapTemplate.search(query().
 						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunFacility),
 				getNameMapper());

@@ -53,7 +53,7 @@ public abstract class AbstractVOOTTest {
 	 */
 	abstract void setUpBackground() throws PerunException;
 
-	User setUpUser1() throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	User setUpUser1() throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		User user = new User();
 		user.setFirstName("James");
 		user.setMiddleName("");

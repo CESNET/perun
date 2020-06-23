@@ -25,7 +25,7 @@ public class PerunSessionImpl extends PerunSession {
 
 
 	@Override
-	public void destroy() throws InternalErrorException {
+	public void destroy() {
 		super.destroy();
 	}
 

@@ -24,7 +24,7 @@ public interface FacilityVirtualAttributesModuleImplApi extends FacilityAttribut
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException;
+	Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute);
 
 	/**
 	 * Method sets attributes' values which are dependent on this virtual attribute.
@@ -36,7 +36,7 @@ public interface FacilityVirtualAttributesModuleImplApi extends FacilityAttribut
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	boolean setAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Currently do nothing.
@@ -48,5 +48,5 @@ public interface FacilityVirtualAttributesModuleImplApi extends FacilityAttribut
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException;
+	void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute);
 }

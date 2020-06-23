@@ -42,7 +42,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 	 * @throws WrongAttributeValueException
 	 */
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) return;
 
 		Matcher match = pattern.matcher(attribute.valueAsString());
@@ -63,7 +63,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		if (attribute.getValue() == null) {
 			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value cannot be null.");
@@ -85,7 +85,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		Attribute resourceAttribute;
 		try {
 			resourceAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_homeMountPoints);

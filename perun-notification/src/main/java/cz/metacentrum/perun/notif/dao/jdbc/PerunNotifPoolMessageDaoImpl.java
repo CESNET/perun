@@ -27,7 +27,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifPoolMessageDao.class);
 
-	public void savePerunNotifPoolMessage(PerunNotifPoolMessage message) throws InternalErrorException {
+	public void savePerunNotifPoolMessage(PerunNotifPoolMessage message) {
 
 		logger.debug("Saving perunNotifPoolMessage to db, message: {}", message);
 		int newMessageId = Utils.getNewId(this.getJdbcTemplate(), "pn_pool_message_id_seq");
@@ -56,7 +56,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	}
 
 	@Override
-	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() throws InternalErrorException {
+	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() {
 
 		Duration days = Duration.ofDays(10);
 		removeOldPoolMessages(days.toMillis());
@@ -76,7 +76,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	}
 
 	@Override
-	public void removeAllPoolMessages(Set<Integer> proccessedIds) throws InternalErrorException {
+	public void removeAllPoolMessages(Set<Integer> proccessedIds) {
 
 		if (proccessedIds == null || proccessedIds.isEmpty()) {
 			return;
@@ -89,7 +89,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 		logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
 	}
 
-	private void removeOldPoolMessages(long olderThan) throws InternalErrorException {
+	private void removeOldPoolMessages(long olderThan) {
 		Set<Integer> proccessedIds = new HashSet<Integer>();
 		long actualTimeInMillis = Instant.now().toEpochMilli();
 		SqlRowSet srs = this.getJdbcTemplate().queryForRowSet("SELECT id,created FROM pn_pool_message");

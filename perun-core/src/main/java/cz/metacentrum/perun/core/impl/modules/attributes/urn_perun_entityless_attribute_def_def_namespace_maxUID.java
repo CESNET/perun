@@ -25,13 +25,13 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxUID extends Ent
 	private static final String A_E_namespaceMinUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID";
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		Integer maxUID = attribute.valueAsInteger();
 		if(maxUID != null && maxUID < 1) throw new WrongAttributeValueException(attribute, "Attribute value must be bigger than 0.");
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer maxUID = attribute.valueAsInteger();
 		if (maxUID == null) return;
 		try {

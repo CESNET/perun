@@ -78,12 +78,12 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException{
+	public void reservePassword(PerunSession session, String userLogin, String password) {
 		throw new InternalErrorException("Reserving password in login namespace 'mu' is not supported.");
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException {
+	public void reserveRandomPassword(PerunSession session, String userLogin) {
 		throw new InternalErrorException("Reserving random password in login namespace 'mu' is not supported.");
 	}
 
@@ -162,7 +162,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 * @throws InternalErrorException
 	 * @throws IOException
 	 */
-	private InputStream makeCall(String dataToPass, int requestId) throws InternalErrorException, IOException {
+	private InputStream makeCall(String dataToPass, int requestId) throws IOException {
 
 		//prepare sslFactory
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
@@ -384,7 +384,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 * @return Map of response params
 	 * @throws InternalErrorException
 	 */
-	private Map<String, String> parseUCO(Document document, int requestID) throws InternalErrorException {
+	private Map<String, String> parseUCO(Document document, int requestID) {
 
 		Map<String, String> result = new HashMap<>();
 
@@ -419,7 +419,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 * @return XML document for further processing
 	 * @throws InternalErrorException
 	 */
-	private Document parseResponse(InputStream inputStream, int requestID) throws InternalErrorException {
+	private Document parseResponse(InputStream inputStream, int requestID) {
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

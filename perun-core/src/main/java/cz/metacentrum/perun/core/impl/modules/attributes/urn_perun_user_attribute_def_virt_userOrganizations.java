@@ -31,7 +31,7 @@ public class urn_perun_user_attribute_def_virt_userOrganizations extends UserVir
 	private static final String A_M_organization = AttributesManager.NS_MEMBER_ATTR_DEF + ":organization";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attributeDefinition) {
 		Map<String, String> userOrganizations = new LinkedHashMap<>();
 		List<Vo> vos = perunSession.getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(perunSession, user);
 

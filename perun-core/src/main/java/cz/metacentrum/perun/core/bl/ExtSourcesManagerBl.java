@@ -46,7 +46,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceExistsException
 	 */
-	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException;
+	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes) throws ExtSourceExistsException;
 
 	/**
 	 * Deletes an external source.
@@ -57,7 +57,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete in DB
 	 */
-	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException;
+	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Searches for the external source with specified id.
@@ -69,7 +69,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	ExtSource getExtSourceById(PerunSession perunSession, int id) throws InternalErrorException, ExtSourceNotExistsException;
+	ExtSource getExtSourceById(PerunSession perunSession, int id) throws ExtSourceNotExistsException;
 
 	/**
 	 * Searches for the external source using specified name.
@@ -81,7 +81,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	ExtSource getExtSourceByName(PerunSession perunSession, String name) throws InternalErrorException, ExtSourceNotExistsException;
+	ExtSource getExtSourceByName(PerunSession perunSession, String name) throws ExtSourceNotExistsException;
 
 	/**
 	 * Get list of external sources associated with the VO.
@@ -93,7 +93,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get list of external sources associated with the GROUP.
@@ -105,7 +105,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group);
 
 	/**
 	 * Get list of all external sources.
@@ -116,7 +116,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getExtSources(PerunSession perunSession) throws InternalErrorException;
+	List<ExtSource> getExtSources(PerunSession perunSession);
 
 	/**
 	 * Associate external source definition with the VO.
@@ -127,7 +127,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
+	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceAlreadyAssignedException;
 
 	/**
 	 * Associate external source definition with the GROUP.
@@ -139,7 +139,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceAlreadyAssignedException
 	 */
-	void addExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
+	void addExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceAlreadyAssignedException;
 
 	/**
 	 * Remove association of the external source from the VO.
@@ -152,7 +152,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws ExtSourceNotAssignedException
 	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete from DB
 	 */
-	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Remove association of the external source from the GROUP.
@@ -165,7 +165,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 * @throws ExtSourceNotAssignedException
 	 */
-	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Checks whether the ExtSource exists, if not, then the ExtSource is created.
@@ -178,7 +178,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType) throws InternalErrorException;
+	ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType);
 
 	/**
 	 * Returns list of users stored by this ExtSource, which are not valid.
@@ -190,7 +190,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getInvalidUsers(PerunSession perunSession, ExtSource source) throws InternalErrorException;
+	List<User> getInvalidUsers(PerunSession perunSession, ExtSource source);
 
 	/**
 	 * Get the candidate from the ExtSource.
@@ -204,7 +204,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws CandidateNotExistsException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws CandidateNotExistsException, ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Get the candidate from subjectData where at least login must exists.
@@ -219,9 +219,9 @@ public interface ExtSourcesManagerBl {
 	 * @return a Candidate object
 	 * @throws InternalErrorException
 	 */
-	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException;
+	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login);
 
-	void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
+	void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws ExtSourceNotExistsException;
 
 	/**
 	 * Check if extSource is assigned to vo or not. Throw exception if not.
@@ -234,7 +234,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws ExtSourceNotAssignedException
 	 * @throws VoNotExistsException
 	 */
-	void checkExtSourceAssignedToVo(PerunSession sess, ExtSource extSource, int voId) throws InternalErrorException, ExtSourceNotAssignedException, VoNotExistsException;
+	void checkExtSourceAssignedToVo(PerunSession sess, ExtSource extSource, int voId) throws ExtSourceNotAssignedException, VoNotExistsException;
 
 	/**
 	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.
@@ -250,7 +250,7 @@ public interface ExtSourcesManagerBl {
 	 * @return			Map of attributes for external source
 	 * @throws InternalErrorException
 	 */
-	Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException;
+	Map<String, String> getAttributes(ExtSource extSource);
 
 	/**
 	 * Generate a candidate group from a group subject data.
@@ -264,7 +264,7 @@ public interface ExtSourcesManagerBl {
 	 * @return Candidate group object
 	 * @throws InternalErrorException
 	 */
-	CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source) throws InternalErrorException;
+	CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source);
 
 	/**
 	 * Generate candidate groups from a group subject data.
@@ -278,6 +278,6 @@ public interface ExtSourcesManagerBl {
 	 * @return Candidate group objects
 	 * @throws InternalErrorException
 	 */
-	List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> groupSubjectsData, ExtSource source) throws InternalErrorException;
+	List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> groupSubjectsData, ExtSource source);
 
 }

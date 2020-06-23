@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 public class urn_perun_resource_attribute_def_def_maxUserFileQuotas extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		//attribute can be null, it means there are no max user settings on resource
 		if(attribute.getValue() == null) {
 			return;

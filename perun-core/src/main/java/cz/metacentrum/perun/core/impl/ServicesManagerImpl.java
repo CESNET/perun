@@ -195,7 +195,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void blockServiceOnFacility(PerunSession sess, int serviceId, int facilityId) throws InternalErrorException, ServiceAlreadyBannedException {
+	public void blockServiceOnFacility(PerunSession sess, int serviceId, int facilityId) throws ServiceAlreadyBannedException {
 		int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
 		try {
 			jdbc.update("insert into service_denials(id, facility_id, service_id, created_by, modified_by, created_by_uid, modified_by_uid) values (?,?,?,?,?,?,?)",
@@ -210,7 +210,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void blockServiceOnDestination(PerunSession sess, int serviceId, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
+	public void blockServiceOnDestination(PerunSession sess, int serviceId, int destinationId) throws ServiceAlreadyBannedException {
 		try {
 			int newBanId = Utils.getNewId(jdbc, "service_denials_id_seq");
 			jdbc.update("insert into service_denials(id, destination_id, service_id, created_by, modified_by, created_by_uid, modified_by_uid) values (?,?,?,?,?,?,?)",
@@ -225,7 +225,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public List<Service> getServicesBlockedOnFacility(int facilityId) throws InternalErrorException {
+	public List<Service> getServicesBlockedOnFacility(int facilityId) {
 		try {
 			return jdbc
 				.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
@@ -238,7 +238,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public List<Service> getServicesBlockedOnDestination(int destinationId) throws InternalErrorException {
+	public List<Service> getServicesBlockedOnDestination(int destinationId) {
 		try {
 			return jdbc
 				.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
@@ -250,7 +250,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Service> getServicesFromDestination(int destinationId) throws InternalErrorException {
+	public List<Service> getServicesFromDestination(int destinationId) {
 		try {
 			@SuppressWarnings("ConstantConditions")
 			List<Service> servicesFromDestination = jdbc.query("select distinct " + ServicesManagerImpl.serviceMappingSelectQuery +
@@ -264,7 +264,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public boolean isServiceBlockedOnFacility(int serviceId, int facilityId) throws InternalErrorException {
+	public boolean isServiceBlockedOnFacility(int serviceId, int facilityId) {
 		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and facility_id = ?", serviceId, facilityId);
 		if (denials > 0) {
 			return true;
@@ -273,7 +273,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public boolean isServiceBlockedOnDestination(int serviceId, int destinationId) throws InternalErrorException {
+	public boolean isServiceBlockedOnDestination(int serviceId, int destinationId) {
 		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and destination_id = ?", serviceId, destinationId);
 		if (denials > 0) {
 			return true;
@@ -283,7 +283,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockAllServicesOnFacility(int facilityId) throws InternalErrorException {
+	public void unblockAllServicesOnFacility(int facilityId) {
 		try {
 			jdbc.update("delete from service_denials where facility_id = ?", facilityId);
 		} catch (RuntimeException ex) {
@@ -293,7 +293,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockAllServicesOnDestination(int destinationId) throws InternalErrorException {
+	public void unblockAllServicesOnDestination(int destinationId) {
 		try {
 			jdbc.update("delete from service_denials where destination_id = ?", destinationId);
 		} catch (RuntimeException ex) {
@@ -303,7 +303,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockServiceOnFacility(int serviceId, int facilityId) throws InternalErrorException {
+	public void unblockServiceOnFacility(int serviceId, int facilityId) {
 		try {
 			jdbc.update("delete from service_denials where facility_id = ? and service_id = ?", facilityId, serviceId);
 		} catch (RuntimeException ex) {
@@ -313,7 +313,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void unblockServiceOnDestination(int serviceId, int destinationId) throws InternalErrorException {
+	public void unblockServiceOnDestination(int serviceId, int destinationId) {
 		try {
 			jdbc.update("delete from service_denials where destination_id = ? and service_id = ?", destinationId, serviceId);
 		} catch (RuntimeException ex) {
@@ -321,7 +321,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	}
 
-	private int queryForInt(String sql, Object... args) throws InternalErrorException, DataAccessException {
+	private int queryForInt(String sql, Object... args) {
 		try {
 			@SuppressWarnings("ConstantConditions")
 			Integer i = jdbc.queryForObject(sql, args, Integer.class);
@@ -333,7 +333,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 
 	@Override
-	public Service createService(PerunSession sess, Service service) throws InternalErrorException {
+	public Service createService(PerunSession sess, Service service) {
 		try {
 			int newId = Utils.getNewId(jdbc, "services_id_seq");
 			// if not set, make sure script path is set based on service name
@@ -355,7 +355,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void deleteService(PerunSession sess, Service service) throws InternalErrorException, ServiceAlreadyRemovedException {
+	public void deleteService(PerunSession sess, Service service) throws ServiceAlreadyRemovedException {
 		try {
 			// Delete authz entries for this service
 			AuthzResolverBlImpl.removeAllAuthzForService(sess, service);
@@ -368,7 +368,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void updateService(PerunSession sess, Service service) throws InternalErrorException {
+	public void updateService(PerunSession sess, Service service) {
 		try {
 			// if not set, make sure script path is set based on new service name
 			if (service.getScript() == null || service.getScript().isEmpty()) {
@@ -385,7 +385,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public Service getServiceByName(PerunSession sess, String name) throws InternalErrorException, ServiceNotExistsException {
+	public Service getServiceByName(PerunSession sess, String name) throws ServiceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + serviceMappingSelectQuery + " from services where name=?", SERVICE_MAPPER, name);
 		} catch(EmptyResultDataAccessException ex) {
@@ -396,7 +396,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public Service getServiceById(PerunSession sess, int id) throws InternalErrorException, ServiceNotExistsException {
+	public Service getServiceById(PerunSession sess, int id) throws ServiceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + serviceMappingSelectQuery + " from services where id=?", SERVICE_MAPPER, id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -407,7 +407,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Service> getServices(PerunSession sess) throws InternalErrorException {
+	public List<Service> getServices(PerunSession sess) {
 		try {
 			return jdbc.query("select " + serviceMappingSelectQuery + " from services", SERVICE_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
@@ -419,7 +419,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) {
 		try {
 			return jdbc.query("select " + serviceMappingSelectQuery + " from services join service_required_attrs on services.id=service_required_attrs.service_id "
 					+ "where service_required_attrs.attr_id=?", SERVICE_MAPPER, attributeDefinition.getId());
@@ -432,7 +432,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Service service) {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
 					"resource_services.resource_id=resources.id  where service_id=?", ResourcesManagerImpl.RESOURCE_MAPPER, service.getId());
@@ -442,7 +442,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<ServicesPackage> getServicesPackages(PerunSession sess) throws InternalErrorException {
+	public List<ServicesPackage> getServicesPackages(PerunSession sess) {
 		try {
 			List<ServicesPackage> servicesPackages = jdbc.query("select " + servicePackageMappingSelectQuery + " from service_packages", SERVICESPACKAGE_MAPPER);
 			return servicesPackages;
@@ -452,7 +452,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException {
+	public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws ServicesPackageNotExistsException {
 		try {
 			ServicesPackage servicesPackage = jdbc.queryForObject("select " + servicePackageMappingSelectQuery + " from service_packages where id = ?", SERVICESPACKAGE_MAPPER, servicesPackageId);
 
@@ -465,7 +465,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
+	public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
 		try {
 
 			int newId = Utils.getNewId(jdbc, "service_packages_id_seq");
@@ -482,7 +482,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
+	public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
 		try {
 			jdbc.update("update service_packages set description = ?, name = ?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id = ?",
 					servicesPackage.getDescription(), servicesPackage.getName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), servicesPackage.getId());
@@ -492,7 +492,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
+	public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
 		try {
 			jdbc.update("delete from service_packages where id = ?", servicesPackage.getId());
 		} catch (RuntimeException e) {
@@ -501,7 +501,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException {
+	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyAssignedException {
 		try {
 			jdbc.update("insert into service_service_packages (package_id, service_id, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
 					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", servicesPackage.getId(), service.getId(),
@@ -514,7 +514,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyRemovedFromServicePackageException {
+	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyRemovedFromServicePackageException {
 		try {
 			int numAffected = jdbc.update("delete from service_service_packages where package_id=? and service_id=?", servicesPackage.getId(), service.getId());
 			if(numAffected == 0) throw new ServiceAlreadyRemovedFromServicePackageException("Service: " + service + " , ServicePackage: " + servicesPackage);
@@ -524,7 +524,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws InternalErrorException, ServicesPackageNotExistsException {
+	public ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws ServicesPackageNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + servicePackageMappingSelectQuery + " from service_packages where name=?", SERVICESPACKAGE_MAPPER, name);
 		} catch(EmptyResultDataAccessException ex) {
@@ -535,7 +535,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
+	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
 		try {
 			List<Service> services = new ArrayList<>();
 			List<Integer> servicesId = jdbc.query("select service_id as id from service_service_packages where package_id=?", Utils.ID_MAPPER, servicesPackage.getId());
@@ -553,7 +553,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeAlreadyAssignedException {
+	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException {
 		try {
 			if (0 < jdbc.queryForInt("select count(*) from service_required_attrs where service_id=? and attr_id=?", service.getId(), attribute.getId())) {
 				throw new AttributeAlreadyAssignedException("Service: " + service  + " already required attribute " + attribute);
@@ -567,12 +567,12 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeAlreadyAssignedException {
+	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException {
 		for(AttributeDefinition attribute : attributes) addRequiredAttribute(sess, service, attribute);
 	}
 
 	@Override
-	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeNotAssignedException {
+	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws AttributeNotAssignedException {
 		try {
 			if(0 == jdbc.update("delete from service_required_attrs where service_id=? and attr_id=?", service.getId(), attribute.getId())) {
 				throw new AttributeNotAssignedException(attribute);
@@ -583,12 +583,12 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotAssignedException {
+	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws AttributeNotAssignedException {
 		for(AttributeDefinition attribute : attributes) removeRequiredAttribute(sess, service, attribute);
 	}
 
 	@Override
-	public void removeAllRequiredAttributes(PerunSession sess, Service service) throws InternalErrorException {
+	public void removeAllRequiredAttributes(PerunSession sess, Service service) {
 		try {
 			jdbc.update("delete from service_required_attrs where service_id=?", service.getId());
 		} catch(RuntimeException e) {
@@ -597,7 +597,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public boolean serviceExists(PerunSession sess, Service service) throws InternalErrorException {
+	public boolean serviceExists(PerunSession sess, Service service) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from services where id=?", service.getId());
 			if (numberOfExistences == 1) {
@@ -615,17 +615,17 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void checkServiceExists(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException {
+	public void checkServiceExists(PerunSession sess, Service service) throws ServiceNotExistsException {
 		if(!serviceExists(sess, service)) throw new ServiceNotExistsException("Service not exists: " + service);
 	}
 
 	@Override
-	public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException {
+	public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws ServicesPackageNotExistsException {
 		if(!servicesPackageExists(sess, servicesPackage)) throw new ServicesPackageNotExistsException("ServicesPackage not exists: " + servicesPackage);
 	}
 
 	@Override
-	public boolean servicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
+	public boolean servicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from service_packages where id=?", servicesPackage.getId());
 			if (numberOfExistences == 1) {
@@ -643,7 +643,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public Destination getDestinationById(PerunSession sess, int id) throws InternalErrorException, DestinationNotExistsException {
+	public Destination getDestinationById(PerunSession sess, int id) throws DestinationNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + destinationMappingSelectQuery + " from destinations where id=?", DESTINATION_MAPPER, id);
 		} catch (EmptyResultDataAccessException e) {
@@ -654,7 +654,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
+	public void addDestination(PerunSession sess, Service service, Facility facility, Destination destination) {
 		try {
 			jdbc.update("insert into facility_service_destinations (service_id, facility_id, destination_id, propagation_type, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", service.getId(), facility.getId(), destination.getId(),
@@ -665,7 +665,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyRemovedException {
+	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyRemovedException {
 		try {
 			if (0 == jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=? and destination_id=?", service.getId(), facility.getId(), destination.getId())) {
 				throw new DestinationAlreadyRemovedException(destination);
@@ -676,7 +676,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) {
 		try {
 			return jdbc.query("select " + facilityDestinationMappingSelectQuery + " from facility_service_destinations join destinations on destinations.id=facility_service_destinations.destination_id " +
 					"where service_id=? and facility_id=? order by destinations.destination", DESTINATION_MAPPER, service.getId(), facility.getId());
@@ -686,7 +686,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException {
+	public List<Destination> getDestinations(PerunSession perunSession) {
 		try {
 			return jdbc.query("select " + destinationMappingSelectQuery + " from destinations", DESTINATION_MAPPER);
 		} catch (RuntimeException e) {
@@ -695,7 +695,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public List<Destination> getDestinations(PerunSession perunSession, Facility facility) {
 		try {
 			return jdbc.query("select " + facilityDestinationMappingSelectQuery + " from facility_service_destinations " +
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
@@ -706,7 +706,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) {
 		try {
 			return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
@@ -719,7 +719,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws InternalErrorException {
+	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) {
 		try {
 			return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
@@ -732,7 +732,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws InternalErrorException{
+	public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) {
 		try {
 			return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
@@ -746,7 +746,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 
 	@Override
-	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) {
 		try {
 			jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=?", service.getId(), facility.getId());
 			//TODO remove from table destinations?
@@ -756,7 +756,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllDestinations(PerunSession sess, Facility facility) throws InternalErrorException {
+	public void removeAllDestinations(PerunSession sess, Facility facility) {
 		try {
 			jdbc.update("delete from facility_service_destinations where facility_id=?", facility.getId());
 			//TODO remove from table destinations?
@@ -766,7 +766,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public boolean destinationExists(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
+	public boolean destinationExists(PerunSession sess, Service service, Facility facility, Destination destination) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_service_destinations fsd join destinations d on fsd.destination_id = d.id where fsd.service_id=? and fsd.facility_id=? and d.destination=? and d.type=?", service.getId(), facility.getId(), destination.getDestination(), destination.getType());
 			if (numberOfExistences == 1) {
@@ -783,7 +783,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public boolean destinationExists(PerunSession sess, Destination destination) throws InternalErrorException {
+	public boolean destinationExists(PerunSession sess, Destination destination) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from destinations where id=? and destination=? and type=?", destination.getId(), destination.getDestination(), destination.getType());
 			if (numberOfExistences == 1) {
@@ -800,7 +800,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Service> getAssignedServices(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public List<Service> getAssignedServices(PerunSession perunSession, Facility facility) {
 		try {
 			return jdbc.query("select distinct " + serviceMappingSelectQuery + " from services join resource_services on services.id = resource_services.service_id join resources on resource_services.resource_id = resources.id where resources.facility_id=?", SERVICE_MAPPER, facility.getId());
 		} catch (RuntimeException e) {
@@ -809,7 +809,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public Destination getDestination(PerunSession sess, String destination, String type) throws InternalErrorException, DestinationNotExistsException {
+	public Destination getDestination(PerunSession sess, String destination, String type) throws DestinationNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + destinationMappingSelectQuery + " from destinations where destination=? and type=?", DESTINATION_MAPPER, destination, type);
 		} catch(EmptyResultDataAccessException ex) {
@@ -820,7 +820,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public Destination createDestination(PerunSession sess, Destination destination) throws InternalErrorException {
+	public Destination createDestination(PerunSession sess, Destination destination) {
 		try {
 			int destinationId = Utils.getNewId(jdbc, "destinations_id_seq");
 			jdbc.update("insert into destinations (id, destination, type, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
@@ -834,7 +834,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("select distinct " + destinationMappingSelectQuery + " from destinations, facility_service_destinations, facilities, resources " +
 					"where destinations.id = facility_service_destinations.destination_id and facilities.id = facility_service_destinations.facility_id " +
@@ -845,7 +845,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public int getDestinationsCount(PerunSession sess) throws InternalErrorException {
+	public int getDestinationsCount(PerunSession sess) {
 		try {
 			return jdbc.queryForInt("select count(*) from destinations");
 		} catch (RuntimeException ex) {

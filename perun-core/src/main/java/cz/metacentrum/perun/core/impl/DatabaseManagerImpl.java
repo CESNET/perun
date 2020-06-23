@@ -42,7 +42,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	}
 
 	@Override
-	public String getCurrentDatabaseVersion() throws InternalErrorException {
+	public String getCurrentDatabaseVersion() {
 		try {
 			return jdbc.queryForObject("select value from configurations where property=?", String.class, VERSION_PROPERTY);
 		} catch(EmptyResultDataAccessException ex) {
@@ -53,7 +53,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	}
 
 	@Override
-	public String getDatabaseDriverInformation() throws InternalErrorException {
+	public String getDatabaseDriverInformation() {
 		if (jdbc.getDataSource() == null) return "Data source is NULL.";
 		try (Connection con = jdbc.getDataSource().getConnection()) {
 			String driverVersion = con.getMetaData().getDriverVersion();
@@ -65,7 +65,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	}
 
 	@Override
-	public String getDatabaseInformation() throws InternalErrorException {
+	public String getDatabaseInformation() {
 		if (jdbc.getDataSource() == null) return "Data source is NULL.";
 		try (Connection con = jdbc.getDataSource().getConnection()) {
 			String dbName = con.getMetaData().getDatabaseProductName();
@@ -83,7 +83,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	}
 
 	@Override
-	public void updateDatabaseVersion(List<DBVersion> dbVersions) throws InternalErrorException {
+	public void updateDatabaseVersion(List<DBVersion> dbVersions) {
 		Collections.reverse(dbVersions);
 
 		for (DBVersion v : dbVersions) {
@@ -110,7 +110,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	}
 
 	@Override
-	public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException {
+	public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) {
 
 		Pattern versionPattern = Pattern.compile("^[1-9][0-9]*[.][0-9]+[.][0-9]+");
 		Pattern commentPattern = Pattern.compile("^--.*");

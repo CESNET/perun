@@ -892,7 +892,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 	}
 
 
-	private List<SecurityTeam> setUpSecurityTeams() throws PrivilegeException, InternalErrorException, SecurityTeamExistsException {
+	private List<SecurityTeam> setUpSecurityTeams() throws PrivilegeException, SecurityTeamExistsException {
 		st0 = new SecurityTeam("Security0", "Description test 0");
 		st1 = new SecurityTeam("Security1", "");
 		st2 = new SecurityTeam("Security2", null);
@@ -908,7 +908,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		return result;
 	}
 
-	private List<Facility> setUpFacilities() throws PrivilegeException, FacilityExistsException, InternalErrorException, SecurityTeamAlreadyAssignedException, FacilityNotExistsException, SecurityTeamNotExistsException {
+	private List<Facility> setUpFacilities() throws PrivilegeException, FacilityExistsException, SecurityTeamAlreadyAssignedException, FacilityNotExistsException, SecurityTeamNotExistsException {
 		f0 = new Facility();
 		f1 = new Facility();
 		f2 = new Facility();
@@ -932,7 +932,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		return result;
 	}
 
-	private void setUpUsers() throws PrivilegeException, InternalErrorException {
+	private void setUpUsers() throws PrivilegeException {
 		u0 = new User();
 		u1 = new User();
 		u2 = new User();
@@ -952,7 +952,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		perun.getUsersManager().createUser(sess, u4);
 	}
 
-	private void setUpBlacklists() throws PrivilegeException, InternalErrorException, UserAlreadyBlacklistedException, UserNotExistsException, SecurityTeamNotExistsException {
+	private void setUpBlacklists() throws PrivilegeException, UserAlreadyBlacklistedException, UserNotExistsException, SecurityTeamNotExistsException {
 		securityTeamsManagerEntry.addUserToBlacklist(sess, st0, u1, "reason");
 		securityTeamsManagerEntry.addUserToBlacklist(sess, st0, u2, null);
 		securityTeamsManagerEntry.addUserToBlacklist(sess, st1, u2, "reason");
@@ -961,7 +961,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 	}
 
 
-	private Group setUpGroup(User u0, User u1) throws PrivilegeException, InternalErrorException, UserNotExistsException, VoExistsException, GroupExistsException, VoNotExistsException, GroupNotExistsException, AlreadyMemberException, MemberNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, ExtendMembershipException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
+	private Group setUpGroup(User u0, User u1) throws PrivilegeException, UserNotExistsException, VoExistsException, GroupExistsException, VoNotExistsException, GroupNotExistsException, AlreadyMemberException, MemberNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, ExtendMembershipException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
 		Vo vo = new Vo();
 		vo.setShortName("testVo");
 		vo.setName("Test VO");
@@ -979,7 +979,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		return authGroup;
 	}
 
-	private List<User> setUpAdmins(User u0, User u1, Group group) throws PrivilegeException, InternalErrorException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, GroupNotExistsException, MemberNotExistsException {
+	private List<User> setUpAdmins(User u0, User u1, Group group) throws PrivilegeException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, GroupNotExistsException, MemberNotExistsException {
 		securityTeamsManagerEntry.addAdmin(sess, st0, u0);
 		securityTeamsManagerEntry.addAdmin(sess, st0, u1);
 

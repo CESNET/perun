@@ -15,7 +15,7 @@ public interface PerunResource extends PerunEntry<Resource> {
 	 * @param resource resource from Perun
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void deleteResource(Resource resource) throws InternalErrorException;
+	public void deleteResource(Resource resource);
 
 	/**
 	 * Add resource to LDAP
@@ -23,15 +23,15 @@ public interface PerunResource extends PerunEntry<Resource> {
 	 * @param resource resource from Perun
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void addResource(Resource resource) throws InternalErrorException;
+	public void addResource(Resource resource);
 
-	public void updateResource(Resource resource) throws InternalErrorException;
+	public void updateResource(Resource resource);
 
-	public void assignGroup(Resource resource, Group group) throws InternalErrorException;
+	public void assignGroup(Resource resource, Group group);
 
-	public void removeGroup(Resource resource, Group group) throws InternalErrorException;
+	public void removeGroup(Resource resource, Group group);
 
-	public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups) throws InternalErrorException;
+	public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups);
 
-	public void synchronizeGroups(Resource resource, List<Group> assignedGroups) throws InternalErrorException;
+	public void synchronizeGroups(Resource resource, List<Group> assignedGroups);
 }

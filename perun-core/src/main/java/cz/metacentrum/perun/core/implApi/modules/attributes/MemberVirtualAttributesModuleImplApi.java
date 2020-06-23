@@ -24,7 +24,7 @@ public interface MemberVirtualAttributesModuleImplApi extends MemberAttributesMo
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException;
+	Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute);
 
 	/**
 	 * Method sets attributes' values which are dependent on this virtual attribute.
@@ -46,5 +46,5 @@ public interface MemberVirtualAttributesModuleImplApi extends MemberAttributesMo
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException;
+	void removeAttributeValue(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute);
 }

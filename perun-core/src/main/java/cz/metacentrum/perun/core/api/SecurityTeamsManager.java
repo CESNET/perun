@@ -31,7 +31,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<SecurityTeam> getSecurityTeams(PerunSession perunSession) throws PrivilegeException, InternalErrorException;
+	List<SecurityTeam> getSecurityTeams(PerunSession perunSession) throws PrivilegeException;
 
 	/**
 	 * get all security teams in perun system
@@ -41,7 +41,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<SecurityTeam> getAllSecurityTeams(PerunSession perunSession) throws PrivilegeException, InternalErrorException;
+	List<SecurityTeam> getAllSecurityTeams(PerunSession perunSession) throws PrivilegeException;
 
 	/**
 	 * Create new SecurityTeam.
@@ -53,7 +53,7 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin.
 	 * @throws SecurityTeamExistsException
 	 */
-	SecurityTeam createSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws PrivilegeException, InternalErrorException, SecurityTeamExistsException;
+	SecurityTeam createSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws PrivilegeException, SecurityTeamExistsException;
 
 	/**
 	 * Updates SecurityTeam.
@@ -65,7 +65,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
 	 */
-	SecurityTeam updateSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, SecurityTeamExistsException;
+	SecurityTeam updateSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws PrivilegeException, SecurityTeamNotExistsException, SecurityTeamExistsException;
 
 	/**
 	 * Delete SecurityTeam.
@@ -77,7 +77,7 @@ public interface SecurityTeamsManager {
 	 * @throws SecurityTeamNotExistsException
 	 * @throws RelationExistsException if team is assigned to any facility or has blacklisted users.
 	 */
-	void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
+	void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
 
 	/**
 	 * Delete SecurityTeam.
@@ -90,7 +90,7 @@ public interface SecurityTeamsManager {
 	 * @throws SecurityTeamNotExistsException
 	 * @throws RelationExistsException if forceDelete == FALSE and team is assigned to any facility or has blacklisted users.
 	 */
-	void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam, boolean forceDelete) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
+	void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam, boolean forceDelete) throws PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
 
 
 	/**
@@ -103,7 +103,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
 	 */
-	SecurityTeam getSecurityTeamById(PerunSession perunSession, int id) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	SecurityTeam getSecurityTeamById(PerunSession perunSession, int id) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * Find existing SecurityTeam by name.
@@ -115,7 +115,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
 	 */
-	SecurityTeam getSecurityTeamByName(PerunSession perunSession, String name) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	SecurityTeam getSecurityTeamByName(PerunSession perunSession, String name) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * get all security admins of given security team
@@ -128,7 +128,7 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws SecurityTeamNotExistsException
 	 */
-	List<User> getAdmins(PerunSession perunSession, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	List<User> getAdmins(PerunSession perunSession, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * Gets list of all group administrators of the SecurityTeam.
@@ -139,7 +139,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * create security admin from given user and add him as security admin of given security team
@@ -153,7 +153,7 @@ public interface SecurityTeamsManager {
 	 * @throws UserNotExistsException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException;
+	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException;
 
 	/**
 	 * Create group as security admins group of given security team (all users in group will have security admin rights)
@@ -167,7 +167,7 @@ public interface SecurityTeamsManager {
 	 * @throws GroupNotExistsException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException;
+	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException;
 
 	/**
 	 * Remove security admin role for given security team from user
@@ -181,7 +181,7 @@ public interface SecurityTeamsManager {
 	 * @throws UserNotExistsException
 	 * @throws UserNotAdminException
 	 */
-	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException;
+	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException;
 
 	/**
 	 * Remove security admin role for given security team from group
@@ -195,7 +195,7 @@ public interface SecurityTeamsManager {
 	 * @throws GroupNotExistsException
 	 * @throws GroupNotAdminException
 	 */
-	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException;
+	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException;
 
 	/**
 	 * Add User to black list of security team to filter him out.
@@ -212,7 +212,7 @@ public interface SecurityTeamsManager {
 	 * @throws UserNotExistsException
 	 * @throws UserAlreadyBlacklistedException
 	 */
-	void addUserToBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user, String description) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyBlacklistedException;
+	void addUserToBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user, String description) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyBlacklistedException;
 
 	/**
 	 * remove user from blacklist of given security team
@@ -223,7 +223,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 */
-	void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyRemovedException;
+	void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyRemovedException;
 
 	/**
 	 * get list of blacklisted users by security team
@@ -235,7 +235,7 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws SecurityTeamNotExistsException
 	 */
-	List<User> getBlacklist(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	List<User> getBlacklist(PerunSession perunSession, SecurityTeam securityTeam) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * get union of blacklists of all security teams assigned to facility
@@ -247,7 +247,7 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws FacilityNotExistsException
 	 */
-	List<User> getBlacklist(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+	List<User> getBlacklist(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * get list of blacklisted users by security team containing also description
@@ -259,7 +259,7 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws SecurityTeamNotExistsException
 	 */
-	List<Pair<User,String>> getBlacklistWithDescription(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	List<Pair<User,String>> getBlacklistWithDescription(PerunSession perunSession, SecurityTeam securityTeam) throws PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * get union of blacklists of all security teams assigned to facility containing also description
@@ -271,5 +271,5 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws FacilityNotExistsException
 	 */
-	List<Pair<User,String>> getBlacklistWithDescription(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+	List<Pair<User,String>> getBlacklistWithDescription(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 }

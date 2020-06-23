@@ -28,7 +28,7 @@ public class urn_perun_user_attribute_def_virt_openNebulaSSHAdminKeys extends Us
 	private static final String A_U_sshPublicAdminKey = AttributesManager.NS_USER_ATTR_DEF + ":sshPublicAdminKey";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		List<String> userNebulaSSHAdminKeys = new ArrayList<>();
 

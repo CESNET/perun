@@ -26,7 +26,7 @@ public class RemoveFacilityOwner extends PerunCommand {
 	}
 
 	@Override
-	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
+	public void executeCommand(PerunCLI.CommandContext ctx) {
 		int facilityId = this.getFacilityId(ctx, true);
 		int ownerId = Integer.parseInt(ctx.getCommandLine().getOptionValue("o"));
 		ctx.getPerunRPC().getFacilitiesManager().removeFacilityOwner(facilityId, ownerId);

@@ -27,7 +27,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9']+$");
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//prepare groupName value variable
 		String groupName = null;
 		if(attribute.getValue() != null) groupName = attribute.valueAsString();
@@ -44,7 +44,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		// null value is ok
 		if (attribute.getValue() == null) return;
 

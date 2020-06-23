@@ -44,7 +44,7 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 	private Task task2;
 
 	@Before
-	public void setup() throws InternalErrorException, TaskStoreException {
+	public void setup() throws TaskStoreException {
 		task1 = new Task();
 		task1.setId(1);
 		task1.setService(service1);
@@ -63,7 +63,7 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 
 	@IfProfileValue(name = "perun.test.groups", values = ("unit-tests"))
 	@Test
-	public void addToPoolTest() throws InternalErrorException, TaskStoreException {
+	public void addToPoolTest() throws TaskStoreException {
 		System.out.println("SchedulingPool.addTask()");
 
 		Assert.isTrue(schedulingPool.getSize() == 1, "original size is 1");

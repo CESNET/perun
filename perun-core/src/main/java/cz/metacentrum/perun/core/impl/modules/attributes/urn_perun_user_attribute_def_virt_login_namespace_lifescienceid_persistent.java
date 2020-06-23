@@ -27,7 +27,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_per
 	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:lifescienceid-persistent-shadow";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Attribute lifescienceidPersistent = new Attribute(attributeDefinition);
 
 		try {

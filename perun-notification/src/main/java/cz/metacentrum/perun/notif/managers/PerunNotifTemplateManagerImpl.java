@@ -169,8 +169,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public List<PerunNotifPoolMessage> getPerunNotifPoolMessagesForRegexIds(Set<Integer> regexIds, PerunNotifAuditMessage perunAuditMessage, PerunSession session)
-		throws InternalErrorException {
+	public List<PerunNotifPoolMessage> getPerunNotifPoolMessagesForRegexIds(Set<Integer> regexIds, PerunNotifAuditMessage perunAuditMessage, PerunSession session) {
 
 		Map<Integer, List<PerunNotifTemplate>> templates = new HashMap<Integer, List<PerunNotifTemplate>>();
 
@@ -324,7 +323,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	 * @param dto
 	 * @return
 	 */
-	private List<PerunNotifMessageDto> createMessageToSend(PerunNotifTemplate template, PoolMessage dto) throws IOException, TemplateException, InternalErrorException {
+	private List<PerunNotifMessageDto> createMessageToSend(PerunNotifTemplate template, PoolMessage dto) throws IOException, TemplateException {
 
 		Map<String, Object> container = new HashMap<String, Object>();
 
@@ -410,7 +409,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		return stringWriter.toString();
 	}
 
-	private void validateTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
+	private void validateTemplateMessage(PerunNotifTemplateMessage message) throws TemplateMessageSyntaxErrorException {
 		String templateName = Integer.toString(message.getTemplateId());
 		Locale locale = message.getLocale();
 
@@ -432,19 +431,19 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplate getPerunNotifTemplateById(int id) throws InternalErrorException {
+	public PerunNotifTemplate getPerunNotifTemplateById(int id) {
 
 		return perunNotifTemplateDao.getPerunNotifTemplateById(id);
 	}
 
 	@Override
-	public PerunNotifTemplate getPerunNotifTemplateByIdFromDb(int id) throws InternalErrorException {
+	public PerunNotifTemplate getPerunNotifTemplateByIdFromDb(int id) {
 
 		return perunNotifTemplateDao.getPerunNotifTemplateById(id);
 	}
 
 	@Override
-	public List<PerunNotifTemplate> getAllPerunNotifTemplates() throws InternalErrorException {
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates() {
 
 		return perunNotifTemplateDao.getAllPerunNotifTemplates();
 	}
@@ -496,7 +495,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate updatePerunNotifTemplateData(PerunNotifTemplate template) {
 
 		return perunNotifTemplateDao.updatePerunNotifTemplateData(template);
 	}
@@ -510,7 +509,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifReceiver getPerunNotifReceiverById(int id) throws InternalErrorException {
+	public PerunNotifReceiver getPerunNotifReceiverById(int id) {
 		return perunNotifTemplateDao.getPerunNotifReceiverById(id);
 	}
 
@@ -520,7 +519,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws NotifReceiverAlreadyExistsException {
 		validateReceiver(receiver);
 
 		if (!(allTemplatesById.containsKey(receiver.getTemplateId()))) {
@@ -538,7 +537,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws NotifReceiverAlreadyExistsException {
 		validateReceiver(receiver);
 
 		if (!(allTemplatesById.containsKey(receiver.getTemplateId()))) {
@@ -579,7 +578,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplate createPerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate createPerunNotifTemplate(PerunNotifTemplate template) {
 
 		// save template internals
 		PerunNotifTemplate newTemplate = perunNotifTemplateDao.savePerunNotifTemplateInternals(template);
@@ -647,7 +646,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplate updatePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate updatePerunNotifTemplate(PerunNotifTemplate template) {
 
 		PerunNotifTemplate oldTemplate = getPerunNotifTemplateById(template.getId());
 		perunNotifTemplateDao.updatePerunNotifTemplateData(template);
@@ -715,7 +714,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public void removePerunNotifReceiverById(int id) throws InternalErrorException {
+	public void removePerunNotifReceiverById(int id) {
 
 		PerunNotifReceiver receiverToRemove = getPerunNotifReceiverById(id);
 		if (receiverToRemove == null) {
@@ -745,7 +744,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws InternalErrorException {
+	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) {
 
 		return perunNotifTemplateDao.getPerunNotifTemplateMessageById(id);
 	}
@@ -756,7 +755,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException {
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException {
 
 		// if there is already template message with the same template id and locale -> throw exception
 		PerunNotifTemplate template = allTemplatesById.get(message.getTemplateId());
@@ -782,7 +781,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws TemplateMessageSyntaxErrorException {
 
 		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
 		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
@@ -827,7 +826,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public void removePerunNotifTemplateMessage(int id) throws InternalErrorException {
+	public void removePerunNotifTemplateMessage(int id) {
 
 		PerunNotifTemplateMessage templateMessage = getPerunNotifTemplateMessageById(id);
 		if (templateMessage == null) {
@@ -876,7 +875,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public void removeTemplateFromRegex(int regexId, int templateId) throws InternalErrorException {
+	public void removeTemplateFromRegex(int regexId, int templateId) {
 		List<PerunNotifTemplate> templates = allTemplatesByRegexId.get(regexId);
 		if (templates == null) {
 			throw new InternalErrorException("The regex id " + regexId + " has no templates in the cache, therefore template id " + templateId + " cannot be removed.");

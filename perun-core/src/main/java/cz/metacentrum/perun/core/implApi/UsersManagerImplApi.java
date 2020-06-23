@@ -47,7 +47,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	User getUserByUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException;
+	User getUserByUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws UserNotExistsException;
 
 	/**
 	 * Get all the users who have given type of the ExtSource and login.
@@ -58,7 +58,7 @@ public interface UsersManagerImplApi {
 	 * @return all users with given parameters
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersByExtSourceTypeAndLogin(PerunSession perunSession, String extSourceType, String login) throws InternalErrorException;
+	List<User> getUsersByExtSourceTypeAndLogin(PerunSession perunSession, String extSourceType, String login);
 
 	/**
 	 * Returns user by its id.
@@ -69,7 +69,7 @@ public interface UsersManagerImplApi {
 	 * @throws UserNotExistsException
 	 * @throws InternalErrorException
 	 */
-	User getUserById(PerunSession perunSession, int id) throws InternalErrorException, UserNotExistsException;
+	User getUserById(PerunSession perunSession, int id) throws UserNotExistsException;
 
 	/**
 	 * Return all specificUsers who are owned by the user and their ownership is not in status disabled
@@ -79,7 +79,7 @@ public interface UsersManagerImplApi {
 	 * @return list of specificUsers who are owned by the user
 	 * @throws InternalErrorException
 	 */
-	List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException;
+	List<User> getSpecificUsersByUser(PerunSession sess, User user);
 
 	/**
 	 * Return all users who owns the specificUser and their ownership is not in status disabled
@@ -89,7 +89,7 @@ public interface UsersManagerImplApi {
 	 * @return list of user who owns the specificUser
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException;
+	List<User> getUsersBySpecificUser(PerunSession sess, User specificUser);
 
 	/**
 	 * Remove specificUser owner (the user)
@@ -101,7 +101,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws SpecificUserOwnerAlreadyRemovedException;
 
 	/**
 	 * Add specificUser owner (the user).
@@ -113,7 +113,7 @@ public interface UsersManagerImplApi {
 	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
 	 */
-	void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException;
+	void addSpecificUserOwner(PerunSession sess, User user, User specificUser);
 
 	/**
 	 * Set ownership for user and specificUser to ENABLE (0).
@@ -123,7 +123,7 @@ public interface UsersManagerImplApi {
 	 * @param specificUser
 	 * @throws InternalErrorException
 	 */
-	void enableOwnership(PerunSession sess, User user, User specificUser) throws InternalErrorException;
+	void enableOwnership(PerunSession sess, User user, User specificUser);
 
 	/**
 	 * Set ownership for user and specificUser to DISABLE (1).
@@ -133,7 +133,7 @@ public interface UsersManagerImplApi {
 	 * @param specificUser
 	 * @throws InternalErrorException
 	 */
-	void disableOwnership(PerunSession sess, User user, User specificUser) throws InternalErrorException;
+	void disableOwnership(PerunSession sess, User user, User specificUser);
 
 	/**
 	 * Return true if ownership between user and specificUser already exists.
@@ -145,7 +145,7 @@ public interface UsersManagerImplApi {
 	 * @return true if ownership exists, false if not
 	 * @throws InternalErrorException
 	 */
-	boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) throws InternalErrorException;
+	boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser);
 
 	/**
 	 * Return all specific Users (only specific users)
@@ -155,7 +155,7 @@ public interface UsersManagerImplApi {
 	 * @return list of all specific users in perun
 	 * @throws InternalErrorException
 	 */
-	List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException;
+	List<User> getSpecificUsers(PerunSession sess);
 
 	/**
 	 * Returns user by VO member.
@@ -165,7 +165,7 @@ public interface UsersManagerImplApi {
 	 * @return user
 	 * @throws InternalErrorException
 	 */
-	User getUserByMember(PerunSession perunSession, Member member) throws InternalErrorException;
+	User getUserByMember(PerunSession perunSession, Member member);
 
 	/**
 	 * Return users which have member in VO.
@@ -175,7 +175,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersByVo(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<User> getUsersByVo(PerunSession sess, Vo vo);
 
 	/**
 	 * Returns all users (included specific users).
@@ -184,7 +184,7 @@ public interface UsersManagerImplApi {
 	 * @return list of all users
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsers(PerunSession sess) throws InternalErrorException;
+	List<User> getUsers(PerunSession sess);
 
 	/**
 	 *  Creates the user, stores it in the DB. This method will fill user.id property.
@@ -194,7 +194,7 @@ public interface UsersManagerImplApi {
 	 * @return user with user.id filled
 	 * @throws InternalErrorException
 	 */
-	User createUser(PerunSession perunSession, User user) throws InternalErrorException;
+	User createUser(PerunSession perunSession, User user);
 
 
 	/**
@@ -206,7 +206,7 @@ public interface UsersManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	User setSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType) throws InternalErrorException;
+	User setSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType);
 
 	/**
 	 * Unset flag for specific user type for the user.
@@ -217,7 +217,7 @@ public interface UsersManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	User unsetSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType) throws InternalErrorException;
+	User unsetSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType);
 
 	/**
 	 *  Deletes user (normal or specific) including all relations to other users (normal,specific,sponsor)
@@ -228,7 +228,7 @@ public interface UsersManagerImplApi {
 	 * @throws UserAlreadyRemovedException  When user is already deleted
 	 * @throws SpecificUserAlreadyRemovedException When specific user is already deleted
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Updates users data in DB.
@@ -238,7 +238,7 @@ public interface UsersManagerImplApi {
 	 * @return updated user
 	 * @throws InternalErrorException
 	 */
-	User updateUser(PerunSession perunSession, User user) throws InternalErrorException;
+	User updateUser(PerunSession perunSession, User user);
 
 	/**
 	 *  Updates titles before/after users name.
@@ -252,7 +252,7 @@ public interface UsersManagerImplApi {
 	 * @return updated user with new titles before/after name
 	 * @throws InternalErrorException
 	 */
-	User updateNameTitles(PerunSession perunSession, User user) throws InternalErrorException;
+	User updateNameTitles(PerunSession perunSession, User user);
 
 	/**
 	 *  Updates user;s userExtSource in DB.
@@ -263,7 +263,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserExtSourceExistsException When UES with same login/extSource already exists.
 	 */
-	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException;
+	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws UserExtSourceExistsException;
 
 	/**
 	 *  Updates user's userExtSource last access time in DB.
@@ -273,7 +273,7 @@ public interface UsersManagerImplApi {
 	 * @return updated userExtSource
 	 * @throws InternalErrorException
 	 */
-	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
+	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource);
 
 	/**
 	 * Gets list of all users external sources by specific type and extLogin.
@@ -286,7 +286,7 @@ public interface UsersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin) throws InternalErrorException;
+	List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin);
 
 	/**
 	 * Get all users userExtSources with last_access not older than (now - m),
@@ -298,7 +298,7 @@ public interface UsersManagerImplApi {
 	 * @return list of active user extSources (not older than now - m)
 	 * @throws InternalErrorException
 	 */
-	List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) throws InternalErrorException;
+	List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user);
 
 	/**
 	 * Get the user ext source by its id.
@@ -309,7 +309,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserExtSourceNotExistsException
 	 */
-	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException;
+	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws UserExtSourceNotExistsException;
 
 	/**
 	 * Return userExtSource for specific attribute id and unique value.
@@ -330,7 +330,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException if Runtime exception has been thrown
 	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
 	 */
-	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws InternalErrorException, UserExtSourceNotExistsException;
+	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws UserExtSourceNotExistsException;
 
 	/**
 	 * Get List of user ext sources by user
@@ -340,7 +340,7 @@ public interface UsersManagerImplApi {
 	 * @return List of user's UserExtSources
 	 * @throws InternalErrorException
 	 */
-	List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException;
+	List<UserExtSource> getUserExtSources(PerunSession sess, User user);
 
 	/**
 	 * Adds user's external sources.
@@ -351,7 +351,7 @@ public interface UsersManagerImplApi {
 	 * @return	user external source with userExtSource.id filled
 	 * @throws InternalErrorException
 	 */
-	UserExtSource addUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws InternalErrorException;
+	UserExtSource addUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource);
 
 	/**
 	 * Removes user's external sources.
@@ -362,7 +362,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceAlreadyRemovedException;
+	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws UserExtSourceAlreadyRemovedException;
 
 	/**
 	 *  Removes all user's external sources.
@@ -371,7 +371,7 @@ public interface UsersManagerImplApi {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void removeAllUserExtSources(PerunSession perunSession, User user) throws InternalErrorException;
+	void removeAllUserExtSources(PerunSession perunSession, User user);
 
 	/**
 	 * Gets user's external source by the user's external login and external source.
@@ -383,7 +383,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserExtSourceNotExistsException
 	 */
-	UserExtSource getUserExtSourceByExtLogin(PerunSession perunSession, ExtSource source, String extLogin) throws InternalErrorException, UserExtSourceNotExistsException;
+	UserExtSource getUserExtSourceByExtLogin(PerunSession perunSession, ExtSource source, String extLogin) throws UserExtSourceNotExistsException;
 
 	/**
 	 * Return true if login in specified namespace is already reserved, false if not.
@@ -394,7 +394,7 @@ public interface UsersManagerImplApi {
 	 * @return true if login exist, false if not exist
 	 * @throws InternalErrorException
 	 */
-	boolean isLoginReserved(PerunSession sess, String namespace, String login) throws InternalErrorException;
+	boolean isLoginReserved(PerunSession sess, String namespace, String login);
 
 	/**
 	 * Check if login in specified namespace exists.
@@ -405,7 +405,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyReservedLoginException throw this exception if login already exist in table of reserved logins
 	 */
-	void checkReservedLogins(PerunSession sess, String namespace, String login) throws InternalErrorException, AlreadyReservedLoginException;
+	void checkReservedLogins(PerunSession sess, String namespace, String login) throws AlreadyReservedLoginException;
 
 	/**
 	 * Check if user exists in underlaying data source.
@@ -415,7 +415,7 @@ public interface UsersManagerImplApi {
 	 * @return true if user exists in underlaying data source, false otherwise
 	 * @throws InternalErrorException
 	 */
-	boolean userExists(PerunSession perunSession, User user) throws InternalErrorException;
+	boolean userExists(PerunSession perunSession, User user);
 
 	/**
 	 * Check if user exists in underlaying data source.
@@ -425,7 +425,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	void checkUserExists(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException;
+	void checkUserExists(PerunSession perunSession, User user) throws UserNotExistsException;
 
 	/**
 	 * Check if userExtSource exists in underlaying data source.
@@ -435,7 +435,7 @@ public interface UsersManagerImplApi {
 	 * @return true if userExtSource exists in underlaying data source, false otherwise
 	 * @throws InternalErrorException
 	 */
-	boolean userExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
+	boolean userExtSourceExists(PerunSession perunSession, UserExtSource userExtSource);
 
 	/**
 	 * Check if userExtSource exists in underlaying data source by identity (login/extSource combination)
@@ -445,7 +445,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserExtSourceNotExistsException
 	 */
-	void checkUserExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException;
+	void checkUserExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws UserExtSourceNotExistsException;
 
 	/**
 	 * Check if userExtSource exists in underlaying data source by its ID.
@@ -455,7 +455,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserExtSourceNotExistsException
 	 */
-	void checkUserExtSourceExistsById(PerunSession perunSession, int id) throws InternalErrorException, UserExtSourceNotExistsException;
+	void checkUserExtSourceExistsById(PerunSession perunSession, int id) throws UserExtSourceNotExistsException;
 
 	/**
 	 * Returns list of VOs, where the user is an Administrator.
@@ -466,7 +466,7 @@ public interface UsersManagerImplApi {
 	 * @return list of VOs, where the user is an Administrator.
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosWhereUserIsAdmin(PerunSession perunSession, User user) throws InternalErrorException;
+	List<Vo> getVosWhereUserIsAdmin(PerunSession perunSession, User user);
 
 	/**
 	 * Returns list of Groups in Perun, where the User is a direct Administrator
@@ -479,7 +479,7 @@ public interface UsersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsWhereUserIsAdmin(PerunSession perunSession, User user) throws InternalErrorException;
+	List<Group> getGroupsWhereUserIsAdmin(PerunSession perunSession, User user);
 
 	/**
 	 * Returns list of Groups in selected Vo, where the User is a direct Administrator
@@ -493,7 +493,7 @@ public interface UsersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException;
+	List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user);
 
 	/**
 	 * Returns list of Vos' ids, where the user is member.
@@ -503,7 +503,7 @@ public interface UsersManagerImplApi {
 	 * @return list of Vos, where the user is member
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosWhereUserIsMember(PerunSession sess, User user) throws InternalErrorException;
+	List<Vo> getVosWhereUserIsMember(PerunSession sess, User user);
 
 	/**
 	 * Returns list of users who matches the searchString, searching name, email and logins.
@@ -513,7 +513,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException;
+	List<User> findUsers(PerunSession sess, String searchString);
 
 	/**
 	 * Returns list of users who matches the searchString, searching name, email and logins.
@@ -523,7 +523,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException;
+	List<User> findUsersByExactMatch(PerunSession sess, String searchString);
 
 	/**
 	 * Returns list of users who matches the searchString
@@ -533,7 +533,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException;
+	List<User> findUsersByName(PerunSession sess, String searchString);
 
 	/**
 	 * Returns list of users who matches the fields.
@@ -547,7 +547,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException;
+	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter);
 
         /**
 	 * Returns list of users who exactly matches the searchString
@@ -557,7 +557,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException;
+	List<User> findUsersByExactName(PerunSession sess, String searchString);
 
 	/**
 	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.
@@ -567,7 +567,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException;
+	List<User> getUsersByAttribute(PerunSession sess, Attribute attribute);
 
 	/**
 	 * Returns all users who have the attribute with the value. attributeValue is not converted to the attribute type, it is always type of String.
@@ -578,7 +578,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefintion, String attributeValue) throws InternalErrorException;
+	List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefintion, String attributeValue);
 
 	/**
 	 * Batch method which returns users by theirs ids.
@@ -588,7 +588,7 @@ public interface UsersManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException;
+	List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds);
 
 	/**
 	 * Returns all users who are not member of any VO.
@@ -597,7 +597,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users who are not member of any VO
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException;
+	List<User> getUsersWithoutVoAssigned(PerunSession sess);
 
 	/**
 	 * Returns true if the user is PERUNADMIN.
@@ -607,7 +607,7 @@ public interface UsersManagerImplApi {
 	 * @return true if the user is PERUNADMIN, false otherwise.
 	 * @throws InternalErrorException
 	 */
-	boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException;
+	boolean isUserPerunAdmin(PerunSession sess, User user);
 
 	/**
 	 * Removes all authorships of user when user is deleted from DB
@@ -617,7 +617,7 @@ public interface UsersManagerImplApi {
 	 * @param user
 	 * @throws InternalErrorException thrown when runtime exception
 	 */
-	void removeAllAuthorships(PerunSession sess, User user) throws InternalErrorException;
+	void removeAllAuthorships(PerunSession sess, User user);
 
 	/**
 	 * Return list of all reserved logins for specific user
@@ -627,7 +627,7 @@ public interface UsersManagerImplApi {
 	 * @return list of pairs namespace and login
 	 * @throws InternalErrorException
 	 */
-	List<Pair<String, String>> getUsersReservedLogins(User user) throws InternalErrorException;
+	List<Pair<String, String>> getUsersReservedLogins(User user);
 
 	/**
 	 * Delete all reserved logins for specific user
@@ -636,7 +636,7 @@ public interface UsersManagerImplApi {
 	 * @param user for which get delete reserved logins
 	 * @throws InternalErrorException
 	 */
-	void deleteUsersReservedLogins(User user) throws InternalErrorException;
+	void deleteUsersReservedLogins(User user);
 
 	/**
 	 * Store request of change of user's preferred email address.
@@ -650,7 +650,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return ID of change request
 	 */
-	int requestPreferredEmailChange(PerunSession sess, User user, String email) throws InternalErrorException;
+	int requestPreferredEmailChange(PerunSession sess, User user, String email);
 
 	/**
 	 * Get new preferred email value from user's original request
@@ -662,7 +662,7 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return String return new preferred email
 	 */
-	String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m) throws InternalErrorException;
+	String getPreferredEmailChangeRequest(PerunSession sess, User user, String i, String m);
 
 	/**
 	 * Removes all mail change requests related to user.
@@ -672,7 +672,7 @@ public interface UsersManagerImplApi {
 	 *
 	 * @throws InternalErrorException if any exception in DB occur
 	 */
-	void removeAllPreferredEmailChangeRequests(PerunSession sess, User user) throws InternalErrorException;
+	void removeAllPreferredEmailChangeRequests(PerunSession sess, User user);
 
 	/**
 	 * Return list of email addresses of user, which are
@@ -710,7 +710,7 @@ public interface UsersManagerImplApi {
 	 * @param user User to remove all pwdreset requests
 	 * @throws InternalErrorException
 	 */
-	void removeAllPasswordResetRequests(PerunSession sess, User user) throws InternalErrorException;
+	void removeAllPasswordResetRequests(PerunSession sess, User user);
 
 	/**
 	 * Get count of all users.
@@ -721,7 +721,7 @@ public interface UsersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
+	int getUsersCount(PerunSession perunSession);
 
 	/**
 	 * Return instance of PasswordManagerModule for specified namespace or NULL if class for module is not found.
@@ -732,7 +732,7 @@ public interface UsersManagerImplApi {
 	 * @return Instance of password manager module or NULL if not exists for passed namespace.
 	 * @throws InternalErrorException When module can't be instantiated.
 	 */
-	PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
+	PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace);
 
 	/**
 	 * Gets list of user that sponsored a member.
@@ -741,7 +741,7 @@ public interface UsersManagerImplApi {
 	 * @return list of users that sponsored a member.
 	 * @throws InternalErrorException
 	 */
-	List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException;
+	List<User> getSponsors(PerunSession sess, Member sponsoredMember);
 
 	/**
 	 * Deletes all links to sponsors, even those marked as inactive.
@@ -749,12 +749,12 @@ public interface UsersManagerImplApi {
 	 * @param sponsor sponsor
 	 * @throws InternalErrorException
 	 */
-	void deleteSponsorLinks(PerunSession sess, User sponsor) throws InternalErrorException;
+	void deleteSponsorLinks(PerunSession sess, User sponsor);
 
 	/**
 	 * Implements search for #UsersManagerBl.findUsersWithExtSourceAttributeValueEnding().
 	 */
-	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws InternalErrorException;
+	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds);
 
 	/**
 	 * Return all resources, where user is assigned through all his members.

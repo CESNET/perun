@@ -26,7 +26,7 @@ public interface ExtSourceApi extends ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	List<Map<String, String>> findSubjects(String searchString) throws ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Finds all subjects with attributes in the external source, that contains searchString limited by the maxResults
@@ -39,5 +39,5 @@ public interface ExtSourceApi extends ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	List<Map<String, String>> findSubjects(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException;
 }

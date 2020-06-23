@@ -33,7 +33,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return list of security teams by access rights
 	 * @throws InternalErrorException
 	 */
-	List<SecurityTeam> getSecurityTeams(PerunSession sess) throws InternalErrorException;
+	List<SecurityTeam> getSecurityTeams(PerunSession sess);
 
 	/**
 	 * get all security teams in perun system
@@ -42,7 +42,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return list of all security teams
 	 * @throws InternalErrorException
 	 */
-	List<SecurityTeam> getAllSecurityTeams(PerunSession sess) throws InternalErrorException;
+	List<SecurityTeam> getAllSecurityTeams(PerunSession sess);
 
 	/**
 	 * Create security team
@@ -52,7 +52,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return Newly created Security team with new id
 	 * @throws InternalErrorException
 	 */
-	SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam);
 
 	/**
 	 * Update security team
@@ -63,7 +63,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
 	 */
-	SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException;
+	SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException;
 
 	/**
 	 * Delete security team
@@ -75,7 +75,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws SecurityTeamNotExistsException
 	 * @throws RelationExistsException if forceDelete == FALSE and team is assigned to any facility or has blacklisted users.
 	 */
-	void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws InternalErrorException, SecurityTeamNotExistsException, RelationExistsException;
+	void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws SecurityTeamNotExistsException, RelationExistsException;
 
 	/**
 	 * get security team by its id
@@ -86,7 +86,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
 	 */
-	SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws InternalErrorException, SecurityTeamNotExistsException;
+	SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws SecurityTeamNotExistsException;
 
 	/**
 	 * get security team by its name
@@ -97,7 +97,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
 	 */
-	SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws InternalErrorException, SecurityTeamNotExistsException;
+	SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws SecurityTeamNotExistsException;
 
 	/**
 	 * get all security admins of given security team
@@ -107,7 +107,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return list of users which are security admins in security team
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins);
 
 	/**
 	 * Gets list of all group administrators of the SecurityTeam.
@@ -117,7 +117,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return list of Groups that are admins in the security team
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam);
 
 	/**
 	 * Blacklist user by given security team with description.
@@ -130,7 +130,7 @@ public interface SecurityTeamsManagerBl {
 	 * @param description
 	 * @throws InternalErrorException
 	 */
-	void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException;
+	void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description);
 
 	/**
 	 * remove user from blacklist of given security team
@@ -140,7 +140,7 @@ public interface SecurityTeamsManagerBl {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException;
+	void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user);
 
 	/**
 	 * Remove user from all blacklists
@@ -149,7 +149,7 @@ public interface SecurityTeamsManagerBl {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException;
+	void removeUserFromAllBlacklists(PerunSession sess, User user);
 
 	/**
 	 * get blacklist of security team
@@ -159,7 +159,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return list of blacklisted users by security team
 	 * @throws InternalErrorException
 	 */
-	List<User> getBlacklist(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	List<User> getBlacklist(PerunSession sess, SecurityTeam securityTeam);
 
 	/**
 	 * get union of blacklists of all security teams assigned to facility
@@ -169,7 +169,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return list of blacklisted users for facility
 	 * @throws InternalErrorException
 	 */
-	List<User> getBlacklist(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<User> getBlacklist(PerunSession sess, Facility facility);
 
 	/**
 	 * get blacklist of security team containing also description
@@ -179,7 +179,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return List of pairs of blacklisted users by security team
 	 * @throws InternalErrorException
 	 */
-	List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam);
 
 	/**
 	 * get union of blacklists of all security teams assigned to facility containing also description
@@ -189,7 +189,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return List of pairs of blacklisted users for facility
 	 * @throws InternalErrorException
 	 */
-	List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, Facility facility);
 
 	/**
 	 * check if security team exists
@@ -200,7 +200,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws SecurityTeamNotExistsException
 	 * @throws InternalErrorException
 	 */
-	void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException, InternalErrorException;
+	void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException;
 
 	/**
 	 * check if security team does <b>not</b> exist
@@ -211,7 +211,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws SecurityTeamExistsException
 	 * @throws InternalErrorException
 	 */
-	void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException, InternalErrorException;
+	void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException;
 
 	/**
 	 * check if name is unique
@@ -221,7 +221,7 @@ public interface SecurityTeamsManagerBl {
 	 * @param securityTeam
 	 * @throws InternalErrorException
 	 */
-	void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException;
+	void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException;
 
 	/**
 	 * check if user is not security admin of given security team
@@ -233,7 +233,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws AlreadyAdminException
 	 * @throws InternalErrorException
 	 */
-	void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException;
+	void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException;
 
 	/**
 	 * check if user is security admin of given security team
@@ -245,7 +245,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws UserNotAdminException
 	 * @throws InternalErrorException
 	 */
-	void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException;
+	void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException;
 
 	/**
 	 * check if group is not security admin of given security team
@@ -258,7 +258,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws AlreadyAdminException
 	 * @throws InternalErrorException
 	 */
-	void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException, InternalErrorException;
+	void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException;
 
 	/**
 	 * check if group is security admin of given security team
@@ -270,7 +270,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws GroupNotAdminException
 	 * @throws InternalErrorException
 	 */
-	void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException, InternalErrorException;
+	void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException;
 
 	/**
 	 * check if user is not blacklisted by given security team
@@ -282,7 +282,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws UserAlreadyBlacklistedException
 	 * @throws InternalErrorException
 	 */
-	void checkUserIsNotInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyBlacklistedException, InternalErrorException;
+	void checkUserIsNotInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyBlacklistedException;
 
 	/**
 	 * check if user is blacklisted by given security team
@@ -294,7 +294,7 @@ public interface SecurityTeamsManagerBl {
 	 * @throws UserAlreadyRemovedException
 	 * @throws InternalErrorException
 	 */
-	void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyRemovedException, InternalErrorException;
+	void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyRemovedException;
 
 	/**
 	 * control if user is blacklisted by given security team
@@ -305,7 +305,7 @@ public interface SecurityTeamsManagerBl {
 	 * @return true if given user is blacklisted
 	 * @throws InternalErrorException
 	 */
-	boolean isUserBlacklisted(PerunSession sess, SecurityTeam st, User user) throws InternalErrorException;
+	boolean isUserBlacklisted(PerunSession sess, SecurityTeam st, User user);
 
 	/**
 	 * Check if user is blacklisted by any security team
@@ -315,6 +315,6 @@ public interface SecurityTeamsManagerBl {
 	 * @return true if given user is blacklisted by any security team
 	 * @throws InternalErrorException
 	 */
-	boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException;
+	boolean isUserBlacklisted(PerunSession sess, User user);
 
 }

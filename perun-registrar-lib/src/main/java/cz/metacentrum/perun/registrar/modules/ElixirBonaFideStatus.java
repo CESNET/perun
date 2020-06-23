@@ -50,7 +50,7 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 	 * Add new bonaFideStatus to the user attribute.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws GroupNotExistsException, WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException, PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public Application approveApplication(PerunSession session, Application app) throws GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		User user = app.getUser();
 		Group group = app.getGroup();
 
@@ -75,7 +75,7 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, InternalErrorException {
+	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException {
 		Group group = app.getGroup();
 		if (group == null) {
 			throw new CantBeApprovedException("This module can be set only for registration to Group.");

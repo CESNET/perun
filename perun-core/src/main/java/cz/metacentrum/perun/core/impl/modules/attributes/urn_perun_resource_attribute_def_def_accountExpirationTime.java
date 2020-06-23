@@ -37,7 +37,7 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer accExpTime = attribute.valueAsInteger();
 		if(accExpTime == null) {
 			throw new WrongReferenceAttributeValueException(attribute, null, resource, null, "Attribute value shouldn't be null");

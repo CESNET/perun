@@ -81,12 +81,12 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
+	public List<Map<String,String>> findSubjects(String searchString) {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String,String>> findSubjects(String searchString, int maxResults) {
 		setEnviroment();
 		List<RichUser> richUsers = findRichUsers(searchString);
 		if(maxResults != 0) {
@@ -100,14 +100,14 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+	public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
 		setEnviroment();
 		Map<String,String> subject = covertRichUserToSubject(findRichUser(login));
 		return subject;
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		setEnviroment();
 		// Get the query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -127,7 +127,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	private List<Map<String, String>> convertRichUsersToListOfSubjects(List<RichUser> richUsers) throws InternalErrorException {
+	private List<Map<String, String>> convertRichUsersToListOfSubjects(List<RichUser> richUsers) {
 		List<Map<String, String>> listOfSubjects = new ArrayList<>();
 		for(RichUser ru: richUsers) {
 			listOfSubjects.add(covertRichUserToSubject(ru));
@@ -135,7 +135,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return listOfSubjects;
 	}
 
-	private Map<String, String> covertRichUserToSubject(RichUser richUser) throws InternalErrorException {
+	private Map<String, String> covertRichUserToSubject(RichUser richUser) {
 		Map<String,String> richUserInMap = new HashMap<>();
 		String mapping = getAttributes().get("xmlMapping");
 		String[] mappingArray = mapping.split(",\n");
@@ -186,7 +186,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return richUserInMap;
 	}
 
-	private String lookingForValueInRichUserAttributes(String value, RichUser richUser) throws InternalErrorException {
+	private String lookingForValueInRichUserAttributes(String value, RichUser richUser) {
 		String returnedValue = null;
 		List<Attribute> attributes = richUser.getUserAttributes();
 		for(Attribute attr: attributes) {
@@ -198,7 +198,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return returnedValue;
 	}
 
-	private RichUser findRichUser(String login) throws InternalErrorException, SubjectNotExistsException {
+	private RichUser findRichUser(String login) throws SubjectNotExistsException {
 		Map<String, Object> params = new HashMap<>();
 
 		List<RichUser> richUsers = this.findRichUsers(login);
@@ -219,7 +219,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return richUsers.get(0);
 	}
 
-	private List<RichUser> findRichUsers(String substring) throws InternalErrorException {
+	private List<RichUser> findRichUsers(String substring) {
 
 		String query;
 		try {
@@ -253,7 +253,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return richUsers;
 	}
 
-	private List<RichUser> findRichUsers(Integer groupId) throws InternalErrorException {
+	private List<RichUser> findRichUsers(Integer groupId) {
 		// we don't need to encode query params here, no unsafe char in fixed string
 		String query = "group=" + groupId + "&" + "allowedStatuses[]=" + "VALID";
 
@@ -267,7 +267,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return convertListOfRichMembersToListOfRichUsers(richMembers);
 	}
 
-	private void setEnviroment() throws InternalErrorException {
+	private void setEnviroment() {
 		perunUrl = getAttributes().get("perunUrl");
 		username = getAttributes().get("username");
 		password = getAttributes().get("password");
@@ -332,11 +332,11 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return des;
 	}
 
-	private void processIOException(Throwable e) throws RpcException {
+	private void processIOException(Throwable e) {
 		this.processIOException(null, e);
 	}
 
-	private void processIOException(HttpURLConnection con, Throwable e) throws RpcException {
+	private void processIOException(HttpURLConnection con, Throwable e) {
 		// Process known IOExceptions
 		if (e instanceof ProtocolException) {
 			throw new RpcException(RpcException.Type.COMMUNICATION_ERROR_WITH_PERUN_RPC_SERVER, "Communication problem with Perun server on URL: " + perunUrl, e);
@@ -372,7 +372,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
+	protected Map<String,String> getAttributes() {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

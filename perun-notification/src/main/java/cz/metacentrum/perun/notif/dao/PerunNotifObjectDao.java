@@ -19,7 +19,7 @@ public interface PerunNotifObjectDao {
 	 * @return perunNotifObject with new id set
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject createPerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+	public PerunNotifObject createPerunNotifObject(PerunNotifObject object);
 
 	/**
 	 * Update object in db and returns newly loaded Object from db
@@ -28,7 +28,7 @@ public interface PerunNotifObjectDao {
 	 * @return Newly loaded Object from db
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object) throws InternalErrorException;
+	public PerunNotifObject updatePerunNotifObject(PerunNotifObject object);
 
 	/**
 	 * Removes object from db, also removes relation between object and
@@ -37,7 +37,7 @@ public interface PerunNotifObjectDao {
 	 * @param id
 	 * @throws InternalErrorException
 	 */
-	public void removePerunNotifObjectById(int id) throws InternalErrorException;
+	public void removePerunNotifObjectById(int id);
 
 	/**
 	 * Returns PerunNotifObject with given id from db
@@ -46,7 +46,7 @@ public interface PerunNotifObjectDao {
 	 * @return null or PerunNotifObject with given id
 	 * @throws InternalErrorException
 	 */
-	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException;
+	public PerunNotifObject getPerunNotifObjectById(int id);
 
 	/**
 	 * Returns whether relation between object and regex exists
@@ -56,7 +56,7 @@ public interface PerunNotifObjectDao {
 	 * @return true if relation exists
 	 * @throws InternalErrorException
 	 */
-	public boolean isObjectRelation(int regexId, Integer objectId) throws InternalErrorException;
+	public boolean isObjectRelation(int regexId, Integer objectId);
 
 	/**
 	 * Saves relation between regex and object
@@ -65,7 +65,7 @@ public interface PerunNotifObjectDao {
 	 * @param objectId
 	 * @throws InternalErrorException
 	 */
-	public void saveObjectRelation(int regexId, Integer objectId) throws InternalErrorException;
+	public void saveObjectRelation(int regexId, Integer objectId);
 
 	/**
 	 * Removes relation between object and regex
@@ -74,7 +74,7 @@ public interface PerunNotifObjectDao {
 	 * @param objectId
 	 * @throws InternalErrorException
 	 */
-	public void removePerunNotifObjectRegexRelation(int regexId, int objectId) throws InternalErrorException;
+	public void removePerunNotifObjectRegexRelation(int regexId, int objectId);
 
 	/**
 	 * Gets all PerunNotifObjects from db

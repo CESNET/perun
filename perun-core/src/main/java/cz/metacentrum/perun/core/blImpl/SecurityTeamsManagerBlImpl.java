@@ -50,7 +50,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public List<SecurityTeam> getSecurityTeams(PerunSession sess) throws InternalErrorException {
+	public List<SecurityTeam> getSecurityTeams(PerunSession sess) {
 		if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
 			return getSecurityTeamsManagerImpl().getAllSecurityTeams(sess);
 		} else if (AuthzResolverBlImpl.hasRole(sess.getPerunPrincipal(), Role.SECURITYADMIN)) {
@@ -69,12 +69,12 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) throws InternalErrorException {
+	public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) {
 		return getSecurityTeamsManagerImpl().getAllSecurityTeams(sess);
 	}
 
 	@Override
-	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) {
 		securityTeam = getSecurityTeamsManagerImpl().createSecurityTeam(sess, securityTeam);
 		getPerunBl().getAuditer().log(sess, new SecurityTeamCreated(securityTeam));
 
@@ -92,14 +92,14 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
+	public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException {
 		securityTeam = getSecurityTeamsManagerImpl().updateSecurityTeam(sess, securityTeam);
 		getPerunBl().getAuditer().log(sess, new SecurityTeamUpdated(securityTeam));
 		return securityTeam;
 	}
 
 	@Override
-	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws SecurityTeamNotExistsException, InternalErrorException, RelationExistsException {
+	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws SecurityTeamNotExistsException, RelationExistsException {
 
 		//remove admins of this securityTeam
 		List<Group> adminGroups = getSecurityTeamsManagerImpl().getAdminGroups(sess, securityTeam);
@@ -149,17 +149,17 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws SecurityTeamNotExistsException, InternalErrorException {
+	public SecurityTeam getSecurityTeamById(PerunSession sess, int id) throws SecurityTeamNotExistsException {
 		return getSecurityTeamsManagerImpl().getSecurityTeamById(sess, id);
 	}
 
 	@Override
-	public SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws SecurityTeamNotExistsException, InternalErrorException {
+	public SecurityTeam getSecurityTeamByName(PerunSession sess, String name) throws SecurityTeamNotExistsException {
 		return getSecurityTeamsManagerImpl().getSecurityTeamByName(sess, name);
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException {
+	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) {
 		if(onlyDirectAdmins) {
 			return getSecurityTeamsManagerImpl().getDirectAdmins(sess, securityTeam);
 		} else {
@@ -168,110 +168,110 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) {
 		return getSecurityTeamsManagerImpl().getAdminGroups(sess, securityTeam);
 	}
 
 	@Override
-	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
+	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) {
 		getSecurityTeamsManagerImpl().addUserToBlacklist(sess, securityTeam, user, description);
 		getPerunBl().getAuditer().log(sess, new UserAddedToBlackListOfSecurityTeam(user, securityTeam, description));
 	}
 
 	@Override
-	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
+	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) {
 		getSecurityTeamsManagerImpl().removeUserFromBlacklist(sess, securityTeam, user);
 		getPerunBl().getAuditer().log(sess, new UserRemovedFromBlackListOfSecurityTeam(user, securityTeam));
 	}
 
 	@Override
-	public void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException {
+	public void removeUserFromAllBlacklists(PerunSession sess, User user) {
 		getSecurityTeamsManagerImpl().removeUserFromAllBlacklists(sess, user);
 		getPerunBl().getAuditer().log(sess, new UserRemovedFromBlacklists(user));
 	}
 
 	@Override
-	public List<User> getBlacklist(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public List<User> getBlacklist(PerunSession sess, SecurityTeam securityTeam) {
 		List<SecurityTeam> wrapper = new ArrayList<>();
 		wrapper.add(securityTeam);
 		return getSecurityTeamsManagerImpl().getBlacklist(sess, wrapper);
 	}
 
 	@Override
-	public List<User> getBlacklist(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<User> getBlacklist(PerunSession sess, Facility facility) {
 		List<SecurityTeam> securityTeams = perunBl.getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
 		return getSecurityTeamsManagerImpl().getBlacklist(sess, securityTeams);
 	}
 
 	@Override
-	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam) {
 		List<SecurityTeam> wrapper = new ArrayList<>();
 		wrapper.add(securityTeam);
 		return getSecurityTeamsManagerImpl().getBlacklistWithDescription(sess, wrapper);
 	}
 
 	@Override
-	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, Facility facility) {
 		List<SecurityTeam> securityTeams = perunBl.getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
 		return getSecurityTeamsManagerImpl().getBlacklistWithDescription(sess, securityTeams);
 	}
 
 	@Override
-	public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException, InternalErrorException {
+	public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException {
 		getSecurityTeamsManagerImpl().checkSecurityTeamExists(sess, securityTeam);
 	}
 
 	@Override
-	public void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException, InternalErrorException {
+	public void checkSecurityTeamNotExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException {
 		getSecurityTeamsManagerImpl().checkSecurityTeamNotExists(sess, securityTeam);
 	}
 
 	@Override
-	public void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException {
+	public void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException {
 		getSecurityTeamsManagerImpl().checkSecurityTeamUniqueName(sess, securityTeam);
 	}
 
 	@Override
-	public void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException {
+	public void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException {
 		getSecurityTeamsManagerImpl().checkUserIsNotSecurityAdmin(sess, securityTeam, user);
 	}
 
 	@Override
-	public void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException {
+	public void checkUserIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException {
 		getSecurityTeamsManagerImpl().checkUserIsSecurityAdmin(sess, securityTeam, user);
 	}
 
 	@Override
-	public void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException, InternalErrorException {
+	public void checkGroupIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException {
 		getSecurityTeamsManagerImpl().checkGroupIsNotSecurityAdmin(sess, securityTeam, group);
 	}
 
 	@Override
-	public void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException, InternalErrorException {
+	public void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException {
 		getSecurityTeamsManagerImpl().checkGroupIsSecurityAdmin(sess, securityTeam, group);
 	}
 
 	@Override
-	public void checkUserIsNotInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyBlacklistedException, InternalErrorException {
+	public void checkUserIsNotInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyBlacklistedException {
 		if (isUserBlacklisted(sess, securityTeam, user)) {
 			throw new UserAlreadyBlacklistedException("User "+user+" is already in blacklist of security team "+securityTeam);
 		}
 	}
 
 	@Override
-	public void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyRemovedException, InternalErrorException {
+	public void checkUserIsInBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws UserAlreadyRemovedException {
 		if (!isUserBlacklisted(sess, securityTeam, user)) {
 			throw new UserAlreadyRemovedException("User "+user+" is not in blacklist of security team "+securityTeam);
 		}
 	}
 
 	@Override
-	public boolean isUserBlacklisted(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
+	public boolean isUserBlacklisted(PerunSession sess, SecurityTeam securityTeam, User user) {
 		return getSecurityTeamsManagerImpl().isUserBlacklisted(sess, securityTeam, user);
 	}
 
 	@Override
-	public boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException {
+	public boolean isUserBlacklisted(PerunSession sess, User user) {
 		return getSecurityTeamsManagerImpl().isUserBlacklisted(sess, user);
 	}
 

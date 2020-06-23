@@ -57,7 +57,7 @@ public class LdapcManagerImpl implements LdapcManager {
 		System.out.println("Event processor thread interrupted.");
 	}
 
-	public void synchronize() throws InternalErrorException {
+	public void synchronize() {
 		try {
 			voSynchronizer.synchronizeVOs();
 			facilitySynchronizer.synchronizeFacilities();
@@ -74,7 +74,7 @@ public class LdapcManagerImpl implements LdapcManager {
 		}
 	}
 
-	public void synchronizeReplica() throws InternalErrorException {
+	public void synchronizeReplica() {
 		// let original method to do the work under our transaction settings
 		synchronize();
 	}
@@ -87,7 +87,7 @@ public class LdapcManagerImpl implements LdapcManager {
 		this.perunBl = perunBl;
 	}
 
-	public PerunSession getPerunSession() throws InternalErrorException {
+	public PerunSession getPerunSession() {
 		if (perunSession == null) {
 			this.perunSession = perunBl.getPerunSession(perunPrincipal, new PerunClient());
 		}

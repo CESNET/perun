@@ -22,7 +22,7 @@ import java.util.List;
 public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Vo vo = sess.getPerunBl().getResourcesManagerBl().getVo(sess, resource);
@@ -33,12 +33,12 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) {
 		throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) {
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attribute);
 	}
 

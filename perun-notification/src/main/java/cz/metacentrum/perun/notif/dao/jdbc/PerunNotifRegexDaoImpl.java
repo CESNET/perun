@@ -47,7 +47,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public PerunNotifRegex saveInternals(PerunNotifRegex regex) throws InternalErrorException {
+	public PerunNotifRegex saveInternals(PerunNotifRegex regex) {
 
 		logger.debug("Saving regex internals to db: {}", regex);
 		int newPerunNotifRegexId = Utils.getNewId(this.getJdbcTemplate(), "pn_regex_id_seq");
@@ -60,7 +60,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public PerunNotifRegex getPerunNotifRegexById(int id) throws InternalErrorException {
+	public PerunNotifRegex getPerunNotifRegexById(int id) {
 
 		logger.debug("Loading regex from db by id: {}", id);
 		PerunNotifRegex regex = null;
@@ -80,7 +80,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public Set<PerunNotifRegex> getPerunNotifRegexForTemplateId(int id) throws InternalErrorException {
+	public Set<PerunNotifRegex> getPerunNotifRegexForTemplateId(int id) {
 
 		logger.debug("Loading regexes for template with id: {}", id);
 		List<PerunNotifRegex> regexes = this.getJdbcTemplate().query("SELECT * from pn_regex regex JOIN pn_template_regex bind ON regex.id=bind.regex_id WHERE bind.template_id = ?", new Object[]{id}, PerunNotifRegex.PERUN_NOTIF_REGEX);
@@ -97,7 +97,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public PerunNotifRegex updatePerunNotifRegexInternals(PerunNotifRegex regex) throws InternalErrorException {
+	public PerunNotifRegex updatePerunNotifRegexInternals(PerunNotifRegex regex) {
 
 		logger.debug("Updating regex internals in db: {}", regex);
 		this.getJdbcTemplate().update("update pn_regex set note = ?, regex = ? where id = ?", regex.getNote(), regex.getRegex(), regex.getId());
@@ -106,7 +106,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public void removePerunNotifRegexById(int id) throws InternalErrorException {
+	public void removePerunNotifRegexById(int id) {
 
 		logger.debug("Removing relation between object and regex for regexId: {}", id);
 		this.getJdbcTemplate().update("delete from pn_regex_object where regex_id = ?", id);
@@ -116,7 +116,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public List<Integer> getTemplateIdsForRegexId(int id) throws InternalErrorException {
+	public List<Integer> getTemplateIdsForRegexId(int id) {
 
 		logger.debug("Loading templateIds for regexId: {}", id);
 		return this.getJdbcTemplate().query("select template_id from pn_template_regex where regex_id = ?", new Object[]{id}, new RowMapper<Integer>() {
@@ -138,7 +138,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) {
 
 		logger.debug("Saving relation between template: {} and regex: {}", Arrays.asList(templateId, regexId));
 		int newId = Utils.getNewId(this.getJdbcTemplate(), "pn_template_regex_seq");
@@ -148,7 +148,7 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) throws InternalErrorException {
+	public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) {
 
 		logger.debug("Removing relation between template: {} and regex: {}", Arrays.asList(templateId, regexId));
 		this.getJdbcTemplate().update("delete from pn_template_regex where template_id = ? and regex_id = ? ", templateId, regexId);

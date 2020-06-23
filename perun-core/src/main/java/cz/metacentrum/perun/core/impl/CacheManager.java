@@ -225,7 +225,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @return list of namespaces
 	 * @throws InternalErrorException
 	 */
-	private List<String> getNonEmptyAttributesNamespaces(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) throws InternalErrorException {
+	private List<String> getNonEmptyAttributesNamespaces(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) {
 
 		List<String> nonEmptyAttrsNamespaces = new ArrayList<>();
 
@@ -281,7 +281,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @return list of namespaces
 	 * @throws InternalErrorException
 	 */
-	private List<String> getCoreAttributesNamespace(Holder.HolderType primaryHolderType) throws InternalErrorException {
+	private List<String> getCoreAttributesNamespace(Holder.HolderType primaryHolderType) {
 
 		List<String> attrsNamespaces = new ArrayList<>();
 
@@ -315,7 +315,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @return namespace
 	 * @throws InternalErrorException
 	 */
-	private String getVirtualAttributesNamespace(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) throws InternalErrorException {
+	private String getVirtualAttributesNamespace(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) {
 
 		String virtualAttrNamespace;
 
@@ -356,7 +356,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @return list of namespaces
 	 * @throws InternalErrorException
 	 */
-	private List<String> getAttributesByIdsNamespaces(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) throws InternalErrorException {
+	private List<String> getAttributesByIdsNamespaces(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) {
 
 		List<String> attrsNamespaces = new ArrayList<>();
 
@@ -421,7 +421,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAllNonEmptyAttributes(Holder holder) throws InternalErrorException {
+	public List<Attribute> getAllNonEmptyAttributes(Holder holder) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -449,7 +449,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAllNonEmptyAttributes(Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
+	public List<Attribute> getAllNonEmptyAttributes(Holder primaryHolder, Holder secondaryHolder) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -466,7 +466,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAllAttributesByStartPartOfName(String startPartOfName, Holder holder) throws InternalErrorException {
+	public List<Attribute> getAllAttributesByStartPartOfName(String startPartOfName, Holder holder) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		List<String> namespaces = getNonEmptyAttributesNamespaces(holder.getType(), null);
@@ -524,7 +524,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getUserFacilityAttributesForAnyUser(int facilityId) throws InternalErrorException {
+	public List<Attribute> getUserFacilityAttributesForAnyUser(int facilityId) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -541,7 +541,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAllUserFacilityAttributes(User user) throws InternalErrorException {
+	public List<Attribute> getAllUserFacilityAttributes(User user) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -573,7 +573,7 @@ public class CacheManager implements CacheManagerApi {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributesByAttributeDefinition(AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Attribute> getAttributesByAttributeDefinition(AttributeDefinition attributeDefinition) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		String entity = attributeDefinition.getEntity();
@@ -659,7 +659,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -905,7 +905,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAllNonEmptyEntitylessAttributes(String key) throws InternalErrorException {
+	public List<Attribute> getAllNonEmptyEntitylessAttributes(String key) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -922,7 +922,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAllNonEmptyEntitylessAttributesByName(String attrName) throws InternalErrorException {
+	public List<Attribute> getAllNonEmptyEntitylessAttributesByName(String attrName) {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -944,7 +944,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public String getEntitylessAttrValue(int attrId, String key) throws InternalErrorException {
+	public String getEntitylessAttrValue(int attrId, String key) {
 		AttributeIdWithHolders id = new AttributeIdWithHolders(attrId, key);
 
 		if(isInNestedTransaction()) {
@@ -965,7 +965,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @return attribute value or null, if no attribute was found
 	 * @throws InternalErrorException
 	 */
-	private String getEntitylessAttrValueInNestedTransaction(AttributeIdWithHolders attributeIdWithHolders) throws InternalErrorException {
+	private String getEntitylessAttrValueInNestedTransaction(AttributeIdWithHolders attributeIdWithHolders) {
 		List<String> nestedCacheNames = this.getNestedCacheNamesForRead();
 
 		for(String cacheNameForSet: nestedCacheNames) {
@@ -1065,7 +1065,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder) throws InternalErrorException {
+	public List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder) {
 		if(attrIds.isEmpty()) return new ArrayList<>();
 
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
@@ -1087,7 +1087,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
+	public List<Attribute> getAttributesByIds(List<Integer> attrIds, Holder primaryHolder, Holder secondaryHolder) {
 		if(attrIds.isEmpty()) return new ArrayList<>();
 
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
@@ -1165,7 +1165,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void setAttribute(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
+	public void setAttribute(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) {
 		this.setCacheUpdatedInTransaction();
 		this.setAttributeForInit(attribute, primaryHolder, secondaryHolder);
 	}
@@ -1179,7 +1179,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param secondaryHolder secondary holder
 	 * @throws InternalErrorException
 	 */
-	private void setAttributeForInit(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
+	private void setAttributeForInit(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) {
 		AttributeIdWithHolders attrId = new AttributeIdWithHolders(attribute.getId(), primaryHolder, secondaryHolder);
 		AttributeIdWithHolders attrId1 = new AttributeIdWithHolders(attribute.getName(), primaryHolder, secondaryHolder);
 		AttributeHolders attributeHolders = new AttributeHolders(attribute, primaryHolder, secondaryHolder, AttributeHolders.SavedBy.ID);
@@ -1212,7 +1212,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void setAttributeWithExistenceCheck(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
+	public void setAttributeWithExistenceCheck(Attribute attribute, Holder primaryHolder, Holder secondaryHolder) {
 		this.setCacheUpdatedInTransaction();
 
 		AttributeIdWithHolders attrId = new AttributeIdWithHolders(attribute.getId(), primaryHolder, secondaryHolder);
@@ -1256,7 +1256,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void setEntitylessAttribute(Attribute attribute, String key) throws InternalErrorException {
+	public void setEntitylessAttribute(Attribute attribute, String key) {
 		this.setCacheUpdatedInTransaction();
 		this.setEntitylessAttributeForInit(attribute, key);
 	}
@@ -1269,7 +1269,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param key subject of entityless attribute
 	 * @throws InternalErrorException
 	 */
-	private void setEntitylessAttributeForInit(Attribute attribute, String key) throws InternalErrorException {
+	private void setEntitylessAttributeForInit(Attribute attribute, String key) {
 		AttributeIdWithHolders attrId = new AttributeIdWithHolders(attribute.getId(), key);
 		AttributeIdWithHolders attrId1 = new AttributeIdWithHolders(attribute.getName(), key);
 		AttributeHolders attributeHolders = new AttributeHolders(attribute, key, AttributeHolders.SavedBy.ID);
@@ -1279,7 +1279,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void setEntitylessAttributeWithExistenceCheck(Attribute attribute, String key) throws InternalErrorException {
+	public void setEntitylessAttributeWithExistenceCheck(Attribute attribute, String key) {
 		this.setCacheUpdatedInTransaction();
 
 		AttributeIdWithHolders attrId = new AttributeIdWithHolders(attribute.getId(), key);
@@ -1306,7 +1306,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param attributes list of attribute holders to set
 	 * @throws InternalErrorException
 	 */
-	private void setAttributes(List<AttributeHolders> attributes) throws InternalErrorException {
+	private void setAttributes(List<AttributeHolders> attributes) {
 		for(AttributeHolders attr: attributes) {
 			this.setAttributeForInit(attr, attr.getPrimaryHolder(), attr.getSecondaryHolder());
 		}
@@ -1319,7 +1319,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param attributes list of attribute holders to set
 	 * @throws InternalErrorException
 	 */
-	private void setEntitylessAttributes(List<AttributeHolders> attributes) throws InternalErrorException {
+	private void setEntitylessAttributes(List<AttributeHolders> attributes) {
 		for(AttributeHolders attr: attributes) {
 			this.setEntitylessAttributeForInit(attr, attr.getSubject());
 		}
@@ -1363,7 +1363,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void deleteAttribute(int id, PerunSession session, AttributesManagerImplApi attributesManager) throws InternalErrorException {
+	public void deleteAttribute(int id, PerunSession session, AttributesManagerImplApi attributesManager) {
 
 		/* if cache was updated in transaction, we need to reinitialize it
 		It is because there is a possibility that the query by id would not return all attributes that should be deleted and the cache would end up in inconsistent state */
@@ -1672,7 +1672,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void initialize(PerunSession sess, AttributesManagerImplApi attributesManagerImpl) throws InternalErrorException  {
+	public void initialize(PerunSession sess, AttributesManagerImplApi attributesManagerImpl) {
 		Cache<Object, Object> cache = this.getCache(AccessType.SET);
 
 		//clear the cache
@@ -1720,7 +1720,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param primaryHolderType primary holder type
 	 * @throws InternalErrorException
 	 */
-	private void saveAttributesForInit(PerunSession sess, AttributesManagerImplApi attributesManagerImpl, String primaryHolder, Holder.HolderType primaryHolderType) throws InternalErrorException {
+	private void saveAttributesForInit(PerunSession sess, AttributesManagerImplApi attributesManagerImpl, String primaryHolder, Holder.HolderType primaryHolderType) {
 		String tableName = primaryHolder + "_attr_values";
 
 		List<AttributeHolders> attrs = jdbc.query("select " + AttributesManagerImpl.getAttributeMappingSelectQuery(tableName)
@@ -1742,7 +1742,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param secHolderType secondary holder type
 	 * @throws InternalErrorException
 	 */
-	private void saveAttributesForInit(PerunSession sess, AttributesManagerImplApi attrManagerImpl, String primHolder, String secHolder, Holder.HolderType primHolderType, Holder.HolderType secHolderType) throws InternalErrorException {
+	private void saveAttributesForInit(PerunSession sess, AttributesManagerImplApi attrManagerImpl, String primHolder, String secHolder, Holder.HolderType primHolderType, Holder.HolderType secHolderType) {
 		String tableName = primHolder + "_" + secHolder + "_attr_values";
 
 		List<AttributeHolders> attrs = jdbc.query("select " + AttributesManagerImpl.getAttributeMappingSelectQuery(tableName) +

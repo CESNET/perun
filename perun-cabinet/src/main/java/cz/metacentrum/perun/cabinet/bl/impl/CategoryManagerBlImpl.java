@@ -77,14 +77,14 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 	// methods ----------------------
 
 	@Override
-	public Category createCategory(PerunSession sess, Category category) throws CabinetException, InternalErrorException {
+	public Category createCategory(PerunSession sess, Category category) throws CabinetException {
 		Category newCategory = getCategoryManagerDao().createCategory(sess, category);
 		log.debug("{} created.", newCategory);
 		return newCategory;
 	}
 
 	@Override
-	public Category updateCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+	public Category updateCategory(PerunSession sess, Category category) throws CabinetException {
 		// save original category
 		Category cat = getCategoryManagerDao().getCategoryById(category.getId());
 		// update
@@ -111,18 +111,18 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 	}
 
 	@Override
-	public void deleteCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+	public void deleteCategory(PerunSession sess, Category category) throws CabinetException {
 		getCategoryManagerDao().deleteCategory(sess, category);
 		log.debug("{} deleted.", category);
 	}
 
 	@Override
-	public List<Category> getCategories() throws InternalErrorException {
+	public List<Category> getCategories() {
 		return getCategoryManagerDao().getCategories();
 	}
 
 	@Override
-	public Category getCategoryById(int id) throws CabinetException, InternalErrorException {
+	public Category getCategoryById(int id) throws CabinetException {
 		return getCategoryManagerDao().getCategoryById(id);
 	}
 
