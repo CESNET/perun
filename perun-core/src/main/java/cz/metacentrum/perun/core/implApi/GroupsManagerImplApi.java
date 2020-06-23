@@ -49,7 +49,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException if group.name contains ':' or other internal error occured
 	 * @throws GroupExistsException
 	 */
-	Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException, InternalErrorException;
+	Group createGroup(PerunSession perunSession, Vo vo, Group group) throws GroupExistsException;
 
 	/**
 	 * Creates a new subgroup of the existing group. (Stores group to underlaying data source)
@@ -63,7 +63,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException if group.name contains ':' or other internal error occured
 	 * @throws GroupExistsException
 	 */
-	Group createGroup(PerunSession perunSession, Vo vo, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException;
+	Group createGroup(PerunSession perunSession, Vo vo, Group parentGroup, Group group) throws GroupExistsException;
 
 	/**
 	 * Deletes group.
@@ -76,7 +76,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteGroup(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, GroupAlreadyRemovedException;
+	void deleteGroup(PerunSession perunSession, Vo vo, Group group) throws GroupAlreadyRemovedException;
 
 	/**
 	 * Updates group by ID.
@@ -92,7 +92,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupExistsException if group with same name already exists in the same VO
 	 */
-	Group updateGroup(PerunSession perunSession, Group group) throws InternalErrorException, GroupExistsException;
+	Group updateGroup(PerunSession perunSession, Group group) throws GroupExistsException;
 
 	/**
 	 * Updates group by ID.
@@ -110,7 +110,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Group updateGroupName(PerunSession perunSession, Group group) throws InternalErrorException;
+	Group updateGroupName(PerunSession perunSession, Group group);
 
 	/**
 	 * Updates parentGroupId.
@@ -124,7 +124,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Group updateParentGroupId(PerunSession perunSession, Group group) throws InternalErrorException;
+	Group updateParentGroupId(PerunSession perunSession, Group group);
 
 	/**
 	 * Search for the group with specified id in all VOs.
@@ -137,7 +137,7 @@ public interface GroupsManagerImplApi {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Group getGroupById(PerunSession perunSession, int id) throws GroupNotExistsException, InternalErrorException;
+	Group getGroupById(PerunSession perunSession, int id) throws GroupNotExistsException;
 
 	/**
 	 * Search for the group with specified name in specified VO
@@ -153,7 +153,7 @@ public interface GroupsManagerImplApi {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException, InternalErrorException;
+	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException;
 
 
 	/**
@@ -169,7 +169,7 @@ public interface GroupsManagerImplApi {
 	 * @throws AlreadyMemberException
 	 * @return Member with specific MembershipType
 	 */
-	Member addMember(PerunSession perunSession, Group group,  Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException;
+	Member addMember(PerunSession perunSession, Group group,  Member member, MembershipType type, int sourceGroupId) throws AlreadyMemberException;
 
 
 	/**
@@ -182,7 +182,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws NotGroupMemberException
 	 */
-	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException;
+	void removeMember(PerunSession perunSession, Group group, Member member) throws NotGroupMemberException;
 
 	/**
 	 * Return list of assigned groups on the resource.
@@ -194,7 +194,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource);
 
 	/**
 	 * Return list of assigned groups on the resource with specified member.
@@ -207,7 +207,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) throws InternalErrorException;
+	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member);
 
 	/**
 	 * Return list of assigned groups from all facility resources
@@ -219,7 +219,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Return group users sorted by name.
@@ -231,7 +231,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getGroupUsers(PerunSession sess, Group group) throws InternalErrorException;
+	List<User> getGroupUsers(PerunSession sess, Group group);
 
 	/**
 	 * Checks whether the user is member of the group.
@@ -242,7 +242,7 @@ public interface GroupsManagerImplApi {
 	 * @return true if the user is member of the group
 	 * @throws InternalErrorException
 	 */
-	boolean isUserMemberOfGroup(PerunSession sess, User user, Group group) throws InternalErrorException;
+	boolean isUserMemberOfGroup(PerunSession sess, User user, Group group);
 
 	/**
 	 * Return all members groups. Included 'members' group.
@@ -252,7 +252,7 @@ public interface GroupsManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getAllMemberGroups(PerunSession sess, Member member);
 
 	/**
 	 * Returns all member's groups where member is in active state (is valid there)
@@ -263,7 +263,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of groups where member is in active state (valid)
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException;
+	List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member);
 
 	/**
 	 * Return group members.
@@ -275,7 +275,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
+	List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus);
 
 	/**
 	 * Get all group members ignoring theirs status.
@@ -285,7 +285,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<Member> getGroupMembers(PerunSession sess, Group group);
 
 	/**
 	 * Get group members by member ID -> meaning we will get all (DIRECT/INDIRECT)
@@ -297,7 +297,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembersById(PerunSession sess, Group group, int memberId) throws InternalErrorException;
+	List<Member> getGroupMembersById(PerunSession sess, Group group, int memberId);
 
 	/**
 	 * Get only group members which has given membership type ignoring their status.
@@ -308,7 +308,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of direct members
 	 * @throws InternalErrorException internal error
 	 */
-	List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType) throws InternalErrorException;
+	List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType);
 
 	/**
 	 * Get all groups of the VO.
@@ -320,7 +320,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllGroups(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<Group> getAllGroups(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get parent group.
@@ -331,7 +331,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ParentGroupNotExistsException
 	 */
-	Group getParentGroup(PerunSession sess, Group group) throws InternalErrorException, ParentGroupNotExistsException;
+	Group getParentGroup(PerunSession sess, Group group) throws ParentGroupNotExistsException;
 
 	/**
 	 * Get all immediate subgroups of the parent group under the VO.
@@ -342,7 +342,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return list of groups
 	 */
-	List<Group> getSubGroups(PerunSession perunSession, Group parentGroup) throws InternalErrorException;
+	List<Group> getSubGroups(PerunSession perunSession, Group parentGroup);
 
 	/** Gets list of all administrators of this group.
 	 * If some group is administrator of the given group, all members are included in the list.
@@ -354,7 +354,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<User> getAdmins(PerunSession perunSession, Group group);
 
 	/**
 	 * Gets list of direct user administrators of this group.
@@ -367,7 +367,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @return list of direct administrators
 	 */
-	List<User> getDirectAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession perunSession, Group group);
 
 	/** Gets list of all group administrators of this group.
 	 *
@@ -378,7 +378,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Group> getGroupAdmins(PerunSession perunSession, Group group);
 
 	/**
 	 * Check if group exists in underlaying data source.
@@ -390,7 +390,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean groupExists(PerunSession perunSession, Group group) throws InternalErrorException;
+	boolean groupExists(PerunSession perunSession, Group group);
 
 	/**
 	 * Check if group exists in underlaying data source.
@@ -401,7 +401,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	void checkGroupExists(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException;
+	void checkGroupExists(PerunSession perunSession, Group group) throws GroupNotExistsException;
 
 	/**
 	 * Get all groups of users under the VO.
@@ -413,7 +413,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroups(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<Group> getGroups(PerunSession perunSession, Vo vo);
 
 	/**
 	 * @param perunSession
@@ -423,7 +423,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getGroupsCount(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	int getGroupsCount(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get count of all groups.
@@ -434,7 +434,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getGroupsCount(PerunSession perunSession) throws InternalErrorException;
+	int getGroupsCount(PerunSession perunSession);
 
 	/**
 	 * Returns number of immediate subgroups of the parent group.
@@ -446,7 +446,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getSubGroupsCount(PerunSession perunSession, Group parentGroup) throws InternalErrorException;
+	int getSubGroupsCount(PerunSession perunSession, Group parentGroup);
 
 	/**
 	 * Get the id of the VO which is owner of the group.
@@ -458,7 +458,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getVoId(PerunSession perunSession, Group group) throws InternalErrorException;
+	int getVoId(PerunSession perunSession, Group group);
 
 	/**
 	 * Gets all groups which have enabled synchronization.
@@ -467,7 +467,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of groups to synchronize
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsToSynchronize(PerunSession sess) throws InternalErrorException;
+	List<Group> getGroupsToSynchronize(PerunSession sess);
 
 	/**
 	 * Gets all groups which have enabled group structure synchronization.
@@ -476,7 +476,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of groups structures to synchronize
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsStructuresToSynchronize(PerunSession sess) throws InternalErrorException;
+	List<Group> getGroupsStructuresToSynchronize(PerunSession sess);
 
 	/**
 	 * Returns all groups which have set the attribute with the value. Searching only def and opt attributes.
@@ -486,7 +486,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of groups
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException;
+	List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute);
 
 	/**
 	 * Returns all group-resource which have set the attribute with the value. Searching only def and opt attributes.
@@ -496,7 +496,7 @@ public interface GroupsManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Pair<Group, Resource>> getGroupResourcePairsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException;
+	List<Pair<Group, Resource>> getGroupResourcePairsByAttribute(PerunSession sess, Attribute attribute);
 
 	/**
 	 * Return true if Member is member of the Group
@@ -508,7 +508,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
+	boolean isGroupMember(PerunSession sess, Group group, Member member);
 
 
 	/**
@@ -522,7 +522,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean isDirectGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
+	boolean isDirectGroupMember(PerunSession sess, Group group, Member member);
 
 	/**
 	 * Return list of IDs of all applications, which belongs to Group.
@@ -532,7 +532,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of all group applications ids
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException;
+	List<Integer> getGroupApplicationIds(PerunSession sess, Group group);
 
 	/**
 	 * Return list of all reserved logins for specific application
@@ -542,7 +542,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of pairs namespace and login
 	 * @throws InternalErrorException
 	 */
-	List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
+	List<Pair<String, String>> getApplicationReservedLogins(Integer appId);
 
 	/**
 	 * Delete all Group login reservations
@@ -555,7 +555,7 @@ public interface GroupsManagerImplApi {
 	 * @param group Group to delete all login reservations for
 	 * @throws InternalErrorException
 	 */
-	void deleteGroupReservedLogins(PerunSession sess, Group group) throws InternalErrorException;
+	void deleteGroupReservedLogins(PerunSession sess, Group group);
 
 	/**
 	 * Get all groups in specific vo with assigned extSource
@@ -566,7 +566,7 @@ public interface GroupsManagerImplApi {
 	 * @return l
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
+	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo);
 
 	/**
 	 * Removes a union between two groups.
@@ -578,7 +578,7 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupRelationDoesNotExist if the union between the two groups does not exist
 	 */
-	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupRelationDoesNotExist;
+	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws GroupRelationDoesNotExist;
 
 	/**
 	 * Removes all relations of this result group.
@@ -588,7 +588,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	void removeResultGroupRelations(PerunSession sess, Group resultGroup) throws InternalErrorException;
+	void removeResultGroupRelations(PerunSession sess, Group resultGroup);
 
 	/**
 	 * Saves union operation between result group and operand group.
@@ -599,7 +599,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException;
+	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag);
 
 	/**
 	 * Checks if relation between groups exists. It checks both ways.
@@ -611,7 +611,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	boolean isRelationBetweenGroups(Group group1, Group group2) throws InternalErrorException;
+	boolean isRelationBetweenGroups(Group group1, Group group2);
 
 	/**
 	 * Check if the relation between given groups can be deleted.
@@ -622,7 +622,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException;
+	boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup);
 
 	/**
 	 * Checks if relation exists between result group and operand group.
@@ -634,7 +634,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup) throws InternalErrorException;
+	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup);
 
 	/**
 	 * Return all result groups of requested operand group.
@@ -645,7 +645,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	List<Group> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException;
+	List<Group> getResultGroups(PerunSession sess, int groupId);
 
 	/**
 	 * Return all operand groups of requested result group.
@@ -654,7 +654,7 @@ public interface GroupsManagerImplApi {
 	 * @param groupId group id
 	 * @return list of Group objects
 	 */
-	List<Group> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException;
+	List<Group> getOperandGroups(PerunSession sess, int groupId);
 
 	/**
 	 * Return list of all result groups ids of requested operand group.
@@ -664,7 +664,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of group ids
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
+	List<Integer> getResultGroupsIds(PerunSession sess, int groupId);
 
 	/**
 	 * Set status of the member to specified status for indirect relations
@@ -675,7 +675,7 @@ public interface GroupsManagerImplApi {
 	 * @param status status that will be set
 	 * @throws InternalErrorException internal error
 	 */
-	void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
+	void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status);
 
 	/**
 	 * Set direct status of the member to specified status in given group.
@@ -685,7 +685,7 @@ public interface GroupsManagerImplApi {
 	 * @param status status that will be set
 	 * @throws InternalErrorException internal error
 	 */
-	void setDirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
+	void setDirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status);
 
 	/**
 	 * Returns direct members status in given group.
@@ -696,7 +696,7 @@ public interface GroupsManagerImplApi {
 	 * @return status of member in given group, if there is no relation, null is returned
 	 * @throws InternalErrorException internal error
 	 */
-	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group);
 
 	/**
 	 * Returns total member's status in given group.
@@ -708,7 +708,7 @@ public interface GroupsManagerImplApi {
 	 * @return total status of member in given group, if there is no relation, null is returned
 	 * @throws InternalErrorException internal error
 	 */
-	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group);
 
 	/**
 	 * Returns all facilities where given group si FACILITYADMIN.
@@ -718,7 +718,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of all facilities where given group si FACILITYADMIN
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+	List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession session, Group group);
 
 	/**
 	 * Returns all groups where given group si GROUPADMIN.
@@ -728,7 +728,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of all groups where given group is GROUPADMIN
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+	List<Group> getGroupsWhereGroupIsAdmin(PerunSession session, Group group);
 
 	/**
 	 * Returns all resources where given group si RESOURCEADMIN.
@@ -738,7 +738,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of all resources where given group is RESOURCEADMIN
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+	List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group);
 
 	/**
 	 * Returns all resources where given group si RESOURCESELFSERVICE.
@@ -748,7 +748,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of all resources where given group is RESOURCESELFSERVICE
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getResourcesWhereGroupIsResourceSelfService(PerunSession session, Group group) throws InternalErrorException;
+	List<Resource> getResourcesWhereGroupIsResourceSelfService(PerunSession session, Group group);
 
 	/**
 	 * Returns all security teams where given group si SECURITYADMIN.
@@ -758,7 +758,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of all security teams where given group is SECURITYADMIN
 	 * @throws InternalErrorException
 	 */
-	List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+	List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group);
 
 	/**
 	 * Returns all vos where given group si VOADMIN.
@@ -768,5 +768,5 @@ public interface GroupsManagerImplApi {
 	 * @return list of all vos where given group is VOADMIN
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+	List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group);
 }

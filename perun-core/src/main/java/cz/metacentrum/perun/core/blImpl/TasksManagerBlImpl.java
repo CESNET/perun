@@ -47,7 +47,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public int insertNewTaskResult(TaskResult taskResult) throws InternalErrorException {
+	public int insertNewTaskResult(TaskResult taskResult) {
 		return getTasksManagerImpl().insertNewTaskResult(taskResult);
 	}
 
@@ -76,7 +76,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 		return getTasksManagerImpl().getTaskResultsByTaskAndDestination(taskId, destinationId);
 	}
 
-	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) throws InternalErrorException {
+	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) {
 		return getTasksManagerImpl().getTaskResultsForDestinations(destinationsNames);
 	}
 
@@ -206,7 +206,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public FacilityState getFacilityState(PerunSession session, Facility facility) throws FacilityNotExistsException, InternalErrorException {
+	public FacilityState getFacilityState(PerunSession session, Facility facility) throws FacilityNotExistsException {
 		perun.getFacilitiesManagerBl().checkFacilityExists(session, facility);
 
 		// get all tasks
@@ -292,7 +292,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, FacilityNotExistsException {
+	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws FacilityNotExistsException {
 		List<FacilityState> list = new ArrayList<>();
 
 		// return facilities where user is admin or all if perun admin
@@ -305,7 +305,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, VoNotExistsException, FacilityNotExistsException {
+	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws VoNotExistsException, FacilityNotExistsException {
 		perun.getVosManagerBl().checkVoExists(session, vo);
 
 		List<FacilityState> list = new ArrayList<>();
@@ -327,12 +327,12 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 		return getTasksManagerImpl().getTaskResultById(taskResultId);
 	}
 
-	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException {
+	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) {
 		return getTasksManagerImpl().getTaskResultsForDestinations(destinationsNames);
 	}
 
 	@Override
-	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws VoNotExistsException, InternalErrorException {
+	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws VoNotExistsException {
 		perun.getVosManagerBl().checkVoExists(session, vo);
 
 		List<Resource> resources = perun.getResourcesManagerBl().getResources(session, vo);
@@ -354,7 +354,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) {
 
 		Map<Service, ServiceState> serviceStates = new HashMap<>();
 
@@ -396,7 +396,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public void deleteTask(PerunSession sess, Task task) throws InternalErrorException {
+	public void deleteTask(PerunSession sess, Task task) {
 
 		Facility facility = task.getFacility();
 		Service service = task.getService();

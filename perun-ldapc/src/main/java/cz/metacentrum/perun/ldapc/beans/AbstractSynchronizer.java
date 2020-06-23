@@ -17,7 +17,7 @@ public abstract class AbstractSynchronizer {
 	@Autowired
 	protected LdapcManager ldapcManager;
 
-	protected List<String> fillPerunAttributeNames(List<String> attrNames) throws InternalErrorException {
+	protected List<String> fillPerunAttributeNames(List<String> attrNames) {
 		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
 		List<String> result = new ArrayList<String>();
 		for (String name : attrNames) {
@@ -30,7 +30,7 @@ public abstract class AbstractSynchronizer {
 		return result;
 	}
 
-	protected void removeOldEntries(PerunEntry<?> perunEntry, Set<Name> presentEntries, Logger log) throws InternalErrorException {
+	protected void removeOldEntries(PerunEntry<?> perunEntry, Set<Name> presentEntries, Logger log) {
 		List<Name> ldapEntries = perunEntry.listEntries();
 		log.debug("Checking for old entries: {} present, {} active", ldapEntries.size(), presentEntries.size());
 		for (Name name : ldapEntries) {

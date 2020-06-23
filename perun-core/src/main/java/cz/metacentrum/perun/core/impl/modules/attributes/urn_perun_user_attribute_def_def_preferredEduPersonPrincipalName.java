@@ -24,7 +24,7 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 	private static final String A_U_eduPersonPrincipalNames = AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames";
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		String value = null;
 		try {
@@ -48,7 +48,7 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		String value = attribute.valueAsString();
 		try {

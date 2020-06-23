@@ -26,7 +26,7 @@ public interface OwnersManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Owner createOwner(PerunSession perunSession, Owner owner) throws InternalErrorException;
+	Owner createOwner(PerunSession perunSession, Owner owner);
 
 	/**
 	 * Delete owner from underlaying data source.
@@ -38,7 +38,7 @@ public interface OwnersManagerBl {
 	 * @throws RelationExistsException
 	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteOwner(PerunSession perunSession, Owner owner) throws InternalErrorException, RelationExistsException, OwnerAlreadyRemovedException;
+	void deleteOwner(PerunSession perunSession, Owner owner) throws RelationExistsException, OwnerAlreadyRemovedException;
 
 	/**
 	 * Delete owner from underlaying data source.
@@ -51,7 +51,7 @@ public interface OwnersManagerBl {
 	 * @throws RelationExistsException
 	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteOwner(PerunSession perunSession, Owner owner, boolean forceDelete) throws InternalErrorException, RelationExistsException, OwnerAlreadyRemovedException;
+	void deleteOwner(PerunSession perunSession, Owner owner, boolean forceDelete) throws RelationExistsException, OwnerAlreadyRemovedException;
 
 	/**
 	 * Find owner by id.
@@ -63,7 +63,7 @@ public interface OwnersManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Owner getOwnerById(PerunSession perunSession, int id) throws InternalErrorException, OwnerNotExistsException;
+	Owner getOwnerById(PerunSession perunSession, int id) throws OwnerNotExistsException;
 
 	/**
 	 * Return all owners.
@@ -73,7 +73,7 @@ public interface OwnersManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Owner> getOwners(PerunSession perunSession) throws InternalErrorException;
+	List<Owner> getOwners(PerunSession perunSession);
 
-	void checkOwnerExists(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException;
+	void checkOwnerExists(PerunSession sess, Owner owner) throws OwnerNotExistsException;
 }

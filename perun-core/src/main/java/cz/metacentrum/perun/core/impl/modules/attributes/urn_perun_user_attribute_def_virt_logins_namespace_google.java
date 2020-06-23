@@ -31,7 +31,7 @@ public class urn_perun_user_attribute_def_virt_logins_namespace_google extends U
 	private static final Pattern pattern = Pattern.compile("^.+[@]google[.]extidp[.]cesnet[.]cz$");
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Set<String> googleLogins = new HashSet<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 

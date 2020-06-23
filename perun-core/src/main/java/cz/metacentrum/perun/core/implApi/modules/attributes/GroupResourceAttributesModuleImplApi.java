@@ -28,7 +28,7 @@ public interface GroupResourceAttributesModuleImplApi extends AttributesModuleIm
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of this group-resource attribute has valid semantics.
@@ -42,7 +42,7 @@ public interface GroupResourceAttributesModuleImplApi extends AttributesModuleIm
 	 * @throws WrongAttributeAssignmentException
 	 */
 
-	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.
@@ -56,7 +56,7 @@ public interface GroupResourceAttributesModuleImplApi extends AttributesModuleIm
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

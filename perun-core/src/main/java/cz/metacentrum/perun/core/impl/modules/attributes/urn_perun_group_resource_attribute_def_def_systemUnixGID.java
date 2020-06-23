@@ -36,7 +36,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		Integer gid = attribute.valueAsInteger();
 		if(gid != null && gid < 1) {
 			throw new WrongAttributeValueException(attribute,"GID number less than 1 is not allowed value.");
@@ -44,7 +44,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Gr
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		Integer gid = attribute.valueAsInteger();
 
 		//Gid should not be null if is system unix group or if less than 1

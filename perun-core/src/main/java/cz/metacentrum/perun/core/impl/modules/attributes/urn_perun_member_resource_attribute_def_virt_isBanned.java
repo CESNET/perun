@@ -47,7 +47,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Membe
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_resource_attribute_def_virt_isBanned.class);
 
 	@Override
-    public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+    public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) {
         Attribute attribute = new Attribute(attributeDefinition);
 		//Default value is false
 		attribute.setValue(false);
@@ -76,7 +76,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Membe
     }
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
@@ -103,7 +103,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Membe
 	}
 
 
-	private List<AuditEvent> resolveBanChangedForResource(PerunSessionImpl perunSession, int memberId, int resourceId) throws InternalErrorException, AttributeNotExistsException {
+	private List<AuditEvent> resolveBanChangedForResource(PerunSessionImpl perunSession, int memberId, int resourceId) throws AttributeNotExistsException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 
 		try {
@@ -118,7 +118,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Membe
 		return resolvingMessages;
 	}
 
-	private List<AuditEvent> resolveBanChangedForFacility(PerunSessionImpl perunSession, int userId, int facilityId) throws InternalErrorException {
+	private List<AuditEvent> resolveBanChangedForFacility(PerunSessionImpl perunSession, int userId, int facilityId) {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 
 		try {
@@ -163,7 +163,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Membe
 	 * @return list of pairs of REsource and Members affected by Ban
 	 * @throws InternalErrorException
 	 */
-	private List<Pair<Resource, Member>> getAffectedMemberResourceObjects(PerunSessionImpl perunSession, User user, Facility facility) throws InternalErrorException {
+	private List<Pair<Resource, Member>> getAffectedMemberResourceObjects(PerunSessionImpl perunSession, User user, Facility facility) {
 		List<Pair<Resource, Member>> listOfAffectedObjects = new ArrayList<>();
 		List<Resource> assignedResources = perunSession.getPerunBl().getFacilitiesManagerBl().getAssignedResources(perunSession, facility);
 		for(Resource resource: assignedResources) {

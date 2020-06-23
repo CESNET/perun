@@ -24,7 +24,7 @@ public interface OwnersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean ownerExists(PerunSession perunSession, Owner owner) throws InternalErrorException;
+	boolean ownerExists(PerunSession perunSession, Owner owner);
 
 	/**
 	 * Check if owner exists in underlaying data source.
@@ -35,7 +35,7 @@ public interface OwnersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws OwnerNotExistsException
 	 */
-	void checkOwnerExists(PerunSession perunSession, Owner owner) throws InternalErrorException, OwnerNotExistsException;
+	void checkOwnerExists(PerunSession perunSession, Owner owner) throws OwnerNotExistsException;
 
 	/**
 	 * Create owner in the underlaying data source
@@ -46,7 +46,7 @@ public interface OwnersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Owner createOwner(PerunSession perunSession, Owner owner) throws InternalErrorException;
+	Owner createOwner(PerunSession perunSession, Owner owner);
 
 	/**
 	 * Delete owner from underlaying data source.
@@ -57,7 +57,7 @@ public interface OwnersManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws OwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteOwner(PerunSession perunSession, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException;
+	void deleteOwner(PerunSession perunSession, Owner owner) throws OwnerAlreadyRemovedException;
 
 	/**
 	 * Find owner by id.
@@ -70,7 +70,7 @@ public interface OwnersManagerImplApi {
 	 * @throws OwnerNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Owner getOwnerById(PerunSession perunSession, int id) throws OwnerNotExistsException, InternalErrorException;
+	Owner getOwnerById(PerunSession perunSession, int id) throws OwnerNotExistsException;
 
 	/**
 	 * Return all owners.
@@ -80,6 +80,6 @@ public interface OwnersManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Owner> getOwners(PerunSession perunSession) throws InternalErrorException;
+	List<Owner> getOwners(PerunSession perunSession);
 
 }

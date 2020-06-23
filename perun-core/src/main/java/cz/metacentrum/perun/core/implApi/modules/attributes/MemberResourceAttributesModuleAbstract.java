@@ -21,11 +21,11 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class MemberResourceAttributesModuleAbstract extends AttributesModuleAbstract implements MemberResourceAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 	}
 
@@ -33,7 +33,7 @@ public abstract class MemberResourceAttributesModuleAbstract extends AttributesM
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 	}
 }

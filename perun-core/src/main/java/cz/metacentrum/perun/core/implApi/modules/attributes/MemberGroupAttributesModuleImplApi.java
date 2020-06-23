@@ -30,7 +30,7 @@ public interface MemberGroupAttributesModuleImplApi extends AttributesModuleImpl
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * This method checks semantics of Member's attribute value in a specified group.
@@ -63,5 +63,5 @@ public interface MemberGroupAttributesModuleImplApi extends AttributesModuleImpl
 	 * @param group Group
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute);
 }

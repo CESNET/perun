@@ -115,7 +115,7 @@ public class Api extends HttpServlet {
 		return (String) req.getAttribute(attributeName);
 	}
 
-	private static String getExtSourceName(HttpServletRequest req, Deserializer des) throws InternalErrorException {
+	private static String getExtSourceName(HttpServletRequest req, Deserializer des) {
 		String shibIdentityProvider = getStringAttribute(req, SHIB_IDENTITY_PROVIDER);
 		String sourceIdpEntityId = getStringAttribute(req, SOURCE_IDP_ENTITY_ID);
 		if (isNotEmpty(shibIdentityProvider)) {
@@ -177,7 +177,7 @@ public class Api extends HttpServlet {
 		}
 	}
 
-	private static String getActor(HttpServletRequest req, Deserializer des) throws InternalErrorException {
+	private static String getActor(HttpServletRequest req, Deserializer des) {
 		String actor = null;
 		String remoteUser = req.getRemoteUser();
 		if (isNotEmpty(getStringAttribute(req, (SHIB_IDENTITY_PROVIDER)))) {
@@ -204,7 +204,7 @@ public class Api extends HttpServlet {
 
 	}
 
-	private static PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws InternalErrorException, UserNotExistsException {
+	private static PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws UserNotExistsException {
 		String extSourceLoaString = null;
 		String extLogin = null;
 		String extSourceName = null;
@@ -787,7 +787,7 @@ public class Api extends HttpServlet {
 	}
 
 	private Serializer selectSerializer(String format, String manager, String method, OutputStream out,
-	                                    HttpServletRequest req, HttpServletResponse resp) throws IOException, RpcException {
+	                                    HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		Serializer serializer;
 
 		switch (Formats.match(format)) {
@@ -821,7 +821,7 @@ public class Api extends HttpServlet {
 		return serializer;
 	}
 
-	private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException, RpcException {
+	private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException {
 		switch (Formats.match(format)) {
 			case json:
 			case jsonp:

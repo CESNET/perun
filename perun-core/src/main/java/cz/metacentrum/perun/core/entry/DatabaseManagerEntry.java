@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -26,7 +25,7 @@ public class DatabaseManagerEntry implements DatabaseManager {
 	public DatabaseManagerEntry() {}
 
 	@Override
-	public String getCurrentDatabaseVersion(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public String getCurrentDatabaseVersion(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -36,7 +35,7 @@ public class DatabaseManagerEntry implements DatabaseManager {
 	}
 
 	@Override
-	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public String getDatabaseDriverInformation(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -46,7 +45,7 @@ public class DatabaseManagerEntry implements DatabaseManager {
 	}
 
 	@Override
-	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public String getDatabaseInformation(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

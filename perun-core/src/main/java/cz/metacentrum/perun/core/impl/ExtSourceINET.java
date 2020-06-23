@@ -18,7 +18,7 @@ public class ExtSourceINET extends ExtSourceSqlComplex {
 	Pattern queryParametersPattern = Pattern.compile("^([1-9][0-9]+)[:]([-A-Za-z0-9]+)$");
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		// Parameters of query in the combination "workspace:groupname"
 		String sqlParametersForQuery = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		Matcher sqlParametersMatcher = queryParametersPattern.matcher(sqlParametersForQuery);

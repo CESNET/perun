@@ -59,7 +59,7 @@ public class PerunBeanProcessingPool<T extends PerunBean> {
 	 *
 	 * @throws InternalErrorException if job in parameter is null
 	 */
-	public boolean putJobIfAbsent(T job, boolean asFirst) throws InternalErrorException {
+	public boolean putJobIfAbsent(T job, boolean asFirst) {
 		if(job == null) throw new InternalErrorException("Can't put null job to list of waiting jobs.");
 
 		try {

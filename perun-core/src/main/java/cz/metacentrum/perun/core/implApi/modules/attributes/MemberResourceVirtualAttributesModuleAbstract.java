@@ -23,7 +23,7 @@ import java.util.List;
 public abstract class MemberResourceVirtualAttributesModuleAbstract extends MemberResourceAttributesModuleAbstract implements MemberResourceVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
@@ -36,7 +36,7 @@ public abstract class MemberResourceVirtualAttributesModuleAbstract extends Memb
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		return new ArrayList<>();
 	}
 

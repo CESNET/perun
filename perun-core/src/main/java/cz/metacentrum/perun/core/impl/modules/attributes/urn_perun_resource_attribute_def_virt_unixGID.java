@@ -28,7 +28,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 	private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 		Attribute gidAttribute;
 		try {
@@ -46,7 +46,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute unixGIDNamespaceAttribute;
@@ -80,7 +80,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute unixGIDNamespaceAttribute;
@@ -101,7 +101,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
@@ -116,7 +116,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {

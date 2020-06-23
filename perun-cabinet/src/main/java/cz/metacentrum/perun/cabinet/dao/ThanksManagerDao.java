@@ -27,7 +27,7 @@ public interface ThanksManagerDao {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	Thanks createThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException;
+	Thanks createThanks(PerunSession sess, Thanks thanks) throws CabinetException;
 
 	/**
 	 * Delete Thanks by its ID.
@@ -38,7 +38,7 @@ public interface ThanksManagerDao {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException;
+	void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException;
 
 	/**
 	 * Check if same Thanks exists by ID or OwnerId,PublicationId combination.
@@ -47,7 +47,7 @@ public interface ThanksManagerDao {
 	 * @return TRUE = Thanks for same Owner and Publication or with same ID exists / FALSE = Same Thanks not found
 	 * @throws InternalErrorException When implementation fails
 	 */
-	boolean thanksExist(Thanks thanks) throws InternalErrorException;
+	boolean thanksExist(Thanks thanks);
 
 	/**
 	 * Get Thanks by its ID. Throws exception, if not exists.
@@ -57,7 +57,7 @@ public interface ThanksManagerDao {
 	 * @throws CabinetException When Thanks doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Thanks getThanksById(int id) throws CabinetException, InternalErrorException;
+	Thanks getThanksById(int id) throws CabinetException;
 
 	/**
 	 * Get Thanks of Publication specified by its ID or empty list.
@@ -66,7 +66,7 @@ public interface ThanksManagerDao {
 	 * @return List of Publications Thanks
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Thanks> getThanksByPublicationId(int publicationId) throws InternalErrorException;
+	List<Thanks> getThanksByPublicationId(int publicationId);
 
 	/**
 	 * Get ThanksForGUI of Publication specified by its ID or empty list.
@@ -75,7 +75,7 @@ public interface ThanksManagerDao {
 	 * @return List of Publications Thanks
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) throws InternalErrorException;
+	List<ThanksForGUI> getRichThanksByPublicationId(int publicationId);
 
 	/**
 	 * Get ThanksForGUI of User specified by its ID or empty list.
@@ -84,6 +84,6 @@ public interface ThanksManagerDao {
 	 * @return List of Publications Thanks
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<ThanksForGUI> getRichThanksByUserId(int userId) throws InternalErrorException;
+	List<ThanksForGUI> getRichThanksByUserId(int userId);
 
 }

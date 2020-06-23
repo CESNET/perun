@@ -18,7 +18,7 @@ public interface PublicationManagerBl {
 	 * @throws CabinetException When same publication already exist
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException;
 
 	/**
 	 * Return TRUE if Publication exists by ID or EXT_ID and PUB_SYS_ID, FALSE otherwise.
@@ -27,7 +27,7 @@ public interface PublicationManagerBl {
 	 * @return TRUE if same Publication exists (by its ID, EXT_ID,PUB_SYS_ID), FALSE otherwise.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	boolean publicationExists(Publication publication) throws InternalErrorException;
+	boolean publicationExists(Publication publication);
 
 	/**
 	 * Update existing publication by its ID.
@@ -38,7 +38,7 @@ public interface PublicationManagerBl {
 	 * @throws CabinetException When publication already exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException;
 
 	/**
 	 * Delete publication by its ID.
@@ -48,7 +48,7 @@ public interface PublicationManagerBl {
 	 * @throws CabinetException When publication not exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException;
 
 	/**
 	 * Return Publication by its ID.
@@ -58,7 +58,7 @@ public interface PublicationManagerBl {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException;
+	public Publication getPublicationById(int id) throws CabinetException;
 
 	/**
 	 * Return Publication by its External ID and PublicationSystem ID.
@@ -69,7 +69,7 @@ public interface PublicationManagerBl {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException;
 
 	/**
 	 * Return Publications by their Category ID or empty list.
@@ -78,7 +78,7 @@ public interface PublicationManagerBl {
 	 * @return Publications by their category ID
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException;
+	public List<Publication> getPublicationsByCategoryId(int categoryId);
 
 	/**
 	 * Return PublicationForGUI by its ID.
@@ -88,7 +88,7 @@ public interface PublicationManagerBl {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException;
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException;
 
 	/**
 	 * Return Publication by its External ID and PublicationSystem ID.
@@ -99,7 +99,7 @@ public interface PublicationManagerBl {
 	 * @throws CabinetException When such Publication doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException;
 
 	/**
 	 * Return PublicationForGUI with every property set directly from DB.
@@ -120,7 +120,7 @@ public interface PublicationManagerBl {
 	 * @param yearTill year range
 	 * @return publication with everything set
 	 */
-	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException;
+	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill);
 
 	/**
 	 * Return Publication for specified author and optionally years range.
@@ -130,7 +130,7 @@ public interface PublicationManagerBl {
 	 * @param yearTill return those with year <= yearTill
 	 * @return publication with everything set
 	 */
-	List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException;
+	List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill);
 
 	/**
 	 * (Un)Lock passed Publications for changes.
@@ -139,7 +139,7 @@ public interface PublicationManagerBl {
 	 * @param publications Publications to (un)lock
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void lockPublications(boolean lockState, List<Publication> publications) throws InternalErrorException;
+	void lockPublications(boolean lockState, List<Publication> publications);
 
 
 

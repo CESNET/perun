@@ -35,6 +35,6 @@ public interface EventServiceResolver {
 	 * @throws InternalErrorException When implementation fails.
 	 * @throws PrivilegeException  When dispatcher lack privileges to call core methods.
 	 */
-	Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, PrivilegeException;
 
 }

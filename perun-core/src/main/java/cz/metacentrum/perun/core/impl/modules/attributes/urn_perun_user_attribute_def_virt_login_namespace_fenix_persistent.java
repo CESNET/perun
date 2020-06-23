@@ -26,7 +26,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_fenix_persistent 
 	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:fenix-persistent-shadow";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Attribute fenixPersistent = new Attribute(attributeDefinition);
 
 		try {

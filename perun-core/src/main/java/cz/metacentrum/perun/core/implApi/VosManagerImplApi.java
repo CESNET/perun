@@ -34,7 +34,7 @@ public interface VosManagerImplApi {
 	 * @throws InternalErrorException
 	 * @return List of VOs
 	 */
-	List<Vo> getVos(PerunSession perunSession) throws InternalErrorException;
+	List<Vo> getVos(PerunSession perunSession);
 
 	/**
 	 * Delete VO.
@@ -43,7 +43,7 @@ public interface VosManagerImplApi {
 	 * @param vo
 	 * @throws InternalErrorException
 	 */
-	void deleteVo(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	void deleteVo(PerunSession perunSession, Vo vo);
 
 
 	/**
@@ -55,7 +55,7 @@ public interface VosManagerImplApi {
 	 * @throws VoExistsException
 	 * @throws InternalErrorException
 	 */
-	Vo createVo(PerunSession perunSession, Vo vo) throws VoExistsException, InternalErrorException;
+	Vo createVo(PerunSession perunSession, Vo vo) throws VoExistsException;
 
 	/**
 	 * Updates VO.
@@ -65,7 +65,7 @@ public interface VosManagerImplApi {
 	 * @return returns updated VO
 	 * @throws InternalErrorException
 	 */
-	Vo updateVo(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	Vo updateVo(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Find existing VO by short name (short name is unique).
@@ -76,7 +76,7 @@ public interface VosManagerImplApi {
 	 * @throws VoNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Vo getVoByShortName(PerunSession perunSession, String shortName) throws VoNotExistsException, InternalErrorException;
+	Vo getVoByShortName(PerunSession perunSession, String shortName) throws VoNotExistsException;
 
 	/**
 	 * Finds existing VO by id.
@@ -87,7 +87,7 @@ public interface VosManagerImplApi {
 	 * @throws VoNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException, InternalErrorException;
+	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException;
 
 	/**
 	 * Get list of user administrators of specific vo for specific role.
@@ -101,7 +101,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession sess, Vo vo, String role) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, Vo vo, String role);
 
 	/**
 	 * Get list of direct user administrators of specific vo for specific role.
@@ -115,7 +115,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getDirectAdmins(PerunSession sess, Vo vo, String role) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession sess, Vo vo, String role);
 
 	/**
 	 * Get list of group administrators of the given VO for specific role.
@@ -125,7 +125,7 @@ public interface VosManagerImplApi {
 	 * @return List of groups, who are administrators of the Vo with specific role. Returns empty list if there is no such authorized group.
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAdminGroups(PerunSession sess, Vo vo, String role) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession sess, Vo vo, String role);
 
 	/**
 	 * Get list of Vo administrators.
@@ -137,7 +137,7 @@ public interface VosManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, Vo vo);
 
 	/**
 	 * Gets list of direct user administrators of the VO.
@@ -149,7 +149,7 @@ public interface VosManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<User> getDirectAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get list of group administrators of the given VO.
@@ -160,7 +160,7 @@ public interface VosManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession sess, Vo vo);
 
 	/**
 	 * Check if vo exists in underlaying data source.
@@ -171,7 +171,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean voExists(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	boolean voExists(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Check if vo exists in underlaying data source.
@@ -182,7 +182,7 @@ public interface VosManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 */
-	void checkVoExists(PerunSession perunSession, Vo vo) throws InternalErrorException, VoNotExistsException;
+	void checkVoExists(PerunSession perunSession, Vo vo) throws VoNotExistsException;
 
 	/**
 	 * Return list of IDs of all applications, which belongs to VO.
@@ -192,7 +192,7 @@ public interface VosManagerImplApi {
 	 * @return list of all vo applications ids
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Integer> getVoApplicationIds(PerunSession sess, Vo vo);
 
 	/**
 	 * Return list of all reserved logins for specific application
@@ -202,7 +202,7 @@ public interface VosManagerImplApi {
 	 * @return list of pairs namespace and login
 	 * @throws InternalErrorException
 	 */
-	List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
+	List<Pair<String, String>> getApplicationReservedLogins(Integer appId);
 
 	/**
 	 * Delete all VO login reservations
@@ -215,7 +215,7 @@ public interface VosManagerImplApi {
 	 * @param vo VO to delete all login reservations for
 	 * @throws InternalErrorException
 	 */
-	void deleteVoReservedLogins(PerunSession sess, Vo vo) throws InternalErrorException;
+	void deleteVoReservedLogins(PerunSession sess, Vo vo);
 
 	/**
 	 * Creates empty application form definition for VO when
@@ -225,7 +225,7 @@ public interface VosManagerImplApi {
 	 * @param vo
 	 * @throws InternalErrorException
 	 */
-	void createApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException;
+	void createApplicationForm(PerunSession sess, Vo vo);
 
 	/**
 	 * Get count of all vos.
@@ -236,6 +236,6 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getVosCount(PerunSession perunSession) throws InternalErrorException;
+	int getVosCount(PerunSession perunSession);
 
 }

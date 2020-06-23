@@ -37,7 +37,7 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_V
 public class urn_perun_facility_attribute_def_virt_voShortNames extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 
 		Attribute attribute = new Attribute(attributeDefinition);
 
@@ -66,7 +66,7 @@ public class urn_perun_facility_attribute_def_virt_voShortNames extends Facility
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
@@ -83,7 +83,7 @@ public class urn_perun_facility_attribute_def_virt_voShortNames extends Facility
 		return resolvingMessages;
 	}
 
-	private List<AuditEvent> resolveEvent(PerunSessionImpl sess, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<AuditEvent> resolveEvent(PerunSessionImpl sess, Facility facility) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 
 		AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, NS_FACILITY_ATTR_VIRT+":voShortNames");

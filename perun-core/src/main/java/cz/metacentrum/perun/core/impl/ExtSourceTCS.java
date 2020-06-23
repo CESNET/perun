@@ -65,12 +65,12 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
@@ -100,7 +100,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		//get pem file from url and parse it
 		String url = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -134,7 +134,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	 * @return perun session for extSource TCS
 	 * @throws InternalErrorException if there is any problem to create perun session
 	 */
-	private PerunSession getSession() throws InternalErrorException {
+	private PerunSession getSession() {
 		final PerunPrincipal pp = new PerunPrincipal("ExtSourceTCS", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		try {
 			return perunBl.getPerunSession(pp, new PerunClient());
@@ -150,7 +150,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	 * @return list of logins from specific attribute
 	 * @throws InternalErrorException if attribute of specific login not exists or assignemnt of such attribute is wrong
 	 */
-	private List<String> getLoginsFromPerun(String loginAttrName) throws InternalErrorException {
+	private List<String> getLoginsFromPerun(String loginAttrName) {
 		PerunSession sess = this.getSession();
 		List<String> allLogins = new ArrayList<>();
 		try {
@@ -174,7 +174,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	 * @return map of logins (in key) to pair of parsed certificate in the left part and certificate in base64 in the right part
 	 * @throws InternalErrorException If there is any IO problem with parsing and processing the certificate
 	 */
-	private Map<String, Pair<X509CertificateHolder, String>> prepareStructureOfValidCertificates(String url) throws InternalErrorException {
+	private Map<String, Pair<X509CertificateHolder, String>> prepareStructureOfValidCertificates(String url) {
 		Map<String, Pair<X509CertificateHolder, String>> validCertificatesForLogin = new HashMap<>();
 
 		//prepare all already known logins from Perun
@@ -252,7 +252,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	 * @throws InternalErrorException if there is any problem with getting all logins from Perun (to check existence of owner in Perun)
 	 * @throws InvalidCertificateException if certificate is not valid, throw an exception
 	 */
-	private String checkCertAndGetLogin(X509CertificateHolder x509CertificateHolder, List<String> allLoginsFromPerun) throws InternalErrorException, InvalidCertificateException {
+	private String checkCertAndGetLogin(X509CertificateHolder x509CertificateHolder, List<String> allLoginsFromPerun) throws InvalidCertificateException {
 		Date now = new Date();
 		//skip expired certificates
 		Date dayOfCertificateExpiration = x509CertificateHolder.getNotAfter();
@@ -286,7 +286,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	 * @return certificate encoded in base64
 	 * @throws InternalErrorException if there is any problem with certificate or exporting
 	 */
-	private String exportBase64Certificate(PemObject pemObject) throws InternalErrorException {
+	private String exportBase64Certificate(PemObject pemObject) {
 		String exportedCert;
 		try (ByteArrayInputStream bis = new ByteArrayInputStream(pemObject.getContent())) {
 			CertificateFactory certFact = CertificateFactory.getInstance("X.509");

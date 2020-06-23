@@ -63,7 +63,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberAlreadyRemovedException
 	 */
-	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException;
+	void deleteMember(PerunSession sess, Member member) throws MemberAlreadyRemovedException;
 
 	/**
 	 * Delete given members. It is possible to delete members from multiple vos.
@@ -73,7 +73,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException internal error
 	 * @throws MemberAlreadyRemovedException if already removed
 	 */
-	void deleteMembers(PerunSession sess, List<Member> members) throws InternalErrorException, MemberAlreadyRemovedException;
+	void deleteMembers(PerunSession sess, List<Member> members) throws MemberAlreadyRemovedException;
 
 	/**
 	 *  Deletes all VO members.
@@ -83,7 +83,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberAlreadyRemovedException
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException;
+	void deleteAllMembers(PerunSession sess, Vo vo) throws MemberAlreadyRemovedException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating specificUser
@@ -102,7 +102,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating specificUser
@@ -125,7 +125,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -146,7 +146,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -171,7 +171,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -192,7 +192,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -217,7 +217,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
@@ -234,7 +234,7 @@ public interface MembersManagerBl {
 	 * @throws ExtendMembershipException
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
 	 */
-	Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
@@ -255,7 +255,7 @@ public interface MembersManagerBl {
 	 * @throws ExtendMembershipException
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
 	 */
-	Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
@@ -274,7 +274,7 @@ public interface MembersManagerBl {
 	 * @throws ExtendMembershipException
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, Candidate)
 	 */
-	Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
@@ -298,7 +298,7 @@ public interface MembersManagerBl {
 	 * @throws ExtendMembershipException
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, Candidate)
 	 */
-	Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates Specific Member.
@@ -306,7 +306,7 @@ public interface MembersManagerBl {
 	 *
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createSpecificMember(PerunSession, Vo, Candidate, List<User>)
 	 */
-	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, SpecificUserType specificUserType) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates Specific Member and add him also to all groups in list.
@@ -314,7 +314,7 @@ public interface MembersManagerBl {
 	 *
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createSpecificMember(PerunSession, Vo, Candidate, List<User>)
 	 */
-	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
@@ -329,7 +329,7 @@ public interface MembersManagerBl {
 	 * @throws UserNotInRoleException if sponsor has not right role in the member's VO
 	 * @throws InternalErrorException if something unexpected happened
 	 */
-	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsoredMemberException, InternalErrorException, UserNotInRoleException;
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsoredMemberException, UserNotInRoleException;
 
 	/**
 	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
@@ -342,7 +342,7 @@ public interface MembersManagerBl {
 	 * @throws MemberNotSponsoredException If member was not set as sponsored before calling this method.
 	 * @throws InternalErrorException if something unexpected happend
 	 */
-	Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotSponsoredException, InternalErrorException;
+	Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotSponsoredException;
 
 	/**
 	 * Generates account with params in given namespace, which is used to create a new Candidate for MembersManager.createSpecificMember
@@ -361,25 +361,25 @@ public interface MembersManagerBl {
 	 * @deprecated replaced by {@link #createSponsoredMember(PerunSession, Vo, String, String, String, User, boolean)}
 	 */
 	@Deprecated
-	Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException, PasswordStrengthException, InvalidLoginException;
+	Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException, PasswordStrengthException, InvalidLoginException;
 
 	/**
 	 * Creates member. Runs synchronously.
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
 	 */
-	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates member. Runs synchronously. Add member also to all groups in list.
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
 	 */
-	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates member. Runs synchronously. Add member also to all groups in list.
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
 	 */
-	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from user.
@@ -395,7 +395,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, User user) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from user.
@@ -415,7 +415,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Create new member from user by login and ExtSource.
@@ -436,7 +436,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Update member in underlaying data source. Member is find by id. Other java attributes are updated.
@@ -449,7 +449,7 @@ public interface MembersManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	Member updateMember(PerunSession sess, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	Member updateMember(PerunSession sess, Member member) throws WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Find member of this Vo by his login in external source
@@ -461,7 +461,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	Member getMemberByUserExtSource(PerunSession perunSession, Vo vo, UserExtSource userExtSource) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberByUserExtSource(PerunSession perunSession, Vo vo, UserExtSource userExtSource) throws MemberNotExistsException;
 
 	/**
 	 * Get member by its external sources. If the given sources do not belong to a single member
@@ -474,7 +474,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException internal error
 	 * @throws MemberNotExistsException member does not exist
 	 */
-	Member getMemberByUserExtSources(PerunSession perunSession, Vo vo, List<UserExtSource> userExtSources) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberByUserExtSources(PerunSession perunSession, Vo vo, List<UserExtSource> userExtSources) throws MemberNotExistsException;
 
 	/**
 	 * Returns member by his id.
@@ -485,7 +485,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	Member getMemberById(PerunSession sess, int id) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException;
 
 	/**
 	 * Returns member by his user and vo.
@@ -497,7 +497,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	Member getMemberByUser(PerunSession sess, Vo vo, User user) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberByUser(PerunSession sess, Vo vo, User user) throws MemberNotExistsException;
 
 	/**
 	 * Return all VO Members of the User.
@@ -507,7 +507,7 @@ public interface MembersManagerBl {
 	 * @return List of Members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUser(PerunSession sess, User user) throws InternalErrorException;
+	List<Member> getMembersByUser(PerunSession sess, User user);
 
 	/**
 	 * Return all VO Members of the User, which have specified Status in their VO.
@@ -518,7 +518,7 @@ public interface MembersManagerBl {
 	 * @return List of Members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status) throws InternalErrorException;
+	List<Member> getMembersByUserWithStatus(PerunSession sess, User user, Status status);
 
 	/**
 	 * Returns member by his userId.
@@ -530,7 +530,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
 	 */
-	Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws InternalErrorException, MemberNotExistsException;
+	Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws MemberNotExistsException;
 
 	/**
 	 * Get all VO members.
@@ -540,7 +540,7 @@ public interface MembersManagerBl {
 	 * @return all members of the VO
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembers(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Member> getMembers(PerunSession sess, Vo vo);
 
 	/**
 	 * Get all VO members who have the status.
@@ -551,7 +551,7 @@ public interface MembersManagerBl {
 	 * @return all members of the VO
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
+	List<Member> getMembers(PerunSession sess, Vo vo, Status status);
 
 	/**
 	 * Get Member to RichMember with attributes.
@@ -561,7 +561,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	RichMember getRichMember(PerunSession sess, Member member) throws InternalErrorException;
+	RichMember getRichMember(PerunSession sess, Member member);
 
 	/**
 	 * Get Member to RichMember with attributes.
@@ -570,7 +570,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	RichMember getRichMemberWithAttributes(PerunSession sess, Member member) throws InternalErrorException;
+	RichMember getRichMemberWithAttributes(PerunSession sess, Member member);
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef.
@@ -581,7 +581,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException;
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef);
 
 	/**
 	 * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources, userAttributes, memberAttributes.
@@ -592,7 +592,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members on specified page, empty list if there are no user in this group or in this page
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException;
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group);
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsNames for vo.
@@ -604,7 +604,7 @@ public interface MembersManagerBl {
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException;
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws AttributeNotExistsException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrsNames from the vo.
@@ -617,7 +617,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws AttributeNotExistsException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrsNames from the vo and have only
@@ -633,7 +633,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws AttributeNotExistsException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrsNames from the group.
@@ -651,7 +651,7 @@ public interface MembersManagerBl {
 	 * @throws AttributeNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws AttributeNotExistsException, ParentGroupNotExistsException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
@@ -672,7 +672,7 @@ public interface MembersManagerBl {
 	 * @throws AttributeNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws AttributeNotExistsException, ParentGroupNotExistsException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrNames.
@@ -691,7 +691,7 @@ public interface MembersManagerBl {
 	 * @throws AttributeNotExistsException
 	 * @throws GroupResourceMismatchException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, GroupResourceMismatchException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws AttributeNotExistsException, GroupResourceMismatchException;
 
 	/**
 	 * Return list of richMembers for specific vo by the searchString with attributes specific for list of attrsNames.
@@ -705,7 +705,7 @@ public interface MembersManagerBl {
 	 * @return list of founded richMembers with specific attributes from Vo for searchString
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored) throws InternalErrorException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString, boolean onlySponsored);
 
 	/**
 	 * Return list of richMembers by the searchString with attributes specific for list of attrsNames.
@@ -717,7 +717,7 @@ public interface MembersManagerBl {
 	 * @return list of founded richMembers with specific attributes from Vo for searchString
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, String searchString) throws InternalErrorException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, String searchString);
 
 	/**
 	 * Return list of richMembers for specific vo by the searchString with attributes specific for list of attrsNames
@@ -733,7 +733,7 @@ public interface MembersManagerBl {
 	 * @return list of founded richMembers with specific attributes from Vo for searchString with allowed statuses
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString);
 
 	/**
 	 * Return list of richMembers by the searchString with attributes specific for list of attrsNames
@@ -748,7 +748,7 @@ public interface MembersManagerBl {
 	 * @return list of founded richMembers with specific attributes by searchString with allowed statuses
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString);
 
 	/**
 	 * Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames.
@@ -766,7 +766,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, ParentGroupNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws ParentGroupNotExistsException;
 
 	/**
 	 * Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames
@@ -787,7 +787,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, ParentGroupNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws ParentGroupNotExistsException;
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
@@ -799,7 +799,7 @@ public interface MembersManagerBl {
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException;
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws AttributeNotExistsException;
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
@@ -815,7 +815,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupResourceMismatchException
 	 */
-	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, GroupResourceMismatchException;
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws AttributeNotExistsException, GroupResourceMismatchException;
 
 
 	/**
@@ -827,7 +827,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException;
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef);
 
 	/**
 	 * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.
@@ -837,7 +837,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<RichMember> getRichMembers(PerunSession sess, Vo vo);
 
 	/**
 	 * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.
@@ -847,7 +847,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members on specified page, empty list if there are no user in this Group or in this page
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<RichMember> getRichMembers(PerunSession sess, Group group);
 
 	/**
 	 * Get rich members who have the status, for displaying on pages. Rich member object contains user, member, userExtSources.
@@ -858,7 +858,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
+	List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status);
 
 	/**
 	 * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources, userAttributes, memberAttributes.
@@ -868,7 +868,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo);
 
 	/**
 	 * Get rich members who have the status, for displaying on pages. Rich member object contains user, member, userExtSources, userAttributes, memberAttributes.
@@ -879,7 +879,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members on specified page, empty list if there are no user in this VO or in this page
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status);
 
 	/**
 	 * Convert list of users' ids into the list of members.
@@ -890,7 +890,7 @@ public interface MembersManagerBl {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo) throws InternalErrorException;
+	List<Member> getMembersByUsersIds(PerunSession sess, List<Integer> usersIds, Vo vo);
 
 	/**
 	 * Convert list of users into the list of members.
@@ -901,7 +901,7 @@ public interface MembersManagerBl {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo) throws InternalErrorException;
+	List<Member> getMembersByUsers(PerunSession sess, List<User> users, Vo vo);
 
 
 	/**
@@ -912,7 +912,7 @@ public interface MembersManagerBl {
 	 * @return list of richMembers
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> convertMembersToRichMembers(PerunSession sess, List<Member> members)  throws InternalErrorException;
+	List<RichMember> convertMembersToRichMembers(PerunSession sess, List<Member> members);
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User and user/member attributes.
@@ -922,7 +922,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers)  throws InternalErrorException;
+	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers);
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User and user/member attributes defined by list of attribute definition.
@@ -933,7 +933,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException;
+	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef);
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User, user/member, user-facility and member-resource attributes defined by list of attribute definition.
@@ -946,7 +946,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberResourceMismatchException
 	 */
-	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberResourceMismatchException;
+	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef) throws MemberResourceMismatchException;
 
 	/**
 	 * Get the VO members count.
@@ -956,7 +956,7 @@ public interface MembersManagerBl {
 	 * @return count of VO members
 	 * @throws InternalErrorException
 	 */
-	int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException;
+	int getMembersCount(PerunSession sess, Vo vo);
 
 	/**
 	 * Returns number of Vo members with defined status.
@@ -967,7 +967,7 @@ public interface MembersManagerBl {
 	 * @return number of members
 	 * @throws InternalErrorException
 	 */
-	int getMembersCount(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
+	int getMembersCount(PerunSession sess, Vo vo, Status status);
 
 	/**
 	 * Get the member VO.
@@ -977,7 +977,7 @@ public interface MembersManagerBl {
 	 * @return member's VO
 	 * @throws InternalErrorException
 	 */
-	Vo getMemberVo(PerunSession sess, Member member) throws InternalErrorException;
+	Vo getMemberVo(PerunSession sess, Member member);
 
 	/**
 	 * Return list of members by theirs name.
@@ -986,7 +986,7 @@ public interface MembersManagerBl {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> findMembersByName(PerunSession sess, String searchString) throws InternalErrorException;
+	List<Member> findMembersByName(PerunSession sess, String searchString);
 
 	/**
 	 * Return list of members by theirs name under defined VO.
@@ -996,7 +996,7 @@ public interface MembersManagerBl {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> findMembersByNameInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
+	List<Member> findMembersByNameInVo(PerunSession sess, Vo vo, String searchString);
 
 	/**
 	 * Return list of members by the searchString under defined Group. Search is done in name, email and login.
@@ -1007,7 +1007,7 @@ public interface MembersManagerBl {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException;
+	List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString);
 
 	/**
 	 * Return list of members by the searchString udner parentGroup of defined Group. Search is done in name, email and login.
@@ -1019,7 +1019,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException;
+	List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString);
 
 	/**
 	 * Return list of rich members with certain attributes by the searchString under defined Group. Search is done in name, email and login.
@@ -1030,7 +1030,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members with certain attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString, List<String> attrsNames) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString, List<String> attrsNames);
 
 	/**
 	 * Return list of rich members with attributes by the searchString under defined Group. Search is done in name, email and login.
@@ -1041,7 +1041,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString);
 
 	/**
 	 * Return list of rich members with attributes by the searchString under parent group of defined Group. Search is done in name, email and login.
@@ -1052,7 +1052,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributesInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributesInParentGroup(PerunSession sess, Group group, String searchString);
 
 	/**
 	 * Return list of members by theirs name or login or email under defined VO.
@@ -1062,7 +1062,7 @@ public interface MembersManagerBl {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> findMembersInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
+	List<Member> findMembersInVo(PerunSession sess, Vo vo, String searchString);
 
 	/**
 	 * Return list of rich members by theirs name or login or email under defined VO.
@@ -1073,7 +1073,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString, boolean onlySponsored) throws InternalErrorException;
+	List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
 
 	/**
 	 * Return list of rich members by theirs name or login or email
@@ -1083,7 +1083,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembers(PerunSession sess, String searchString, boolean onlySponsored) throws InternalErrorException;
+	List<RichMember> findRichMembers(PerunSession sess, String searchString, boolean onlySponsored);
 
 	/**
 	 * Return list of rich members with certain attributes by theirs name or login or email defined VO.
@@ -1095,7 +1095,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members with certain attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames, boolean onlySponsored) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames, boolean onlySponsored);
 
 	/**
 	 * Return list of rich members with attributes by theirs name or login or email under defined VO.
@@ -1105,7 +1105,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members with attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString);
 
 	/**
 	 * Return list of rich members with certain attributes by theirs name or login or email.
@@ -1115,7 +1115,7 @@ public interface MembersManagerBl {
 	 * @return list of rich members with certain attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString, List<String> attrsNames) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString, List<String> attrsNames);
 
 	/**
 	 * Return list of rich members with attributes by theirs name or login or email
@@ -1124,9 +1124,9 @@ public interface MembersManagerBl {
 	 * @return list of rich members with attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString) throws InternalErrorException;
+	List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString);
 
-	void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException;
+	void checkMemberExists(PerunSession sess, Member member) throws MemberNotExistsException;
 
 	/**
 	 * Set date to which will be member suspended in his VO.
@@ -1138,7 +1138,7 @@ public interface MembersManagerBl {
 	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
 	 * @throws InternalErrorException
 	 */
-	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException;
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo);
 
 	/**
 	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
@@ -1149,7 +1149,7 @@ public interface MembersManagerBl {
 	 * @param member member for which the suspend state will be removed
 	 * @throws InternalErrorException
 	 */
-	void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException;
+	void unsuspendMember(PerunSession sess, Member member);
 
 	/**
 	 * Return false if member has status INVALID or DISABLED. True in other cases.
@@ -1159,7 +1159,7 @@ public interface MembersManagerBl {
 	 * @return false if member has INVALID or DISABLED status, true in other cases
 	 * @throws InternalErrorException
 	 */
-	boolean isMemberAllowed(PerunSession sess, Member member) throws InternalErrorException;
+	boolean isMemberAllowed(PerunSession sess, Member member);
 
 	/**
 	 *  Set status of the member to specified status.
@@ -1174,7 +1174,7 @@ public interface MembersManagerBl {
 	 * @throws MemberNotValidYetException
 	 * @throws WrongAttributeValueException
 	 */
-	Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
+	Member setStatus(PerunSession sess, Member member, Status status) throws WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
 
 	/**
 	 *  Set status of the member to specified status.
@@ -1190,7 +1190,7 @@ public interface MembersManagerBl {
 	 * @throws MemberNotValidYetException
 	 * @throws WrongAttributeValueException
 	 */
-	Member setStatus(PerunSession sess, Member member, Status status, String message) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
+	Member setStatus(PerunSession sess, Member member, Status status, String message) throws WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
 
 	/**
 	 * Validate all atributes for member and set member's status to VALID.
@@ -1207,7 +1207,7 @@ public interface MembersManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	Member validateMember(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	Member validateMember(PerunSession sess, Member member) throws WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Validate all attributes for member and then set member's status to VALID.
@@ -1232,7 +1232,7 @@ public interface MembersManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Member invalidateMember(PerunSession sess, Member member) throws InternalErrorException;
+	Member invalidateMember(PerunSession sess, Member member);
 
 	/**
 	 * Suspend member.
@@ -1246,7 +1246,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberNotValidYetException
 	 */
-	Member suspendMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException;
+	Member suspendMember(PerunSession sess, Member member) throws MemberNotValidYetException;
 
 	/**
 	 * Suspend member with reason for suspension.
@@ -1261,7 +1261,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberNotValidYetException
 	 */
-	Member suspendMember(PerunSession sess, Member member, String message) throws InternalErrorException, MemberNotValidYetException;
+	Member suspendMember(PerunSession sess, Member member, String message) throws MemberNotValidYetException;
 
 	/**
 	 * Set member's status to expired.
@@ -1279,7 +1279,7 @@ public interface MembersManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	Member expireMember(PerunSession sess, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	Member expireMember(PerunSession sess, Member member) throws WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Disable member.
@@ -1293,7 +1293,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberNotValidYetException
 	 */
-	Member disableMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException;
+	Member disableMember(PerunSession sess, Member member) throws MemberNotValidYetException;
 
 	/**
 	 * Retain only members with specified status.
@@ -1326,7 +1326,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ExtendMembershipException
 	 */
-	void extendMembership(PerunSession sess, Member member) throws InternalErrorException, ExtendMembershipException;
+	void extendMembership(PerunSession sess, Member member) throws ExtendMembershipException;
 
 	/**
 	 * Return true if the membership can be extended or if no rules were set for the membershipExpiration, otherwise false.
@@ -1336,7 +1336,7 @@ public interface MembersManagerBl {
 	 * @return true if the membership can be extended or if no rules were set for the membershipExpiration, otherwise false
 	 * @throws InternalErrorException
 	 */
-	boolean canExtendMembership(PerunSession sess, Member member) throws InternalErrorException;
+	boolean canExtendMembership(PerunSession sess, Member member);
 
 	/**
 	 * Return true if the membership can be extended or if no rules were set for the membershipExpiration, otherwise throws exception.
@@ -1347,7 +1347,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ExtendMembershipException
 	 */
-	boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws InternalErrorException, ExtendMembershipException;
+	boolean canExtendMembershipWithReason(PerunSession sess, Member member) throws ExtendMembershipException;
 
 	/**
 	 * Checks if the user can apply membership to the VO, it decides based on extendMembershipRules on the doNotAllowLoa key
@@ -1358,7 +1358,7 @@ public interface MembersManagerBl {
 	 * @return true if user can be apply for membership to the VO
 	 * @throws InternalErrorException
 	 */
-	boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException;
+	boolean canBeMember(PerunSession sess, Vo vo, User user, String loa);
 
 	/**
 	 * Checks if the user can apply membership to the VO, it decides based on extendMembershipRules on the doNotAllowLoa key
@@ -1370,7 +1370,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ExtendMembershipException
 	 */
-	boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, ExtendMembershipException;
+	boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws ExtendMembershipException;
 
 	/**
 	 * Get member by extSourceName, extSourceLogin and Vo
@@ -1386,7 +1386,7 @@ public interface MembersManagerBl {
 	 * @throws UserNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException, InternalErrorException;
+	Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException;
 
 	/**
 	 * Returns the date to which will be extended member's expiration time.
@@ -1396,7 +1396,7 @@ public interface MembersManagerBl {
 	 * @return date
 	 * @throws InternalErrorException
 	 */
-	Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException;
+	Date getNewExtendMembership(PerunSession sess, Member member);
 
 	/**
    * Returns the date to which will be extended potential member of the VO.
@@ -1408,7 +1408,7 @@ public interface MembersManagerBl {
    * @throws InternalErrorException
    * @throws ExtendMembershipException
    */
-  Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException, ExtendMembershipException;
+  Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws ExtendMembershipException;
 
 	/**
 	 * For richMember filter all his user and member attributes and remove all which principal has no access to.
@@ -1418,7 +1418,7 @@ public interface MembersManagerBl {
 	 * @return richMember with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	RichMember filterOnlyAllowedAttributes(PerunSession sess, RichMember richMember) throws InternalErrorException;
+	RichMember filterOnlyAllowedAttributes(PerunSession sess, RichMember richMember);
 
 	/**
 	 * For list of richMembers filter all their user and member attributes and remove all which principal has no access to.
@@ -1428,7 +1428,7 @@ public interface MembersManagerBl {
 	 * @return list of richMembers with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers) throws InternalErrorException;
+	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers);
 
 	/**
 	 * For list of richMembers filter all their user and member attributes and remove all which principal has no access to.
@@ -1448,7 +1448,7 @@ public interface MembersManagerBl {
 	 * @return list of richMembers with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, Group group, boolean useContext) throws InternalErrorException;
+	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, Group group, boolean useContext);
 
 	/**
 	 * Send mail to user's preferred email address with link for non-authz password reset.
@@ -1462,7 +1462,7 @@ public interface MembersManagerBl {
 	 * @param language language of the message
 	 * @throws InternalErrorException
 	 */
-	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAddress, String language) throws InternalErrorException;
+	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAddress, String language);
 
 	/**
 	 * Creates a new sponsored member.
@@ -1485,7 +1485,7 @@ public interface MembersManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException if the member is not in required role
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
 
 	/**
 	 * Links sponsored member and sponsoring user.
@@ -1498,7 +1498,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadySponsorException
 	 * @throws UserNotInRoleException
 	 */
-	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
+	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
 	 * Gets list of members that are sponsored by the user in the vo.
@@ -1509,7 +1509,7 @@ public interface MembersManagerBl {
 	 * @return list of members sponsored by the user in VO
 	 * @throws InternalErrorException if given parameters are invalid
 	 */
-	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException;
+	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user);
 
 	/**
 	 * Gets list of sponsored members of a VO.
@@ -1518,7 +1518,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException if given parameters are invalid
 	 * @return list of members from given vo who are sponsored
 	 */
-	List<Member> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Member> getSponsoredMembers(PerunSession sess, Vo vo);
 
 	/**
 	 * Removes a sponsor.
@@ -1527,7 +1527,7 @@ public interface MembersManagerBl {
 	 * @param sponsor sponsoring user
 	 * @throws InternalErrorException if given parameters are invalid
 	 */
-	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor) throws InternalErrorException;
+	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor);
 
 	/**
 	 * Extends expiration date. Sponsored members cannot apply for membership extension, this method allows a sponsor to extend it.
@@ -1538,7 +1538,7 @@ public interface MembersManagerBl {
 	 * @return new expiration date
 	 * @throws InternalErrorException
 	 */
-	String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException;
+	String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser);
 
 	/**
 	 * Returns unified result of MemberGroupStatus for specified member and resource.
@@ -1554,7 +1554,7 @@ public interface MembersManagerBl {
 	 * @param resource Resource to get unified MemberGroupStatus
 	 * @return MemberGroupStatus for member unified through all his groups assigned to the resource.
 	 */
-	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
+	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource);
 
 	/**
 	 * Returns unified result of MemberGroupStatus for specified user and facility.
@@ -1570,7 +1570,7 @@ public interface MembersManagerBl {
 	 * @param facility Facility to get unified MemberGroupStatus
 	 * @return MemberGroupStatus for user unified throught all his groups assigned to any of resources of facility.
 	 */
-	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException;
+	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility);
 
 	/**
 	 * Return list of members VO by specific string.

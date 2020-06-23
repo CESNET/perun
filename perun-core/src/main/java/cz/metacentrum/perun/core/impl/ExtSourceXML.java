@@ -75,12 +75,12 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
+	public List<Map<String,String>> findSubjects(String searchString) {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String,String>> findSubjects(String searchString, int maxResults) {
 		//prepare string for xpath (use concat for chars ' and  ")
 		searchString = convertToXpathSearchString(searchString);
 
@@ -103,7 +103,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+	public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
 		//prepare string for xpath (use concat for chars ' and  ")
 		login = convertToXpathSearchString(login);
 
@@ -136,7 +136,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		// Get the query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -154,7 +154,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	protected void prepareEnvironment() throws InternalErrorException {
+	protected void prepareEnvironment() {
 		//Get file or uri of xml
 		file = getAttributes().get("file");
 		if(file == null || file.isEmpty()) {
@@ -179,7 +179,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @return List of results, where result is Map<String,String> like <name, value>
 	 * @throws InternalErrorException
 	 */
-	protected List<Map<String,String>> xpathParsing(String query, int maxResults) throws InternalErrorException {
+	protected List<Map<String,String>> xpathParsing(String query, int maxResults) {
 		//Prepare result list
 		List<Map<String, String>> subjects = new ArrayList<>();
 
@@ -260,7 +260,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @return Map<String,String> like <name,value>
 	 * @throws InternalErrorException
 	 */
-	protected Map<String, String> convertNodeToMap(Node node) throws InternalErrorException {
+	protected Map<String, String> convertNodeToMap(Node node) {
 		Map<String,String> nodeInMap = new HashMap<>();
 		//If node is empty, return null
 		if(node == null) return null;
@@ -301,7 +301,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @return string extracted from node by xpath
 	 * @throws InternalErrorException
 	 */
-	protected String getValueFromXpath(Node node, String xpathExpression) throws InternalErrorException {
+	protected String getValueFromXpath(Node node, String xpathExpression) {
 		//Prepare xpath expression
 		XPathFactory xPathfactory = XPathFactory.newInstance();
 		XPath xpath = xPathfactory.newXPath();
@@ -335,7 +335,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	protected String extractValueByRegex(String value, String regex) throws InternalErrorException {
+	protected String extractValueByRegex(String value, String regex) {
 		//trim value to erase newlines and spaces before and after value
 		value = value.trim();
 		//regex need to be separate to 2 parts (regex) and (replacement) separated by backslash - ex 'regex/replacement'
@@ -371,7 +371,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @throws IOException if there is some input/output error
 	 * @throws InternalErrorException if some variables are not correctly filled
 	 */
-	protected InputStream createTwoWaySSLConnection(String uri) throws IOException, InternalErrorException {
+	protected InputStream createTwoWaySSLConnection(String uri) throws IOException {
 		if(uri == null || uri.isEmpty()) throw new InternalErrorException("Uri must be filled, can't be null or empty.");
 
 		/*//KeyStore data
@@ -512,7 +512,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		this.con = con;
 	}
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
+	protected Map<String,String> getAttributes() {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

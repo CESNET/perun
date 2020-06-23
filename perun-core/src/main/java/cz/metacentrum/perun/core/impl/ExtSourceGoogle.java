@@ -91,12 +91,12 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
+	public List<Map<String, String>> findSubjects(String searchString) {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
 		try {
 			query = getAttributes().get("query");
 			domainName = getAttributes().get("domain");
@@ -136,7 +136,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+	public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
 		try {
 			query = getAttributes().get("loginQuery");
 			domainName = getAttributes().get("domain");
@@ -185,7 +185,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		try {
 			// Get the query for the group subjects
 			String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -240,7 +240,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * @throws IOException
 	 * @throws GeneralSecurityException
 	 */
-	private void prepareEnvironment() throws InternalErrorException, IOException, GeneralSecurityException {
+	private void prepareEnvironment() throws IOException, GeneralSecurityException {
 		ExtSourceGoogle.SERVICE_ACCOUNT_EMAIL = getAttributes().get("serviceAccountEmail");
 		ExtSourceGoogle.USER_EMAIL = getAttributes().get("userEmail");
 		ExtSourceGoogle.SERVICE_ACCOUNT_PKCS12_FILE_PATH = getAttributes().get("p12File");
@@ -275,7 +275,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * @return Map<String, String>, like <name,value>
 	 * @throws InternalErrorException
 	 */
-	private Map<String, String> processGoogleMappingAttribute(String id) throws InternalErrorException {
+	private Map<String, String> processGoogleMappingAttribute(String id) {
 		Map<String, String> map = new HashMap<>();
 
 		String mapping = getAttributes().get("googleMapping");
@@ -337,7 +337,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * processGoogleMappingAttribute() method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeID(String value, int maxResults) throws InternalErrorException {
+	private List<Map<String, String>> executeQueryTypeID(String value, int maxResults) {
 		List<Map<String, String>> subjects = new ArrayList<>();
 
 		try {
@@ -384,7 +384,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * processGoogleMappingAttribute() method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeEmail(String value, int maxResults) throws InternalErrorException {
+	private List<Map<String, String>> executeQueryTypeEmail(String value, int maxResults) {
 		List<Map<String, String>> subjects = new ArrayList<>();
 
 		try {
@@ -432,7 +432,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * processGoogleMappingAttribute() method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeGroupSubjects(String value, int maxResults) throws InternalErrorException {
+	private List<Map<String, String>> executeQueryTypeGroupSubjects(String value, int maxResults) {
 		List<Map<String, String>> subjects = new ArrayList<>();
 
 		if (value.contains("@" + this.domainName)) {
@@ -478,7 +478,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * processGoogleMappingAttribute() method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeContains(String value) throws InternalErrorException {
+	private List<Map<String, String>> executeQueryTypeContains(String value) {
 		List<Map<String, String>> subjects = new ArrayList<>();
 
 		try {
@@ -518,7 +518,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * executing method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> querySource(String query, int maxResults) throws InternalErrorException {
+	private List<Map<String, String>> querySource(String query, int maxResults) {
 		List<Map<String, String>> subjects;
 
 		// Symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
@@ -612,7 +612,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 		return serviceLocal;
 	}
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
+	protected Map<String,String> getAttributes() {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 

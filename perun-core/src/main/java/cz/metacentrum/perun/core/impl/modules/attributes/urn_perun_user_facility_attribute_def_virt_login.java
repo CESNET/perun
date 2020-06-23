@@ -31,7 +31,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 	 * Calls checkAttribute on u:login-namespace:[login-namespace]
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try  {
 			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
 			Attribute loginAttribute;
@@ -53,7 +53,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 	 * Calls fillAttribute on u:login-namespace:[login-namespace]
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException {
 		Attribute virtLoginAttribute = new Attribute(attributeDefinition);
 
 		try {
@@ -79,7 +79,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 	 * Gets the value of the attribute f:login-namespace and then finds the value of the attribute u:login-namespace:[login-namespace]
 	 */
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) {
 		Attribute attr = new Attribute(attributeDefinition);
 
 		Attribute loginAttribute;
@@ -105,7 +105,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException {
 		AttributeDefinition userLoginAttributeDefinition;
 		try {
 			// Get the f:login-namespace attribute

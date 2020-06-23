@@ -74,7 +74,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 
 	private final static ResultSetExtractor<List<Author>> AUTHOR_RESULT_SET_EXTRACTOR = new ResultSetExtractor<List<Author>>() {
 		@Override
-		public List<Author> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+		public List<Author> extractData(ResultSet resultSet) throws SQLException {
 			HashMap<Integer, Author> result = new HashMap<>();
 			while (resultSet.next()) {
 				Author author = AUTHOR_ROW_MAPPER.mapRow(resultSet, resultSet.getRow());
@@ -105,7 +105,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	// methods ----------------------
 
 	@Override
-	public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws InternalErrorException {
+	public Authorship createAuthorship(PerunSession sess, Authorship authorship) {
 		try {
 			// Set the new Authorship id
 			int newId = Utils.getNewId(jdbc, "cabinet_authorships_id_seq");
@@ -120,7 +120,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
+	public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
 		try {
 			int numAffected = jdbc.update("delete from cabinet_authorships where id=?", authorship.getId());
 			if (numAffected == 0) throw new CabinetException(ErrorCodes.AUTHORSHIP_NOT_EXISTS);
@@ -130,7 +130,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public Authorship getAuthorshipById(int id) throws CabinetException, InternalErrorException {
+	public Authorship getAuthorshipById(int id) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + AUTHORSHIP_SELECT_QUERY +
 					" from cabinet_authorships where id=?", AUTHORSHIP_ROW_MAPPER, id);
@@ -142,7 +142,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public List<Authorship> getAuthorshipsByUserId(int id) throws InternalErrorException {
+	public List<Authorship> getAuthorshipsByUserId(int id) {
 		try {
 			return jdbc.query("select " + AUTHORSHIP_SELECT_QUERY +
 					" from cabinet_authorships where userId=?", AUTHORSHIP_ROW_MAPPER, id);
@@ -154,7 +154,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public List<Authorship> getAuthorshipsByPublicationId(int id) throws InternalErrorException {
+	public List<Authorship> getAuthorshipsByPublicationId(int id) {
 		try {
 			return jdbc.query("select " + AUTHORSHIP_SELECT_QUERY +
 					" from cabinet_authorships where publicationId=?", AUTHORSHIP_ROW_MAPPER, id);
@@ -166,7 +166,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException, InternalErrorException {
+	public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + AUTHORSHIP_SELECT_QUERY +
 					" from cabinet_authorships where userId=? and publicationId=?", AUTHORSHIP_ROW_MAPPER, userId, publicationId);
@@ -178,7 +178,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public Author getAuthorById(int id) throws CabinetException, InternalErrorException {
+	public Author getAuthorById(int id) throws CabinetException {
 		try {
 			return (Author) jdbc.queryForObject("select " + AUTHOR_SELECT_QUERY +
 					" from users" +
@@ -192,7 +192,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public List<Author> getAllAuthors() throws InternalErrorException {
+	public List<Author> getAllAuthors() {
 		try {
 			return jdbc.query("select " + AUTHOR_SELECT_QUERY +
 					" from users" +
@@ -204,7 +204,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 	}
 
 	@Override
-	public List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException {
+	public List<Author> getAuthorsByPublicationId(int id) {
 		try {
 			return jdbc.query("select " + AUTHOR_SELECT_QUERY +
 					" from users" +

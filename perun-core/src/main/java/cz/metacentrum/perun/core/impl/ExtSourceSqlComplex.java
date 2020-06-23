@@ -16,12 +16,12 @@ import java.util.Map;
 public class ExtSourceSqlComplex extends ExtSourceSql implements ExtSourceApi {
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString) throws ExtSourceUnsupportedOperationException {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, maxResults);
 	}
 }

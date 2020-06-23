@@ -56,7 +56,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException, PrivilegeException {
+	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws ExtSourceExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -70,7 +70,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException {
+	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -84,7 +84,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException {
+	public ExtSource getExtSourceById(PerunSession sess, int id) throws ExtSourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -96,7 +96,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException {
+	public ExtSource getExtSourceByName(PerunSession sess, String name) throws ExtSourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -110,7 +110,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -126,7 +126,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -143,7 +143,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public List<ExtSource> getExtSources(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -155,7 +155,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		return getExtSourcesManagerBl().getExtSources(sess);
 	}
 	@Override
-	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException {
+	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -170,7 +170,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException, ExtSourceNotAssignedException, VoNotExistsException {
+	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException, ExtSourceNotAssignedException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -186,7 +186,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException {
+	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) {
 		Utils.checkPerunSession(sess);
 
 		//TODO Authorization
@@ -198,7 +198,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -213,7 +213,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -228,7 +228,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public List<User> getInvalidUsers(PerunSession sess, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException {
+	public List<User> getInvalidUsers(PerunSession sess, ExtSource source) throws PrivilegeException, ExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -243,7 +243,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public void loadExtSourcesDefinitions(PerunSession sess) throws PrivilegeException, InternalErrorException {
+	public void loadExtSourcesDefinitions(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -288,7 +288,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
+	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -303,7 +303,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException {
+	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source) throws PrivilegeException, ExtSourceNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(subjectData, "subjectData");
 		Utils.notNull(subjectData.get("login"), "subjectLogin");
@@ -320,7 +320,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public Map<String, String> getAttributes(PerunSession sess, ExtSource extSource) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException {
+	public Map<String, String> getAttributes(PerunSession sess, ExtSource extSource) throws PrivilegeException, ExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

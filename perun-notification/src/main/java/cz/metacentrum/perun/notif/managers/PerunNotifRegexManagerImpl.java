@@ -52,7 +52,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	}
 
 	@Override
-	public Set<Integer> getIdsOfRegexesMatchingMessage(PerunNotifAuditMessage auditMessage) throws InternalErrorException {
+	public Set<Integer> getIdsOfRegexesMatchingMessage(PerunNotifAuditMessage auditMessage) {
 
 		Set<PerunNotifObject> setOfObjects = new HashSet<PerunNotifObject>();
 		for (PerunBean bean : auditMessage.getPerunBeanList()) {
@@ -86,7 +86,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	}
 
 	@Override
-	public PerunNotifRegex getPerunNotifRegexById(int id) throws InternalErrorException {
+	public PerunNotifRegex getPerunNotifRegexById(int id) {
 
 		return perunNotifRegexDao.getPerunNotifRegexById(id);
 	}
@@ -97,7 +97,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	}
 
 	@Override
-	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException {
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws NotifRegexAlreadyExistsException {
 
 		// check if there is no other Notif regex with the same regular expression
 		for (PerunNotifRegex item: getAllPerunNotifRegexes()) {
@@ -121,7 +121,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 		return perunNotifRegex;
 	}
 
-	public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+	public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex regex) {
 
 		PerunNotifRegex oldRegex = perunNotifRegexDao.getPerunNotifRegexById(regex.getId());
 		PerunNotifRegex updatedRegex = perunNotifRegexDao.updatePerunNotifRegexInternals(regex);
@@ -156,7 +156,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	}
 
 	@Override
-	public void removePerunNotifRegexById(int id) throws InternalErrorException, PerunNotifRegexUsedException {
+	public void removePerunNotifRegexById(int id) throws PerunNotifRegexUsedException {
 
 		PerunNotifRegex regex = getPerunNotifRegexById(id);
 		if (regex == null) {
@@ -174,7 +174,7 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	}
 
 	@Override
-	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) {
 
 		if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
 			//Relation exists
@@ -188,12 +188,12 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 	}
 
 	@Override
-	public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) throws InternalErrorException {
+	public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) {
 		return new ArrayList<>(perunNotifRegexDao.getPerunNotifRegexForTemplateId(templateId));
 	}
 
 	@Override
-	public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) throws InternalErrorException {
+	public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) {
 
 		if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
 			perunNotifRegexDao.removePerunNotifTemplateRegexRelation(templateId, regexId);

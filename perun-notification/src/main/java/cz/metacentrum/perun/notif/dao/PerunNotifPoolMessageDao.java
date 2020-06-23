@@ -23,7 +23,7 @@ public interface PerunNotifPoolMessageDao {
 	 * @param poolMessage
 	 */
 	public void savePerunNotifPoolMessage(
-		PerunNotifPoolMessage poolMessage) throws InternalErrorException;
+		PerunNotifPoolMessage poolMessage);
 
 	/**
 	 * Gets all perunNotifPoolMessages from db Integer is templateId,
@@ -32,7 +32,7 @@ public interface PerunNotifPoolMessageDao {
 	 *
 	 * @return templateId = list<PoolMessage>
 	 */
-	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() throws InternalErrorException;
+	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing();
 
 	/**
 	 * Sets all created to now for all pool messages. Is used after start of
@@ -45,5 +45,5 @@ public interface PerunNotifPoolMessageDao {
 	 *
 	 * @param proccessedIds
 	 */
-	public void removeAllPoolMessages(Set<Integer> proccessedIds) throws InternalErrorException;
+	public void removeAllPoolMessages(Set<Integer> proccessedIds);
 }

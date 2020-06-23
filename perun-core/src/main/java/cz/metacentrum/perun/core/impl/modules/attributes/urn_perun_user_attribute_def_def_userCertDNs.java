@@ -54,7 +54,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 		Attribute userPreferredCertDN;
 		try {
 			userPreferredCertDN = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":userPreferredCertDN");

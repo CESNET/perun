@@ -47,43 +47,43 @@ public class PublicationSystemManagerBlImpl implements PublicationSystemManagerB
 
 	// methods -----------------------------
 
-	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) throws InternalErrorException {
+	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) {
 		PublicationSystem newps = getPublicationSystemManagerDao().createPublicationSystem(session, ps);
 		log.debug("{} created.", newps);
 		return newps;
 	}
 
-	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException, InternalErrorException {
+	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException {
 		PublicationSystem upps = getPublicationSystemManagerDao().updatePublicationSystem(session, ps);
 		log.debug("{} updated.", upps);
 		return upps;
 	}
 
-	public void deletePublicationSystem(PublicationSystem ps) throws CabinetException, InternalErrorException {
+	public void deletePublicationSystem(PublicationSystem ps) throws CabinetException {
 		getPublicationSystemManagerDao().deletePublicationSystem(ps);
 		log.debug("{} deleted.", ps);
 	}
 
-	public PublicationSystem getPublicationSystemById(int id) throws InternalErrorException, CabinetException {
+	public PublicationSystem getPublicationSystemById(int id) throws CabinetException {
 		return getPublicationSystemManagerDao().getPublicationSystemById(id);
 	}
 
-	public PublicationSystem getPublicationSystemByName(String name) throws InternalErrorException, CabinetException {
+	public PublicationSystem getPublicationSystemByName(String name) throws CabinetException {
 		return getPublicationSystemManagerDao().getPublicationSystemByName(name);
 	}
 
-	public PublicationSystem getPublicationSystemByNamespace(String namespace) throws InternalErrorException, CabinetException {
+	public PublicationSystem getPublicationSystemByNamespace(String namespace) throws CabinetException {
 		return getPublicationSystemManagerDao().getPublicationSystemByNamespace(namespace);
 	}
 
-	public List<PublicationSystem> getPublicationSystems() throws InternalErrorException {
+	public List<PublicationSystem> getPublicationSystems() {
 		return getPublicationSystemManagerDao().getPublicationSystems();
 	}
 
 	/**
 	 * Checks if INTERNAL publication system is present in DB. If not, creates one.
 	 */
-	protected void initialize() throws CabinetException, InternalErrorException {
+	protected void initialize() throws CabinetException {
 		// search for internal system
 		try {
 			getPublicationSystemManagerDao().getPublicationSystemByName("INTERNAL");

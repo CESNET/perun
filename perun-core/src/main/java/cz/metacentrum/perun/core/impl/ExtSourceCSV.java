@@ -55,12 +55,12 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
+    public List<Map<String, String>> findSubjects(String searchString) {
         return findSubjects(searchString, 0);
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+    public List<Map<String, String>> findSubjects(String searchString, int maxResults) {
         try {
             query = getAttributes().get("query");
 
@@ -88,7 +88,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+    public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
         try {
             query = getAttributes().get("loginQuery");
 
@@ -125,7 +125,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
         try {
             // Get the query for the group subjects
             String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -166,7 +166,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
      *
      * @throws InternalErrorException When fail not exists or is empty
      */
-    private void prepareFile() throws InternalErrorException {
+    private void prepareFile() {
         //Get CSV file
         file = getAttributes().get("file");
         if (file == null || file.isEmpty()) {
@@ -183,7 +183,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
      * @throws InternalErrorException When implementation fails
      * @throws IOException When reading CSV file fails
      */
-    private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, IOException {
+    private List<Map<String, String>> csvParsing(String query, int maxResults) throws IOException {
 
         List<Map<String, String>> subjects = new ArrayList<>();
 
@@ -238,7 +238,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
      * @return TRUE if row matches query and should be processed / FALSE when row should be skipped
      * @throws InternalErrorException When implementation fails
      */
-    private boolean compareRowToQuery(Map<String,String> rowAsMap, String query) throws InternalErrorException {
+    private boolean compareRowToQuery(Map<String,String> rowAsMap, String query) {
 
         // symbol '=' indicates getSubjectByLogin() or getGroupSubjects() method
         int index = query.indexOf("=");
@@ -279,7 +279,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
      * @return Map<String, String>, like <CSV column name,Perun attribute URN>
      * @throws InternalErrorException When implementation fails
      */
-    private Map<String, String> getCsvMapping() throws InternalErrorException {
+    private Map<String, String> getCsvMapping() {
 
         Map<String, String> attributeMapping = new HashMap<>();
 
@@ -319,7 +319,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
      * @return map with attributes about the external source
      * @throws InternalErrorException When implementation fails
      */
-    protected Map<String,String> getAttributes() throws InternalErrorException {
+    protected Map<String,String> getAttributes() {
         return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
 

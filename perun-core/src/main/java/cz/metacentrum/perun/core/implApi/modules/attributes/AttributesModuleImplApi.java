@@ -56,6 +56,6 @@ public interface AttributesModuleImplApi {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 }

@@ -136,13 +136,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public User getUserByUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException {
+	public User getUserByUserExtSource(PerunSession sess, UserExtSource userExtSource) throws UserNotExistsException {
 		return getUsersManagerImpl().getUserByUserExtSource(sess, userExtSource);
 	}
 
 	// FIXME do this in IMPL
 	@Override
-	public User getUserByUserExtSources(PerunSession sess, List<UserExtSource> userExtSources) throws InternalErrorException, UserNotExistsException {
+	public User getUserByUserExtSources(PerunSession sess, List<UserExtSource> userExtSources) throws UserNotExistsException {
 		for (UserExtSource ues: userExtSources) {
 			try {
 				return getUsersManagerImpl().getUserByUserExtSource(sess, ues);
@@ -154,30 +154,30 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> getUsersByExtSourceTypeAndLogin(PerunSession perunSession, String extSourceType, String login) throws InternalErrorException {
+	public List<User> getUsersByExtSourceTypeAndLogin(PerunSession perunSession, String extSourceType, String login) {
 		if ((extSourceType == null) || (login == null)) return new ArrayList<>();
 
 		return getUsersManagerImpl().getUsersByExtSourceTypeAndLogin(perunSession, extSourceType, login);
 	}
 
 	@Override
-	public List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException {
+	public List<User> getSpecificUsersByUser(PerunSession sess, User user) {
 		return getUsersManagerImpl().getSpecificUsersByUser(sess, user);
 	}
 
 	@Override
-	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException {
+	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		return getUsersManagerImpl().getUsersBySpecificUser(sess, specificUser);
 	}
 
 	@Override
-	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException {
 		this.removeSpecificUserOwner(sess, user, specificUser, false);
 	}
 
-	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws InternalErrorException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		if (user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
@@ -213,7 +213,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationExistsException {
+	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws RelationExistsException {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		if (user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
@@ -243,19 +243,19 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) throws InternalErrorException {
+	public boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		return getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser);
 	}
 
 	@Override
-	public List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException {
+	public List<User> getSpecificUsers(PerunSession sess) {
 		return getUsersManagerImpl().getSpecificUsers(sess);
 	}
 
 	@Override
-	public User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws InternalErrorException, RelationExistsException {
+	public User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws RelationExistsException {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) {
 			throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		}
@@ -274,7 +274,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) throws InternalErrorException {
+	public User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) {
 		if(!specificUser.getMajorSpecificType().equals(specificUserType)) {
 			throw new InternalErrorException("Can't unset " + specificUserType.getSpecificUserType() + " for " + specificUser + ", because he hasn't this flag yet.");
 		}
@@ -297,12 +297,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public User getUserById(PerunSession sess, int id) throws InternalErrorException, UserNotExistsException {
+	public User getUserById(PerunSession sess, int id) throws UserNotExistsException {
 		return getUsersManagerImpl().getUserById(sess, id);
 	}
 
 	@Override
-	public User getUserByMember(PerunSession sess, Member member) throws InternalErrorException {
+	public User getUserByMember(PerunSession sess, Member member) {
 		if (member.getUserId() != 0) {
 			try {
 				// TODO If the member object will contain also User object, here can be returned directly.
@@ -316,7 +316,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException, InternalErrorException {
+	public User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException {
 		ExtSource extSource = perunBl.getExtSourcesManagerBl().getExtSourceByName(sess, extSourceName);
 		UserExtSource userExtSource = this.getUserExtSourceByExtLogin(sess, extSource, extLogin);
 
@@ -324,12 +324,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> getUsers(PerunSession sess) throws InternalErrorException {
+	public List<User> getUsers(PerunSession sess) {
 		return getUsersManagerImpl().getUsers(sess);
 	}
 
 	@Override
-	public RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException {
+	public RichUser getRichUser(PerunSession sess, User user) {
 		List<User> users = new ArrayList<>();
 		users.add(user);
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
@@ -337,7 +337,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public RichUser getRichUserWithAttributes(PerunSession sess, User user) throws UserNotExistsException {
 		List<User> users = new ArrayList<>();
 		users.add(user);
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
@@ -346,7 +346,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> convertUsersToRichUsers(PerunSession sess, List<User> users) throws InternalErrorException {
+	public List<RichUser> convertUsersToRichUsers(PerunSession sess, List<User> users) {
 		List<RichUser> richUsers = new ArrayList<>();
 
 		for (User user: users) {
@@ -358,7 +358,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers)  throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers)  throws UserNotExistsException {
 		for (RichUser richUser: richUsers) {
 			User user = getPerunBl().getUsersManagerBl().getUserById(sess, richUser.getId());
 			List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user);
@@ -370,14 +370,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException {
+	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) {
 		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		return this.convertUsersToRichUsers(sess, users);
 	}
 
 	@Override
-	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws UserNotExistsException {
 		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
@@ -386,18 +386,18 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 
 	@Override
-	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException {
+	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) {
 		return this.convertUsersToRichUsers(sess, users);
 	}
 
 	@Override
-	public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws UserNotExistsException {
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		return this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
 	}
 
 	@Override
-	public List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
+	public List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef) {
 		List<AttributeDefinition> usersAttributesDef = new ArrayList<>();
 
 		for(AttributeDefinition attrd: attrsDef) {
@@ -419,7 +419,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public User createUser(PerunSession sess, User user) throws InternalErrorException {
+	public User createUser(PerunSession sess, User user) {
 
 		// trim input
 		if(user.getFirstName() != null) user.setFirstName(user.getFirstName().trim());
@@ -456,12 +456,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		this.deleteUser(sess, user, false);
 	}
 
 	@Override
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -583,7 +583,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public User updateUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public User updateUser(PerunSession sess, User user) throws UserNotExistsException {
 		//Convert user to version with no empty strings in object attributes (null instead)
 		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
 
@@ -597,7 +597,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public User updateNameTitles(PerunSession sess, User user) throws UserNotExistsException {
 		//Convert user to version with no empty strings in object attributes (null instead)
 		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
 
@@ -612,25 +612,25 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
+	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws UserExtSourceExistsException {
 		UserExtSource updatedUes = getUsersManagerImpl().updateUserExtSource(sess, userExtSource);
 		getPerunBl().getAuditer().log(sess, new UserExtSourceUpdated(userExtSource));
 		return updatedUes;
 	}
 
 	@Override
-	public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
+	public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) {
 		getUsersManagerImpl().updateUserExtSourceLastAccess(sess, userExtSource);
 		getPerunBl().getAuditer().log(sess, new UserExtSourceUpdated(userExtSource));
 	}
 
 	@Override
-	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException {
+	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) {
 		return getUsersManagerImpl().getUserExtSources(sess, user);
 	}
 
 	@Override
-	public List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames) throws InternalErrorException {
+	public List<RichUserExtSource> getRichUserExtSources(PerunSession sess, User user, List<String> attrsNames) {
 		return getUserExtSources(sess, user).stream()
 				.map(ues -> new RichUserExtSource(ues,
 						attrsNames == null ? getPerunBl().getAttributesManagerBl().getAttributes(sess, ues)
@@ -646,12 +646,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
+	public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws UserExtSourceNotExistsException {
 		return getUsersManagerImpl().getUserExtSourceById(sess, id);
 	}
 
 	@Override
-	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException {
+	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws AttributeNotExistsException, UserExtSourceNotExistsException {
 		if(attrId <= 0) throw new InternalErrorException("Unexpected attribute Id with zero or negative value.");
 		AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinitionById(sess, attrId);
 		return getUserExtSourceByUniqueAttributeValue(sess, attrDef, uniqueValue);
@@ -659,7 +659,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, String attrName, String uniqueValue) throws InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException {
+	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, String attrName, String uniqueValue) throws AttributeNotExistsException, UserExtSourceNotExistsException {
 		if(attrName == null || attrName.isEmpty()) throw new InternalErrorException("Can't find attribute, because it's name is missing.");
 		AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, attrName);
 
@@ -685,7 +685,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @throws InternalErrorException if attributeDefinition or uniqueValue is in incorrect format
 	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
 	 */
-	private UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, AttributeDefinition attrDef, String uniqueValue) throws InternalErrorException, UserExtSourceNotExistsException {
+	private UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, AttributeDefinition attrDef, String uniqueValue) throws UserExtSourceNotExistsException {
 		if(!attrDef.getNamespace().startsWith(AttributesManager.NS_UES_ATTR)) throw new InternalErrorException("Attribute definition has to be from 'ues' namespace: " + attrDef);
 		if(!attrDef.isUnique()) throw new InternalErrorException("Attribute definition has to be unique: " + attrDef);
 		if(uniqueValue == null || uniqueValue.isEmpty()) throw new InternalErrorException("Can't find userExtSource by empty value!");
@@ -718,17 +718,17 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin) throws InternalErrorException {
+	public List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin) {
 		return getUsersManagerImpl().getAllUserExtSourcesByTypeAndLogin(sess, extType, extLogin);
 	}
 
 	@Override
-	public List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) throws InternalErrorException {
+	public List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) {
 		return getUsersManagerImpl().getActiveUserExtSources(sess, user);
 	}
 
 	@Override
-	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
+	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserExtSourceExistsException {
 		// Check if the userExtSource already exists
 		if(usersManagerImpl.userExtSourceExists(sess,userExtSource)) {
 			throw new UserExtSourceExistsException("UserExtSource " + userExtSource + " already exists.");
@@ -749,7 +749,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceAlreadyRemovedException {
+	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserExtSourceAlreadyRemovedException {
 		//FIXME zkontrolovat zda na userExtSource neni navazan nejaky member
 		//First remove all user extSource attributes before removing userExtSource
 		try {
@@ -762,7 +762,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException {
+	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) {
 		List<Attribute> userExtSourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, userExtSource);
 		//remove all virtual attributes (we don't need to take care about them)
 		userExtSourceAttributes.removeIf(attribute -> getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute));
@@ -797,43 +797,43 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public UserExtSource getUserExtSourceByExtLogin(PerunSession sess, ExtSource source, String extLogin) throws InternalErrorException, UserExtSourceNotExistsException {
+	public UserExtSource getUserExtSourceByExtLogin(PerunSession sess, ExtSource source, String extLogin) throws UserExtSourceNotExistsException {
 		return getUsersManagerImpl().getUserExtSourceByExtLogin(sess, source, extLogin);
 	}
 
 	@Override
-	public List<Vo> getVosWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public List<Vo> getVosWhereUserIsAdmin(PerunSession sess, User user) {
 		return getUsersManagerImpl().getVosWhereUserIsAdmin(sess, user);
 	}
 
 	@Override
-	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, User user) {
 		return getUsersManagerImpl().getGroupsWhereUserIsAdmin(sess, user);
 	}
 
 	@Override
-	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException {
+	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) {
 		return getUsersManagerImpl().getGroupsWhereUserIsAdmin(sess, vo, user);
 	}
 
 	@Override
-	public List<Vo> getVosWhereUserIsMember(PerunSession sess, User user) throws InternalErrorException {
+	public List<Vo> getVosWhereUserIsMember(PerunSession sess, User user) {
 		return getUsersManagerImpl().getVosWhereUserIsMember(sess, user);
 	}
 
 	@Override
-	public List<RichUser> getRichUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichUsersWithoutVoAssigned(PerunSession sess) throws UserNotExistsException {
 		List<User> users = this.getUsersWithoutVoAssigned(sess);
 		return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
 	}
 
 	@Override
-	public List<User> getUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException  {
+	public List<User> getUsersWithoutVoAssigned(PerunSession sess) {
 		return usersManagerImpl.getUsersWithoutVoAssigned(sess);
 	}
 
 	@Override
-	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
+	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) {
 		List<User> allSearchingUsers = this.findUsers(sess, searchString);
 		List<User> allVoUsers = getUsersManagerImpl().getUsersByVo(sess, vo);
 		allSearchingUsers.removeAll(allVoUsers);
@@ -841,7 +841,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) {
 		return getPerunBl().getResourcesManagerBl().getAllowedResources(sess, facility, user);
 	}
 
@@ -865,7 +865,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return getUsersManagerImpl().getAssignedRichResources(sess, user);
 	}
 
-	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
+	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) {
 		// try to find method in attribute module
 		UserVirtualAttributesModuleImplApi attributeModule = perunBl.getAttributesManagerBl().getUserVirtualAttributeModule(sess, attributeDef);
 		List<User> listOfUsers = attributeModule.searchInAttributesValues((PerunSessionImpl) sess, attributeValue);
@@ -891,7 +891,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException {
+	public List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) {
 		try {
 			AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 
@@ -906,7 +906,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
+	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) {
 		return this.getUsersManagerImpl().getUsersByAttribute(sess, attribute);
 	}
 
@@ -914,7 +914,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * Search attributes directly in the DB only if the attr is def or opt and value is type of String, otherwise load all users and search in a loop.
 	 */
 	@Override
-	public List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException {
+	public List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue) {
 		try {
 			AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 
@@ -932,29 +932,29 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException {
+	public List<User> findUsers(PerunSession sess, String searchString) {
 		return this.getUsersManagerImpl().findUsers(sess, searchString);
 	}
 
 	@Override
-	public List<RichUser> findRichUsers(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> findRichUsers(PerunSession sess, String searchString) throws UserNotExistsException {
 		List<User> users = this.getUsersManagerImpl().findUsers(sess, searchString);
 		return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
 	}
 
 	@Override
-	public List<RichUser> findRichUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> findRichUsersByExactMatch(PerunSession sess, String searchString) throws UserNotExistsException {
 		List<User> users = this.getUsersManagerImpl().findUsersByExactMatch(sess, searchString);
 		return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
 	}
 
 	@Override
-	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
+	public List<User> findUsersByName(PerunSession sess, String searchString) {
 		return this.getUsersManagerImpl().findUsersByName(sess, searchString);
 	}
 
 	@Override
-	public List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException {
+	public List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) {
 		// Convert to lower case
 		titleBefore = titleBefore.toLowerCase();
 		firstName = firstName.toLowerCase();
@@ -966,16 +966,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
+	public List<User> findUsersByExactName(PerunSession sess, String searchString) {
 		return this.getUsersManagerImpl().findUsersByExactName(sess, searchString);
 	}
 
-	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException {
+	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) {
 		return this.getUsersManagerImpl().findUsersByExactMatch(sess, searchString);
 	}
 
 	@Override
-	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {
+	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) {
 		return getUsersManagerImpl().getUsersByIds(sess, usersIds);
 	}
 
@@ -1030,27 +1030,27 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public void checkUserExists(PerunSession sess, User user) throws UserNotExistsException {
 		getUsersManagerImpl().checkUserExists(sess, user);
 	}
 
 	@Override
-	public void checkReservedLogins(PerunSession sess, String namespace, String login) throws InternalErrorException, AlreadyReservedLoginException {
+	public void checkReservedLogins(PerunSession sess, String namespace, String login) throws AlreadyReservedLoginException {
 		getUsersManagerImpl().checkReservedLogins(sess, namespace, login);
 	}
 
 	@Override
-	public void checkUserExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException {
+	public void checkUserExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws UserExtSourceNotExistsException {
 		getUsersManagerImpl().checkUserExtSourceExists(sess, userExtSource);
 	}
 
 	@Override
-	public void checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
+	public void checkUserExtSourceExistsById(PerunSession sess, int id) throws UserExtSourceNotExistsException {
 		getUsersManagerImpl().checkUserExtSourceExistsById(sess, id);
 	}
 
 	@Override
-	public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
+	public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) {
 		return getUsersManagerImpl().userExtSourceExists(sess, userExtSource);
 	}
 
@@ -1059,12 +1059,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public boolean isUserPerunAdmin(PerunSession sess, User user) {
 		return getUsersManagerImpl().isUserPerunAdmin(sess, user);
 	}
 
 	@Override
-	public RichUser filterOnlyAllowedAttributes(PerunSession sess, RichUser richUser) throws InternalErrorException {
+	public RichUser filterOnlyAllowedAttributes(PerunSession sess, RichUser richUser) {
 		if(richUser == null) throw new InternalErrorException("RichUser can't be null.");
 		//Filtering users attributes
 		if(richUser.getUserAttributes() != null) {
@@ -1082,7 +1082,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> filterOnlyAllowedAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException {
+	public List<RichUser> filterOnlyAllowedAttributes(PerunSession sess, List<RichUser> richUsers) {
 		List<RichUser> filteredRichUsers = new ArrayList<>();
 		if(richUsers == null || richUsers.isEmpty()) return filteredRichUsers;
 
@@ -1094,7 +1094,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> getUsersByPerunBean(PerunSession sess, Group group) throws InternalErrorException {
+	public List<User> getUsersByPerunBean(PerunSession sess, Group group) {
 		List<User> users = new ArrayList<>();
 		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 		for(Member memberElement: members) {
@@ -1104,28 +1104,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> getUsersByPerunBean(PerunSession sess, Member member) throws InternalErrorException {
+	public List<User> getUsersByPerunBean(PerunSession sess, Member member) {
 		return Collections.singletonList(getPerunBl().getUsersManagerBl().getUserByMember(sess, member));
 	}
 
 	@Override
-	public List<User> getUsersByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<User> getUsersByPerunBean(PerunSession sess, Resource resource) {
 		return getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
 	}
 
 	@Override
-	public List<User> getUsersByPerunBean(PerunSession sess, Host host) throws InternalErrorException {
+	public List<User> getUsersByPerunBean(PerunSession sess, Host host) {
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		return getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 	}
 
 	@Override
-	public List<User> getUsersByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<User> getUsersByPerunBean(PerunSession sess, Facility facility) {
 		return getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 	}
 
 	@Override
-	public List<User> getUsersByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<User> getUsersByPerunBean(PerunSession sess, Vo vo) {
 		List<User> users = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 		for(Member memberElement: members) {
@@ -1135,7 +1135,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException {
+	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException {
 
 		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
@@ -1171,7 +1171,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
+	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws
 			PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
 
@@ -1194,7 +1194,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
+	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws
 			PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
@@ -1230,7 +1230,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
+	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws
 			PasswordCreationFailedException, InvalidLoginException {
 		log.info("Validating password for {} in login-namespace {}.", userLogin, loginNamespace);
 
@@ -1244,7 +1244,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
+	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws
 			PasswordCreationFailedException, LoginNotExistsException, InvalidLoginException {
 		log.info("Validating password for {} in login-namespace {}.", user, loginNamespace);
 
@@ -1271,7 +1271,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, InvalidLoginException {
+	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, InvalidLoginException {
 		/*
 		 * FIXME This method is very badly writen - it should be rewrited or refactored
 		 */
@@ -1536,7 +1536,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException, LoginNotExistsException,
+	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws LoginNotExistsException,
 			PasswordDeletionFailedException, PasswordOperationTimeoutException, InvalidLoginException {
 		log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
 
@@ -1560,7 +1560,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
+			throws LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 		log.info("Changing password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get User login in loginNamespace
@@ -1616,7 +1616,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordStrengthException {
+	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws PasswordCreationFailedException, LoginNotExistsException, PasswordStrengthException {
 
 		String passwordId = Long.toString(System.currentTimeMillis());
 		log.info("Creating alternative password for {} in login-namespace {} with description {} and passwordId {}.", user, loginNamespace, description, passwordId);
@@ -1657,7 +1657,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException {
+	public void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws PasswordDeletionFailedException, LoginNotExistsException {
 		log.info("Deleting alternative password for {} in login-namespace {} with passwordId {}.", user, loginNamespace, passwordId);
 
 		try {
@@ -1704,7 +1704,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> convertUsersToRichUsersWithAttributesByNames(PerunSession sess, List<User> users, List<String> attrNames) throws InternalErrorException {
+	public List<RichUser> convertUsersToRichUsersWithAttributesByNames(PerunSession sess, List<User> users, List<String> attrNames) {
 
 		// TODO - optimzization needed - at least there should be single select on RichUser object in impl !!
 		List<RichUser> result = new ArrayList<>();
@@ -1719,7 +1719,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public RichUser convertUserToRichUserWithAttributesByNames(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
+	public RichUser convertUserToRichUserWithAttributesByNames(PerunSession sess, User user, List<String> attrNames) {
 		AttributesManagerBl attributesManagerBl = this.getPerunBl().getAttributesManagerBl();
 
 		RichUser richUser = new RichUser(user, getUserExtSources(sess, user));
@@ -1729,7 +1729,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrsName) throws UserNotExistsException {
 
 		if(attrsName == null || attrsName.isEmpty()) {
 			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsers(sess, searchString));
@@ -1740,7 +1740,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrsName) throws UserNotExistsException {
 
 		if(attrsName == null || attrsName.isEmpty()) {
 			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsersByExactMatch(sess, searchString));
@@ -1751,7 +1751,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws UserNotExistsException {
 
 		if(attrsName == null || attrsName.isEmpty()) {
 			return convertRichUsersToRichUsersWithAttributes(sess, convertUsersToRichUsers(sess, getUsersWithoutSpecificVo(sess, vo, searchString)));
@@ -1761,7 +1761,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, UserNotExistsException{
+	public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws UserNotExistsException{
 
 		if(attrsName == null || attrsName.isEmpty()) {
 			return convertRichUsersToRichUsersWithAttributes(sess, convertUsersToRichUsers(sess, getUsersWithoutVoAssigned(sess)));
@@ -1771,7 +1771,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers, List<String> attrsName) throws UserNotExistsException {
 
 		List<User> users = getUsers(sess);
 		// optionally exclude specific users
@@ -1788,7 +1788,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException {
+	public void setLogin(PerunSession sess, User user, String loginNamespace, String login) {
 
 		// should always pass, since isLoginAvailable() in ENTRY does the same
 		try {
@@ -1817,7 +1817,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws InternalErrorException {
+	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) {
 
 		int changeId = getUsersManagerImpl().requestPreferredEmailChange(sess, user, email);
 
@@ -1856,7 +1856,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 
 		String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, i, m);
 
@@ -1874,7 +1874,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws WrongAttributeAssignmentException, AttributeNotExistsException {
 
 		List<String> list = getUsersManagerImpl().getPendingPreferredEmailChanges(sess, user);
 
@@ -1911,7 +1911,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws InternalErrorException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
+	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
 
 		String requestId = Utils.cipherInput(m, true);
 		Pair<String,String> resetRequest = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
@@ -2007,18 +2007,18 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public int getUsersCount(PerunSession sess) throws InternalErrorException {
+	public int getUsersCount(PerunSession sess) {
 		return getUsersManagerImpl().getUsersCount(sess);
 	}
 
 	@Override
-	public Map<String,String> generateAccount(PerunSession sess, String loginNamespace, Map<String, String> parameters) throws InternalErrorException, PasswordStrengthException {
+	public Map<String,String> generateAccount(PerunSession sess, String loginNamespace, Map<String, String> parameters) throws PasswordStrengthException {
 		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 		return module.generateAccount(sess, parameters);
 	}
 
 	@Override
-	public List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException {
+	public List<User> getSponsors(PerunSession sess, Member sponsoredMember) {
 		if(!sponsoredMember.isSponsored()) {
 			throw new IllegalArgumentException("member "+sponsoredMember.getId()+" is not marked as sponsored");
 		}
@@ -2026,7 +2026,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
+	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) {
 		PasswordManagerModule module = getUsersManagerImpl().getPasswordManagerModule(session, namespace);
 		if (module == null) {
 			log.info("Password manager module for '{}' not found. Loading 'generic' password manager module instead.", namespace);
@@ -2044,7 +2044,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void removeAllUserExtSources(PerunSession sess, User user) throws InternalErrorException {
+	public void removeAllUserExtSources(PerunSession sess, User user) {
 		for(UserExtSource userExtSource : getUserExtSources(sess, user)) {
 			try {
 				removeUserExtSource(sess, user, userExtSource);
@@ -2055,7 +2055,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeNotExistsException, InternalErrorException {
+	public List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeNotExistsException {
 		AttributeDefinition adef = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		if((!adef.getType().equals("java.lang.String")) || (!adef.getNamespace().equals(AttributesManager.NS_UES_ATTR_DEF))) {
 			throw new InternalErrorException("only ues attributes of type String can be used in findUsersWithExtSourceAttributeValueEnding()");
@@ -2064,7 +2064,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, InternalErrorException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException {
+	public String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException {
 
 		char[] possibleCharacters =
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?"
@@ -2145,7 +2145,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws InternalErrorException {
+	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) {
 
 		Vo vo = getPerunBl().getResourcesManagerBl().getVo(sess, resource);
 		Member voMember;
@@ -2173,7 +2173,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) {
 
 		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		Set<Group> groups = new HashSet<>();

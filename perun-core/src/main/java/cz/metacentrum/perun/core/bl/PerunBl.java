@@ -38,7 +38,7 @@ public interface PerunBl extends Perun {
 	 * @param actor identification of the actor, who will perform operations.
 	 * @return perun session
 	 */
-	PerunSession getPerunSession(PerunPrincipal actor, PerunClient client) throws InternalErrorException ;
+	PerunSession getPerunSession(PerunPrincipal actor, PerunClient client);
 
 	/**
 	 * Gets a groups manager.

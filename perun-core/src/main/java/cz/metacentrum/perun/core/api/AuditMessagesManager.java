@@ -25,7 +25,7 @@ public interface AuditMessagesManager {
 	 * @return List of 100 newest audit messages
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException;
+	List<AuditMessage> getMessages(PerunSession perunSession);
 
 	/**
 	 * Returns exact number of newest audit messages defined by 'count' param (disregarding message IDs).
@@ -36,7 +36,7 @@ public interface AuditMessagesManager {
 	 * @return List of audit messages
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException;
+	List<AuditMessage> getMessages(PerunSession perunSession, int count);
 
 	/**
 	 * Returns all messages with IDs within the range from max(ID) to (max(ID)-count), where number of returned messages
@@ -47,7 +47,7 @@ public interface AuditMessagesManager {
 	 * @return List of audit messages
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException;
+	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count);
 
 	/**
 	 * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
@@ -58,7 +58,7 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to poll messages
 	 */
-	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws PrivilegeException;
 
 	/**
 	 * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId given.
@@ -70,7 +70,7 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to poll messages
 	 */
-	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException;
+	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws PrivilegeException;
 
 	/**
 	 * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
@@ -81,7 +81,7 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to poll events
 	 */
-	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws PrivilegeException;
 
 	/**
 	 * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
@@ -93,7 +93,7 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to poll events
 	 */
-	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException;
+	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws PrivilegeException;
 
 	/**
 	 * Creates new auditer consumer with last processed id which equals current auditer log max id.
@@ -103,7 +103,7 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to create auditer consumer
 	 */
-	void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+	void createAuditerConsumer(PerunSession perunSession, String consumerName) throws PrivilegeException;
 
 	/**
 	 * Log arbitrary audit message.
@@ -113,7 +113,7 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 * @throws PrivilegeException When you are not authorized to log arbitrary message
 	 */
-	void log(PerunSession perunSession, String message) throws InternalErrorException, PrivilegeException;
+	void log(PerunSession perunSession, String message) throws PrivilegeException;
 
 	/**
 	 * Get all registered auditer consumers as map name(String)=lastProcessedId(Integer).
@@ -122,7 +122,7 @@ public interface AuditMessagesManager {
 	 * @return Mapping of auditer consumer names to their last processed ID.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException;
+	Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession);
 
 	/**
 	 * Get ID of last (newest) message in audit log (max_id).
@@ -131,7 +131,7 @@ public interface AuditMessagesManager {
 	 * @return ID of last (newest) message.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	int getLastMessageId(PerunSession perunSession) throws InternalErrorException;
+	int getLastMessageId(PerunSession perunSession);
 
 	/**
 	 * Set ID of last processed message for specified consumer.
@@ -143,7 +143,7 @@ public interface AuditMessagesManager {
 	 * @throws PrivilegeException When you are not authorized to set last processed id
 	 */
 	@Deprecated
-	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException;
+	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws PrivilegeException;
 
 	/**
 	 * Get count of all messages in audit log.
@@ -152,6 +152,6 @@ public interface AuditMessagesManager {
 	 * @return Count of all messages in audit log
 	 * @throws InternalErrorException When implementation fails
 	 */
-	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException;
+	int getAuditerMessagesCount(PerunSession perunSession);
 
 }

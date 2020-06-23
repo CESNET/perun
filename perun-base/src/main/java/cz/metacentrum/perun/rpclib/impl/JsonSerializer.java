@@ -71,7 +71,7 @@ public final class JsonSerializer implements Serializer {
 	}
 
 	@Override
-	public void write(Object object) throws RpcException, IOException {
+	public void write(Object object) throws IOException {
 		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
 
 		if (object instanceof Throwable) {

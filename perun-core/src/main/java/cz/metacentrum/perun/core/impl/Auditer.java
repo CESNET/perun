@@ -368,7 +368,7 @@ public class Auditer {
 		this.storeMessagesToDb(auditerMessages);
 	}
 
-	public void initialize() throws InternalErrorException {
+	public void initialize() {
 		try {
 			this.lastProcessedId = jdbc.queryForInt("select max(id) from auditer_log");
 			log.debug("Auditer initialized with lastProcessedId [{}].", this.lastProcessedId);

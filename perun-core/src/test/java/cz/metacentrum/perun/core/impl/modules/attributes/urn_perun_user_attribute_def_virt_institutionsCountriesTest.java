@@ -88,7 +88,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 
 	}
 
-	private void setSchacHomeOrgs(String domains) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
+	private void setSchacHomeOrgs(String domains) throws WrongAttributeAssignmentException, AttributeNotExistsException {
 		schacHomeOrg.setValue(domains);
 		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, userExtSource, SCHAC_HOME_ATTR_NAME)).thenReturn(schacHomeOrg);
 	}

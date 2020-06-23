@@ -136,7 +136,7 @@ public class PerunNotifPoolMessage {
 	public static final class PERUN_NOTIF_POOL_MESSAGE_EXTRACTOR implements ResultSetExtractor<Map<Integer, List<PoolMessage>>> {
 
 		@Override
-		public Map<Integer, List<PoolMessage>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+		public Map<Integer, List<PoolMessage>> extractData(ResultSet rs) throws SQLException {
 			Map<String, List<PerunNotifPoolMessage>> keyMap = new HashMap<String, List<PerunNotifPoolMessage>>();
 
 			//We get all perunNotifPoolMessages and put them in map, where in list are same keyAttributes

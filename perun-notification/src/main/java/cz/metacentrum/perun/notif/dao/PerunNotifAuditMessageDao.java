@@ -19,7 +19,7 @@ public interface PerunNotifAuditMessageDao {
 	 * @param message
 	 * @return
 	 */
-	public PerunNotifAuditMessage save(String message) throws InternalErrorException;
+	public PerunNotifAuditMessage save(String message);
 
 	/**
 	 * Removes perunNotifAuditMessage using id of perunNotifAuditMessage

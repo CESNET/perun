@@ -27,7 +27,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of assigned attribute to the user has valid semantics.
@@ -42,7 +42,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *         the parameter is to be compared is not available
 	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
 	 */
-	void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Tries to fill an attribute to the specified user.
@@ -56,7 +56,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -65,5 +65,5 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @param user the user
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException;
 }

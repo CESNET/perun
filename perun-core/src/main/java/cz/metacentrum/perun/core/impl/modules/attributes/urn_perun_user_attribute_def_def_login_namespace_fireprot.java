@@ -30,7 +30,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fireprot extends u
 	 * @throws InternalErrorException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
 
 		Attribute filledAttribute = new Attribute(attribute);
 		if (filledAttribute.getValue() == null) {

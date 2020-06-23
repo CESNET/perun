@@ -47,7 +47,7 @@ public abstract class AbstractSCIMTest {
 		session.getPerunPrincipal().setUser(testUser);
 	}
 
-	private User createTestUser() throws InternalErrorException {
+	private User createTestUser() {
 		User user = new User();
 		user.setFirstName("James");
 		user.setLastName("Bond");

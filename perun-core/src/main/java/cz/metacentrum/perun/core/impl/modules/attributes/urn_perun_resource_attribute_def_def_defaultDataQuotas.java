@@ -32,14 +32,14 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuotas extends Reso
 	public static final String A_R_maxUserDataQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserDataQuotas";
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) return;
 
 		perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, null, true);
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//attribute can be null, it means there are no default settings on resource
 		if (attribute.getValue() == null) {
 			return;

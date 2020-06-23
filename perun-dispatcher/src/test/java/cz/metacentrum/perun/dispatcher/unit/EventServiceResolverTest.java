@@ -30,7 +30,7 @@ public class EventServiceResolverTest extends AbstractDispatcherTest {
 	private EventServiceResolver eventServiceResolver;
 
 	@Test
-	public void parseEventTest() throws ServiceNotExistsException, InvalidEventMessageException, InternalErrorException, PrivilegeException {
+	public void parseEventTest() throws ServiceNotExistsException, InvalidEventMessageException, PrivilegeException {
 		System.out.println("EventServiceResolver.parseEventTest()");
 
 		AuditEvent auditEvent = new DirectMemberAddedToGroup(member1, group1);

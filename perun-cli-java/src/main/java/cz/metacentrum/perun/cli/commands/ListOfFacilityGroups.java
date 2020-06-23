@@ -36,7 +36,7 @@ public class ListOfFacilityGroups extends PerunCommand {
 	}
 
 	@Override
-	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
+	public void executeCommand(PerunCLI.CommandContext ctx) {
 		int facilityId = this.getFacilityId(ctx, true);
 		Integer voId = this.getVoId(ctx, false);
 		Integer serviceId = this.getServiceId(ctx, false);

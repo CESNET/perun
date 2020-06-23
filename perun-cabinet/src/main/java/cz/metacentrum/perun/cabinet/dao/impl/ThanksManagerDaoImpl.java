@@ -69,7 +69,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	// methods ----------------------
 
 	@Override
-	public Thanks createThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
+	public Thanks createThanks(PerunSession sess, Thanks thanks) throws CabinetException {
 		try {
 			// Set the new Thanks id
 			int newId = Utils.getNewId(jdbc, "cabinet_thanks_id_seq");
@@ -84,7 +84,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	}
 
 	@Override
-	public void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
+	public void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException {
 		try {
 			int numAffected = jdbc.update("delete from cabinet_thanks where id=?", thanks.getId());
 			if(numAffected == 0) throw new CabinetException(ErrorCodes.THANKS_NOT_EXISTS);
@@ -94,7 +94,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	}
 
 	@Override
-	public boolean thanksExist(Thanks thanks) throws InternalErrorException {
+	public boolean thanksExist(Thanks thanks) {
 		try {
 			jdbc.queryForObject("select " + THANKS_SELECT_QUERY +
 					" from cabinet_thanks where id=? or (ownerId=? and publicationId=?)",
@@ -108,7 +108,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	}
 
 	@Override
-	public Thanks getThanksById(int id) throws CabinetException, InternalErrorException {
+	public Thanks getThanksById(int id) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + THANKS_SELECT_QUERY +
 					" from cabinet_thanks where id=?", THANKS_ROW_MAPPER, id);
@@ -120,7 +120,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	}
 
 	@Override
-	public List<Thanks> getThanksByPublicationId(int publicationId) throws InternalErrorException {
+	public List<Thanks> getThanksByPublicationId(int publicationId) {
 		try {
 			return jdbc.query("select " + THANKS_SELECT_QUERY +
 					" from cabinet_thanks where publicationId=?", THANKS_ROW_MAPPER, publicationId);
@@ -132,7 +132,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	}
 
 	@Override
-	public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) throws InternalErrorException {
+	public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) {
 		try {
 			return jdbc.query("select " + THANKS_FOR_GUI_SELECT_QUERY +
 					" from cabinet_thanks" +
@@ -146,7 +146,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	}
 
 	@Override
-	public List<ThanksForGUI> getRichThanksByUserId(int userId) throws InternalErrorException {
+	public List<ThanksForGUI> getRichThanksByUserId(int userId) {
 		try {
 			return jdbc.query("select " + THANKS_FOR_GUI_SELECT_QUERY +
 					" from cabinet_thanks" +

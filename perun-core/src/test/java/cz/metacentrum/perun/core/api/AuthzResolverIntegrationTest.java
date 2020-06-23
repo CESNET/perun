@@ -1021,13 +1021,13 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	}
 
-	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException {
+	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
 		final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
 		return createdMember;
 	}
 
-	private PerunSession getHisSession(final Member createdMember) throws InternalErrorException {
+	private PerunSession getHisSession(final Member createdMember) {
 
 		List<UserExtSource> ues = perun.getUsersManagerBl().getUserExtSources(sess, perun.getUsersManagerBl().getUserByMember(sess, createdMember));
 		if (ues.size() == 0) {

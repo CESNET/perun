@@ -162,7 +162,7 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 
 	private abstract class AbstractTaskSchedulerSpy extends TaskScheduler {
 		@Override
-		protected void initPerunSession() throws InternalErrorException {
+		protected void initPerunSession() {
 		}
 	}
 

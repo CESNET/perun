@@ -98,19 +98,19 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException {
+	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws ServiceAlreadyBannedException {
 		getServicesManagerImpl().blockServiceOnFacility(sess, service.getId(), facility.getId());
 		sess.getPerun().getAuditer().log(sess, new BanServiceOnFacility(service, facility));
 	}
 
 	@Override
-	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException, ServiceAlreadyBannedException {
+	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws ServiceAlreadyBannedException {
 		getServicesManagerImpl().blockServiceOnDestination(sess, service.getId(), destinationId);
 		sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
 	}
 
 	@Override
-	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) {
 		List<Service> services = getAssignedServices(sess, facility);
 		for (Service service : services) {
 			try {
@@ -123,7 +123,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void blockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException {
+	public void blockAllServicesOnDestination(PerunSession sess, int destinationId) throws PrivilegeException, DestinationNotExistsException {
 		List<Service> services = getServicesManagerImpl().getServicesFromDestination(destinationId);
 		for (Service service : services) {
 			try {
@@ -228,7 +228,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) {
 		// result list
 		List<ServiceForGUI> result = new ArrayList<>();
 		// get assigned services
@@ -243,7 +243,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public Service createService(PerunSession sess, Service service) throws InternalErrorException, ServiceExistsException {
+	public Service createService(PerunSession sess, Service service) throws ServiceExistsException {
 		//check if service with same name exists in perun
 		try {
 			Service s = getServicesManagerImpl().getServiceByName(sess, service.getName());
@@ -255,7 +255,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void deleteService(PerunSession sess, Service service) throws InternalErrorException, RelationExistsException, ServiceAlreadyRemovedException {
+	public void deleteService(PerunSession sess, Service service) throws RelationExistsException, ServiceAlreadyRemovedException {
 		// Check if the relation with the resources exists
 		if (this.getAssignedResources(sess, service).size() > 0) {
 			throw new RelationExistsException("Service is defined on some resource");
@@ -267,38 +267,38 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void updateService(PerunSession sess, Service service) throws InternalErrorException {
+	public void updateService(PerunSession sess, Service service) {
 		Utils.notNull(service.getName(), "service.name");
 		getServicesManagerImpl().updateService(sess, service);
 		getPerunBl().getAuditer().log(sess, new ServiceUpdated(service));
 	}
 
 	@Override
-	public Service getServiceById(PerunSession sess, int id) throws InternalErrorException, ServiceNotExistsException {
+	public Service getServiceById(PerunSession sess, int id) throws ServiceNotExistsException {
 		return getServicesManagerImpl().getServiceById(sess, id);
 	}
 
 	@Override
-	public Service getServiceByName(PerunSession sess, String name) throws InternalErrorException, ServiceNotExistsException {
+	public Service getServiceByName(PerunSession sess, String name) throws ServiceNotExistsException {
 		return getServicesManagerImpl().getServiceByName(sess, name);
 	}
 
 	@Override
-	public List<Service> getServices(PerunSession sess) throws InternalErrorException {
+	public List<Service> getServices(PerunSession sess) {
 		return getServicesManagerImpl().getServices(sess);
 	}
 
 	@Override
-	public List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public List<Service> getServicesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) {
 		return getServicesManagerImpl().getServicesByAttributeDefinition(sess, attributeDefinition);
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Service service) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Service service) {
 		return getServicesManagerImpl().getAssignedResources(sess, service);
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
+	private ServiceAttributes getData(PerunSession sess, Service service, Resource resource) {
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
 
@@ -321,7 +321,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return resourceServiceAttributes;
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) throws InternalErrorException {
+	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) {
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
 
@@ -350,7 +350,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	}
 
-	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) throws InternalErrorException {
+	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) {
 
 		// append resource attributes
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
@@ -404,7 +404,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return resourceServiceAttributes;
 	}
 
-	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources, boolean filterExpiredMembers) throws InternalErrorException {
+	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources, boolean filterExpiredMembers) {
 		ServiceAttributes voServiceAttributes = new ServiceAttributes();
 		voServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, vo));
 
@@ -416,7 +416,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return voServiceAttributes;
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes, boolean filterExpiredMembers) throws InternalErrorException {
+	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes, boolean filterExpiredMembers) {
 		ServiceAttributes groupServiceAttributes = new ServiceAttributes();
 		try {
 			// add group and group_resource attributes
@@ -467,7 +467,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return groupServiceAttributes;
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException {
+	private ServiceAttributes getData(PerunSession sess, Service service, Resource resource, Member member) {
 		ServiceAttributes memberServiceAttributes = new ServiceAttributes();
 		try {
 			memberServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, resource, true));
@@ -477,7 +477,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return memberServiceAttributes;
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Member member) throws InternalErrorException {
+	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Member member) {
 		ServiceAttributes memberServiceAttributes = new ServiceAttributes();
 
 		User user;
@@ -494,7 +494,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException {
+	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -508,7 +508,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException {
+	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -550,7 +550,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, VoNotExistsException {
+	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws VoNotExistsException {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -580,7 +580,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException {
+	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -594,22 +594,22 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public List<ServicesPackage> getServicesPackages(PerunSession sess) throws InternalErrorException {
+	public List<ServicesPackage> getServicesPackages(PerunSession sess) {
 		return getServicesManagerImpl().getServicesPackages(sess);
 	}
 
 	@Override
-	public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException {
+	public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws ServicesPackageNotExistsException {
 		return getServicesManagerImpl().getServicesPackageById(sess, servicesPackageId);
 	}
 
 	@Override
-	public ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws InternalErrorException, ServicesPackageNotExistsException {
+	public ServicesPackage getServicesPackageByName(PerunSession sess, String name) throws ServicesPackageNotExistsException {
 		return getServicesManagerImpl().getServicesPackageByName(sess, name);
 	}
 
 	@Override
-	public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageExistsException {
+	public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws ServicesPackageExistsException {
 		Utils.notNull(servicesPackage.getDescription(), "servicesPackage.getDescription()");
 		Utils.notNull(servicesPackage.getName(), "servicesPackage.getName()");
 
@@ -624,7 +624,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
+	public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
 		Utils.notNull(servicesPackage.getDescription(), "servicesPackage.getDescription()");
 		Utils.notNull(servicesPackage.getName(), "servicesPackage.getName()");
 		getServicesManagerImpl().updateServicesPackage(sess, servicesPackage);
@@ -632,7 +632,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, RelationExistsException {
+	public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws RelationExistsException {
 		if(getServicesFromServicesPackage(sess, servicesPackage).isEmpty()) {
 			getServicesManagerImpl().deleteServicesPackage(sess, servicesPackage);
 			getPerunBl().getAuditer().log(sess, new ServicesPackageDeleted(servicesPackage));
@@ -642,24 +642,24 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException {
+	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyAssignedException {
 		getServicesManagerImpl().addServiceToServicesPackage(sess, servicesPackage, service);
 		getPerunBl().getAuditer().log(sess, new ServiceAddedToServicePackage(service, servicesPackage));
 	}
 
 	@Override
-	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyRemovedFromServicePackageException {
+	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyRemovedFromServicePackageException {
 		getServicesManagerImpl().removeServiceFromServicesPackage(sess, servicesPackage, service);
 		getPerunBl().getAuditer().log(sess, new ServiceRemovedFromServicesPackage(service, servicesPackage));
 	}
 
 	@Override
-	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
+	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) {
 		return getServicesManagerImpl().getServicesFromServicesPackage(sess, servicesPackage);
 	}
 
 	@Override
-	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeAlreadyAssignedException {
+	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws AttributeAlreadyAssignedException {
 		//check if attribute isn't already added
 		List<AttributeDefinition> requiredAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributesDefinition(sess, service);
 		if(requiredAttributes.contains(attribute)) throw new AttributeAlreadyAssignedException(attribute);
@@ -669,31 +669,31 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeAlreadyAssignedException {
+	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws AttributeAlreadyAssignedException {
 		getServicesManagerImpl().addRequiredAttributes(sess, service, attributes);
 		getPerunBl().getAuditer().log(sess, new AttributesAddedAsRequiredToService(attributes, service));
 	}
 
 	@Override
-	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeNotAssignedException {
+	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws AttributeNotAssignedException {
 		getServicesManagerImpl().removeRequiredAttribute(sess, service, attribute);
 		getPerunBl().getAuditer().log(sess, new RequiredAttributeRemovedFromService(attribute, service));
 	}
 
 	@Override
-	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotAssignedException {
+	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws AttributeNotAssignedException {
 		getServicesManagerImpl().removeRequiredAttributes(sess, service, attributes);
 		getPerunBl().getAuditer().log(sess, new RequiredAttributesRemovedFromService(attributes, service));
 	}
 
 	@Override
-	public void removeAllRequiredAttributes(PerunSession sess, Service service) throws InternalErrorException {
+	public void removeAllRequiredAttributes(PerunSession sess, Service service) {
 		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
 		getPerunBl().getAuditer().log(sess, new AllRequiredAttributesRemovedFromService(service));
 	}
 
 	@Override
-	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException {
+	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException {
 		if(!getServicesManagerImpl().destinationExists(sess, destination)) {
 			try {
 				//Try to get the destination without id
@@ -718,7 +718,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException {
+	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) {
 		if(!getServicesManagerImpl().destinationExists(perunSession, destination)) {
 			try {
 				//Try to get the destination without id
@@ -746,7 +746,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return destination;
 	}
 
-	private Destination addDestinationEvenIfAlreadyExists(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
+	private Destination addDestinationEvenIfAlreadyExists(PerunSession sess, Service service, Facility facility, Destination destination) {
 		if(!getServicesManagerImpl().destinationExists(sess, destination)) {
 			try {
 				//Try to get the destination without id
@@ -773,7 +773,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyRemovedException {
+	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyRemovedException {
 		if(!getServicesManagerImpl().destinationExists(sess, destination)) {
 			try {
 				//Try to get the destination without id
@@ -788,78 +788,78 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public Destination getDestinationById(PerunSession sess, int id) throws InternalErrorException, DestinationNotExistsException {
+	public Destination getDestinationById(PerunSession sess, int id) throws DestinationNotExistsException {
 		return getServicesManagerImpl().getDestinationById(sess, id);
 	}
 
 	@Override
-	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) {
 		List<Destination> destinations = getServicesManagerImpl().getDestinations(sess, service, facility);
 
 		return destinations;
 	}
 
 	@Override
-	public List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException {
+	public List<Destination> getDestinations(PerunSession perunSession) {
 		List<Destination> destinations = getServicesManagerImpl().getDestinations(perunSession);
 
 		return destinations;
 	}
 
 	@Override
-	public List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public List<Destination> getDestinations(PerunSession perunSession, Facility facility) {
 		return getServicesManagerImpl().getDestinations(perunSession, facility);
 	}
 
 	@Override
-	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException{
+	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) {
 		return getServicesManagerImpl().getAllRichDestinations(perunSession, facility);
 	}
 
 	@Override
-	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws InternalErrorException{
+	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) {
 		return getServicesManagerImpl().getAllRichDestinations(perunSession, service);
 	}
 
 	@Override
-	public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws InternalErrorException{
+	public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) {
 		return getServicesManagerImpl().getRichDestinations(perunSession, facility, service);
 	}
 
 	@Override
-	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) {
 		getServicesManagerImpl().removeAllDestinations(sess, service, facility);
 		//TODO remove destination from destination taable if is not used anymore
 		getPerunBl().getAuditer().log(sess, new DestinationsRemovedFromService(service, facility));
 	}
 
 	@Override
-	public void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public void removeAllDestinations(PerunSession perunSession, Facility facility) {
 		getServicesManagerImpl().removeAllDestinations(perunSession, facility);
 		getPerunBl().getAuditer().log(perunSession, new DestinationsRemovedFromAllServices(facility));
 	}
 
 	@Override
-	public void checkServiceExists(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException {
+	public void checkServiceExists(PerunSession sess, Service service) throws ServiceNotExistsException {
 		getServicesManagerImpl().checkServiceExists(sess, service);
 	}
 
 	@Override
-	public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException {
+	public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws ServicesPackageNotExistsException {
 		getServicesManagerImpl().checkServicesPackageExists(sess, servicesPackage);
 	}
 
 	@Override
-	public int getDestinationIdByName(PerunSession sess, String name, String type) throws InternalErrorException, DestinationNotExistsException {
+	public int getDestinationIdByName(PerunSession sess, String name, String type) throws DestinationNotExistsException {
 		return servicesManagerImpl.getDestination(sess, name, type).getId();
 	}
 
 	@Override
-	public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Service> getAssignedServices(PerunSession sess, Facility facility) {
 		return servicesManagerImpl.getAssignedServices(sess, facility);
 	}
 
-	public Destination createDestination(PerunSession sess, Destination destination) throws InternalErrorException, DestinationExistsException {
+	public Destination createDestination(PerunSession sess, Destination destination) throws DestinationExistsException {
 		if(getServicesManagerImpl().destinationExists(sess, destination)) throw new DestinationExistsException(destination);
 		destination = getServicesManagerImpl().createDestination(sess, destination);
 		getPerunBl().getAuditer().log(sess, new DestinationCreated(destination));
@@ -893,7 +893,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public List<Destination> addDestinationsForAllServicesOnFacility(PerunSession sess, Facility facility, Destination destination)
-	throws InternalErrorException, DestinationAlreadyAssignedException {
+	throws DestinationAlreadyAssignedException {
 	List<Service> services = this.getAssignedServices(sess, facility);
 	List<Destination> destinations = new ArrayList<>();
 
@@ -905,7 +905,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException {
+	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws DestinationAlreadyAssignedException {
 		// Get all hosts
 		List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
 		List<Destination> destinations = new ArrayList<>();
@@ -923,7 +923,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws InternalErrorException {
+	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) {
 		List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
 		List<Destination> destinations = new ArrayList<>();
 
@@ -941,7 +941,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Facility facility) {
 		//First generate services
 		List<Service> services = getPerunBl().getServicesManagerBl().getAssignedServices(perunSession, facility);
 		return this.addDestinationsDefinedByHostsOnFacility(perunSession, services, facility);
@@ -949,13 +949,13 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 
 	@Override
-	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) {
 		List<Destination> destinations = getServicesManagerImpl().getFacilitiesDestinations(sess, vo);
 		return destinations;
 	}
 
 	@Override
-	public int getDestinationsCount(PerunSession sess) throws InternalErrorException {
+	public int getDestinationsCount(PerunSession sess) {
 		return getServicesManagerImpl().getDestinationsCount(sess);
 	}
 }

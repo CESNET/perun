@@ -41,7 +41,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 	 * @throws WrongAttributeValueException if login is not permitted
 	 */
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if (unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
 
 		super.checkAttributeSyntax(sess, user, attribute);
@@ -58,7 +58,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// check is the same as VŠUP login
 		try {
 			Attribute a = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, VSUP_NAMESPACE);
@@ -85,7 +85,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 

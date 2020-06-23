@@ -113,7 +113,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) {
 		//get already filled value obtained from UserExtSources
 		Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
 
@@ -137,7 +137,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 	 * @return Set of collected affiliations
 	 * @throws InternalErrorException When some error occurs, see exception cause for details.
 	 */
-	private Set<String> getAffiliationsManuallyAssigned(PerunSessionImpl sess, User user) throws InternalErrorException {
+	private Set<String> getAffiliationsManuallyAssigned(PerunSessionImpl sess, User user) {
 		Set<String> result = new HashSet<>();
 
 		Attribute manualEPSAAttr = null;
@@ -176,7 +176,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 	 * @return Set of collected affiliations
 	 * @throws InternalErrorException When some error occurs, see exception cause for details.
 	 */
-	private Set<String> getAffiliationsFromGroups(PerunSessionImpl sess, User user) throws InternalErrorException {
+	private Set<String> getAffiliationsFromGroups(PerunSessionImpl sess, User user) {
 		Set<String> result = new HashSet<>();
 
 		List<Member> validVoMembers = sess.getPerunBl().getMembersManagerBl().getMembersByUserWithStatus(sess, user, Status.VALID);
@@ -244,7 +244,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		// generic handling
 		List<AuditEvent> resolvingMessages = super.resolveVirtualAttributeValueChange(perunSession, message);

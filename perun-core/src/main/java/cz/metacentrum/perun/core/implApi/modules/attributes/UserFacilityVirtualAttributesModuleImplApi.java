@@ -26,7 +26,7 @@ public interface UserFacilityVirtualAttributesModuleImplApi extends UserFacility
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute getAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException;
+	Attribute getAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute);
 
 	/**
 	 * Method sets attributes' values which are dependent on this virtual attribute.
@@ -39,7 +39,7 @@ public interface UserFacilityVirtualAttributesModuleImplApi extends UserFacility
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	boolean setAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException;
 
 	/**
 	 * Currently do nothing.

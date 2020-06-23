@@ -66,7 +66,7 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 
 	// methods -------------------------
 
-	public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException, InternalErrorException {
+	public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException {
 		if (t.getCreatedDate() == null) {
 			t.setCreatedDate(new Date());
 		}
@@ -90,7 +90,7 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 	}
 
 	@Override
-	public void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
+	public void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException {
 
 		getThanksManagerDao().deleteThanks(sess, thanks);
 		log.debug("{} deleted.", thanks);
@@ -107,27 +107,27 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 	}
 
 	@Override
-	public boolean thanksExist(Thanks thanks) throws InternalErrorException {
+	public boolean thanksExist(Thanks thanks) {
 		return getThanksManagerDao().thanksExist(thanks);
 	}
 
 	@Override
-	public Thanks getThanksById(int id) throws CabinetException, InternalErrorException {
+	public Thanks getThanksById(int id) throws CabinetException {
 		return getThanksManagerDao().getThanksById(id);
 	}
 
 	@Override
-	public List<Thanks> getThanksByPublicationId(int publicationId) throws InternalErrorException {
+	public List<Thanks> getThanksByPublicationId(int publicationId) {
 		return getThanksManagerDao().getThanksByPublicationId(publicationId);
 	}
 
 	@Override
-	public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) throws InternalErrorException {
+	public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) {
 		return getThanksManagerDao().getRichThanksByPublicationId(publicationId);
 	}
 
 	@Override
-	public List<ThanksForGUI> getRichThanksByUserId(int userId) throws InternalErrorException {
+	public List<ThanksForGUI> getRichThanksByUserId(int userId) {
 		return getThanksManagerDao().getRichThanksByUserId(userId);
 	}
 

@@ -56,7 +56,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 	 * @throws PerunException in case of internal error in Perun
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, InternalErrorException, RegistrarException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, ExternallyManagedException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
+	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, RegistrarException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, ExternallyManagedException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
 		// get perun and beans from session
 		PerunBl perun = (PerunBl)session.getPerun();
 		Vo vo = app.getVo();
@@ -128,7 +128,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 	 *
 	 * @return collection IDs set
 	 */
-	private Set<String> getCollectionIDsFromApplication(PerunSession session, Application app) throws RegistrarException, PrivilegeException, InternalErrorException {
+	private Set<String> getCollectionIDsFromApplication(PerunSession session, Application app) throws RegistrarException, PrivilegeException {
 		String collectionsString = null;
 		List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
 		for (ApplicationFormItemData field : formData) {
@@ -157,7 +157,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 	 * @return Map of collection IDs to group.
 	 */
 	private Map<String, Group> getCollectionIDsToGroupsMap (PerunSession session, PerunBl perun, Group directoryGroup)
-			throws GroupNotExistsException, WrongAttributeAssignmentException, InternalErrorException,
+			throws GroupNotExistsException, WrongAttributeAssignmentException,
 			AttributeNotExistsException, PrivilegeException {
 		Map<String, Group> collectionIDsToGroupMap = new HashMap<>();
 
@@ -186,7 +186,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 	}
 
 	private Set<String> getCollectionIDs(PerunSession session, PerunBl perun, Group collectionsGroup)
-			throws InternalErrorException, PrivilegeException, WrongAttributeAssignmentException,
+			throws PrivilegeException, WrongAttributeAssignmentException,
 			AttributeNotExistsException, GroupNotExistsException {
 		return getCollectionIDsToGroupsMap(session, perun, collectionsGroup).keySet();
 	}

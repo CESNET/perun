@@ -37,7 +37,7 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 	private final static String A_U_V_USER_CERT_DNS = AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		Map<String, String> userCertDNs = new LinkedHashMap<>();
 
@@ -65,7 +65,7 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
@@ -78,7 +78,7 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 		return resolvingMessages;
 	}
 
-	private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws AttributeNotExistsException, InternalErrorException {
+	private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws AttributeNotExistsException {
 		AttributeDefinition attrVirtUserCertDNsDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, A_U_V_USER_CERT_DNS);
 		return new AttributeChangedForUser(new Attribute(attrVirtUserCertDNsDefinition), user);
 	}

@@ -128,7 +128,7 @@ public class PerunBlImpl implements PerunBl {
 	}
 
 	@Override
-	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
+	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) {
 		PerunSessionImpl perunSession = new PerunSessionImpl(this, principal, client);
 		log.debug("creating PerunSession for user {}", principal.getActor());
 		if (principal.getUser() == null && usersManagerBl != null && !dontLookupUsersForLogins.contains(principal.getActor())) {
@@ -182,7 +182,7 @@ public class PerunBlImpl implements PerunBl {
 	 * @param additionalAttributes Map of attribute names=values
 	 * @throws InternalErrorException When implementation fails
 	 */
-	public void setUserExtSourceAttributes(PerunSession session, UserExtSource ues, Map<String, String> additionalAttributes) throws InternalErrorException {
+	public void setUserExtSourceAttributes(PerunSession session, UserExtSource ues, Map<String, String> additionalAttributes) {
 
 		// update selected attributes for given extsourcetype
 		List<AttributeDefinition> attrs = coreConfig.getAttributesForUpdate().get(ues.getExtSource().getType());
@@ -561,7 +561,7 @@ public class PerunBlImpl implements PerunBl {
 	/**
 	 * Call managers' initialization methods
 	 */
-	public void initialize() throws InternalErrorException {
+	public void initialize() {
 		this.extSourcesManagerBl.initialize(this.getPerunSession());
 		this.auditer.initialize();
 		if (coreConfig.isCacheEnabled()) {

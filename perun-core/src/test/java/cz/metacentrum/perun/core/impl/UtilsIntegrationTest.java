@@ -178,7 +178,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void extendDateByPeriod() throws InternalErrorException {
+	public void extendDateByPeriod() {
 		System.out.println("Utils.extendDateByPeriod");
 		LocalDate localDate = Utils.extendDateByPeriod(LocalDate.of(2019,2,8), "+1d");
 		assertEquals(LocalDate.of(2019, 2, 9), localDate);
@@ -191,7 +191,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test(expected = InternalErrorException.class)
-	public void extendDateByPeriodInBadFormat() throws InternalErrorException {
+	public void extendDateByPeriodInBadFormat() {
 		System.out.println("Utils.extendDateByPeriodInBadFormat");
 		LocalDate localDate = Utils.extendDateByPeriod(LocalDate.of(2019,2,8), "+1day");
 	}
@@ -208,7 +208,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void prepareGracePeriodDate() throws InternalErrorException {
+	public void prepareGracePeriodDate() {
 		System.out.println("Utils.prepareGracePeriodDate");
 		String gracePeriod = "5d";
 		Pattern p = Pattern.compile("([0-9]+)([dmy]?)");

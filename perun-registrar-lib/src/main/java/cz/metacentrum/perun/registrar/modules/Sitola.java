@@ -32,7 +32,7 @@ public class Sitola extends DefaultRegistrarModule {
 	 * All new Sitola members will have MU eduroam identity added if they posses MU login.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, UserNotExistsException, InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, UserNotExistsException, AttributeNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// get perun from session
 		PerunBl perun = (PerunBl) session.getPerun();

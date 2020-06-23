@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuring
 public class urn_perun_member_attribute_def_virt_isSuspended extends MemberVirtualAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		attribute.setValue(member.isSuspended());
 		return attribute;

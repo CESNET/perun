@@ -63,7 +63,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		Attribute resultAttribute = new Attribute(attribute);
 		try {
@@ -84,7 +84,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 		// map of reserved vsup mails
 		Attribute reservedMailsAttribute;

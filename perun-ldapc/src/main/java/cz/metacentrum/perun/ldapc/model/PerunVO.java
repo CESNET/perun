@@ -15,7 +15,7 @@ public interface PerunVO extends PerunEntry<Vo> {
 	 * @param vo the vo
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void addVo(Vo vo) throws InternalErrorException;
+	public void addVo(Vo vo);
 
 	/**
 	 * Delete existing vo in LDAP.
@@ -23,9 +23,9 @@ public interface PerunVO extends PerunEntry<Vo> {
 	 * @param vo the vo
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void deleteVo(Vo vo) throws InternalErrorException;
+	public void deleteVo(Vo vo);
 
-	public void updateVo(Vo vo) throws InternalErrorException;
+	public void updateVo(Vo vo);
 
 	/**
 	 * Find Vo in LDAP and return shortName of this Vo.
@@ -34,14 +34,14 @@ public interface PerunVO extends PerunEntry<Vo> {
 	 * @return shortName of vo with vo id
 	 * @throws InternalErrorException if shortName has not right format (null, not exists, 0 length, more than 1 shortName exist)
 	 */
-	public String getVoShortName(int voId) throws InternalErrorException;
+	public String getVoShortName(int voId);
 
 
 	public void addMemberToVO(int voId, Member member);
 
 	public void removeMemberFromVO(int voId, Member member);
 
-	public void synchronizeVo(Vo vo, Iterable<Attribute> attrs, List<Member> members) throws InternalErrorException;
+	public void synchronizeVo(Vo vo, Iterable<Attribute> attrs, List<Member> members);
 
 	public void synchronizeMembers(Vo vo, List<Member> members);
 

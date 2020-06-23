@@ -27,7 +27,7 @@ import java.util.List;
 public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends GroupResourceVirtualAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getGoogleGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 		// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
 		String namespace = (googleGroupNameNamespaceAttribute.valueAsString()).replaceAll("\\.", "-");
@@ -47,7 +47,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute googleGroupNameNamespaceAttribute;
@@ -83,7 +83,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute googleGroupNameNamespaceAttribute;
@@ -106,7 +106,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getGoogleGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {

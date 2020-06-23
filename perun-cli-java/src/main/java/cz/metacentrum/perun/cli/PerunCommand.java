@@ -32,7 +32,7 @@ public abstract class PerunCommand {
 	public void addOptions(Options options) {
 	}
 
-	public abstract void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException;
+	public abstract void executeCommand(PerunCLI.CommandContext ctx);
 
 
 	private void addEntityOptions(Options options, String entity, String idOption, String nameOption,  String nameType) {

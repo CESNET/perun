@@ -60,7 +60,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Facility getFacilityById(PerunSession perunSession, int id) throws InternalErrorException, FacilityNotExistsException;
+	Facility getFacilityById(PerunSession perunSession, int id) throws FacilityNotExistsException;
 
 	/**
 	 * Searches for the Facility by its name.
@@ -72,7 +72,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Facility getFacilityByName(PerunSession perunSession, String name) throws InternalErrorException, FacilityNotExistsException;
+	Facility getFacilityByName(PerunSession perunSession, String name) throws FacilityNotExistsException;
 
 	/**
 	 * Get all rich Facilities with all their owners.
@@ -81,7 +81,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of RichFacilities with owners
 	 * @throws InternalErrorException
 	 */
-	List<RichFacility> getRichFacilities(PerunSession perunSession) throws InternalErrorException;
+	List<RichFacility> getRichFacilities(PerunSession perunSession);
 
 	/**
 	 * Get all RichFacilities with all their owners from list of Facilities.
@@ -91,7 +91,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of RichFacilities with owners
 	 * @throws InternalErrorException
 	 */
-	List<RichFacility> getRichFacilities(PerunSession perunSession, List<Facility> facilities) throws InternalErrorException;
+	List<RichFacility> getRichFacilities(PerunSession perunSession, List<Facility> facilities);
 
 	/**
 	 * Searches for the Facilities by theirs destination.
@@ -104,7 +104,7 @@ public interface FacilitiesManagerBl {
 	 * @throws FacilityNotExistsException
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByDestination(PerunSession perunSession, String destination) throws InternalErrorException, FacilityNotExistsException;
+	List<Facility> getFacilitiesByDestination(PerunSession perunSession, String destination) throws FacilityNotExistsException;
 
 	/**
 	 * List all facilities.
@@ -115,7 +115,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilities(PerunSession perunSession) throws InternalErrorException;
+	List<Facility> getFacilities(PerunSession perunSession);
 
 	/**
 	 * Get count of all facilities.
@@ -126,7 +126,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getFacilitiesCount(PerunSession perunSession) throws InternalErrorException;
+	int getFacilitiesCount(PerunSession perunSession);
 
 
 	/**
@@ -139,7 +139,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Owner> getOwners(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Owner> getOwners(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Updates owners of facility
@@ -153,7 +153,7 @@ public interface FacilitiesManagerBl {
 	 * @deprecated Use addOwner and removeOwner instead
 	 */
 	@Deprecated
-	void setOwners(PerunSession perunSession, Facility facility, List<Owner> owners) throws InternalErrorException;
+	void setOwners(PerunSession perunSession, Facility facility, List<Owner> owners);
 
 	/**
 	 * Add owner of the facility
@@ -165,7 +165,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws OwnerAlreadyAssignedException
 	 */
-	void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyAssignedException;
+	void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyAssignedException;
 
 	/**
 	 * Remove owner of the facility
@@ -177,7 +177,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws OwnerAlreadyRemovedException
 	 */
-	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException;
+	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws OwnerAlreadyRemovedException;
 
 	/**
 	 * Copy all owners of the source facility to the destination facility.
@@ -188,7 +188,7 @@ public interface FacilitiesManagerBl {
 	 * @param destinationFacility
 	 * @throws InternalErrorException
 	 */
-	void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException;
+	void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility);
 
 
 	/**
@@ -201,7 +201,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getAllowedVos(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Vo> getAllowedVos(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Get all Groups which can use this facility (Groups must be assigned to resource which belongs to this facility)
@@ -215,7 +215,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of allowed groups
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+	List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService);
 
 	/**
 	 * Get all RichGroups which can use this facility (Groups must be assigned to Resource which belongs to this facility)
@@ -230,7 +230,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of allowed groups
 	 * @throws InternalErrorException when implementation fails
 	 */
-	List<RichGroup> getAllowedRichGroupsWithAttributes(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService, List<String> attrNames) throws InternalErrorException;
+	List<RichGroup> getAllowedRichGroupsWithAttributes(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService, List<String> attrNames);
 
 	/**
 	 * Return all users who can use this facility
@@ -253,7 +253,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+	List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService);
 
 	/**
 	 * Return all users who can use this facility and who are not expired in any of groups associated with any resource
@@ -267,7 +267,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 */
-	List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+	List<User> getAllowedUsersNotExpiredInGroups(PerunSession sess, Facility facility, Vo specificVo, Service specificService);
 
 	/**
 	 * Return all members, which are "allowed" on facility.
@@ -279,7 +279,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Member> getAllowedMembers(PerunSession sess, Facility facility);
 
 	/**
 	 * Returns all resources assigned to the facility.
@@ -291,7 +291,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Returns all resources assigned to the facility with optionally VO and Service specified
@@ -305,7 +305,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService);
 
 	/**
 	 * Returns all rich resources assigned to the facility with VO property filled
@@ -317,7 +317,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<RichResource> getAssignedRichResources(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Store the facility.
@@ -328,7 +328,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws FacilityExistsException
 	 */
-	Facility createFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityExistsException;
+	Facility createFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException;
 
 	/**
 	 * Delete the facility by id.
@@ -344,7 +344,7 @@ public interface FacilitiesManagerBl {
 	 * @throws ResourceAlreadyRemovedException if there are at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException there are at least 1 group on resource not affected by deleting from DB
 	 */
-	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Updates facility.
@@ -357,7 +357,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws FacilityExistsException
 	 */
-	Facility updateFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityExistsException;
+	Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityExistsException;
 
 	/**
 	 * Returns list of all facilities owned by the owner.
@@ -369,7 +369,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getOwnerFacilities(PerunSession perunSession, Owner owner) throws InternalErrorException;
+	List<Facility> getOwnerFacilities(PerunSession perunSession, Owner owner);
 
 	/**
 	 * Get facilities which are assigned to Group (via resource).
@@ -380,7 +380,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getAssignedFacilities(PerunSession sess, Group group) throws InternalErrorException;
+	List<Facility> getAssignedFacilities(PerunSession sess, Group group);
 
 	/**
 	 * Get facilities which have the member access on.
@@ -391,7 +391,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getAssignedFacilities(PerunSession sess, Member member) throws InternalErrorException;
+	List<Facility> getAssignedFacilities(PerunSession sess, Member member);
 
 	/**
 	 * Get facilities where the user is assigned.
@@ -402,7 +402,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getAssignedFacilities(PerunSession sess, User user) throws InternalErrorException;
+	List<Facility> getAssignedFacilities(PerunSession sess, User user);
 
 	/**
 	 * Get facilities where the user is allowed.
@@ -431,7 +431,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getAssignedFacilities(PerunSession sess, Service service) throws InternalErrorException;
+	List<Facility> getAssignedFacilities(PerunSession sess, Service service);
 
 	/**
 	 * Get facilities where the security team is assigned
@@ -442,7 +442,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam);
 
 	/**
 	 * Returns all facilities that have set the attribute 'attributeName' with the value 'attributeValue'.
@@ -455,7 +455,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws WrongAttributeAssignmentException;
 
 	/**
 	 * List hosts of Facility.
@@ -468,7 +468,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 *
 	 */
-	List<Host> getHosts(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Host> getHosts(PerunSession sess, Facility facility);
 
 	/**
 	 * Count hosts in the facility.
@@ -480,7 +480,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getHostsCount(PerunSession sess, Facility facility) throws InternalErrorException;
+	int getHostsCount(PerunSession sess, Facility facility);
 
 	/**
 	 * Create hosts in Perun and add them to the Facility
@@ -497,7 +497,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws HostExistsException
 	 */
-	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostExistsException;
+	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostExistsException;
 
 	/**
 	 * Create hosts in Perun and add them to the Facility.
@@ -516,7 +516,7 @@ public interface FacilitiesManagerBl {
 	 * @throws HostExistsException
 	 * @throws WrongPatternException when syntax of any of the hostnames is wrong
 	 */
-	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws InternalErrorException, HostExistsException, WrongPatternException;
+	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws HostExistsException, WrongPatternException;
 
 	/**
 	 * Adds host to the Facility.
@@ -529,7 +529,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Host addHost(PerunSession perunSession, Host host, Facility facility) throws InternalErrorException;
+	Host addHost(PerunSession perunSession, Host host, Facility facility);
 
 	/**
 	 * Remove hosts from the Facility.
@@ -540,7 +540,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws HostAlreadyRemovedException if 0 rows was affected by deleting from DB
 	 */
-	void removeHost(PerunSession perunSession, Host host) throws InternalErrorException, HostAlreadyRemovedException;
+	void removeHost(PerunSession perunSession, Host host) throws HostAlreadyRemovedException;
 
 	/**
 	 * Remove hosts from the Facility.
@@ -552,7 +552,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws HostAlreadyRemovedException if there is at least 1 not removed host (not affected by removing from DB)
 	 */
-	void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostAlreadyRemovedException;
+	void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostAlreadyRemovedException;
 
 	/**
 	 * Get the host by its ID.
@@ -563,7 +563,7 @@ public interface FacilitiesManagerBl {
 	 * @throws HostNotExistsException
 	 * @throws InternalErrorException
 	 */
-	Host getHostById(PerunSession sess, int id) throws HostNotExistsException, InternalErrorException;
+	Host getHostById(PerunSession sess, int id) throws HostNotExistsException;
 
 	/**
 	 * Get all hosts with this hostname (from all facilities).
@@ -574,7 +574,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of hosts by hostname
 	 * @throws InternalErrorException
 	 */
-	List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException;
+	List<Host> getHostsByHostname(PerunSession sess, String hostname);
 
 	/**
 	 * Return facility which has the host.
@@ -584,7 +584,7 @@ public interface FacilitiesManagerBl {
 	 * @return facility
 	 * @throws InternalErrorException
 	 */
-	Facility getFacilityForHost(PerunSession sess, Host host) throws InternalErrorException;
+	Facility getFacilityForHost(PerunSession sess, Host host);
 
 	/**
 	 * Return all facilities where exists host with the specific hostname
@@ -594,7 +594,7 @@ public interface FacilitiesManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException;
+	List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname);
 
 	/**
 	 * Check if host exists in the facility.
@@ -621,7 +621,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws InternalErrorException;
+	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins);
 
 	/**
 	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
@@ -643,7 +643,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichAdmins(PerunSession perunSession, Facility facility, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Facility facility, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException;
 
 	/**
 	 * Gets list of all user administrators of the Facility.
@@ -655,7 +655,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, Facility facility);
 
 	/**
 	 * Gets list of direct user administrators of the Facility.
@@ -667,7 +667,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<User> getDirectAdmins(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Gets list of all group administrators of the Facility.
@@ -677,7 +677,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of Groups that are admins in the facility
 	 * @throws InternalErrorException
 	 */
-	List<Group> getAdminGroups(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession sess, Facility facility);
 
 	/**
 	 * Get all Facility admins without attributes.
@@ -688,7 +688,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<RichUser> getRichAdmins(PerunSession sess, Facility facility);
 
 	/**
 	 * Get all Facility admins, which are assigned directly (not by group membership) without attributes.
@@ -699,7 +699,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<RichUser> getDirectRichAdmins(PerunSession sess, Facility facility);
 
 	/**
 	 * Get all Facility admins with attributes.
@@ -711,7 +711,7 @@ public interface FacilitiesManagerBl {
 	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdminsWithAttributes(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdminsWithAttributes(PerunSession sess, Facility facility) throws UserNotExistsException;
 
 	/**
 	 * Get list of Facility administrators with specific attributes.
@@ -724,7 +724,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException;
+	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes);
 
 	/**
 	 * Get list of Facility administrators. which are assigned directly (not by group membership) with specific attributes.
@@ -737,7 +737,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException;
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes);
 
 	/**
 	 * Returns list of Facilities, where the user is an admin.
@@ -747,7 +747,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of Facilities, where the user is an admin.
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException;
+	List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user);
 
 	/**
 	 * Returns list of facilities connected with a group
@@ -757,7 +757,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of facilities connected with group
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Group group) throws InternalErrorException;
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Group group);
 
 	/**
 	 * Returns list of facilities connected with a member
@@ -767,7 +767,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of facilities connected with member
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Member member) throws InternalErrorException;
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Member member);
 
 	/**
 	 * Returns list of facilities connected with a resource
@@ -777,7 +777,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of facilities connected with resource
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException;
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Resource resource);
 
 	/**
 	 * Returns list of facilities connected with a user
@@ -787,7 +787,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of facilities connected with user
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByPerunBean(PerunSession sess, User user) throws InternalErrorException;
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, User user);
 
 	/**
 	 * Returns list of facilities connected with a host
@@ -797,7 +797,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of facilities connected with host
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Host host) throws InternalErrorException;
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Host host);
 
 	/**
 	 * Returns list of facilities connected with a vo
@@ -807,11 +807,11 @@ public interface FacilitiesManagerBl {
 	 * @return list of facilities connected with vo
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Vo vo);
 
-	void checkFacilityExists(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException;
+	void checkFacilityExists(PerunSession sess, Facility facility) throws FacilityNotExistsException;
 
-	void checkHostExists(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException;
+	void checkHostExists(PerunSession sess, Host host) throws HostNotExistsException;
 
 	/**
 	 * Returns list of Users assigned to chosen Facility.
@@ -822,7 +822,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 
-	List<User> getAssignedUsers(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<User> getAssignedUsers(PerunSession sess, Facility facility);
 
 	/**
 	 * Returns list of Users assigned with chosen Facility containing resources where service is assigned.
@@ -834,7 +834,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 
-	List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws InternalErrorException;
+	List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service);
 
 	/**
 	 * Copy all managers(admins) of the source facility to the destination facility.
@@ -846,7 +846,7 @@ public interface FacilitiesManagerBl {
 	 * @param destinationFacility
 	 * @throws InternalErrorException
 	 */
-	void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException;
+	void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility);
 
 	/**
 	 * Copy all attributes of the source facility to the destination facility.
@@ -861,7 +861,7 @@ public interface FacilitiesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is illegal
 	 * @throws WrongReferenceAttributeValueException if the attribute value is illegal
 	 */
-	void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	// FACILITY CONTACTS METHODS
 
@@ -873,7 +873,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of ContactGroups for the owner
 	 * @throws InternalErrorException
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner);
 
 	/**
 	 * Get list of contact groups for the user.
@@ -883,7 +883,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of ContactGroups for the user
 	 * @throws InternalErrorException
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user);
 
 	/**
 	 * Get list of contact groups for the group.
@@ -893,7 +893,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of ContactGroups for the group
 	 * @throws InternalErrorException
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group);
 
 	/**
 	 * Get list of contact groups for the facility
@@ -903,7 +903,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of ContactGroups for the facility
 	 * @throws InternalErrorException
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility);
 
 	/**
 	 * Get contact group for the facility and the contact group name
@@ -915,7 +915,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException;
+	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws FacilityContactNotExistsException;
 
 	/**
 	 * Get all exist contact group names.
@@ -924,7 +924,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of all contact group names
 	 * @throws InternalErrorException
 	 */
-	List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException;
+	List<String> getAllContactGroupNames(PerunSession sess);
 
 	/**
 	 * Create all contacts from list of contact groups
@@ -933,7 +933,7 @@ public interface FacilitiesManagerBl {
 	 * @param contactGroupsToAdd
 	 * @throws InternalErrorException
 	 */
-	void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws InternalErrorException;
+	void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd);
 
 	/**
 	 * Create all contacts from contact group
@@ -942,7 +942,7 @@ public interface FacilitiesManagerBl {
 	 * @param contactGroupToAdd
 	 * @throws InternalErrorException
 	 */
-	void addFacilityContact(PerunSession sess, ContactGroup contactGroupToAdd) throws InternalErrorException;
+	void addFacilityContact(PerunSession sess, ContactGroup contactGroupToAdd);
 
 	/**
 	 * Remove all facilities contacts assigned to this owner.
@@ -951,7 +951,7 @@ public interface FacilitiesManagerBl {
 	 * @param owner
 	 * @throws InternalErrorException
 	 */
-	void removeAllOwnerContacts(PerunSession sess, Owner owner) throws InternalErrorException;
+	void removeAllOwnerContacts(PerunSession sess, Owner owner);
 
 	/**
 	 * Remove all facilities contacts assigned to this user.
@@ -960,7 +960,7 @@ public interface FacilitiesManagerBl {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void removeAllUserContacts(PerunSession sess, User user) throws InternalErrorException;
+	void removeAllUserContacts(PerunSession sess, User user);
 
 	/**
 	 * Remove all facilities contacts assigned to this group.
@@ -969,7 +969,7 @@ public interface FacilitiesManagerBl {
 	 * @param group
 	 * @throws InternalErrorException
 	 */
-	void removeAllGroupContacts(PerunSession sess, Group group) throws InternalErrorException;
+	void removeAllGroupContacts(PerunSession sess, Group group);
 
 	/**
 	 * Remove all contacts from list of contact groups
@@ -978,7 +978,7 @@ public interface FacilitiesManagerBl {
 	 * @param contactGroupsToRemove
 	 * @throws InternalErrorException
 	 */
-	void removeFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToRemove) throws InternalErrorException;
+	void removeFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToRemove);
 
 	/**
 	 * Remove all contacts from contact group
@@ -987,7 +987,7 @@ public interface FacilitiesManagerBl {
 	 * @param contactGroupToRemove
 	 * @throws InternalErrorException
 	 */
-	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws InternalErrorException;
+	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove);
 
 	/**
 	 * Return all security teams which specific facility trusts
@@ -997,7 +997,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of assigned security teams
 	 * @throws InternalErrorException
 	 */
-	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility);
 
 	/**
 	 * Assign given security team to given facility (means the facility trusts the security team)
@@ -1007,7 +1007,7 @@ public interface FacilitiesManagerBl {
 	 * @param securityTeam
 	 * @throws InternalErrorException
 	 */
-	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam);
 
 	/**
 	 * Remove (Unassign) given security team from given facility
@@ -1017,7 +1017,7 @@ public interface FacilitiesManagerBl {
 	 * @param securityTeam
 	 * @throws InternalErrorException
 	 */
-	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam);
 
 	/**
 	 * Check if facility contact for the user already exists.
@@ -1030,7 +1030,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws FacilityContactNotExistsException;
 
 	/**
 	 * Check if facility contact for the group already exists.
@@ -1043,7 +1043,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws FacilityContactNotExistsException;
 
 	/**
 	 * Check if facility contact for the owner already exists.
@@ -1056,7 +1056,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws FacilityContactNotExistsException;
 
 	/**
 	 * Check if security team is <b>not</b> assigned to facility.
@@ -1068,7 +1068,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamAlreadyAssignedException
 	 */
-	void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamAlreadyAssignedException, InternalErrorException;
+	void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamAlreadyAssignedException;
 
 	/**
 	 * Check if security team is assigned to facility.
@@ -1080,7 +1080,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotAssignedException
 	 */
-	void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamNotAssignedException, InternalErrorException;
+	void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamNotAssignedException;
 
 	/**
 	 * Set ban for user on facility
@@ -1092,7 +1092,7 @@ public interface FacilitiesManagerBl {
 	 * @throws BanAlreadyExistsException
 	 *
 	 */
-	BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, BanAlreadyExistsException;
+	BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws BanAlreadyExistsException;
 
 	/**
 	 * Get Ban for user on facility by it's id
@@ -1103,7 +1103,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+	BanOnFacility getBanById(PerunSession sess, int banId) throws BanNotExistsException;
 
 	/**
 	 * Get true if any ban for user and facility exists.
@@ -1114,7 +1114,7 @@ public interface FacilitiesManagerBl {
 	 * @return true if ban exists
 	 * @throws InternalErrorException
 	 */
-	boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException;
+	boolean banExists(PerunSession sess, int userId, int facilityId);
 
 	/**
 	 * Get true if any band defined by id exists for any user and facility.
@@ -1124,7 +1124,7 @@ public interface FacilitiesManagerBl {
 	 * @return true if ban exists
 	 * @throws InternalErrorException
 	 */
-	boolean banExists(PerunSession sess, int banId) throws InternalErrorException;
+	boolean banExists(PerunSession sess, int banId);
 
 	/**
 	 * Check if ban already exists.
@@ -1137,7 +1137,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	void checkBanExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException;
+	void checkBanExists(PerunSession sess, int userId, int facilityId) throws BanNotExistsException;
 
 	/**
 	 * Check if ban already exists.
@@ -1149,7 +1149,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	void checkBanExists(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+	void checkBanExists(PerunSession sess, int banId) throws BanNotExistsException;
 
 	/**
 	 * Get specific facility ban.
@@ -1161,7 +1161,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException;
+	BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws BanNotExistsException;
 
 	/**
 	 * Get all facilities bans for user.
@@ -1171,7 +1171,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of bans for user on any facility
 	 * @throws InternalErrorException
 	 */
-	List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException;
+	List<BanOnFacility> getBansForUser(PerunSession sess, int userId);
 
 	/**
 	 * Get all users bans for facility
@@ -1181,7 +1181,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of all users bans on facility
 	 * @throws InternalErrorException
 	 */
-	List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException;
+	List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId);
 
 	/**
 	 * Get all expired bans on any facility to now date
@@ -1190,7 +1190,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of expired bans for any facility
 	 * @throws InternalErrorException
 	 */
-	List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException;
+	List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess);
 
 	/**
 	 * Update description and validity timestamp of specific ban.
@@ -1200,7 +1200,7 @@ public interface FacilitiesManagerBl {
 	 * @return updated ban
 	 * @throws InternalErrorException
 	 */
-	BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException;
+	BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility);
 
 	/**
 	 * Remove ban by id from facilities bans.
@@ -1210,7 +1210,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+	void removeBan(PerunSession sess, int banId) throws BanNotExistsException;
 
 	/**
 	 * Remove ban by user_id and facility_id.
@@ -1221,7 +1221,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
 	 */
-	void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException;
+	void removeBan(PerunSession sess, int userId, int facilityId) throws BanNotExistsException;
 
 	/**
 	 * Remove all expired bans on facilities to now date.
@@ -1232,5 +1232,5 @@ public interface FacilitiesManagerBl {
 	 * @param sess
 	 * @throws InternalErrorException
 	 */
-	void removeAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException;
+	void removeAllExpiredBansOnFacilities(PerunSession sess);
 }

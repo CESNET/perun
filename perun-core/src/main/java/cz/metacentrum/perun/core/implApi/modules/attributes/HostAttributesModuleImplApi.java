@@ -24,7 +24,7 @@ public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
-	void checkAttributeSyntax(PerunSessionImpl session, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSyntax(PerunSessionImpl session, Host host, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * Checks if value of assigned attribute to the host has valid semantics.

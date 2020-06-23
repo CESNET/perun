@@ -632,7 +632,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void createApplicationFormInVo(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException {
+	public void createApplicationFormInVo(PerunSession sess, Vo vo) throws PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
 			throw new PrivilegeException(sess, "createApplicationFormInVo");
@@ -647,7 +647,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void createApplicationFormInGroup(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException {
+	public void createApplicationFormInGroup(PerunSession sess, Group group) throws PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "createApplicationFormInGroup");
@@ -662,7 +662,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public ApplicationForm getFormForVo(final Vo vo) throws InternalErrorException, FormNotExistsException {
+	public ApplicationForm getFormForVo(final Vo vo) throws FormNotExistsException {
 
 		if (vo == null) throw new FormNotExistsException("VO can't be null");
 
@@ -685,7 +685,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public ApplicationForm getFormForGroup(final Group group) throws InternalErrorException, FormNotExistsException {
+	public ApplicationForm getFormForGroup(final Group group) throws FormNotExistsException {
 
 		if (group == null) throw new FormNotExistsException("Group can't be null");
 
@@ -713,7 +713,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public ApplicationForm getFormById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, FormNotExistsException {
+	public ApplicationForm getFormById(PerunSession sess, int id) throws PrivilegeException, FormNotExistsException {
 
 		try {
 			ApplicationForm form = jdbc.queryForObject(FORM_SELECT + " where id=?", (resultSet, arg1) -> {
@@ -761,7 +761,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public ApplicationForm getFormByItemId(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, FormNotExistsException {
+	public ApplicationForm getFormByItemId(PerunSession sess, int id) throws PrivilegeException, FormNotExistsException {
 
 		try {
 			ApplicationForm form = jdbc.queryForObject(FORM_SELECT + " where id=(select form_id from application_form_items where id=?)", (resultSet, arg1) -> {
@@ -814,7 +814,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Transactional
 	@Override
-	public ApplicationFormItem addFormItem(PerunSession user, ApplicationForm form, ApplicationFormItem item) throws PrivilegeException, InternalErrorException {
+	public ApplicationFormItem addFormItem(PerunSession user, ApplicationForm form, ApplicationFormItem item) throws PrivilegeException {
 
 		if (form.getGroup() == null) {
 			// VO application
@@ -869,7 +869,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException, InternalErrorException {
+	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException {
 
 		if (form.getGroup() == null) {
 			// VO application
@@ -947,7 +947,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public int updateForm(PerunSession user, ApplicationForm form) throws InternalErrorException, PrivilegeException {
+	public int updateForm(PerunSession user, ApplicationForm form) throws PrivilegeException {
 
 		if (form.getGroup() == null) {
 			// VO application
@@ -969,7 +969,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Transactional
 	@Override
-	public void deleteFormItem(PerunSession user, ApplicationForm form, int ordnum) throws InternalErrorException, PrivilegeException {
+	public void deleteFormItem(PerunSession user, ApplicationForm form, int ordnum) throws PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo())) {
 			throw new PrivilegeException(user, "deleteFormItem");
@@ -983,7 +983,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Transactional
 	@Override
-	public void moveFormItem(PerunSession user, ApplicationForm form, int ordnum, boolean up) throws InternalErrorException, PrivilegeException {
+	public void moveFormItem(PerunSession user, ApplicationForm form, int ordnum, boolean up) throws PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo())) {
 			throw new PrivilegeException(user, "moveFormItem");
@@ -1009,7 +1009,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item, Locale locale) throws PrivilegeException, FormNotExistsException, InternalErrorException {
+	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item, Locale locale) throws PrivilegeException, FormNotExistsException {
 
 		try {
 			getFormByItemId(sess, item.getId());
@@ -1025,7 +1025,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, FormNotExistsException, InternalErrorException {
+	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, FormNotExistsException {
 
 		ApplicationForm form;
 
@@ -1577,7 +1577,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws PerunException
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException {
+	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException {
 
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");
@@ -1942,7 +1942,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public Application getApplicationById(PerunSession sess, int appId) throws RegistrarException, InternalErrorException, PrivilegeException {
+	public Application getApplicationById(PerunSession sess, int appId) throws RegistrarException, PrivilegeException {
 
 		// get application
 		Application app = getApplicationById(appId);
@@ -2203,7 +2203,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void updateFormItem(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, FormNotExistsException, InternalErrorException {
+	public void updateFormItem(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, FormNotExistsException {
 
 		ApplicationForm form;
 
@@ -2460,7 +2460,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param appType Type of application form
 	 * @param form Application form
 	 */
-	private void checkDuplicateRegistrationAttempt(PerunSession sess, AppType appType, ApplicationForm form) throws DuplicateRegistrationAttemptException, AlreadyRegisteredException, PrivilegeException, InternalErrorException, ExtendMembershipException, RegistrarException, MemberNotExistsException, CantBeSubmittedException, NotGroupMemberException {
+	private void checkDuplicateRegistrationAttempt(PerunSession sess, AppType appType, ApplicationForm form) throws DuplicateRegistrationAttemptException, AlreadyRegisteredException, PrivilegeException, ExtendMembershipException, RegistrarException, MemberNotExistsException, CantBeSubmittedException, NotGroupMemberException {
 
 		Vo vo = form.getVo();
 		Group group = form.getGroup();
@@ -2674,7 +2674,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException {
+	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PrivilegeException, RegistrarException {
 
 		// this ensure authorization of user on application
 		try {
@@ -2762,7 +2762,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
-	public void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException {
+	public void updateApplicationUser(PerunSession sess, Application app) {
 
 		jdbc.update("update application set user_id=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=? where id=?",
 				(app.getUser() != null) ? app.getUser().getId() : null,
@@ -2771,7 +2771,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
-	public void updateFormItemData(PerunSession sess, int appId, ApplicationFormItemData data) throws RegistrarException, InternalErrorException, PrivilegeException {
+	public void updateFormItemData(PerunSession sess, int appId, ApplicationFormItemData data) throws RegistrarException, PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "updateApplicationData");
@@ -2806,7 +2806,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @return Form item with data submitted by the User.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	private ApplicationFormItemData getFormItemDataById(int formItemDataId) throws InternalErrorException {
+	private ApplicationFormItemData getFormItemDataById(int formItemDataId) {
 
 		try {
 			return jdbc.queryForObject("select id,item_id,shortname,value,assurance_level from application_data where id=?",
@@ -3152,7 +3152,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws WrongAttributeValueException  When attribute can't be stored because of wrong value
 	 * @throws WrongReferenceAttributeValueException  When attribute can't be stored because of some specific dynamic constraint (from attribute module)
 	 */
-	private void storeApplicationAttributes(Application app) throws UserNotExistsException, InternalErrorException, PrivilegeException, MemberNotExistsException, VoNotExistsException, RegistrarException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	private void storeApplicationAttributes(Application app) throws UserNotExistsException, PrivilegeException, MemberNotExistsException, VoNotExistsException, RegistrarException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// user and member must exists if it's extension !!
 		User user = usersManager.getUserById(registrarSession, app.getUser().getId());
@@ -3240,7 +3240,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws WrongAttributeValueException  When login can't be stored because of wrong value
 	 * @throws WrongReferenceAttributeValueException  When login can't be stored because of some specific dynamic constraint (from attribute module)
 	 */
-	private void storeApplicationLoginAttributes(Application app) throws UserNotExistsException, InternalErrorException, PrivilegeException, RegistrarException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	private void storeApplicationLoginAttributes(Application app) throws UserNotExistsException, PrivilegeException, RegistrarException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// user must exists
 		User user = usersManager.getUserById(registrarSession, app.getUser().getId());
@@ -3295,7 +3295,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 *
 	 * @return List of login/namespace pairs which are purely new and can be set to user and validated in KDC
 	 */
-	private List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(List<Pair<String, String>> logins, User user) throws InternalErrorException, PasswordDeletionFailedException, PasswordOperationTimeoutException, LoginNotExistsException, InvalidLoginException {
+	private List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(List<Pair<String, String>> logins, User user) throws PasswordDeletionFailedException, PasswordOperationTimeoutException, LoginNotExistsException, InvalidLoginException {
 
 		List<Pair<String, String>> result = new ArrayList<>();
 

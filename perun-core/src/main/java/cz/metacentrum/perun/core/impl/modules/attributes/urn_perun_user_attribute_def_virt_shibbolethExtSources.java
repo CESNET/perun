@@ -25,7 +25,7 @@ import java.util.Map;
 public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 		Map<String, String> idpLogins = new LinkedHashMap<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 

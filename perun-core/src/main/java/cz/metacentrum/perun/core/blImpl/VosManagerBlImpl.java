@@ -75,12 +75,12 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<Vo> getVos(PerunSession sess) throws InternalErrorException {
+	public List<Vo> getVos(PerunSession sess) {
 		return getVosManagerImpl().getVos(sess);
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws InternalErrorException {
+	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) {
 		log.debug("Deleting vo {}", vo);
 
 		try {
@@ -193,13 +193,13 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException {
+	public void deleteVo(PerunSession sess, Vo vo) {
 		// delete VO only if it is completely empty
 		this.deleteVo(sess, vo, false);
 	}
 
 	@Override
-	public Vo createVo(PerunSession sess, Vo vo) throws VoExistsException, InternalErrorException {
+	public Vo createVo(PerunSession sess, Vo vo) throws VoExistsException {
 		// Create entries in the DB and Grouper
 		vo = getVosManagerImpl().createVo(sess, vo);
 		getPerunBl().getAuditer().log(sess, new VoCreated(vo));
@@ -235,28 +235,28 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public Vo updateVo(PerunSession sess, Vo vo) throws InternalErrorException {
+	public Vo updateVo(PerunSession sess, Vo vo) {
 		getPerunBl().getAuditer().log(sess, new VoUpdated(vo));
 		return getVosManagerImpl().updateVo(sess, vo);
 	}
 
 	@Override
-	public Vo getVoByShortName(PerunSession sess, String shortName) throws InternalErrorException, VoNotExistsException {
+	public Vo getVoByShortName(PerunSession sess, String shortName) throws VoNotExistsException {
 		return getVosManagerImpl().getVoByShortName(sess, shortName);
 	}
 
 	@Override
-	public Vo getVoById(PerunSession sess, int id) throws InternalErrorException, VoNotExistsException {
+	public Vo getVoById(PerunSession sess, int id) throws VoNotExistsException {
 		return getVosManagerImpl().getVoById(sess, id);
 	}
 
 	@Override
-	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) throws InternalErrorException {
+	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) {
 		List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 		return this.findCandidates(sess, vo, searchString, maxNumOfResults, extSources, true);
 	}
 
-	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults, List<ExtSource> extSources, boolean filterExistingMembers) throws InternalErrorException {
+	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults, List<ExtSource> extSources, boolean filterExistingMembers) {
 		List<Candidate> candidates = new ArrayList<>();
 		int numOfResults = 0;
 
@@ -366,17 +366,17 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
+	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString) {
 		return this.findCandidates(sess, vo, searchString, 0);
 	}
 
 	@Override
-	public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) throws InternalErrorException {
+	public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) {
 		List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
 		return this.findCandidates(sess, group, searchString, extSources, true);
 	}
 
-	public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString, List<ExtSource> extSources, boolean filterExistingMembers) throws InternalErrorException {
+	public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString, List<ExtSource> extSources, boolean filterExistingMembers) {
 		List<Candidate> candidates = new ArrayList<>();
 
 		try {
@@ -478,7 +478,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) throws InternalErrorException {
+	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) {
 		List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 		List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, attrNames, searchString);
 		List<Candidate> candidates = findCandidates(sess, vo, searchString, 0, extSources, false);
@@ -487,7 +487,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources) throws InternalErrorException {
+	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources) {
 		List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, vo, attrNames, searchString);
 		List<Candidate> candidates = findCandidates(sess, group, searchString, extSources, false);
 
@@ -508,7 +508,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @return List of RichUsers from whole Perun, who matches the given String
 	 * @throws InternalErrorException internal error
 	 */
-	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, List<String> attrNames, String searchString) throws InternalErrorException {
+	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, List<String> attrNames, String searchString) {
 		return getRichUsersForMemberCandidates(sess, null, attrNames, searchString);
 	}
 
@@ -526,7 +526,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @return List of RichUsers inside given Vo, or in whole perun, who matches the given String
 	 * @throws InternalErrorException internal error
 	 */
-	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) throws InternalErrorException {
+	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) {
 		List<RichUser> richUsers;
 
 		if (vo != null) {
@@ -549,7 +549,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) throws InternalErrorException {
+	public List<User> getAdmins(PerunSession perunSession, Vo vo, String role, boolean onlyDirectAdmins) {
 		if (onlyDirectAdmins) {
 			return getVosManagerImpl().getDirectAdmins(perunSession, vo, role);
 		} else {
@@ -558,7 +558,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, String role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, vo, role, onlyDirectAdmins);
 		List<RichUser> richUsers;
 
@@ -575,51 +575,51 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) throws InternalErrorException {
+	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, String role) {
 		return getVosManagerImpl().getAdminGroups(perunSession, vo, role);
 	}
 
 	@Override
 	@Deprecated
-	public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<User> getAdmins(PerunSession sess, Vo vo) {
 		return getVosManagerImpl().getAdmins(sess, vo);
 	}
 
 	@Deprecated
 	@Override
-	public List<User> getDirectAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<User> getDirectAdmins(PerunSession sess, Vo vo) {
 		return getVosManagerImpl().getDirectAdmins(sess, vo);
 	}
 
 	@Deprecated
 	@Override
-	public List<RichUser> getDirectRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<RichUser> getDirectRichAdmins(PerunSession sess, Vo vo) {
 		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(sess, getVosManagerImpl().getDirectAdmins(sess, vo));
 	}
 
 	@Deprecated
 	@Override
-	public List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException {
+	public List<Group> getAdminGroups(PerunSession sess, Vo vo) {
 		return getVosManagerImpl().getAdminGroups(sess, vo);
 	}
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) {
 		List<User> users = this.getAdmins(perunSession, vo);
 		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 	}
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Vo vo) throws UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, vo);
 		return perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
 	}
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException {
+	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
 		} catch (AttributeNotExistsException ex) {
@@ -629,7 +629,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException {
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getDirectRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
 		} catch (AttributeNotExistsException ex) {
@@ -638,48 +638,48 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException {
+	public void checkVoExists(PerunSession sess, Vo vo) throws VoNotExistsException {
 		getVosManagerImpl().checkVoExists(sess, vo);
 	}
 
 	@Override
-	public List<Vo> getVosByPerunBean(PerunSession sess, Group group) throws InternalErrorException, VoNotExistsException {
+	public List<Vo> getVosByPerunBean(PerunSession sess, Group group) throws VoNotExistsException {
 		return Collections.singletonList(getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId()));
 	}
 
 	@Override
-	public List<Vo> getVosByPerunBean(PerunSession sess, Member member) throws InternalErrorException {
+	public List<Vo> getVosByPerunBean(PerunSession sess, Member member) {
 		return Collections.singletonList(getPerunBl().getMembersManagerBl().getMemberVo(sess, member));
 	}
 
 	@Override
-	public List<Vo> getVosByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException, VoNotExistsException {
+	public List<Vo> getVosByPerunBean(PerunSession sess, Resource resource) throws VoNotExistsException {
 		return Collections.singletonList(getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId()));
 	}
 
 	@Override
-	public List<Vo> getVosByPerunBean(PerunSession sess, User user) throws InternalErrorException {
+	public List<Vo> getVosByPerunBean(PerunSession sess, User user) {
 		return new ArrayList<>(new HashSet<>(getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user)));
 	}
 
 	@Override
-	public List<Vo> getVosByPerunBean(PerunSession sess, Host host) throws InternalErrorException {
+	public List<Vo> getVosByPerunBean(PerunSession sess, Host host) {
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		return new ArrayList<>(new HashSet<>(getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility)));
 	}
 
 	@Override
-	public List<Vo> getVosByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Vo> getVosByPerunBean(PerunSession sess, Facility facility) {
 		return new ArrayList<>(new HashSet<>(getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility)));
 	}
 
 	@Override
-	public int getVosCount(PerunSession sess) throws InternalErrorException {
+	public int getVosCount(PerunSession sess) {
 		return getVosManagerImpl().getVosCount(sess);
 	}
 
 	@Override
-	public boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo, boolean checkGroups) throws InternalErrorException {
+	public boolean isUserInRoleForVo(PerunSession session, User user, String role, Vo vo, boolean checkGroups) {
 		if (AuthzResolverBlImpl.isUserInRoleForVo(session, user, role, vo)) return true;
 		if (checkGroups) {
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(session, user);
@@ -695,7 +695,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void handleUserLostVoRole(PerunSession sess, User user, Vo vo, String role) throws InternalErrorException {
+	public void handleUserLostVoRole(PerunSession sess, User user, Vo vo, String role) {
 		log.debug("handleUserLostVoRole(user={},vo={},role={})",user.getLastName(),vo.getShortName(),role);
 		switch (role) {
 			case Role.SPONSOR:
@@ -705,7 +705,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, String role) throws InternalErrorException {
+	public void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, String role) {
 		switch (role) {
 			case Role.SPONSOR:
 				//remove all group members as sponsors
@@ -717,7 +717,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		}
 	}
 
-	private void removeSponsorFromSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException {
+	private void removeSponsorFromSponsoredMembers(PerunSession sess, Vo vo, User user) {
 		log.debug("removeSponsorFromSponsoredMembers(vo={},user={})",vo.getShortName(),user.getLastName());
 		MembersManagerBl membersManagerBl = getPerunBl().getMembersManagerBl();
 		for (Member sponsoredMember : membersManagerBl.getSponsoredMembers(sess, vo, user)) {
@@ -737,7 +737,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @return list of MemberCandidates for given RichUsers, group and candidates
 	 * @throws InternalErrorException internal error
 	 */
-	private List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, List<Candidate> candidates, List<String> attrNames) throws InternalErrorException {
+	private List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, List<Candidate> candidates, List<String> attrNames) {
 		return createMemberCandidates(sess, users, vo, null, candidates, attrNames);
 	}
 
@@ -753,7 +753,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @return list of MemberCandidates for given RichUsers, group and candidates
 	 * @throws InternalErrorException internal error
 	 */
-	private List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, Group group, List<Candidate> candidates, List<String> attrNames) throws InternalErrorException {
+	private List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, Group group, List<Candidate> candidates, List<String> attrNames) {
 		List<MemberCandidate> memberCandidates = new ArrayList<>();
 
 		// try to find matching RichUser for candidates

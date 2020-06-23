@@ -40,7 +40,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 	 * existing user and the new user is allowed.
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer uid = attribute.valueAsInteger();
 		String uidNamespace = attribute.getFriendlyNameParameter();
 
@@ -88,7 +88,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 	 * in range (minUID, maxUID) is returned.
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		String uidNamespace = attribute.getFriendlyNameParameter();
 		Attribute atr = new Attribute(attribute);
 

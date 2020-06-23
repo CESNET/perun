@@ -47,7 +47,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) return;
 
 		// delegate login syntax check to the password manager module of that namespace, for default see GenericPasswordManagerModule
@@ -71,7 +71,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String userLogin = attribute.valueAsString();
 		if (userLogin == null) throw new WrongReferenceAttributeValueException(attribute, null, user, null, "Value can't be null");
 
@@ -104,7 +104,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 		return filledAttribute;
@@ -131,7 +131,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	 * @return Builder to get string ID
 	 * @throws InternalErrorException When generation fails
 	 */
-	protected StringBuilder sha1HashCount(User user, String domain) throws InternalErrorException {
+	protected StringBuilder sha1HashCount(User user, String domain) {
 		try {
 			String salt = BeansUtils.getCoreConfig().getInstanceId();
 			MessageDigest mDigest = MessageDigest.getInstance("SHA1");

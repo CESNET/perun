@@ -46,7 +46,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
 	 */
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		// check syntax of attribute
 		super.checkAttributeSyntax(sess, user, attribute);
@@ -75,7 +75,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 
@@ -145,7 +145,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 		super.changedAttributeHook(session, user, attribute);
 		log.debug("changedAttributeHook for attr: "+attribute+" and user: "+user);
 
@@ -154,7 +154,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 
 	}
 
-	private void handleChangedAttributeHook(PerunSessionImpl session, User user, Attribute attribute, String entityId, String scope) throws InternalErrorException {
+	private void handleChangedAttributeHook(PerunSessionImpl session, User user, Attribute attribute, String entityId, String scope) {
 
 		/*
 		 * "Synchornize" this attribute to user extSource. Means it creates, updates and removes userExtSource
@@ -208,7 +208,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 
 	}
 
-	private UserExtSource getCeitecProxyUserExtSource(PerunSessionImpl session, User user, ExtSource ceitecExtSource, String scope) throws InternalErrorException {
+	private UserExtSource getCeitecProxyUserExtSource(PerunSessionImpl session, User user, ExtSource ceitecExtSource, String scope) {
 		UserExtSource ceitecProxyUserExtSource = null;
 
 		List<UserExtSource> uess = session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user);

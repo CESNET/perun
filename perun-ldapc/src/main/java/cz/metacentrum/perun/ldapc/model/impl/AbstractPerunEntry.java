@@ -86,19 +86,19 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#addEntry(cz.metacentrum.perun.core.api.PerunBean)
 	 */
 	@Override
-	public void addEntry(T bean) throws InternalErrorException {
+	public void addEntry(T bean) {
 		DirContextOperations context = new DirContextAdapter(buildDN(bean));
 		mapToContext(bean, context);
 		ldapTemplate.bind(context);
 	}
 
 	@Override
-	public void modifyEntry(T bean) throws InternalErrorException {
+	public void modifyEntry(T bean) {
 		modifyEntry(bean, attributeDescriptions, updatableAttributeNames);
 	}
 
 	@Override
-	public void modifyEntry(T bean, String... attrNames) throws InternalErrorException {
+	public void modifyEntry(T bean, String... attrNames) {
 		modifyEntry(bean, attributeDescriptions, Arrays.asList(attrNames));
 	}
 
@@ -106,18 +106,18 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#modifyEntry(cz.metacentrum.perun.core.api.PerunBean)
 	 */
 	@Override
-	public void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames) throws InternalErrorException {
+	public void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, String... attrNames) {
 		modifyEntry(bean, attrs, Arrays.asList(attrNames));
 	}
 
-	protected void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, List<String> attrNames) throws InternalErrorException {
+	protected void modifyEntry(T bean, Iterable<PerunAttribute<T>> attrs, List<String> attrNames) {
 		DirContextOperations entry = findByDN(buildDN(bean));
 		mapToContext(bean, entry, findAttributeDescriptionsByLdapName(attrs, attrNames));
 		ldapTemplate.modifyAttributes(entry);
 	}
 
 	@Override
-	public void modifyEntry(T bean, AttributeDefinition attr) throws InternalErrorException {
+	public void modifyEntry(T bean, AttributeDefinition attr) {
 		DirContextOperations entry = findByDN(buildDN(bean));
 		List<PerunAttribute<T>> attrDefs = findAttributeDescriptionsByPerunAttr(getAttributeDescriptions(), attr);
 		if (attrDefs.isEmpty()) {
@@ -133,7 +133,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	@Override
-	public void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr) throws InternalErrorException {
+	public void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr) {
 		DirContextOperations entry = findByDN(buildDN(bean));
 		mapToContext(bean, entry, attrDef, attr);
 		ldapTemplate.modifyAttributes(entry);
@@ -143,13 +143,13 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 * @see cz.metacentrum.perun.ldapc.model.impl.PerunEntry#deleteEntry(cz.metacentrum.perun.core.api.PerunBean)
 	 */
 	@Override
-	public void deleteEntry(T bean) throws InternalErrorException {
+	public void deleteEntry(T bean) {
 		deleteEntry(buildDN(bean));
 	}
 
 
 	@Override
-	public void deleteEntry(Name dn) throws InternalErrorException {
+	public void deleteEntry(Name dn) {
 		try {
 			ldapTemplate.unbind(dn);
 		} catch (NameNotFoundException e) {
@@ -158,7 +158,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	@Override
-	public SyncOperation beginSynchronizeEntry(T bean) throws InternalErrorException {
+	public SyncOperation beginSynchronizeEntry(T bean) {
 		DirContextOperations entry;
 		boolean newEntry = false;
 		try {
@@ -182,7 +182,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	@Override
-	public SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException {
+	public SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs) {
 		DirContextOperations entry;
 		boolean newEntry = false;
 		try {
@@ -208,7 +208,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	@Override
-	public void commitSyncOperation(SyncOperation op) throws InternalErrorException {
+	public void commitSyncOperation(SyncOperation op) {
 		if (op.isNew()) {
 			ldapTemplate.bind(op.getEntry());
 		} else {
@@ -217,12 +217,12 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 
 	@Override
-	public void synchronizeEntry(T bean) throws InternalErrorException {
+	public void synchronizeEntry(T bean) {
 		commitSyncOperation(beginSynchronizeEntry(bean));
 	}
 
 	@Override
-	public void synchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException {
+	public void synchronizeEntry(T bean, Iterable<Attribute> attrs) {
 		commitSyncOperation(beginSynchronizeEntry(bean, attrs));
 	}
 
@@ -336,7 +336,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 
 	abstract protected Name buildDN(T bean);
 
-	abstract protected void mapToContext(T bean, DirContextOperations context) throws InternalErrorException;
+	abstract protected void mapToContext(T bean, DirContextOperations context);
 
 	/**
 	 * Takes data from Perun bean and stores them into LDAP entry (context) for creation or update.
@@ -348,7 +348,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 * @param attrs   - list of known attributes
 	 * @throws InternalErrorException
 	 */
-	protected void mapToContext(T bean, DirContextOperations context, Iterable<PerunAttribute<T>> attrs) throws InternalErrorException {
+	protected void mapToContext(T bean, DirContextOperations context, Iterable<PerunAttribute<T>> attrs) {
 		for (PerunAttribute<T> attr : attrs) {
 
 			// skip attributes not sources from object itself
@@ -385,7 +385,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 * @param attrDef
 	 * @param attr
 	 */
-	protected void mapToContext(T bean, DirContextOperations entry, PerunAttribute<T> attrDef, AttributeDefinition attr) throws InternalErrorException {
+	protected void mapToContext(T bean, DirContextOperations entry, PerunAttribute<T> attrDef, AttributeDefinition attr) {
 
 		if (attrDef.isDeleted()) {
 			// clear attributes marked for deletion

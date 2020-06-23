@@ -121,13 +121,13 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 		}
 	}
 
-	protected T initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
+	protected T initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) {
 		//noinspection unchecked
 		return (T) new ModifyValueContext(sess, user, destinationAttributeDefinition);
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) {
 		T ctx = initModifyValueContext(sess, user, destinationAttributeDefinition);
 		Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
 		//for values use set because of avoiding duplicities
@@ -208,7 +208,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 

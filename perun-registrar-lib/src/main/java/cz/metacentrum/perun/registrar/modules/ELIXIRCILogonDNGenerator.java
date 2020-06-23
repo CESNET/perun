@@ -51,7 +51,7 @@ public class ELIXIRCILogonDNGenerator extends DefaultRegistrarModule {
 	 * where eppn is eduPersonPrincipalName
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
+	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, AttributeNotExistsException {
 
 		if (Application.AppType.INITIAL.equals(app.getType())) {
 

@@ -37,7 +37,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceExistsException
 	 */
-	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException;
+	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes) throws ExtSourceExistsException;
 
 	/**
 	 * Deletes an external source.
@@ -48,7 +48,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by delete in DB
 	 * @throws InternalErrorException
 	 */
-	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException;
+	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Updates extSource definition. It should be called only internally, because extSources are defined in the external XML file.
@@ -58,7 +58,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @param extSource
 	 * @throws InternalErrorException
 	 */
-	void updateExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws ExtSourceNotExistsException, InternalErrorException;
+	void updateExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws ExtSourceNotExistsException;
 
 	/**
 	 * Searches for the external source with specified id.
@@ -71,7 +71,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
 	 */
-	ExtSource getExtSourceById(PerunSession perunSession, int id) throws InternalErrorException, ExtSourceNotExistsException;
+	ExtSource getExtSourceById(PerunSession perunSession, int id) throws ExtSourceNotExistsException;
 
 	/**
 	 * Searches for the external source using specified name.
@@ -84,7 +84,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
 	 */
-	ExtSource getExtSourceByName(PerunSession perunSession, String name) throws InternalErrorException, ExtSourceNotExistsException;
+	ExtSource getExtSourceByName(PerunSession perunSession, String name) throws ExtSourceNotExistsException;
 
 	/**
 	 * Get list of external sources associated to the VO.
@@ -96,7 +96,7 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo) throws InternalErrorException;
+	List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo);
 
 	/**
 	 * Get list of external sources associated with the GROUP.
@@ -108,7 +108,7 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group);
 
 	/**
 	 * Get list of all external sources.
@@ -119,7 +119,7 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getExtSources(PerunSession perunSession) throws InternalErrorException;
+	List<ExtSource> getExtSources(PerunSession perunSession);
 
 	/**
 	 * Associate external source definition with the VO.
@@ -131,7 +131,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceAlreadyAssignedException
 	 */
-	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
+	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceAlreadyAssignedException;
 
 	/**
 	 * Associate external source definition with the GROUP.
@@ -143,7 +143,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceAlreadyAssignedException
 	 */
-	void addExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
+	void addExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceAlreadyAssignedException;
 
 	/**
 	 * Remove association of the external source from the VO.
@@ -156,7 +156,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws ExtSourceNotAssignedException
 	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by remove in DB
 	 */
-	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Remove association of the external source from the GROUP.
@@ -169,7 +169,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 * @throws ExtSourceNotAssignedException
 	 */
-	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Get all users' id associate with the provided ExtSource
@@ -181,7 +181,7 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getAssociatedUsersIdsWithExtSource(PerunSession perunSession, ExtSource source) throws InternalErrorException;
+	List<Integer> getAssociatedUsersIdsWithExtSource(PerunSession perunSession, ExtSource source);
 
 	/**
 	 * Check if extSource exists in underlaying data source.
@@ -193,7 +193,7 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	boolean extSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException;
+	boolean extSourceExists(PerunSession perunSession, ExtSource extSource);
 
 	/**
 	 * Check if extSource exists in underlaying data source.
@@ -204,7 +204,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
 	 */
-	void checkExtSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
+	void checkExtSourceExists(PerunSession perunSession, ExtSource extSource) throws ExtSourceNotExistsException;
 
 	/**
 	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.
@@ -220,7 +220,7 @@ public interface ExtSourcesManagerImplApi {
 	 * @return			Map of attributes for external source
 	 * @throws InternalErrorException
 	 */
-	Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException;
+	Map<String,String> getAttributes(ExtSource extSource);
 
 	/**
 	 * Returns all ExtSources with enabled synchronization
@@ -229,5 +229,5 @@ public interface ExtSourcesManagerImplApi {
 	 * @return	List of External Sources with enabled synchronization
 	 * @throws InternalErrorException
 	 */
-	List<ExtSource> getExtSourcesToSynchronize(PerunSession sess) throws InternalErrorException;
+	List<ExtSource> getExtSourcesToSynchronize(PerunSession sess);
 }

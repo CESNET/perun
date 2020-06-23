@@ -55,20 +55,20 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 		);
 	}
 
-	public void addVo(Vo vo) throws InternalErrorException {
+	public void addVo(Vo vo) {
 		addEntry(vo);
 	}
 
-	public void deleteVo(Vo vo) throws InternalErrorException {
+	public void deleteVo(Vo vo) {
 		deleteEntry(vo);
 	}
 
 	@Override
-	public void updateVo(Vo vo) throws InternalErrorException {
+	public void updateVo(Vo vo) {
 		modifyEntry(vo);
 	}
 
-	public String getVoShortName(int voId) throws InternalErrorException {
+	public String getVoShortName(int voId) {
 		DirContextOperations voEntry = findById(String.valueOf(voId));
 		String[] voShortNameInformation = voEntry.getStringAttributes(PerunAttribute.PerunAttributeNames.ldapAttrOrganization);
 		String voShortName = null;
@@ -111,7 +111,7 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	}
 
 	@Override
-	public void synchronizeVo(Vo vo, Iterable<Attribute> attrs, List<Member> members) throws InternalErrorException {
+	public void synchronizeVo(Vo vo, Iterable<Attribute> attrs, List<Member> members) {
 		SyncOperation syncOp = beginSynchronizeEntry(vo, attrs);
 		doSynchronizeMembers(syncOp.getEntry(), members);
 		commitSyncOperation(syncOp);
@@ -131,7 +131,7 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	}
 
 	@Override
-	protected void mapToContext(Vo bean, DirContextOperations context) throws InternalErrorException {
+	protected void mapToContext(Vo bean, DirContextOperations context) {
 		context.setAttributeValues("objectclass", Arrays.asList(
 				PerunAttribute.PerunAttributeNames.objectClassPerunVO,
 				PerunAttribute.PerunAttributeNames.objectClassOrganization).toArray());
@@ -146,14 +146,14 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	}
 
 	@Override
-	public List<Name> listEntries() throws InternalErrorException {
+	public List<Name> listEntries() {
 		return ldapTemplate.search(query().
 						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunVO),
 				getNameMapper());
 	}
 
 	@Override
-	public void deleteEntry(Name dn) throws InternalErrorException {
+	public void deleteEntry(Name dn) {
 		// first find and remove entries in subtree
 		List<Name> subentries = ldapTemplate.search(query()
 						.base(dn)

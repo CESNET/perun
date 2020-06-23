@@ -25,7 +25,7 @@ public class EduGain extends DefaultRegistrarModule {
 	 * All new members will be given role VOOBSERVER and TOPGROUPCREATOR
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, InternalErrorException, GroupNotExistsException, VoNotExistsException {
+	public Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, GroupNotExistsException, VoNotExistsException {
 
 		if (Application.AppType.INITIAL.equals(app.getType())) {
 

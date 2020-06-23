@@ -99,7 +99,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 
 	private final static ResultSetExtractor<List<PublicationForGUI>> PUBLICATION_ROW_EXTRACTOR = new ResultSetExtractor<List<PublicationForGUI>>() {
 		@Override
-		public List<PublicationForGUI> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+		public List<PublicationForGUI> extractData(ResultSet resultSet) throws SQLException {
 
 			Map<Integer, PublicationForGUI> publications = new HashMap<>();
 
@@ -138,7 +138,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 
 
 	@Override
-	public Publication createPublication(PerunSession sess, Publication publication) throws InternalErrorException {
+	public Publication createPublication(PerunSession sess, Publication publication) {
 		try {
 			// Set the new Category id
 			int newId = Utils.getNewId(jdbc, "cabinet_publications_id_seq");
@@ -157,7 +157,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException {
 		try {
 			int rows = jdbc.update("update cabinet_publications set title=?, year=?, main=?, isbn=?, categoryId=?, rank=?, doi=?"+
 					" where id=?", publication.getTitle(), publication.getYear(), publication.getMain(), publication.getIsbn(),
@@ -171,7 +171,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public void deletePublication(Publication publication) throws CabinetException, InternalErrorException {
+	public void deletePublication(Publication publication) throws CabinetException {
 		try {
 			int rows = jdbc.update("delete from cabinet_publications where id=?", publication.getId());
 			if(rows == 0) throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS);
@@ -181,7 +181,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException {
+	public Publication getPublicationById(int id) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + PUBLICATION_SELECT_QUERY +
 					" from cabinet_publications where id=?", PUBLICATION_ROW_MAPPER, id);
@@ -193,7 +193,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + PUBLICATION_SELECT_QUERY +
 					" from cabinet_publications where externalId=? and publicationSystemId=?",
@@ -206,7 +206,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException {
+	public List<Publication> getPublicationsByCategoryId(int categoryId) {
 		try {
 			return jdbc.query("select " + PUBLICATION_SELECT_QUERY +
 					" from cabinet_publications where categoryId=? order by cabinet_publications.year DESC", PUBLICATION_ROW_MAPPER, categoryId);
@@ -218,7 +218,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException {
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException {
 		try {
 			return (PublicationForGUI) jdbc.queryForObject("select " + RICH_PUBLICATION_SELECT_QUERY +
 					" from cabinet_publications " +
@@ -237,7 +237,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException {
 		try {
 			return (PublicationForGUI) jdbc.queryForObject("select " + RICH_PUBLICATION_SELECT_QUERY +
 					" from cabinet_publications " +
@@ -258,7 +258,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException {
+	public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) {
 
 		String select = "select " + RICH_PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
 				" left outer join cabinet_publication_systems on cabinet_publications.publicationSystemId = cabinet_publication_systems.id" +
@@ -356,7 +356,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) throws InternalErrorException {
+	public List<Publication> getPublicationsByFilter(int userId, int yearSince, int yearTill) {
 
 		String select = "select " + PUBLICATION_SELECT_QUERY + " from cabinet_publications " +
 				" left outer join cabinet_authorships on cabinet_publications.id = cabinet_authorships.publicationId" +
@@ -407,7 +407,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	@Override
-	public void lockPublications(boolean lockState, List<Publication> pubs) throws InternalErrorException {
+	public void lockPublications(boolean lockState, List<Publication> pubs) {
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		Set<Integer> pubIds = new HashSet<Integer>();

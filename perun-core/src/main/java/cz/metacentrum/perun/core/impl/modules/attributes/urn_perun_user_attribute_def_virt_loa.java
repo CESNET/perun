@@ -42,7 +42,7 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) {
 
 		List<UserExtSource> extSources = sess.getPerunBl().getUsersManagerBl().getActiveUserExtSources(sess, user);
 		Integer maxLoa = 0;
@@ -74,7 +74,7 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
@@ -111,7 +111,7 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	private AuditEvent resolveEvent(PerunSessionImpl sess, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private AuditEvent resolveEvent(PerunSessionImpl sess, User user) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_LOA);
 		return new AttributeChangedForUser(new Attribute(attributeDefinition), user);

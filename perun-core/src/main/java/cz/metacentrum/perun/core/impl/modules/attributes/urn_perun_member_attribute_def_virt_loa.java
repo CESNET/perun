@@ -22,7 +22,7 @@ import java.util.List;
 public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws WrongReferenceAttributeValueException {
 		Attribute currentAttribute = getAttributeValue(sess, member, attribute);
 		if(!attribute.equals(currentAttribute)) throw new WrongReferenceAttributeValueException(attribute, currentAttribute, member, null, member, null, "Attribute value is not the highest value from member's UserExtSources Loas.");
 	}
@@ -33,7 +33,7 @@ public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttrib
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) {
 		User user;
 		try {
 			user = sess.getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
@@ -57,7 +57,7 @@ public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttrib
 	}
 
 	@Override
-	public void removeAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) {
 		//Not suported yet.
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
 	}

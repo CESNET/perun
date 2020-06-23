@@ -35,7 +35,7 @@ public class EduTEAMS extends DefaultRegistrarModule {
 	private static final String APPLICATION_NICKNAME_ITEM = "nickname";
 
 	@Override
-	public Application approveApplication(PerunSession sess, Application application) throws RegistrarException, PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public Application approveApplication(PerunSession sess, Application application) throws RegistrarException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 
 		if (application.getType() == Application.AppType.INITIAL) {
 

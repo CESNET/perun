@@ -20,19 +20,19 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class UserAttributesModuleAbstract extends AttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 	}
 
-	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 	}
 }

@@ -29,7 +29,7 @@ public class ListOfAllowedVosOnFacility extends PerunCommand {
 	}
 
 	@Override
-	public void executeCommand(PerunCLI.CommandContext ctx) throws RestClientException {
+	public void executeCommand(PerunCLI.CommandContext ctx) {
 		int facilityId = this.getFacilityId(ctx, true);
 		List<Vo> vos = ctx.getPerunRPC().getFacilitiesManager().getAllowedVos(facilityId);
 		this.sort(ctx, vos, Comparator.comparing(Vo::getShortName));

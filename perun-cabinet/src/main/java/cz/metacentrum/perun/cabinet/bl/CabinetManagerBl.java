@@ -27,7 +27,7 @@ public interface CabinetManagerBl {
 	 * @return List of user's publications in selected external PS
 	 * @throws CabinetException
 	 */
-	List<Publication> findExternalPublicationsOfUser(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException, InternalErrorException;
+	List<Publication> findExternalPublicationsOfUser(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException;
 
 	/**
 	 * Searches for publications of given authorId in given publication system.
@@ -60,6 +60,6 @@ public interface CabinetManagerBl {
 	 * @param userId to set thanks to
 	 * @throws CabinetException
 	 */
-	void setThanksAttribute(int userId) throws CabinetException, InternalErrorException;
+	void setThanksAttribute(int userId) throws CabinetException;
 
 }

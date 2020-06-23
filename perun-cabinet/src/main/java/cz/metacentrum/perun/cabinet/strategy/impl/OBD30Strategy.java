@@ -175,7 +175,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 	 * @return Publication instance
 	 * @throws InternalErrorException
 	 */
-	private Publication convertNodeToPublication(Node node) throws InternalErrorException {
+	private Publication convertNodeToPublication(Node node) {
 
 		Publication publication = new Publication();
 

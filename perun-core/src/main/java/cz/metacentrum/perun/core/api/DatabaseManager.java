@@ -15,14 +15,14 @@ public interface DatabaseManager {
 	 *
 	 * @return return current database version
 	 */
-	String getCurrentDatabaseVersion(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+	String getCurrentDatabaseVersion(PerunSession perunSession) throws PrivilegeException;
 
 	/**
 	 * Get DB driver information from datasource (name-version)
 	 *
 	 * @return string information about database driver
 	 */
-	String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	String getDatabaseDriverInformation(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 * Get DB information from datasource (name-version)
@@ -30,7 +30,7 @@ public interface DatabaseManager {
 	 * @return string information about database
 	 *
 	 */
-	String getDatabaseInformation(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	String getDatabaseInformation(PerunSession sess) throws PrivilegeException;
 
 	/**
 	 *	Get time in ns "nanoseconds" of calling 1 simple update query to DB.

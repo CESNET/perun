@@ -67,12 +67,12 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) {
 		return findSubjectsLogins(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) {
 		String query = getAttributes().get("query");
 		if (query == null) {
 			throw new InternalErrorException("query attribute is required");
@@ -82,7 +82,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
+	public Map<String, String> getSubjectByLogin(String login) throws SubjectNotExistsException {
 		String query = getAttributes().get("loginQuery");
 		if (query == null) {
 			throw new InternalErrorException("loginQuery attribute is required");
@@ -101,7 +101,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		// Get the sql query for the group subjects
 		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -109,7 +109,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String,String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException{
+	public List<Map<String,String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException{
 		String query = getAttributes().get("usersQuery");
 
 		if (query == null) {
@@ -119,7 +119,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		return this.querySource(query, null, 0);
 	}
 
-	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
+	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) {
 		log.debug("Searching for '{}' in external source 'url:{}'", searchString, getAttributes().get("url"));
 
 		this.checkAndSetPrerequisites();
@@ -241,7 +241,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		}
 	}
 
-	protected void createConnection() throws InternalErrorException {
+	protected void createConnection() {
 		try {
 
 			String connectionUrl = getAttributes().get("url");
@@ -281,7 +281,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException {
+	public void close() {
 		if (this.con != null) {
 			try {
 				this.con.close();
@@ -293,7 +293,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
 
 		return this.groupQuery(sqlQueryForGroup, null, 0);
@@ -308,7 +308,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	 * @return list of subjects
 	 * @throws InternalErrorException
 	 */
-	protected List<Map<String,String>> groupQuery(String query, String searchString, int maxResults) throws InternalErrorException {
+	protected List<Map<String,String>> groupQuery(String query, String searchString, int maxResults) {
 
 		this.checkAndSetPrerequisites();
 
@@ -358,7 +358,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		}
 	}
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
+	protected Map<String,String> getAttributes() {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 
@@ -367,7 +367,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	 *
 	 * @throws InternalErrorException if expected attributes are not set
 	 */
-	private void checkAndSetPrerequisites() throws InternalErrorException {
+	private void checkAndSetPrerequisites() {
 		if (getAttributes().get("url") == null) {
 			throw new InternalErrorException("url attribute is required");
 		}

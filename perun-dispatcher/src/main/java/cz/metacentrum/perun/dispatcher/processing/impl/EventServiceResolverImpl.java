@@ -83,7 +83,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 	// ----- methods -------------------------------------
 
 	@Override
-	public Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, PrivilegeException {
 
 		log.info("Event - I am going to process event: {}", event);
 

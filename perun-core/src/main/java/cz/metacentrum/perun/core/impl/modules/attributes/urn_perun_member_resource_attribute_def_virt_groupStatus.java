@@ -41,7 +41,7 @@ public class urn_perun_member_resource_attribute_def_virt_groupStatus extends Me
 	}
 
 	@Override
-    public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
+    public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) {
 
 		Attribute attribute = new Attribute(attributeDefinition);
 		MemberGroupStatus result = sess.getPerunBl().getMembersManagerBl().getUnifiedMemberGroupStatus(sess, member, resource);

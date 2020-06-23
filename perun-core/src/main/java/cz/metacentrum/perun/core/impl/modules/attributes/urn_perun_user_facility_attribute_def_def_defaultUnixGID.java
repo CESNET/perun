@@ -32,7 +32,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 	 * TODO Known issues: Can't detect if unixGid is not set on all resources and groups where user is allowed. This will be reported as WrongAttributeValueException, but it should be WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer gid = attribute.valueAsInteger();
 		if(gid == null) return;
 

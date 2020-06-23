@@ -30,7 +30,7 @@ public interface AuthzResolverImplApi {
 	 * @param user
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
-	AuthzRoles getRoles(User user) throws InternalErrorException;
+	AuthzRoles getRoles(User user);
 
 	/**
 	 * Returns all group's roles.
@@ -38,7 +38,7 @@ public interface AuthzResolverImplApi {
 	 * @param group
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
-	AuthzRoles getRoles(Group group) throws InternalErrorException;
+	AuthzRoles getRoles(Group group);
 
 	/**
 	 * Removes all authz entries for the sponsoredUser.
@@ -47,7 +47,7 @@ public interface AuthzResolverImplApi {
 	 * @param sponsoredUser
 	 * @throws InternalErrorException
 	 */
-	void removeAllSponsoredUserAuthz(PerunSession sess, User sponsoredUser) throws InternalErrorException;
+	void removeAllSponsoredUserAuthz(PerunSession sess, User sponsoredUser);
 
 	/**
 	 * Removes all authz entries for the user.
@@ -56,7 +56,7 @@ public interface AuthzResolverImplApi {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void removeAllUserAuthz(PerunSession sess, User user) throws InternalErrorException;
+	void removeAllUserAuthz(PerunSession sess, User user);
 
 	/**
 	 * Removes all authz entries for the vo
@@ -65,7 +65,7 @@ public interface AuthzResolverImplApi {
 	 * @param vo
 	 * @throws InternalErrorException
 	 */
-	void removeAllAuthzForVo(PerunSession sess, Vo vo) throws InternalErrorException;
+	void removeAllAuthzForVo(PerunSession sess, Vo vo);
 
 	/**
 	 * Removes all authz entries for the group
@@ -74,7 +74,7 @@ public interface AuthzResolverImplApi {
 	 * @param group
 	 * @throws InternalErrorException
 	 */
-	void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException;
+	void removeAllAuthzForGroup(PerunSession sess, Group group);
 
 	/**
 	 * Removes all authz entries for the facility
@@ -83,7 +83,7 @@ public interface AuthzResolverImplApi {
 	 * @param facility
 	 * @throws InternalErrorException
 	 */
-	void removeAllAuthzForFacility(PerunSession sess, Facility facility) throws InternalErrorException;
+	void removeAllAuthzForFacility(PerunSession sess, Facility facility);
 
 	/**
 	 * Removes all authz entries for the resource
@@ -92,7 +92,7 @@ public interface AuthzResolverImplApi {
 	 * @param resource
 	 * @throws InternalErrorException
 	 */
-	void removeAllAuthzForResource(PerunSession sess, Resource resource) throws InternalErrorException;
+	void removeAllAuthzForResource(PerunSession sess, Resource resource);
 
 	/**
 	 * Removes all authz entries for the service
@@ -101,7 +101,7 @@ public interface AuthzResolverImplApi {
 	 * @param service
 	 * @throws InternalErrorException
 	 */
-	void removeAllAuthzForService(PerunSession sess, Service service) throws InternalErrorException;
+	void removeAllAuthzForService(PerunSession sess, Service service);
 
 	/**
 	 * Removes all authz entries for the securityTeam
@@ -110,7 +110,7 @@ public interface AuthzResolverImplApi {
 	 * @param securityTeam
 	 * @throws InternalErrorException
 	 */
-	void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam);
 
 	/**
 	 * Add user role admin for the facility
@@ -121,7 +121,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Facility facility, User user) throws AlreadyAdminException;
 
 	/**
 	 * Add group of users role admin for the facility
@@ -132,7 +132,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Facility facility, Group group) throws AlreadyAdminException;
 
 	/**
 	 * Remove user role admin for the facility
@@ -143,7 +143,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException;
+	void removeAdmin(PerunSession sess, Facility facility, User user) throws UserNotAdminException;
 
 	/**
 	 * Remove group of users role admin for the facility
@@ -154,7 +154,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeAdmin(PerunSession sess, Facility facility, Group group) throws GroupNotAdminException;
 
 	/**
 	 * Add user role admin for the resource
@@ -165,7 +165,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Resource resource, User user) throws AlreadyAdminException;
 
 	/**
 	 * Add group of users role admin for the resource
@@ -176,7 +176,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException;
 
 	/**
 	 * Remove user role admin for the resource
@@ -187,7 +187,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotAdminException;
+	void removeAdmin(PerunSession sess, Resource resource, User user) throws UserNotAdminException;
 
 	/**
 	 * Remove group of users role admin for the resource
@@ -198,7 +198,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeAdmin(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException;
 
 	/**
 	 * Add user role admin for the sponsored user
@@ -209,7 +209,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, User sponsoredUser, User user) throws AlreadyAdminException;
 
 	/**
 	 * Add group of users role admin for the sponsored user
@@ -220,7 +220,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws AlreadyAdminException;
 
 	/**
 	 * Remove user role admin for the sponsoredUser
@@ -231,7 +231,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, UserNotAdminException;
+	void removeAdmin(PerunSession sess, User sponsoredUser, User user) throws UserNotAdminException;
 
 	/**
 	 * Remove group of users role admin for the sponsoredUser
@@ -242,7 +242,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeAdmin(PerunSession sess, User sponsoredUser, Group group) throws GroupNotAdminException;
 
 	/**
 	 * Add user role admin for the group
@@ -253,7 +253,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Group group, User user) throws AlreadyAdminException;
 
 	/**
 	 * Add group of users role admin for the group
@@ -264,7 +264,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws AlreadyAdminException;
 
 	/**
 	 * Remove user role admin for the group
@@ -275,7 +275,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException;
+	void removeAdmin(PerunSession sess, Group group, User user) throws UserNotAdminException;
 
 	/**
 	 * Remove group of users role admin for the group
@@ -286,15 +286,15 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
 	 */
-	void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
+	void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws GroupNotAdminException;
 
-	void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException;
+	void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException;
 
-	void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException, InternalErrorException;
+	void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException;
 
-	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException;
+	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException;
 
-	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException;
 
 	/**
 	 * Make user to be perunAdmin
@@ -303,7 +303,7 @@ public interface AuthzResolverImplApi {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, AlreadyAdminException;
+	void makeUserPerunAdmin(PerunSession sess, User user) throws AlreadyAdminException;
 
 	/**
 	 * Make user Perun observer
@@ -312,7 +312,7 @@ public interface AuthzResolverImplApi {
 	 * @param user user to be promoted to perunObserver
 	 * @throws InternalErrorException
 	 */
-	void makeUserPerunObserver(PerunSession sess, User user) throws InternalErrorException, AlreadyAdminException;
+	void makeUserPerunObserver(PerunSession sess, User user) throws AlreadyAdminException;
 
 	/**
 	 * Make group Perun observer
@@ -321,7 +321,7 @@ public interface AuthzResolverImplApi {
 	 * @param authorizedGroup authorizedGroup to be promoted to perunObserver
 	 * @throws InternalErrorException
 	 */
-	void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException;
+	void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws AlreadyAdminException;
 
 	/**
 	 * Remove role perunAdmin for user.
@@ -330,7 +330,7 @@ public interface AuthzResolverImplApi {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
+	void removePerunAdmin(PerunSession sess, User user) throws UserNotAdminException;
 
 	/**
 	 * Remove role Perun observer from user.
@@ -339,7 +339,7 @@ public interface AuthzResolverImplApi {
 	 * @param user
 	 * @throws InternalErrorException
 	 */
-	void removePerunObserver(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
+	void removePerunObserver(PerunSession sess, User user) throws UserNotAdminException;
 
 	/**
 	 * Remove role Perun observer from authorizedGroup.
@@ -348,7 +348,7 @@ public interface AuthzResolverImplApi {
 	 * @param authorizedGroup
 	 * @throws InternalErrorException
 	 */
-	void removePerunObserverFromAuthorizedGroup(PerunSession sess, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
+	void removePerunObserverFromAuthorizedGroup(PerunSession sess, Group authorizedGroup) throws GroupNotAdminException;
 
 	/**
 	 * Make user Cabinet manager.
@@ -357,7 +357,7 @@ public interface AuthzResolverImplApi {
 	 * @param user User to add Cabinet manager role.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	void makeUserCabinetAdmin(PerunSession sess, User user) throws InternalErrorException;
+	void makeUserCabinetAdmin(PerunSession sess, User user);
 
 	/**
 	 * Remove role Cabinet manager from user.
@@ -367,7 +367,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException If implementation fails
 	 * @throws UserNotAdminException If user was not cabinet admin
 	 */
-	void removeCabinetAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
+	void removeCabinetAdmin(PerunSession sess, User user) throws UserNotAdminException;
 
 	/**
 	 * Adds role for user in VO.
@@ -378,7 +378,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addVoRole(PerunSession sess, String role, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
+	void addVoRole(PerunSession sess, String role, Vo vo, User user) throws AlreadyAdminException;
 
 	/**
 	 * Adds role for group in a VO.
@@ -389,7 +389,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws AlreadyAdminException
 	 */
-	void addVoRole(PerunSession sess, String role, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
+	void addVoRole(PerunSession sess, String role, Vo vo, Group group) throws AlreadyAdminException;
 
 	/**
 	 * Removes role from user in a VO.
@@ -400,7 +400,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
 	 */
-	void removeVoRole(PerunSession sess, String role, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
+	void removeVoRole(PerunSession sess, String role, Vo vo, User user) throws UserNotAdminException;
 
 	/**
 	 * Removes role from group in a VO.
@@ -411,7 +411,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
 	 */
-	void removeVoRole(PerunSession sess, String role, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeVoRole(PerunSession sess, String role, Vo vo, Group group) throws GroupNotAdminException;
 
 	/**
 	 * Checks whether the user is in role for Vo.
@@ -441,7 +441,7 @@ public interface AuthzResolverImplApi {
 	 * @return list of VOs from which the group has the role
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, String role) throws InternalErrorException;
+	List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, String role);
 
 	/**
 	 * Gets list of VOs for which the user has the role.
@@ -451,7 +451,7 @@ public interface AuthzResolverImplApi {
 	 * @return list of VOs for which the user has the role.
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, String role) throws InternalErrorException;
+	List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, String role);
 
 	/**
 	 * Sets role to given user for given resource.
@@ -463,7 +463,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws AlreadyAdminException when already in role
 	 */
-	void addResourceRole(PerunSession sess, User user, String role, Resource resource) throws InternalErrorException, AlreadyAdminException;
+	void addResourceRole(PerunSession sess, User user, String role, Resource resource) throws AlreadyAdminException;
 
 	/**
 	 * Sets role to given group for given resource.
@@ -475,7 +475,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws AlreadyAdminException when already in role
 	 */
-	void addResourceRole(PerunSession sess, Group group, String role, Resource resource) throws InternalErrorException, AlreadyAdminException;
+	void addResourceRole(PerunSession sess, Group group, String role, Resource resource) throws AlreadyAdminException;
 
 	/**
 	 * Remove role to user for resource.
@@ -487,7 +487,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws UserNotAdminException user was not admin
 	 */
-	void removeResourceRole(PerunSession sess, String role, Resource resource, User user) throws InternalErrorException, UserNotAdminException;
+	void removeResourceRole(PerunSession sess, String role, Resource resource, User user) throws UserNotAdminException;
 
 	/**
 	 * Remove role to group for resource.
@@ -499,7 +499,7 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException internal error
 	 * @throws GroupNotAdminException group was not admin
 	 */
-	void removeResourceRole(PerunSession sess, String role, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException;
+	void removeResourceRole(PerunSession sess, String role, Resource resource, Group group) throws GroupNotAdminException;
 
 	/**
 	 * Check if the given role exists in the database.

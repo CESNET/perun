@@ -144,7 +144,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException {
+	public List<AuditMessage> getMessages(PerunSession perunSession, int count) {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log ORDER BY id desc) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDIT_MESSAGE_MAPPER, count);
@@ -156,7 +156,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException {
+	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ((select max(id) from auditer_log)-?) order by id desc", AUDIT_MESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
@@ -167,7 +167,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public int getLastMessageId(PerunSession perunSession) throws InternalErrorException {
+	public int getLastMessageId(PerunSession perunSession) {
 		try {
 			return jdbc.queryForInt("select max(id) from auditer_log");
 		} catch (RuntimeException ex) {
@@ -176,7 +176,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) {
 		try {
 			jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 		} catch (Exception ex) {
@@ -185,7 +185,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
+	public int getAuditerMessagesCount(PerunSession perunSession) {
 		try {
 			return jdbc.queryForInt("select count(id) from auditer_log");
 		} catch (RuntimeException ex) {
@@ -194,7 +194,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException {
+	public void createAuditerConsumer(PerunSession perunSession, String consumerName) {
 		try {
 			int lastProcessedId = getLastMessageId(perunSession);
 			int consumerId = Utils.getNewId(jdbc, "auditer_consumers_id_seq");
@@ -206,7 +206,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException {
+	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) {
 
 		checkAuditerConsumerExists(perunSession, consumerName);
 
@@ -229,7 +229,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName, int lastProcessedId) {
 
 		checkAuditerConsumerExists(perunSession, consumerName);
 
@@ -249,7 +249,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException {
+	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) {
 
 		checkAuditerConsumerExists(perunSession, consumerName);
 
@@ -275,7 +275,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName, int lastProcessedId) {
 
 		checkAuditerConsumerExists(perunSession, consumerName);
 
@@ -298,7 +298,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException {
+	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) {
 		try {
 			return jdbc.query("select name, last_processed_id from auditer_consumers", AUDITER_CONSUMER_EXTRACTOR);
 		} catch (RuntimeException ex) {
@@ -307,7 +307,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	}
 
 	@Override
-	public boolean checkAuditerConsumerExists(PerunSession session, String consumerName) throws InternalErrorException {
+	public boolean checkAuditerConsumerExists(PerunSession session, String consumerName) {
 		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
 		try {
 			return jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) == 1;
@@ -323,7 +323,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	 * @return ID of last processed message
 	 * @throws InternalErrorException When implementation failse
 	 */
-	private int getLastProcessedId(String consumerName) throws InternalErrorException {
+	private int getLastProcessedId(String consumerName) {
 		try {
 			return jdbc.queryForInt("select last_processed_id from auditer_consumers where name=? for update", consumerName);
 		} catch (Exception ex) {

@@ -95,16 +95,16 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 
 	}
 
-	public void addGroup(Group group) throws InternalErrorException {
+	public void addGroup(Group group) {
 		addEntry(group);
 	}
 
-	public void addGroupAsSubGroup(Group group, Group parentGroup) throws InternalErrorException {
+	public void addGroupAsSubGroup(Group group, Group parentGroup) {
 		//This method has the same implementation like 'addGroup'
 		addGroup(group);
 	}
 
-	public void removeGroup(Group group) throws InternalErrorException {
+	public void removeGroup(Group group) {
 		Name groupDN = buildDN(group);
 		Name fullGroupDN = this.addBaseDN(groupDN);
 		DirContextOperations groupEntry = findByDN(groupDN);
@@ -120,11 +120,11 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	}
 
 	@Override
-	public void updateGroup(Group group) throws InternalErrorException {
+	public void updateGroup(Group group) {
 		modifyEntry(group);
 	}
 
-	public void addMemberToGroup(Member member, Group group) throws InternalErrorException {
+	public void addMemberToGroup(Member member, Group group) {
 		//Add member to group
 		Name groupDN = buildDN(group);
 		DirContextOperations groupEntry = findByDN(groupDN);
@@ -147,7 +147,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 		ldapTemplate.modifyAttributes(userEntry);
 	}
 
-	public void removeMemberFromGroup(Member member, Group group) throws InternalErrorException {
+	public void removeMemberFromGroup(Member member, Group group) {
 		//Remove member from group
 		Name groupDN = buildDN(group);
 		DirContextOperations groupEntry = findByDN(groupDN);
@@ -249,7 +249,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 
 	@Override
 	public void synchronizeGroup(Group group, Iterable<Attribute> attrs, List<Member> members, List<Resource> resources,
-	                             List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) throws InternalErrorException {
+	                             List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) {
 		SyncOperation syncOp = beginSynchronizeEntry(group, attrs);
 		doSynchronizeMembers(syncOp.getEntry(), members);
 		doSynchronizeResources(syncOp.getEntry(), resources);
@@ -303,7 +303,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	}
 
 	@Override
-	protected void mapToContext(Group group, DirContextOperations context) throws InternalErrorException {
+	protected void mapToContext(Group group, DirContextOperations context) {
 		context.setAttributeValue("objectclass", PerunAttribute.PerunAttributeNames.objectClassPerunGroup);
 		mapToContext(group, context, getAttributeDescriptions());
 	}
@@ -342,7 +342,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	}
 
 	@Override
-	public List<Name> listEntries() throws InternalErrorException {
+	public List<Name> listEntries() {
 		return ldapTemplate.search(query().
 						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunGroup),
 				getNameMapper());

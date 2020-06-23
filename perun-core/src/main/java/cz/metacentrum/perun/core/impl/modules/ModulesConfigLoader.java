@@ -18,7 +18,7 @@ public interface ModulesConfigLoader {
 	 * @throws ModulePropertyNotFoundException when the specified property value is null or is not found
 	 *                                         or the specified module configuration is not found
 	 */
-	String loadString(String moduleName, String property) throws ModulePropertyNotFoundException;
+	String loadString(String moduleName, String property);
 
 	/**
 	 * For module with the given name, find a String configuration property with given name.
@@ -31,7 +31,7 @@ public interface ModulesConfigLoader {
 	 * @throws ModulePropertyNotFoundException when the specified module configuration is not found
 	 */
 	String loadStringOrDefault(String moduleName, String property, String defaultValue)
-		throws ModulePropertyNotFoundException;
+	;
 
 	/**
 	 * For module with the given name, find an Integer configuration property with given name.
@@ -42,7 +42,7 @@ public interface ModulesConfigLoader {
 	 * @throws ModulePropertyNotFoundException when the specified property value is null or is not found
 	 *                                         or the specified module configuration is not found
 	 */
-	Integer loadInteger(String moduleName, String property) throws ModulePropertyNotFoundException;
+	Integer loadInteger(String moduleName, String property);
 
 	/**
 	 * For module with the given name, find an Integer configuration property with given name.
@@ -55,7 +55,7 @@ public interface ModulesConfigLoader {
 	 * @throws ModulePropertyNotFoundException when the specified module configuration is not found
 	 */
 	Integer loadIntegerOrDefault(String moduleName, String property, Integer defaultValue)
-		throws ModulePropertyNotFoundException;
+	;
 
 	/**
 	 * For module with the given name, find a list of Strings configuration property with given name.
@@ -66,7 +66,7 @@ public interface ModulesConfigLoader {
 	 * @throws ModulePropertyNotFoundException when the specified property value is null or is not found
 	 *                                         or the specified module configuration is not found
 	 */
-	List<String> loadStringList(String moduleName, String property) throws ModulePropertyNotFoundException;
+	List<String> loadStringList(String moduleName, String property);
 
 	/**
 	 * For module with the given name, find a list of Strings configuration property with given name.
@@ -79,7 +79,7 @@ public interface ModulesConfigLoader {
 	 * @throws ModulePropertyNotFoundException when the specified module configuration is not found
 	 */
 	List<String> loadStringListOrDefault(String moduleName, String property, List<String> defaultValue)
-		throws ModulePropertyNotFoundException;
+	;
 
 	/**
 	 * For module with the given name, find a list of Integers configuration property with given name.
@@ -90,7 +90,7 @@ public interface ModulesConfigLoader {
 	 * @throws ModulePropertyNotFoundException when the specified property value is null or is not found
 	 *                                         or the specified module configuration is not found
 	 */
-	List<Integer> loadIntegerList(String moduleName, String property) throws ModulePropertyNotFoundException;
+	List<Integer> loadIntegerList(String moduleName, String property);
 
 	/**
 	 * For module with the given name, find a list of Integers configuration property with given name.
@@ -104,5 +104,5 @@ public interface ModulesConfigLoader {
 	 *                                         or the specified module configuration is not found
 	 */
 	List<Integer> loadIntegerListOrDefault(String moduleName, String property, List<Integer> defaultValue)
-		throws ModulePropertyNotFoundException;
+	;
 }

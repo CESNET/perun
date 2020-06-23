@@ -88,7 +88,7 @@ public class ExpirationNotifScheduler {
 		initialize();
 	}
 
-	public void initialize() throws InternalErrorException {
+	public void initialize() {
 		String synchronizerPrincipal = "perunSynchronizer";
 		this.sess = perun.getPerunSession(
 				new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
@@ -100,7 +100,7 @@ public class ExpirationNotifScheduler {
 	 */
 	@FunctionalInterface
 	private interface ExpirationAuditAction<TA extends Auditer, TS extends PerunSession, TM extends Member, TV extends Vo> {
-		void callOn(TA auditer, TS session, TM member, TV vo) throws InternalErrorException;
+		void callOn(TA auditer, TS session, TM member, TV vo);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class ExpirationNotifScheduler {
 	 */
 	@FunctionalInterface
 	private interface GroupExpirationAuditAction<TA extends Auditer, TS extends PerunSession, TM extends Member, TV extends Group> {
-		void callOn(TA auditer, TS session, TM member, TV group) throws InternalErrorException;
+		void callOn(TA auditer, TS session, TM member, TV group);
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class ExpirationNotifScheduler {
 	 * @param expirationPeriod Expiration period, should correspond with given date
 	 * @throws InternalErrorException internal error
 	 */
-	private void auditInfoAboutIncomingMembersExpirationInGivenTime(List<Status> allowedStatuses, Map<Integer, Vo> vosMap, LocalDate timeBeforeExpiration, ExpirationPeriod expirationPeriod) throws InternalErrorException {
+	private void auditInfoAboutIncomingMembersExpirationInGivenTime(List<Status> allowedStatuses, Map<Integer, Vo> vosMap, LocalDate timeBeforeExpiration, ExpirationPeriod expirationPeriod) {
 		List<Member> expireInTime = perun.getSearcherBl().getMembersByExpiration(sess, "=", timeBeforeExpiration);
 		for (Member m : expireInTime) {
 			try {
@@ -216,7 +216,7 @@ public class ExpirationNotifScheduler {
 	 * @param expirationPeriod Expiration period, should correspond with given date
 	 * @throws InternalErrorException internal error
 	 */
-	private void auditInfoAboutIncomingGroupMembersExpirationInGivenTime(List<Status> allowedStatuses, Group group, LocalDate timeBeforeExpiration, GroupExpirationPeriod expirationPeriod) throws InternalErrorException {
+	private void auditInfoAboutIncomingGroupMembersExpirationInGivenTime(List<Status> allowedStatuses, Group group, LocalDate timeBeforeExpiration, GroupExpirationPeriod expirationPeriod) {
 		List<Member> expireInTime = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "=", timeBeforeExpiration);
 
 		for (Member m : expireInTime) {
@@ -308,7 +308,7 @@ public class ExpirationNotifScheduler {
 	 * @throws WrongAttributeAssignmentException error
 	 * @throws AttributeNotExistsException error
 	 */
-	private void checkVoMembersState(List<Vo> vos) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	private void checkVoMembersState(List<Vo> vos) throws WrongAttributeAssignmentException, AttributeNotExistsException {
 		// Only members with following statuses will be notified
 		List<Status> allowedStatuses = new ArrayList<>();
 		allowedStatuses.add(Status.VALID);
@@ -336,7 +336,7 @@ public class ExpirationNotifScheduler {
 	 * @throws WrongAttributeAssignmentException error
 	 * @throws AttributeNotExistsException error
 	 */
-	private void validateMembers(LocalDate date) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	private void validateMembers(LocalDate date) throws WrongAttributeAssignmentException, AttributeNotExistsException {
 		List<Member> shouldntBeExpired = perun.getSearcherBl().getMembersByExpiration(sess, ">", date);
 		for (Member member : shouldntBeExpired) {
 			if (member.getStatus().equals(Status.EXPIRED)) {
@@ -357,7 +357,7 @@ public class ExpirationNotifScheduler {
 	 * @throws WrongAttributeAssignmentException error
 	 * @throws AttributeNotExistsException error
 	 */
-	private void expireMembers(LocalDate date) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	private void expireMembers(LocalDate date) throws WrongAttributeAssignmentException, AttributeNotExistsException {
 		List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByExpiration(sess, "<=", date);
 		for (Member member : shouldBeExpired) {
 			if (member.getStatus().equals(Status.VALID)) {
@@ -378,7 +378,7 @@ public class ExpirationNotifScheduler {
 	 * @param vosMap vos
 	 * @throws InternalErrorException internal error
 	 */
-	private void auditOldExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) throws InternalErrorException {
+	private void auditOldExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) {
 		// log message for all members which expired 7 days ago
 		LocalDate expiredWeekAgo = LocalDate.now().minusDays(7);
 		List<Member> expired7DaysAgo = perun.getSearcherBl().getMembersByExpiration(sess, "=", expiredWeekAgo);
@@ -406,7 +406,7 @@ public class ExpirationNotifScheduler {
 	 * @param group group
 	 * @throws InternalErrorException internal error
 	 */
-	private void auditOldGroupExpirations(List<Status> allowedStatuses, Group group) throws InternalErrorException {
+	private void auditOldGroupExpirations(List<Status> allowedStatuses, Group group) {
 		// log message for all members which expired 7 days ago
 		LocalDate expiredWeekAgo = LocalDate.now().minusDays(7);
 		List<Member> expired7DaysAgo = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "=", expiredWeekAgo);
@@ -437,7 +437,7 @@ public class ExpirationNotifScheduler {
 	 * @param vosMap vos
 	 * @throws InternalErrorException internal error
 	 */
-	private void auditIncomingExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) throws InternalErrorException {
+	private void auditIncomingExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) {
 		LocalDate nextMonth = LocalDate.now().plusMonths(1);
 
 		// log message for all members which will expire in 30 days
@@ -463,7 +463,7 @@ public class ExpirationNotifScheduler {
 	 * @param group group
 	 * @throws InternalErrorException internal error
 	 */
-	private void auditIncomingGroupExpirations(List<Status> allowedStatuses, Group group) throws InternalErrorException {
+	private void auditIncomingGroupExpirations(List<Status> allowedStatuses, Group group) {
 		LocalDate nextMonth = LocalDate.now().plusMonths(1);
 
 		// log message for all members which will expire in 30 days
@@ -490,7 +490,7 @@ public class ExpirationNotifScheduler {
 	 * @param date current date
 	 * @throws InternalErrorException internal error
 	 */
-	private void checkGroupMemberExpiration(Group group, LocalDate date) throws InternalErrorException {
+	private void checkGroupMemberExpiration(Group group, LocalDate date) {
 		List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "<=", date);
 		shouldBeExpired.stream()
 				// read member exact group status (not calculated from other group relations),
@@ -526,7 +526,7 @@ public class ExpirationNotifScheduler {
 	 * @param date current date
 	 * @throws InternalErrorException internal error
 	 */
-	private void checkGroupMemberValidation(Group group, LocalDate date) throws InternalErrorException {
+	private void checkGroupMemberValidation(Group group, LocalDate date) {
 		List<Member> shouldNotBeExpired = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, ">", date);
 		shouldNotBeExpired.stream()
 				// read member exact group status (not calculated from other group relations),
@@ -560,7 +560,7 @@ public class ExpirationNotifScheduler {
 	 * @param vos vos
 	 * @throws InternalErrorException internal error
 	 */
-	private void checkGroupMembersState(List<Vo> vos) throws InternalErrorException {
+	private void checkGroupMembersState(List<Vo> vos) {
 
 		// Only members with following statuses will be notified
 		List<Status> allowedStatuses = new ArrayList<>();

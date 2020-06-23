@@ -74,22 +74,22 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 		);
 	}
 
-	public void addResource(Resource resource) throws InternalErrorException {
+	public void addResource(Resource resource) {
 		addEntry(resource);
 	}
 
-	public void deleteResource(Resource resource) throws InternalErrorException {
+	public void deleteResource(Resource resource) {
 		deleteEntry(resource);
 	}
 
 
 	@Override
-	public void updateResource(Resource resource) throws InternalErrorException {
+	public void updateResource(Resource resource) {
 		modifyEntry(resource);
 	}
 
 	@Override
-	public void assignGroup(Resource resource, Group group) throws InternalErrorException {
+	public void assignGroup(Resource resource, Group group) {
 		DirContextOperations entry = findByDN(buildDN(resource));
 		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAssignedGroupId, String.valueOf(group.getId()));
 		ldapTemplate.modifyAttributes(entry);
@@ -99,7 +99,7 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	}
 
 	@Override
-	public void removeGroup(Resource resource, Group group) throws InternalErrorException {
+	public void removeGroup(Resource resource, Group group) {
 		DirContextOperations entry = findByDN(buildDN(resource));
 		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrAssignedGroupId, String.valueOf(group.getId()));
 		ldapTemplate.modifyAttributes(entry);
@@ -117,14 +117,14 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	}
 
 	@Override
-	public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups) throws InternalErrorException {
+	public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups) {
 		SyncOperation syncOp = beginSynchronizeEntry(resource, attrs);
 		doSynchronizeGroups(syncOp.getEntry(), assignedGroups);
 		commitSyncOperation(syncOp);
 	}
 
 	@Override
-	public void synchronizeGroups(Resource resource, List<Group> assignedGroups) throws InternalErrorException {
+	public void synchronizeGroups(Resource resource, List<Group> assignedGroups) {
 		DirContextOperations entry = findByDN(buildDN(resource));
 		doSynchronizeGroups(entry, assignedGroups);
 		ldapTemplate.modifyAttributes(entry);
@@ -144,13 +144,13 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	}
 
 	@Override
-	protected void mapToContext(Resource bean, DirContextOperations context) throws InternalErrorException {
+	protected void mapToContext(Resource bean, DirContextOperations context) {
 		context.setAttributeValue("objectclass", PerunAttribute.PerunAttributeNames.objectClassPerunResource);
 		mapToContext(bean, context, getAttributeDescriptions());
 	}
 
 	@Override
-	public List<Name> listEntries() throws InternalErrorException {
+	public List<Name> listEntries() {
 		return ldapTemplate.search(query().
 						where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunResource),
 				getNameMapper());

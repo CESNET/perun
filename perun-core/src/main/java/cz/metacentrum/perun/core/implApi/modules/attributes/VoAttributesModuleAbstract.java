@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class VoAttributesModuleAbstract extends AttributesModuleAbstract implements VoAttributesModuleImplApi {
 
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 

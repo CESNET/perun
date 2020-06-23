@@ -64,7 +64,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
 		// check only if not null
 		if (attribute.getValue() != null) {
@@ -99,7 +99,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 		// map of reserved vsup mails
 		Attribute reservedMailsAttribute;

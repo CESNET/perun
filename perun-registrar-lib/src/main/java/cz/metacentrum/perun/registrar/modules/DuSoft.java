@@ -29,7 +29,7 @@ public class DuSoft extends DefaultRegistrarModule {
 	private final static Logger log = LoggerFactory.getLogger(DuSoft.class);
 
 	@Override
-	public void canBeApproved(PerunSession session, Application app) throws RegistrarException, PrivilegeException, InternalErrorException, CantBeApprovedException {
+	public void canBeApproved(PerunSession session, Application app) throws RegistrarException, PrivilegeException, CantBeApprovedException {
 
 		// allow only Education & Research community members
 		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());

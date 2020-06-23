@@ -54,7 +54,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 	// methods ----------------------
 
 	@Override
-	public Category createCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+	public Category createCategory(PerunSession sess, Category category) throws CabinetException {
 		try {
 			// Set the new Category id
 			int newId = Utils.getNewId(jdbc, "cabinet_categories_id_seq");
@@ -69,7 +69,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 	}
 
 	@Override
-	public Category updateCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+	public Category updateCategory(PerunSession sess, Category category) throws CabinetException {
 		try {
 			int numAffected = jdbc.update("update cabinet_categories set name=?,rank=?,modified_by_uid=?" +
 					" where id=?", category.getName(), category.getRank(), sess.getPerunPrincipal().getUserId(), category.getId());
@@ -83,7 +83,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 	}
 
 	@Override
-	public void deleteCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+	public void deleteCategory(PerunSession sess, Category category) throws CabinetException {
 		try {
 			int numAffected = jdbc.update("delete from cabinet_categories where id=?", category.getId());
 			if (numAffected == 0) throw new CabinetException(ErrorCodes.CATEGORY_NOT_EXISTS);
@@ -95,7 +95,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 	}
 
 	@Override
-	public List<Category> getCategories() throws InternalErrorException {
+	public List<Category> getCategories() {
 		try {
 			return jdbc.query("select " + CATEGORY_SELECT_QUERY +
 					" from cabinet_categories", CATEGORY_ROW_MAPPER);
@@ -107,7 +107,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 	}
 
 	@Override
-	public Category getCategoryById(int id) throws CabinetException, InternalErrorException {
+	public Category getCategoryById(int id) throws CabinetException {
 		try {
 			return jdbc.queryForObject("select " + CATEGORY_SELECT_QUERY +
 					" from cabinet_categories where id=?", CATEGORY_ROW_MAPPER, id);

@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuring
 public class urn_perun_group_attribute_def_virt_voShortName extends GroupVirtualAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		attribute.setValue(perunSession.getPerunBl().getGroupsManagerBl().getVo(perunSession, group).getShortName());
 		return attribute;

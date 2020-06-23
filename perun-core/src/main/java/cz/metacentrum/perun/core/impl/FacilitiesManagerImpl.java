@@ -232,7 +232,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Facility createFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+	public Facility createFacility(PerunSession sess, Facility facility) {
 		Utils.notNull(facility.getName(), "facility.getName()");
 
 		try {
@@ -253,7 +253,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void deleteFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityAlreadyRemovedException {
+	public void deleteFacility(PerunSession sess, Facility facility) throws FacilityAlreadyRemovedException {
 		try {
 			// Delete authz entries for this facility
 			AuthzResolverBlImpl.removeAllAuthzForFacility(sess, facility);
@@ -271,7 +271,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Facility updateFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityExistsException {
+	public Facility updateFacility(PerunSession sess, Facility facility) throws FacilityExistsException {
 
 		// Get the facility stored in the DB
 		Facility dbFacility;
@@ -301,7 +301,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void deleteFacilityOwners(PerunSession sess, Facility facility) throws InternalErrorException {
+	public void deleteFacilityOwners(PerunSession sess, Facility facility) {
 		try {
 			jdbc.update("delete from facility_owners where facility_id=?", facility.getId());
 			log.info("Facility owners deleted. Facility: {}", facility);
@@ -311,7 +311,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Facility getFacilityById(PerunSession sess, int id) throws InternalErrorException, FacilityNotExistsException {
+	public Facility getFacilityById(PerunSession sess, int id) throws FacilityNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities where id=?", FACILITY_MAPPER, id);
 		} catch (EmptyResultDataAccessException ex) {
@@ -324,7 +324,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Facility getFacilityByName(PerunSession sess, String name) throws InternalErrorException, FacilityNotExistsException {
+	public Facility getFacilityByName(PerunSession sess, String name) throws FacilityNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities where name=?", FACILITY_MAPPER, name);
 		} catch (EmptyResultDataAccessException ex) {
@@ -338,7 +338,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 
 	@Override
-	public List<Facility> getFacilitiesByDestination(PerunSession sess, String destination) throws InternalErrorException, FacilityNotExistsException {
+	public List<Facility> getFacilitiesByDestination(PerunSession sess, String destination) throws FacilityNotExistsException {
 		try {
 			return jdbc.query("select distinct " + facilityMappingSelectQuery + " from facilities, destinations, facility_service_destinations " +
 					" where destinations.destination=? and facility_service_destinations.destination_id=destinations.id and " +
@@ -352,7 +352,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 
 	@Override
-	public List<Facility> getFacilities(PerunSession sess) throws InternalErrorException {
+	public List<Facility> getFacilities(PerunSession sess) {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities", FACILITY_MAPPER);
 		} catch (RuntimeException ex) {
@@ -361,7 +361,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException {
+	public int getFacilitiesCount(PerunSession sess) {
 		try {
 			return jdbc.queryForInt("select count(*) from facilities");
 		} catch (RuntimeException ex) {
@@ -370,7 +370,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Owner> getOwners(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Owner> getOwners(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select "+OwnersManagerImpl.ownerMappingSelectQuery+" from owners left join facility_owners on owners.id = facility_owners.owner_id where facility_id=?", OwnersManagerImpl.OWNER_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
@@ -379,7 +379,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void setOwners(PerunSession sess, Facility facility, List<Owner> owners) throws InternalErrorException {
+	public void setOwners(PerunSession sess, Facility facility, List<Owner> owners) {
 		try {
 			jdbc.update("delete from facility_owners where facility_id=?", facility.getId());
 
@@ -394,7 +394,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void addOwner(PerunSession sess, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyAssignedException {
+	public void addOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyAssignedException {
 		try {
 			// Check if the owner is already assigned
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_owners where facility_id=? and owner_id=?", facility.getId(), owner.getId());
@@ -412,7 +412,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException {
+	public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws OwnerAlreadyRemovedException {
 		try {
 			if (0 == jdbc.update("delete from facility_owners where facility_id=? and owner_id=?", facility.getId(), owner.getId())) {
 				throw new OwnerAlreadyRemovedException("Owner: " + owner + " facility: " + facility);
@@ -424,7 +424,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Vo> getAllowedVos(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Vo> getAllowedVos(PerunSession sess, Facility facility) {
 		try {
 			// Select only unique Vos
 			return jdbc.query("select distinct "+ VosManagerImpl.voMappingSelectQuery +" from resources" +
@@ -437,7 +437,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) {
 		try  {
 			// we do include all group statuses for such members
 			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources" +
@@ -506,7 +506,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
 					ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId());
@@ -516,7 +516,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) {
 
 		try {
 
@@ -551,7 +551,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
 							facilityMappingSelectQuery + ", " + ResourcesManagerImpl.resourceTagMappingSelectQuery + " from resources" +
@@ -567,7 +567,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Facility> getOwnerFacilities(PerunSession sess, Owner owner) throws InternalErrorException {
+	public List<Facility> getOwnerFacilities(PerunSession sess, Owner owner) {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities" +
 					" join facility_owners on facilities.id=facility_owners.facility_id" +
@@ -578,7 +578,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
+	public List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute) {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities " +
 					"join facility_attr_values on facilities.id=facility_attr_values.facility_id " +
@@ -592,7 +592,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public boolean facilityExists(PerunSession sess, Facility facility) throws InternalErrorException {
+	public boolean facilityExists(PerunSession sess, Facility facility) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facilities where id=?", facility.getId());
 			if (numberOfExistences == 1) {
@@ -613,12 +613,12 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	 * @see FacilitiesManagerImplApi#checkFacilityExists(PerunSession,Facility)
 	 */
 	@Override
-	public void checkFacilityExists(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException {
+	public void checkFacilityExists(PerunSession sess, Facility facility) throws FacilityNotExistsException {
 		if(!facilityExists(sess, facility)) throw new FacilityNotExistsException("Facility: " + facility);
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<User> getAdmins(PerunSession sess, Facility facility) {
 		try {
 			// direct admins
 			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
@@ -642,7 +642,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<User> getDirectAdmins(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<User> getDirectAdmins(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 					"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
@@ -655,7 +655,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Group> getAdminGroups(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Group> getAdminGroups(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
 					" where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
@@ -668,7 +668,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Host addHost(PerunSession sess, Host host, Facility facility) throws InternalErrorException {
+	public Host addHost(PerunSession sess, Host host, Facility facility) {
 		Utils.notNull(host.getHostname(), "host.getHostname()");
 
 		try {
@@ -688,7 +688,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeHost(PerunSession sess, Host host) throws InternalErrorException, HostAlreadyRemovedException {
+	public void removeHost(PerunSession sess, Host host) throws HostAlreadyRemovedException {
 		try {
 			int numAffected = jdbc.update("delete from hosts where id=?", host.getId());
 			if(numAffected == 0) throw new HostAlreadyRemovedException("Host: " + host);
@@ -698,7 +698,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Host getHostById(PerunSession sess, int id) throws HostNotExistsException, InternalErrorException {
+	public Host getHostById(PerunSession sess, int id) throws HostNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + hostMappingSelectQuery + " from hosts where id=?", HOST_MAPPER, id);
 		} catch (EmptyResultDataAccessException e) {
@@ -709,7 +709,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException {
+	public List<Host> getHostsByHostname(PerunSession sess, String hostname) {
 		try {
 			return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.hostname=? order by id", HOST_MAPPER, hostname);
 		} catch (EmptyResultDataAccessException e) {
@@ -720,7 +720,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Facility getFacilityForHost(PerunSession sess, Host host) throws InternalErrorException {
+	public Facility getFacilityForHost(PerunSession sess, Host host) {
 		try {
 			return jdbc.queryForObject("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " +
 					"where hosts.id=?", FACILITY_MAPPER, host.getId());
@@ -732,7 +732,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException {
+	public List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " +
 					"where hosts.hostname=?", FACILITY_MAPPER, hostname);
@@ -744,7 +744,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Host> getHosts(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Host> getHosts(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.facility_id=? order by id", HOST_MAPPER, facility.getId());
 		} catch (EmptyResultDataAccessException e) {
@@ -755,7 +755,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public int getHostsCount(PerunSession sess, Facility facility) throws InternalErrorException {
+	public int getHostsCount(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.queryForInt("select count(*) from hosts where hosts.facility_id=?", facility.getId());
 		} catch (RuntimeException e) {
@@ -764,7 +764,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
+	public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities " +
 							" left outer join authz on authz.facility_id=facilities.id " +
@@ -778,7 +778,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public boolean hostExists(PerunSession sess, Host host) throws InternalErrorException {
+	public boolean hostExists(PerunSession sess, Host host) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from hosts where id=?", host.getId());
 			if (numberOfExistences == 1) {
@@ -795,12 +795,12 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void checkHostExists(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException {
+	public void checkHostExists(PerunSession sess, Host host) throws HostNotExistsException {
 		if(!hostExists(sess, host)) throw new HostNotExistsException("Host: " + host);
 	}
 
 	@Override
-	public List<User> getAssignedUsers(PerunSession sess, Facility facility)throws InternalErrorException{
+	public List<User> getAssignedUsers(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users"
 					+ " join members on users.id = members.user_id"
@@ -814,7 +814,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service)throws InternalErrorException{
+	public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) {
 		try {
 			// FIXME - can we optimize this to start from most limited table (resources.facility_id)?
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users"
@@ -832,7 +832,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	// FACILITY CONTACTS METHODS
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, User user) {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(user, "user");
 		if(name == null || name.isEmpty()) {
@@ -857,7 +857,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(owner, "owner");
 		if(name == null || name.isEmpty()) {
@@ -881,7 +881,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Group group) {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(group, "group");
 		if(name == null || name.isEmpty()) {
@@ -905,7 +905,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) {
 		try {
 			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
 			  "left join facilities on facilities.id=facility_contacts.facility_id " +
@@ -921,7 +921,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) {
 		try {
 			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
 			  "left join facilities on facilities.id=facility_contacts.facility_id " +
@@ -937,7 +937,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) {
 		try {
 			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
 			  "left join facilities on facilities.id=facility_contacts.facility_id " +
@@ -953,7 +953,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) {
 		try {
 			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
 			  "left join facilities on facilities.id=facility_contacts.facility_id " +
@@ -969,7 +969,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException {
+	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws FacilityContactNotExistsException {
 		try {
 			List<ContactGroup> contactGroups = jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
 			  "left join facilities on facilities.id=facility_contacts.facility_id " +
@@ -991,7 +991,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException {
+	public List<String> getAllContactGroupNames(PerunSession sess) {
 		try {
 			return jdbc.query("select distinct name from facility_contacts", FACILITY_CONTACT_NAMES_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
@@ -1002,21 +1002,21 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws FacilityContactNotExistsException {
 		if(!facilityContactExists(sess, facility, name, owner)) throw new FacilityContactNotExistsException(facility, name, owner);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException, FacilityContactNotExistsException {
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws FacilityContactNotExistsException {
 		if(!facilityContactExists(sess, facility, name, user)) throw new FacilityContactNotExistsException(facility, name, user);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException {
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws FacilityContactNotExistsException {
 		if(!facilityContactExists(sess, facility, name, group)) throw new FacilityContactNotExistsException(facility, name, group);
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_contacts where facility_id=? and name=? and owner_id=?", facility.getId(), name, owner.getId());
 			if (numberOfExistences == 1) {
@@ -1032,7 +1032,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, User user) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_contacts where facility_id=? and name=? and user_id=?", facility.getId(), name, user.getId());
 			if (numberOfExistences == 1) {
@@ -1048,7 +1048,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Group group) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_contacts where facility_id=? and name=? and group_id=?", facility.getId(), name, group.getId());
 			if (numberOfExistences == 1) {
@@ -1065,7 +1065,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllOwnerContacts(PerunSession sess, Owner owner) throws InternalErrorException {
+	public void removeAllOwnerContacts(PerunSession sess, Owner owner) {
 		try {
 			jdbc.update("delete from facility_contacts where owner_id=?", owner.getId());
 			log.info("All owner's {} facilities contacts deleted.", owner);
@@ -1075,7 +1075,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllUserContacts(PerunSession sess, User user) throws InternalErrorException {
+	public void removeAllUserContacts(PerunSession sess, User user) {
 		try {
 			jdbc.update("delete from facility_contacts where user_id=?", user.getId());
 			log.info("All user's {} facilities contacts deleted.", user);
@@ -1085,7 +1085,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllGroupContacts(PerunSession sess, Group group) throws InternalErrorException {
+	public void removeAllGroupContacts(PerunSession sess, Group group) {
 		try {
 			jdbc.update("delete from facility_contacts where group_id=?", group.getId());
 			log.info("All group's {} facilities contacts deleted.", group);
@@ -1095,7 +1095,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) {
 		try {
 			jdbc.update("delete from facility_contacts where facility_id=? and owner_id=? and name=?", facility.getId(), owner.getId(), name);
 			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Owner: " + owner, facility, name);
@@ -1105,7 +1105,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, User user) {
 		try {
 			jdbc.update("delete from facility_contacts where facility_id=? and user_id=? and name=?", facility.getId(), user.getId(), name);
 			log.info("Facility contact deleted. Facility: {}, ContactName: {}, User: " + user, facility, name);
@@ -1115,7 +1115,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Group group) {
 		try {
 			jdbc.update("delete from facility_contacts where facility_id=? and group_id=? and name=?", facility.getId(), group.getId(), name);
 			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Group: " + group, facility, name);
@@ -1125,7 +1125,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) {
 		try {
 			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery +
 							" from security_teams inner join (" +
@@ -1138,7 +1138,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
 		try {
 			jdbc.update("insert into security_teams_facilities(security_team_id, facility_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
 					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
@@ -1149,7 +1149,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
 		try {
 			jdbc.update("delete from security_teams_facilities where security_team_id=? and facility_id=?",
 					securityTeam.getId(), facility.getId());
@@ -1159,21 +1159,21 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamAlreadyAssignedException {
+	public void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamAlreadyAssignedException {
 		if (isSecurityTeamAssigned(sess, facility, securityTeam)) {
 			throw new SecurityTeamAlreadyAssignedException(securityTeam);
 		}
 	}
 
 	@Override
-	public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotAssignedException {
+	public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamNotAssignedException {
 		if (!isSecurityTeamAssigned(sess, facility, securityTeam)) {
 			throw new SecurityTeamNotAssignedException(securityTeam);
 		}
 	}
 
 	@Override
-	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities" +
 							" join ( select security_teams_facilities.facility_id from security_teams_facilities where security_team_id=? ) "+
@@ -1185,7 +1185,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException {
+	public boolean banExists(PerunSession sess, int userId, int facilityId) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
 			if (numberOfExistences == 1) {
@@ -1202,7 +1202,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
+	public boolean banExists(PerunSession sess, int banId) {
 		try {
 			int numberOfExistences = jdbc.queryForInt("select count(1) from facilities_bans where id=?", banId);
 			if (numberOfExistences == 1) {
@@ -1219,7 +1219,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
+	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) {
 		Utils.notNull(banOnFacility.getValidityTo(), "banOnFacility.getValidityTo");
 
 		try {
@@ -1239,7 +1239,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+	public BanOnFacility getBanById(PerunSession sess, int banId) throws BanNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where id=? ", BAN_ON_FACILITY_MAPPER, banId);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1250,7 +1250,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException {
+	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws BanNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where user_id=? and facility_id=?", BAN_ON_FACILITY_MAPPER, userId, faclityId);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1261,7 +1261,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException {
+	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) {
 		try {
 			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where user_id=?", BAN_ON_FACILITY_MAPPER, userId);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1272,7 +1272,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException {
+	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) {
 		try {
 			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where facility_id=?", BAN_ON_FACILITY_MAPPER, facilityId);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1283,7 +1283,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException {
+	public List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) {
 		try {
 			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where banned_to < " + Compatibility.getSysdate(), BAN_ON_FACILITY_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1294,7 +1294,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
+	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) {
 		try {
 			jdbc.update("update facilities_bans set description=?, banned_to=?, modified_by=?, modified_by_uid=?, modified_at=" +
 							Compatibility.getSysdate() + " where id=?",
@@ -1308,7 +1308,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+	public void removeBan(PerunSession sess, int banId) throws BanNotExistsException {
 		try {
 			int numAffected = jdbc.update("delete from facilities_bans where id=?", banId);
 			if(numAffected != 1) throw new BanNotExistsException("Ban with id " + banId + " can't be remove, because not exists yet.");
@@ -1318,7 +1318,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException {
+	public void removeBan(PerunSession sess, int userId, int facilityId) throws BanNotExistsException {
 		try {
 			int numAffected = jdbc.update("delete from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
 			if(numAffected != 1) throw new BanNotExistsException("Ban for user " + userId + " and facility " + facilityId + " can't be remove, because not exists yet.");
@@ -1327,7 +1327,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	private boolean isSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+	private boolean isSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) {
 		try {
 			int number = jdbc.queryForInt("select count(1) from security_teams_facilities where security_team_id=? and facility_id=?", securityTeam.getId(), facility.getId());
 			if (number == 1) {
@@ -1394,7 +1394,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllServiceDenials(int facilityId) throws InternalErrorException {
+	public void removeAllServiceDenials(int facilityId) {
 		try {
 			jdbc.update("delete from service_denials where facility_id=?", facilityId);
 		} catch (DataAccessException e) {

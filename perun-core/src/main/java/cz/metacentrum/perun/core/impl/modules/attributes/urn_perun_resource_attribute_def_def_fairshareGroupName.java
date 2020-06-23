@@ -32,7 +32,7 @@ public class urn_perun_resource_attribute_def_def_fairshareGroupName extends Res
 	private static final Pattern pattern = Pattern.compile("^[a-zA-Z]{1,12}$");
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		//Null is ok, it means this resource is not fairshare group
 		if (attribute.getValue() == null) {
 			return;
@@ -46,7 +46,7 @@ public class urn_perun_resource_attribute_def_def_fairshareGroupName extends Res
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//Null is ok, it means this resource is not fairshare group
 		if (attribute.getValue() == null) {
 			return;

@@ -55,7 +55,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 	static final String ADNAME_ATTRIBUTE = NAMESPACE + ":adName";
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		log.trace("checkAttributeSyntax(resource={},group={},attribute={})", resource, group, attribute);
 		List<String> emails = attribute.valueAsList();
 
@@ -75,7 +75,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		List<String> emails = attribute.valueAsList();
 
 		if (emails == null) emails = new ArrayList<>();
@@ -113,7 +113,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 	 * Prefills value created by joining value of urn:perun:group_resource:attribute-def:def:adName with "@group.muni.cz"
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attrDef) throws WrongAttributeAssignmentException {
 		if (!NAMESPACE.equals(attrDef.getNamespace())) throw new WrongAttributeAssignmentException(attrDef);
 		try {
 			Attribute result = new Attribute(attrDef);

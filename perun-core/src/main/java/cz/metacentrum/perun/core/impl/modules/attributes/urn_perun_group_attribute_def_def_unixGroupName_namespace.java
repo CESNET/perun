@@ -35,7 +35,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 	protected static final Pattern defaultUnixGroupNamePattern = Pattern.compile("^[-_.a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException, InternalErrorException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) return;
 		//Check attribute regex
 		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, defaultUnixGroupNamePattern);
@@ -45,7 +45,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		//prepare namespace and groupName value variables
 		String groupName = null;
 		if(attribute.getValue() != null) groupName = attribute.valueAsString();
@@ -118,7 +118,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Need to know if this is remove or set, if value is null, its remove, otherway it is set
 		String groupNameNamespace = attribute.getFriendlyNameParameter();
 

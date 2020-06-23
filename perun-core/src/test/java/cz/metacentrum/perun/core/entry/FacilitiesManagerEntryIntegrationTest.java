@@ -2298,7 +2298,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 	}
 
-        private List<AttributeDefinition> getMandatoryAttrs() throws InternalErrorException{
+        private List<AttributeDefinition> getMandatoryAttrs() {
 		List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
                         AttributesManager.NS_USER_ATTR_DEF + ":organization",
                         AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));

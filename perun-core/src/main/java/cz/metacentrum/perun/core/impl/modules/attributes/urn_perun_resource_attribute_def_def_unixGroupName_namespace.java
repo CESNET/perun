@@ -34,7 +34,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 	protected static final Pattern defaultUnixGroupNamePattern = Pattern.compile("^[-_.a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) return;
 
 		//Check attribute regex
@@ -45,7 +45,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		//prepare namespace and groupName value variables
 		String groupName = null;
 		if(attribute.getValue() != null) groupName = attribute.valueAsString();
@@ -118,7 +118,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws WrongReferenceAttributeValueException {
 		//Need to know if this is remove or set, if value is null, its remove, otherway it is set
 		String groupNameNamespace = attribute.getFriendlyNameParameter();
 

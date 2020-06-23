@@ -32,7 +32,7 @@ import java.util.Map;
 public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
 		List<Map<String, String>> subjects = new ArrayList<>();
 		NamingEnumeration<SearchResult> results = null;
 
@@ -69,7 +69,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 	}
 
 	@Override
-	protected List<Map<String, String>> querySource(String query, String base, int maxResults) throws InternalErrorException {
+	protected List<Map<String, String>> querySource(String query, String base, int maxResults) {
 		List<Map<String, String>> subjects = new ArrayList<>();
 		NamingEnumeration<SearchResult> results = null;
 
@@ -114,7 +114,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	protected Map<String,String> processResultToSubject(SearchResult sr) throws InternalErrorException {
+	protected Map<String,String> processResultToSubject(SearchResult sr) {
 		if(sr == null) throw new InternalErrorException("SearchResult is empty so cannot be proceed.");
 		Map<String,String> subject = new HashMap<>();
 
@@ -158,7 +158,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 		return subject;
 	}
 
-	private Pair<String, String> getCertficiateSubjectAndIssure(byte[] certInDER, int counter) throws InternalErrorException {
+	private Pair<String, String> getCertficiateSubjectAndIssure(byte[] certInDER, int counter) {
 		String additionalValue = "additionalues_" + counter;
 		Pair<String, String> subjectCert;
 

@@ -43,14 +43,14 @@ public class UrlDeserializer extends Deserializer {
 	}
 
 	@Override
-	public String readString(String name) throws RpcException {
+	public String readString(String name) {
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
 		return req.getParameter(name);
 	}
 
 	@Override
-	public Boolean readBoolean(String name) throws RpcException {
+	public Boolean readBoolean(String name) {
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
 		try {
@@ -68,12 +68,12 @@ public class UrlDeserializer extends Deserializer {
 	}
 
 	@Override
-	public int[] readArrayOfInts(String name) throws RpcException {
+	public int[] readArrayOfInts(String name) {
 		return readList(name, Integer.class).stream().mapToInt(i->i).toArray();
 	}
 
 	@Override
-	public int readInt(String name) throws RpcException {
+	public int readInt(String name) {
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
 		try {
@@ -84,7 +84,7 @@ public class UrlDeserializer extends Deserializer {
 	}
 
 	@Override
-	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
+	public <T> List<T> readList(String name, Class<T> valueType) {
 
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
@@ -111,7 +111,7 @@ public class UrlDeserializer extends Deserializer {
 		return list;
 	}
 
-	public String readAll() throws RpcException {
+	public String readAll() {
 		StringBuffer stringParams = new StringBuffer();
 		for (Enumeration<String> parameters = req.getParameterNames(); parameters.hasMoreElements() ;) {
 			String paramName = (String) parameters.nextElement();

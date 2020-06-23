@@ -67,7 +67,7 @@ public interface SearcherBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method take map of coreAttributes with search values and return all
@@ -80,7 +80,7 @@ public interface SearcherBl {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Return members with expiration date set, which will expire on today +/- X days.
@@ -96,7 +96,7 @@ public interface SearcherBl {
 	 * @return Members with expiration relative to method params.
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws InternalErrorException;
+	List<Member> getMembersByExpiration(PerunSession sess, String operator, int days);
 
 	/**
 	 * Return members with expiration date set, which will expire on specified date.
@@ -112,7 +112,7 @@ public interface SearcherBl {
 	 * @return Members with expiration relative to method params.
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) throws InternalErrorException;
+	List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date);
 
 	/**
 	 * Return members with group expiration date set, which will expire on specified date
@@ -133,7 +133,7 @@ public interface SearcherBl {
 	 * @return Members with expiration relative to method params.
 	 * @throws InternalErrorException internal error
 	 */
-	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws InternalErrorException;
+	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date);
 
 	/**
 	 * Return all groups assigned to any resource with following conditions:
@@ -148,7 +148,7 @@ public interface SearcherBl {
 	 * @return list of groups with following conditions
 	 * @throws InternalErrorException if any of attributes is null or has empty value, if any of attributes is not in expected namespace
 	 */
-	List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException;
+	List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute);
 
 	/**
 	 * This method get Map of Attributes with searching values and try to find all facilities, which have specific attributes in format.
@@ -168,7 +168,7 @@ public interface SearcherBl {
 	 * @throws AttributeNotExistsException when specified attribute does not exist
 	 * @throws WrongAttributeAssignmentException wrong attribute assignment
 	 */
-	List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method get Map of Attributes with searching values and try to find all resources, which have specific attributes in format.
@@ -189,5 +189,5 @@ public interface SearcherBl {
 	 * @throws AttributeNotExistsException when specified attribute does not exist
 	 * @throws WrongAttributeAssignmentException wrong attribute assignment
 	 */
-	List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws AttributeNotExistsException, WrongAttributeAssignmentException;
 }

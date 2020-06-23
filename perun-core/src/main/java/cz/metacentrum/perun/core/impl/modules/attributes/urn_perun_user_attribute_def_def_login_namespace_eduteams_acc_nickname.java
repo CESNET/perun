@@ -32,7 +32,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickn
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
 	 */
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		// check syntax of attribute
 		super.checkAttributeSyntax(sess, user, attribute);
@@ -61,7 +61,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickn
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws WrongAttributeAssignmentException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 

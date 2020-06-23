@@ -28,7 +28,7 @@ public interface AuthorshipManagerDao {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	Authorship createAuthorship(PerunSession sess, Authorship authorship) throws InternalErrorException;
+	Authorship createAuthorship(PerunSession sess, Authorship authorship);
 
 	/**
 	 * Delete Authorship by its ID. After deletion users "priorityCoefficient" is recalculated.
@@ -39,7 +39,7 @@ public interface AuthorshipManagerDao {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
-	void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException;
+	void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException;
 
 	/**
 	 * Get Authorship by its ID
@@ -49,7 +49,7 @@ public interface AuthorshipManagerDao {
 	 * @throws CabinetException When Authorship by ID doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship getAuthorshipById(int id) throws CabinetException, InternalErrorException;
+	Authorship getAuthorshipById(int id) throws CabinetException;
 
 	/**
 	 * Get Authorships by its User ID or empty list.
@@ -58,7 +58,7 @@ public interface AuthorshipManagerDao {
 	 * @return Authorship by its user ID or empty list
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Authorship> getAuthorshipsByUserId(int id) throws InternalErrorException;
+	List<Authorship> getAuthorshipsByUserId(int id);
 
 	/**
 	 * Get Authorships by its Publication ID or empty list.
@@ -67,7 +67,7 @@ public interface AuthorshipManagerDao {
 	 * @return Authorship by its publication ID or empty list
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Authorship> getAuthorshipsByPublicationId(int id) throws InternalErrorException;
+	List<Authorship> getAuthorshipsByPublicationId(int id);
 
 	/**
 	 * Get Authorship by its user and publication IDs
@@ -78,7 +78,7 @@ public interface AuthorshipManagerDao {
 	 * @throws CabinetException When Authorship by IDs doesn't exists
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException, InternalErrorException;
+	Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException;
 
 	/**
 	 * Return Author by its ID. If user is not author of any Publication, exception is thrown.
@@ -88,7 +88,7 @@ public interface AuthorshipManagerDao {
 	 * @throws CabinetException When Author (User) has no Publications
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Author getAuthorById(int id) throws CabinetException, InternalErrorException;
+	Author getAuthorById(int id) throws CabinetException;
 
 	/**
 	 * Return all Authors of Publications. Empty list of none found.
@@ -96,7 +96,7 @@ public interface AuthorshipManagerDao {
 	 * @return List of all Authors of Publications. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAllAuthors() throws InternalErrorException;
+	List<Author> getAllAuthors();
 
 	/**
 	 * Return all Authors of Publication specified by its ID. Empty list of none found.
@@ -105,6 +105,6 @@ public interface AuthorshipManagerDao {
 	 * @return List of Authors of Publication specified its ID. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException;
+	List<Author> getAuthorsByPublicationId(int id);
 
 }

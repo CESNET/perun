@@ -48,7 +48,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException, PrivilegeException {
+	public Owner createOwner(PerunSession sess, Owner owner) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -62,7 +62,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -76,7 +76,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
+	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -90,7 +90,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException, PrivilegeException {
+	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -107,7 +107,7 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
-	public List<Owner> getOwners(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public List<Owner> getOwners(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
