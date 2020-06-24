@@ -10,12 +10,10 @@ import cz.metacentrum.perun.rpc.methods.CabinetManagerMethod;
 import cz.metacentrum.perun.rpc.methods.DatabaseManagerMethod;
 import cz.metacentrum.perun.rpc.methods.ExtSourcesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.FacilitiesManagerMethod;
-import cz.metacentrum.perun.rpc.methods.GeneralServiceManagerMethod;
 import cz.metacentrum.perun.rpc.methods.GroupsManagerMethod;
 import cz.metacentrum.perun.rpc.methods.MembersManagerMethod;
 import cz.metacentrum.perun.rpc.methods.NotificationManagerMethod;
 import cz.metacentrum.perun.rpc.methods.OwnersManagerMethod;
-import cz.metacentrum.perun.rpc.methods.PropagationStatsReaderMethod;
 import cz.metacentrum.perun.rpc.methods.TasksManagerMethod;
 import cz.metacentrum.perun.rpc.methods.RTMessagesManagerMethod;
 import cz.metacentrum.perun.rpc.methods.RegistrarManagerMethod;
@@ -116,22 +114,10 @@ public enum PerunManager {
 			return AuthzResolverMethod.valueOf(methodName);
 		}
 	},
-	generalServiceManager {
-		@Override
-		public ManagerMethod getMethod(String methodName) {
-			return GeneralServiceManagerMethod.valueOf(methodName);
-		}
-	},
 	tasksManager {
 		@Override
 		public ManagerMethod getMethod(String methodName) {
 			return TasksManagerMethod.valueOf(methodName);
-		}
-	},
-	propagationStatsReader {
-		@Override
-		public ManagerMethod getMethod(String methodName) {
-			return PropagationStatsReaderMethod.valueOf(methodName);
 		}
 	},
 	cabinetManager{
