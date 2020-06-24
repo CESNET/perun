@@ -345,21 +345,21 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
 		assignGroupsToResource(sess, Collections.singletonList(group), resource);
 	}
 
 	@Override
-	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
 		Set<Member> members = new HashSet<>();
+		boolean processAttributes = true;
+		// if there are no assigned services, no attributes have to be checked or filled
+		if (getAssignedServices(perunSession, resource).isEmpty()) {
+			processAttributes = false;
+		}
 
 		for(Group g: groups) {
-			Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(perunSession, g);
-
-			// Check if the group and resource belongs to the same VO
-			if (!groupVo.equals(this.getVo(perunSession, resource))) {
-				throw new InternalErrorException("Group " + g + " and resource " + resource + " belongs to the different VOs");
-			}
+			getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(perunSession, g, resource);
 
 			if(isGroupAssigned(perunSession, g, resource)) throw new GroupAlreadyAssignedException(g);
 
@@ -367,20 +367,18 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource);
 			getPerunBl().getAuditer().log(perunSession, new GroupAssignedToResource(g, resource));
 
-			// if there are no assigned services, no attributes have to be checked or filled
-			if (getAssignedServices(perunSession, resource).isEmpty()) {
-				continue;
-			}
-			// get/fill/set all required group and group-resource attributes
-			try {
-				List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(perunSession, resource, resource, g, true);
-				attributes = getPerunBl().getAttributesManagerBl().fillAttributes(perunSession, resource, g, attributes, true);
-				getPerunBl().getAttributesManagerBl().setAttributes(perunSession, resource, g, attributes, true);
-			} catch(WrongAttributeAssignmentException | GroupResourceMismatchException ex) {
-				throw new ConsistencyErrorException(ex);
-			}
+			if (processAttributes) {
+				// get/fill/set all required group and group-resource attributes
+				try {
+					List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getResourceRequiredAttributes(perunSession, resource, resource, g, true);
+					attributes = getPerunBl().getAttributesManagerBl().fillAttributes(perunSession, resource, g, attributes, true);
+					getPerunBl().getAttributesManagerBl().setAttributes(perunSession, resource, g, attributes, true);
+				} catch(WrongAttributeAssignmentException | GroupResourceMismatchException ex) {
+					throw new ConsistencyErrorException(ex);
+				}
 
-			members.addAll(getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(perunSession, g));
+				members.addAll(getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(perunSession, g));
+			}
 		}
 
 		// get all "allowed" group members and get/fill/set required attributes for them
@@ -398,7 +396,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
 		for(Resource r: resources) {
 			this.assignGroupToResource(perunSession, group, r);
 		}
@@ -808,7 +806,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		for (Group group: getAssignedGroups(sess, sourceResource)) {
 			try {
 				assignGroupToResource(sess, group, destinationResource);
-			} catch (GroupAlreadyAssignedException ex) {
+			} catch (GroupAlreadyAssignedException | GroupResourceMismatchException ex) {
 				// we can ignore the exception in this particular case, group can exists in both of the resources
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException("Copying of groups failed.", ex);

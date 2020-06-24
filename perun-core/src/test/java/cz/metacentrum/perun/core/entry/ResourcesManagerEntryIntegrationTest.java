@@ -502,7 +502,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	@Test
 	public void assignGroupsToResource() throws Exception {
-		System.out.println(CLASS_NAME + "assignGroupToResource");
+		System.out.println(CLASS_NAME + "assignGroupsToResource");
 
 		vo = setUpVo();
 		facility = setUpFacility();
