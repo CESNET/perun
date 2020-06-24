@@ -549,6 +549,14 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	@Override
+	public List<Task> listAllSchedulableTasks() {
+		return getMyJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
+				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+				"left join facilities on facilities.id = tasks.facility_id where tasks.schedule_expr is not null ",
+			    TASK_ROWMAPPER);
+	}
+	
+	@Override
 	public void updateTask(Task task) {
 		String scheduled = null;
 		if (task.getSchedule() != null) {

@@ -1153,7 +1153,7 @@ create table tasks (
 	start_time timestamp,                    --real start time of task
 	end_time timestamp,                      --real end time of task
 	engine_id integer, --identifier of engine which executing the task (engines.id)
-    schedule_expr varchar(256), -- cron scheduling expr
+	schedule_expr varchar(256), -- cron scheduling expr
 	created_at timestamp default statement_timestamp() not null,
 	err_message varchar(4000),          --return message in case of error
 	created_by_uid integer,

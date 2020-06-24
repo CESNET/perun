@@ -122,6 +122,8 @@ public class PropagationMaintainer extends AbstractRunner {
 	}
 	
 	/**
+	 * Create triggers for all periodically scheduled tasks (as indicated by tasks.schedule_expr column)
+	 * and register schedules with the perunScheduler bean.
 	 * 
 	 */
 	public void createIndependentTaskSchedules() {
