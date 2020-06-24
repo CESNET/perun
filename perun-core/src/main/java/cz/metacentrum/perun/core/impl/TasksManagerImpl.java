@@ -129,7 +129,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 					"err_message, " +
 					"std_message, " +
 					"return_code, " +
-					"timestamp) values (?,?,?,?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ")",
+					"timestamp) values (?,?,?,?,?,?,?," + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ")",
 				newTaskResultId,
 				taskResult.getTaskId(),
 				taskResult.getDestinationId(),
