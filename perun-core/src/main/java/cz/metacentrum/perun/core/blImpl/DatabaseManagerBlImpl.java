@@ -21,7 +21,6 @@ import java.util.List;
 public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 	final static Logger log = LoggerFactory.getLogger(DatabaseManagerBlImpl.class);
 
-	public static final String ORACLE_CHANGELOG = "oracleChangelog.txt";
 	public static final String POSTGRES_CHANGELOG = "postgresChangelog.txt";
 	public static final String HSQLDB_CHANGELOG = "hsqldbChangelog.txt";
 	private final DatabaseManagerImplApi databaseManagerImpl;
@@ -93,9 +92,7 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 
 		String fileName = POSTGRES_CHANGELOG;
 
-		if (Compatibility.isOracle()) {
-			fileName = ORACLE_CHANGELOG;
-		} else if (Compatibility.isHSQLDB()) {
+		if (Compatibility.isHSQLDB()) {
 			fileName = HSQLDB_CHANGELOG;
 		}
 
