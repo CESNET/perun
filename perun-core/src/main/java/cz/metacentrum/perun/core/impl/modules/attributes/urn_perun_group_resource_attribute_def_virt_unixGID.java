@@ -67,12 +67,12 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 			attribute.setValue(gidAttribute.getValue());
 			return attribute;
 		} catch(WrongAttributeValueException ex) {
+			return attribute;
+		} catch(WrongReferenceAttributeValueException ex) {
 			//Physical attribute have wrong value, let's find a new one
 			gidAttribute.setValue(null);
 			gidAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, group, gidAttribute);
 			attribute.setValue(gidAttribute.getValue());
-			return attribute;
-		} catch(WrongReferenceAttributeValueException ex) {
 			return attribute;
 		}
 	}
