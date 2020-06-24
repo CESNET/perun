@@ -39,7 +39,8 @@ public class Task implements Serializable {
 	private TaskStatus status;
 	private boolean sourceUpdated;
 	private boolean propagationForced;
-
+	private String scheduleExpr;
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -122,7 +123,7 @@ public class Task implements Serializable {
 		this.schedule = schedule;
 	}
 
-	public void setSchdule(Long schedule) {
+	public void setSchedule(Long schedule) {
 		if (schedule != null) {
 			this.schedule = Instant.ofEpochMilli(schedule).atZone(ZoneId.systemDefault()).toLocalDateTime();
 		} else {
@@ -323,6 +324,7 @@ public class Task implements Serializable {
 				.append("', service='").append(service)
 				.append("', facility='").append(facility)
 				.append("', destinations='").append(destinations)
+				.append("', scheduleExpr='").append(scheduleExpr)
 				.append("']").toString();
 	}
 
@@ -341,4 +343,12 @@ public class Task implements Serializable {
 	public void setPropagationForced(boolean propagationForced) {
 		this.propagationForced = propagationForced;
 	}
+	public String getScheduleExpr() {
+		return scheduleExpr;
+	}
+
+	public void setScheduleExpr(String scheduleExpr) {
+		this.scheduleExpr = scheduleExpr;
+	}
+
 }

@@ -116,4 +116,6 @@ public interface TasksManagerImplApi {
 	 */
 	List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames);
 
+	List<Task> listAllSchedulableTasks();
+
 }

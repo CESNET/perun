@@ -37,6 +37,8 @@ public interface TasksManager {
 
 	List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state) throws PrivilegeException;
 
+	List<Task> listAllSchedulableTasks() throws PrivilegeException;
+	
 	boolean isThereSuchTask(PerunSession session, Service service, Facility facility) throws PrivilegeException;
 
 	int countTasks();

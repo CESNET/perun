@@ -383,7 +383,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	public final static String taskMappingSelectQuery = " tasks.id as tasks_id, tasks.schedule as tasks_schedule, tasks.recurrence as tasks_recurrence, " +
-		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time ";
+		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time, tasks.schedule_expr as tasks_schedule_expr  ";
 
 	public static final RowMapper<Task> TASK_ROWMAPPER = (resultSet, i) -> {
 
@@ -428,6 +428,10 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		task.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i));
 
 		task.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(resultSet, i));
+		
+		if (!resultSet.getString("tasks_schedule_expr").isEmpty()) {
+			task.setScheduleExpr(resultSet.getString("tasks_schedule_expr"));
+		}
 
 		return task;
 	};
@@ -439,8 +443,8 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			newTaskId = Utils.getNewId(getMyJdbcTemplate(), "tasks_id_seq");
 			// jdbc template cannot be null
 			getMyJdbcTemplate().update(
-				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
-				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null);
+				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id, schedule_expr) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
+				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null, task.getScheduleExpr());
 			log.debug("Added task with ID {}", newTaskId);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
@@ -459,8 +463,8 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			newTaskId = task.getId();
 			// jdbc template cannot be null
 			getMyJdbcTemplate().update(
-				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
-				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null);
+				"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id, schedule_expr) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
+				newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), null, task.getScheduleExpr());
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
 			log.error("Data: id, service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getServiceId() + ", " + task.getFacilityId() + ", "
@@ -562,8 +566,8 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		// jdbc template cannot be null
 		getMyJdbcTemplate().update(
 			"update tasks set service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
-				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ?", task.getServiceId(),
-			task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getId());
+				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", schedule_expr = ? " + " where id = ?", task.getServiceId(),
+			task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getScheduleExpr(), task.getId());
 	}
 
 	@Override

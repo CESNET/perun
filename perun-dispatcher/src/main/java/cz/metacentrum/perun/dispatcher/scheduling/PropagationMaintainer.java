@@ -1,26 +1,31 @@
 package cz.metacentrum.perun.dispatcher.scheduling;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.scheduling.support.PeriodicTrigger;
+
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Properties;
-
-import javax.annotation.Resource;
 
 /**
  * Ensure re-scheduling of DONE/ERROR Tasks, handle stuck Tasks.
@@ -41,6 +46,10 @@ public class PropagationMaintainer extends AbstractRunner {
 	private int rescheduleTime = 190;
 
 	private PerunSession perunSession;
+
+	@Autowired
+	ThreadPoolTaskScheduler perunScheduler;
+	private Map<Integer, ScheduledFuture<?>> scheduledTasks = new HashMap<Integer, ScheduledFuture<?>>();
 
 	private Perun perun;
 	private SchedulingPool schedulingPool;
@@ -82,7 +91,61 @@ public class PropagationMaintainer extends AbstractRunner {
 		}
 	}
 
+	public ThreadPoolTaskScheduler getPerunScheduler() {
+		return perunScheduler;
+	}
+	
+	public void setPerunScheduler(ThreadPoolTaskScheduler perunScheduler) {
+		this.perunScheduler = perunScheduler;
+	}
+
 	// ----- methods -------------------------------------
+
+	private class TaskExecution implements Runnable {
+		private Task task;
+	
+		public TaskExecution(Task task) {
+			super();
+			this.task = task;
+		}
+		
+		@Override
+		public void run() {
+			if(task.getStatus().equals(TaskStatus.DONE)) {
+				log.info("[{}] Task will be started according to regular schedule.", task.getId());
+				schedulingPool.scheduleTask(task, -1);
+			} else {
+				log.info("[{}] Task in state {}, skipping regular schedule.", task.getStatus());
+			}
+		}
+			
+	}
+	
+	/**
+	 * 
+	 */
+	public void createIndependentTaskSchedules() {
+		for(Task task: schedulingPool.listAllSchedulableTasks()) {
+			org.springframework.scheduling.Trigger trigger = null;
+			String schedule = task.getScheduleExpr();
+			
+			if(schedule.startsWith("cron=")) {
+				trigger = new CronTrigger(schedule.substring(5));
+			} else if(schedule.startsWith("rate=")) {
+				try {
+					trigger = new PeriodicTrigger(Long.parseLong(schedule.substring(5)));
+				} catch(RuntimeException e) {
+					
+				}
+			} else {
+				trigger = new CronTrigger(schedule);
+			}
+			ScheduledFuture<?> futureSchedule = perunScheduler.schedule(new TaskExecution(task), trigger);
+			scheduledTasks.put(task.getId(), futureSchedule);
+			log.info("[{}] Created regular schedule for task base on expression {}", task.getId(), schedule);
+		}
+	}
+
 
 	/**
 	 * This method runs in own thread as periodic job which:
@@ -107,6 +170,8 @@ public class PropagationMaintainer extends AbstractRunner {
 			return;
 		}
 
+		this.createIndependentTaskSchedules();
+		
 		while(!shouldStop()) {
 
 			rescheduleDoneTasks();
@@ -128,6 +193,13 @@ public class PropagationMaintainer extends AbstractRunner {
 
 	}
 
+	@Override
+	public void stop() {
+		super.stop();
+		for(ScheduledFuture<?> future: scheduledTasks.values()) {
+			future.cancel(false);
+		}
+	}
 
 	/**
 	 * Reschedule Tasks in DONE if their

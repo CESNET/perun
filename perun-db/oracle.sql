@@ -1,4 +1,4 @@
--- database version 3.1.59 (don't forget to update insert statement at the end of file)
+-- database version 3.1.60 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1162,6 +1162,7 @@ create table tasks (
 	start_time date,                    --real start time of task
 	end_time date,                      --real end time of task
 	engine_id integer, --identifier of engine which executing the task (engines.id)
+	schedule_expr nvarchar2(256),	-- cron scheduling expression
 	created_at date default sysdate not null,
 	err_message nvarchar2(4000),          --return message in case of error
 	created_by_uid integer,
@@ -1754,7 +1755,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.59');
+insert into configurations values ('DATABASE VERSION','3.1.60');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

@@ -387,6 +387,11 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
+	public List<Task> listAllSchedulableTasks() {
+		return tasksManagerBl.listAllSchedulableTasks();
+	}
+	
+	@Override
 	public String getReport() {
 		int waiting = getTasksWithStatus(TaskStatus.WAITING).size();
 		int planned = getTasksWithStatus(TaskStatus.PLANNED).size();

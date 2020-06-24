@@ -126,6 +126,11 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
+	public List<Task>listAllSchedulableTasks() {
+		return getTasksManagerImpl().listAllSchedulableTasks();
+	}
+
+	@Override
 	public void updateTask(Task task) {
 		getTasksManagerImpl().updateTask(task);
 	}

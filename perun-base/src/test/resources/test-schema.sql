@@ -1156,6 +1156,7 @@ create table tasks (
 	start_time timestamp,
 	end_time timestamp,
 	engine_id integer,
+	schedule_expr varchar(256),
 	created_at timestamp default current_date not null,
 	err_message varchar(4000),
 	created_by_uid integer,
