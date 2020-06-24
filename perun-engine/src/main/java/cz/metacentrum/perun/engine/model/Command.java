@@ -3,9 +3,9 @@ package cz.metacentrum.perun.engine.model;
 import java.io.Serializable;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 public class Command implements Serializable {
 

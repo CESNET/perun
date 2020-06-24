@@ -5,7 +5,6 @@ import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
@@ -78,11 +77,6 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 
 	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) {
 		return getTasksManagerImpl().getTaskResultsForDestinations(destinationsNames);
-	}
-
-	@Override
-	public int scheduleNewTask(Task task) {
-		return getTasksManagerImpl().scheduleNewTask(task);
 	}
 
 	@Override
