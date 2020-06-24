@@ -110,7 +110,7 @@ public abstract class AbstractEngineTest {
 		task1.setService(service);
 		task1.setSchedule(LocalDateTime.now());
 		task1.setStatus(Task.TaskStatus.PLANNED);
-		task1.setId(tasksManagerImpl.scheduleNewTask(task1));
+		task1.setId(tasksManagerImpl.insertTask(task1));
 
 		task2 = new Task();
 		task2.setDestinations(destinations);
@@ -118,7 +118,7 @@ public abstract class AbstractEngineTest {
 		task2.setService(service2);
 		task2.setSchedule(LocalDateTime.now());
 		task2.setStatus(Task.TaskStatus.PLANNED);
-		task2.setId(tasksManagerImpl.scheduleNewTask(task2));
+		task2.setId(tasksManagerImpl.insertTask(task2));
 
 		sendTask1 = new SendTask(task1, destination1);
 		sendTask1.setStartTime(new Date(System.currentTimeMillis()));

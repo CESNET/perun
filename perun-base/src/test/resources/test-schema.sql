@@ -2,7 +2,7 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.59 (don't forget to update insert statement at the end of file)
+-- database version 3.1.60 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -257,64 +257,6 @@ create table members (
 	constraint mem_user_vo_u unique (vo_id, user_id)
 );
 
--- ROUTING_RULES - rules for assigning event to engine
-create table routing_rules (
-	id integer not null,
-	routing_rule varchar(512) not null, --string for matching
-	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint routrul_pk primary key (id)
-);
-
-create table engines (
-	id integer not null, --identifier of daemon
-	ip_address varchar(40) not null, --IP address
-	port integer not null, --port
-	last_check_in timestamp default current_date, --time of last activation
-	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint eng_pk primary key (id)
-);
-
--- ENGINE_ROUTING_RULE - relation between engines and rules
-create table engine_routing_rule (
-	engine_id integer not null,   --engine identifier (engines.id)
-	routing_rule_id integer not null, --identifier of rule (routing_rules.id)
-	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint engrr_eng_fk foreign key (engine_id) references engines(id),
-	constraint engrr_rr_fk foreign key (routing_rule_id) references routing_rules(id)
-);
-
--- PROCESSING_RULES - rules for assigning processing services to events
-create table processing_rules (
-	id integer not null,
-	processing_rule varchar(1024) not null, --string for matching
-	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint procrul_pk primary key (id)
-);
-
 -- ROLES - possible user's rolles - controle access of users to data in DB
 create table roles (
 	id integer not null,
@@ -456,21 +398,6 @@ create table services (
 	modified_by_uid integer,
 	constraint serv_pk primary key(id),
 	constraint serv_u unique(name)
-);
-
--- SERVICE_PROCESSING_RULE - relation between services and processing rules
-create table service_processing_rule (
-	service_id integer not null,          --identifier of service (services.id)
-	processing_rule_id integer not null,  --identifier of processing rule (processing_rules.id)
-	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint servpr_serv_fk foreign key (service_id) references services(id),
-	constraint servpr_pr_fk foreign key (processing_rule_id) references processing_rules(id)
 );
 
 -- SERVICE_REQUIRED_ATTRS - list of attributes required by the service
@@ -1155,7 +1082,7 @@ create table tasks (
 	status varchar(16) not null,
 	start_time timestamp,
 	end_time timestamp,
-	engine_id integer,
+	engine_id integer default 1,
 	created_at timestamp default current_date not null,
 	err_message varchar(4000),
 	created_by_uid integer,
@@ -1164,7 +1091,6 @@ create table tasks (
 	constraint task_u unique (service_id, facility_id),
 	constraint task_srv_fk foreign key (service_id) references services(id),
 	constraint task_fac_fk foreign key (facility_id) references facilities(id),
-	constraint task_eng_fk foreign key (engine_id) references engines (id),
 	constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'))
 );
 
@@ -1178,7 +1104,7 @@ create table tasks_results (
 	std_message varchar(4000),        --return message in case of success
 	return_code integer,              --returned value
 	timestamp timestamp,                   --real time of executing
-	engine_id integer not null,       --identifier of executing engine (engines.id)
+	engine_id integer default 1 not null,       --identifier of executing engine (engines.id)
 	created_at timestamp default current_date not null,
 	created_by varchar(1300) default user not null,
 	modified_at timestamp default current_date not null,
@@ -1188,7 +1114,6 @@ create table tasks_results (
 	constraint taskres_pk primary key (id),
 	constraint taskres_task_fk foreign key (task_id) references tasks(id),
 	constraint taskres_dest_fk foreign key (destination_id) references destinations(id),
-	constraint taskres_eng_fk foreign key (engine_id) references engines (id),
 	constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'))
 );
 
@@ -1553,9 +1478,7 @@ create sequence groups_id_seq;
 create sequence hosts_id_seq;
 create sequence members_id_seq;
 create sequence owners_id_seq start with 1 increment by 1;
-create sequence processing_rules_id_seq start with 10 increment by 1;
 create sequence resources_id_seq;
-create sequence routing_rules_id_seq start with 10 increment by 1;
 create sequence services_id_seq;
 create sequence service_denials_id_seq start with 10 increment by 1;
 create sequence service_packages_id_seq;
@@ -1637,10 +1560,8 @@ create index idx_fk_usrfacav_fac on user_facility_attr_values(facility_id);
 create index idx_fk_usrfacav_accattnam on user_facility_attr_values(attr_id);
 create index idx_fk_task_srv on tasks(service_id);
 create index idx_fk_task_fac on tasks(facility_id);
-create index idx_fk_task_eng on tasks(engine_id);
 create index idx_fk_taskres_task on tasks_results(task_id);
 create index idx_fk_taskres_dest on tasks_results(destination_id);
-create index idx_fk_taskres_eng on tasks_results(engine_id);
 create index idx_fk_srvden_srv on service_denials(service_id);
 create index idx_fk_srvden_fac on service_denials(facility_id);
 create index idx_fk_srvden_dest on service_denials(destination_id);
@@ -1649,10 +1570,6 @@ create index idx_fk_srvreqattr_srv on service_required_attrs(service_id);
 create index idx_fk_srvreqattr_attr on service_required_attrs(attr_id);
 create index idx_fk_resrcsrv_srv on resource_services(service_id);
 create index idx_fk_resrcsrv_rsrc on resource_services(resource_id);
-create index idx_fk_engrr_eng on engine_routing_rule(engine_id);
-create index idx_fk_engrr_rr on engine_routing_rule(routing_rule_id);
-create index idx_fk_servpr_serv on service_processing_rule(service_id);
-create index idx_fk_servpr_pr on service_processing_rule(processing_rule_id);
 create index idx_fk_memattval_mem on member_attr_values(member_id);
 create index idx_fk_memattval_attr on member_attr_values(attr_id);
 create index idx_fk_grpattval_grp on group_attr_values(group_id);
@@ -1752,7 +1669,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.59');
+insert into configurations values ('DATABASE VERSION','3.1.60');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');

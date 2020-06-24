@@ -6,6 +6,22 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.60
+alter table tasks alter column engine_id set default 1;
+alter table tasks_results alter column engine_id set default 1;
+alter table tasks drop constraint task_eng_fk;
+alter table tasks_results drop constraint taskres_eng_fk;
+drop index idx_fk_task_eng;
+drop index idx_fk_taskres_eng;
+drop sequence routing_rules_id_seq;
+drop sequence processing_rules_id_seq;
+drop table engine_routing_rule;
+drop table routing_rules;
+drop table service_processing_rule;
+drop table processing_rules;
+drop table engines;
+update configurations set value='3.1.60' where property='DATABASE VERSION';
+
 3.1.59
 ALTER TABLE ext_sources_attributes ALTER COLUMN attr_value TYPE varchar;
 update configurations set value='3.1.59' where property='DATABASE VERSION';
