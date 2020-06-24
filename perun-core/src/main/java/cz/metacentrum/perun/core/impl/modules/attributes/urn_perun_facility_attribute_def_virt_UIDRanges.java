@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttri
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
@@ -19,7 +20,7 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
 	private static final String A_FAC_uidNamespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace";
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 			if(uidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute, "There is missing UID namespace on the facility.");
@@ -32,7 +33,7 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
 		Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 		if(uidNamespaceAttribute.getValue() == null) return attribute;
@@ -41,12 +42,12 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
 	}
 
 	@Override
-	public void removeAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 		//Not suported yet.
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
 	}
 
-	private Attribute getNamespaceUIDRangesAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException {
+	private Attribute getNamespaceUIDRangesAttribute(PerunSessionImpl sess, String uidNamespace) {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceUIDRanges);
 		} catch(AttributeNotExistsException ex) {
@@ -56,7 +57,7 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
 		}
 	}
 
-	private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
+	private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_uidNamespace);
 		} catch(AttributeNotExistsException | WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
@@ -85,7 +86,7 @@ public class urn_perun_facility_attribute_def_virt_UIDRanges extends FacilityVir
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
 		attr.setFriendlyName("UIDRanges");
 		attr.setDisplayName("UID ranges in set namespace for the Facility");
-		attr.setType(List.class.getName());
+		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Computed UID ranges in set namespace for the facility");
 		return attr;
 	}
