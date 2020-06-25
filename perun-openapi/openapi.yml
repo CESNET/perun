@@ -8713,6 +8713,35 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/forceGroupSynchronization:
+    post:
+      tags:
+        - GroupsManager
+      operationId: forceGroupSynchronization
+      summary: Forces group synchronization.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/forceGroupStructureSynchronization:
+    post:
+      tags:
+        - GroupsManager
+      operationId: forceGroupStructureSynchronization
+      summary: Forces group structure synchronization.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   #################################################
   #                                               #
   # ResourceManager                               #
