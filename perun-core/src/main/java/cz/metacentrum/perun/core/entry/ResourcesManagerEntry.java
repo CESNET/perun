@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -328,7 +329,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 
@@ -349,7 +350,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(groups, "groups");
 		getResourcesManagerBl().checkResourceExists(perunSession, resource);
@@ -377,7 +378,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
+	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(resources, "resources");
 		getPerunBl().getGroupsManagerBl().checkGroupExists(perunSession, group);
