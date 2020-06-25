@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.apache.commons.codec.binary.Base64;
@@ -27,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+
+import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_SYNC_DEFAULT_DATA;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
@@ -194,26 +196,10 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 									log.trace("Adding attribute {} with BLOB value", attributeName);
 								}
 							}
-
 							String attributeValue = null;
 							if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
 								// source column is binary
-								try {
-									InputStream inputStream = rs.getBinaryStream(i);
-									if (inputStream != null) {
-										ByteArrayOutputStream result = new ByteArrayOutputStream();
-										byte[] buffer = new byte[1024];
-										int length;
-										while ((length = inputStream.read(buffer)) != -1) {
-											result.write(buffer, 0, length);
-										}
-										byte[] bytes = Base64.encodeBase64(result.toByteArray());
-										attributeValue = new String(bytes, StandardCharsets.UTF_8);
-									}
-								} catch (IOException ex) {
-									log.error("Unable to read BLOB for column {}", columnName);
-									throw new InternalErrorException("Unable to read BLOB data for column: " + columnName, ex);
-								}
+								attributeValue = parseBlobValue(rs.getBinaryStream(i), columnName);
 							} else {
 								// let driver to convert type to string
 								attributeValue = rs.getString(i);
@@ -321,31 +307,10 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 				while (rs.next()) {
 					Map<String, String> map = new HashMap<>();
-
-					try {
-						map.put(GroupsManagerBlImpl.GROUP_LOGIN, rs.getString(GroupsManagerBlImpl.GROUP_LOGIN));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put(GroupsManagerBlImpl.GROUP_LOGIN, null);
-					}
-					try {
-						map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put(GroupsManagerBlImpl.GROUP_NAME, null);
-					}
-					try {
-						map.put(GroupsManagerBlImpl.PARENT_GROUP_LOGIN, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put(GroupsManagerBlImpl.PARENT_GROUP_LOGIN, null);
-					}
-					try {
-						map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
-					} catch (SQLException e) {
-						// If the column doesn't exists, ignore it
-						map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, null);
-					}
+					GROUP_SYNC_DEFAULT_DATA.forEach(
+						column -> map.put(column, readGroupSyncRequiredData(rs, column))
+					);
+					map.putAll(parseAdditionalAttributeData(rs));
 					subjects.add(map);
 				}
 
@@ -355,6 +320,95 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		} catch (SQLException e) {
 			log.error("SQL exception during searching for subject '{}'", query);
 			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Decodes a full attribute name from the given value. For used mappings,
+	 * see attributeNameMapping.
+	 *
+	 * @param value which will be mapped
+	 * @return attribute full name
+	 */
+	private String mapAttributeNames(String value) {
+		String[] attributeRaw = value.split(":", 3);
+		String attributeName = null;
+		if (!attributeNameMapping.containsKey(attributeRaw[0])) {
+			log.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[0], attributeRaw);
+		} else if (!attributeNameMapping.containsKey(attributeRaw[1])) {
+			log.warn("Unknown attribute type '{}', attributeRaw {}", attributeRaw[1], attributeRaw);
+		} else {
+			attributeName = attributeNameMapping.get(attributeRaw[0]) + attributeNameMapping.get(attributeRaw[1]) +
+					attributeRaw[2];
+		}
+		return attributeName;
+	}
+
+	/**
+	 * Parse additional data from the given result set.
+	 *
+	 * @param rs result set with attribute data
+	 * @throws SQLException SQLException
+	 */
+	private Map<String, String> parseAdditionalAttributeData(ResultSet rs) throws SQLException {
+		Map<String, String> additionalAttributes = new HashMap<>();
+		for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+			String columnName = rs.getMetaData().getColumnLabel(i);
+			if (columnName.contains(":")) {
+				String attrName = mapAttributeNames(columnName);
+				String attributeValue = null;
+				if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
+					attributeValue = parseBlobValue(rs.getBinaryStream(i), columnName);
+				} else {
+					// let driver to convert type to string
+					attributeValue = rs.getString(i);
+				}
+				additionalAttributes.put(attrName, attributeValue);
+			}
+		}
+		return additionalAttributes;
+	}
+
+	/**
+	 * Parse blob value from given input stream.
+	 *
+	 * @param inputStream input stream with a blob value
+	 * @param columnName name of the column to which the blob belongs
+	 * @return parsed value
+	 */
+	private String parseBlobValue(InputStream inputStream, String columnName) {
+		if (inputStream == null) {
+			return null;
+		}
+		try {
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = inputStream.read(buffer)) != -1) {
+				result.write(buffer, 0, length);
+			}
+			byte[] bytes = Base64.encodeBase64(result.toByteArray());
+			return new String(bytes, StandardCharsets.UTF_8);
+		} catch (IOException ex) {
+			log.error("Unable to read BLOB for column {}", columnName);
+			throw new InternalErrorException("Unable to read BLOB data for column: " + columnName, ex);
+		}
+	}
+
+	/**
+	 * Read data from rs from specified column. If the column doesn't exist,
+	 * a null is returned.
+	 *
+	 * @param rs result rest
+	 * @param column column
+	 * @return column data or null if column doesn't exist
+	 */
+	private String readGroupSyncRequiredData(ResultSet rs, String column) {
+		try {
+			return rs.getString(column);
+		} catch (SQLException e) {
+			// If the column doesn't exists, ignore it
+			return null;
 		}
 	}
 

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import com.google.common.collect.ImmutableSet;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberRemovedFromGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupCreatedAsSubgroup;
@@ -168,6 +169,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public static final String PARENT_GROUP_LOGIN = "parentGroupLogin";
 	public static final String GROUP_NAME = "groupName";
 	public static final String GROUP_DESCRIPTION = "description";
+
+	public static final Set<String> GROUP_SYNC_DEFAULT_DATA = ImmutableSet.of(
+		GROUP_LOGIN,
+		PARENT_GROUP_LOGIN,
+		GROUP_NAME,
+		GROUP_DESCRIPTION
+	);
 
 	/**
 	 * Create new instance of this class.
@@ -3621,6 +3629,38 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
+	 * For given group, set up attributes specified in the given map.
+	 * This method can only set group def attributes. Old values are
+	 * replaced with the new ones.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param additionalAttributes map with attrNames and values
+	 */
+	private void setUpAdditionalAttributes(PerunSession sess, Group group, Map<String, String> additionalAttributes) {
+		additionalAttributes.forEach((attrName, rawValue) -> {
+			if (!attrName.startsWith(AttributesManager.NS_GROUP_ATTR_DEF)) {
+				throw new InternalErrorException("Cannot synchronize a non group-def attribute - " + attrName);
+			}
+			AttributeDefinition definition;
+			try {
+				definition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+			} catch (AttributeNotExistsException exception) {
+				throw new InternalErrorException("Not existing attribute specified to be set for a group during group" +
+						"structure synchronization: " + attrName, exception);
+			}
+			Object value = BeansUtils.stringToAttributeValue(rawValue, definition.getType());
+			Attribute attribute = new Attribute(definition, value);
+			try {
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, group, attribute);
+			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException e) {
+				// Probably should not happen
+				throw new InternalErrorException("Failed to set synced group attribute.", e);
+			}
+		});
+	}
+
+	/**
 	 * Set up attributes, which are necessary for members synchronization,for all subgroups of given base group.
 	 *
 	 * Method used by group structure synchronization
@@ -3948,6 +3988,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		for(CandidateGroup candidateGroup: groupsToUpdate.keySet()) {
 			Group groupToUpdate = groupsToUpdate.get(candidateGroup);
+
+			setUpAdditionalAttributes(sess, groupToUpdate, candidateGroup.getAdditionalAttributes());
 
 			Group newParentGroup = specifyParentForUpdatedGroup(sess, groupToUpdate, baseGroup, candidateGroup, loginAttributeDefinition.getName());
 

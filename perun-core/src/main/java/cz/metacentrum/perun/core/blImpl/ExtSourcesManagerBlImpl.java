@@ -44,6 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.GROUP_SYNC_DEFAULT_DATA;
+
 public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerBlImpl.class);
 	// \\p{L} means any unicode char
@@ -312,6 +314,10 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 		candidateGroup.setParentGroupLogin(groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
 		candidateGroup.asGroup().setDescription(groupSubjectData.get(GroupsManagerBlImpl.GROUP_DESCRIPTION));
+
+		groupSubjectData.entrySet().stream()
+			.filter(entry -> !GROUP_SYNC_DEFAULT_DATA.contains(entry.getKey()))
+			.forEach(entry -> candidateGroup.addAdditionalAttribute(entry.getKey(), entry.getValue()));
 
 		return candidateGroup;
 	}

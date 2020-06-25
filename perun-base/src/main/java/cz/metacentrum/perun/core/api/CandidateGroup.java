@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -15,6 +18,7 @@ public class CandidateGroup extends Auditable {
 	private String login;
 	private String parentGroupLogin;
 	private Group group;
+	private final Map<String, String> additionalAttributes = new HashMap<>();
 
 	public CandidateGroup() {
 		this.group = new Group();
@@ -48,6 +52,14 @@ public class CandidateGroup extends Auditable {
 		return group;
 	}
 
+	public Map<String, String> getAdditionalAttributes() {
+		return Collections.unmodifiableMap(additionalAttributes);
+	}
+
+	public void addAdditionalAttribute(String urn, String value) {
+		this.additionalAttributes.put(urn, value);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -72,6 +84,7 @@ public class CandidateGroup extends Auditable {
 				", login='" + login + + '\'' +
 				", parentGroupLogin='" + parentGroupLogin + '\'' +
 				", group=" + group +
+				", additionalAttributes=" + additionalAttributes +
 				'}';
 	}
 
@@ -88,6 +101,8 @@ public class CandidateGroup extends Auditable {
 				.append(getParentGroupLogin())
 				.append(">, group=<")
 				.append(asGroup() == null ? "\\0" : asGroup().serializeToString())
+				.append(">, additionalAttributes=<")
+				.append(BeansUtils.serializeMapToString(additionalAttributes))
 				.append(">]").toString();
 	}
 }
