@@ -533,7 +533,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenAllIsOK");
 		Attribute attribute = getGIDRangesAttributeWithValidValue();
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
-		Map<Integer, Integer> convertedMap = modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		Map<Integer, Integer> convertedMap = modulesUtilsBl.checkAndConvertIDRanges(attribute);
 		assertEquals(value.size(), convertedMap.size());
 		for(Integer minimum : convertedMap.keySet()) {
 			assertTrue(value.containsKey(minimum.toString()));
@@ -544,7 +544,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	@Test(expected=InternalErrorException.class)
 	public void checkAndConvertGIDRangesWhenNullAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenNullAttribute");
-		modulesUtilsBl.checkAndConvertGIDRanges(null);
+		modulesUtilsBl.checkAndConvertIDRanges(null);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -554,7 +554,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("7", "");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -564,7 +564,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("7", null);
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -574,7 +574,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("", "7");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -584,7 +584,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put(null, "7");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -594,7 +594,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("0", "0");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -604,7 +604,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("-5", "-1");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -614,7 +614,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("9", "8");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -624,7 +624,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("6s", "7");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -634,7 +634,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("6", "s7");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
@@ -644,7 +644,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, String> value = (LinkedHashMap) attribute.getValue();
 		value.put("2000", "3000");
 		attribute.setValue(value);
-		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		modulesUtilsBl.checkAndConvertIDRanges(attribute);
 	}
 
 	@Test
