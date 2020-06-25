@@ -7159,7 +7159,7 @@ paths:
       parameters:
         - {name: i, description: "encrypted request parameter", schema: {type: string}, in: query, required: true}
         - {name: m, description: "encrypted request parameter", schema: {type: string}, in: query, required: true}
-        - {name: u, description: "id of user you want to validate preferred email request", schema: {type: int}, in: query, required: true}
+        - {name: u, description: "id of user you want to validate preferred email request", schema: {type: integer}, in: query, required: true}
       responses:
         '200':
           $ref: '#/components/responses/StringResponse'
@@ -8508,6 +8508,21 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getAllRichGroupsWithAttributesByNames:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllRichGroupsWithAttributesByNames
+      summary: Returns full list of all RichGroups containing selected attributes.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
