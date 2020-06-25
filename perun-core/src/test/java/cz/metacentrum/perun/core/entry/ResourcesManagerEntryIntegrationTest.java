@@ -501,6 +501,33 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	// TODO jak otestovat další 2 výjimky na atributy ?
 
 	@Test
+	public void assignGroupsToResource() throws Exception {
+		System.out.println(CLASS_NAME + "assignGroupsToResource");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		assertNotNull("unable to create resource",resource);
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		Group group2 = new Group("ResourcesManagerTestGroup2","");
+		group2 = perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().addMember(sess, group2, member);
+
+		List<Group> groups = new ArrayList<>();
+		groups.add(group);
+		groups.add(group2);
+		resourcesManager.assignService(sess, resource, service);
+		resourcesManager.assignGroupsToResource(sess, groups, resource);
+
+		List<Group> assignedGroups = resourcesManager.getAssignedGroups(sess, resource);
+		assertEquals("all groups should be assigned to our Resource", assignedGroups.size(), groups.size());
+		assertTrue("our groups should be assigned to resource",assignedGroups.containsAll(groups));
+	}
+
+	@Test
 	public void removeGroupFromResource() throws Exception {
 		System.out.println(CLASS_NAME + "removeGroupFromResource");
 
