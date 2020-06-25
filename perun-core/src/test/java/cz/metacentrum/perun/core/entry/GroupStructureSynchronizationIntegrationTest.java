@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
@@ -33,7 +34,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -53,6 +58,8 @@ import static org.mockito.Mockito.when;
 public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunIntegrationTest{
 	private final static String CLASS_NAME = "GroupsManager.";
 	private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
+	private static final String ADDITIONAL_STRING = "additionalString";
+	private static final String ADDITIONAL_LIST = "additionalList";
 
 	private final Group baseGroup = new Group("baseGroup", "I am base group");
 	private Vo vo;
@@ -447,6 +454,104 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		assertTrue("List of sub groups of base group should be empty!", subGroups.isEmpty());
 	}
 
+	@Test
+	public void additionalStringAttributeIsSet() throws Exception {
+        System.out.println(CLASS_NAME + "additionalStringAttributeIsSet");
+
+		AttributeDefinition additionalAttr = setGroupAttribute(ADDITIONAL_STRING);
+
+		// setup
+		final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
+		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
+		subjects.get(0).put(additionalAttr.getName(), "val1");
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		// tested method
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+		Group createdGroup = subGroups.get(0);
+
+		Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, createdGroup, additionalAttr.getName());
+		assertThat(attribute.getValue()).isEqualTo("val1");
+	}
+
+	@Test
+	public void additionalListAttributeIsSet() throws Exception {
+        System.out.println(CLASS_NAME + "additionalListAttributeIsSet");
+
+		AttributeDefinition additionalAttr = setGroupAttribute(ADDITIONAL_LIST, ArrayList.class.getName());
+
+		// setup
+		final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
+		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
+		subjects.get(0).put(additionalAttr.getName(), "val1,val2,");
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		// tested method
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+		Group createdGroup = subGroups.get(0);
+
+		Attribute attribute = attributesManagerBl.getAttribute(sess, createdGroup, additionalAttr.getName());
+		assertThat(attribute.valueAsList()).containsExactly("val1", "val2");
+	}
+
+	@Test
+	public void additionalStringAttributeIsNotSetForOtherGroup() throws Exception {
+		System.out.println(CLASS_NAME + "additionalStringAttributeIsNotSetForOtherGroup");
+
+		AttributeDefinition additionalAttr = setGroupAttribute(ADDITIONAL_STRING);
+
+		// setup
+		final TestGroup testGroup = new TestGroup("createdGroup", "createdGroup", null, "group is child of base group");
+		final TestGroup otherGroup = new TestGroup("otherGroup", "otherGroup", null, "group is child of base group");
+		List<Map<String, String>> subjects = Stream.of(testGroup, otherGroup)
+		    .map(TestGroup::toMap)
+		    .collect(toList());
+
+		subjects.get(0).put(additionalAttr.getName(), "val1");
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		// tested method
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+		Group otherCreatedGroup = subGroups.get(1);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, otherCreatedGroup, additionalAttr.getName());
+		assertThat(attr.getValue()).isNull();
+	}
+
+	@Test
+	public void additionalAttributeIsUpdated() throws Exception {
+		System.out.println(CLASS_NAME + "modifyGroupDescriptionTest");
+		String updatedValue = "updatedValue";
+
+		AttributeDefinition additionalAttr = setGroupAttribute(ADDITIONAL_STRING);
+
+		final Group subBaseGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "group1");
+		attributesManagerBl.setAttribute(sess, subBaseGroup, new Attribute(additionalAttr, "old"));
+
+		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", "group1", null, "modified");
+		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
+		subjects.get(0).put(additionalAttr.getName(), updatedValue);
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+		assertThat(subGroups).hasSize(1);
+
+		Group updatedGroup = subGroups.get(0);
+
+		Attribute updatedAttribute = attributesManagerBl.getAttribute(sess, updatedGroup, additionalAttr.getName());
+
+		assertThat(updatedAttribute.getValue()).isEqualTo(updatedValue);
+	}
 
 	private Vo setUpVo() throws Exception {
 
@@ -531,50 +636,50 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 	private void assertComplexGroupTree(Group rootGroup, List<Group> allGroupsInTree) {
 		// 1st layer
-		List<Group> foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupA")).collect(Collectors.toList());
+		List<Group> foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupA")).collect(toList());
 		assertEquals("Only one group with name groupA should be created!", 1, foundGroups.size());
 		Group groupA = foundGroups.get(0);
 		assertGroup("groupA", rootGroup.getId(), "group A is child of root group", groupA);
 
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupB")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupB")).collect(toList());
 		assertEquals("Only one group with name groupB should be created!", 1, foundGroups.size());
 		Group groupB = foundGroups.get(0);
 		assertGroup("groupB", rootGroup.getId(), "group B is child of root group", groupB);
 
 		// 2nd layer
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group1")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group1")).collect(toList());
 		assertEquals("Only one group with name group1 should be created!", 1, foundGroups.size());
 		Group group1 = foundGroups.get(0);
 		assertGroup("group1", groupA.getId(), "group 1 is child of group A", group1);
 
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group2")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group2")).collect(toList());
 		assertEquals("Only one group with name group2 should be created!", 1, foundGroups.size());
 		Group group2 = foundGroups.get(0);
 		assertGroup("group2", groupA.getId(), "group 2 is child of group A", group2);
 
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group3")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group3")).collect(toList());
 		assertEquals("Only one group with name group3 should be created!", 1, foundGroups.size());
 		Group group3 = foundGroups.get(0);
 		assertGroup("group3", groupA.getId(), "group 3 is child of group A", group3);
 
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group4")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("group4")).collect(toList());
 		assertEquals("Only one group with name group4 should be created!", 1, foundGroups.size());
 		Group group4 = foundGroups.get(0);
 		assertGroup("group4", groupB.getId(), "group 4 is child of group B", group4);
 
 		// 3rd layer
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupI")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupI")).collect(toList());
 		assertEquals("Only one group with name groupI should be created!", 1, foundGroups.size());
 		Group groupI = foundGroups.get(0);
 		assertGroup("groupI", group2.getId(), "group I is child of group 2", groupI);
 
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupII")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupII")).collect(toList());
 		assertEquals("Only one group with name groupII should be created!", 1, foundGroups.size());
 		Group groupII = foundGroups.get(0);
 		assertGroup("groupII", group3.getId(), "group II is child of group 3", groupII);
 
 		// 4th layer
-		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupRed")).collect(Collectors.toList());
+		foundGroups = allGroupsInTree.stream().filter(g -> g.getShortName().equals("groupRed")).collect(toList());
 		assertEquals("Only one group with name groupRed should be created!", 1, foundGroups.size());
 		Group groupRed = foundGroups.get(0);
 		assertGroup("groupRed", groupI.getId(), "group Red is child of group I", groupRed);
@@ -634,16 +739,19 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 			return subject;
 		}
 	}
-
-	private AttributeDefinition setGroupAttribute(String name) throws Exception {
+	private AttributeDefinition setGroupAttribute(String name, String type) throws Exception {
 		AttributeDefinition attrDef = new AttributeDefinition();
 		attrDef.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attrDef.setDescription("Test attribute description");
 		attrDef.setFriendlyName(name);
-		attrDef.setType(String.class.getName());
+		attrDef.setType(type);
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 		Attribute attribute = new Attribute(attrDef);
 		attribute.setValue("Testing value");
 		return attribute;
+	}
+
+	private AttributeDefinition setGroupAttribute(String name) throws Exception {
+		return setGroupAttribute(name, String.class.getName());
 	}
 }
