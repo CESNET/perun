@@ -1724,7 +1724,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, loginAttributeDefinition, skippedGroups);
 		removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
 
-		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source);
+		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source, loginAttributeDefinition);
 
 		log.info("Group structure synchronization {}: ended.", baseGroup);
 
@@ -3628,13 +3628,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess
 	 * @param baseGroup from which are sub groups taken
 	 * @param source from which members are synchronized
+	 * @param loginAttributeDefinition attribute definition of group's login in the structure
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	private void setUpSynchronizationAttributesForAllSubGroups(PerunSession sess, Group baseGroup, ExtSource source) throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	private void setUpSynchronizationAttributesForAllSubGroups(PerunSession sess, Group baseGroup, ExtSource source, AttributeDefinition loginAttributeDefinition) throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Attribute baseMembersQuery = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
 		if (baseMembersQuery.getValue() == null) {
@@ -3662,7 +3663,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				log.info("ExtSource already assigned to group: {}", group);
 			}
 
-			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", group.getShortName()));
+			//we want to set login of group
+			Attribute loginAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, loginAttributeDefinition.getName());
+			if(loginAttribute.getValue() == null) throw new InternalErrorException("For purpose of setting attributes for " + group + " we need to have not empty group login " + loginAttribute);
+			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", loginAttribute.valueAsString()));
 
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute, synchronizationTimes, extSourceNameAttr));
 		}
