@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttri
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -101,7 +102,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
 		attr.setFriendlyName("GIDRanges");
 		attr.setDisplayName("GID ranges in set namespace for the Facility");
-		attr.setType(List.class.getName());
+		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Computed GID ranges in set namespace for the facility");
 		return attr;
 	}
