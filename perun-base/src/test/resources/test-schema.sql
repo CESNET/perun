@@ -2,17 +2,17 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.60 (don't forget to update insert statement at the end of file)
+-- database version 3.1.61 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
 	id integer not null,
-	name varchar(128) not null,   -- full name of VO
-	short_name varchar(32) not null, -- commonly used name
+	name longvarchar not null,   -- full name of VO
+	short_name longvarchar not null, -- commonly used name
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -23,15 +23,15 @@ create table vos (
 -- USERS - information about user as real person
 create table users (
 	id integer not null,
-	first_name varchar(64),   -- christening name
-	last_name varchar(64),    -- family name
-	middle_name varchar(64),   -- second name
-	title_before varchar(40),  -- academic degree used before name
-	title_after varchar(40),   -- academic degree used after name
+	first_name longvarchar,   -- christening name
+	last_name longvarchar,    -- family name
+	middle_name longvarchar,   -- second name
+	title_before longvarchar,  -- academic degree used before name
+	title_after longvarchar,   -- academic degree used after name
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	service_acc char(1) default '0' not null, --is it service account?
 	sponsored_acc char(1) default '0' not null, --is it sponsored account?
@@ -44,14 +44,14 @@ create table users (
 -- OWNERS - owners of resources and devices
 create table owners (
 	id integer not null,
-	name varchar(128) not null, --name of owner
-	contact varchar(100),       --contact email or phone
+	name longvarchar not null, --name of owner
+	contact longvarchar,       --contact email or phone
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	type varchar(128) not null, --type of owner (for example IdP)
+	type longvarchar not null, --type of owner (for example IdP)
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint ow_pk primary key (id),
@@ -61,7 +61,7 @@ create table owners (
 -- CABINET_CATEGORIES - possible categories of publications
 create table cabinet_categories (
 	id integer not null,
-	name varchar(128) not null,  --name of category
+	name longvarchar not null,  --name of category
 	rank numeric(38,1) not null,  --coefficient for evaluation of publication in scope of this category
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -71,12 +71,12 @@ create table cabinet_categories (
 -- CABINET_PUBLICATION_SYSTEMS - external publication systems. Contains information which allowes searching
 create table cabinet_publication_systems (
 	id integer not null,
-	friendlyName varchar(128) not null, --name of publication system
-	url varchar(128) not null, --address for searching at external system
-	username varchar(64),  --logname
-	password varchar(64),  -- and password for connection to external system
-	loginNamespace varchar(128) not null, --namespace used for username
-	type varchar(128) not null,  --name of class of parser for received data (for example cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy) *)
+	friendlyName longvarchar not null, --name of publication system
+	url longvarchar not null, --address for searching at external system
+	username longvarchar,  --logname
+	password longvarchar,  -- and password for connection to external system
+	loginNamespace longvarchar not null, --namespace used for username
+	type longvarchar not null,  --name of class of parser for received data (for example cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy) *)
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint cab_pubsys_pk primary key (id)
@@ -88,16 +88,16 @@ create table cabinet_publications (
 	id integer not null,
 	externalId integer not null, --identifier at externa pub. system
 	publicationSystemId integer not null, --identifier of external pub. system (cabinet_publication_systems.id) *)
-	title varchar(1024) not null,
+	title longvarchar not null,
 	year integer not null, --short title of publication
-	main varchar(4000), --full cite of publication
-	isbn varchar(32),
+	main longvarchar, --full cite of publication
+	isbn longvarchar,
 	categoryId integer not null, --identifier of category (cabinet_categories.id)
-	createdBy varchar(1300) default user not null,
+	createdBy longvarchar default user not null,
 	createdDate timestamp not null,
 	rank numeric (38,1) default 0 not null,
-	doi varchar(256),
-	locked varchar(1) default 0 not null,
+	doi longvarchar,
+	locked longvarchar default 0 not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint cab_pub_pk primary key (id),
@@ -111,7 +111,7 @@ create table cabinet_authorships (
 	id integer not null,
 	publicationId integer not null, --identifier of publication (cabinet_publications.id)
 	userId integer not null, -- identifier of user (users.id)
-	createdBy varchar(1300) default user not null,
+	createdBy longvarchar default user not null,
 	createdDate timestamp not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -125,7 +125,7 @@ create table cabinet_thanks (
 	id integer not null,
 	publicationid integer not null, --identifier of publication (cabinet_publications.id)
 	ownerId integer not null, --identifier of owner of used ources and devices (owners.id) - MetaCenter,CESNET...
-	createdBy varchar(1300) default user not null,
+	createdBy longvarchar default user not null,
 	createdDate timestamp not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -136,12 +136,12 @@ create table cabinet_thanks (
 -- FACILITIES - sources, devices - includes clusters,hosts,storages...
 create table facilities (
 	id integer not null,
-	name varchar(128) not null, --unique name of facility
-	dsc varchar(1024),
+	name longvarchar not null, --unique name of facility
+	dsc longvarchar,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -153,12 +153,12 @@ create table facilities (
 create table resources (
 	id integer not null,
 	facility_id integer not null, --facility identifier (facility.id)
-	name varchar(128) not null,   --name of resource
-	dsc varchar(1024),            --purpose and description
+	name longvarchar not null,   --name of resource
+	dsc longvarchar,            --purpose and description
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	vo_id integer not null,   --identifier of VO (vos.id)
 	created_by_uid integer,
@@ -171,12 +171,12 @@ create table resources (
 -- DESTINATIONS - targets of services
 create table destinations (
 	id integer not null,
-	destination varchar(1024) not null, --value of destination (hostname,email,URL...)
-	type varchar(20) not null, --type (host,URL...)
+	destination longvarchar not null, --value of destination (hostname,email,URL...)
+	type longvarchar not null, --type (host,URL...)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -189,9 +189,9 @@ create table facility_owners (
 	facility_id integer not null, --identifier of facility (facilities.id)
 	owner_id integer not null,   --identifier of owner (owners.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -203,13 +203,13 @@ create table facility_owners (
 -- GROUPS - groups of users
 create table groups (
 	id integer not null,
-	name text not null,         --group name
-	dsc varchar(1024),          --purpose and description
+	name longvarchar not null,         --group name
+	dsc longvarchar,          --purpose and description
 	vo_id integer not null,     --identifier of VO (vos.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	parent_group_id integer,    --in case of subgroup identifier of parent group (groups.id)
 	created_by_uid integer,
@@ -222,7 +222,7 @@ create table groups (
 
 -- FACILITIES_CONTACTS - all optional contacts for facility (owners, users or groups)
 create table facility_contacts (
-	name varchar(128) not null, -- similar to tag of group of contacts
+	name longvarchar not null, -- similar to tag of group of contacts
 	facility_id integer not null, --facility identifier
 	owner_id integer, --owner identifier
 	user_id integer, --user identifier
@@ -243,9 +243,9 @@ create table members (
 	user_id integer not null,  --user's identifier (users.id)
 	vo_id integer not null,    --identifier of VO (vos.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null, --status of membership
 	sponsored boolean default false not null,
 	suspended_to timestamp,
@@ -260,7 +260,7 @@ create table members (
 -- ROLES - possible user's rolles - controle access of users to data in DB
 create table roles (
 	id integer not null,
-	name varchar (32) not null,  --name of role
+	name longvarchar not null,  --name of role
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint roles_pk primary key (id),
@@ -270,8 +270,8 @@ create table roles (
 -- ACTION_TYPES - possible actions for attributes
 create table action_types (
 	id integer not null,
-	action_type varchar(20) not null,  --type of action (read/write...)
-	description varchar(1024),         --description
+	action_type longvarchar not null,  --type of action (read/write...)
+	description longvarchar,         --description
 	constraint actiontyp_pk primary key (id),
 	constraint actiontyp_u unique (action_type),
 	constraint actiontyp_at_chk check (action_type in ('read', 'read_vo', 'read_public','write', 'write_vo', 'write_public'))
@@ -280,8 +280,8 @@ create table action_types (
 -- MEMBERSHIP_TYPES - possible types of membership in group
 create table membership_types (
 	id integer not null,
-	membership_type varchar(10) not null,  --type of memberships (DIRECT/INDIRECT...)
-	description varchar(1024),              --description
+	membership_type longvarchar not null,  --type of memberships (DIRECT/INDIRECT...)
+	description longvarchar,              --description
 	constraint MEMTYPE_PK primary key (id)
 );
 
@@ -289,19 +289,19 @@ create table membership_types (
 create table attr_names (
 	id integer not null,
 	default_attr_id integer,  --identifier of attribute which can be substituted by this (by default)
-	attr_name varchar(384) not null,  --full name of attribute
-	friendly_name varchar(128) not null, --short name of attribute
-	namespace varchar(256) not null,  --access of attribute to the entity
-	type varchar(256) not null,       --type o0f attribute data (strig,number,array...)
-	dsc varchar(1024),                --purpose,description
+	attr_name longvarchar not null,  --full name of attribute
+	friendly_name longvarchar not null, --short name of attribute
+	namespace longvarchar not null,  --access of attribute to the entity
+	type longvarchar not null,       --type o0f attribute data (strig,number,array...)
+	dsc longvarchar,                --purpose,description
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
-	display_name varchar(256),  --name of attr. displayed at GUI
+	display_name longvarchar,  --name of attr. displayed at GUI
 	is_unique boolean DEFAULT FALSE NOT NULL,
 	constraint attnam_pk primary key(id),
 	constraint attnam_u unique (attr_name),
@@ -324,13 +324,13 @@ create table attributes_authz (
 -- HOSTS - detail information about hosts and cluster nodes
 create table hosts (
 	id integer not null,
-	hostname varchar(128) not null,  --full name of machine
+	hostname longvarchar not null,  --full name of machine
 	facility_id integer not null,    --identifier of facility containing the host (facilities.id)
-	dsc varchar(1024),  --description
+	dsc longvarchar,  --description
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -342,13 +342,13 @@ create table hosts (
 create table host_attr_values (
 	host_id integer not null,  --identifier of host (hosts.id)
 	attr_id integer not null,  --identifier of attributes (attr_names.id)
-	attr_value varchar(4000),  --value of attribute
+	attr_value longvarchar,  --value of attribute
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,   --value of attribute if it is very long text
+	attr_value_text longvarchar,   --value of attribute if it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint hostav_pk primary key (host_id,attr_id),
@@ -360,7 +360,7 @@ create table host_attr_values (
 CREATE TABLE host_attr_u_values (
 	host_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (host_id,attr_id) REFERENCES host_attr_values ON DELETE CASCADE
 );
@@ -368,12 +368,12 @@ CREATE TABLE host_attr_u_values (
 -- AUDITER_CONSUMERS - registers recently processed events
 create table auditer_consumers (
 	id integer not null,
-	name varchar(256) not null,
+	name longvarchar not null,
 	last_processed_id integer,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint audcon_pk primary key (id),
@@ -383,16 +383,16 @@ create table auditer_consumers (
 -- SERVICES - provided services, their atomic form
 create table services (
 	id integer not null,
-	name varchar(128) not null,
-	description varchar(1024),
+	name longvarchar not null,
+	description longvarchar,
 	delay integer not null,
 	recurrence integer not null,
 	enabled char(1) not null,
-	script varchar(256) not null,
+	script longvarchar not null,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -405,9 +405,9 @@ create table service_required_attrs (
 	service_id integer not null,   --identifier of service (services.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -423,7 +423,7 @@ create table specific_user_users (
 	created_by_uid integer,
 	modified_by_uid integer,
 	modified_at timestamp default current_date not null,
-	type varchar(20) default 'service' not null,
+	type longvarchar default 'service' not null,
 	status char(1) default '0' not null, --is it service user?
 	constraint acc_specifu_u_pk primary key (user_id,specific_user_id),
 	constraint acc_specifu_u_uid_fk foreign key (user_id) references users(id),
@@ -438,9 +438,9 @@ create table service_denials (
 	facility_id integer,
 	destination_id integer,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -456,9 +456,9 @@ create table resource_services (
 	service_id integer not null,   --identifier of service (services.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -472,17 +472,17 @@ create table application (
 	id integer not null,
 	vo_id integer not null,  --identifier of VO (vos.id)
 	user_id integer,         --identifier of user (users.id)
-	apptype varchar(128) not null,  --type of application (initial/extension)
-	extSourceName varchar(4000),  --name of external source of users
-	extSourceType varchar(4000),  --type of external source of users (federation...)
-	fed_info text,               --data from federation or cert
-	state varchar(128),           --state of application (new/verified/approved/rejected)
+	apptype longvarchar not null,  --type of application (initial/extension)
+	extSourceName longvarchar,  --name of external source of users
+	extSourceType longvarchar,  --type of external source of users (federation...)
+	fed_info longvarchar,               --data from federation or cert
+	state longvarchar,           --state of application (new/verified/approved/rejected)
 	extSourceLoa integer,  --level of assurance of user by external source
 	group_id integer,      --identifier of group (groups.id) if application is for group
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint app_pk primary key (id),
@@ -498,7 +498,7 @@ create table application_form (
 	vo_id integer not null,     --identifier of VO (vos.id)
 	automatic_approval char(1), --approval of application is automatic
 	automatic_approval_extension char(1), --approval of extension is automatic
-	module_name varchar(128),  --name of module which processes application
+	module_name longvarchar,  --name of module which processes application
 	group_id integer,          --identifier of group (groups.id) if application is for group
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -512,13 +512,13 @@ create table application_form_items (
 	id integer not null,
 	form_id integer not null,  --identifier of form (application_form.id)
 	ordnum integer not null,   --order of item
-	shortname varchar(128) not null,  --name of item
+	shortname longvarchar not null,  --name of item
 	required char(1),          --value for item is mandatory
-	type varchar(128),         --type of item
-	fed_attr varchar(128),     --copied from federation attribute
-	src_attr varchar(384),     --pre-filled from attribute
-	dst_attr varchar(384),     --saved to attribute
-	regex varchar(4000),       --regular expression for checking of value
+	type longvarchar,         --type of item
+	fed_attr longvarchar,     --copied from federation attribute
+	src_attr longvarchar,     --pre-filled from attribute
+	dst_attr longvarchar,     --saved to attribute
+	regex longvarchar,       --regular expression for checking of value
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint applfrmit_pk primary key (id),
@@ -528,7 +528,7 @@ create table application_form_items (
 -- APPLICATION_FORM_ITEM_APPTYPES - possible types of app. form items
 create table application_form_item_apptypes (
 	item_id integer not null,  --identifier of form item (application_form_items.id)
-	apptype varchar(128) not null,  --type of item
+	apptype longvarchar not null,  --type of item
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint applfrmittyp_applfrmit_fk foreign key (item_id) references application_form_items(id) on delete cascade
@@ -537,11 +537,11 @@ create table application_form_item_apptypes (
 -- APPLICATION_FORM_ITEM_TEXTS - texts displayed with the items at app. form
 create table application_form_item_texts (
 	item_id integer not null,     --identifier of form item (application_form_items.id)
-	locale varchar(128) not null, --language for application
-	label text,          --label of item on app. form
-	options text,        --options for items with menu
-	help varchar(4000),           --text of help
-	error_message varchar(4000),  --text of error message
+	locale longvarchar not null, --language for application
+	label longvarchar,          --label of item on app. form
+	options longvarchar,        --options for items with menu
+	help longvarchar,           --text of help
+	error_message longvarchar,  --text of error message
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint applfrmittxt_pk primary key(item_id,locale),
@@ -553,9 +553,9 @@ create table application_data (
 	id integer not null,
 	app_id integer not null,  --identifier of application (application.id)
 	item_id integer,          --identifier of item (application_form_items.id)
-	shortname varchar(128),   --name of item
-	value varchar(4000),      --value of item
-	assurance_level varchar(128), --level of assurance of item of newly registered user
+	shortname longvarchar,   --name of item
+	value longvarchar,      --value of item
+	assurance_level longvarchar, --level of assurance of item of newly registered user
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint appdata_pk primary key (id),
@@ -567,9 +567,9 @@ create table application_data (
 create table application_mails (
 	id integer not null,
 	form_id integer not null,       --identifier of form (application_form.id)
-	app_type varchar(30) not null,  --application type (initial/extension)
-	mail_type varchar(30) not null, --type of mail (user/administrator)
-	send varchar(1) not null,       --sent (Y/N)
+	app_type longvarchar not null,  --application type (initial/extension)
+	mail_type longvarchar not null, --type of mail (user/administrator)
+	send longvarchar not null,       --sent (Y/N)
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint appmails_pk primary key (id),
@@ -580,9 +580,9 @@ create table application_mails (
 -- APPLICATION_MAIL_TEXTS - texts of notification mails
 create table application_mail_texts (
 	mail_id integer not null,     --identifier of mail (application_mails.id)
-	locale varchar(10) not null,  --language for texts
-	subject varchar(1024),        --subject of mail
-	text varchar(4000),           --text of mail
+	locale longvarchar not null,  --language for texts
+	subject longvarchar,        --subject of mail
+	text longvarchar,           --text of mail
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint appmailtxt_pk primary key (mail_id, locale),
@@ -591,10 +591,10 @@ create table application_mail_texts (
 
 -- APPLICATION_RESERVED_LOGINS - lognames reserved for new users who has not been saved at users table yet
 create table application_reserved_logins (
-	login varchar(256) not null,        --logname
-	namespace varchar(30) not null,     --namespace where logname is reserved
+	login longvarchar not null,        --logname
+	namespace longvarchar not null,     --namespace where logname is reserved
 	app_id integer not null,            --identifier of application (application.id)
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	created_at timestamp default current_date not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -608,13 +608,13 @@ create table facility_service_destinations (
 	facility_id integer not null,  --identifier of facility (facilities.id)
 	destination_id integer not null, --identifier of destination (destinations.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
-	propagation_type varchar(10) default 'PARALLEL',
+	propagation_type longvarchar default 'PARALLEL',
 	constraint dest_srv_fk foreign key (service_id) references services(id),
 	constraint dest_fac_fk foreign key (facility_id) references facilities(id),
 	constraint dest_dest_fk foreign key(destination_id) references destinations(id)
@@ -622,15 +622,15 @@ create table facility_service_destinations (
 
 -- ENTITYLESS_ATTR_VALUES - value of attributes which are not assigned to any entity
 create table entityless_attr_values (
-	subject varchar(256) not null,  --indicator of subject assigned with attribute
+	subject longvarchar not null,  --indicator of subject assigned with attribute
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),       --attribute value
+	attr_value longvarchar,       --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,           --attribute value in case it is very long text
+	attr_value_text longvarchar,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint entlatval_pk primary key(subject,attr_id),
@@ -641,13 +641,13 @@ create table entityless_attr_values (
 create table facility_attr_values (
 	facility_id integer not null,   --identifier of facility (facilities.id)
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),       --attribute value
+	attr_value longvarchar,       --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,           --attribute value in case it is very long text
+	attr_value_text longvarchar,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint facattval_pk primary key (facility_id,attr_id),
@@ -659,7 +659,7 @@ create table facility_attr_values (
 CREATE TABLE facility_attr_u_values (
 	facility_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (facility_id,attr_id) REFERENCES facility_attr_values ON DELETE CASCADE
 );
@@ -669,13 +669,13 @@ CREATE TABLE facility_attr_u_values (
 create table group_attr_values (
 	group_id integer not null,     --identifier of group (groups.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),      --attribute value
+	attr_value longvarchar,      --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,          --attribute value in case it is very long text
+	attr_value_text longvarchar,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grpattval_pk primary key (group_id,attr_id),
@@ -687,7 +687,7 @@ create table group_attr_values (
 CREATE TABLE group_attr_u_values (
 	group_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (group_id,attr_id) REFERENCES group_attr_values ON DELETE CASCADE
 );
@@ -696,13 +696,13 @@ CREATE TABLE group_attr_u_values (
 create table resource_attr_values (
 	resource_id integer not null,   --identifier of resource (resources.id)
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),       --attribute value
+	attr_value longvarchar,       --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,           --attribute value in case it is very long text
+	attr_value_text longvarchar,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint resatval_pk primary key (resource_id,attr_id),
@@ -714,7 +714,7 @@ create table resource_attr_values (
 CREATE TABLE resource_attr_u_values (
 	resource_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (resource_id,attr_id) REFERENCES resource_attr_values ON DELETE CASCADE
 );
@@ -724,13 +724,13 @@ create table group_resource_attr_values (
 	group_id integer not null,     --identifier of group (groups.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),      --attribute value
+	attr_value longvarchar,      --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,          --attribute value in case it is very long text
+	attr_value_text longvarchar,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grpresav_pk primary key (group_id,resource_id,attr_id),
@@ -744,7 +744,7 @@ CREATE TABLE group_resource_attr_u_values (
 	group_id INT NOT NULL,
 	resource_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (group_id,resource_id,attr_id) REFERENCES group_resource_attr_values ON DELETE CASCADE
 );
@@ -754,9 +754,9 @@ create table groups_members (
 	group_id integer not null,   --identifier of group (groups.id)
 	member_id integer not null,  --identifier of member (members.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	source_group_status integer not null default 0,
 	created_by_uid integer,
@@ -774,9 +774,9 @@ create table groups_resources (
 	group_id integer not null,     --identifier of group (groups.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -789,13 +789,13 @@ create table groups_resources (
 create table member_attr_values (
 	member_id integer not null,   --identifier of member (members.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),     --attribute value
+	attr_value longvarchar,     --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,         --attribute value in case it is very long text
+	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memattval_pk primary key (member_id,attr_id),
@@ -807,7 +807,7 @@ create table member_attr_values (
 CREATE TABLE member_attr_u_values (
 	member_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (member_id,attr_id) REFERENCES member_attr_values ON DELETE CASCADE
 );
@@ -817,13 +817,13 @@ create table member_group_attr_values (
 	member_id integer not null,   --identifier of member (members.id)
 	group_id integer not null, --identifier of group (groups.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),     --attribute value
+	attr_value longvarchar,     --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,         --attribute value in case it is very long text
+	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memgav_pk primary key(member_id,group_id,attr_id),
@@ -837,7 +837,7 @@ CREATE TABLE member_group_attr_u_values (
 	member_id INT NOT NULL,
 	group_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (member_id,group_id,attr_id) REFERENCES member_group_attr_values ON DELETE CASCADE
 );
@@ -847,13 +847,13 @@ create table member_resource_attr_values (
 	member_id integer not null,   --identifier of member (members.id)
 	resource_id integer not null, --identifier of resource (resources.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),     --attribute value
+	attr_value longvarchar,     --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,         --attribute value in case it is very long text
+	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memrav_pk primary key(member_id,resource_id,attr_id),
@@ -867,7 +867,7 @@ CREATE TABLE member_resource_attr_u_values (
 	member_id INT NOT NULL,
 	resource_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (member_id,resource_id,attr_id) REFERENCES member_resource_attr_values ON DELETE CASCADE
 );
@@ -876,13 +876,13 @@ CREATE TABLE member_resource_attr_u_values (
 create table user_attr_values (
 	user_id integer not null,  --identifier of user (users.id)
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),  --attribute value
+	attr_value longvarchar,  --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,      --attribute value in case it is very long text
+	attr_value_text longvarchar,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrav_pk primary key(user_id,attr_id),
@@ -894,7 +894,7 @@ create table user_attr_values (
 CREATE TABLE user_attr_u_values (
 	user_id  INT NOT NULL,
 	attr_id  INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (user_id,attr_id) REFERENCES user_attr_values ON DELETE CASCADE
 );
@@ -904,13 +904,13 @@ create table user_facility_attr_values (
 	user_id integer not null,     --identifier of user (users.id)
 	facility_id integer not null, --identifier of facility (facilities.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),     --attribute value
+	attr_value longvarchar,     --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,         --attribute value in case it is very long text
+	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrfacav_u primary key(user_id,facility_id,attr_id),
@@ -924,7 +924,7 @@ CREATE TABLE user_facility_attr_u_values (
 	user_id INT NOT NULL,
 	facility_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (user_id,facility_id,attr_id) REFERENCES user_facility_attr_values ON DELETE CASCADE
 );
@@ -933,13 +933,13 @@ CREATE TABLE user_facility_attr_u_values (
 create table vo_attr_values (
 	vo_id integer not null,    --identifier of VO (vos.id)
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
-	attr_value varchar(4000),  --attribute value
+	attr_value longvarchar,  --attribute value
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,      --attribute value in case it is very long text
+	attr_value_text longvarchar,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint voattval_pk primary key (vo_id,attr_id),
@@ -951,7 +951,7 @@ create table vo_attr_values (
 CREATE TABLE vo_attr_u_values (
 	vo_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (vo_id,attr_id) REFERENCES vo_attr_values ON DELETE CASCADE
 );
@@ -959,12 +959,12 @@ CREATE TABLE vo_attr_u_values (
 -- EXT_SOURCES - external sourcces from which we can gain data about users
 create table ext_sources (
 	id integer not null,
-	name varchar(256) not null,    --name of source
-	type varchar(64),              --type of source (LDAP/IdP...)
+	name longvarchar not null,    --name of source
+	type longvarchar,              --type of source (LDAP/IdP...)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -975,12 +975,12 @@ create table ext_sources (
 -- EXT_SOURCES_ATTRIBUTES - values of attributes of external sources
 create table ext_sources_attributes (
 	ext_sources_id integer not null,   --identifier of ext. source (ext_sources.id)
-	attr_name varchar(128) not null,   --name of attribute at ext. source
+	attr_name longvarchar not null,   --name of attribute at ext. source
 	attr_value longvarchar,          --value of attribute
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -992,9 +992,9 @@ create table vo_ext_sources (
 	vo_id integer not null,          --identifier of VO (vos.id)
 	ext_sources_id integer not null, --identifier of ext. source (ext_sources.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1008,9 +1008,9 @@ create table group_ext_sources (
 	group_id integer not null,
 	ext_source_id integer not null,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint groupsrc_pk primary key (group_id,ext_source_id),
@@ -1022,12 +1022,12 @@ create table group_ext_sources (
 create table user_ext_sources (
 	id integer not null,
 	user_id integer not null,          --identifier of user (users.id)
-	login_ext varchar(1300) not null,   --logname from his home system
+	login_ext longvarchar not null,   --logname from his home system
 	ext_sources_id integer not null,   --identifier of ext. source (ext_sources.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	loa integer,                       --level of assurance
 	last_access timestamp default current_date not null, --time of last user's access (to Perun) by using this external source
@@ -1042,12 +1042,12 @@ create table user_ext_sources (
 -- SERVICE_PACKAGES - possible groups of services
 create table service_packages (
 	id integer not null,
-	name varchar(128) not null,   --name of service package
-	description varchar(512),     --purpose,description
+	name longvarchar not null,   --name of service package
+	description longvarchar,     --purpose,description
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1060,9 +1060,9 @@ create table service_service_packages (
 	service_id integer not null,   --identifier of service (services.id)
 	package_id integer not null,   --identifier of package (service_packages.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1079,12 +1079,12 @@ create table tasks (
 	schedule timestamp not null,
 	recurrence integer not null,
 	delay integer not null,
-	status varchar(16) not null,
+	status longvarchar not null,
 	start_time timestamp,
 	end_time timestamp,
 	engine_id integer default 1,
 	created_at timestamp default current_date not null,
-	err_message varchar(4000),
+	err_message longvarchar,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint task_pk primary key (id),
@@ -1099,16 +1099,16 @@ create table tasks_results (
 	id integer not null,
 	task_id integer not null,         --identifier of task (tasks.id)
 	destination_id integer not null,  --identifier of destination (destinations.id)
-	status varchar(16) not null,      --status of task
-	err_message varchar(4000),        --return message in case of error
-	std_message varchar(4000),        --return message in case of success
+	status longvarchar not null,      --status of task
+	err_message longvarchar,        --return message in case of error
+	std_message longvarchar,        --return message in case of success
 	return_code integer,              --returned value
 	timestamp timestamp,                   --real time of executing
 	engine_id integer default 1 not null,       --identifier of executing engine (engines.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint taskres_pk primary key (id),
@@ -1120,8 +1120,8 @@ create table tasks_results (
 -- AUDITER_LOG - logging
 create table auditer_log (
 	id integer not null,         --identifier of logged event
-	msg text not null,           --text of logging message
-	actor varchar(256) not null, --who causes the event
+	msg longvarchar not null,           --text of logging message
+	actor longvarchar not null, --who causes the event
 	created_at timestamp default current_date not null ,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1130,10 +1130,10 @@ create table auditer_log (
 
 -- RESERVED_LOGINS - reserved lognames, actually is not used. Prepared for reservation by core.
 create table reserved_logins (
-	login varchar(256),        --logname
-	namespace varchar(128),    --namespace in which is logname using
-	application varchar(256),  --relation to application if any
-	id varchar(1024),
+	login longvarchar,        --logname
+	namespace longvarchar,    --namespace in which is logname using
+	application longvarchar,  --relation to application if any
+	id longvarchar,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint reservlogins_pk primary key (login,namespace)
@@ -1141,7 +1141,7 @@ create table reserved_logins (
 
 -- PN_AUDIT_MESSAGE - Contains all messages retrieved from the auditer log, since the notification module is auditer consumer. These messages are waiting to be processed by the notification module
 create table pn_audit_message (
-	message text,
+	message longvarchar,
 	id integer NOT NULL,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1151,9 +1151,9 @@ create table pn_audit_message (
 -- PN_OBJECT - Keeps names of the Perun beans and their properties, for the recognition in a regular expression in the notification module
 create table pn_object (
 	id integer NOT NULL,
-	name varchar(256),        --arbitrary name
-	properties varchar(4000), --set of names of methods divided by ';'
-	class_name varchar(512),  --the whole java class name of the object, e.g. 'cz.metacentrum.perun.core.api.Vo'
+	name longvarchar,        --arbitrary name
+	properties longvarchar, --set of names of methods divided by ';'
+	class_name longvarchar,  --the whole java class name of the object, e.g. 'cz.metacentrum.perun.core.api.Vo'
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint pn_object_pk primary key (id)
@@ -1162,14 +1162,14 @@ create table pn_object (
 -- PN_TEMPLATE - Contains templates for creating the message in the notification module
 create table pn_template (
 	id integer NOT NULL,
-	primary_properties varchar(4000) NOT NULL, --important attributes, which messages will be grouped on, same as later PN_POOL_MESSAGE.KEY_ATTRIBUTES
-	notify_trigger varchar(100), --configures two approaches to the grouping messages,
+	primary_properties longvarchar NOT NULL, --important attributes, which messages will be grouped on, same as later PN_POOL_MESSAGE.KEY_ATTRIBUTES
+	notify_trigger longvarchar, --configures two approaches to the grouping messages,
 	--when equals 'ALL_REGEX_IDS', the pool messages are grouped and sent when all needed audit messages are collected
 	--when equals 'STREAM', the related pool messages are waiting for the certain amount of time and then sent
 	youngest_message_time integer, --time limit for the youngest message
 	oldest_message_time integer,   --time limit for the oldest message
-	name varchar(512),       --arbitrary name
-	sender varchar(4000),    --email addres that will be stated as sender
+	name longvarchar,       --arbitrary name
+	sender longvarchar,    --email addres that will be stated as sender
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint pn_tmpl_pk primary key (id)
@@ -1180,9 +1180,9 @@ create table pn_pool_message (
 	id integer NOT NULL,
 	regex_id integer NOT NULL,   --references a regular expression binded to a message
 	template_id integer NOT NULL, --references a template binded to a message
-	key_attributes varchar(4000) NOT NULL, --contains all attributes extracted from audit message that are important for grouping messages
+	key_attributes longvarchar NOT NULL, --contains all attributes extracted from audit message that are important for grouping messages
 	created timestamp default current_date NOT NULL, --the time of the pool message creation, important when PN_TEMPLATE.NOTIFY_TRIGGER is set to 'stream'
-	notif_message text NOT NULL, --contains original audit message, important when gaining attributes in template message
+	notif_message longvarchar NOT NULL, --contains original audit message, important when gaining attributes in template message
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint pn_poolmsg_pk primary key (id),
@@ -1192,12 +1192,12 @@ create table pn_pool_message (
 -- PN_RECEIVER - Keeps information about receiver of messages from notification module
 create table pn_receiver (
 	id integer NOT NULL,
-	target varchar(256) NOT NULL, --the email address or jabber of the receiver
-	type_of_receiver varchar(256) NOT NULL, --available options are email_user/email_group/jabber
+	target longvarchar NOT NULL, --the email address or jabber of the receiver
+	type_of_receiver longvarchar NOT NULL, --available options are email_user/email_group/jabber
 	template_id integer NOT NULL, --reference to the pn_template
 	created_by_uid integer,
 	modified_by_uid integer,
-	locale varchar(512),           ----the message language and formating is based on locale
+	locale longvarchar,           ----the message language and formating is based on locale
 	constraint pn_receiver_pk primary key (id),
 	constraint pn_receiver_tmpl_fk foreign key (template_id) references pn_template(id)
 );
@@ -1205,8 +1205,8 @@ create table pn_receiver (
 -- PN_REGEX - Keeps regular expressions, which are used to parse audit messages in the notification module
 create table pn_regex (
 	id integer NOT NULL,
-	note varchar(256), --comment to the regex
-	regex varchar(4000) NOT NULL, --the regular expression
+	note longvarchar, --comment to the regex
+	regex longvarchar NOT NULL, --the regular expression
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint pn_regex_pk primary key (id)
@@ -1216,11 +1216,11 @@ create table pn_regex (
 create table pn_template_message (
 	id integer NOT NULL,
 	template_id integer NOT NULL,  --reference to the pn_template
-	locale varchar(5) NOT NULL,    --the message language and formating is based on locale
-	message varchar(4000),      --text message
+	locale longvarchar NOT NULL,    --the message language and formating is based on locale
+	message longvarchar,      --text message
 	created_by_uid integer,
 	modified_by_uid integer,
-	subject varchar(512) not null,  --text, which is used as subject of the message
+	subject longvarchar not null,  --text, which is used as subject of the message
 	constraint pn_tmplmsg_pk primary key (id),
 	constraint pn_tmplmsg_tmpl_fk foreign key (template_id) references pn_template(id)
 );
@@ -1255,9 +1255,9 @@ create table groups_groups (
 	operand_gid integer not null,        --identifier of operand group (unioned / parent group)
 	parent_flag boolean default false,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	constraint grp_grp_pk primary key (result_gid,operand_gid),
 	constraint grp_grp_rgid_fk foreign key (result_gid) references groups(id),
 	constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id)
@@ -1267,11 +1267,11 @@ create table groups_groups (
 create table res_tags (
 	id integer not null,
 	vo_id integer not null,            --identifier of VO
-	tag_name varchar (1024) not null,  --name of tag (computationl node/storage...)
+	tag_name longvarchar not null,  --name of tag (computationl node/storage...)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint restags_pk primary key (id),
@@ -1290,18 +1290,18 @@ create table tags_resources (
 
 -- CONFIGURATIONS - system Perun configuration
 create table configurations (
-	property varchar(32) not null,  --property (for example database version)
-	value varchar(128) not null,     --value of configuration property
+	property longvarchar not null,  --property (for example database version)
+	value longvarchar not null,     --value of configuration property
 	constraint config_pk primary key (property)
 );
 
 -- MAILCHANGE - allow to user to change mail address, temporairly saved mails during change is in progress
 create table mailchange (
 	id integer not null,
-	value text not null,      --
+	value longvarchar not null,      --
 	user_id integer not null, --identifier of user (users.id)
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	created_by_uid integer,
 	constraint mailchange_pk primary key (id),
 	constraint mailchange_u_fk foreign key (user_id) references users(id)
@@ -1310,11 +1310,11 @@ create table mailchange (
 --PWDRESET - allows to user to change passwd
 create table pwdreset (
 	id integer not null,
-	namespace text not null,
-	mail text,
+	namespace longvarchar not null,
+	mail longvarchar,
 	user_id integer not null,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	created_by_uid integer,
 	constraint pwdreset_pk primary key (id),
 	constraint pwdreset_u_fk foreign key (user_id) references users(id)
@@ -1322,12 +1322,12 @@ create table pwdreset (
 
 create table security_teams (
 	id integer not null,
-	name varchar(128) not null,
-	description varchar(1024),
+	name longvarchar not null,
+	description longvarchar,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint security_teams_pk primary key (id)
@@ -1337,9 +1337,9 @@ create table security_teams_facilities (
 	security_team_id integer not null,
 	facility_id integer not null,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint security_teams_facilities_pk primary key (security_team_id, facility_id),
@@ -1350,11 +1350,11 @@ create table security_teams_facilities (
 create table blacklists (
 	security_team_id integer not null,
 	user_id integer not null,
-	description varchar(1024),
+	description longvarchar,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint bllist_pk primary key (security_team_id,user_id),
@@ -1366,12 +1366,12 @@ create table resources_bans (
 	id integer not null,
 	member_id integer not null,
 	resource_id integer not null,
-	description varchar(1024),
+	description longvarchar,
 	banned_to timestamp not null,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint res_bans_pk primary key (id),
@@ -1384,12 +1384,12 @@ create table facilities_bans (
 	id integer not null,
 	user_id integer not null,
 	facility_id integer not null,
-	description varchar(1024),
+	description longvarchar,
 	banned_to timestamp not null,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint fac_bans_pk primary key (id),
@@ -1401,13 +1401,13 @@ create table facilities_bans (
 create table user_ext_source_attr_values (
 	user_ext_source_id integer not null,
 	attr_id integer not null,
-	attr_value varchar(4000),
+	attr_value longvarchar,
 	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
+	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
+	modified_by longvarchar default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text,
+	attr_value_text longvarchar,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint uesattrval_pk primary key (user_ext_source_id, attr_id),
@@ -1419,7 +1419,7 @@ create table user_ext_source_attr_values (
 CREATE TABLE user_ext_source_attr_u_values (
 	user_ext_source_id INT NOT NULL,
 	attr_id    INT NOT NULL,
-	attr_value VARCHAR(4000),
+	attr_value longvarchar,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (user_ext_source_id,attr_id) REFERENCES user_ext_source_attr_values ON DELETE CASCADE
 );
@@ -1429,10 +1429,10 @@ CREATE TABLE members_sponsored (
 	sponsored_id INTEGER NOT NULL,
 	sponsor_id INTEGER NOT NULL,
 	created_at timestamp default now() not null,
-	created_by varchar(1024) default user not null,
+	created_by longvarchar default user not null,
 	created_by_uid integer,
 	modified_at timestamp default now() not null,
-	modified_by varchar(1024) default user not null,
+	modified_by longvarchar default user not null,
 	modified_by_uid integer,
 	constraint memspons_mem_fk foreign key (sponsored_id) references members(id),
 	constraint memspons_usr_fk foreign key (sponsor_id) references users(id)
@@ -1669,7 +1669,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.60');
+insert into configurations values ('DATABASE VERSION','3.1.61');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');
