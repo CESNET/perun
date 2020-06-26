@@ -19,7 +19,7 @@ import java.util.LinkedHashMap;
 public class urn_perun_enitityless_attribute_def_def_namespace_UIDRanges extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		//Check if uid ranges are in correct format (we don't need to use the output of the method there, we want to just check it)
 		perunSession.getPerunBl().getModulesUtilsBl().checkAndConvertIDRanges(attribute);
 	}

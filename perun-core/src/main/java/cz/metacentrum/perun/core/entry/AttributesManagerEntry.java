@@ -76,7 +76,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility) throws FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -93,7 +93,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException, FacilityNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, facility, attrNames);
@@ -108,7 +108,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws VoNotExistsException, InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, vo);
@@ -124,7 +124,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Group group) throws GroupNotExistsException, InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Group group) throws GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, group);
@@ -140,7 +140,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource) throws ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, resource);
@@ -156,7 +156,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException, MemberResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws MemberResourceMismatchException {
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member, resource);
 		Iterator<Attribute> attrIter = attributes.iterator();
 		//Choose to which attributes has the principal access
@@ -170,7 +170,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, boolean workWithUserAttributes) throws ResourceNotExistsException, InternalErrorException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, boolean workWithUserAttributes) throws ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -203,7 +203,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames, boolean workWithUserAttributes) throws ResourceNotExistsException, InternalErrorException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames, boolean workWithUserAttributes) throws ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -236,7 +236,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws GroupNotExistsException, InternalErrorException, MemberNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws GroupNotExistsException, MemberNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -254,7 +254,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws GroupNotExistsException, InternalErrorException, MemberNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws GroupNotExistsException, MemberNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -272,7 +272,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws GroupNotExistsException, InternalErrorException, MemberNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws GroupNotExistsException, MemberNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -300,7 +300,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -332,7 +332,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member);
@@ -347,7 +347,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, Member member, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, MemberNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, Member member, List<String> attrNames) throws ResourceNotExistsException, GroupNotExistsException, MemberNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attrNames, "attrNames");
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -399,7 +399,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException, VoNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, vo, attrNames);
@@ -414,7 +414,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName) throws GroupNotExistsException, InternalErrorException {
+	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName) throws GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(startPartOfName, "startPartOfName");
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -430,7 +430,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws ResourceNotExistsException, InternalErrorException {
+	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(startPartOfName, "startPartOfName");
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -447,7 +447,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, MemberNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member, attrNames);
@@ -462,7 +462,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException, GroupNotExistsException{
+	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws GroupNotExistsException{
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, group, attrNames);
@@ -477,7 +477,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, resource, attrNames);
@@ -492,7 +492,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member, attrNames, workWithUserAttributes);
@@ -515,7 +515,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException, UserNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, user, attrNames);
@@ -530,7 +530,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException, UserExtSourceNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws UserExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, ues, attrNames);
@@ -545,7 +545,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, InternalErrorException, UserNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -561,7 +561,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, User user) throws UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
@@ -577,7 +577,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Host host) throws HostNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, host);
@@ -592,7 +592,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -611,7 +611,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -638,7 +638,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -662,7 +662,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member, workWithUserAttributes);
@@ -685,7 +685,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, String key) throws PrivilegeException, InternalErrorException{
+	public List<Attribute> getAttributes(PerunSession sess, String key) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(key, "key for entityless attribute");
 		if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
@@ -699,7 +699,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, UserExtSourceNotExistsException {
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws UserExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, ues);
@@ -714,7 +714,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException, InternalErrorException {
+	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attrName, "name of entityless attributes");
 		if(attrName.isEmpty()) throw new InternalErrorException("name for entityless attribute can't be empty string");
@@ -727,7 +727,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException {
+	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
@@ -737,7 +737,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
+	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attributeDefinition);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
@@ -748,7 +748,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -761,7 +761,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -773,7 +773,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -785,7 +785,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -797,7 +797,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -810,7 +810,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, GroupNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -824,7 +824,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, GroupNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -848,7 +848,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -874,7 +874,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException{
+	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException{
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		if(workWithUserAttributes) getPerunBl().getUsersManagerBl().checkUserExists(sess,getPerunBl().getUsersManagerBl().getUserByMember(sess, member));
@@ -895,7 +895,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 
 	@Override
-	public void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -920,7 +920,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException {
+	public void setAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -948,7 +948,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -960,7 +960,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, FacilityNotExistsException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -973,7 +973,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -985,7 +985,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException, HostNotExistsException, InternalErrorException,AttributeNotExistsException,WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void setAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException, HostNotExistsException, AttributeNotExistsException,WrongAttributeAssignmentException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -1001,7 +1001,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, AttributeNotExistsException, WrongReferenceAttributeValueException, PrivilegeException, GroupResourceMismatchException {
+	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, AttributeNotExistsException, WrongReferenceAttributeValueException, PrivilegeException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1014,7 +1014,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, AttributeNotExistsException, WrongReferenceAttributeValueException, PrivilegeException, GroupResourceMismatchException {
+	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, AttributeNotExistsException, WrongReferenceAttributeValueException, PrivilegeException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1036,7 +1036,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserExtSourceNotExistsException {
+	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -1048,7 +1048,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -1060,7 +1060,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws PrivilegeException, InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -1072,7 +1072,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws PrivilegeException, InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1084,7 +1084,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1096,7 +1096,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, MemberResourceMismatchException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException, MemberNotExistsException, MemberResourceMismatchException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1109,7 +1109,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws PrivilegeException, GroupNotExistsException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
+	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1123,7 +1123,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1135,7 +1135,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws PrivilegeException, FacilityNotExistsException, InternalErrorException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -1148,7 +1148,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws PrivilegeException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1160,7 +1160,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, HostNotExistsException,WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws PrivilegeException, AttributeNotExistsException, HostNotExistsException,WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -1172,7 +1172,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1188,7 +1188,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
@@ -1200,7 +1200,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		Utils.notNull(key, "key");
@@ -1210,7 +1210,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
 		//Everyone can access to attrDefs
@@ -1218,14 +1218,14 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess) throws InternalErrorException {
+	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess) {
 		Utils.checkPerunSession(sess);
 		//Everyone can access to attrDefs
 		return getAttributesManagerBl().getAttributesDefinition(sess);
 	}
 
 	@Override
-	public List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException {
+	public List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) {
 		Utils.checkPerunSession(sess);
 
 		//For this method are rights resolved in the Bl(BlImpl)
@@ -1233,7 +1233,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess, List<String> listOfAttributesNames) throws InternalErrorException, AttributeNotExistsException {
+	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess, List<String> listOfAttributesNames) throws AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(listOfAttributesNames, "List of attrNames");
 		//Everyone can access to attrDefs
@@ -1241,14 +1241,14 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		//Everyone can access to attrDefs
 		return getAttributesManagerBl().getAttributeDefinitionById(sess, id);
 	}
 
 	@Override
-	public List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) throws InternalErrorException {
+	public List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(namespace, "namespace");
 		//Everyone can access to attrDefs
@@ -1256,7 +1256,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, facility, id);
@@ -1267,7 +1267,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws PrivilegeException, InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, vo, id);
@@ -1278,7 +1278,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, resource, id);
@@ -1289,7 +1289,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1301,7 +1301,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws PrivilegeException, GroupNotExistsException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1314,7 +1314,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, member, id);
@@ -1325,7 +1325,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws PrivilegeException, FacilityNotExistsException, InternalErrorException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1337,7 +1337,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, User user, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, User user, int id) throws PrivilegeException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, user, id);
@@ -1348,7 +1348,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, HostNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws PrivilegeException, AttributeNotExistsException, HostNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, host, id);
@@ -1359,7 +1359,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1374,7 +1374,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws PrivilegeException, AttributeNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, group, id);
@@ -1385,7 +1385,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		Attribute attr = getAttributesManagerBl().getAttributeById(sess, ues, id);
@@ -1396,7 +1396,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -1405,7 +1405,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, VoNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -1414,7 +1414,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -1423,7 +1423,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1432,7 +1432,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void setAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1442,7 +1442,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, GroupNotExistsException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1452,7 +1452,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1461,7 +1461,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1471,7 +1471,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1480,7 +1480,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, HostNotExistsException,AttributeNotExistsException,WrongAttributeValueException,WrongAttributeAssignmentException {
+	public void setAttribute(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, HostNotExistsException,AttributeNotExistsException,WrongAttributeValueException,WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -1493,7 +1493,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void setAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1504,7 +1504,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, String key, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, String key, Attribute attribute) throws PrivilegeException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		Utils.notNull(key, "key");
@@ -1515,7 +1515,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
@@ -1524,7 +1524,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeDefinitionExistsException {
+	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, AttributeDefinitionExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attribute, "attributeDefinition");
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can create new Attribute.");
@@ -1535,7 +1535,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException {
+	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
@@ -1543,7 +1543,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force) throws PrivilegeException, InternalErrorException, AttributeNotExistsException {
+	public void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force) throws PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attributeDefinition);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
@@ -1551,7 +1551,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource) throws ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, resource);
@@ -1566,7 +1566,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1583,7 +1583,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource, boolean workWithUserAttributes) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource, boolean workWithUserAttributes) throws ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1616,7 +1616,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws ResourceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1634,7 +1634,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws ResourceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1663,7 +1663,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, Resource resource, User user, Member member) throws ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1695,7 +1695,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, User user) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, UserNotExistsException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, User user) throws ResourceNotExistsException, FacilityNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -1712,7 +1712,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws InternalErrorException, MemberNotExistsException, ResourceNotExistsException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws MemberNotExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1728,7 +1728,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, User user) throws InternalErrorException, UserNotExistsException, ResourceNotExistsException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, User user) throws UserNotExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1744,7 +1744,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) throws InternalErrorException, HostNotExistsException, ResourceNotExistsException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) throws HostNotExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -1760,7 +1760,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1789,7 +1789,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, MemberNotExistsException, MemberGroupMismatchException, UserNotExistsException, FacilityNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, MemberNotExistsException, MemberGroupMismatchException, UserNotExistsException, FacilityNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1836,7 +1836,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws ResourceNotExistsException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1853,7 +1853,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws ResourceNotExistsException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resourceToGetServicesFrom);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1870,7 +1870,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Resource resource) throws ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1886,7 +1886,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Resource resource, boolean workWithUserAttributes) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Resource resource, boolean workWithUserAttributes) throws ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -1918,7 +1918,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1934,7 +1934,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, member, workWithUserAttributes);
@@ -1958,7 +1958,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1987,7 +1987,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, User user) throws UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, user);
@@ -2002,7 +2002,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException {
+	public List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service) throws ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		//Everyone can access to attrNexts
@@ -2010,7 +2010,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, facility);
@@ -2025,7 +2025,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -2041,7 +2041,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException, VoNotExistsException, ServiceNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws VoNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -2057,7 +2057,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Facility facility) throws FacilityNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		Set<Attribute> attributes = new HashSet<Attribute>();
@@ -2081,7 +2081,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws ResourceNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
@@ -2097,7 +2097,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource) throws ResourceNotExistsException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		for (Service s : services) getPerunBl().getServicesManagerBl().checkServiceExists(sess, s);
@@ -2113,7 +2113,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws InternalErrorException, ServiceNotExistsException, HostNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws ServiceNotExistsException, HostNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
@@ -2128,7 +2128,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attributes;
 	}
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2145,7 +2145,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource, boolean workWithUserAttributes) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource, boolean workWithUserAttributes) throws ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2180,7 +2180,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2222,7 +2222,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members, boolean workWithUserAttributes) throws ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2266,7 +2266,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 
 	@Override
-	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException, ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException {
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws ResourceNotExistsException, ServiceNotExistsException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2293,7 +2293,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException {
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2320,7 +2320,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, UserNotExistsException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws ServiceNotExistsException, FacilityNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -2347,7 +2347,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException, ServiceNotExistsException, UserNotExistsException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws ServiceNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		for (User user : users) {
@@ -2373,7 +2373,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException, ServiceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws ServiceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -2392,7 +2392,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, ServiceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group, boolean workWithUserAttributes) throws ServiceNotExistsException, MemberNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -2421,7 +2421,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws InternalErrorException, ServiceNotExistsException, MemberNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws ServiceNotExistsException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -2437,7 +2437,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, ServiceNotExistsException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean workWithGroupAttributes) throws ServiceNotExistsException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2461,7 +2461,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException, ServiceNotExistsException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws ServiceNotExistsException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -2481,7 +2481,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws InternalErrorException, ServiceNotExistsException, GroupNotExistsException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws ServiceNotExistsException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -2498,7 +2498,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose to which attributes has the principal access
@@ -2510,7 +2510,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, ResourceNotExistsException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws ResourceNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose to which attributes has the principal access
@@ -2527,7 +2527,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -2540,7 +2540,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -2558,7 +2558,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws ResourceNotExistsException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -2593,7 +2593,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -2606,7 +2606,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, MemberNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws MemberNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -2624,7 +2624,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupNotExistsException, MemberGroupMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws MemberNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -2654,7 +2654,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -2700,7 +2700,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, MemberNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -2713,7 +2713,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, MemberNotExistsException, AttributeNotExistsException {
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws MemberNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -2730,7 +2730,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -2744,7 +2744,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -2762,7 +2762,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -2775,7 +2775,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, User user, List<Attribute> attributes) throws UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -2792,7 +2792,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -2809,7 +2809,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -2829,7 +2829,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		return listOfAttributes;
 	}
 
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws ResourceNotExistsException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -2865,7 +2865,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -2878,7 +2878,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -2895,7 +2895,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -2908,7 +2908,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -2925,7 +2925,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -2938,7 +2938,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -2955,7 +2955,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -2966,7 +2966,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributesSemantics(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -2978,7 +2978,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -2989,7 +2989,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -3001,7 +3001,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3012,7 +3012,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3024,7 +3024,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3036,7 +3036,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3049,7 +3049,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, GroupNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberGroupMismatchException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3061,7 +3061,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberGroupMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3074,7 +3074,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3096,7 +3096,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3122,7 +3122,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3147,7 +3147,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3158,7 +3158,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, MemberNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3170,7 +3170,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -3182,7 +3182,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributesSemantics(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -3195,7 +3195,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -3206,7 +3206,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, HostNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, HostNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -3217,7 +3217,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, HostNotExistsException, WrongAttributeAssignmentException {
+	public void checkAttributesSemantics(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException, AttributeNotExistsException, HostNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -3229,7 +3229,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -3240,7 +3240,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public void checkAttributesSemantics(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -3252,7 +3252,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3268,7 +3268,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3284,7 +3284,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesSemantics(sess, resource, group, attributes);
 	}
 
-	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, WrongReferenceAttributeValueException {
+	public void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3306,7 +3306,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException,AttributeNotExistsException, UserExtSourceNotExistsException {
+	public void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, WrongAttributeAssignmentException,AttributeNotExistsException, UserExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
@@ -3317,7 +3317,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSemantics(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
+	public void checkAttributesSemantics(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
@@ -3329,7 +3329,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -3340,7 +3340,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributesSyntax(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3352,7 +3352,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -3363,7 +3363,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributesSyntax(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -3375,7 +3375,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3386,7 +3386,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributesSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3398,7 +3398,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3410,7 +3410,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3423,7 +3423,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, GroupNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberGroupMismatchException {
+	public void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, GroupNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3435,7 +3435,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberGroupMismatchException {
+	public void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, MemberNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3448,7 +3448,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
+	public void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3470,7 +3470,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3496,7 +3496,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void checkAttributesSyntax(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3521,7 +3521,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3532,7 +3532,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributesSyntax(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3544,7 +3544,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -3556,7 +3556,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributesSyntax(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -3569,7 +3569,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -3580,7 +3580,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, HostNotExistsException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, HostNotExistsException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -3591,7 +3591,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, HostNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void checkAttributesSyntax(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException, AttributeNotExistsException, HostNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -3603,7 +3603,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException {
+	public void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -3614,7 +3614,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public void checkAttributesSyntax(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -3626,7 +3626,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException {
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, AttributeNotExistsException, WrongAttributeValueException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3642,7 +3642,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException {
+	public void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3658,7 +3658,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributesSyntax(sess, resource, group, attributes);
 	}
 
-	public void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException {
+	public void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3680,7 +3680,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
@@ -3691,7 +3691,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void checkAttributesSyntax(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void checkAttributesSyntax(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
@@ -3703,7 +3703,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -3714,7 +3714,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, PrivilegeException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws WrongAttributeAssignmentException, PrivilegeException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		//Choose to which attributes has the principal access
@@ -3724,7 +3724,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws PrivilegeException, AttributeNotExistsException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -3746,7 +3746,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3758,7 +3758,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3783,7 +3783,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<? extends AttributeDefinition> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException {
+	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<? extends AttributeDefinition> attributes) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3811,7 +3811,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Member member, boolean workWithUserAttributes, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Member member, boolean workWithUserAttributes, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3830,7 +3830,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		//Choose if principal has access to remove all attributes
@@ -3842,7 +3842,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -3864,7 +3864,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Facility facility, boolean removeAlsoUserFacilityAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Facility facility, boolean removeAlsoUserFacilityAttributes) throws PrivilegeException, FacilityNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		//Choose if principal has access to remove all attributes
@@ -3876,7 +3876,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -3887,7 +3887,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3899,7 +3899,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		//Choose if principal has access to remove all attributes
@@ -3911,7 +3911,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -3922,7 +3922,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3934,7 +3934,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Group group) throws PrivilegeException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		//Choose if principal has access to remove all attributes
@@ -3946,7 +3946,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -3957,7 +3957,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -3969,7 +3969,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Resource resource) throws PrivilegeException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		//Choose if principal has access to remove all attributes
@@ -3981,7 +3981,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -3993,7 +3993,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Member member, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void removeAttributes(PerunSession sess, Member member, Resource resource, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -4006,7 +4006,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws PrivilegeException, MemberNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -4019,7 +4019,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+	public void removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -4031,12 +4031,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		removeAttributes(sess, member, group, attributes, false);
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -4049,7 +4049,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException, PrivilegeException, MemberNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
+	public void removeAllAttributes(PerunSession sess, Member member, Group group) throws PrivilegeException, MemberNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberGroupMismatchException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -4062,7 +4062,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -4073,7 +4073,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, MemberNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -4085,7 +4085,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		//Choose if principal has access to remove all attributes
@@ -4097,7 +4097,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, UserNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -4109,7 +4109,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, UserNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -4122,7 +4122,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, FacilityNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws PrivilegeException, UserNotExistsException, FacilityNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -4135,7 +4135,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -4146,7 +4146,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -4158,7 +4158,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		//Choose if principal has access to remove all attributes
@@ -4170,7 +4170,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws PrivilegeException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -4182,7 +4182,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributes) throws PrivilegeException, HostNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -4194,7 +4194,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Host host) throws PrivilegeException, InternalErrorException, HostNotExistsException, WrongAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Host host) throws PrivilegeException, HostNotExistsException, WrongAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
 		//Choose if principal has access to remove all attributes
@@ -4206,7 +4206,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws PrivilegeException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, AttributeNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -4222,7 +4222,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes) throws PrivilegeException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -4238,7 +4238,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws PrivilegeException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -4255,7 +4255,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
@@ -4266,7 +4266,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
@@ -4278,7 +4278,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws PrivilegeException, UserExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
 		//Choose if principal has access to remove all attributes
@@ -4320,21 +4320,21 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public String getNamespaceFromAttributeName(String attributeName) throws InternalErrorException {
+	public String getNamespaceFromAttributeName(String attributeName) {
 		Utils.notNull(attributeName, "attributeName");
 
 		return getAttributesManagerBl().getNamespaceFromAttributeName(attributeName);
 	}
 
 	@Override
-	public String getFriendlyNameFromAttributeName(String attributeName) throws InternalErrorException {
+	public String getFriendlyNameFromAttributeName(String attributeName) {
 		Utils.notNull(attributeName, "attributeName");
 
 		return getAttributesManagerBl().getFriendlyNameFromAttributeName(attributeName);
 	}
 
 	@Override
-	public List<Attribute> getLogins(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public List<Attribute> getLogins(PerunSession sess, User user) throws UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
@@ -4352,7 +4352,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws AttributeNotExistsException, InternalErrorException, PrivilegeException {
+	public AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws AttributeNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(attributeDefinition, "attributeDefinition");
 		getAttributesManagerBl().checkAttributeExists(perunSession, attributeDefinition);
@@ -4364,7 +4364,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException {
+	public void doTheMagic(PerunSession sess, Member member) throws PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
@@ -4372,7 +4372,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException {
+	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
@@ -4380,7 +4380,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+	public List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		// so as we can check, if the attribute exists
 		getAttributeDefinitionById(sess, attributeId);
@@ -4393,7 +4393,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, RoleNotSupportedException {
+	public void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws PrivilegeException, AttributeNotExistsException, RoleNotSupportedException {
 		Utils.checkPerunSession(sess);
 		// so as we can check, if the attributes exist
 		for (AttributeRights attributeright : rights) {
@@ -4407,14 +4407,14 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException {
+	public void convertAttributeToUnique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException {
 		Utils.checkPerunSession(session);
 		if(!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
 		getAttributesManagerBl().convertAttributeToUnique(session, attrId);
 	}
 
 	@Override
-	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format) throws InternalErrorException, PrivilegeException {
+	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format) throws PrivilegeException {
 		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN) &&
 				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
@@ -4424,7 +4424,7 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format, String attributeName) throws PrivilegeException, AttributeNotExistsException {
 		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN) &&
 				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
