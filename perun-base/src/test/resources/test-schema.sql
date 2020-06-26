@@ -97,7 +97,7 @@ create table cabinet_publications (
 	createdDate timestamp not null,
 	rank numeric (38,1) default 0 not null,
 	doi longvarchar,
-	locked longvarchar default 0 not null,
+	locked char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint cab_pub_pk primary key (id),
@@ -569,7 +569,7 @@ create table application_mails (
 	form_id integer not null,       --identifier of form (application_form.id)
 	app_type longvarchar not null,  --application type (initial/extension)
 	mail_type longvarchar not null, --type of mail (user/administrator)
-	send longvarchar not null,       --sent (Y/N)
+	send char(1) not null,       --sent (Y/N)
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint appmails_pk primary key (id),
