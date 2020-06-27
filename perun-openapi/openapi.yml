@@ -5723,7 +5723,19 @@ paths:
 
   #TODO removeAllAttributes
 
-  #TODO getLogins
+  /json/attributesManager/getLogins:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getLogins
+      summary: "Get all users logins as Attributes. Meaning it returns all non-empty User attributes with URN starting with: \"urn:perun:user:attribute-def:def:login-namespace:\"."
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/attributesManager/updateAttributeDefinition:
     post:
