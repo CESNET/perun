@@ -1052,12 +1052,13 @@ public interface UsersManager {
 	 * @param user User to request preferred email change for
 	 * @param email new email address
 	 * @param lang Language to get confirmation mail in (optional)
+	 * @param path path that is appended to the url of the verification link (optional)
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws PrivilegeException, UserNotExistsException;
+	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang, String path) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Validate change of user's preferred email address.

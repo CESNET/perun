@@ -7130,6 +7130,7 @@ paths:
         - $ref: '#/components/parameters/userId'
         - {name: email, description: "new email address to set", schema: {type: string}, in: query, required: true}
         - {name: lang, description: "language to get confirmation mail in (optional)", schema: {type: string}, in: query, required: false}
+        - {name: linkPath, description: "path that is appended to the url of the verification link (optional)", schema: {type: string}, in: query, required: false}
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
