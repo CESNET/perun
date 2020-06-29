@@ -10420,6 +10420,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/getApplicationsForMember:
+    get:
+      tags:
+        - RegistrarManager
+      operationId: getApplicationsForMember
+      summary: Gets all aplications for a given Member.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/optionalGroupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfApplicationsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/getApplicationById:
     get:
       tags:
