@@ -1151,6 +1151,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param email String new email address to set
 	 * @param lang String language to get confirmation mail in (optional)
+	 * @param linkPath path that is appended to the url of the verification link (optional)
 	 */
 	requestPreferredEmailChange {
 		@Override
@@ -1166,7 +1167,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 					referer,
 					ac.getUserById(parms.readInt("user")),
 					parms.readString("email"),
-					parms.contains("lang") ? parms.readString("lang") : null);
+					parms.contains("lang") ? parms.readString("lang") : null,
+					parms.contains("linkPath") ? parms.readString("linkPath") : null);
 
 			return null;
 

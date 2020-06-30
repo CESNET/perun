@@ -891,7 +891,7 @@ public class Utils {
 	 * @param content Template message or null
 	 * @throws InternalErrorException
 	 */
-	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content) {
+	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content, String customUrlPath) {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -925,7 +925,9 @@ public class Utils {
 			// use default if unknown rpc path
 			String path = "/gui/";
 
-			if (urlObject.getPath().contains("/krb/")) {
+			if (customUrlPath != null) {
+				path = customUrlPath;
+			} else if (urlObject.getPath().contains("/krb/")) {
 				path = "/krb/gui/";
 			} else if (urlObject.getPath().contains("/fed/")) {
 				path = "/fed/gui/";
