@@ -289,7 +289,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source) {
+	public CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source, String loginPrefix) {
 		if(groupSubjectData == null) throw new InternalErrorException("Group subject data cannot be null.");
 		if(groupSubjectData.isEmpty()) throw new InternalErrorException("Group subject data cannot be empty, at least group name has to exists.");
 		if(source == null) throw new InternalErrorException("ExtSource cannot be null while generating CandidateGroup");
@@ -298,7 +298,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 		candidateGroup.setExtSource(source);
 		candidateGroup.asGroup().setName(groupSubjectData.get(GroupsManagerBlImpl.GROUP_NAME));
-		candidateGroup.setLogin(groupSubjectData.get(GroupsManagerBlImpl.GROUP_LOGIN));
+		candidateGroup.setLogin(loginPrefix + groupSubjectData.get(GroupsManagerBlImpl.GROUP_LOGIN));
 
 		if(candidateGroup.getLogin() == null || candidateGroup.getLogin().isEmpty()) {
 			throw new InternalErrorException("Group subject data has to contain valid group login!");
@@ -312,7 +312,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			throw new InternalErrorException("group name cannot be null in Group subject data!");
 		}
 
-		candidateGroup.setParentGroupLogin(groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
+		if(groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN) != null) {
+			candidateGroup.setParentGroupLogin(loginPrefix + groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_LOGIN));
+		}
 		candidateGroup.asGroup().setDescription(groupSubjectData.get(GroupsManagerBlImpl.GROUP_DESCRIPTION));
 
 		groupSubjectData.entrySet().stream()
@@ -323,11 +325,11 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> subjectsData, ExtSource source) {
+	public List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> subjectsData, ExtSource source, String loginPrefix) {
 		List<CandidateGroup> candidateGroups= new ArrayList<>();
 
 		for (Map<String, String> subjectData : subjectsData) {
-			candidateGroups.add(generateCandidateGroup(perunSession, subjectData, source));
+			candidateGroups.add(generateCandidateGroup(perunSession, subjectData, source, loginPrefix));
 		}
 
 		return candidateGroups;
