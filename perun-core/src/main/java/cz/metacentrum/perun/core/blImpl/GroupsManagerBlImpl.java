@@ -64,6 +64,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -93,6 +94,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -122,6 +124,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -161,6 +164,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private final ArrayList<GroupStructureSynchronizerThread> groupStructureSynchronizerThreads;
 	private static final String A_G_D_AUTHORITATIVE_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup";
 	private static final String A_G_D_EXPIRATION_RULES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules";
+	private static final String A_G_D_GROUP_STRUCTURE_RESOURCES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureResources";
 	private static final String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
 	private static final String A_M_V_LOA = AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa";
 	private static final List<Status> statusesAffectedBySynchronization = Arrays.asList(Status.DISABLED, Status.EXPIRED, Status.INVALID);
@@ -1742,9 +1746,142 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source, loginAttributeDefinition, loginPrefix);
 
+		syncResourcesForSynchronization(sess, baseGroup, loginAttributeDefinition, skippedGroups);
+
 		log.info("Group structure synchronization {}: ended.", baseGroup);
 
 		return skippedGroups;
+	}
+
+	/**
+	 * Sync resources from groupStructureResources attribute to the group
+	 * tree with the root in the given base group. If some resources are not found
+	 * or the assignment failed, there is a new message added to the skippedMessages list.
+	 *
+	 * @param sess perun session
+	 * @param baseGroup group structure sync base group
+	 * @param skippedMessages list where are added messages about skipped operations
+	 */
+	private void syncResourcesForSynchronization(PerunSession sess, Group baseGroup, AttributeDefinition loginAttr,
+	                                             List<String> skippedMessages) {
+		Attribute syncedResourcesAttr;
+
+		try {
+			syncedResourcesAttr = perunBl.getAttributesManagerBl()
+					.getAttribute(sess, baseGroup, A_G_D_GROUP_STRUCTURE_RESOURCES);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			throw new InternalErrorException("Failed to obtain the groupStructureResources attribute for structure synchronization.", e);
+		}
+
+		if (syncedResourcesAttr.getValue() == null) {
+			// no resources should be synced
+			return;
+		}
+
+		// load all subgroups with logins once, so it can be reused in other methods
+		Map<String, Group> groupsByLogins = getAllSubGroupsWithLogins(sess, baseGroup, loginAttr);
+
+		syncedResourcesAttr.valueAsMap().forEach((resourceId, groupLogins) ->
+			syncResourceInStructure(sess, resourceId, groupLogins, baseGroup, groupsByLogins, skippedMessages));
+	}
+
+	/**
+	 * Assign resource with given id to groups with logins defined in parameter 'rawGroupLogins'.
+	 *
+	 * If the rawGroupLogins value is empty, then the resource is assigned to the whole structure.
+	 * The rawGroupLogins are in format: 'login1,login2,login3,'. If the login contains a '\' or ','
+	 * characters, they must be escaped by the '\' character.
+	 *
+	 * @param sess perun session
+	 * @param rawResourceId id of a resource which should be set
+	 * @param rawGroupLogins group login separated with a comma ','
+	 * @param baseGroup base group which is used if the rawGroupLogins is empty
+	 * @param groupsByLogins map containing groups with by their logins
+	 * @param skippedMessages a list with skipped messages, other messages are added to this list
+	 */
+	private void syncResourceInStructure(PerunSession sess, String rawResourceId, String rawGroupLogins,
+	                                     Group baseGroup, Map<String, Group> groupsByLogins,
+	                                     List<String> skippedMessages) {
+		int resourceId = Integer.parseInt(rawResourceId);
+		try {
+			Resource resource = perunBl.getResourcesManagerBl().getResourceById(sess, resourceId);
+			List<String> groupLogins;
+			if (rawGroupLogins == null || rawGroupLogins.isEmpty()) {
+				// if no group logins are specified, assign the resource to the whole tree
+				groupLogins = Collections.singletonList(rawGroupLogins);
+			} else {
+				groupLogins = BeansUtils.parseEscapedListValue(rawGroupLogins);
+			}
+			groupLogins.forEach(login ->
+					syncResourceInStructure(sess, resource, baseGroup, login, groupsByLogins, skippedMessages));
+		} catch (ResourceNotExistsException e) {
+			log.error("Assigning groups to a resource was skipped during group structure synchronization, because the resource wasn't found.", e);
+			skippedMessages.add("Assigning groups to resource with id'" + resourceId + "' skipped because it was not found.");
+		}
+	}
+
+	/**
+	 * Assign given resource to a group with given login, and to all of
+	 * its subgroups.
+	 *
+	 * If the login value is empty, then the resource is assigned to
+	 * the whole structure, except for the base group.
+	 *
+	 * @param sess perun session
+	 * @param resource a resource which should be set
+	 * @param login group login
+	 * @param baseGroup base group which is used if the rawGroupLogins is empty
+	 * @param groupsByLogins map containing groups with by their logins
+	 * @param skippedMessages a list with skipped messages, other messages are added to this list
+	 */
+	private void syncResourceInStructure(PerunSession sess, Resource resource, Group baseGroup, String login,
+	                                Map<String, Group> groupsByLogins, List<String> skippedMessages) {
+		Group rootGroup;
+		boolean assigningToTheBaseGroup = login == null || login.isEmpty();
+
+		if (assigningToTheBaseGroup) {
+			rootGroup = baseGroup;
+		} else {
+			rootGroup = groupsByLogins.get(login);
+			if (rootGroup == null) {
+				skippedMessages.add("Resource with id '" + resource.getId() + "' was skipped for group with login '" +
+					login + "' no group with this login was found.");
+				return;
+			}
+		}
+
+		List<Group> groupsToAssign = perunBl.getGroupsManagerBl().getAllSubGroups(sess, rootGroup);
+
+		if (!assigningToTheBaseGroup) {
+			groupsToAssign.add(rootGroup);
+		}
+
+		assignGroupsToResource(sess, groupsToAssign, resource, skippedMessages);
+	}
+
+	/**
+	 * Assign resource to the given groups. If any of the assignments fails,
+	 * information is added to the given skippedMessages. If some of the groups
+	 * is already assigned, the group is skipped silently.
+	 *
+	 * @param sess perun session
+	 * @param groups groups which should be assigned to the given resource
+	 * @param resource resource
+	 * @param skippedMessages list where are added messages about skipped operations
+	 */
+	private void assignGroupsToResource(PerunSession sess, Collection<Group> groups, Resource resource,
+	                                    List<String> skippedMessages) {
+		Set<Group> groupsToAssign = new HashSet<>(groups);
+		groupsToAssign.removeAll(perunBl.getResourcesManagerBl().getAssignedGroups(sess, resource));
+
+		groupsToAssign.forEach(group -> {
+			try {
+				perunBl.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | GroupAlreadyAssignedException | GroupResourceMismatchException e) {
+				log.error("Failed to assign group during group structure synchronization. Group {}, resource {}", group, resource);
+				skippedMessages.add("Skipped assignment of a resource to a group. Group id: " + group.getId() + ", resource id: " + resource.getId());
+			}
+		});
 	}
 
 	@Override
