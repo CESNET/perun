@@ -8754,6 +8754,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/forceAllSubGroupsSynchronization:
+    post:
+      tags:
+        - GroupsManager
+      operationId: forceAllSubGroupsSynchronization
+      summary: Force synchronization for all subgroups (recursively - whole tree) of the group (useful for group structure).
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   #################################################
   #                                               #

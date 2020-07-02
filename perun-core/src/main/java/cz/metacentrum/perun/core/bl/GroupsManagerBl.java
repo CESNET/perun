@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -960,9 +961,10 @@ public interface GroupsManagerBl {
 	 * @param sess
 	 * @param group
 	 * @throws InternalErrorException
-	 * @throws GroupSynchronizationAlreadyRunningException
+	 * @throws GroupSynchronizationAlreadyRunningException when synchronization for the group is already running
+	 * @throws GroupSynchronizationNotEnabledException when group doesn't have synchronization enabled
 	 */
-	void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException;
+	void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException, GroupSynchronizationNotEnabledException;
 
 	/**
 	 * Synchronize the group structure with an external group structure. It checks if the synchronization of the same group is already in progress.
@@ -972,6 +974,14 @@ public interface GroupsManagerBl {
 	 * @throws GroupStructureSynchronizationAlreadyRunningException
 	 */
 	void forceGroupStructureSynchronization(PerunSession sess, Group group) throws GroupStructureSynchronizationAlreadyRunningException;
+
+	/**
+	 * Force synchronization for all subgroups (recursively - whole tree) of the group (useful for group structure)
+	 *
+	 * @param sess
+	 * @param group the group where all its subgroups will be forced to synchronize
+	 */
+	void forceAllSubGroupsSynchronization(PerunSession sess, Group group);
 
 	/**
 	 * Synchronize all groups which have enabled synchronization. This method is run by the scheduler every 5 minutes.
