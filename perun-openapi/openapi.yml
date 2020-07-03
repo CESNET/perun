@@ -8510,6 +8510,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getAllMemberGroups:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getAllMemberGroups
+      summary: Returns all groups for a member including group 'members'
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/getAllGroups:
     get:
       tags:
