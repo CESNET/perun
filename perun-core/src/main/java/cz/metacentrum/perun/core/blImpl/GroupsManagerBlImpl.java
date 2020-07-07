@@ -78,6 +78,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
@@ -1746,20 +1747,27 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return skippedGroups;
 	}
 
-	/**
-	 * Adds the group on the first place to the queue of groups waiting for synchronization.
-	 *
-	 * @param group the group to be forced this way
-	 *
-	 * @throws GroupSynchronizationAlreadyRunningException when group synchronization is already running at this moment
-	 */
 	@Override
-	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException {
-		//Check if the group is not currently in synchronization process
-		if(poolOfSynchronizations.putGroupToPoolOfWaitingGroups(group, true)) {
-			log.debug("Scheduling synchronization for the group {} by force!", group);
+	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException, GroupSynchronizationNotEnabledException {
+		//Check if the group should be synchronized (attribute synchronizationEnabled is set to 'true')
+		Boolean syncEnabled = false;
+		try {
+			Attribute syncEnabledAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
+			if(syncEnabledAttr.getValue() != null) syncEnabled = "true".equals(syncEnabledAttr.valueAsString());
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+			//attribute is wrongly set in database
+			throw new InternalErrorException("Can't force " + group + " because we can't find ", ex);
+		}
+
+		if(syncEnabled) {
+			//Check if the group is not currently in synchronization process
+			if (poolOfSynchronizations.putGroupToPoolOfWaitingGroups(group, true)) {
+				log.debug("Scheduling synchronization for the group {} by force!", group);
+			} else {
+				throw new GroupSynchronizationAlreadyRunningException(group);
+			}
 		} else {
-			throw new GroupSynchronizationAlreadyRunningException(group);
+			throw new GroupSynchronizationNotEnabledException(group);
 		}
 	}
 
@@ -1961,6 +1969,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.info("Scheduling synchronization for the group structure {} by force!", group);
 		} else {
 			throw new GroupStructureSynchronizationAlreadyRunningException(group);
+		}
+	}
+
+	@Override
+	public void forceAllSubGroupsSynchronization(PerunSession sess, Group group) {
+		List<Group> subGroups = perunBl.getGroupsManagerBl().getAllSubGroups(sess, group);
+		for(Group subGroup: subGroups) {
+			try {
+				forceGroupSynchronization(sess, subGroup);
+			} catch (GroupSynchronizationAlreadyRunningException | GroupSynchronizationNotEnabledException ex) {
+				//in bulk force this is not important, just skip it
+			}
 		}
 	}
 

@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -962,9 +963,21 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
-	 * @throws GroupSynchronizationAlreadyRunningException
+	 * @throws GroupSynchronizationAlreadyRunningException when synchronization for the group is already running
+	 * @throws GroupSynchronizationNotEnabledException when group doesn't have synchronization enabled
 	 */
-	void forceGroupSynchronization(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException;
+	void forceGroupSynchronization(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException, GroupSynchronizationNotEnabledException;
+
+	/**
+	 * Force synchronization for all subgroups (recursively - whole tree) of the group (useful for group structure)
+	 *
+	 * @param sess
+	 * @param group the group where all its subgroups will be forced to synchronize
+	 *
+	 * @throws PrivilegeException user is not privileged to call this method
+	 * @throws GroupNotExistsException when group not exists in Perun
+	 */
+	void forceAllSubGroupsSynchronization(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException;
 
     /**
      * Puts the group on the first place to the queue of groups waiting for group structure synchronization.

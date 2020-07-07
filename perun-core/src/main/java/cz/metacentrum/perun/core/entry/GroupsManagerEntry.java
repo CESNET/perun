@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -1167,7 +1168,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException {
+	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException, GroupSynchronizationNotEnabledException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
@@ -1178,6 +1179,20 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		getGroupsManagerBl().forceGroupSynchronization(sess, group);
+	}
+
+	@Override
+	public void forceAllSubGroupsSynchronization(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group))  {
+			throw new PrivilegeException(sess, "forceAllSubGroupsSynchronization");
+		}
+
+		getGroupsManagerBl().forceAllSubGroupsSynchronization(sess, group);
 	}
 
 	@Override
