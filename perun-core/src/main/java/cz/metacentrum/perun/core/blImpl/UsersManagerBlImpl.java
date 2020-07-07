@@ -88,12 +88,10 @@ import cz.metacentrum.perun.core.impl.modules.pwdmgr.GenericPasswordManagerModul
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -101,7 +99,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -2064,43 +2061,38 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException {
+	public String changePasswordRandom(PerunSession session, User user, String namespace) throws PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException {
 
-		char[] possibleCharacters =
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?"
-						.toCharArray();
-		int count = 12;
-
-		// FIXME - We will replace following logic once each login-namespace will implement
-		// FIXME   pwd-manager module and have server side checks
-		if (Objects.equals(loginNamespace, "vsup")) {
-			count = 14;
-			// removed O, l, specific only: +, -, *, /, .
-			possibleCharacters = "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789+-*/.".toCharArray();
-		}
-
-		String newRandomPassword = RandomStringUtils.random(count, 0, possibleCharacters.length - 1, false,
-				false, possibleCharacters, new SecureRandom());
-
-		try {
-			// FIXME - we want to re-generate password if it was considered weak
-			changePassword(session, user, loginNamespace, null, newRandomPassword, false);
-		} catch (PasswordDoesntMatchException | PasswordStrengthFailedException e) {
-			// should not happen when we are not using the old password
-			throw new InternalErrorException(e);
-		}
-
-		String template = getPasswordResetTemplate(session, loginNamespace);
-
+		// first check if user has login in specified namespace!
 		String userLogin;
 		try {
-			Attribute userLoginAttribute = getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
+			Attribute userLoginAttribute = getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + namespace);
 			userLogin = (String) userLoginAttribute.getValue();
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 			// should not happen since the changePassword method passed
+			log.error("Unexpected exception when re-seting password to randomly generated for user {} in {}", user, namespace, e);
 			throw new InternalErrorException(e);
 		}
 
+		if (userLogin == null) {
+			log.warn("User {} has no login in {} namespace.", user, namespace);
+			throw new LoginNotExistsException("User has no login in "+namespace+" namespace.");
+		}
+
+		// generate and change password
+		PasswordManagerModule module = getPasswordManagerModule(session, namespace);
+		String newRandomPassword = module.generateRandomPassword(session, userLogin);
+
+		try {
+			changePassword(session, user, namespace, null, newRandomPassword, false);
+		} catch (PasswordDoesntMatchException | PasswordStrengthFailedException e) {
+			// should not happen when we are not using the old password and have good password generated
+			log.error("Unexpected exception when re-seting password to randomly generated for login {} in {}", userLogin, namespace, e);
+			throw new InternalErrorException(e);
+		}
+
+		// create template to return
+		String template = getPasswordResetTemplate(session, namespace);
 		return template
 				.replace("{password}", StringEscapeUtils.escapeHtml4(newRandomPassword))
 				.replace("{login}", StringEscapeUtils.escapeHtml4(userLogin));

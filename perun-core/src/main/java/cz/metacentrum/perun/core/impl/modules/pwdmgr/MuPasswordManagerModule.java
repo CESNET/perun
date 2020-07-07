@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,9 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 	private final static Logger log = LoggerFactory.getLogger(MuPasswordManagerModule.class);
 	private final static String CRLF = "\r\n"; // Line separator required by multipart/form-data.
+
+	protected int randomPasswordLength = 12;
+	protected char[] randomPasswordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?".toCharArray();
 
 	@Override
 	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws PasswordStrengthException {
@@ -150,6 +155,28 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		}
 
 		// TODO - some more generic checks ???
+
+	}
+
+	@Override
+	public String generateRandomPassword(PerunSession sess, String login) {
+
+		String randomPassword = null;
+		boolean strengthOk = false;
+		while (!strengthOk) {
+
+			randomPassword = RandomStringUtils.random(randomPasswordLength, 0, randomPasswordCharacters.length - 1,
+					false, false, randomPasswordCharacters, new SecureRandom());
+
+			try {
+				checkPasswordStrength(sess, login, randomPassword);
+				strengthOk = true;
+			} catch (PasswordStrengthException ex) {
+				strengthOk = false;
+			}
+		}
+
+		return randomPassword;
 
 	}
 
