@@ -138,6 +138,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import static java.util.Collections.reverseOrder;
+import static java.util.Comparator.comparingInt;
 
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 
@@ -1710,6 +1712,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		//get login attribute for structure
 		AttributeDefinition loginAttributeDefinition = getLoginAttributeForGroupStructure(sess, baseGroup);
+		//get login prefix if exists
+		String loginPrefix = getLoginPrefixForGroupStructure(sess, baseGroup);
 
 		List<CandidateGroup> candidateGroupsToAdd = new ArrayList<>();
 		Map<CandidateGroup, Group> groupsToUpdate = new HashMap<>();
@@ -1724,15 +1728,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		List<CandidateGroup> candidateGroups = getPerunBl().getExtSourcesManagerBl().generateCandidateGroups(sess, subjectGroups, source);
+		List<CandidateGroup> candidateGroups = getPerunBl().getExtSourcesManagerBl().generateCandidateGroups(sess, subjectGroups, source, loginPrefix);
 
 		categorizeGroupsForSynchronization(actualGroups, candidateGroups, candidateGroupsToAdd, groupsToUpdate, groupsToRemove);
 
+		//order of operations is important here
+		//removing need to go first to be able to replace groups with same name but different login
+		//updating need to be last to set right order of groups again
+		List<Integer> removedGroupsIds = removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
 		addMissingGroupsWhileSynchronization(sess, baseGroup, candidateGroupsToAdd, loginAttributeDefinition, skippedGroups);
-		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, loginAttributeDefinition, skippedGroups);
-		removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
+		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, removedGroupsIds, loginAttributeDefinition, skippedGroups);
 
-		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source, loginAttributeDefinition);
+		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source, loginAttributeDefinition, loginPrefix);
 
 		log.info("Group structure synchronization {}: ended.", baseGroup);
 
@@ -2908,6 +2915,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
+	 * Return login prefix for group structure if exists. In other case, return empty string.
+	 *
+	 * @param sess
+	 * @param baseGroup base group for structure
+	 * @return login prefix if exists, empty string otherwise
+	 */
+	private String getLoginPrefixForGroupStructure(PerunSession sess, Group baseGroup) {
+		String loginPrefix = "";
+
+		try {
+			Attribute loginPrefixAttributeAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_PREFIX_ATTRNAME);
+			if(loginPrefixAttributeAttribute.getValue() != null) loginPrefix = loginPrefixAttributeAttribute.valueAsString();
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		} catch (AttributeNotExistsException ex) {
+			//this is not a problem, if attribute not exists, it means there is no prefix set so we can skip it
+		}
+
+		return loginPrefix;
+	}
+
+	/**
 	 * Get login attribute by login attribute name from base group. It is used for identifying groups
 	 * in structure of groups.
 	 *
@@ -3669,13 +3698,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param baseGroup from which are sub groups taken
 	 * @param source from which members are synchronized
 	 * @param loginAttributeDefinition attribute definition of group's login in the structure
+	 * @param loginPrefix prefix for login in structure
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	private void setUpSynchronizationAttributesForAllSubGroups(PerunSession sess, Group baseGroup, ExtSource source, AttributeDefinition loginAttributeDefinition) throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	private void setUpSynchronizationAttributesForAllSubGroups(PerunSession sess, Group baseGroup, ExtSource source, AttributeDefinition loginAttributeDefinition, String loginPrefix) throws AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Attribute baseMembersQuery = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
 		if (baseMembersQuery.getValue() == null) {
@@ -3706,7 +3736,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//we want to set login of group
 			Attribute loginAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, loginAttributeDefinition.getName());
 			if(loginAttribute.getValue() == null) throw new InternalErrorException("For purpose of setting attributes for " + group + " we need to have not empty group login " + loginAttribute);
-			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", loginAttribute.valueAsString()));
+			//replace question mark for login without prefix (strip prefix from it)
+			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", loginAttribute.valueAsString().replaceFirst(loginPrefix, "")));
 
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute, synchronizationTimes, extSourceNameAttr));
 		}
@@ -3983,15 +4014,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess
 	 * @param baseGroup under which will be group structure synchronized
 	 * @param groupsToUpdate list of groups for updating in Perun by information from extSource
+	 * @param removedGroupsIds list of ids already removed groups (these groups not exists in Perun anymore)
 	 * @param loginAttributeDefinition attribute definition for login of group
 	 * @param skippedGroups groups to be skipped because of any expected problem
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void updateExistingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, Map<CandidateGroup, Group> groupsToUpdate, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups) {
+	private void updateExistingGroupsWhileSynchronization(PerunSession sess, Group baseGroup, Map<CandidateGroup, Group> groupsToUpdate, List<Integer> removedGroupsIds, AttributeDefinition loginAttributeDefinition, List<String> skippedGroups) {
 
 		for(CandidateGroup candidateGroup: groupsToUpdate.keySet()) {
 			Group groupToUpdate = groupsToUpdate.get(candidateGroup);
+			//If group had parent which was already removed from perun, it was moved under base group, change it's parent group id properly for updating
+			if(removedGroupsIds.contains(groupToUpdate.getParentGroupId())) groupToUpdate.setParentGroupId(baseGroup.getId());
 
 			setUpAdditionalAttributes(sess, groupToUpdate, candidateGroup.getAdditionalAttributes());
 
@@ -4217,7 +4251,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 		// update newly added groups cause the hierarchy could be incorrect
-		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, loginAttributeDefinition, skippedGroups);
+		//no need to send list of removed parent groups here, because it is no need to resolve it for new groups at all
+		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, Collections.emptyList(), loginAttributeDefinition, skippedGroups);
 	}
 
 	/**
@@ -4231,14 +4266,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param baseGroup from which we will be removing groups
 	 * @param groupsToRemove list of groups to be removed from baseGroup
 	 *
+	 * @return list of ids already removed groups
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void removeFormerGroupsWhileSynchronization(PerunSession sess, Group baseGroup, List<Group> groupsToRemove, List<String> skippedGroups) {
+	private List<Integer> removeFormerGroupsWhileSynchronization(PerunSession sess, Group baseGroup, List<Group> groupsToRemove, List<String> skippedGroups) {
+		List<Integer> removedGroups = new ArrayList<>();
+		groupsToRemove.sort(reverseOrder(comparingInt(g -> g.getName().length())));
 
 		for (Group groupToRemove: groupsToRemove) {
 			try {
 				groupToRemove = moveSubGroupsUnderBaseGroup(sess, groupToRemove, baseGroup);
 				deleteGroup(sess, groupToRemove, true);
+				removedGroups.add(groupToRemove.getId());
 				log.info("Group structure synchronization {}: Group id {} removed.", baseGroup, groupToRemove.getId());
 			} catch (RelationExistsException e) {
 				log.warn("Can't remove group {} from baseGroup {} due to group relation exists exception {}.", groupToRemove, e);
@@ -4265,6 +4304,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				skippedGroups.add("GroupEntry:[" + groupToRemove + "] was skipped because wrong reference attribute value: Exception: " + e.getName() + " => " + e.getMessage() + "]");
 			}
 		}
+
+		return removedGroups;
 	}
 
 	/**

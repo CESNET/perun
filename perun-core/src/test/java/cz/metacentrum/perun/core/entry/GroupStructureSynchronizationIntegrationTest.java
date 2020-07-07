@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
@@ -33,12 +32,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -351,6 +348,51 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	}
 
 	@Test
+	public void replaceStructureWithPrefix() throws Exception {
+		System.out.println(CLASS_NAME + "removeIntermediaryGroupTestWithPrefix");
+
+		String loginPrefix = "prefix-";
+		setLoginPrefixForStructure(baseGroup, loginPrefix);
+
+		final Group subBaseGroup = new Group("baseSubGroup", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "baseSubGroup");
+
+		final Group interGroup = new Group("interGroup", "child of sub base group");
+		groupsManagerBl.createGroup(sess, subBaseGroup, interGroup);
+		setLoginToGroup(baseGroup, interGroup, "interGroup");
+
+		final Group leafGroup = new Group("leafGroup", "leaf group");
+		groupsManagerBl.createGroup(sess, interGroup, leafGroup);
+		setLoginToGroup(baseGroup, leafGroup, loginPrefix + "leafGroup");
+
+		final TestGroup subBaseTestGroup = new TestGroup("baseSubGroup", "baseSubGroup", null, "child of base group");
+		final TestGroup leafTestGroup = new TestGroup("leafGroup", "leafGroup", "baseSubGroup", "leaf group");
+		List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), leafTestGroup.toMap());
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
+
+		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
+
+		assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+		Group baseGroupChild = subGroups.get(0);
+		assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), baseGroupChild);
+		assertEquals(loginPrefix + "baseSubGroup", perun.getAttributesManagerBl().getAttribute(sess, baseGroupChild, getLoginNameForBaseGroup(baseGroup)).valueAsString());
+
+		subGroups = groupsManagerBl.getSubGroups(sess, baseGroupChild);
+
+		assertTrue("Child of base group should have only one child!", 1 == subGroups.size());
+		Group subBaseGroupChild = subGroups.get(0);
+		assertGroup(leafTestGroup.getGroupName(), baseGroupChild.getId(), leafTestGroup.getDescription(), subBaseGroupChild);
+		assertEquals(loginPrefix + "leafGroup", perun.getAttributesManagerBl().getAttribute(sess, subBaseGroupChild, getLoginNameForBaseGroup(baseGroup)).valueAsString());
+
+		assertTrue("Leaf group should not have any children!", 0 == groupsManagerBl.getSubGroupsCount(sess, subBaseGroupChild));
+	}
+
+	@Test
 	public void modifyGroupNameTest() throws Exception {
 		System.out.println(CLASS_NAME + "modifyGroupNameTest");
 
@@ -593,11 +635,21 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		assertNotNull("unable to create testing Group",returnedGroup);
 	}
 
+	private String getLoginNameForBaseGroup(Group baseGroup) throws Exception {
+		return attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME).valueAsString();
+	}
+
 	private void setLoginToGroup(Group baseGroup, Group groupToSetLoginFor, String login) throws Exception {
-		String baseGroupAttrLoginName = attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPS_STRUCTURE_LOGIN_ATTRNAME).valueAsString();
+		String baseGroupAttrLoginName = getLoginNameForBaseGroup(baseGroup);
 		Attribute loginAttr = new Attribute(attributesManagerBl.getAttributeDefinition(sess, baseGroupAttrLoginName));
 		loginAttr.setValue(login);
 		attributesManagerBl.setAttribute(sess, groupToSetLoginFor, loginAttr);
+	}
+
+	private void setLoginPrefixForStructure(Group baseGroup, String prefix) throws Exception {
+		Attribute loginPrefixAttribute = new Attribute(attributesManagerBl.getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_LOGIN_PREFIX_ATTRNAME));
+		loginPrefixAttribute.setValue(prefix);
+		attributesManagerBl.setAttribute(sess, baseGroup, loginPrefixAttribute);
 	}
 
 	/**
