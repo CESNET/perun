@@ -26,10 +26,6 @@ public class GroupMoved extends AuditEvent {
 		return group;
 	}
 
-	public String getName() {
-		return name;
-	}
-
 	@Override
 	public String toString() {
 		return message;
