@@ -1184,6 +1184,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 * @throw GroupSynchronizationAlreadyRunningException When the group synchronization has already been running
+	 * @throw GroupSynchronizationNotEnabledException When group doesn't have synchronization enabled
 	 *
 	 * @param group int Group <code>id</code>
 	 */
@@ -1193,6 +1194,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			ac.getGroupsManager().forceGroupSynchronization(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Force synchronization for all subgroups (recursively - whole tree) of the group (useful for group structure)
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param group int Group <code>id</code>
+	 */
+	forceAllSubGroupsSynchronization {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			ac.getGroupsManager().forceAllSubGroupsSynchronization(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
 			return null;
 		}
