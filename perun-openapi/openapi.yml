@@ -8463,6 +8463,23 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getRichGroupByIdWithAttributesByNames:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getRichGroupByIdWithAttributesByNames
+      summary: Returns RichGroup selected by id containing selected attributes
+      description: Throws GroupNotExistsException when the group doesn't exist.
+      parameters:
+        - { name: groupId, description: "id of Group", schema: { type: integer }, in: query, required: true }
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/RichGroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   /json/groupsManager/getGroupByName:
     get:
       tags:
