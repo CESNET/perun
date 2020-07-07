@@ -52,4 +52,6 @@ public interface PasswordManagerModule {
 
 	void checkPasswordStrength(PerunSession sess, String login, String password) throws PasswordStrengthException;
 
+	String generateRandomPassword(PerunSession sess, String login);
+
 }

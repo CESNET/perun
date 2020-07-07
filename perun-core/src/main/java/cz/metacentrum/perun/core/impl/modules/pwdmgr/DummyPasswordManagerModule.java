@@ -80,4 +80,10 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
 		log.debug("checkPasswordStrength(userLogin={})", login);
 	}
 
+	@Override
+	public String generateRandomPassword(PerunSession sess, String login) {
+		log.debug("generateRandomPassword(userLogin={})", login);
+		return null;
+	}
+
 }

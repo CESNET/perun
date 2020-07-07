@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.PasswordOperationTimeoutRunti
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.security.SecureRandom;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -54,6 +56,9 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	protected String actualLoginNamespace = "generic";
 	protected String passwordManagerProgram = BeansUtils.getCoreConfig().getPasswordManagerProgram();
 	protected String altPasswordManagerProgram = BeansUtils.getCoreConfig().getAlternativePasswordManagerProgram();
+
+	protected int randomPasswordLength = 12;
+	protected char[] randomPasswordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?".toCharArray();
 
 	public String getActualLoginNamespace() {
 		return actualLoginNamespace;
@@ -157,6 +162,28 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 		}
 
 		// TODO - some more generic checks ???
+
+	}
+
+	@Override
+	public String generateRandomPassword(PerunSession sess, String login) {
+
+		String randomPassword = null;
+		boolean strengthOk = false;
+		while (!strengthOk) {
+
+			randomPassword = RandomStringUtils.random(randomPasswordLength, 0, randomPasswordCharacters.length - 1,
+					false, false, randomPasswordCharacters, new SecureRandom());
+
+			try {
+				checkPasswordStrength(sess, login, randomPassword);
+				strengthOk = true;
+			} catch (PasswordStrengthException ex) {
+				strengthOk = false;
+			}
+		}
+
+		return randomPassword;
 
 	}
 
