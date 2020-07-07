@@ -61,6 +61,8 @@ public interface GroupsManager {
 	String GROUPMEMBERSEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersExtSource";
 	// Define name of attribute in Perun where logins are saved for a group structure
 	String GROUPS_STRUCTURE_LOGIN_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureLogin";
+	//Define prefix of group's login in the structure
+	String GROUPS_STRUCTURE_LOGIN_PREFIX_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureLoginPrefix";
 	// If the synchronization is enabled/disabled, value is true/false
 	String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
 	// If the group structure synchronization is enabled/disabled, value is true/false

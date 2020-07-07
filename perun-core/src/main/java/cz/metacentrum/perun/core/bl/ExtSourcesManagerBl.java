@@ -225,11 +225,11 @@ public interface ExtSourcesManagerBl {
 
 	/**
 	 * Check if extSource is assigned to vo or not. Throw exception if not.
-	 * 
+	 *
 	 * @param sess
 	 * @param extSource
 	 * @param voId
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotAssignedException
 	 * @throws VoNotExistsException
@@ -260,11 +260,12 @@ public interface ExtSourcesManagerBl {
 	 * @param perunSession
 	 * @param groupSubjectData
 	 * @param source
+	 * @param loginPrefix login prefix to change group login and parent group login by it
 	 *
 	 * @return Candidate group object
 	 * @throws InternalErrorException
 	 */
-	CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source);
+	CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source, String loginPrefix);
 
 	/**
 	 * Generate candidate groups from a group subject data.
@@ -274,10 +275,11 @@ public interface ExtSourcesManagerBl {
 	 * @param perunSession
 	 * @param groupSubjectsData
 	 * @param source
+	 * @param loginPrefix login prefix to change group login and parent group login by it
 	 *
 	 * @return Candidate group objects
 	 * @throws InternalErrorException
 	 */
-	List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> groupSubjectsData, ExtSource source);
+	List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> groupSubjectsData, ExtSource source, String loginPrefix);
 
 }

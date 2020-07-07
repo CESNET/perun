@@ -7450,6 +7450,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:group:attribute-def:def:groupStructureLoginPrefix
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("groupStructureLoginPrefix");
+		attr.setDisplayName("Group structure login prefix");
+		attr.setDescription("Prefix which will be used to set groups login as 'prefix'+'login'.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
 		//urn:perun:group:attribute-def:def:groupsQuery
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
