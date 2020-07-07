@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public interface TasksManager {
 
-	Task getTask(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException;
+	Task getTask(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
 
 	Task getTaskById(PerunSession perunSession, int id) throws PrivilegeException;
 
@@ -37,7 +38,7 @@ public interface TasksManager {
 
 	List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state) throws PrivilegeException;
 
-	boolean isThereSuchTask(PerunSession session, Service service, Facility facility) throws PrivilegeException;
+	boolean isThereSuchTask(PerunSession session, Service service, Facility facility) throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
 
 	int countTasks();
 
@@ -126,7 +127,7 @@ public interface TasksManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws PrivilegeException;
+	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Delete Task and it's TaskResults. Use this method only before deleting whole Facility.
