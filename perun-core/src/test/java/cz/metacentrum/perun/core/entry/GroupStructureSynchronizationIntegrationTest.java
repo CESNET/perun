@@ -6,9 +6,11 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -57,10 +60,14 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
 	private static final String ADDITIONAL_STRING = "additionalString";
 	private static final String ADDITIONAL_LIST = "additionalList";
+	private static final String A_G_D_SYNC_RESOURCES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureResources";
 
 	private final Group baseGroup = new Group("baseGroup", "I am base group");
 	private Vo vo;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_LDAP);
+	private Resource resource1;
+	private Resource resource2;
+	private Facility facility;
 
 	//This annotation is used so spied extSourceManagerBl is used in the perun object.
 	//Mocks are not injected yet. They are injected to perun when initMocks method is called.
@@ -95,6 +102,8 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		vo = setUpVo();
 		setUpBaseGroup(vo);
+		setUpFacility();
+		setUpResources();
 
 		MockitoAnnotations.initMocks(this);
 
@@ -103,6 +112,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap)essa).getName();
 		doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));
 	}
+
 
 	@After
 	public void cleanUp() {
@@ -595,6 +605,159 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		assertThat(updatedAttribute.getValue()).isEqualTo(updatedValue);
 	}
 
+	@Test
+	public void resourceIsNotSetToTheBaseGroupWhenNoLoginIsSpecified() throws Exception {
+		System.out.println(CLASS_NAME + "resourceIsSetToTheBaseGroupWhenNoLoginIsSpecified");
+
+		final Group subBaseGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "group1");
+		setSynchronizationResourcesAttribute(resource1.getId());
+
+		final TestGroup subBaseTestGroup =
+			new TestGroup("group1", "group1", null, subBaseGroup.getDescription());
+		List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+
+		assertThat(baseGroupResources).doesNotContain(resource1);
+	}
+
+	@Test
+	public void resourceIsSetToTheSubgroupsOfTheBaseGroup() throws Exception {
+		System.out.println(CLASS_NAME + "resourceIsSetToTheSubgroupsOfTheBaseGroup");
+
+		final Group subBaseGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
+		setLoginToGroup(baseGroup, subBaseGroup, "group1");
+
+		setSynchronizationResourcesAttribute(resource1.getId());
+
+		final TestGroup subBaseTestGroup =
+				new TestGroup("group1", "group1", null, subBaseGroup.getDescription());
+		List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subBaseGroup);
+
+		assertThat(subGroupResources).contains(resource1);
+	}
+
+	@Test
+	public void resourceIsSetToASubGroupInTheStructure() throws Exception {
+		System.out.println(CLASS_NAME + "resourceIsSetToASubGroupInTheStructure");
+
+		final Group subGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+		setLoginToGroup(baseGroup, subGroup, "group1");
+
+		final Group otherSubGroup = new Group("group2", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
+		setLoginToGroup(baseGroup, otherSubGroup, "group2");
+
+		setSynchronizationResourcesAttribute(resource1.getId(), "group1");
+
+		final TestGroup subBaseTestGroup =
+				new TestGroup("group1", "group1", null, subGroup.getDescription());
+		final TestGroup otherSubBaseTestGroup =
+				new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
+		List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+		List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
+		List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
+
+		assertThat(baseGroupResources).doesNotContain(resource1);
+		assertThat(subGroupResources).contains(resource1);
+		assertThat(otherSubGroupResources).doesNotContain(resource1);
+	}
+
+	@Test
+	public void resourceIsSetToMultipleTrees() throws Exception {
+		System.out.println(CLASS_NAME + "resourceIsSetToMultipleTrees");
+
+		final Group subGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+		setLoginToGroup(baseGroup, subGroup, "group1");
+
+		final Group otherSubGroup = new Group("group2", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
+		setLoginToGroup(baseGroup, otherSubGroup, "group2");
+
+		setSynchronizationResourcesAttribute(resource1.getId(), "group1", "group2");
+
+		final TestGroup subBaseTestGroup =
+				new TestGroup("group1", "group1", null, subGroup.getDescription());
+		final TestGroup otherSubBaseTestGroup =
+				new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
+		List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+		List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
+		List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
+
+		assertThat(baseGroupResources).doesNotContain(resource1);
+		assertThat(subGroupResources).contains(resource1);
+		assertThat(otherSubGroupResources).contains(resource1);
+	}
+
+	@Test
+	public void multipleResourcesAreSetToMultipleTrees() throws Exception {
+		System.out.println(CLASS_NAME + "resourceIsSetToMultipleTrees");
+
+		final Group subGroup = new Group("group1", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, subGroup);
+		setLoginToGroup(baseGroup, subGroup, "group1");
+
+		final Group otherSubGroup = new Group("group2", "child of base group");
+		groupsManagerBl.createGroup(sess, baseGroup, otherSubGroup);
+		setLoginToGroup(baseGroup, otherSubGroup, "group2");
+
+		setSynchronizationResourcesAttribute(resource1.getId(), "group1");
+		setSynchronizationResourcesAttribute(resource2.getId(), "group2");
+
+		final TestGroup subBaseTestGroup =
+				new TestGroup("group1", "group1", null, subGroup.getDescription());
+		final TestGroup otherSubBaseTestGroup =
+				new TestGroup("group2", "group2", null, otherSubGroup.getDescription());
+		List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), otherSubBaseTestGroup.toMap());
+		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
+
+		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
+
+		List<Resource> baseGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, baseGroup);
+		List<Resource> subGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, subGroup);
+		List<Resource> otherSubGroupResources = perun.getResourcesManagerBl().getAssignedResources(sess, otherSubGroup);
+
+		assertThat(baseGroupResources).doesNotContain(resource1, resource2);
+		assertThat(subGroupResources).containsOnly(resource1);
+		assertThat(otherSubGroupResources).containsOnly(resource2);
+	}
+
+	private void setSynchronizationResourcesAttribute(int resourceId, String... logins) throws Exception {
+		Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, baseGroup, A_G_D_SYNC_RESOURCES);
+		if (attribute.getValue() == null) {
+			attribute.setValue(new LinkedHashMap<>());
+		}
+		StringBuilder groupLogins = new StringBuilder();
+		for (String login : logins) {
+			groupLogins.append(login).append(",");
+		}
+		attribute.valueAsMap().put(String.valueOf(resourceId), groupLogins.toString());
+		perun.getAttributesManagerBl().setAttribute(sess, baseGroup, attribute);
+	}
+
 	private Vo setUpVo() throws Exception {
 
 		Vo newVo = new Vo(0, "UserManagerTestVo", "UMTestVo");
@@ -805,5 +968,19 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 	private AttributeDefinition setGroupAttribute(String name) throws Exception {
 		return setGroupAttribute(name, String.class.getName());
+	}
+
+	private void setUpResources() throws Exception {
+		resource1 = new Resource(-1, "resource1", "", facility.getId());
+		resource1 = perun.getResourcesManagerBl().createResource(sess, resource1, vo, facility);
+
+		resource2 = new Resource(-1, "resource2", "", facility.getId());
+		resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo, facility);
+	}
+
+	private Facility setUpFacility() throws Exception {
+		facility = new Facility(-1, "Facility");
+		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+		return facility;
 	}
 }
