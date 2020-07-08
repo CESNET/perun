@@ -9,11 +9,11 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Searcher;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,24 +54,19 @@ public class SearcherEntry implements Searcher {
 	@Override
 	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getUsers_Map<String_String>_policy"))
 			throw new PrivilegeException(sess, "getUsers");
-		}
 
 		return searcherBl.getUsers(sess, attributesWithSearchingValues);
 	}
 
 	@Override
-	public List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo, Map<String, String> userAttributesWithSearchingValues) throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException {		// Authorization
+	public List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo, Map<String, String> userAttributesWithSearchingValues) throws AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByUserAttributes_Vo_Map<String_String>_policy", Collections.singletonList(vo)))
 			throw new PrivilegeException(sess, "getMembersByUserAttributes");
-		}
 
 		//If map is null or empty, return all members from vo
 		if(userAttributesWithSearchingValues == null || userAttributesWithSearchingValues.isEmpty()) {
@@ -123,10 +119,8 @@ public class SearcherEntry implements Searcher {
 	@Override
 	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getUsersForCoreAttributes_Map<String_String>_policy"))
 			throw new PrivilegeException(sess, "getUsersForCoreAttributes");
-		}
 
 		return searcherBl.getUsersForCoreAttributes(sess, coreAttributesWithSearchingValues);
 	}
@@ -135,10 +129,8 @@ public class SearcherEntry implements Searcher {
 	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws PrivilegeException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByExpiration_String_int_policy"))
 			throw new PrivilegeException(sess, "getMembersByExpiration");
-		}
 
 		return getPerunBl().getSearcherBl().getMembersByExpiration(sess, operator, days);
 
@@ -148,10 +140,8 @@ public class SearcherEntry implements Searcher {
 	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) throws PrivilegeException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByExpiration_String_LocalDate_policy"))
 			throw new PrivilegeException(sess, "getMembersByExpiration");
-		}
 
 		return getPerunBl().getSearcherBl().getMembersByExpiration(sess, operator, date);
 
@@ -161,10 +151,8 @@ public class SearcherEntry implements Searcher {
 	public List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getFacilities_Map<String_String>_policy"))
 			throw new PrivilegeException(sess, "getFacilities");
-		}
 
 		return searcherBl.getFacilities(sess, attributesWithSearchingValues);
 	}
@@ -173,21 +161,19 @@ public class SearcherEntry implements Searcher {
 	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getResources_Map<String_String>_policy"))
 			throw new PrivilegeException(sess, "getResources");
-		}
 
 		return searcherBl.getResources(sess, attributesWithSearchingValues, allowPartialMatchForString);
 	}
 
 	@Override
-	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws PrivilegeException {
+	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws PrivilegeException, GroupNotExistsException {
+		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByGroupExpiration_Group_String_LocalDate_policy", Collections.singletonList(group)))
 			throw new PrivilegeException(sess, "getMembersByGroupExpiration");
-		}
 
 		return getPerunBl().getSearcherBl().getMembersByGroupExpiration(sess, group, operator, date);
 	}
