@@ -8303,7 +8303,12 @@ paths:
       operationId: getBansForFacility
       summary: Get all bans for user on the facility.
       parameters:
-        - $ref: '#/components/parameters/facilityId'
+        - name: facilityId
+          description: "id of Facility"
+          schema:
+            type: integer
+          in: query
+          required: true
       responses:
         '200':
           $ref: '#/components/responses/ListOfBanOnFacilitiesResponse'
