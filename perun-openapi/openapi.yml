@@ -7193,6 +7193,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getAssignedRichResources:
+    get:
+      tags:
+        - UsersManager
+      operationId: getAssignedRichResourcesForUser
+      summary: Get all rich resources which have the user assigned.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
   #################################################
   #                                               #
   # MembersManager                                #
