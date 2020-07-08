@@ -26,10 +26,6 @@ public class VoUpdated extends AuditEvent {
 		return vo;
 	}
 
-	public String getName() {
-		return name;
-	}
-
 	@Override
 	public String toString() {
 		return message;

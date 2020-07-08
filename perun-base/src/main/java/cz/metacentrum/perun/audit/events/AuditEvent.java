@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "name")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "name")
 public abstract class AuditEvent {
 
 	protected String name = getClass().getName();
