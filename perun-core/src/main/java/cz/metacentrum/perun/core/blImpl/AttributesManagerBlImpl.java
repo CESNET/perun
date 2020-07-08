@@ -93,6 +93,7 @@ import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
@@ -7483,6 +7484,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("authoritativeGroup");
 		attr.setDisplayName("Authoritative Group");
 		attr.setDescription("If group is authoritative for member. (for synchronization)");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:groupStructureResources
+		attr = new urn_perun_group_attribute_def_def_groupStructureResources().getAttributeDefinition();
 		//set attribute rights (with dummy id of attribute - not known yet)
 		rights = new ArrayList<>();
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));

@@ -335,6 +335,49 @@ public class BeansUtils {
 	}
 
 	/**
+	 * From the given list, parses all values separated by the comma ',' char.
+	 * The value has to end with the comma ',' char.
+	 *
+	 * All escaped commas '{backslash},' will not be used to split the value. If there is a
+	 * backslash character:
+	 *     * it must be either follow by the comma ',' meaning that this
+	 *       comma is not used for split; or
+	 *     * it must be paired with another backslash '{backslash}{backslash}'. In that case, this double
+	 *       backslash in the result value would be replaced by a single back slash.
+	 *
+	 * Example:
+	 *      input: 'value1,val{backslash}ue2,val{backslash},ue3,'
+	 *      result: ['value1', 'val{backslash}ue2', val,ue3']
+	 *
+	 * @param value value to be parsed
+	 * @return list of parsed values
+	 */
+	public static List<String> parseEscapedListValue(String value) {
+		String[] array = value.split(Character.toString(LIST_DELIMITER), -1);
+		List<String> listValue =  new ArrayList<String>();
+		//join items which was splited on escaped LIST_DELIMITER
+		for(int i = 0; i < array.length -1; i++) { //itarate to lenght -1  ... last array item is always empty
+			String item = array[i];
+			while(item.matches("^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //item last char is '\' . Next item start with ',', so we need to concat this items.
+				item = item.substring(0, item.length()-1);  //cut off last char ('\')
+				try {
+					item = item.concat(Character.toString(LIST_DELIMITER)).concat(array[i+1]);
+					i++;
+				} catch(ArrayIndexOutOfBoundsException ex) {
+					throw new ConsistencyErrorException("Bad format in attribute value", ex);
+				}
+			}
+			//unescape
+			item = item.replaceAll("\\\\([\\\\" + Character.toString(LIST_DELIMITER) + "])", "$1");
+			if(item.equals("\\0")) item = null;
+
+			//return updated item back to list
+			listValue.add(item);
+		}
+		return listValue;
+	}
+
+	/**
 	 * Converts string representation of an attribute value to correct java object
 	 *
 	 * @param stringValue string representation of the attribute value
@@ -370,30 +413,7 @@ public class BeansUtils {
 		} else if(attributeClass.equals(Boolean.class)) {
 			return Boolean.parseBoolean(stringValue);
 		} else if(attributeClass.equals(ArrayList.class)) {
-			String[] array = stringValue.split(Character.toString(LIST_DELIMITER), -1);
-			List<String> attributeValue =  new ArrayList<String>();
-
-			//join items which was splited on escaped LIST_DELIMITER
-			for(int i = 0; i < array.length -1; i++) { //itarate to lenght -1  ... last array item is always empty
-				String item = array[i];
-				while(item.matches("^(.*[^\\\\])?(\\\\\\\\)*\\\\$")) { //item last char is '\' . Next item start with ',', so we need to concat this items.
-					item = item.substring(0, item.length()-1);  //cut off last char ('\')
-					try {
-						item = item.concat(Character.toString(LIST_DELIMITER)).concat(array[i+1]);
-						i++;
-					} catch(ArrayIndexOutOfBoundsException ex) {
-						throw new ConsistencyErrorException("Bad format in attribute value", ex);
-					}
-				}
-				//unescape
-				item = item.replaceAll("\\\\([\\\\" + Character.toString(LIST_DELIMITER) + "])", "$1");
-				if(item.equals("\\0")) item = null;
-
-				//return updated item back to list
-				attributeValue.add(item);
-			}
-
-			return attributeValue;
+			return parseEscapedListValue(stringValue);
 		} else if(attributeClass.equals(LinkedHashMap.class)) {
 			String[] array = stringValue.split(Character.toString(LIST_DELIMITER), -1);
 			Map<String, String> attributeValue = new LinkedHashMap<String, String>();
