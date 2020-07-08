@@ -7193,7 +7193,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /urlinjsonout/usersManager/getAssignedRichResources:
+  /json/usersManager/getAssignedRichResources:
     get:
       tags:
         - UsersManager
