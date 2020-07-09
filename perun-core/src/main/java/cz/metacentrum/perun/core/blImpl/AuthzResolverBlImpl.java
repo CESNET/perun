@@ -738,7 +738,24 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 			}
 		}
-//			if (roles.containsKey(Role.SELF)) ; //Not allowed
+		if (roles.containsKey(Role.SELF)) {
+			if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+			if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+				if (sess.getPerunPrincipal().getUser() != null) {
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+					for (Member principalUserMember : principalUserMembers) {
+						if (resource.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+							return true;
+						}
+					}
+				}
+			}
+			if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+				if (sess.getPerunPrincipal().getUser() != null) {
+					return getPerunBl().getResourcesManagerBl().isUserAssigned(sess, sess.getPerunPrincipal().getUser(), resource);
+				}
+			}
+		}
 
 		return false;
 	}
