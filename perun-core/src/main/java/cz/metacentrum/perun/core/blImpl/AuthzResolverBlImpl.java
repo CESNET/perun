@@ -79,6 +79,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -307,7 +308,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (sess.getPerunPrincipal().getUser() != null) {
 					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
 					for (Member userMember : principalUserMembers) {
-						if (userMember.getVoId() == attributeMemberVo.getId() && userMember.getStatus() == Status.VALID) {
+						if (userMember.getVoId() == attributeMemberVo.getId() && Objects.equals(userMember.getStatus(), Status.VALID)) {
 							return true;
 						}
 					}
@@ -387,7 +388,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 				for (Member attributeUserMember : attributeUserMembers) {
 					for (Member principalUserMember : principalUserMembers) {
-						if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+						if (attributeUserMember.getVoId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
 							return true;
 						}
 					}
@@ -469,7 +470,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (sess.getPerunPrincipal().getUser() != null) {
 					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
 					for (Member principalUserMember : principalUserMembers) {
-						if (member.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+						if (member.getVoId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
 							return true;
 						}
 					}
@@ -508,7 +509,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 				for (Member attributeUserMember : attributeUserMembers) {
 					for (Member principalUserMember : principalUserMembers) {
-						if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+						if (attributeUserMember.getVoId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
 							return true;
 						}
 					}
@@ -572,7 +573,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
 
 				for (Member principalUserMember : principalUserMembers) {
-					if (member.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+					if (member.getVoId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
 						return true;
 					}
 				}
@@ -638,7 +639,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (sess.getPerunPrincipal().getUser() != null) {
 					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
 					for (Member principalUserMember : principalUserMembers) {
-						if (vo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+						if (vo.getId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
 							return true;
 						}
 					}
@@ -688,7 +689,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (sess.getPerunPrincipal().getUser() != null) {
 					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
 					for (Member principalUserMember : principalUserMembers) {
-						if (group.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+						if (group.getVoId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
 							return true;
 						}
 					}
@@ -738,7 +739,24 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 			}
 		}
-//			if (roles.containsKey(Role.SELF)) ; //Not allowed
+		if (roles.containsKey(Role.SELF)) {
+			if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+			if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+				if (sess.getPerunPrincipal().getUser() != null) {
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+					for (Member principalUserMember : principalUserMembers) {
+						if (resource.getVoId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
+							return true;
+						}
+					}
+				}
+			}
+			if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+				if (sess.getPerunPrincipal().getUser() != null) {
+					return getPerunBl().getResourcesManagerBl().isUserAssigned(sess, sess.getPerunPrincipal().getUser(), resource);
+				}
+			}
+		}
 
 		return false;
 	}
@@ -792,7 +810,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 				for (Vo attributeFacilityVo : attributeFacilityVos) {
 					for (Member principalUserMember : principalUserMembers) {
-						if (attributeFacilityVo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+						if (attributeFacilityVo.getId() == principalUserMember.getVoId() && Objects.equals(principalUserMember.getStatus(), Status.VALID)) {
 							return true;
 						}
 					}
