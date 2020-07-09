@@ -1,4 +1,4 @@
--- database version 3.1.61 (don't forget to update insert statement at the end of file)
+-- database version 3.1.62 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -29,12 +29,11 @@ create table users (
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
 	status char(1) default '0' not null,
-	service_acc char(1) default '0' not null, --is it service account?
-	sponsored_acc char(1) default '0' not null, --is it sponsored account?
+	service_acc boolean default false not null, --is it service account?
+	sponsored_acc boolean default false not null, --is it sponsored account?
 	created_by_uid integer,
 	modified_by_uid integer,
-	constraint usr_pk primary key (id),
-	constraint usr_srvacc_chk check (service_acc in ('0','1'))
+	constraint usr_pk primary key (id)
 );
 
 -- OWNERS - owners of resources and devices
@@ -93,7 +92,7 @@ create table cabinet_publications (
 	createdDate timestamp not null,
 	rank numeric (38,1) default 0 not null,
 	doi varchar,
-	locked char(1) default 0 not null,
+	locked boolean default false not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint cab_pub_pk primary key (id),
@@ -383,7 +382,7 @@ create table services (
 	description varchar,
 	delay integer not null default 10,
 	recurrence integer not null default 2,
-	enabled char(1) not null default '1',
+	enabled boolean default true not null,
 	script varchar not null,
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
@@ -420,7 +419,7 @@ create table specific_user_users (
 	modified_by_uid integer,
 	modified_at timestamp default statement_timestamp() not null,
 	type varchar default 'service' not null,
-	status char(1) default '0' not null, --is it service user?
+	status char(1) default '0' not null,
 	constraint acc_specifu_u_pk primary key (user_id,specific_user_id),
   constraint acc_specifu_u_uid_fk foreign key (user_id) references users(id),
   constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id),
@@ -492,8 +491,8 @@ create table application (
 create table application_form (
 	id integer not null,
 	vo_id integer not null,     --identifier of VO (vos.id)
-	automatic_approval char(1), --approval of application is automatic
-	automatic_approval_extension char(1), --approval of extension is automatic
+	automatic_approval boolean default false not null, --approval of application is automatic
+	automatic_approval_extension boolean default false not null, --approval of extension is automatic
 	module_name varchar,  --name of module which processes application
 	group_id integer,          --identifier of group (groups.id) if application is for group
 	created_by_uid integer,
@@ -509,7 +508,7 @@ create table application_form_items (
 	form_id integer not null,  --identifier of form (application_form.id)
 	ordnum integer not null,   --order of item
 	shortname varchar not null,  --name of item
-	required char(1),          --value for item is mandatory
+	required boolean default false not null,          --value for item is mandatory
 	type varchar,         --type of item
 	fed_attr varchar,     --copied from federation attribute
 	src_attr varchar,     --sourced from attribute
@@ -565,7 +564,7 @@ create table application_mails (
 	form_id integer not null,       --identifier of form (application_form.id)
 	app_type varchar not null,  --application type (initial/extension)
 	mail_type varchar not null, --type of mail (user/administrator)
-	send char(1) not null,       --sent (Y/N)
+	send boolean default false not null,       --sent (Y/N)
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint appmails_pk primary key (id),
@@ -1420,7 +1419,7 @@ CREATE TABLE user_ext_source_attr_u_values (
 );
 
 CREATE TABLE members_sponsored (
-	active char(1) default '1' not null,
+	active boolean default true not null,
 	sponsored_id INTEGER NOT NULL,
 	sponsor_id INTEGER NOT NULL,
 	created_at timestamp default statement_timestamp() not null,
@@ -1762,7 +1761,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.61');
+insert into configurations values ('DATABASE VERSION','3.1.62');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

@@ -86,12 +86,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		service.setDescription(resultSet.getString("services_description"));
 		service.setDelay(resultSet.getInt("services_delay"));
 		service.setRecurrence(resultSet.getInt("services_recurrence"));
-		char enabled = resultSet.getString("services_enabled").charAt(0);
-		if (enabled == '0') {
-			service.setEnabled(false);
-		} else {
-			service.setEnabled(true);
-		}
+		service.setEnabled(resultSet.getBoolean("services_enabled"));
 		service.setScript(resultSet.getString("services_script"));
 		service.setCreatedAt(resultSet.getString("services_created_at"));
 		service.setCreatedBy(resultSet.getString("services_created_by"));
@@ -342,7 +337,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			}
 			jdbc.update("insert into services(id,name,description,delay,recurrence,enabled,script,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
-					service.getDescription(), service.getDelay(), service.getRecurrence(), (service.isEnabled()) ? "1" : "0", service.getScript(),
+					service.getDescription(), service.getDelay(), service.getRecurrence(), service.isEnabled(), service.getScript(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			log.info("Service created: {}", service);
 
@@ -377,7 +372,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			jdbc.update("update services set name=?, description=?, delay=?, recurrence=?, enabled=?, script=?, " +
 							"modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?",
 					service.getName(), service.getDescription(), service.getDelay(), service.getRecurrence(),
-					(service.isEnabled()) ? "1" : "0", service.getScript(),
+					service.isEnabled(), service.getScript(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), service.getId());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);

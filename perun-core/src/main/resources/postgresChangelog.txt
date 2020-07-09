@@ -6,6 +6,42 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.62
+ALTER TABLE application_form ALTER COLUMN automatic_approval TYPE boolean USING automatic_approval::boolean;
+ALTER TABLE application_form ALTER COLUMN automatic_approval SET default false;
+UPDATE application_form SET automatic_approval=false where automatic_approval is null;
+ALTER TABLE application_form ALTER COLUMN automatic_approval SET not null;
+ALTER TABLE application_form ALTER COLUMN automatic_approval_extension TYPE boolean USING automatic_approval_extension::boolean;
+ALTER TABLE application_form ALTER COLUMN automatic_approval_extension SET default false;
+UPDATE application_form SET automatic_approval_extension=false where automatic_approval_extension is null;
+ALTER TABLE application_form ALTER COLUMN automatic_approval_extension SET not null;
+ALTER TABLE application_form_items ALTER COLUMN required TYPE boolean USING required::boolean;
+ALTER TABLE application_form_items ALTER COLUMN required SET default false;
+UPDATE application_form_items SET required=false where required is null;
+ALTER TABLE application_form_items ALTER COLUMN required SET not null;
+ALTER TABLE application_mails ALTER COLUMN send TYPE boolean USING send::boolean;
+ALTER TABLE application_mails ALTER COLUMN send SET default false;
+ALTER TABLE application_mails ALTER COLUMN send SET not null;
+ALTER TABLE cabinet_publications ALTER COLUMN locked TYPE boolean USING locked::boolean;
+ALTER TABLE cabinet_publications ALTER COLUMN locked SET default false;
+ALTER TABLE cabinet_publications ALTER COLUMN locked SET not null;
+ALTER TABLE members_sponsored ALTER COLUMN active TYPE boolean USING active::boolean;
+ALTER TABLE members_sponsored ALTER COLUMN active SET default true;
+ALTER TABLE members_sponsored ALTER COLUMN active SET not null;
+ALTER TABLE services ALTER COLUMN enabled TYPE boolean USING enabled::boolean;
+ALTER TABLE services ALTER COLUMN enabled SET default true;
+ALTER TABLE services ALTER COLUMN enabled SET not null;
+ALTER TABLE users DROP CONSTRAINT usr_srvacc_chk;
+ALTER TABLE users ALTER COLUMN service_acc TYPE boolean USING service_acc::boolean;
+ALTER TABLE users ALTER COLUMN service_acc SET default false;
+UPDATE users SET service_acc=false where service_acc is null;
+ALTER TABLE users ALTER COLUMN service_acc SET not null;
+ALTER TABLE users ALTER COLUMN sponsored_acc TYPE boolean USING sponsored_acc::boolean;
+ALTER TABLE users ALTER COLUMN sponsored_acc SET default false;
+UPDATE users SET sponsored_acc=false where sponsored_acc is null;
+ALTER TABLE users ALTER COLUMN sponsored_acc SET not null;
+update configurations set value='3.1.62' where property='DATABASE VERSION';
+
 3.1.61
 ALTER TABLE vos ALTER COLUMN name TYPE varchar;
 ALTER TABLE vos ALTER COLUMN short_name TYPE varchar;
