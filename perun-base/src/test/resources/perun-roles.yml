@@ -2154,4 +2154,198 @@ perun_policies:
       - PERUNOBSERVER:
     include_policies:
       - default_policy
+
+  #VosManagerEntry
+  getVos_policy:
+    policy_roles:
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getVos_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllVos_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - GROUPADMIN:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  deleteVo_Vo_boolean_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteVo_Vo_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  createVo_Vo_policy:
+    policy_roles:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  updateVo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getVoByShortName_String_policy:
+    policy_roles:
+      - ENGINE:
+      - TOPGROUPCREATOR: Vo
+      - GROUPADMIN: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getVoById_int_policy:
+    policy_roles:
+      - SELF:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findCandidates_Vo_String_int_policy:
+    policy_roles:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findCandidates_Vo_String_policy:
+    policy_roles:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findCandidates_Group_String_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getCompleteCandidates_Vo_List<String>_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getCompleteCandidates_Group_List<String>_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  groupExtSource-getCompleteCandidates_Group_List<String>_String_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  addAdmin_Vo_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addAdmin_Vo_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeAdmin_Vo_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeAdmin_Vo_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAdmins_Vo_String_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichAdmins_Vo_String_List<String>_boolean_boolean_policy:
+    policy_roles:
+      - ENGINE:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAdminGroups_Vo_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addSponsorRole_Vo_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addSponsorRole_Vo_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeSponsorRole_Vo_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeSponsorRole_Vo_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
 ...
