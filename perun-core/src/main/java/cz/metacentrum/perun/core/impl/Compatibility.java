@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 /**
  * This class provide support for compatibility issues.
- * For example for covering differences between oracle and postgree DB.
+ * For example for covering differences between oracle and postgres DB.
  */
 public class Compatibility {
 

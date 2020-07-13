@@ -340,7 +340,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getSpecificUsers(PerunSession sess) {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					"  from users where users.service_acc='1' or users.sponsored_acc='1'", USER_MAPPER);
+					"  from users where users.service_acc=true or users.sponsored_acc=true", USER_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
 			return new ArrayList<>();
@@ -368,17 +368,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public User createUser(PerunSession sess, User user) {
 		try {
 			int newId = Utils.getNewId(jdbc, "users_id_seq");
-			char serviceAcc = '0';
-			char sponsoredAcc = '0';
-			if (user.isServiceUser()) {
-				serviceAcc = '1';
-			}
-			if (user.isSponsoredUser()) {
-				sponsoredAcc = '1';
-			}
 			jdbc.update("insert into users(id,first_name,last_name,middle_name,title_before,title_after,created_by,modified_by,service_acc,sponsored_acc,created_by_uid,modified_by_uid)" +
 					" values (?,?,?,?,?,?,?,?,?,?,?,?)", newId, user.getFirstName(), user.getLastName(), user.getMiddleName(),
-					user.getTitleBefore(), user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), "" + serviceAcc, "" + sponsoredAcc,
+					user.getTitleBefore(), user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), user.isServiceUser(), user.isSponsoredUser(),
 					sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			user.setId(newId);
 
@@ -393,11 +385,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		try {
 			if(specificUserType.equals(SpecificUserType.SERVICE)) {
 				jdbc.update("update users set service_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
-						"1", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+						true, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
 				user.setServiceUser(true);
 			} else if(specificUserType.equals(SpecificUserType.SPONSORED)) {
 				jdbc.update("update users set sponsored_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
-						"1", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+						true, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
 				user.setSponsoredUser(true);
 			} else {
 				throw new InternalErrorException("Unsupported specific user type " + specificUserType.getSpecificUserType());
@@ -414,11 +406,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		try {
 			if(specificUserType.equals(SpecificUserType.SERVICE)) {
 				jdbc.update("update users set service_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
-						"0", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+						false, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
 				user.setServiceUser(false);
 			} else if(specificUserType.equals(SpecificUserType.SPONSORED)) {
 				jdbc.update("update users set sponsored_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
-						"0", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+						false, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
 				user.setSponsoredUser(false);
 			} else {
 				throw new InternalErrorException("Unsupported specific user type " + specificUserType.getSpecificUserType());
@@ -897,12 +889,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		// the searchString is already lower cased and converted into the ASCII
 		try {
-			if (Compatibility.isOracle()) {
-				// Search users' names
-				return (jdbc.query("select " + userMappingSelectQuery + " from users " +
-							"where lower("+Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name")+") like '%' || ? || '%'",
-							USER_MAPPER, searchString));
-			} else if (Compatibility.isPostgreSql()) {
+			if (Compatibility.isPostgreSql()) {
 				return jdbc.query("select " + userMappingSelectQuery + "  from users " +
 						"where strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"),?) > 0",
 						USER_MAPPER, searchString);
@@ -973,12 +960,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		// the searchString is already lower cased and converted into the ASCII
 		try {
-			if (Compatibility.isOracle()) {
-				// Search users' names
-				return (jdbc.query("select " + userMappingSelectQuery + " from users "
-								+ "where lower(" + Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name") + ")=?",
-						USER_MAPPER, searchString));
-			} else if (Compatibility.isPostgreSql()) {
+			if (Compatibility.isPostgreSql()) {
 				return jdbc.query("select " + userMappingSelectQuery + " from users "
 								+ "where lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=?",
 						USER_MAPPER, searchString);
@@ -1017,7 +999,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public boolean userExists(PerunSession sess, User user) {
 		Utils.notNull(user, "user");
 		try {
-			int numberOfExistences = jdbc.queryForInt("select count(1) from users where id=? and service_acc=? and sponsored_acc=?", user.getId(), user.isServiceUser() ? "1" : "0", user.isSponsoredUser() ? "1" : "0");
+			int numberOfExistences = jdbc.queryForInt("select count(1) from users where id=? and service_acc=? and sponsored_acc=?", user.getId(), user.isServiceUser(), user.isSponsoredUser());
 			if (numberOfExistences == 1) {
 				return true;
 			} else if (numberOfExistences > 1) {
@@ -1342,7 +1324,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getSponsors(PerunSession sess, Member sponsoredMember) {
 		try {
 			return jdbc.query("SELECT " + userMappingSelectQuery + " FROM users JOIN members_sponsored ms ON (users.id=ms.sponsor_id)" +
-					"WHERE ms.active='1' AND ms.sponsored_id=? ", USER_MAPPER, sponsoredMember.getId());
+					"WHERE ms.active=? AND ms.sponsored_id=? ", USER_MAPPER, true, sponsoredMember.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

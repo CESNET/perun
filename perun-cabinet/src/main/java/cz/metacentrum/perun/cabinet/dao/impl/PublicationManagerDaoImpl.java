@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.Utils;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -147,7 +146,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 							" values (?,?,?,?,?,?,?,?,?,"+ Compatibility.getSysdate()+",?,?,?,?,?)",
 					newId, (publication.getExternalId() == 0) ? newId : publication.getExternalId(), publication.getPublicationSystemId(),
 					publication.getTitle(), publication.getYear(), publication.getMain(), publication.getIsbn(), publication.getCategoryId(),
-					sess.getPerunPrincipal().getActor(), publication.getRank(), publication.getDoi(), (publication.getLocked()) ? 1 : 0,
+					sess.getPerunPrincipal().getActor(), publication.getRank(), publication.getDoi(), publication.getLocked(),
 					sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			publication.setId(newId);
 		} catch (RuntimeException e) {
@@ -415,7 +414,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 			pubIds.add(pub.getId());
 		}
 		parameters.addValue("ids", pubIds);
-		parameters.addValue("lock", lockState ? 1 : 0);
+		parameters.addValue("lock", lockState);
 
 		try {
 			namedParameterJdbcTemplate.update("update cabinet_publications set locked=:lock where id in (:ids)", parameters);
