@@ -842,6 +842,680 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #GroupsManagerEntry
+  createGroup_Vo_Group_policy:
+    policy_roles:
+      - TOPGROUPCREATOR: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createGroup_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteGroup_Group_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteAllGroups_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteGroups_List<Group>_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  updateGroup_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  moveGroup_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  destination_null-moveGroup_Group_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN: Group
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupByName_Vo_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addMembers_Group_List<Member>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addMember_List<Group>_Member_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  isDirectGroupMember_Group_Member_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addMember_Group_Member_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeMember_Group_Member_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeMembers_Group_List<Member>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeMember_Member_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupDirectMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getActiveGroupMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getInactiveGroupMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupMembers_Group_Status_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupRichMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupDirectRichMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupRichMembers_Group_Status_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupRichMembersWithAttributes_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupRichMembersWithAttributes_Group_Status_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  isGroupMember_Group_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupMembersCount_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addAdmin_Group_User_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addAdmin_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeAdmin_Group_User_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeAdmin_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAdmins_Group_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichAdmins_Group_List<String>_boolean_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAdminGroups_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllGroups_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAllGroups_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllGroupsWithHierarchy_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAllGroupsWithHierarchy_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getSubGroups_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllSubGroups_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getParentGroup_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroups_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getGroups_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsCount_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getSubGroupsCount_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getVo_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getParentGroupMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getParentGroupRichMembers_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getParentGroupMembersWithAttributes_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  forceGroupSynchronization_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  forceAllSubGroupsSynchronization_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  forceGroupStructureSynchronization_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  synchronizeGroups_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  synchronizeGroupsStructures_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getMemberGroups_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMemberGroupsByAttribute_Member_Attribute_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllMemberGroups_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsWhereMemberIsActive_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsWhereMemberIsInactive_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllGroupsWhereMemberIsActive_Member_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichGroupsAssignedToResourceWithAttributesByNames_Resource_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichGroupsAssignedToResourceWithAttributesByNames_Member_Resource_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMemberRichGroupsWithAttributesByNames_Member_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getMemberRichGroupsWithAttributesByNames_Member_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllRichGroupsWithAttributesByNames_Vo_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAllRichGroupsWithAttributesByNames_Vo_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAllRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichGroupByIdWithAttributesByNames_int_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createGroupUnion_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeGroupUnion_Group_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupUnions_Group_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  setMemberGroupStatus_Member_Group_MemberGroupStatus_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupMemberById_Group_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  extendMembershipInGroup_Member_Group_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  canExtendMembershipInGroup_Member_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  canExtendMembershipInGroupWithReason_Member_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   #OwnersManagerEntry
   createOwner_Owner_policy:
     policy_roles: []

@@ -529,7 +529,7 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
 	 */
-	boolean isGroupMember(PerunSession sess, Group group, Member member) throws PrivilegeException, GroupNotExistsException;
+	boolean isGroupMember(PerunSession sess, Group group, Member member) throws PrivilegeException, GroupNotExistsException, MemberNotExistsException;
 
 	/**
 	 * @param perunSession
