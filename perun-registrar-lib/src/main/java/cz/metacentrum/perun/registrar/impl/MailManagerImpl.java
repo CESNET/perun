@@ -164,7 +164,7 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			jdbc.update("insert into application_mails(id, form_id, app_type, mail_type, send) values (?,?,?,?,?)",
-				mail.getId(), form.getId(), mail.getAppType().toString(), mail.getMailType().toString(), mail.getSend() ? "1" : "0");
+				mail.getId(), form.getId(), mail.getAppType().toString(), mail.getMailType().toString(), mail.getSend());
 		} catch (DuplicateKeyException e) {
 			throw new ApplicationMailExistsException("Application mail already exists.", mail);
 		}
@@ -269,7 +269,7 @@ public class MailManagerImpl implements MailManager {
 		if (numberOfExistences > 1) throw new ConsistencyErrorException("There is more than one mail with id = " + mail.getId());
 
 		// update sending (enabled / disabled)
-		jdbc.update("update application_mails set send=? where id=?", mail.getSend() ? "1" : "0", mail.getId());
+		jdbc.update("update application_mails set send=? where id=?", mail.getSend(), mail.getId());
 
 		// update texts (easy way = delete and new insert)
 		jdbc.update("delete from application_mail_texts where mail_id=?", mail.getId());
@@ -294,16 +294,11 @@ public class MailManagerImpl implements MailManager {
 
 		for (ApplicationMail mail : mails) {
 			// update sending (enabled / disabled)
-			if (Compatibility.isPostgreSql()) {
-				try {
-					int existence = jdbc.update("update application_mails set send=? where id=?", (enabled) ? "1" : "0", mail.getId());
-					if (existence < 1) throw new ApplicationMailNotExistsException("Application mail does not exist.", mail);
-				} catch (RuntimeException | ApplicationMailNotExistsException e) {
-					throw new InternalErrorException(e);
-				}
-			} else {
+			try {
 				int existence = jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
 				if (existence < 1) throw new ApplicationMailNotExistsException("Application mail does not exist.", mail);
+			} catch (RuntimeException e) {
+				throw new InternalErrorException(e);
 			}
 
 			perun.getAuditer().log(sess, new MailSending(mail, enabled));

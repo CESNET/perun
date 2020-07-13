@@ -386,8 +386,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		try {
 			PerunPrincipal pp = session.getPerunPrincipal();
 			jdbc.update("INSERT INTO members_sponsored (active,sponsored_id,sponsor_id,created_by,created_at,created_by_uid,modified_by,modified_at,modified_by_uid) " +
-					"VALUES ('1' ,?,?,?," + Compatibility.getSysdate() + ",?,?,"+ Compatibility.getSysdate() + ",?)" ,
-					sponsoredMember.getId(), sponsor.getId(), pp.getActor(), pp.getUserId(),pp.getActor(), pp.getUserId());
+					"VALUES (?,?,?,?," + Compatibility.getSysdate() + ",?,?,"+ Compatibility.getSysdate() + ",?)" ,
+					true, sponsoredMember.getId(), sponsor.getId(), pp.getActor(), pp.getUserId(),pp.getActor(), pp.getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -397,9 +397,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	public void removeSponsor(PerunSession session, Member sponsoredMember, User sponsor) {
 		try {
 			PerunPrincipal pp = session.getPerunPrincipal();
-			jdbc.update("UPDATE members_sponsored SET active='0',modified_by=?,modified_at="+Compatibility.getSysdate() +",modified_by_uid=? " +
+			jdbc.update("UPDATE members_sponsored SET active=?, modified_by=?, modified_at="+Compatibility.getSysdate() +", modified_by_uid=? " +
 							"WHERE sponsored_id=? AND sponsor_id=?" ,
-					pp.getActor(), pp.getUserId(),sponsoredMember.getId(), sponsor.getId() );
+					false, pp.getActor(), pp.getUserId(),sponsoredMember.getId(), sponsor.getId() );
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -418,7 +418,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor) {
 		try {
 			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
-					"WHERE members.vo_id=? AND ms.active='1' AND ms.sponsor_id=?", MEMBER_MAPPER, vo.getId(), sponsor.getId());
+					"WHERE members.vo_id=? AND ms.active=? AND ms.sponsor_id=?", MEMBER_MAPPER, vo.getId(), true, sponsor.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -428,7 +428,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
-			        "WHERE members.vo_id=? AND ms.active='1'", MEMBER_MAPPER, vo.getId());
+			        "WHERE members.vo_id=? AND ms.active=?", MEMBER_MAPPER, vo.getId(), true);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -512,9 +512,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		}
 
 		String userNameQueryString;
-		if (Compatibility.isOracle()) {
-			userNameQueryString = " lower("+Compatibility.convertToAscii("u.first_name || u.middle_name || u.last_name")+") like '%' || ? || '%' ";
-		} else if (Compatibility.isPostgreSql()) {
+		if (Compatibility.isPostgreSql()) {
 			userNameQueryString= " strpos(lower("+Compatibility.convertToAscii("COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'')")+"),?) > 0 ";
 		} else if (Compatibility.isHSQLDB()) {
 			userNameQueryString=" lower("+Compatibility.convertToAscii("COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'')")+") like '%' || ? || '%' ";

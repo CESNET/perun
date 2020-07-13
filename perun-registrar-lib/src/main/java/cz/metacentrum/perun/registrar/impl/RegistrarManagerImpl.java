@@ -842,7 +842,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		int itemId = Utils.getNewId(jdbc, "APPLICATION_FORM_ITEMS_ID_SEQ");
 		jdbc.update(
 				"insert into application_form_items(id,form_id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex) values (?,?,?,?,?,?,?,?,?,?)",
-				itemId, form.getId(), ordnum, item.getShortname(), item.isRequired() ? "1" : "0",
+				itemId, form.getId(), ordnum, item.getShortname(), item.isRequired(),
 				item.getType().name(), item.getFederationAttribute(),
 				item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(), item.getRegex());
 
@@ -906,7 +906,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// else update form item
 
 			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,src_attr=?,dst_attr=?,regex=? where id=?",
-					item.getOrdnum(), item.getShortname(), item.isRequired() ? "1" : "0",
+					item.getOrdnum(), item.getShortname(), item.isRequired(),
 					item.getType().toString(), item.getFederationAttribute(),
 					item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(),
 					item.getRegex(), item.getId());
@@ -964,7 +964,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		perun.getAuditer().log(user, new FormUpdated((form)));
 		return jdbc.update(
 				"update application_form set automatic_approval=?, automatic_approval_extension=?, module_name=? where id=?",
-				form.isAutomaticApproval() ? "1" : "0", form.isAutomaticApprovalExtension() ? "1" : "0", form.getModuleClassName(), form.getId());
+				form.isAutomaticApproval(), form.isAutomaticApprovalExtension(), form.getModuleClassName(), form.getId());
 	}
 
 	@Transactional
@@ -2228,7 +2228,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// else update form item
 
 		int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,src_attr=?,dst_attr=?,regex=? where id=?",
-				item.getOrdnum(), item.getShortname(), item.isRequired() ? "1" : "0",
+				item.getOrdnum(), item.getShortname(), item.isRequired(),
 				item.getType().toString(), item.getFederationAttribute(),
 				item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(),
 				item.getRegex(), item.getId());
