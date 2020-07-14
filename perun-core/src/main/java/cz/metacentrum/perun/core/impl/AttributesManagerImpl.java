@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.google.common.io.CharStreams;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -69,20 +68,15 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.lob.LobHandler;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Array;
-import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -136,8 +130,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private Perun perun;
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private JdbcPerunTemplate jdbc;
-	private LobHandler lobHandler;
-	private final ClassLoader classLoader = this.getClass().getClassLoader();
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	//Attributes modules.  name => module
@@ -250,32 +242,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * This rowMapper is only for getting attribute values (value and valueText)
 	 */
 	private static final RowMapper<String> ATTRIBUTE_VALUES_MAPPER = (rs, i) -> {
-		String value;
-		String valueText;
-		//CLOB in oracle
-		if (Compatibility.isOracle()) {
-			Clob clob = rs.getClob("attr_value_text");
-			char[] cbuf;
-			if (clob == null) {
-				valueText = null;
-			} else {
-				try {
-					cbuf = new char[(int) clob.length()];
-					//noinspection ResultOfMethodCallIgnored
-					clob.getCharacterStream().read(cbuf);
-				} catch (IOException ex) {
-					throw new InternalErrorException(ex);
-				}
-				valueText = new String(cbuf);
-			}
-		} else {
-			// POSTGRES READ CLOB AS STRING
-			valueText = rs.getString("attr_value_text");
-		}
-		value = rs.getString("attr_value");
-
+		String valueText = rs.getString("attr_value_text");
+		String value = rs.getString("attr_value");
 		if (valueText != null) return valueText;
-		else return value;
+		return value;
 	};
 
 	static final RowMapper<Attribute> ATTRIBUTE_MAPPER = (rs, i) -> {
@@ -367,33 +337,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				}
 			}
 
-			//FIXME use ValueRowMapper
-			String stringValue;
-			if (Utils.isLargeAttribute(sess, attribute)) {
-				if (Compatibility.isOracle()) {
-					//large attributes
-					Clob clob = rs.getClob("attr_value_text");
-					char[] cbuf;
-					if (clob == null) {
-						stringValue = null;
-					} else {
-						try {
-							cbuf = new char[(int) clob.length()];
-							//noinspection ResultOfMethodCallIgnored
-							clob.getCharacterStream().read(cbuf);
-						} catch (IOException ex) {
-							throw new InternalErrorException(ex);
-						}
-						stringValue = new String(cbuf);
-					}
-				} else {
-					// POSTGRES READ CLOB AS STRING
-					stringValue = rs.getString("attr_value_text");
-				}
-			} else {
-				//ordinary attributes read as String
-				stringValue = rs.getString("attr_value");
-			}
+			String stringValue = AttributesManagerImpl.readAttributeValue(sess, attribute, rs);
 
 			try {
 				attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
@@ -426,36 +370,15 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		public AttributeHolders mapRow(ResultSet rs, int i) throws SQLException {
+
 			Attribute attribute = new Attribute(ATTRIBUTE_MAPPER.mapRow(rs, i), true);
 
-			//FIXME use ValueRowMapper
-			String stringValue;
-			if(Utils.isLargeAttribute(sess, attribute)) {
+			String stringValue = AttributesManagerImpl.readAttributeValue(sess, attribute, rs);
 
-				if (Compatibility.isOracle()) {
-					//large attributes
-					Clob clob = rs.getClob("attr_value_text");
-					char[] cbuf;
-					if(clob == null) {
-						stringValue = null;
-					} else {
-						try {
-							cbuf = new char[(int) clob.length()];
-							clob.getCharacterStream().read(cbuf);
-						} catch(IOException ex) {
-							throw new InternalErrorException(ex);
-						}
-						stringValue = new String(cbuf);
-					}
-				} else {
-					// POSTGRES READ CLOB AS STRING
-					stringValue = rs.getString("attr_value_text");
-				}
-				try {
-					attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
-				} catch(InternalErrorException ex) {
-					throw new InternalErrorException(ex);
-				}
+			try {
+				attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
+			} catch (InternalErrorException ex) {
+				throw new InternalErrorException(ex);
 			}
 
 			try {
@@ -782,25 +705,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			String stringValue;
 			if (Utils.isLargeAttribute(sess, attributeDefinition)) {
 				//large attributes
-				if (Compatibility.isOracle()) {
-					Clob clob = rs.getClob("attr_value_text");
-					char[] cbuf;
-					if (clob == null) {
-						stringValue = null;
-					} else {
-						try {
-							cbuf = new char[(int) clob.length()];
-							//noinspection ResultOfMethodCallIgnored
-							clob.getCharacterStream().read(cbuf);
-						} catch (IOException ex) {
-							throw new InternalErrorException(ex);
-						}
-						stringValue = new String(cbuf);
-					}
-				} else {
-					// POSTGRES READ CLOB AS STRING
-					stringValue = rs.getString("attr_value_text");
-				}
+				stringValue = rs.getString("attr_value_text");
 			} else {
 				//ordinary attributes
 				stringValue = rs.getString("attr_value");
@@ -5408,20 +5313,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	private static String readAttributeValue(PerunSession session, AttributeDefinition attrDef, ResultSet rs) throws SQLException {
 		if (Utils.isLargeAttribute(session, attrDef)) {
-			if (Compatibility.isOracle()) {
-				//large attributes
-				Clob clob = rs.getClob("attr_value_text");
-				try(Reader characterStream = clob.getCharacterStream()) {
-					return CharStreams.toString(characterStream);
-				} catch (IOException e) {
-					throw new InternalErrorException("cannot read CLOB",e);
-				} finally {
-					clob.free();
-				}
-			} else {
-				// POSTGRES READ CLOB AS STRING
-				return rs.getString("attr_value_text");
-			}
+			return rs.getString("attr_value_text");
 		} else {
 			return rs.getString("attr_value");
 		}
@@ -5455,15 +5347,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			//update unique
-			boolean uniqueInDb;
-			if (Compatibility.isOracle()) {
-				uniqueInDb = "1".equals(map.get("is_unique"));
-			} else {
-				uniqueInDb = (Boolean) map.get("is_unique");
-			}
+			boolean uniqueInDb = (Boolean) map.get("is_unique");
 			if (uniqueInDb != attributeDefinition.isUnique()) {
-				jdbc.update("UPDATE attr_names SET is_unique=" + Compatibility.getTrue() + ", modified_by=?, modified_by_uid=?, modified_at="
-						+ Compatibility.getSysdate() + " WHERE id=?", perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), attributeDefinition.getId());
+				jdbc.update("UPDATE attr_names SET is_unique=?, modified_by=?, modified_by_uid=?, modified_at="
+						+ Compatibility.getSysdate() + " WHERE id=?", true, perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), attributeDefinition.getId());
 			}
 
 			return attributeDefinition;
