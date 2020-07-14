@@ -3,14 +3,12 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributeHolders;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Auditable;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Holder;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
@@ -348,56 +346,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return attribute;
 		}
 	}
-
-	protected static class AttributeHoldersRowMapper implements RowMapper<AttributeHolders> {
-		private final PerunSession sess;
-		private final AttributesManagerImplApi attributesManagerImpl;
-		private final Holder.HolderType primaryHolderType;
-		private final Holder.HolderType secondaryHolderType;
-
-		/**
-		 * Constructor.
-		 *
-		 * @param sess perun session
-		 * @param primaryHolderType Facility, Resource or Member for which you want the attribute value
-		 * @param secondaryHolderType secondary Facility, Resource or Member for which you want the attribute value
-		 */
-		public AttributeHoldersRowMapper(PerunSession sess, AttributesManagerImplApi attributesManagerImpl, Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) {
-			this.sess = sess;
-			this.attributesManagerImpl = attributesManagerImpl;
-			this.primaryHolderType = primaryHolderType;
-			this.secondaryHolderType = secondaryHolderType;
-		}
-
-		public AttributeHolders mapRow(ResultSet rs, int i) throws SQLException {
-
-			Attribute attribute = new Attribute(ATTRIBUTE_MAPPER.mapRow(rs, i), true);
-
-			String stringValue = AttributesManagerImpl.readAttributeValue(sess, attribute, rs);
-
-			try {
-				attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
-			} catch (InternalErrorException ex) {
-				throw new InternalErrorException(ex);
-			}
-
-			try {
-				if(this.primaryHolderType == null) return new AttributeHolders(attribute, rs.getString("subject"), AttributeHolders.SavedBy.ID);
-				else {
-					Holder primaryHolder = new Holder(rs.getInt("primary_holder_id"), primaryHolderType);
-					Holder secondaryHolder = null;
-
-					if(secondaryHolderType != null) {
-						secondaryHolder = new Holder(rs.getInt("secondary_holder_id"), secondaryHolderType);
-					}
-					return new AttributeHolders(attribute, primaryHolder, secondaryHolder, AttributeHolders.SavedBy.ID);
-				}
-			} catch (InternalErrorException e) {
-				throw new InternalErrorException(e);
-			}
-		}
-	}
-
 
 	/**
 	 * Sets value for core attribute
@@ -1805,7 +1753,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		String columnName;
 		Object identificator;
 		String namespace;
-		Holder holder = null;
 
 		// check whether the object is String or Perun Bean:
 		if (object instanceof String) {
@@ -1830,7 +1777,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			tableName = name + "_attr_values";
 			columnName = name + "_id";
 			identificator = bean.getId();
-			holder = createHolderTypeByStringAndId((Integer) identificator, name);
 		} else {
 			throw new InternalErrorException(new IllegalArgumentException("Object " + object + " must be either String or PerunBean."));
 		}
@@ -1845,9 +1791,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		// save attribute
 		boolean changedDb;
 		if (object instanceof String) {
-			changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues, object, null);
+			changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues);
 		} else {
-			changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues, holder, null);
+			changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues);
 		}
 
 		if(changedDb && attribute.isUnique() && (object instanceof PerunBean)) {
@@ -1886,8 +1832,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			// the combination of perun beans is not in the namespace map
 			throw new InternalErrorException(new IllegalArgumentException("Setting attribute for perun bean " + bean1 + " and " + bean2 + " is not allowed."));
 		}
-		Holder holder1 = createHolderTypeByStringAndId(identificator1, name1);
-		Holder holder2 = createHolderTypeByStringAndId(identificator2, name2);
 		String tableName = name1 + "_" + name2 + "_attr_values";
 
 		// check that given object is consistent with the attribute
@@ -1898,7 +1842,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		List<Object> columnValues = Arrays.asList( attribute.getId(), identificator1, identificator2);
 
 		// save attribute
-		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues, holder1, holder2);
+		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues);
 		if(changedDb && attribute.isUnique()) {
 			setUniqueAttributeValues(attribute, columnNames, columnValues, bean1, bean2);
 		}
@@ -1948,7 +1892,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues, Object holder1, Object holder2) {
+	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues) {
 		try {
 			//check that attribute definition is current, non-altered by upper tiers
 			getAttributeDefinitionById(sess, attribute.getId()).checkEquality(attribute);
@@ -2023,43 +1967,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-	}
-
-	private Holder createHolderTypeByStringAndId(Integer id, String type) {
-		if (id == null || type == null) {
-			return null;
-		}
-
-		Holder holder;
-		switch (type) {
-			case "facility":
-				holder = new Holder(id, Holder.HolderType.FACILITY);
-				break;
-			case "member":
-				holder = new Holder(id, Holder.HolderType.MEMBER);
-				break;
-			case "vo":
-				holder = new Holder(id, Holder.HolderType.VO);
-				break;
-			case "group":
-				holder = new Holder(id, Holder.HolderType.GROUP);
-				break;
-			case "host":
-				holder = new Holder(id, Holder.HolderType.HOST);
-				break;
-			case "resource":
-				holder = new Holder(id, Holder.HolderType.RESOURCE);
-				break;
-			case "user":
-				holder = new Holder(id, Holder.HolderType.USER);
-				break;
-			case "user_ext_source":
-				holder = new Holder(id, Holder.HolderType.UES);
-				break;
-			default:
-				holder = null;
-		}
-		return holder;
 	}
 
 	/**
