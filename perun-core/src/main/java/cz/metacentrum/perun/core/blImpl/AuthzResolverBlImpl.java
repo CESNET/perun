@@ -1411,6 +1411,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 	}
 
+	/**
+	 * Return all loaded perun policies.
+	 *
+	 * @return all loaded policies
+	 */
+	public static List<PerunPolicy> getAllPolicies() {
+		return AuthzResolverImpl.getAllPolicies();
+	}
+
 	public String toString() {
 		return getClass().getSimpleName() + ":[]";
 	}

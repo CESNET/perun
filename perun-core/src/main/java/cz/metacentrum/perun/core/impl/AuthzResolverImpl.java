@@ -770,4 +770,13 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public static List<PerunPolicy> fetchPolicyWithAllIncludedPolicies(String policyName) throws PolicyNotExistsException {
 		return perunPoliciesContainer.fetchPolicyWithAllIncludedPolicies(policyName);
 	}
+
+	/**
+	 * Return all loaded perun policies.
+	 *
+	 * @return all loaded policies
+	 */
+	public static List<PerunPolicy> getAllPolicies() {
+		return perunPoliciesContainer.getAllPolicies();
+	}
 }
