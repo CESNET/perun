@@ -4,6 +4,9 @@ public class VsupPasswordManagerModule extends GenericPasswordManagerModule {
 
 	public VsupPasswordManagerModule() {
 
+		// set proper namespace
+		this.actualLoginNamespace = "vsup";
+
 		// override random password generating params
 		this.randomPasswordLength = 14;
 
