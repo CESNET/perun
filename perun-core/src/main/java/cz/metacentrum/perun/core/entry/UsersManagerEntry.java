@@ -1252,7 +1252,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getPendingPreferredEmailChanges_User_policy")) {
+		if (!AuthzResolver.authorizedInternal(sess, "getPendingPreferredEmailChanges_User_policy", Collections.singletonList(user))) {
 			throw new PrivilegeException(sess, "getPendingPreferredEmailChanges");
 		}
 
