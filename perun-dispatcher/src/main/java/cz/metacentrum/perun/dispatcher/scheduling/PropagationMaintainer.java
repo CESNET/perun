@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
@@ -45,6 +44,7 @@ public class PropagationMaintainer extends AbstractRunner {
 	private Perun perun;
 	private SchedulingPool schedulingPool;
 	private Properties dispatcherProperties;
+	private int oldRescheduleHours;
 
 	// ----- setters -------------------------------------
 
@@ -79,6 +79,11 @@ public class PropagationMaintainer extends AbstractRunner {
 			} catch (NumberFormatException ex) {
 				rescheduleTime = 190;
 			}
+			try {
+				oldRescheduleHours = Integer.parseInt(dispatcherProperties.getProperty("dispatcher.rescheduleInterval", "48"));
+			} catch (NumberFormatException ex) {
+				oldRescheduleHours = 48;
+			}
 		}
 	}
 
@@ -87,7 +92,7 @@ public class PropagationMaintainer extends AbstractRunner {
 	/**
 	 * This method runs in own thread as periodic job which:
 	 *
-	 * takes DONE Tasks and reschedule them if source data were updated.
+	 * takes DONE Tasks and reschedule them if source data were updated or Task hasn't run for X hours from the last time.
 	 * takes ERROR Tasks and reschedule them if -- || -- or (end time + (delay * recurrence)) > now
 	 * takes PROCESSING Tasks and switch them to error if we haven`t heard about result for more than 3 hours.
 	 */
@@ -118,7 +123,7 @@ public class PropagationMaintainer extends AbstractRunner {
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException ex) {
-				log.error("Error in PropagationMaintainer: {}", ex);
+				log.error("Error in PropagationMaintainer", ex);
 				throw new RuntimeException("Somebody has interrupted us...", ex);
 			}
 
@@ -132,7 +137,7 @@ public class PropagationMaintainer extends AbstractRunner {
 	/**
 	 * Reschedule Tasks in DONE if their
 	 * - source was updated
-	 * - OR haven't run for 2 days
+	 * - OR haven't run for X hours
 	 * - or have no end time set
 	 */
 	private void rescheduleDoneTasks() {
@@ -142,13 +147,13 @@ public class PropagationMaintainer extends AbstractRunner {
 
 		for (Task task : schedulingPool.getTasksWithStatus(TaskStatus.DONE)) {
 
-			LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
+			LocalDateTime tooManyHoursAgo = LocalDateTime.now().minusHours(oldRescheduleHours);
 
 			if (task.isSourceUpdated()) {
 				log.info("[{}] Task in {} state will be rescheduled, source data changed.", task.getId(), task.getStatus());
 				schedulingPool.scheduleTask(task, -1);
-			} else if (task.getEndTime() == null || task.getEndTime().isBefore(twoDaysAgo)) {
-				log.info("[{}] Task in {} state will be rescheduled, hasn't run for 2 days.", task.getId(), task.getStatus());
+			} else if (task.getEndTime() == null || task.getEndTime().isBefore(tooManyHoursAgo)) {
+				log.info("[{}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(), task.getStatus(), oldRescheduleHours);
 				schedulingPool.scheduleTask(task, -1);
 			} else {
 				log.trace("[{}] Task has finished recently or source data hasn't changed, leaving it for now.", task.getId());
@@ -186,11 +191,11 @@ public class PropagationMaintainer extends AbstractRunner {
 				howManyMinutesAgo = task.getDelay() + 1;
 			}
 
-			log.trace("[{}] Task in ERROR state completed {} minutes ago: {}.", new Object[]{task.getId(), howManyMinutesAgo, task});
+			log.trace("[{}] Task in ERROR state completed {} minutes ago: {}.", task.getId(), howManyMinutesAgo, task);
 
 			// If DELAY time has passed, we reschedule...
 			int recurrence = task.getRecurrence() + 1;
-			LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
+			LocalDateTime tooManyHoursAgo = LocalDateTime.now().minusHours(oldRescheduleHours);
 
 			if (task.isSourceUpdated()) {
 
@@ -208,9 +213,9 @@ public class PropagationMaintainer extends AbstractRunner {
 				log.info("[{}] Task in {} state will be rescheduled, attempt #{}.", task.getId(), task.getStatus(), recurrence);
 				schedulingPool.scheduleTask(task, -1);
 
-			} else if (task.getEndTime().isBefore(twoDaysAgo)) {
+			} else if (task.getEndTime().isBefore(tooManyHoursAgo)) {
 
-				log.info("[{}] Task in {} state will be rescheduled, hasn't run for 2 days.", task.getId(), task.getStatus());
+				log.info("[{}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(), task.getStatus(), oldRescheduleHours);
 				// reset recurrence since we must have exceeded it
 				task.setRecurrence(0);
 				// schedule if possible and reset source updated flag
@@ -247,7 +252,7 @@ public class PropagationMaintainer extends AbstractRunner {
 
 			if (soonerTimestamp == null && laterTimestamp == null) {
 				log.error("[{}] Task presumably in {} state, but does not have a valid timestamps. Switching to ERROR: {}.",
-						new Object[]{task.getId(), task.getStatus(), task});
+						task.getId(), task.getStatus(), task);
 				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				((PerunBl) perun).getTasksManagerBl().updateTask(task);
@@ -261,7 +266,7 @@ public class PropagationMaintainer extends AbstractRunner {
 			// If too much time has passed something is broken
 			if (howManyMinutesAgo >= rescheduleTime) {
 				log.error("[{}] Task is stuck in {} state for more than {} minutes. Switching it to ERROR: {}.",
-						new Object[]{task.getId(), task.getStatus(), rescheduleTime, task});
+						task.getId(), task.getStatus(), rescheduleTime, task);
 				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				((PerunBl) perun).getTasksManagerBl().updateTask(task);
