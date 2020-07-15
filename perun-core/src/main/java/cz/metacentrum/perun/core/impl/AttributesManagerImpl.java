@@ -971,18 +971,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) {
-		if(!CacheManager.isCacheDisabled()) {
-			List<String> controlledAttrNames = new ArrayList<>();
-
-			for(String attributeName: attrNames) {
-				//check namespace
-				if(attributeName.startsWith(AttributesManager.NS_HOST_ATTR)) controlledAttrNames.add(attributeName);
-			}
-
-			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(host.getId(), Holder.HolderType.HOST), null);
-			return this.setValuesOfAttributes(sess, attrs, host, null);
-		}
-
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("hId", host.getId());
 		parameters.addValue("nSC", AttributesManager.NS_HOST_ATTR_CORE);
