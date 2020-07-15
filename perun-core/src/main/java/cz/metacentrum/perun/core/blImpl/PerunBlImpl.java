@@ -55,7 +55,6 @@ import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
-import cz.metacentrum.perun.core.impl.CacheManager;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import org.slf4j.Logger;
@@ -111,7 +110,6 @@ public class PerunBlImpl implements PerunBl {
 	private TasksManagerBl tasksManagerBl = null;
 
 	private Auditer auditer = null;
-	private CacheManager cacheManager = null;
 	private AttributesManagerImplApi attributesManagerImpl = null;
 
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
@@ -537,14 +535,6 @@ public class PerunBlImpl implements PerunBl {
 		this.searcherBl = searcherBl;
 	}
 
-	public CacheManager getCacheManager() {
-		return cacheManager;
-	}
-
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
-	}
-
 	public void setAttributesManagerImpl(AttributesManagerImplApi attributesManagerImpl) {
 		this.attributesManagerImpl = attributesManagerImpl;
 	}
@@ -564,10 +554,6 @@ public class PerunBlImpl implements PerunBl {
 	public void initialize() {
 		this.extSourcesManagerBl.initialize(this.getPerunSession());
 		this.auditer.initialize();
-		if (coreConfig.isCacheEnabled()) {
-			this.cacheManager.initialize(getPerunSession(), attributesManagerImpl);
-			CacheManager.setCacheDisabled(false);
-		}
 	}
 
 	@Override

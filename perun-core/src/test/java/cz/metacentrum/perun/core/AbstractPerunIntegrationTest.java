@@ -7,8 +7,6 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.CacheManager;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,14 +66,9 @@ public abstract class AbstractPerunIntegrationTest {
 	}
 
 	@Before
-	public void setUpSessAndCache() throws Exception {
+	public void setUpSess() throws Exception {
 		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		sess = perun.getPerunSession(pp, new PerunClient());
-		CacheManager.setCacheDisabled(true);
 	}
 
-	@After
-	public void tearDownCache() {
-		CacheManager.setCacheDisabled(false);
-	}
 }

@@ -31,43 +31,31 @@ import java.util.concurrent.Executor;
 public class PerunConnection implements Connection {
 
 	private final Auditer auditer;
-	private final CacheManager cacheManager;
 	private final Connection connectionImpl;
 
 	// Constructor
-	public PerunConnection(Connection connectionImpl, Auditer auditer, CacheManager cacheManager) {
+	public PerunConnection(Connection connectionImpl, Auditer auditer) {
 		this.connectionImpl = connectionImpl;
 		this.auditer = auditer;
-		this.cacheManager = cacheManager;
 	}
 
 
-	// Methods enriched by auditer and cachemanager transaction methods
 
 	@Override
 	public Savepoint setSavepoint() throws SQLException {
 		auditer.newNestedTransaction();
-		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
-			cacheManager.newNestedTransaction();
-		}
 		return connectionImpl.setSavepoint();
 	}
 
 	@Override
 	public Savepoint setSavepoint(String string) throws SQLException {
 		auditer.newNestedTransaction();
-		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
-			cacheManager.newNestedTransaction();
-		}
 		return connectionImpl.setSavepoint(string);
 	}
 
 	@Override
 	public void rollback(Savepoint svpnt) throws SQLException {
 		auditer.cleanNestedTransation();
-		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
-			cacheManager.cleanNestedTransaction();
-		}
 		connectionImpl.rollback(svpnt);
 
 	}
@@ -75,9 +63,6 @@ public class PerunConnection implements Connection {
 	@Override
 	public void releaseSavepoint(Savepoint svpnt) throws SQLException {
 		auditer.flushNestedTransaction();
-		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
-			cacheManager.flushNestedTransaction();
-		}
 		connectionImpl.releaseSavepoint(svpnt);
 	}
 
