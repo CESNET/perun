@@ -50,7 +50,6 @@
 		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
 		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
 		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
-		<property name="cacheEnabled" value="${perun.cacheEnabled}" />
 		<property name="pdfFontPath" value="${perun.pdfFontPath}" />
 		<property name="smtpHost" value="${mail.smtp.host}" />
 		<property name="smtpPort" value="${mail.smtp.port}" />
@@ -122,7 +121,6 @@
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
 				<prop key="perun.allowedCorsDomains"></prop>
-				<prop key="perun.cacheEnabled">false</prop>
 				<prop key="perun.queryTimeout">-1</prop>
 				<prop key="perun.defaultLoa.idp">2</prop>
 				<!--
