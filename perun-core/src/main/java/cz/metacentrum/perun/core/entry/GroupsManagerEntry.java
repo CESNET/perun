@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunni
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MembershipMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -90,16 +91,14 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, PrivilegeException, VoNotExistsException {
+	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, PrivilegeException, VoNotExistsException, InvalidGroupNameException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(group, "group");
 		Utils.notNull(group.getName(), "group.name");
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
-			throw new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP);
-		}
+		Utils.validateGroupName(group.getName());
 
 		if (group.getParentGroupId() != null) throw new InternalErrorException("Top-level groups can't have parentGroupId set!");
 
@@ -116,16 +115,13 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException {
+	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException, InvalidGroupNameException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, parentGroup);
 		Utils.notNull(group, "group");
 		Utils.notNull(group.getName(), "group.name");
 
-
-		if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
-			throw new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP);
-		}
+		Utils.validateGroupName(group.getName());
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "createGroup_Group_Group_policy", Collections.singletonList(parentGroup))) {
@@ -201,15 +197,13 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group updateGroup(PerunSession sess, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException {
+	public Group updateGroup(PerunSession sess, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InvalidGroupNameException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		Utils.notNull(group, "group");
 		Utils.notNull(group.getName(), "group.name");
 
-		if (!group.getShortName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
-			throw new IllegalArgumentException("Wrong group shortName, group shortName must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP);
-		}
+		Utils.validateGroupName(group.getShortName());
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "updateGroup_Group_policy", Collections.singletonList(group))) {
@@ -266,14 +260,12 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, PrivilegeException, VoNotExistsException {
+	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, PrivilegeException, VoNotExistsException, InvalidGroupNameException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		Utils.notNull(name, "name");
 
-		if (!name.matches(GroupsManager.GROUP_FULL_NAME_REGEXP)) {
-			throw new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_FULL_NAME_REGEXP);
-		}
+		Utils.validateFullGroupName(name);
 
 		Group group = getGroupsManagerBl().getGroupByName(sess, vo, name);
 

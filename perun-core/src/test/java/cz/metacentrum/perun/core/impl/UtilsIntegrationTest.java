@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -230,6 +231,15 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		assertEquals(list.size(), 2);
 		assertTrue(list.contains(userExtSource2));
 		assertTrue(list.contains(userExtSource));
+	}
+
+	@Test
+	public void validateGroupNameThrowsACorrectExceptionForInvalidRegex() {
+		System.out.println("Utils.validateGroupNameThrowsACorrectExceptionForInvalidRegex");
+
+		String invalidPattern = "[a-";
+		assertThatExceptionOfType(InternalErrorException.class)
+				.isThrownBy(() -> Utils.validateGroupName("members", invalidPattern));
 	}
 
 	private Vo setUpVo() throws Exception {

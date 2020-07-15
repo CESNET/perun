@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
@@ -122,9 +123,10 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			}
 		}
 
-		// Check the group name, it can contain only a-Z0-9_- and space
-		if (!group.getShortName().matches("^[- a-zA-Z.0-9_]+$")) {
-			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name can contain only a-Z0-9.-_: and space characters. " + group));
+		try {
+			Utils.validateGroupName(group.getShortName());
+		} catch (InvalidGroupNameException e) {
+			throw new InternalErrorException(e);
 		}
 
 		try {
@@ -209,6 +211,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		// we allow only update on shortName part of name
 		if (!dbGroup.getShortName().equals(group.getShortName())) {
+			try {
+				Utils.validateGroupName(group.getShortName());
+			} catch (InvalidGroupNameException e) {
+				throw new InternalErrorException(e);
+			}
 			dbGroup.setShortName(group.getShortName());
 			try {
 				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", dbGroup.getName(),

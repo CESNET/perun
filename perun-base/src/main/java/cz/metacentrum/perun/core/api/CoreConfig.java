@@ -79,6 +79,8 @@ public class CoreConfig {
 	private String smtpUser;
 	private String smtpPass;
 	private List<String> autocreatedNamespaces;
+	private String groupNameSecondaryRegex;
+	private String groupFullNameSecondaryRegex;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -653,5 +655,20 @@ public class CoreConfig {
 
 	public String getDefaultLoaIdP() {
 		return defaultLoaIdP;
+	}
+
+	public String getGroupNameSecondaryRegex() {
+		return groupNameSecondaryRegex;
+	}
+
+	public void setGroupNameSecondaryRegex(String groupNameSecondaryRegex) {
+		this.groupNameSecondaryRegex = groupNameSecondaryRegex;
+	}
+	public String getGroupFullNameSecondaryRegex() {
+		return groupFullNameSecondaryRegex;
+	}
+
+	public void setGroupFullNameSecondaryRegex(String groupFullNameSecondaryRegex) {
+		this.groupFullNameSecondaryRegex = groupFullNameSecondaryRegex;
 	}
 }
