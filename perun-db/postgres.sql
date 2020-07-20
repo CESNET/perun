@@ -1,4 +1,4 @@
--- database version 3.1.63 (don't forget to update insert statement at the end of file)
+-- database version 3.1.64 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -9,7 +9,6 @@ create table vos (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint vo_pk primary key (id),
@@ -28,7 +27,6 @@ create table users (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	service_acc boolean default false not null, --is it service account?
 	sponsored_acc boolean default false not null, --is it sponsored account?
 	created_by_uid integer,
@@ -45,7 +43,6 @@ create table owners (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	type varchar not null, --type of owner (for example IdP)
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -137,7 +134,6 @@ create table facilities (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint fac_pk primary key(id),
@@ -154,7 +150,6 @@ create table resources (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	vo_id integer not null,   --identifier of VO (vos.id)
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -172,7 +167,6 @@ create table destinations (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint dest_pk primary key (id),
@@ -187,7 +181,6 @@ create table facility_owners (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint facow_pk primary key (facility_id,owner_id),
@@ -205,7 +198,6 @@ create table groups (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	parent_group_id integer,    --in case of subgroup identifier of parent group (groups.id)
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -293,7 +285,6 @@ create table attr_names (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	display_name varchar,  --name of attr. displayed at GUI
@@ -326,7 +317,6 @@ create table hosts (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint host_pk primary key (id),
@@ -342,7 +332,6 @@ create table host_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,   --value of attribute if it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -388,7 +377,6 @@ create table services (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint serv_pk primary key(id),
@@ -403,7 +391,6 @@ create table service_required_attrs (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint srvreqattr_pk primary key (service_id,attr_id),
@@ -419,11 +406,11 @@ create table specific_user_users (
 	modified_by_uid integer,
 	modified_at timestamp default statement_timestamp() not null,
 	type varchar default 'service' not null,
-	status char(1) default '0' not null,
+	status integer default 0 not null,
 	constraint acc_specifu_u_pk primary key (user_id,specific_user_id),
   constraint acc_specifu_u_uid_fk foreign key (user_id) references users(id),
   constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id),
-  constraint specifu_u_status_chk check (status in ('0','1'))
+  constraint specifu_u_status_chk check (status in (0,1))
 );
 
 -- SERVICE_DENIALS - services excluded from ussage
@@ -436,7 +423,6 @@ create table service_denials (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint srvden_pk primary key (id),
@@ -454,7 +440,6 @@ create table resource_services (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint resrcsrv_pk primary key (service_id,resource_id),
@@ -606,7 +591,6 @@ create table facility_service_destinations (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	propagation_type varchar default 'PARALLEL',
@@ -624,7 +608,6 @@ create table entityless_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -641,7 +624,6 @@ create table facility_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -669,7 +651,6 @@ create table group_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -696,7 +677,6 @@ create table resource_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -724,7 +704,6 @@ create table group_resource_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -752,7 +731,6 @@ create table groups_members (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	source_group_status integer not null default 0,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -772,7 +750,6 @@ create table groups_resources (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grres_grp_res_u unique (group_id,resource_id),
@@ -789,7 +766,6 @@ create table member_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -817,7 +793,6 @@ create table member_group_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -847,7 +822,6 @@ create table member_resource_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -876,7 +850,6 @@ create table user_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -904,7 +877,6 @@ create table user_facility_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -933,7 +905,6 @@ create table vo_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -951,7 +922,7 @@ CREATE TABLE vo_attr_u_values (
 	FOREIGN KEY (vo_id,attr_id) REFERENCES vo_attr_values ON DELETE CASCADE
 );
 
--- EXT_SOURCES - external sourcces from which we can gain data about users
+-- EXT_SOURCES - external sources from which we can gain data about users
 create table ext_sources (
 	id integer not null,
 	name varchar not null,    --name of source
@@ -960,7 +931,6 @@ create table ext_sources (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrsrc_pk primary key(id),
@@ -976,7 +946,6 @@ create table ext_sources_attributes (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrcatt_usrc_fk foreign key (ext_sources_id) references ext_sources(id)
@@ -990,7 +959,6 @@ create table vo_ext_sources (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint vousrsrc_pk primary key (vo_id,ext_sources_id),
@@ -1023,7 +991,6 @@ create table user_ext_sources (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	loa integer,                       --level of assurance
 	last_access timestamp default statement_timestamp() not null, --time of last user's access (to Perun) by using this external source
 	created_by_uid integer,
@@ -1043,7 +1010,6 @@ create table service_packages (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint pkg_pk primary key (id),
@@ -1058,7 +1024,6 @@ create table service_service_packages (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint srvpkg_srv_pk primary key(service_id,package_id),
@@ -1400,7 +1365,6 @@ create table user_ext_source_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	status char(1) default '0' not null,
 	attr_value_text text,
 	created_by_uid integer,
 	modified_by_uid integer,
@@ -1761,7 +1725,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.63');
+insert into configurations values ('DATABASE VERSION','3.1.64');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
