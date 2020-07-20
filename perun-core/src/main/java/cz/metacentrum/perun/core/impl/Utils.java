@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -18,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MinSizeExceededException;
@@ -83,6 +85,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Utilities.
@@ -1598,5 +1601,55 @@ public class Utils {
 	public static String escapeStringForLDAP(String searchString) {
 		if(searchString == null) return "";
 		return searchString.replace("\\", "\\5C").replace("*", "\\2A").replace("(", "\\28").replace(")", "\\29").replace("\000", "\\00");
+	}
+
+	/**
+	 */
+	public static void validateFullGroupName(String name) throws InvalidGroupNameException {
+		String primaryRegex = GroupsManager.GROUP_FULL_NAME_REGEXP;
+		validateGroupName(name, primaryRegex);
+
+		String secondaryRegex = BeansUtils.getCoreConfig().getGroupFullNameSecondaryRegex();
+		if (secondaryRegex != null && !secondaryRegex.isEmpty()) {
+			validateGroupName(name, secondaryRegex);
+		}
+	}
+
+
+	/**
+	 * Validates group name.
+	 *
+	 * To check the group name, this method uses two regexes. A default one, hardcoded in
+	 * the GroupsManager, and a secondary optional. The secondary regex can be default as
+	 * a core property named groupNameSecondaryRegex.
+	 *
+	 * @param name name to be validated
+	 * @throws InvalidGroupNameException if the name is invalid
+	 */
+	public static void validateGroupName(String name) throws InvalidGroupNameException {
+		String primaryRegex = GroupsManager.GROUP_SHORT_NAME_REGEXP;
+		validateGroupName(name, primaryRegex);
+
+		String secondaryRegex = BeansUtils.getCoreConfig().getGroupNameSecondaryRegex();
+		if (secondaryRegex != null && !secondaryRegex.isEmpty()) {
+			validateGroupName(name, secondaryRegex);
+		}
+	}
+
+	/**
+	 * Validates given group name against a given regex.
+	 *
+	 * @param name group name
+	 * @param regex regex to be used
+	 * @throws InvalidGroupNameException if the name is invalid
+	 */
+	public static void validateGroupName(String name, String regex) throws InvalidGroupNameException {
+		try {
+			if (!name.matches(regex)) {
+				throw new InvalidGroupNameException("Wrong group name, group name must matches " + regex);
+			}
+		} catch (PatternSyntaxException e) {
+			throw new InternalErrorException("Invalid group name regex defined: " + regex, e);
+		}
 	}
 }
