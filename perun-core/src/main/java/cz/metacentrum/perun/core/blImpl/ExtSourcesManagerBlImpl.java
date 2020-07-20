@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
@@ -50,7 +51,6 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerBlImpl.class);
 	// \\p{L} means any unicode char
 	private static final Pattern namePattern = Pattern.compile("^[\\p{L} ,.0-9_'-]+$");
-	private static final Pattern groupNamePattern = Pattern.compile(GroupsManager.GROUP_SHORT_NAME_REGEXP);
 
 	private final ExtSourcesManagerImplApi extSourcesManagerImpl;
 	private PerunBl perunBl;
@@ -306,8 +306,11 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 		// Check if the group name is not null and if it is in valid format.
 		if(candidateGroup.asGroup().getName() != null) {
-			Matcher name = groupNamePattern.matcher(candidateGroup.asGroup().getName());
-			if(!name.matches()) throw new InternalErrorException("Group subject data has to contain valid group name!");
+			try {
+				Utils.validateGroupName(candidateGroup.asGroup().getName());
+			} catch (InvalidGroupNameException e) {
+				throw new InternalErrorException("Group subject data has to contain valid group name!", e);
+			}
 		} else {
 			throw new InternalErrorException("group name cannot be null in Group subject data!");
 		}

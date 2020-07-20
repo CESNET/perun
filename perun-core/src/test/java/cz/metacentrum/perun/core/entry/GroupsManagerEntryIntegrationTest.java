@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -33,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -59,6 +61,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -4934,6 +4937,25 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
 		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
 		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
+	}
+
+	@Test
+	public void createGroupFailsOnInvalidNameForSecondaryRegex() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupFailsOnInvalidNameForSecondaryRegex");
+		Vo vo = setUpVo();
+
+		String previousValue = BeansUtils.getCoreConfig().getGroupNameSecondaryRegex();
+		String secondaryRegex = "^[\\d]*";
+		BeansUtils.getCoreConfig().setGroupNameSecondaryRegex(secondaryRegex);
+
+		String invalidName = "invalid";
+		Group invalidGroup = new Group(invalidName, "");
+
+		assertThatExceptionOfType(InvalidGroupNameException.class)
+				.isThrownBy(() -> groupsManager.createGroup(sess, vo, invalidGroup));
+
+		// cleanup
+		BeansUtils.getCoreConfig().setGroupNameSecondaryRegex(previousValue);
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

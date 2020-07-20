@@ -81,6 +81,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @throw GroupRelationNotAllowed When the group relation cannot be created, because it's not allowed
 	 * @throw GroupRelationAlreadyExists When the group relation already exists
 	 * @throw VoNotExistsException When Vo doesn't exist
+	 * @throw InvalidGroupNameException when the given group name is invalid
 	 *
 	 * @param vo int Parent VO <code>id</code>
 	 * @param name String name of a group
@@ -269,6 +270,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 * @throw GroupExistsException when the group with the same name already exists in the same vo
+	 * @throw InvalidGroupNameException when the given group name is invalid
 	 *
 	 * @param group Group JSON Group class
 	 * @return Group Updated group
@@ -346,6 +348,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw InvalidGroupNameException when the given group name is invalid
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param name String Group name
