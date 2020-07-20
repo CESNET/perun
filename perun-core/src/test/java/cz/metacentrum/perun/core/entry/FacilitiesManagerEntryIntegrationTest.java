@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -823,6 +824,37 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facilitiesManagerEntry.getHosts(sess, emptyFac);
 		// shouldn't find facility (facility)
 
+	}
+
+	@Test
+	public void getEnrichedHosts() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedHosts");
+
+		createdHost = facilitiesManagerEntry.addHosts(sess, hosts, facility).get(0);
+		// set this host for deletion - host is created after adding to facility !!
+		hostsForDeletion.add(hosts.get(0));
+
+		Attribute attr = new Attribute();
+		attr.setNamespace("urn:perun:host:attribute-def:opt");
+		attr.setFriendlyName("host-test-for-list-of-names-attribute");
+		attr.setType(String.class.getName());
+		attr.setValue("HostAttributeForList");
+		perun.getAttributesManagerBl().createAttribute(sess, attr);
+		perun.getAttributesManagerBl().setAttribute(sess, createdHost, attr);
+
+		List<String> attrNames = new ArrayList<>();
+		attrNames.add(attr.getName());
+
+		List<Attribute> hostAttributes = new ArrayList<>();
+		hostAttributes.add(attr);
+		EnrichedHost actualEnrichedHost = new EnrichedHost(createdHost, hostAttributes);
+
+		List<EnrichedHost> expectedEnrichedHosts = facilitiesManagerEntry.getEnrichedHosts(sess, facility, attrNames);
+		EnrichedHost expectedEnrichedHost = expectedEnrichedHosts.get(0);
+
+		assertEquals("Created and returned enrichedHost should be the same", expectedEnrichedHost, actualEnrichedHost);
+		assertEquals("Number of attributes should be same", expectedEnrichedHost.getHostAttributes().size(), actualEnrichedHost.getHostAttributes().size());
+		assertTrue("Returned enrichedHost should have all the desired attributes", expectedEnrichedHost.getHostAttributes().containsAll(hostAttributes));
 	}
 
 	@Test

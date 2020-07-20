@@ -274,7 +274,21 @@ public interface FacilitiesManager {
 	 *
 	 * @return hosts
 	 */
-	List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException;
+	List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException, PrivilegeException;
+
+	/**
+	 * Return all EnrichedHosts of given facility. That is host with attributes given by attrNames.
+	 *
+	 * @param sess perun session
+	 * @param facility facility
+	 * @param attrNames attribute names
+	 * @return list of enriched hosts
+	 *
+	 * @throws AttributeNotExistsException if some attribute does not exist
+	 * @throws FacilityNotExistsException if facility does not exist
+	 * @throws PrivilegeException if user has insufficient permissions
+	 */
+	List<EnrichedHost> getEnrichedHosts(PerunSession sess, Facility facility, List<String> attrNames) throws AttributeNotExistsException, FacilityNotExistsException, PrivilegeException;
 
 	/**
 	 * Count hosts of Facility.
