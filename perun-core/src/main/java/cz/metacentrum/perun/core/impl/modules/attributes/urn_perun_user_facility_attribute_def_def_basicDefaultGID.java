@@ -8,9 +8,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
@@ -20,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-	*
-	* @author Jakub Peschel <410368@mail.muni.cz>
-	*/
+ *
+ * @author Jakub Peschel <410368@mail.muni.cz>
+ */
 public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	@Override
@@ -49,7 +47,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
 		List<Resource> allowedResources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
 		List<Resource> resourcesWithSameGid = sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGidAttribute);
 		if (resourcesWithSameGid.isEmpty() && allowedResources.isEmpty() && resourceGidAttribute.getValue() == null) return;
-		if (resourcesWithSameGid.isEmpty() && resourceGidAttribute.getValue() != null) throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Resource with requiered unix GID doesn't exist.");
+		if (resourcesWithSameGid.isEmpty() && resourceGidAttribute.getValue() != null) throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "Resource with required unix GID doesn't exist.");
 		if (allowedResources.isEmpty()) throw new WrongReferenceAttributeValueException(attribute, null, user, facility, "User has not access to required resource");
 
 		resourcesWithSameGid.retainAll(allowedResources);
@@ -101,7 +99,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
 		attr.setFriendlyName("basicDefaultGID");
 		attr.setType(Integer.class.getName());
-		attr.setDescription("Pregenerated primary unix gid which is used if user doesn't have other preferencies.");
+		attr.setDescription("Generated primary unix gid which is used if user doesn't have other preferences.");
 		return attr;
 	}
 }
