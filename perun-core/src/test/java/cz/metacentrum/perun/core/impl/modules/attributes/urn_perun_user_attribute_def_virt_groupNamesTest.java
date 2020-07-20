@@ -96,7 +96,7 @@ public class urn_perun_user_attribute_def_virt_groupNamesTest {
 				" JOIN groups ON groups_members.group_id = groups.id" +
 				" ORDER BY vo_short_name, group_name",
 			urn_perun_user_attribute_def_virt_groupNames.ROW_MAPPER,
-			user.getId(), String.valueOf(Status.VALID.getCode()), MemberGroupStatus.VALID.getCode())).thenReturn(dbResult);
+			user.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode())).thenReturn(dbResult);
 
         Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
         assertTrue(receivedAttr.getValue() instanceof List);

@@ -1384,7 +1384,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" join groups_members on groups.id=groups_members.group_id " +
 							" join members on groups_members.member_id=members.id " +
 							" where members.user_id=? and members.status!=? and members.status!=?",
-					RESOURCE_MAPPER, user.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					RESOURCE_MAPPER, user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
