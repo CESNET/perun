@@ -447,7 +447,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" join resources on groups_resources.resource_id=resources.id " +
 							" where resources.facility_id=? and members.status!=? and members.status!=?",
 					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
-					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -465,7 +465,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" join users on members.user_id=users.id" +
 							" where resources.facility_id=? and members.status!=? and members.status!=?",
 					UsersManagerImpl.USER_MAPPER, facility.getId(),
-					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -482,7 +482,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" join facilities on resources.facility_id=facilities.id " +
 							" where members.user_id=? and members.status!=? and members.status!=?",
 					FACILITY_MAPPER, user.getId(),
-					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -499,7 +499,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" join facilities on resources.facility_id=facilities.id " +
 							" where members.id=? and members.status!=? and members.status!=?",
 					FACILITY_MAPPER, member.getId(),
-					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

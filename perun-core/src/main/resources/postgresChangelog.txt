@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.63
+ALTER TABLE members ALTER COLUMN status drop DEFAULT;
+ALTER TABLE members ALTER COLUMN status TYPE integer USING status::int;
+ALTER TABLE members ALTER COLUMN status SET DEFAULT 0;
+update configurations set value='3.1.63' where property='DATABASE VERSION';
+
 3.1.62
 ALTER TABLE application_form ALTER COLUMN automatic_approval TYPE boolean USING automatic_approval::boolean;
 ALTER TABLE application_form ALTER COLUMN automatic_approval SET default false;

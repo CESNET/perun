@@ -324,11 +324,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	@Override
 	public int getMembersCount(PerunSession sess, Vo vo, Status status) {
 		try {
-			if (Compatibility.isPostgreSql()) {
-				return jdbc.queryForInt("select count(*) from members where vo_id=? and status=?", vo.getId(), String.valueOf(status.getCode()));
-			} else {
-				return jdbc.queryForInt("select count(*) from members where vo_id=? and status=?", vo.getId(), status.getCode());
-			}
+			return jdbc.queryForInt("select count(*) from members where vo_id=? and status=?", vo.getId(), status.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
