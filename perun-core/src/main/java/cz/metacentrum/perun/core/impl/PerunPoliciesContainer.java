@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,5 +56,14 @@ public class PerunPoliciesContainer {
 			policiesToCheck.addAll(policyToCheck.getIncludePolicies());
 		}
 		return new ArrayList<>(allIncludedPolicies.values());
+	}
+
+	/**
+	 * Return all loaded perun policies.
+	 *
+	 * @return all loaded policies
+	 */
+	public List<PerunPolicy> getAllPolicies() {
+		return Collections.unmodifiableList(perunPolicies);
 	}
 }

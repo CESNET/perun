@@ -1022,4 +1022,13 @@ public class AuthzResolver {
 		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException(sess, "loadAuthorizationComponents");
 		AuthzResolverBlImpl.loadAuthorizationComponents();
 	}
+
+	/**
+	 * Return all loaded perun policies.
+	 *
+	 * @return all loaded policies
+	 */
+	public static List<PerunPolicy> getAllPolicies() {
+		return AuthzResolverBlImpl.getAllPolicies();
+	}
 }

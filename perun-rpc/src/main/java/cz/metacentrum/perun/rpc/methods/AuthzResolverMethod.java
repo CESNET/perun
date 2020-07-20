@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
@@ -610,6 +612,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return "OK";
+		}
+	},
+
+	/*#
+	 * Return all loaded perun policies.
+	 *
+	 * @return List<PerunPolicy> all loaded policies
+	 */
+	getAllPolicies {
+		@Override
+		public List<PerunPolicy> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return AuthzResolver.getAllPolicies();
 		}
 	},
 

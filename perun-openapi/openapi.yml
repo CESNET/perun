@@ -386,6 +386,22 @@ components:
       discriminator:
         propertyName: beanName
 
+    PerunPolicy:
+      type: object
+      properties:
+        policyName: { type: string }
+        includePolicies: { type: array, items: { type: string } }
+        perunRoles:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+      required:
+        - policyName
+        - includePolicies
+        - perunRoles
+
     Group:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1220,6 +1236,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Group"
+
+    ListOfPerunPoliciesResponse:
+      description: "returns List<PerunPolicy>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/PerunPolicy"
 
     ListOfRichGroupsResponse:
       description: "returns List<RichGroup>"
@@ -2766,6 +2791,18 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/StringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getAllPolicies:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getAllPolicies
+      summary: Return all loaded perun policies.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfPerunPoliciesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
