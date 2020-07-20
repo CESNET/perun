@@ -1747,6 +1747,31 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	}
 
 	@Test
+	public void getHostAttributesByListOfNames() throws Exception {
+		System.out.println(CLASS_NAME + "getHostAttributesByListOfNames");
+
+		host = setUpHost().get(0);
+		attributes = setUpHostAttribute();
+		attributesManager.setAttribute(sess, host, attributes.get(0));
+
+		Attribute attr = new Attribute();
+		attr.setNamespace("urn:perun:host:attribute-def:opt");
+		attr.setFriendlyName("host-test-for-list-of-names-attribute");
+		attr.setType(String.class.getName());
+		attr.setValue("HostAttributeForList");
+		attributesManager.createAttribute(sess, attr);
+		attributesManager.setAttribute(sess, host, attr);
+
+		List<String> attrNames = new ArrayList<>();
+		attrNames.add(attr.getName());
+
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, host, attrNames);
+		assertNotNull("unable to get host attributes", retAttr);
+		assertTrue("our attribute was not returned", retAttr.contains(attr));
+		assertFalse("our attribute was no supposed to be returned", retAttr.contains(attributes.get(0)));
+	}
+
+	@Test
 	public void getAttributesByAttributeDefinition() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByAttributeDefinition");
 

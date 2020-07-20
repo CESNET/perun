@@ -623,8 +623,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) {
+		if (attrNames.isEmpty()) return new ArrayList<>();
+
+		return getAttributesManagerImpl().getAttributes(sess, host, attrNames);
+	}
+
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) {
 		return getAttributesManagerImpl().getAttributes(sess, resource, group);
 	}
 

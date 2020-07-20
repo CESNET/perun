@@ -492,6 +492,18 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Host host);
 
 	/**
+	 * Get all attributes associated with the host which have name in list attrNames (empty and virtual too). Empty list attrNames will return no attributes.
+	 *
+	 * @param sess perun session
+	 * @param host host to get attributes for
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) throws InternalErrorException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the group on resource.
 	 * @param sess
 	 * @param resource

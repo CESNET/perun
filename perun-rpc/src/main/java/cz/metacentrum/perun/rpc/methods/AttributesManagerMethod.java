@@ -277,6 +277,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
 	 */
 	/*#
+	 * Returns all Host attributes for selected Host which have name in list attrNames (empty too). Empty list attrNames will return no attributes.
+	 *
+	 * @param host int Host <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<Attribute> All non-empty Host attributes
+	 * @throw HostNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
+	 */
+	/*#
 	 * Returns all non-empty Entityless attributes with subject equaled <code>key</code>.
 	 *
 	 * @param key String String <code>key</code>
@@ -433,8 +442,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getGroupById(parms.readInt("group")));
 				}
 			} else if (parms.contains("host")) {
-				return ac.getAttributesManager().getAttributes(ac.getSession(),
+				if (parms.contains("attrNames")) {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
+						ac.getHostById(parms.readInt("host")),
+						parms.readList("attrNames", String.class));
+				} else {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
 						ac.getHostById(parms.readInt("host")));
+				}
 			} else if (parms.contains("key")) {
 				return ac.getAttributesManager().getAttributes(ac.getSession(),
 						parms.readString("key"));

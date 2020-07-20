@@ -842,6 +842,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) {
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("hId", host.getId());
+		parameters.addValue("nSC", AttributesManager.NS_HOST_ATTR_CORE);
+		parameters.addValue("nSO", AttributesManager.NS_HOST_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_HOST_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_HOST_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
+					"left join host_attr_values on id=attr_id and host_id=:hId " +
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+				parameters, new SingleBeanAttributeRowMapper<>(sess, this, host));
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource) {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +

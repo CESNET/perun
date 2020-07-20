@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -651,13 +653,41 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException {
+	public List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		//TODO authorization
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException(sess, "getHosts");
+		}
 
 		return getFacilitiesManagerBl().getHosts(sess, facility);
+	}
+
+	@Override
+	public List<EnrichedHost> getEnrichedHosts(PerunSession sess, Facility facility, List<String> attrNames) throws AttributeNotExistsException, FacilityNotExistsException, PrivilegeException {
+		List<Host> hosts = getHosts(sess, facility);
+		List<EnrichedHost> enrichedHosts = new ArrayList<>();
+
+		if (hosts.isEmpty()) return enrichedHosts;
+
+		Host host1 = hosts.get(0);
+		List<String> allowedAttributes = new ArrayList<>();
+
+		//Filtering attributes
+		for (String attrName : attrNames) {
+			if (AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName), host1)) {
+				allowedAttributes.add(attrName);
+			}
+		}
+
+		for (Host host : hosts) {
+			List<Attribute> hostAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, host, allowedAttributes);
+			enrichedHosts.add(new EnrichedHost(host, hostAttributes));
+		}
+		return enrichedHosts;
 	}
 
 	@Override
