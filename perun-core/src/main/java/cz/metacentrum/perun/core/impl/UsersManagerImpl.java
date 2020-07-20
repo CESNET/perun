@@ -549,10 +549,20 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				userExtSource.getLoa(), userExtSource.getExtSource().getId(),
 				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
 				sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
-					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-					ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+
+			if (userExtSource.getLastAccess() != null) {
+				// user ext source has last access info
+				jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, last_access, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
+								"values (?,?,?,?,?,"+Compatibility.toDate("?", "'YYYY-MM-DD HH24:MI:SS.US'")+",?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+						ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(), userExtSource.getLastAccess(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			} else {
+				// adding new user ext source with default current timestamp
+				jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
+								"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+						ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			}
 
 			userExtSource.setId(ueaId);
 			userExtSource.setUserId(user.getId());
