@@ -369,12 +369,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				// Exclude members with one of the status
 				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
 						" from groups_members join members on members.id=groups_members.member_id " +
-						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" not in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
+						"where groups_members.group_id=:group_id and members.status not in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			} else {
 				// Include members with one of the status
 				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
 						" from groups_members join members on members.id=groups_members.member_id " +
-						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
+						"where groups_members.group_id=:group_id and members.status in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			}
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
