@@ -215,11 +215,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 	}
 
-	private static Boolean doBeforeAttributeRightsCheck(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws AttributeNotExistsException {
+	private static Boolean doBeforeAttributeRightsCheck(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(actionType, "ActionType");
 		Utils.notNull(attrDef, "AttributeDefinition");
-		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
@@ -272,7 +271,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return allowedAttributes;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) throws WrongAttributeAssignmentException {
 
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, member);
@@ -326,7 +325,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group, Resource resource) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group, Resource resource) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, resource);
 
@@ -360,7 +359,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user, Facility facility) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user, Facility facility) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, facility);
 
@@ -436,7 +435,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Group group) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Group group) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, group);
 
@@ -481,7 +480,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, user, null);
 
@@ -542,7 +541,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, member, null);
 
@@ -589,7 +588,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Vo vo) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Vo vo) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, vo, null);
 
@@ -650,7 +649,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, group, null);
 
@@ -705,7 +704,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, null);
 
@@ -761,7 +760,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Facility facility) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Facility facility) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, facility, null);
 
@@ -821,7 +820,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Host host) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Host host) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, host, null);
 
@@ -848,7 +847,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, UserExtSource ues) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, UserExtSource ues) throws WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, ues, null);
 
@@ -895,7 +894,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) throws AttributeNotExistsException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
 

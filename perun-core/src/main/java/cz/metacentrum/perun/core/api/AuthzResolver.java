@@ -103,7 +103,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group, resource);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -121,7 +121,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, resource);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -139,7 +139,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user, Facility facility) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user, facility);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -157,7 +157,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Group group) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, group);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -174,7 +174,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -191,7 +191,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -208,7 +208,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Vo vo) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, vo);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -248,7 +248,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -265,7 +265,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, resource);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -282,7 +282,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Facility facility) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, facility);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -299,7 +299,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Host host) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, host);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -316,7 +316,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, UserExtSource ues) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, ues);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -331,11 +331,7 @@ public class AuthzResolver {
 	 * @return true if principal is authorized, false if not
 	 */
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) {
-		try {
-			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
-		} catch (AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
 	}
 
 	/**
