@@ -3664,4 +3664,160 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+
+# A list of Perun management rules that are loaded to the PerunPoliciesContainer.
+perun_roles_management:
+
+  PERUNADMIN:
+    assign_to_objects: {}
+    entities_to_manage:
+      User: user_id
+    privileged_roles:
+      - PERUNADMIN:
+
+  PERUNOBSERVER:
+    assign_to_objects: {}
+    entities_to_manage:
+      User: user_id
+    privileged_roles:
+      - PERUNADMIN:
+
+  VOADMIN:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+
+  GROUPADMIN:
+    assign_to_objects:
+      Group: group_id
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+
+  SELF:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  FACILITYADMIN:
+    assign_to_objects:
+      Facility: facility_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - FACILITYADMIN: Facility
+
+  RESOURCEADMIN:
+    assign_to_objects:
+      Resource: resource_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+
+  RESOURCESELFSERVICE:
+    assign_to_objects:
+      Resource: resource_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+
+  REGISTRAR:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  ENGINE:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  RPC:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  NOTIFICATIONS:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  SERVICEUSER:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  SPONSOR:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+
+  VOOBSERVER:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+
+  TOPGROUPCREATOR:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+
+  SECURITYADMIN:
+    assign_to_objects:
+      SecurityTeam: security_team_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - SECURITYADMIN: SecurityTeam
+
+  CABINETADMIN:
+    assign_to_objects: {}
+    entities_to_manage:
+      User: user_id
+    privileged_roles:
+      - PERUNADMIN:
+      - CABINETADMIN:
+
+  UNKNOWN:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
 ...

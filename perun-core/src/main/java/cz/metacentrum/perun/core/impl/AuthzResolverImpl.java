@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.SpecificUserType;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import org.slf4j.Logger;
@@ -181,6 +183,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 		this.perunRolesLoader.loadPerunRoles(jdbc);
 		perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
+		perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement());
 	}
 
 	public static Map<String, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) {
@@ -761,6 +764,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void loadAuthorizationComponents() {
 		this.perunRolesLoader.loadPerunRoles(jdbc);
 		perunPoliciesContainer.setPerunPolicies(this.perunRolesLoader.loadPerunPolicies());
+		perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement());
 	}
 
 	public static PerunPolicy getPerunPolicy(String policyName) throws PolicyNotExistsException {
@@ -778,5 +782,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	 */
 	public static List<PerunPolicy> getAllPolicies() {
 		return perunPoliciesContainer.getAllPolicies();
+	}
+
+	public static RoleManagementRules getRoleManagementRules(String roleName) throws RoleManagementRulesNotExistsException {
+		return perunPoliciesContainer.getRoleManagementRules(roleName);
 	}
 }

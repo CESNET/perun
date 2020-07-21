@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.PerunPolicy;
+import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +22,15 @@ public class PerunPoliciesContainer {
 
 	private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
 	private List<PerunPolicy> perunPolicies = new ArrayList<>();
+	private Map<String, RoleManagementRules> rolesManagementRules = new HashMap<>();
 
 	public void setPerunPolicies(List<PerunPolicy> perunPolicies) {
 		this.perunPolicies = perunPolicies;
+	}
+
+
+	public void setRolesManagementRules(Map<String, RoleManagementRules> rolesManagementRules) {
+		this.rolesManagementRules = rolesManagementRules;
 	}
 
 	public PerunPolicy getPerunPolicy(String policyName) throws PolicyNotExistsException {
@@ -30,6 +38,12 @@ public class PerunPoliciesContainer {
 			if (policy.getPolicyName().equals(policyName)) return policy;
 		}
 		throw new PolicyNotExistsException("Policy with name "+ policyName + "does not exists in the PerunPoliciesContainer.");
+	}
+
+	public RoleManagementRules getRoleManagementRules(String roleName) throws RoleManagementRulesNotExistsException {
+		if (rolesManagementRules.containsKey(roleName))
+			return rolesManagementRules.get(roleName);
+		else throw new RoleManagementRulesNotExistsException("Management rules for role name "+ roleName + "does not exists in the PerunPoliciesContainer.");
 	}
 
 	/**

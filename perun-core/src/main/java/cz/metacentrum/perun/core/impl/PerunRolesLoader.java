@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunPolicy;
+import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The purpose of the PerunRolesLoader is to load perun roles and policies from the perun-roles.yml configuration file.
+ * The purpose of the PerunRolesLoader is to load perun roles and other policies from the perun-roles.yml configuration file.
  *
  * Production configuration file is located in /etc/perun/perun-roles.yml
  * Configuration file which is used during the build is located in perun-base/src/test/resources/perun-roles.yml
@@ -80,7 +81,7 @@ public class PerunRolesLoader {
 
 			// For each policy node construct PerunPolicy and add it to the list
 			Iterator<String> policyNames = policiesNode.fieldNames();
-			while (policyNames.hasNext()) {
+			while(policyNames.hasNext()) {
 				String policyName = policyNames.next();
 				JsonNode policyNode = policiesNode.get(policyName);
 				List<Map<String, String>> perunRoles = new ArrayList<>();
@@ -88,14 +89,7 @@ public class PerunRolesLoader {
 
 				//Field policy_roles is saved as List of maps in the for loop
 				for (JsonNode perunRoleNode : perunRolesNode) {
-					Map<String, String> innerRoleMap = new HashMap<>();
-					Iterator<String> roleArrayKeys = perunRoleNode.fieldNames();
-					while (roleArrayKeys.hasNext()) {
-						String role = roleArrayKeys.next();
-						JsonNode roleObjectNode = perunRoleNode.get(role);
-						String object = roleObjectNode.isNull() ? null : roleObjectNode.textValue();
-						innerRoleMap.put(role, object);
-					}
+					Map<String, String> innerRoleMap = createmapFromJsonNode(perunRoleNode);
 					perunRoles.add(innerRoleMap);
 				}
 
@@ -110,6 +104,60 @@ public class PerunRolesLoader {
 		}
 
 		return policies;
+	}
+
+	/**
+	 * Load role management rules from the configuration file as map
+	 * with RoleManagementRules' identification as key and RoleManagementRules as value.
+	 *
+	 * @return RoleManagementRules in a map.
+	 */
+	public Map<String, RoleManagementRules> loadPerunRolesManagement() {
+		Map<String, RoleManagementRules> rolesManagementRules = new HashMap<>();
+
+		try {
+			JsonNode rootNode = loadConfigurationFile();
+			//Fetch all policies from the configuration file
+			JsonNode rolesNodes = rootNode.get("perun_roles_management");
+
+			// For each role node construct RoleManagementRules and add it to the map
+			Iterator<String> roleNames = rolesNodes.fieldNames();
+			while (roleNames.hasNext()) {
+				String roleName = roleNames.next();
+				JsonNode roleNode = rolesNodes.get(roleName);
+				List<Map<String, String>> privilegedRoles = new ArrayList<>();
+				JsonNode privilegedRolesNode = roleNode.get("privileged_roles");
+
+				//Field privileged_roles is saved as List of maps in the for loop
+				for (JsonNode privilegedRoleNode : privilegedRolesNode) {
+					Map<String, String> innerRoleMap = createmapFromJsonNode(privilegedRoleNode);
+					privilegedRoles.add(innerRoleMap);
+				}
+
+				Map<String, String> entitiesToManage = createmapFromJsonNode(roleNode.get("entities_to_manage"));
+				Map<String, String> objectsToAssign = createmapFromJsonNode(roleNode.get("assign_to_objects"));
+
+				rolesManagementRules.put(roleName, new RoleManagementRules(roleName, privilegedRoles, entitiesToManage, objectsToAssign));
+			}
+		} catch(RuntimeException e) {
+			throw new InternalErrorException("The configuration file " + configurationPath.getFilename() + " has invalid syntax.", e);
+		}
+
+		return rolesManagementRules;
+	}
+
+	private Map<String, String> createmapFromJsonNode(JsonNode node) {
+		Map<String, String> resultMap = new HashMap<>();
+
+		Iterator<String> nodeArrayKeys = node.fieldNames();
+		while (nodeArrayKeys.hasNext()) {
+			String key = nodeArrayKeys.next();
+			JsonNode valueNode = node.get(key);
+			String value = valueNode.isNull() ? null : valueNode.textValue();
+			resultMap.put(key, value);
+		}
+
+		return resultMap;
 	}
 
 	private JsonNode loadConfigurationFile() {
