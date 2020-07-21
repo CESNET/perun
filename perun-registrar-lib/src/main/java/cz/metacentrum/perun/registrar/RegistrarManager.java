@@ -486,4 +486,22 @@ public interface RegistrarManager {
 	 */
 	ConsolidatorManager getConsolidatorManager();
 
+	/**
+	 * Return all applications from the given list which belong to the principal's identity in perun session.
+	 * Check is performed based on additional identifiers (if the user is logged through proxy for which they are enabled),
+	 * user_id (if principal's user is not null) and extSource name and extSource login.
+	 *
+	 * @param sess principal's session
+	 * @return list of applications which belongs to the principal in the perun session
+	 */
+	List<Application> filterPrincipalApplications(PerunSession sess, List<Application> applications);
+
+	/**
+	 * Return all applications from the given list which belong to the given user.
+	 * Check is performed based on additional identifiers, user_id, and extSource name and extSource login.
+	 *
+	 * @param sess principal's session
+	 * @return list of applications which belongs to the user
+	 */
+	List<Application> filterUserApplications(PerunSession sess, User user, List<Application> applications);
 }

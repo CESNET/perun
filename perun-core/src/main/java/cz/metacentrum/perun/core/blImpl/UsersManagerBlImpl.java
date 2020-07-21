@@ -118,9 +118,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private static final String A_USER_DEF_ALT_PASSWORD_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
 
-	public final static String multivalueAttributeSeparatorRegExp = ";";
-	private final static String additionalIdentifiersAttributeName = "additionalIdentifiers";
-	private final static String additionalIdentifiersPerunAttributeName = AttributesManager.NS_UES_ATTR_DEF + ":" + additionalIdentifiersAttributeName;
+	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 
 
 	/**
@@ -692,26 +690,37 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws UserExtSourceNotExistsException {
-		String additionalIdentifiers = principal.getAdditionalInformations().get(additionalIdentifiersAttributeName);
+		String additionalIdentifiers = principal.getAdditionalInformations().get(ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
 		if (additionalIdentifiers == null) {
-			throw new InternalErrorException("Entry " + additionalIdentifiersAttributeName + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
+			throw new InternalErrorException("Entry " + ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
 		}
 		UserExtSource ues = null;
-		for(String identifier : additionalIdentifiers.split(multivalueAttributeSeparatorRegExp)) {
+		for(String identifier : additionalIdentifiers.split(MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX)) {
 			try {
-				ues = perunBl.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, additionalIdentifiersPerunAttributeName, identifier);
+				ues = perunBl.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME, identifier);
 				log.debug("UserExtSource found using additional identifiers: " + ues);
 				break;
 			} catch (UserExtSourceNotExistsException ex) {
 				//try to find user ext source using different identifier in the next iteration of for cycle
 			} catch (AttributeNotExistsException ex) {
-				String errorMessage = "Mandatory attribute is not defined: ".concat(additionalIdentifiersPerunAttributeName);
+				String errorMessage = "Mandatory attribute is not defined: ".concat(ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
 				log.error(errorMessage);
 				throw new InternalErrorException(errorMessage, ex);
 			}
 		}
-		if (ues == null) throw new UserExtSourceNotExistsException("User ext source was not found. Searched value is any from \"" + additionalIdentifiers + "\" in " + additionalIdentifiersPerunAttributeName);
+		if (ues == null) throw new UserExtSourceNotExistsException("User ext source was not found. Searched value is any from \"" + additionalIdentifiers + "\" in " + ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
 		return ues;
+	}
+
+	@Override
+	public User getUserByExtSourceInformation(PerunSession sess, PerunPrincipal principal) throws UserExtSourceNotExistsException, UserNotExistsException, ExtSourceNotExistsException {
+		String shibIdentityProvider = principal.getAdditionalInformations().get(ORIGIN_IDENTITY_PROVIDER_KEY);
+		if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
+			UserExtSource ues = getUserExtSourceFromMultipleIdentifiers(sess, principal);
+			return getUserByUserExtSource(sess, ues);
+		} else {
+			return getUserByExtSourceNameAndExtLogin(sess, principal.getExtSourceName(), principal.getActor());
+		}
 	}
 
 	@Override
