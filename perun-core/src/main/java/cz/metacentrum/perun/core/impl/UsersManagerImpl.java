@@ -252,7 +252,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getSpecificUsersByUser(PerunSession sess, User user) {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					" from users, specific_user_users where users.id=specific_user_users.specific_user_id and specific_user_users.status='0' and specific_user_users.user_id=?", USER_MAPPER, user.getId());
+					" from users, specific_user_users where users.id=specific_user_users.specific_user_id and specific_user_users.status=0 and specific_user_users.user_id=?", USER_MAPPER, user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
 			return new ArrayList<>();
@@ -265,7 +265,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					" from users, specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status='0' and specific_user_users.specific_user_id=? " +
+					" from users, specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status=0 and specific_user_users.specific_user_id=? " +
 					" and specific_user_users.type=?", USER_MAPPER, specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
@@ -290,7 +290,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) {
 		try {
-			jdbc.update("insert into specific_user_users(user_id,specific_user_id,status,created_by_uid,modified_at,type) values (?,?,'0',?," + Compatibility.getSysdate() + ",?)",
+			jdbc.update("insert into specific_user_users(user_id,specific_user_id,status,created_by_uid,modified_at,type) values (?,?,0,?," + Compatibility.getSysdate() + ",?)",
 					user.getId(), specificUser.getId(), sess.getPerunPrincipal().getUserId(), specificUser.getMajorSpecificType().getSpecificUserType());
 
 		} catch (RuntimeException err) {
@@ -301,7 +301,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public void enableOwnership(PerunSession sess, User user, User specificUser) {
 		try {
-			jdbc.update("update specific_user_users set status='0', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
+			jdbc.update("update specific_user_users set status=0, modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
 					sess.getPerunPrincipal().getUserId(), user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (RuntimeException er) {
 			throw new InternalErrorException(er);
@@ -311,7 +311,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public void disableOwnership(PerunSession sess, User user, User specificUser) {
 		try {
-			jdbc.update("update specific_user_users set status='1', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
+			jdbc.update("update specific_user_users set status=1, modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
 					sess.getPerunPrincipal().getUserId(), user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (RuntimeException er) {
 			throw new InternalErrorException(er);
