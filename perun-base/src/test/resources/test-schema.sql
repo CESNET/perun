@@ -410,7 +410,7 @@ create table specific_user_users (
 	modified_by_uid integer,
 	modified_at timestamp default current_date not null,
 	type longvarchar default 'service' not null,
-	status integer default 0 not null, --is it service user?
+	status integer default 0 not null,    -- 0=enabled or 1=disabled ownership
 	constraint acc_specifu_u_pk primary key (user_id,specific_user_id),
 	constraint acc_specifu_u_uid_fk foreign key (user_id) references users(id),
 	constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id),
