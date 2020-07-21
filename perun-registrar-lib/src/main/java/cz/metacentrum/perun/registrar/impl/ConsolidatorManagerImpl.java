@@ -1,12 +1,16 @@
 package cz.metacentrum.perun.registrar.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
@@ -25,11 +29,12 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.Comparator.comparing;
 
 /**
  * Manager for Identity consolidation in Registrar.
@@ -39,6 +44,8 @@ import java.util.concurrent.TimeUnit;
 public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 	private final static Logger log = LoggerFactory.getLogger(ConsolidatorManagerImpl.class);
+	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	@Autowired RegistrarManager registrarManager;
 	@Autowired PerunBl perun;
@@ -79,7 +86,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		// if user known, doesn't actually search and offer joining.
 		try {
-			perun.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor());
+			perun.getUsersManagerBl().getUserByExtSourceInformation(sess, sess.getPerunPrincipal());
 			return new ArrayList<>();
 		} catch (Exception ex) {
 			// we don't care, that search failed. That is actually OK case.
@@ -180,28 +187,11 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		Application app = registrarManager.getApplicationById(registrarSession, appId);
 
-		if (app.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-				if (sess.getPerunPrincipal().getUser() != null) {
-					// check if application to find similar users by belongs to user
-					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");
-				} else {
-					if (!sess.getPerunPrincipal().getExtSourceName().equals(app.getExtSourceName()) &&
-							!sess.getPerunPrincipal().getActor().equals(app.getCreatedBy())) throw new PrivilegeException("checkForSimilarUsers");
-				}
-			}
-		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup()) &&
-					!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-				if (sess.getPerunPrincipal().getUser() != null) {
-					// check if application to find similar users by belongs to user
-					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");
-				} else {
-					if (!sess.getPerunPrincipal().getExtSourceName().equals(app.getExtSourceName()) &&
-							!sess.getPerunPrincipal().getActor().equals(app.getCreatedBy())) throw new PrivilegeException("checkForSimilarUsers");
-				}
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
+			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) &&
+			!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+			if (app.getGroup() == null ||  !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+				throw new PrivilegeException("checkForSimilarUsers");
 			}
 		}
 
@@ -209,7 +199,10 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		if (app.getType().equals(Application.AppType.INITIAL) && app.getGroup() == null && app.getUser() == null) {
 
 			try {
-				User u = perun.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+				LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
+				PerunPrincipal applicationPrincipal = new PerunPrincipal(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), additionalAttributes);
+				User u = perun.getUsersManagerBl().getUserByExtSourceInformation(registrarSession, applicationPrincipal);
+
 				if (u != null) {
 					// user connected his identity after app creation and before it's approval.
 					// do not show error message in GUI by returning an empty array.
@@ -371,15 +364,36 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			throw ex;
 		}
 
-		if (originalIdentity.get("extSourceName").equals(sess.getPerunPrincipal().getExtSourceName()) &&
-				originalIdentity.get("actor").equals(sess.getPerunPrincipal().getActor()) &&
-				originalIdentity.get("extSourceType").equals(sess.getPerunPrincipal().getExtSourceType())) {
+		Map<String, String> additionalAttributes = objectMapper.convertValue(originalIdentity.get("additionalInformation"), new TypeReference<LinkedHashMap<String, String>>() {});
+		String shibIdentityProvider = sess.getPerunPrincipal().getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+
+		boolean sameIdentity = false;
+
+		if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider) &&
+			originalIdentity.get("extSourceName").equals(sess.getPerunPrincipal().getExtSourceName())) {
+
+			String userAdditionalIdentifiers = sess.getPerunPrincipal().getAdditionalInformations().get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+			String originalIdentityAdditionalIdentifiers = additionalAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+			if (userAdditionalIdentifiers == null) {
+				throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
+			}
+			List<String> identifiersInIntersection = BeansUtils.additionalIdentifiersIntersection(userAdditionalIdentifiers, originalIdentityAdditionalIdentifiers);
+			if (!identifiersInIntersection.isEmpty()) {
+				sameIdentity = true;
+			}
+		} else if (originalIdentity.get("extSourceName").equals(sess.getPerunPrincipal().getExtSourceName()) &&
+			originalIdentity.get("actor").equals(sess.getPerunPrincipal().getActor()) &&
+			originalIdentity.get("extSourceType").equals(sess.getPerunPrincipal().getExtSourceType())) {
+			sameIdentity = true;
+		}
+
+		if (sameIdentity) {
 			IdentityIsSameException ex = new IdentityIsSameException("You tried to join same identity with itself. Please try again but select different identity.");
 			ex.setLogin(sess.getPerunPrincipal().getActor());
 			ex.setSource(sess.getPerunPrincipal().getExtSourceName());
 			ex.setSourceType(sess.getPerunPrincipal().getExtSourceType());
 			log.warn("User tried to join identity with itself. Identity: {}",
-					StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "));
+				StringUtils.join(Arrays.asList(ex.getLogin(), ex.getSource(), ex.getSourceType()), " | "));
 			throw ex;
 		}
 
@@ -404,7 +418,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			UserExtSource ues = createExtSourceAndUserExtSource(currentUser, (String) originalIdentity.get("actor"),
 					(String)originalIdentity.get("extSourceName"), (String)originalIdentity.get("extSourceType"),
 					(Integer) originalIdentity.get("extSourceLoa"));
-			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, (Map<String,String>)originalIdentity.get("additionalInformation"));
+			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, additionalAttributes);
 			log.info("{} joined identities. Current identity: {}, Original identity: {}", currentUser,
 					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(), " | ")),
 					StringUtils.join(Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType")), " | "));
@@ -472,36 +486,21 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	 * @return application object / null if not exists
 	 */
 	private Application getLatestApplication(PerunSession sess, Vo vo, Group group, Application.AppType type) {
-		try {
+		List<Application> allApplications = new ArrayList<>();
+		if (group != null) {
+			allApplications.addAll(jdbc.query(RegistrarManagerImpl.APP_SELECT + " where a.vo_id=? and a.group_id=? and a.apptype=?", RegistrarManagerImpl.APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type)));
+		} else {
+			allApplications.addAll(jdbc.query(RegistrarManagerImpl.APP_SELECT + " where a.vo_id=? and a.apptype=?", RegistrarManagerImpl.APP_MAPPER, vo.getId(), String.valueOf(type)));
+		}
 
-			if (sess.getPerunPrincipal().getUser() != null) {
+		List<Application> userApplications = registrarManager.filterPrincipalApplications(sess, allApplications);
 
-				if (group != null) {
-
-					return jdbc.queryForObject(RegistrarManagerImpl.APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and user_id=? )", RegistrarManagerImpl.APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
-
-				} else {
-
-					return jdbc.queryForObject(RegistrarManagerImpl.APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and user_id=? )", RegistrarManagerImpl.APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getUserId());
-
-				}
-
-			} else {
-
-				if (group != null) {
-
-					return jdbc.queryForObject(RegistrarManagerImpl.APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and created_by=? and extsourcename=? )", RegistrarManagerImpl.APP_MAPPER, vo.getId(), group.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
-
-				} else {
-
-					return jdbc.queryForObject(RegistrarManagerImpl.APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and created_by=? and extsourcename=? )", RegistrarManagerImpl.APP_MAPPER, vo.getId(), String.valueOf(type), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName());
-
-				}
-
-			}
-
-		} catch (EmptyResultDataAccessException ex) {
+		if (userApplications.isEmpty()) {
 			return null;
+		} else  {
+			return userApplications.stream()
+				.max(comparing(Application::getId))
+				.get();
 		}
 	}
 

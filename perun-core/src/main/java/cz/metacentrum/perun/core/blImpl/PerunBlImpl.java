@@ -131,27 +131,21 @@ public class PerunBlImpl implements PerunBl {
 		log.debug("creating PerunSession for user {}", principal.getActor());
 		if (principal.getUser() == null && usersManagerBl != null && !dontLookupUsersForLogins.contains(principal.getActor())) {
 			// Get the user if we are completely initialized
-			String shibIdentityProvider = principal.getAdditionalInformations().get(ORIGIN_IDENTITY_PROVIDER_KEY);
 			try {
 				PerunSession internalSession = getPerunSession();
-				User user;
-				if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-					UserExtSource ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
-					user = usersManagerBl.getUserByUserExtSource(internalSession, ues);
-				} else {
-					user = usersManagerBl.getUserByExtSourceNameAndExtLogin(internalSession, principal.getExtSourceName(), principal.getActor());
-				}
+				User user = usersManagerBl.getUserByExtSourceInformation(internalSession, principal);
 				principal.setUser(user);
 
 				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
 					UserExtSource ues;
-						if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-							ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
-						} else {
-							ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
-							ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
-						}
+					String shibIdentityProvider = principal.getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+					if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
+						ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
+					} else {
+						ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
+						ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
+					}
 					if (ues != null && ues.getLoa() != principal.getExtSourceLoa()) {
 						ues.setLoa(principal.getExtSourceLoa());
 						usersManagerBl.updateUserExtSource(internalSession, ues);
@@ -207,7 +201,7 @@ public class PerunBlImpl implements PerunBl {
 					if(attributeWithValue.getType().equals(ArrayList.class.getName()) || attributeWithValue.getType().equals(BeansUtils.largeArrayListClassName)) {
 						List<String> value = new ArrayList<>();
 						if (attrValue != null) {
-							value = new ArrayList<>(Arrays.asList(attrValue.split(UsersManagerBlImpl.multivalueAttributeSeparatorRegExp)));
+							value = new ArrayList<>(Arrays.asList(attrValue.split(UsersManagerBl.MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX)));
 						}
 						attributeWithValue.setValue(value);
 					} else {
