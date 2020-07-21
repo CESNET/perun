@@ -100,7 +100,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all managers for complementaryObject and role with specified attributes.
 	 *
-	 * @param role String Expected Role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR)
+	 * @param role String Expected Role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
@@ -131,7 +131,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all groups of managers (authorizedGroups) for complementaryObject and role.
 	 *
-	 * @param role String Expected Role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR)
+	 * @param role String Expected Role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get groups of managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @return List<Group> List of authorizedGroups for complementaryObject and role
