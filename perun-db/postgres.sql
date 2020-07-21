@@ -1,4 +1,4 @@
--- database version 3.1.64 (don't forget to update insert statement at the end of file)
+-- database version 3.1.65 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -332,7 +332,6 @@ create table host_attr_values (
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,   --value of attribute if it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint hostav_pk primary key (host_id,attr_id),
@@ -344,7 +343,7 @@ create table host_attr_values (
 CREATE TABLE host_attr_u_values (
 	host_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (host_id,attr_id) REFERENCES host_attr_values ON DELETE CASCADE
 );
@@ -603,12 +602,11 @@ create table facility_service_destinations (
 create table entityless_attr_values (
 	subject varchar not null,  --indicator of subject assigned with attribute
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
-	attr_value varchar,       --attribute value
+	attr_value text,       --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint entlatval_pk primary key(subject,attr_id),
@@ -619,12 +617,11 @@ create table entityless_attr_values (
 create table facility_attr_values (
 	facility_id integer not null,   --identifier of facility (facilities.id)
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
-	attr_value varchar,       --attribute value
+	attr_value text,       --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint facattval_pk primary key (facility_id,attr_id),
@@ -636,7 +633,7 @@ create table facility_attr_values (
 CREATE TABLE facility_attr_u_values (
 	facility_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (facility_id,attr_id) REFERENCES facility_attr_values ON DELETE CASCADE
 );
@@ -646,12 +643,11 @@ CREATE TABLE facility_attr_u_values (
 create table group_attr_values (
 	group_id integer not null,     --identifier of group (groups.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
-	attr_value varchar,      --attribute value
+	attr_value text,      --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grpattval_pk primary key (group_id,attr_id),
@@ -663,7 +659,7 @@ create table group_attr_values (
 CREATE TABLE group_attr_u_values (
 	group_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (group_id,attr_id) REFERENCES group_attr_values ON DELETE CASCADE
 );
@@ -672,12 +668,11 @@ CREATE TABLE group_attr_u_values (
 create table resource_attr_values (
 	resource_id integer not null,   --identifier of resource (resources.id)
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
-	attr_value varchar,       --attribute value
+	attr_value text,       --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint resatval_pk primary key (resource_id,attr_id),
@@ -689,7 +684,7 @@ create table resource_attr_values (
 CREATE TABLE resource_attr_u_values (
 	resource_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (resource_id,attr_id) REFERENCES resource_attr_values ON DELETE CASCADE
 );
@@ -699,12 +694,11 @@ create table group_resource_attr_values (
 	group_id integer not null,     --identifier of group (groups.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
-	attr_value varchar,      --attribute value
+	attr_value text,      --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grpresav_pk primary key (group_id,resource_id,attr_id),
@@ -718,7 +712,7 @@ CREATE TABLE group_resource_attr_u_values (
 	group_id INT NOT NULL,
 	resource_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (group_id,resource_id,attr_id) REFERENCES group_resource_attr_values ON DELETE CASCADE
 );
@@ -761,12 +755,11 @@ create table groups_resources (
 create table member_attr_values (
 	member_id integer not null,   --identifier of member (members.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar,     --attribute value
+	attr_value text,     --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memattval_pk primary key (member_id,attr_id),
@@ -778,7 +771,7 @@ create table member_attr_values (
 CREATE TABLE member_attr_u_values (
 	member_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (member_id,attr_id) REFERENCES member_attr_values ON DELETE CASCADE
 );
@@ -788,12 +781,11 @@ create table member_group_attr_values (
 	member_id integer not null,   --identifier of member (members.id)
 	group_id integer not null, --identifier of group (groups.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar,     --attribute value
+	attr_value text,     --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memgav_pk primary key(member_id,group_id,attr_id),
@@ -807,7 +799,7 @@ CREATE TABLE member_group_attr_u_values (
 	member_id INT NOT NULL,
 	group_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (member_id,group_id,attr_id) REFERENCES member_group_attr_values ON DELETE CASCADE
 );
@@ -817,12 +809,11 @@ create table member_resource_attr_values (
 	member_id integer not null,   --identifier of member (members.id)
 	resource_id integer not null, --identifier of resource (resources.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar,     --attribute value
+	attr_value text,     --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memrav_pk primary key(member_id,resource_id,attr_id),
@@ -836,7 +827,7 @@ CREATE TABLE member_resource_attr_u_values (
 	member_id INT NOT NULL,
 	resource_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (member_id,resource_id,attr_id) REFERENCES member_resource_attr_values ON DELETE CASCADE
 );
@@ -845,12 +836,11 @@ CREATE TABLE member_resource_attr_u_values (
 create table user_attr_values (
 	user_id integer not null,  --identifier of user (users.id)
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
-	attr_value varchar,  --attribute value
+	attr_value text,  --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrav_pk primary key(user_id,attr_id),
@@ -862,7 +852,7 @@ create table user_attr_values (
 CREATE TABLE user_attr_u_values (
 	user_id  INT NOT NULL,
 	attr_id  INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (user_id,attr_id) REFERENCES user_attr_values ON DELETE CASCADE
 );
@@ -872,12 +862,11 @@ create table user_facility_attr_values (
 	user_id integer not null,     --identifier of user (users.id)
 	facility_id integer not null, --identifier of facility (facilities.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
-	attr_value varchar,     --attribute value
+	attr_value text,     --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrfacav_u primary key(user_id,facility_id,attr_id),
@@ -891,7 +880,7 @@ CREATE TABLE user_facility_attr_u_values (
 	user_id INT NOT NULL,
 	facility_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (user_id,facility_id,attr_id) REFERENCES user_facility_attr_values ON DELETE CASCADE
 );
@@ -900,12 +889,11 @@ CREATE TABLE user_facility_attr_u_values (
 create table vo_attr_values (
 	vo_id integer not null,    --identifier of VO (vos.id)
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
-	attr_value varchar,  --attribute value
+	attr_value text,  --attribute value
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint voattval_pk primary key (vo_id,attr_id),
@@ -917,7 +905,7 @@ create table vo_attr_values (
 CREATE TABLE vo_attr_u_values (
 	vo_id INT NOT NULL,
 	attr_id INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (vo_id,attr_id) REFERENCES vo_attr_values ON DELETE CASCADE
 );
@@ -941,7 +929,7 @@ create table ext_sources (
 create table ext_sources_attributes (
 	ext_sources_id integer not null,   --identifier of ext. source (ext_sources.id)
 	attr_name varchar not null,   --name of attribute at ext. source
-	attr_value varchar,          --value of attribute
+	attr_value text,          --value of attribute
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
@@ -1360,12 +1348,11 @@ create table facilities_bans (
 create table user_ext_source_attr_values (
 	user_ext_source_id integer not null,
 	attr_id integer not null,
-	attr_value varchar,
+	attr_value text,
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar default user not null,
-	attr_value_text text,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint uesattrval_pk primary key (user_ext_source_id, attr_id),
@@ -1377,7 +1364,7 @@ create table user_ext_source_attr_values (
 CREATE TABLE user_ext_source_attr_u_values (
 	user_ext_source_id INT NOT NULL,
 	attr_id    INT NOT NULL,
-	attr_value varchar,
+	attr_value text,
 	UNIQUE (attr_id, attr_value),
 	FOREIGN KEY (user_ext_source_id,attr_id) REFERENCES user_ext_source_attr_values ON DELETE CASCADE
 );
@@ -1725,7 +1712,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.64');
+insert into configurations values ('DATABASE VERSION','3.1.65');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
