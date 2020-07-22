@@ -5,6 +5,7 @@
 
 	<!-- must be kept, since Cargo plugin check "cargocpc" app on 8080 port -->
 	<Connector port="8080"
+	           address="127.0.0.1"
 	           maxThreads="150"
 	           minSpareThreads="25"
 	           enableLookups="false"
@@ -22,7 +23,9 @@
 	           tomcatAuthentication="false"
 	           URIEncoding="UTF-8"
 	           packetSize="36000"
-	           redirectPort="8080"/>
+	           redirectPort="8080"
+	           secretRequired="false"
+	           allowedRequestAttributesPattern=".*"/>
 
 	<Engine name="Catalina" defaultHost="localhost" debug="FINE">
 
