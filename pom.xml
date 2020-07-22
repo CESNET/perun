@@ -61,7 +61,7 @@
 		<spring.profiles.default>default</spring.profiles.default>
 
 		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
-		<tomcat.version>8.5.34</tomcat.version>
+		<tomcat.version>8.5.57</tomcat.version>
 		<oracle-database.version>19.6.0.0</oracle-database.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
