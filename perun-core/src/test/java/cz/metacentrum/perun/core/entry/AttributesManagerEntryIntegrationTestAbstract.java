@@ -5389,9 +5389,6 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 			for (String type : AttributesManagerImpl.ATTRIBUTE_TYPES) {
 				//large string and large array are unsupported types for uniqueness
-				if(type.equals(BeansUtils.largeStringClassName) || type.equals(BeansUtils.largeArrayListClassName)) {
-					continue;
-				}
 
 				log.debug("conversion to unique bean {} type {}", bean, type);
 				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
@@ -5415,6 +5412,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 				Attribute b = new Attribute(attributeDefinition);
 				switch (type) {
 					case "java.lang.String":
+					case BeansUtils.largeStringClassName:
 						a.setValue("string1");
 						b.setValue("string2");
 						break;
@@ -5427,6 +5425,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						b.setValue(Boolean.TRUE);
 						break;
 					case "java.util.ArrayList":
+					case BeansUtils.largeArrayListClassName:
 						a.setValue(new ArrayList<>(Arrays.asList("value1","value2")));
 						b.setValue(new ArrayList<>(Arrays.asList("value3","value4")));
 						break;
@@ -5542,10 +5541,6 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 			if (bean.equals("entityless")) continue;
 
 			for(String type: AttributesManagerImpl.ATTRIBUTE_TYPES) {
-				//large string and large array are unsupported types for uniqueness
-				if(type.equals(BeansUtils.largeStringClassName) || type.equals(BeansUtils.largeArrayListClassName)) {
-					continue;
-				}
 
 				log.debug(" uniqueness check bean {} type {}", bean, type);
 				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
@@ -5568,6 +5563,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 				Attribute b = new Attribute(attributeDefinition);
 				switch (type) {
 					case "java.lang.String":
+					case BeansUtils.largeStringClassName:
 						a.setValue("samestring");
 						b.setValue("samestring");
 						break;
@@ -5580,6 +5576,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						b.setValue(Boolean.TRUE);
 						break;
 					case "java.util.ArrayList":
+					case BeansUtils.largeArrayListClassName:
 						a.setValue(Lists.newArrayList("value1","value2"));
 						b.setValue(Lists.newArrayList("value3","value2"));
 						break;
