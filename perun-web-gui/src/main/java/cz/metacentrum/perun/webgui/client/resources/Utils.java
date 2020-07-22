@@ -1445,4 +1445,32 @@ public class Utils {
 		} else return null
 	}-*/;
 
+
+
+	public static String reverseString(String string) {
+		if (string == null || string.isEmpty() || string.length() == 1) return string;
+		return string.charAt(string.length()-1)+reverseString(string.substring(1, string.length()-1))+string.charAt(0);
+	}
+
+	/**
+	 * Normalizes string by removing all diacritics and converting it to lower case, all whitespace is also removed.
+	 * @param string String to normalize
+	 * @return Normalized string
+	 */
+	public static String normalizeString(String string) {
+		String result = normalizeStringToNFD(string);
+		result = result.replaceAll("\\s","");
+		return result;
+	}
+
+	private static final native String normalizeStringToNFD(String input) /*-{
+		if (typeof input.normalize !== "undefined") {
+			// convert to normal decomposed form and replace all combining-diacritics marks
+			return input.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+		}
+		// just lowercase
+		return input.toLowerCase();
+	}-*/;
+
+
 }

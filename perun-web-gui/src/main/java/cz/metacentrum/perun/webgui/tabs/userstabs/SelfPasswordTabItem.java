@@ -188,6 +188,17 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 						return false;
 					}
 
+					// TODO - check for name/surname too
+					// check on login in password if login is longer than 2 chars
+					if (login.length() > 2) {
+						String pass = newPass.getTextBox().getValue();
+						if (Utils.normalizeString(pass).contains(Utils.normalizeString(login)) ||
+								Utils.normalizeString(pass).contains(Utils.normalizeString(Utils.reverseString((login))))) {
+							newPass.setError("Password <b>can't contain login, name or surname</b>, not even backwards!");
+							return false;
+						}
+					}
+
 					// Check that password contains at least 3 of 4 character groups
 
 					RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");
