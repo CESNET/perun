@@ -8903,6 +8903,29 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/updateGroup:
+    post:
+      tags:
+        - GroupsManager
+      operationId: updateGroup
+      summary: Updates a group.
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateGroup
+              description: "input to updateGroup"
+              type: object
+              required:
+                - group
+              properties:
+                group: {$ref: '#/components/schemas/Group'}
 
   #################################################
   #                                               #
