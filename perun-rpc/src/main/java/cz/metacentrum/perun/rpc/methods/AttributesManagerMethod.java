@@ -470,6 +470,41 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get entityless attributes mapped by their keys.
+	 *
+	 * @param attrName String Attribute name
+	 * @return Map<String,Attribute> of entityless attributes mapped by their keys
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw AttributeNotExistsException when the attribute definition for attrName doesn't exist
+	 * @throw WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	/*#
+	 * Get entityless attributes mapped by their keys.
+	 * Returns only attributes for specified keys.
+	 *
+	 * @param attrName String Attribute name
+	 * @param keys List<String> keys
+	 * @return Map<String,Attribute> of entityless attributes mapped by their keys
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw AttributeNotExistsException when the attribute definition for attrName doesn't exist, or
+	 *                                    when there is no such attribute for one of the specified keys
+	 * @throw WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	getEntitylessAttributesWithKeys {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("keys")) {
+				return ac.getAttributesManager()
+						.getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"),
+								parms.readList("keys", String.class));
+			} else {
+				return ac.getAttributesManager()
+						.getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"));
+			}
+		}
+	},
+
+	/*#
 	 * Returns all entityless attributes with <code>attrName</code> (for all namespaces of same attribute).
 	 *
 	 * @param attrName String Attribute name

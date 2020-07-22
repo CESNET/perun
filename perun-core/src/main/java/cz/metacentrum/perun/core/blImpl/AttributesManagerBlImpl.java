@@ -557,6 +557,26 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName)
+			throws AttributeNotExistsException, WrongAttributeAssignmentException {
+		AttributeDefinition definition = getAttributeDefinition(sess, attrName);
+		List<String> keys = getEntitylessKeys(sess, definition);
+		return getEntitylessAttributesWithKeys(sess, attrName, keys);
+	}
+
+	@Override
+	public Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName, List<String> keys)
+			throws AttributeNotExistsException, WrongAttributeAssignmentException {
+		AttributeDefinition definition = getAttributeDefinition(sess, attrName);
+
+		Map<String, Attribute> attributesByKeys = new HashMap<>();
+		for (String key : keys) {
+			attributesByKeys.put(key, getAttribute(sess, key, attrName));
+		}
+		return attributesByKeys;
+	}
+
+	@Override
 	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) {
 		return getAttributesManagerImpl().getEntitylessKeys(sess, attributeDefinition);
 	}
