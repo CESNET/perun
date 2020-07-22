@@ -7276,7 +7276,7 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/userManager/getSpecificUsersByUser:
+  /json/usersManager/getSpecificUsersByUser:
     get:
       tags:
         - UsersManager
