@@ -10986,7 +10986,7 @@ paths:
               description: "input to updateForm"
               type: object
               properties:
-                applicationForm: { $ref: '#/components/schemas/ApplicationForm' }
+                form: { $ref: '#/components/schemas/ApplicationForm' }
 
   /urlinjsonout/registrarManager/copyForm/voToVo:
     post:
