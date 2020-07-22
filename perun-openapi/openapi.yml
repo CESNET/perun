@@ -1809,6 +1809,14 @@ components:
       in: query
       required: true
 
+    specificUserId:
+      name: specificUser
+      description: "id of specific User"
+      schema:
+        type: integer
+      in: query
+      required: true
+
     publicationId:
       name: publication
       description: "id of publication"
@@ -7287,6 +7295,36 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/addSpecificUserOwner:
+    post:
+      tags:
+        - UsersManager
+      operationId: addSpecificUserOwner
+      summary: Add specific user owner.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/specificUserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/removeSpecificUserOwner:
+    post:
+      tags:
+        - UsersManager
+      operationId: removeSpecificUserOwner
+      summary: Remove specific user owner.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/specificUserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
