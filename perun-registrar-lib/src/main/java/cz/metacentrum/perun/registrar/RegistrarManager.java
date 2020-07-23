@@ -227,7 +227,21 @@ public interface RegistrarManager {
 	 * @return stored app data
 	 * @throws PerunException
 	 */
+	@Deprecated
 	List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException;
+
+	/**
+	 * Creates a new application and if succeeds, trigger validation and approval.
+	 *
+	 * <p>The method triggers approval for VOs with auto-approved applications.
+	 *
+	 * @param session user present in session
+	 * @param application application
+	 * @param data data
+	 * @return Application Submitted application
+	 * @throws PerunException
+	 */
+	Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException;
 
 	/**
 	 * Creates a new application in one transaction
