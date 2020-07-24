@@ -8832,6 +8832,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/addMember:
+    post:
+      tags:
+        - GroupsManager
+      operationId: addMember
+      summary: Add member to groups. If already a member of a group, the group will be skipped.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/addMembers:
     post:
       tags:
@@ -8841,6 +8856,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/memberIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/removeMember:
+    post:
+      tags:
+        - GroupsManager
+      operationId: removeMember
+      summary: Removes member from a groups. If a member is not in the group or is indirect, it is skipped without a warning, but the rest of groups are processed.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/memberId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
