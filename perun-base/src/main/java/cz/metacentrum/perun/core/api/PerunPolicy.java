@@ -66,13 +66,11 @@ public class PerunPolicy {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		PerunPolicy that = (PerunPolicy) o;
-		return Objects.equals(policyName, that.policyName) &&
-			Objects.equals(perunRoles, that.perunRoles) &&
-			Objects.equals(includePolicies, that.includePolicies);
+		return Objects.equals(policyName, that.policyName);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(policyName, perunRoles, includePolicies);
+		return Objects.hash(policyName);
 	}
 }

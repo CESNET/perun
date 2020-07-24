@@ -486,7 +486,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 
 		<!-- PerunRolesLoader implementation -->
 		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
-			<property name="configurationPath" value="file:@perun.conf@perun-roles.yml"/>
+			<property name="configurationPath" value="classpath:perun-roles.yml"/>
+			<property name="secondaryConfigurationPath" value="file:@perun.conf@perun-roles.yml"/>
 		</bean>
 	</beans>
 
@@ -500,6 +501,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<!-- PerunRolesLoader implementation -->
 		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
 			<property name="configurationPath" value="classpath:perun-roles.yml"/>
+			<property name="secondaryConfigurationPath" value="classpath:test-roles.yml"/>
 		</bean>
 	</beans>
 

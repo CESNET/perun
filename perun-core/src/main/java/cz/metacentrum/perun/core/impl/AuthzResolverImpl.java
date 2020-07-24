@@ -33,6 +33,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -781,7 +782,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	 * @return all loaded policies
 	 */
 	public static List<PerunPolicy> getAllPolicies() {
-		return perunPoliciesContainer.getAllPolicies();
+		return new ArrayList<>(perunPoliciesContainer.getAllPolicies());
 	}
 
 	public static RoleManagementRules getRoleManagementRules(String roleName) throws RoleManagementRulesNotExistsException {

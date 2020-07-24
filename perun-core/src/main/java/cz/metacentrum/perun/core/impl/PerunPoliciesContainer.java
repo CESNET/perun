@@ -10,10 +10,12 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 /**
  * PerunPoliciesContainer stores a list of perun policies.
@@ -21,10 +23,10 @@ import java.util.Queue;
 public class PerunPoliciesContainer {
 
 	private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
-	private List<PerunPolicy> perunPolicies = new ArrayList<>();
+	private Set<PerunPolicy> perunPolicies = new HashSet<>();
 	private Map<String, RoleManagementRules> rolesManagementRules = new HashMap<>();
 
-	public void setPerunPolicies(List<PerunPolicy> perunPolicies) {
+	public void setPerunPolicies(Set<PerunPolicy> perunPolicies) {
 		this.perunPolicies = perunPolicies;
 	}
 
@@ -77,7 +79,7 @@ public class PerunPoliciesContainer {
 	 *
 	 * @return all loaded policies
 	 */
-	public List<PerunPolicy> getAllPolicies() {
-		return Collections.unmodifiableList(perunPolicies);
+	public Set<PerunPolicy> getAllPolicies() {
+		return Collections.unmodifiableSet(perunPolicies);
 	}
 }
