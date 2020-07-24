@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -741,7 +742,41 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException {
+	public Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(attrName, "name of entityless attributes");
+		if (attrName.isEmpty()) {
+			throw new InternalErrorException("name for entityless attribute can't be empty");
+		}
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
+		}
+
+		return attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName);
+	}
+
+	@Override
+	public Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName, List<String> keys)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(attrName, "name of entityless attributes");
+		Utils.notNull(keys, "keys");
+
+		if (attrName.isEmpty()) {
+			throw new InternalErrorException("name for entityless attribute can't be empty");
+		}
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
+		}
+
+		return attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName, keys);
+	}
+
+	@Override
+	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {

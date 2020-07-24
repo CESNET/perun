@@ -26,6 +26,7 @@ import cz.metacentrum.perun.utils.graphs.GraphDTO;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -298,6 +299,34 @@ public interface AttributesManager {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException;
+
+	/**
+	 * Get entityless attributes mapped by their keys.
+	 *
+	 * @param sess session
+	 * @param attrName attribute name
+	 * @return Map of entityless attributes mapped by their keys
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws AttributeNotExistsException when the attribute definition for attrName doesn't exist
+	 * @throws WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
+	 * Get entityless attributes mapped by their keys.
+	 * Returns only attributes for specified keys.
+	 *
+	 * @param sess session
+	 * @param attrName attribute name
+	 * @return Map of entityless attributes mapped by their keys
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws AttributeNotExistsException when the attribute definition for attrName doesn't exist, or
+	 *                                     when there is no such attribute for one of the specified keys
+	 * @throws WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName, List<String> keys)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all <b>non-empty</b> member, user, member-resource and user-facility attributes.
