@@ -355,8 +355,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers)  throws UserNotExistsException {
 		for (RichUser richUser: richUsers) {
-			User user = getPerunBl().getUsersManagerBl().getUserById(sess, richUser.getId());
-			List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user);
+			List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richUser);
 
 			richUser.setUserAttributes(userAttributes);
 		}
@@ -1738,7 +1737,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrsName) throws UserNotExistsException {
 
 		if(attrsName == null || attrsName.isEmpty()) {
-			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsers(sess, searchString));
+			return findRichUsers(sess, searchString);
 		} else {
 			return convertUsersToRichUsersWithAttributesByNames(sess, findUsers(sess, searchString), attrsName);
 		}
@@ -1749,7 +1748,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrsName) throws UserNotExistsException {
 
 		if(attrsName == null || attrsName.isEmpty()) {
-			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsersByExactMatch(sess, searchString));
+			return findRichUsersByExactMatch(sess, searchString);
 		} else {
 			return convertUsersToRichUsersWithAttributesByNames(sess, findUsersByExactMatch(sess, searchString), attrsName);
 		}
