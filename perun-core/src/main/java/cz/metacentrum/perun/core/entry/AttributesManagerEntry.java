@@ -707,8 +707,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.notNull(key, "key for entityless attribute");
 		if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
 
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		//Authorization - will be later replaced by the new attributes authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getAttributes_String_policy")) {
 			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
 		}
 
@@ -735,8 +735,9 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attrName, "name of entityless attributes");
 		if(attrName.isEmpty()) throw new InternalErrorException("name for entityless attribute can't be empty string");
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+
+		//Authorization - will be later replaced by the new attributes authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getEntitylessAttributes_String_policy")) {
 			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
 		}
 
@@ -778,10 +779,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	@Override
 	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+
+		//Authorization - will be later replaced by the new attributes authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getEntitylessKeys_AttributeDefinition_policy")) {
 			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
 		}
+
 		return getAttributesManagerBl().getEntitylessKeys(sess, attributeDefinition);
 	}
 
@@ -789,10 +792,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attributeDefinition);
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getAttributesByAttributeDefinition_AttributeDefinition_policy", Collections.singletonList(attributeDefinition))) {
 			throw new PrivilegeException("For getting the attributes, you need to be PerunAdmin or PerunObserver.");
 		}
+
 		return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attributeDefinition));
 	}
 
@@ -1558,7 +1563,12 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		Utils.notNull(key, "key");
 		if(key.isEmpty()) throw new InternalErrorException("key for entityless attribute can't be empty string");
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can set entityless attributes.");
+
+		//Authorization - will be later replaced by the new attributes authorization
+		if(!AuthzResolver.authorizedInternal(sess, "setAttribute_String_Attribute_policy")) {
+			throw new PrivilegeException("Only perunAdmin can set entityless attributes.");
+		}
+
 		getAttributesManagerBl().setAttribute(sess, key, attribute);
 
 	}
@@ -1576,7 +1586,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, AttributeDefinitionExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attribute, "attributeDefinition");
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can create new Attribute.");
+
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "createAttribute_AttributeDefinition_policy")) {
+			throw new PrivilegeException("Only perunAdmin can create new Attribute.");
+		}
+
 		if (!attribute.getFriendlyName().matches(AttributesManager.ATTRIBUTES_REGEXP)) {
 			throw new IllegalArgumentException("Wrong attribute name " + attribute.getFriendlyName() + ", attribute name must match " + AttributesManager.ATTRIBUTES_REGEXP);
 		}
@@ -1587,7 +1602,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
+
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_policy", Collections.singletonList(attribute))) {
+			throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
+		}
+
 		getAttributesManagerBl().deleteAttribute(sess, attribute);
 	}
 
@@ -1595,7 +1615,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	public void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force) throws PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attributeDefinition);
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_boolean", Collections.singletonList(attributeDefinition))) {
+			throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
+		}
+
 		getAttributesManagerBl().deleteAttribute(sess, attributeDefinition, force);
 	}
 
@@ -4406,8 +4431,10 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.notNull(attributeDefinition, "attributeDefinition");
 		getAttributesManagerBl().checkAttributeExists(perunSession, attributeDefinition);
 
-		//Choose if principal has access to update attribute
-		if(!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) throw new PrivilegeException("Only PerunAdmin can update AttributeDefinition");
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(perunSession, "updateAttributeDefinition_AttributeDefinition_policy", Collections.singletonList(attributeDefinition))) {
+			throw new PrivilegeException("Only PerunAdmin can update AttributeDefinition");
+		}
 
 		return getAttributesManagerBl().updateAttributeDefinition(perunSession, attributeDefinition);
 	}
@@ -4416,7 +4443,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	public void doTheMagic(PerunSession sess, Member member) throws PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_policy", Collections.singletonList(member))) {
+			throw new PrivilegeException("This operation can do only PerunAdmin.");
+		}
+
 		getAttributesManagerBl().doTheMagic(sess, member);
 	}
 
@@ -4424,7 +4456,12 @@ public class AttributesManagerEntry implements AttributesManager {
 	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_boolean_policy", Collections.singletonList(member))) {
+			throw new PrivilegeException("This operation can do only PerunAdmin.");
+		}
+
 		getAttributesManagerBl().doTheMagic(sess, member, trueMagic);
 	}
 
@@ -4434,10 +4471,11 @@ public class AttributesManagerEntry implements AttributesManager {
 		// so as we can check, if the attribute exists
 		getAttributeDefinitionById(sess, attributeId);
 
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getAttributeRights_int_policy")) {
 			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
 		}
+
 		return getAttributesManagerBl().getAttributeRights(sess, attributeId);
 	}
 
@@ -4451,21 +4489,32 @@ public class AttributesManagerEntry implements AttributesManager {
 			}
 			getAttributeDefinitionById(sess, attributeright.getAttributeId());
 		}
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "setAttributeRights_List<AttributeRights>_policy")) {
+			throw new PrivilegeException("This operation can do only PerunAdmin.");
+		}
+
 		getAttributesManagerBl().setAttributeRights(sess, rights);
 	}
 
 	@Override
 	public void convertAttributeToUnique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException {
 		Utils.checkPerunSession(session);
-		if(!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(session, "convertAttributeToUnique_int_policy")) {
+			throw new PrivilegeException("This operation can do only PerunAdmin.");
+		}
+
 		getAttributesManagerBl().convertAttributeToUnique(session, attrId);
 	}
 
 	@Override
 	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format) throws PrivilegeException {
-		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(session, "getModulesDependenciesGraph_GraphTextFormat_policy")) {
 			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
 		}
 
@@ -4474,8 +4523,9 @@ public class AttributesManagerEntry implements AttributesManager {
 
 	@Override
 	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format, String attributeName) throws PrivilegeException, AttributeNotExistsException {
-		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(session, "getModulesDependenciesGraph_GraphTextFormat_String_policy")) {
 			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
 		}
 
