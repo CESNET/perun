@@ -434,33 +434,12 @@ public class MailManagerImpl implements MailManager {
 			throw new RegistrarException("USER_INVITE notification can't be sent this way. Use sendInvitation() instead.");
 		}
 
-		// authz
-		boolean pass = false;
-		// managers can
-		if (app.getGroup() == null) {
-			if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-				pass = true;
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
+			!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+			if (app.getGroup() == null ||  !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+				throw new PrivilegeException(sess, "sendMessage");
 			}
-		} else {
-			if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) || AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-				pass = true;
-			}
-		}
-
-		// self can
-		if (Objects.equals(sess.getPerunPrincipal().getUser(), app.getUser())) {
-			pass = true;
-		} else {
-			if (Objects.equals(app.getCreatedBy(), sess.getPerunPrincipal().getActor()) &&
-					Objects.equals(app.getExtSourceName(), sess.getPerunPrincipal().getExtSourceName()) &&
-					Objects.equals(app.getExtSourceType(), sess.getPerunPrincipal().getExtSourceType())
-					) {
-				pass = true;
-			}
-		}
-
-		if (!pass) {
-			throw new PrivilegeException(sess, "sendMessage");
 		}
 
 		ApplicationForm form = getForm(app);
@@ -1064,6 +1043,9 @@ public class MailManagerImpl implements MailManager {
 	 * @return modified text
 	 */
 	private String substituteCommonStrings(Application app, List<ApplicationFormItemData> data, String mailText, String reason, List<Exception> exceptions) {
+		LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
+		PerunPrincipal applicationPrincipal = new PerunPrincipal(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), additionalAttributes);
+
 		// replace app ID
 		if (mailText.contains(FIELD_APP_ID)) {
 			mailText = mailText.replace(FIELD_APP_ID, app.getId()+EMPTY_STRING);
@@ -1128,7 +1110,7 @@ public class MailManagerImpl implements MailManager {
 					user = app.getUser();
 				} else {
 					try {
-						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+						user = usersManager.getUserByExtSourceInformation(registrarSession, applicationPrincipal);
 					} catch (Exception ex) {
 						// user not found is ok
 					}
@@ -1157,7 +1139,7 @@ public class MailManagerImpl implements MailManager {
 					user = app.getUser();
 				} else {
 					try {
-						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+						user = usersManager.getUserByExtSourceInformation(registrarSession, applicationPrincipal);
 					} catch (Exception ex) {
 						// user not found is ok
 					}
@@ -1186,7 +1168,7 @@ public class MailManagerImpl implements MailManager {
 					user = app.getUser();
 				} else {
 					try {
-						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+						user = usersManager.getUserByExtSourceInformation(registrarSession, applicationPrincipal);
 					} catch (Exception ex) {
 						// user not found is ok
 					}

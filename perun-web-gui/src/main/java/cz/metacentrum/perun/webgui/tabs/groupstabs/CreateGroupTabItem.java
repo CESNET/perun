@@ -195,10 +195,18 @@ public class CreateGroupTabItem implements TabItem {
 		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
 			public boolean validateTextBox() {
-				if (groupNameTextBox.getTextBox().getText().trim().isEmpty()) {
+				String groupName = groupNameTextBox.getTextBox().getText().trim();
+				String secondaryNameRegex = session.getConfiguration().getCustomProperty("groupNameSecondaryRegex");
+				if (groupName.isEmpty()) {
 					groupNameTextBox.setError("Name can't be empty.");
-				} else if (!groupNameTextBox.getTextBox().getText().trim().matches(Utils.GROUP_SHORT_NAME_MATCHER)) {
-					groupNameTextBox.setError("Name can contain only a-z, A-Z, numbers, spaces, dots, '_' and '-'.");
+				} else if (!groupName.matches(Utils.GROUP_SHORT_NAME_MATCHER) ||
+				          (!secondaryNameRegex.isEmpty() && !groupName.matches(secondaryNameRegex))) {
+					String customErrorMessage = session.getConfiguration().getCustomProperty("groupNameErrorMessage");
+					if (!customErrorMessage.isEmpty()) {
+						groupNameTextBox.setError(customErrorMessage);
+					} else {
+						groupNameTextBox.setError("Name can contain only a-z, A-Z, numbers, spaces, dots, '_' and '-'.");
+					}
 				} else {
 					groupNameTextBox.setOk();
 					return true;

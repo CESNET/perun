@@ -78,6 +78,7 @@ import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
 public class RegistrarManagerImpl implements RegistrarManager {
 
 	private final static Logger log = LoggerFactory.getLogger(RegistrarManagerImpl.class);
+	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 
 	// identifiers for selected attributes
 	private static final String URN_USER_TITLE_BEFORE = "urn:perun:user:attribute-def:core:titleBefore";
@@ -1063,77 +1064,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	@Deprecated
 	public List<ApplicationFormItemData> createApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
-
-		// If user is known in Perun but unknown in GUI (user joined identity by consolidator)
-		if (application.getUser() == null && session.getPerunPrincipal().getUser() != null) {
-			application.setUser(session.getPerunPrincipal().getUser());
-		}
-
-		// lock to prevent multiple submission of same application on server side
-		String key = getLockKeyForApplication(application);
-
-		synchronized(runningCreateApplication) {
-			if (runningCreateApplication.contains(key)) {
-				throw new AlreadyProcessingException("Your application submission is being processed already.");
-			} else {
-				runningCreateApplication.add(key);
-			}
-		}
-
-		// store user-ext-source attributes from session to application object
-		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
-		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
-		application.setFedInfo(additionalAttrs);
-
-		Application app;
-		try {
-
-			// throws exception if user already submitted application or is already a member or can't submit it by VO/Group expiration rules.
-			checkDuplicateRegistrationAttempt(session, application.getType(), (application.getGroup() != null) ? getFormForGroup(application.getGroup()) : getFormForVo(application.getVo()));
-
-			// using this to init inner transaction
-			// all minor exceptions inside are catched, if not, it's ok to throw them out
-			app = this.registrarManager.createApplicationInternal(session, application, data);
-		} catch (Exception ex) {
-			// clear flag and re-throw exception, since application was processed with exception
-			synchronized (runningCreateApplication) {
-				runningCreateApplication.remove(key);
-			}
-			throw ex;
-		}
-
-		// try to verify (or even auto-approve) application
-		try {
-			boolean verified = tryToVerifyApplication(session, app);
-			if (verified) {
-				// try to APPROVE if auto approve
-				tryToAutoApproveApplication(session, app);
-			} else {
-				// send request validation notification
-				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
-			}
-			// refresh current session, if submission was successful,
-			// since user might have been created.
-			AuthzResolverBlImpl.refreshSession(session);
-		} catch (Exception ex) {
-			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
-			// clear flag and re-throw exception, since application was processed with exception
-			synchronized (runningCreateApplication) {
-				runningCreateApplication.remove(key);
-			}
-			throw ex;
-		}
-
-		// clear flag, since application was processed
-		synchronized (runningCreateApplication) {
-			runningCreateApplication.remove(key);
-		}
-
-		return data;
-
+		int appId = processApplication(session, application, data);
+		return getApplicationDataById(session, appId);
 	}
 
+	@Override
+	public Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+		int appId = processApplication(session, application, data);
+		return getApplicationById(appId);
+	}
 
 	@Override
 	@Transactional(rollbackFor = ApplicationNotCreatedException.class)
@@ -1601,6 +1542,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("User didn't verify his email address yet. Please wait until application will be in a 'Submitted' state. You can send mail verification notification to user again if you wish.");
 		}
 
+		LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
+		PerunPrincipal applicationPrincipal = new PerunPrincipal(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), additionalAttributes);
+
 		// get registrar module
 		RegistrarModule module;
 		if (app.getGroup() != null) {
@@ -1645,7 +1589,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (app.getUser() == null) {
 
 					// application for group doesn't have user set, but it can exists in perun (joined identities after submission)
-					User u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					User u = perun.getUsersManagerBl().getUserByExtSourceInformation(registrarSession, applicationPrincipal);
 
 					// put user back to application
 					app.setUser(u);
@@ -1701,96 +1645,48 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			} else {
 
-				// put application data into Candidate
-				final Map<String, String> attributes = new HashMap<>();
-				jdbc.query("select dst_attr,value from application_data d, application_form_items i where d.item_id=i.id "
-								+ "and i.dst_attr is not null and d.value is not null and app_id=?",
-						(resultSet, i) -> {
-							attributes.put(resultSet.getString("dst_attr"), resultSet.getString("value"));
-							return null;
-						}, appId);
-
-				// DO NOT STORE LOGINS THROUGH CANDIDATE
-				// we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
-				attributes.entrySet().removeIf(entry -> entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:"));
-
-				Candidate candidate = new Candidate();
-				candidate.setAttributes(attributes);
-
-				log.debug("[REGISTRAR] Retrieved candidate from DB {}", candidate);
-
-				// first try to parse display_name if not null and not empty
-				if (attributes.containsKey(URN_USER_DISPLAY_NAME) && attributes.get(URN_USER_DISPLAY_NAME) != null &&
-						!attributes.get(URN_USER_DISPLAY_NAME).isEmpty()) {
-					// parse
-					Map<String, String> commonName = Utils.parseCommonName(attributes.get(URN_USER_DISPLAY_NAME));
-					if (commonName.get("titleBefore") != null
-							&& !commonName.get("titleBefore").isEmpty()) {
-						candidate.setTitleBefore(commonName.get("titleBefore"));
-					}
-					if (commonName.get("firstName") != null
-							&& !commonName.get("firstName").isEmpty()) {
-						candidate.setFirstName(commonName.get("firstName"));
-					}
-					// FIXME - ? there is no middleName in Utils.parseCommonName() implementation
-					if (commonName.get("middleName") != null
-							&& !commonName.get("middleName").isEmpty()) {
-						candidate.setMiddleName(commonName.get("middleName"));
-					}
-					if (commonName.get("lastName") != null
-							&& !commonName.get("lastName").isEmpty()) {
-						candidate.setLastName(commonName.get("lastName"));
-					}
-					if (commonName.get("titleAfter") != null
-							&& !commonName.get("titleAfter").isEmpty()) {
-						candidate.setTitleAfter(commonName.get("titleAfter"));
-					}
-				}
-
-				// if names are separated, used them after
-				for (String attrName : attributes.keySet()) {
-					// if value not null or empty - set to candidate
-					if (attributes.get(attrName) != null
-							&& !attributes.get(attrName).isEmpty()) {
-						if (URN_USER_TITLE_BEFORE.equals(attrName)) {
-							candidate.setTitleBefore(attributes.get(attrName));
-						} else if (URN_USER_TITLE_AFTER.equals(attrName)) {
-							candidate.setTitleAfter(attributes.get(attrName));
-						} else if (URN_USER_FIRST_NAME.equals(attrName)) {
-							candidate.setFirstName(attributes.get(attrName));
-						} else if (URN_USER_LAST_NAME.equals(attrName)) {
-							candidate.setLastName(attributes.get(attrName));
-						} else if (URN_USER_MIDDLE_NAME.equals(attrName)) {
-							candidate.setMiddleName(attributes.get(attrName));
-						}
-					}
-				}
-
 				// free reserved logins so they can be set as attributes
 				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 
-				// create member and user
-				log.debug("[REGISTRAR] Trying to make member from candidate {}", candidate);
-
-				// added duplicit check, since we switched from entry to bl call of createMember()
-				Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
-				Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
-
-				member = membersManager.createMember(sess, app.getVo(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), app.getCreatedBy(), candidate);
-				User u = usersManager.getUserById(registrarSession, member.getUserId());
-
+				User u;
 				if (app.getUser() != null) {
+					u = app.getUser();
+					log.debug("[REGISTRAR] Trying to make member from user {}", u);
+					member = membersManager.createMember(sess, app.getVo(), u);
+					// store all attributes (but not logins)
+					storeApplicationAttributes(app);
 					// if user was already known to perun, createMember() will set attributes
 					// via setAttributes() method so core attributes are skipped
 					// ==> updateNameTitles() in case of change in appForm.
 					updateUserNameTitles(app);
 				} else {
+					try {
+						u = perun.getUsersManagerBl().getUserByExtSourceInformation(registrarSession, applicationPrincipal);
+						log.debug("[REGISTRAR] Trying to make member from user {}", u);
+						member = membersManager.createMember(sess, app.getVo(), u);
+						// store all attributes (but not logins)
+						storeApplicationAttributes(app);
+						// if user was already known to perun, createMember() will set attributes
+						// via setAttributes() method so core attributes are skipped
+						// ==> updateNameTitles() in case of change in appForm.
+						updateUserNameTitles(app);
+					} catch (UserExtSourceNotExistsException | UserNotExistsException | ExtSourceNotExistsException  ex) {
+						Candidate candidate = createCandidateFromApplicationData(appId);
+						// create member and user
+						log.debug("[REGISTRAR] Trying to make member from candidate {}", candidate);
+
+						// added duplicit check, since we switched from entry to bl call of createMember()
+						Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+						Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
+						member = membersManager.createMember(sess, app.getVo(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), app.getCreatedBy(), candidate);
+						u = usersManager.getUserById(registrarSession, member.getUserId());
+					}
 					// user originally not known -> set UserExtSource attributes from source identity for new User and UES
 					ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, app.getExtSourceName());
 					UserExtSource ues = usersManager.getUserExtSourceByExtLogin(sess, es, app.getCreatedBy());
 					// we have historical data in "fedInfo" item, hence we must safely ignore any parsing errors.
 					try {
-						LinkedHashMap<String, String> additionalAttributes = (LinkedHashMap<String, String>)BeansUtils.stringToAttributeValue(app.getFedInfo(), LinkedHashMap.class.getName());
 						((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, additionalAttributes);
 					} catch (Exception ex) {
 						log.error("Unable to store UES attributes from application ID: {}, attributes: {}, with exception: {}", appId, app.getFedInfo(), ex);
@@ -1927,7 +1823,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			try {
 				User u = application.getUser();
 				if (u == null) {
-					u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, application.getExtSourceName(), application.getCreatedBy());
+					LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+					PerunPrincipal applicationPrincipal = new PerunPrincipal(application.getCreatedBy(), application.getExtSourceName(), application.getExtSourceType(), application.getExtSourceLoa(), additionalAttributes);
+					u = perun.getUsersManagerBl().getUserByExtSourceInformation(registrarSession, applicationPrincipal);
 				}
 				Member member = membersManager.getMemberByUser(registrarSession, application.getVo(), u);
 				if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
@@ -1948,63 +1846,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
 
-		// authz ex post
-		if (app.getGroup() == null) {
-
-			if (app.getUser() != null) {
-
-				// is admin of application or self
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
-						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
-						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())
-						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-					throw new PrivilegeException(sess, "getApplicationById");
-				}
-
-			} else {
-
-				// is admin of application or self based on current actor/extSource
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
-						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
-						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)
-						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
-						app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
-					throw new PrivilegeException(sess, "getApplicationById");
-				}
-
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+			&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+			&& !AuthzResolver.selfAuthorizedForApplication(sess, app)
+			&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			if (app.getGroup() == null ||  !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+				throw new PrivilegeException(sess, "getApplicationById");
 			}
-
-		} else {
-
-			if (app.getUser() != null) {
-
-				// is admin of application or self
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
-						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
-						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
-						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())
-						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-					throw new PrivilegeException(sess, "getApplicationById");
-				}
-
-			} else {
-
-				// is admin of application or self based on current actor/extSource
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
-						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
-						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
-						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)
-						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
-						app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
-					throw new PrivilegeException(sess, "getApplicationById");
-				}
-
-			}
-
 		}
 
 		return app;
@@ -2088,13 +1938,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public List<Application> getApplicationsForUser(PerunSession sess) {
 
 		try {
-			PerunPrincipal pp = sess.getPerunPrincipal();
-			if (pp.getUser() != null) {
-				return jdbc.query(APP_SELECT + " where user_id=? or (a.created_by=? and extsourcename=?) order by a.id desc", APP_MAPPER, pp.getUserId(), pp.getActor(), pp.getExtSourceName());
-			} else {
-				// sort by ID which respect latest applications
-				return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id desc", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
-			}
+			List<Application> allApplications = jdbc.query(APP_SELECT + " order by a.id desc", APP_MAPPER);
+			return filterPrincipalApplications(sess, allApplications);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		}
@@ -2467,14 +2312,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// get necessary params from session
 		User user = sess.getPerunPrincipal().getUser();
-		String actor = sess.getPerunPrincipal().getActor();
-		String extSourceName = sess.getPerunPrincipal().getExtSourceName();
 		int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
 
 		if (AppType.INITIAL.equals(appType)) {
-
 			if (user != null) {
-				// user is known
+				//user is known
 				try {
 					Member m = membersManager.getMemberByUser(registrarSession, vo, user);
 					if (group != null) {
@@ -2484,9 +2326,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 							// user is member of group - can't post more initial applications
 							throw new AlreadyRegisteredException("You are already member of group "+group.getName()+".");
 						} else {
-							// user isn't member of group
-							checkDuplicateRegistration("Initial application for Group: "+group.getName()+" already exists.",
-									AppType.INITIAL, vo.getId(), group.getId(), user.getId(), actor, extSourceName);
+							checkDupplicateGroupApplications(sess, vo, group, AppType.INITIAL);
+							// pass if have approved or rejected app
 						}
 					} else {
 						// user is member of vo, can't post more initial applications
@@ -2495,64 +2336,43 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} catch (MemberNotExistsException ex) {
 					// user is not member of vo
 					if (group != null) {
-						// not member of VO - check for unprocessed applications to Group
-						checkDuplicateRegistration("Initial application for Group: "+group.getName()+" already exists.",
-								AppType.INITIAL, vo.getId(), group.getId(), user.getId(), actor, extSourceName);
+						checkDupplicateGroupApplications(sess, vo, group, AppType.INITIAL);
+						//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
 					} else {
-						// not member of VO - check for unprocessed applications
-						checkDuplicateRegistration("Initial application for Vo: "+vo.getName()+" already exists.",
-								AppType.INITIAL, vo.getId(), 0, user.getId(), actor, extSourceName);
+						checkDupplicateVoApplications(sess, vo, AppType.INITIAL);
+						// pass not member and have only approved or rejected apps
 					}
 				}
 			} else {
-
 				// user is not known
 				if (group != null) {
-					// group application
-					checkDuplicateRegistration("Initial application for Group: "+group.getName()+" already exists.",
-							AppType.INITIAL, vo.getId(), group.getId(), 0, actor, extSourceName);
+					checkDupplicateGroupApplications(sess, vo, group, AppType.INITIAL);
+					//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
 				} else {
-					// vo application
-					checkDuplicateRegistration("Initial application for VO: "+vo.getName()+" already exists.",
-							AppType.INITIAL, vo.getId(), 0, 0, actor, extSourceName);
+					checkDupplicateVoApplications(sess, vo, AppType.INITIAL);
+					// pass not member and have only approved or rejected apps
 				}
-
 			}
-
 			// if false, throws exception with reason for GUI
 			membersManager.canBeMemberWithReason(sess, vo, user, String.valueOf(extSourceLoa));
-
 		}
 		// if extension, user != null !!
 		if (AppType.EXTENSION.equals(appType)) {
-
 			if (user == null) {
 				throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity.");
 			}
-
 			// check for submitted registrations
 			Member member = membersManager.getMemberByUser(sess, vo, user);
-
 			if (group != null) {
-
 				member = groupsManager.getGroupMemberById(registrarSession, group, member.getId());
-
-				checkDuplicateRegistration("Extension application for Group: "+group.getName()+" already exists.",
-						AppType.EXTENSION, vo.getId(), group.getId(), user.getId(), actor, extSourceName);
-
+				checkDupplicateGroupApplications(sess, vo, group, AppType.EXTENSION);
 				// if false, throws exception with reason for GUI
 				groupsManager.canExtendMembershipInGroupWithReason(sess, member, group);
-
 				// vo sponsored members can extend in a group
-
 			} else {
-
-				checkDuplicateRegistration("Extension application for Vo: "+vo.getName()+" already exists.",
-						AppType.EXTENSION, vo.getId(), 0, user.getId(), actor, extSourceName);
-
+				checkDupplicateVoApplications(sess, vo, AppType.EXTENSION);
 				// if false, throws exception with reason for GUI
 				membersManager.canExtendMembershipWithReason(sess, member);
-
 				// sponsored vo members cannot be extended in this way
 				if (member.isSponsored()) {
 					throw new CantBeSubmittedException("Sponsored member cannot apply for membership extension, it must be extended by the sponsor.");
@@ -2561,73 +2381,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 		}
-
-	}
-
-	/**
-	 * Perform DB query and throws DuplicateRegistrationAttemptException when user or actor/extSource have
-	 * unprocessed applications (in NEW or VERIFIED state) within the same VO/Group context.
-	 *
-	 * @param exceptionText Dynamic exception text.
-	 * @param appType Application type to check INITIAL / EXTENSION.
-	 * @param voId ID of VO.
-	 * @param groupId ID of Group. If no group context is expected, pass value <= 0.
-	 * @param userId ID of user. If no user context in expected, pass value <= 0.
-	 * @param actor Identity context
-	 * @param extSourceName Identity context
-	 * @throws DuplicateRegistrationAttemptException When user / identity have unprocesed applications
-	 * @throws RegistrarException When implementation fails
-	 * @throws PrivilegeException Shouldn't happen
-	 */
-	private void checkDuplicateRegistration(String exceptionText, AppType appType, int voId, int groupId, int userId, String actor, String extSourceName) throws DuplicateRegistrationAttemptException, RegistrarException, PrivilegeException {
-
-		String selectVo = "select id from application where apptype=? and state in (?,?) and vo_id=? and group_id is null and created_by=? and extSourceName=?";
-		String selectGroup = "select id from application where apptype=? and state in (?,?) and vo_id=? and group_id=? and created_by=? and extSourceName=?";
-		String selectVoWithUser = "select id from application where apptype=? and state in (?,?) and vo_id=? and group_id is null and (user_id=? or (created_by=? and extSourceName=?))";
-		String selectGroupWithUser = "select id from application where apptype=? and state in (?,?) and vo_id=? and group_id=? and (user_id=? or (created_by=? and extSourceName=?))";
-
-		List<Integer> regs = new ArrayList<>();
-		if (AppType.EXTENSION.equals(appType)) {
-			if (userId <= 0) throw new InternalErrorException("Can't check for duplicate registration attempt on extension application without providing userId.");
-			if (groupId > 0) {
-				regs = jdbc.query(selectGroupWithUser, new SingleColumnRowMapper<>(Integer.class),
-						appType.toString(), AppState.NEW.toString(), AppState.VERIFIED.toString(), voId, groupId, userId, actor, extSourceName);
-			} else {
-				regs = jdbc.query(selectVoWithUser, new SingleColumnRowMapper<>(Integer.class),
-						appType.toString(), AppState.NEW.toString(), AppState.VERIFIED.toString(), voId, userId, actor, extSourceName);
-			}
-		} else if (AppType.INITIAL.equals(appType)) {
-
-			if (userId > 0) {
-				// with user
-				if (groupId > 0) {
-					regs = jdbc.query(selectGroupWithUser, new SingleColumnRowMapper<>(Integer.class),
-							appType.toString(), AppState.NEW.toString(), AppState.VERIFIED.toString(), voId, groupId, userId, actor, extSourceName);
-				} else {
-					regs = jdbc.query(selectVoWithUser, new SingleColumnRowMapper<>(Integer.class),
-							appType.toString(), AppState.NEW.toString(), AppState.VERIFIED.toString(), voId, userId, actor, extSourceName);
-				}
-			} else {
-				// without known user
-				if (groupId > 0) {
-					regs = jdbc.query(selectGroup, new SingleColumnRowMapper<>(Integer.class),
-							appType.toString(), AppState.NEW.toString(), AppState.VERIFIED.toString(), voId, groupId, actor, extSourceName);
-				} else {
-					regs = jdbc.query(selectVo, new SingleColumnRowMapper<>(Integer.class),
-							appType.toString(), AppState.NEW.toString(), AppState.VERIFIED.toString(), voId, actor, extSourceName);
-				}
-			}
-
-		}
-
-		if (!regs.isEmpty()) {
-			// user have unprocessed application for group
-			throw new DuplicateRegistrationAttemptException(exceptionText,
-					getApplicationById(regs.get(0)),
-					getApplicationDataById(registrarSession, regs.get(0)));
-		}
-
-		// pass if have approved or rejected applications or has none submitted
 
 	}
 
@@ -2799,6 +2552,97 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	@Override
+	public List<Application> filterPrincipalApplications(PerunSession sess, List<Application> applications) {
+		// get necessary params from session
+		PerunPrincipal principal = sess.getPerunPrincipal();
+		User user = principal.getUser();
+		String actor = principal.getActor();
+		String extSourceName = principal.getExtSourceName();
+		Map<String, String> additionalInformation = principal.getAdditionalInformations();
+
+		List<Application> filteredApplications = new ArrayList<>();
+
+		// filter principal's applications
+		for (Application application : applications) {
+			// check existing application by user
+			if (user != null && application.getUser() != null && user.getId() == application.getUser().getId()) {
+				filteredApplications.add(application);
+			} else {
+				//check existing application by additional identifiers
+				String shibIdentityProvider = additionalInformation.get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+				if (shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
+					String principalAdditionalIdentifiers = principal.getAdditionalInformations().get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+					if (principalAdditionalIdentifiers == null) {
+						//This should not happen
+						throw new InternalErrorException("Entry " + UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME + " is not defined in the principal's additional information. Either it was not provided by external source used for sign-in or the mapping configuration is wrong.");
+					}
+					LinkedHashMap<String, String> additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+					String applicationAdditionalIdentifiers = additionalFedAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+					List<String> identifiersInIntersection = BeansUtils.additionalIdentifiersIntersection(principalAdditionalIdentifiers, applicationAdditionalIdentifiers);
+					if (!identifiersInIntersection.isEmpty()) {
+						filteredApplications.add(application);
+					}
+				}
+				//check existing application by extSourceName and extSource login
+				else if (extSourceName.equals(application.getExtSourceName()) && actor.equals(application.getCreatedBy())) {
+					filteredApplications.add(application);
+				}
+			}
+		}
+		return filteredApplications;
+	}
+
+	@Override
+	public List<Application> filterUserApplications(PerunSession sess, User user, List<Application> applications) {
+
+		List<UserExtSource> userExtSources = usersManager.getUserExtSources(registrarSession, user);
+
+		List<Application> resultApps = new ArrayList<>();
+
+		for (Application application : applications) {
+			//check based on user id
+			if (application.getUser() != null && application.getUser().getId() == user.getId()) {
+				resultApps.add(application);
+			//check based on user extSources
+			} else {
+				for (UserExtSource ues : userExtSources) {
+					if (ues.getExtSource().getName().equals(application.getExtSourceName()) &&
+					ues.getExtSource().getType().equals(application.getExtSourceType())) {
+						//login check
+						if (ues.getLogin().equals(application.getCreatedBy())) {
+							resultApps.add(application);
+							break;
+						}
+						//additional identifiers check
+						try {
+							Attribute attribute = attrManager.getAttribute(sess, ues, UsersManagerBl.ADDITIONAL_IDENTIFIERS_PERUN_ATTRIBUTE_NAME);
+							if (attribute.getValue() != null) {
+								List<String> userIdentifiers = attribute.valueAsList();
+								// Creates Arrays from principal and application identifiers and makes intersection between them.
+								LinkedHashMap<String, String> additionalFedAttributes = BeansUtils.stringToMapOfAttributes(application.getFedInfo());
+								String applicationAdditionalIdentifiers = additionalFedAttributes.get(UsersManagerBl.ADDITIONAL_IDENTIFIERS_ATTRIBUTE_NAME);
+								String[] applicationIdentifiersArray = {};
+								if (applicationAdditionalIdentifiers != null) {
+									applicationIdentifiersArray = applicationAdditionalIdentifiers.split(UsersManagerBl.MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX);
+								}
+								HashSet<String> principalIdentifiersSet = new HashSet<>(userIdentifiers);
+								principalIdentifiersSet.retainAll(Arrays.asList(applicationIdentifiersArray));
+								if (!principalIdentifiersSet.isEmpty()) {
+									resultApps.add(application);
+									break;
+								}
+							}
+						} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+							//We can ignore that
+						}
+					}
+				}
+			}
+		}
+		return resultApps;
+	}
+
 	/**
 	 * Retrieve form item data by its ID or NULL if not exists.
 	 *
@@ -2921,7 +2765,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			try {
 				if (app.getUser() == null) {
-					User u = usersManager.getUserByExtSourceNameAndExtLogin(sess, app.getExtSourceName(), app.getCreatedBy());
+					LinkedHashMap<String, String> additionalAttributes = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
+					PerunPrincipal applicationPrincipal = new PerunPrincipal(app.getCreatedBy(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), additionalAttributes);
+					User u = perun.getUsersManagerBl().getUserByExtSourceInformation(sess, applicationPrincipal);
 					if (u != null) {
 						membersManager.getMemberByUser(sess, app.getVo(), u);
 					} else {
@@ -3333,25 +3179,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 */
 	private void autoApproveUsersGroupApplications(PerunSession sess, Vo vo, User user) throws PerunException {
 
-		List<UserExtSource> ues = usersManager.getUserExtSources(registrarSession, user);
+		// get group apps based on the vo
+		List<Application> apps = jdbc.query(
+			APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?",
+			APP_MAPPER, vo.getId(), AppState.VERIFIED.toString());
 
-		List<Application> applications = new ArrayList<>();
-
-		// get apps based on user
-
-		List<Application> apps = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
-				" and a.user_id=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), user.getId());
-
-		if (!apps.isEmpty()) applications.addAll(apps);
-
-		for (UserExtSource ue : ues) {
-
-			List<Application> apps2 = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
-					" and a.created_by=? and a.extsourcename=? and a.extsourcetype=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), ue.getLogin(), ue.getExtSource().getName(), ue.getExtSource().getType());
-
-			if (!apps2.isEmpty()) applications.addAll(apps2);
-
-		}
+		//filter only user's apps
+		List<Application> applications = filterUserApplications(sess, user, apps);
 
 		for (Application a : applications) {
 			// if new => skipp user will approve automatically by verifying email
@@ -3436,6 +3270,207 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	/**
+	 * Method creates a candidate object from application according to the application id.
+	 *
+	 * @param appId id of the application
+	 * @return Candidate
+	 */
+	private Candidate createCandidateFromApplicationData(Integer appId) {
+		// put application data into Candidate
+		final Map<String, String> attributes = new HashMap<>();
+		jdbc.query("select dst_attr,value from application_data d, application_form_items i where d.item_id=i.id "
+				+ "and i.dst_attr is not null and d.value is not null and app_id=?",
+			(resultSet, i) -> {
+				attributes.put(resultSet.getString("dst_attr"), resultSet.getString("value"));
+				return null;
+			}, appId);
+
+		// DO NOT STORE LOGINS THROUGH CANDIDATE
+		// we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
+		attributes.entrySet().removeIf(entry -> entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:"));
+
+		Candidate candidate = new Candidate();
+		candidate.setAttributes(attributes);
+
+		log.debug("[REGISTRAR] Retrieved candidate from DB {}", candidate);
+
+		// first try to parse display_name if not null and not empty
+		if (attributes.containsKey(URN_USER_DISPLAY_NAME) && attributes.get(URN_USER_DISPLAY_NAME) != null &&
+			!attributes.get(URN_USER_DISPLAY_NAME).isEmpty()) {
+			// parse
+			Map<String, String> commonName = Utils.parseCommonName(attributes.get(URN_USER_DISPLAY_NAME));
+			if (commonName.get("titleBefore") != null
+				&& !commonName.get("titleBefore").isEmpty()) {
+				candidate.setTitleBefore(commonName.get("titleBefore"));
+			}
+			if (commonName.get("firstName") != null
+				&& !commonName.get("firstName").isEmpty()) {
+				candidate.setFirstName(commonName.get("firstName"));
+			}
+			// FIXME - ? there is no middleName in Utils.parseCommonName() implementation
+			if (commonName.get("middleName") != null
+				&& !commonName.get("middleName").isEmpty()) {
+				candidate.setMiddleName(commonName.get("middleName"));
+			}
+			if (commonName.get("lastName") != null
+				&& !commonName.get("lastName").isEmpty()) {
+				candidate.setLastName(commonName.get("lastName"));
+			}
+			if (commonName.get("titleAfter") != null
+				&& !commonName.get("titleAfter").isEmpty()) {
+				candidate.setTitleAfter(commonName.get("titleAfter"));
+			}
+		}
+
+		// if names are separated, used them after
+		for (String attrName : attributes.keySet()) {
+			// if value not null or empty - set to candidate
+			if (attributes.get(attrName) != null
+				&& !attributes.get(attrName).isEmpty()) {
+				if (URN_USER_TITLE_BEFORE.equals(attrName)) {
+					candidate.setTitleBefore(attributes.get(attrName));
+				} else if (URN_USER_TITLE_AFTER.equals(attrName)) {
+					candidate.setTitleAfter(attributes.get(attrName));
+				} else if (URN_USER_FIRST_NAME.equals(attrName)) {
+					candidate.setFirstName(attributes.get(attrName));
+				} else if (URN_USER_LAST_NAME.equals(attrName)) {
+					candidate.setLastName(attributes.get(attrName));
+				} else if (URN_USER_MIDDLE_NAME.equals(attrName)) {
+					candidate.setMiddleName(attributes.get(attrName));
+				}
+			}
+		}
+
+		return candidate;
+	}
+
+	/**
+	 * Check whether a principal in perun session has already created application in group
+	 *
+	 * @param sess perun session containing principal
+	 * @param vo for application
+	 * @param group for application
+	 * @param applicationType type of application
+	 * @throws DuplicateRegistrationAttemptException if the principal has already created application
+	 * @throws RegistrarException
+	 * @throws PrivilegeException
+	 */
+	private void checkDupplicateGroupApplications(PerunSession sess, Vo vo, Group group, AppType applicationType) throws DuplicateRegistrationAttemptException, RegistrarException, PrivilegeException {
+		// select neccessary information from already existing Group applications
+		List<Application> applications = new ArrayList<>(jdbc.query(
+			"select id, user_id, created_by, extSourceName, fed_info from application where apptype=? and vo_id=? and group_id=? and (state=? or state=?)",
+			IDENTITY_APP_MAPPER,
+			applicationType.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), AppState.VERIFIED.toString()));
+		// not member of VO - check for unprocessed applications to Group
+		List<Application> filteredApplications = filterPrincipalApplications(sess, applications);
+		if (!filteredApplications.isEmpty()) {
+			// user have unprocessed application for group
+			throw new DuplicateRegistrationAttemptException(
+				"Application for Group: "+group.getName()+" already exists.",
+				getApplicationById(filteredApplications.get(0).getId()),
+				getApplicationDataById(registrarSession, filteredApplications.get(0).getId()));
+		}
+	}
+
+	/**
+	 * Check whether a principal in perun session has already created application in vo
+	 *
+	 * @param sess perun session containing principal
+	 * @param vo for application
+	 * @param applicationType type of application
+	 * @throws DuplicateRegistrationAttemptException if the principal has already created application
+	 * @throws RegistrarException
+	 * @throws PrivilegeException
+	 */
+	private void checkDupplicateVoApplications(PerunSession sess, Vo vo, AppType applicationType) throws DuplicateRegistrationAttemptException, RegistrarException, PrivilegeException {
+		// select neccessary information from already existing Vo applications
+		List<Application> applications = jdbc.query(
+			"select id, user_id, created_by, extSourceName, fed_info from application where apptype=? and vo_id=? and group_id is null and (state=? or state=?)",
+			IDENTITY_APP_MAPPER,
+			applicationType.toString(), vo.getId(), AppState.NEW.toString(), AppState.VERIFIED.toString());
+		// not member of VO - check for unprocessed applications
+		List<Application> filteredApplications = filterPrincipalApplications(sess, applications);
+		if (!filteredApplications.isEmpty()) {
+			// user have unprocessed application for VO - can't post more
+			throw new DuplicateRegistrationAttemptException(
+				"Application for VO: "+vo.getName()+" already exists.",
+				getApplicationById(filteredApplications.get(0).getId()),
+				getApplicationDataById(registrarSession, filteredApplications.get(0).getId()));
+		}
+	}
+
+	private int processApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+
+		// If user is known in Perun but unknown in GUI (user joined identity by consolidator)
+		if (application.getUser() == null && session.getPerunPrincipal().getUser() != null) {
+			application.setUser(session.getPerunPrincipal().getUser());
+		}
+
+		// lock to prevent multiple submission of same application on server side
+		String key = getLockKeyForApplication(application);
+
+		synchronized(runningCreateApplication) {
+			if (runningCreateApplication.contains(key)) {
+				throw new AlreadyProcessingException("Your application submission is being processed already.");
+			} else {
+				runningCreateApplication.add(key);
+			}
+		}
+
+		// store user-ext-source attributes from session to application object
+		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
+		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
+		application.setFedInfo(additionalAttrs);
+
+		Application app;
+		try {
+
+			// throws exception if user already submitted application or is already a member or can't submit it by VO/Group expiration rules.
+			checkDuplicateRegistrationAttempt(session, application.getType(), (application.getGroup() != null) ? getFormForGroup(application.getGroup()) : getFormForVo(application.getVo()));
+
+			// using this to init inner transaction
+			// all minor exceptions inside are catched, if not, it's ok to throw them out
+			app = this.registrarManager.createApplicationInternal(session, application, data);
+		} catch (Exception ex) {
+			// clear flag and re-throw exception, since application was processed with exception
+			synchronized (runningCreateApplication) {
+				runningCreateApplication.remove(key);
+			}
+			throw ex;
+		}
+
+		// try to verify (or even auto-approve) application
+		try {
+			boolean verified = tryToVerifyApplication(session, app);
+			if (verified) {
+				// try to APPROVE if auto approve
+				tryToAutoApproveApplication(session, app);
+			} else {
+				// send request validation notification
+				getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
+			}
+			// refresh current session, if submission was successful,
+			// since user might have been created.
+			AuthzResolverBlImpl.refreshSession(session);
+		} catch (Exception ex) {
+			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
+			// clear flag and re-throw exception, since application was processed with exception
+			synchronized (runningCreateApplication) {
+				runningCreateApplication.remove(key);
+			}
+			throw ex;
+		}
+
+		// clear flag, since application was processed
+		synchronized (runningCreateApplication) {
+			runningCreateApplication.remove(key);
+		}
+
+		return app.getId();
+
+	}
+
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 
 	// FIXME - we are retrieving GROUP name using only "short_name" so it's not same as getGroupById()
@@ -3453,6 +3488,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex from application_form_items";
 
 	private static final String FORM_ITEM_TEXTS_SELECT = "select locale,label,options,help,error_message from application_form_item_texts";
+
+	private static final RowMapper<Application> IDENTITY_APP_MAPPER = (resultSet, i) -> {
+		Application app = new Application();
+		app.setId(resultSet.getInt("id"));
+		app.setUser(new User(resultSet.getInt("user_id"),"","","","",""));
+		app.setCreatedBy(resultSet.getString("created_by"));
+		app.setExtSourceName(resultSet.getString("extsourcename"));
+		app.setFedInfo(resultSet.getString("fed_info"));
+		return app;
+	};
 
 	static final RowMapper<Application> APP_MAPPER = (resultSet, i) -> {
 

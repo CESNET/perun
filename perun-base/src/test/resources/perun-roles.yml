@@ -168,6 +168,68 @@ perun_policies:
     include_policies:
       - test_resource_admin
 
+  #AuditMessagesManagerEntry
+  pollConsumerMessages_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  pollConsumerMessages_String_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  pollConsumerEvents_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  pollConsumerEvents_String_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  createAuditerConsumer_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  log_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  setLastProcessedId_String_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  #AuthzResolver
+  getUserRoleNames_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getUserRoles_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getGroupRoleNames_Group_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getGroupRoles_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  loadAuthorizationComponents_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:
@@ -1516,6 +1578,563 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #MembersManagerEntry
+  deleteMember_Member_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteMembers_List<Member>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteAllMembers_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createMember_Vo_Candidate_List<Group>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createMember_Vo_String_String_String_Candidate_List<Group>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createMember_Vo_String_String_int_String_Candidate_List<Group>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createMember_Vo_User_List<Group>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createMember_Vo_ExtSource_String_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMemberByUserExtSource_Vo_UserExtSource_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMemberById_int_policy:
+    policy_roles:
+      - RPC:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMemberByUser_Vo_User_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMembersByUser_User_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getMembers_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMembers_Vo_Status_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMemberById_int_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMemberWithAttributes_Member_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembersWithAttributes_Vo_List<AttributeDefinition>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembersWithAttributes_List<String>_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembersWithAttributesByNames_Vo_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getCompleteRichMembers_Vo_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getCompleteRichMembers_Vo_List<String>_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getCompleteRichMembers_Group_List<String>_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getCompleteRichMembers_Group_Resource_List<String>_List<String>_policy:
+    policy_roles:
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getCompleteRichMembers_Group_List<String>_List<String>_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findCompleteRichMembers_Vo_List<String>_String_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findCompleteRichMembers_Vo_List<String>_List<String>_String_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findCompleteRichMembers_List<String>_List<String>_String_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - GROUPADMIN:
+      - PERUNOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  filter-findCompleteRichMembers_List<String>_List<String>_String_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+
+  findCompleteRichMembers_Group_List<String>_String_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findCompleteRichMembers_Group_List<String>_List<String>_String_boolean_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembersWithAttributesByNames_Group_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembersWithAttributes_Group_List<AttributeDefinition>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembers_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembers_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembers_Vo_Status_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembersWithAttributes_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichMembersWithAttributes_Vo_Status_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMembersCount_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMembersCount_Vo_Status_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findMembersByName_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findMembersByNameInVo_Vo_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findMembersInVo_Vo_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  findMembersInGroup_Group_String_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findRichMembersWithAttributesInGroup_Group_String_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findMembersInParentGroup_Group_String_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findRichMembersWithAttributesInParentGroup_Group_String_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findRichMembersInVo_Vo_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  findRichMembersWithAttributesInVo_Vo_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  setStatus_Member_Status_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  setStatus_Member_Status_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  suspendMemberTo_Member_Date_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  unsuspendMember_Member_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  validateMemberAsync_Member_policy:
+    policy_roles:
+      - SELF: User
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  extendMembership_Member_policy:
+    policy_roles:
+      - SELF: User
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  canExtendMembership_Member_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  canExtendMembershipWithReason_Member_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - SELF: User
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  canBeMember_Vo_User_String_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  canBeMemberWithReason_Vo_User_String_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  sendPasswordResetLinkEmail_Member_String_String_String_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createSponsoredMember_Vo_String_Map<String_String>_String_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  setSponsorshipForMember_Member_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  unsetSponsorshipForMember_Member_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  sponsorMember_Member_User_policy:
+    policy_roles:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  getSponsoredMembers_Vo_User_List<String>_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getSponsoredMembers_Vo_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getSponsoredMembers_Vo_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  extendExpirationForSponsoredMember_Member_User_policy:
+    policy_roles:
+      - REGISTRAR:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeSponsor_Member_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   #OwnersManagerEntry
   createOwner_Owner_policy:
     policy_roles: []
@@ -1562,6 +2181,648 @@ perun_policies:
       - GROUPADMIN:
       - FACILITYADMIN:
       - ENGINE:
+    include_policies:
+      - default_policy
+
+  #ResourcesManagerEntry
+  getResourceById_int_policy:
+    policy_roles:
+      - RPC:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichResourceById_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getResourceByName_Vo_Facility_String_policy:
+    policy_roles:
+      - RPC:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  createResource_Resource_Vo_Facility_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  copyResource_Resource_Resource_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  withGroups-copyResource_Resource_Resource_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteResource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteAllResources_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getFacility_Resource_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getVo_Resource_policy:
+    policy_roles:
+      - ENGINE:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedMembers_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedUsers_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedServices_Resource_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedMembers_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedRichMembers_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  assignGroupToResource_Group_Resource_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  assignGroupsToResource_List<Group>_Resource_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  assignGroupToResources_Group_List<Resource>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeGroupFromResource_Group_Resource_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  removeGroupsFromResource_List<Group>_Resource_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  removeGroupFromResources_Group_List<Resource>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAssignedGroups_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedGroups_Resource_Member_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedResources_Group_policy:
+    policy_roles:
+      - ENGINE:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedRichResources_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  assignService_Resource_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  assignServices_Resource_List<Service>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  assignServicesPackage_Resource_ServicesPackage_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeService_Resource_Service_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeServices_Resource_List<Service>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeServicesPackage_Resource_ServicesPackage_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getResources_Vo_policy:
+    policy_roles:
+      - RESOURCEADMIN:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getResources_Vo_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichResources_Vo_policy:
+    policy_roles:
+      - RESOURCEADMIN:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getRichResources_Vo_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getResourcesCount_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllowedResources_Member_policy:
+    policy_roles:
+      - SELF: User
+      - ENGINE:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedResources_Member_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedResources_Member_Service_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedRichResources_Member_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAssignedRichResources_Member_Service_policy:
+    policy_roles:
+      - SELF: User
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  updateResource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  createResourceTag_ResourceTag_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  updateResourceTag_ResourceTag_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteResourceTag_ResourceTag_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteAllResourcesTagsForVo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  assignResourceTagToResource_ResourceTag_Resource_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeResourceTagFromResource_ResourceTag_Resource_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeAllResourcesTagFromResource_Resource_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAllResourcesByResourceTag_ResourceTag_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllResourcesTagsForVo_Vo_policy:
+    policy_roles:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAllResourcesTagsForResource_Resource_policy:
+    policy_roles:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  copyAttributes_Resource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  copyServices_Resource_Resource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  copyGroups_Resource_Resource_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getAdmins_Resource_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getRichAdmins_Resource_List<String>_boolean_boolean_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getResourcesWhereUserIsAdmin_User_policy:
+    policy_roles:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getResourcesWhereUserIsAdmin_Facility_Vo_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getResourcesWhereUserIsAdmin_Facility_Vo_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getResourcesWhereUserIsAdmin_Vo_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  filter-getResourcesWhereUserIsAdmin_Vo_User_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  authorizedGroup-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  filter-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter_authorizedGroup-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAdminGroups_Resource_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addAdmin_Resource_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addAdmin_Resource_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-addAdmin_Resource_Group_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeAdmin_Resource_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  removeAdmin_Resource_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-removeAdmin_Resource_Group_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  setBan_BanOnResource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  resource-getBanById_int_policy:
+    policy_roles:
+      - PERUNOBSERBER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  resource-getBan_int_int_policy:
+    policy_roles:
+      - PERUNOBSERBER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getBansForMember_int_policy:
+    policy_roles:
+      - PERUNOBSERBER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  getBansForResource_int_policy:
+    policy_roles:
+      - PERUNOBSERBER:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  updateBan_BanOnResource_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  resource-removeBan_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  resource-removeBan_int_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addResourceSelfServiceUser_Resource_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  addResourceSelfServiceGroup_Resource_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  group-addResourceSelfServiceGroup_Resource_Group_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removeResourceSelfServiceUser_Resource_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  removeResourceSelfServiceGroup_Resource_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+
+  group-removeResourceSelfServiceGroup_Resource_Group_policy:
+    policy_roles: []
     include_policies:
       - default_policy
 
@@ -3033,4 +4294,171 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
+
+  #AttributesManagerEntry
+  getEntitylessAttributesWithKeys_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getEntitylessAttributesWithKeys_String_List<String>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+# A list of Perun management rules that are loaded to the PerunPoliciesContainer.
+perun_roles_management:
+
+  PERUNADMIN:
+    assign_to_objects: {}
+    entities_to_manage:
+      User: user_id
+    privileged_roles:
+      - PERUNADMIN:
+
+  PERUNOBSERVER:
+    assign_to_objects: {}
+    entities_to_manage:
+      User: user_id
+    privileged_roles:
+      - PERUNADMIN:
+
+  VOADMIN:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+
+  GROUPADMIN:
+    assign_to_objects:
+      Group: group_id
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+
+  SELF:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  FACILITYADMIN:
+    assign_to_objects:
+      Facility: facility_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - FACILITYADMIN: Facility
+
+  RESOURCEADMIN:
+    assign_to_objects:
+      Resource: resource_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+
+  RESOURCESELFSERVICE:
+    assign_to_objects:
+      Resource: resource_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+
+  REGISTRAR:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  ENGINE:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  RPC:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  NOTIFICATIONS:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  SERVICEUSER:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
+  SPONSOR:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+
+  VOOBSERVER:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+
+  TOPGROUPCREATOR:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
+
+  SECURITYADMIN:
+    assign_to_objects:
+      SecurityTeam: security_team_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - SECURITYADMIN: SecurityTeam
+
+  CABINETADMIN:
+    assign_to_objects: {}
+    entities_to_manage:
+      User: user_id
+    privileged_roles:
+      - PERUNADMIN:
+      - CABINETADMIN:
+
+  UNKNOWN:
+    assign_to_objects: {}
+    entities_to_manage: {}
+    privileged_roles: []
+
 ...

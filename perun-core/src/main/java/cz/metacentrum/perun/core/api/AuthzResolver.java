@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunBeanNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -19,6 +20,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Privileges;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.model.Application;
 
 import java.util.Collections;
 import java.util.List;
@@ -75,6 +77,17 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Check if the principal is the owner of the application.
+	 *
+	 * @param sess PerunSession which contains the principal.
+	 * @param app application which principal wants to access
+	 * @return true if the principal has particular rights, false otherwise.
+	 */
+	public static boolean selfAuthorizedForApplication(PerunSession sess, Application app) {
+		return AuthzResolverBlImpl.selfAuthorizedForApplication(sess, app);
+	}
+
+	/**
 	 * Checks if the principal is authorized.
 	 *
 	 * @param sess perunSession
@@ -83,6 +96,7 @@ public class AuthzResolver {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
+	@Deprecated
 	public static boolean isAuthorized(PerunSession sess, String role, PerunBean complementaryObject) {
 		if (!roleExists(role)) {
 			throw new InternalErrorException("Role: "+ role +" does not exists.");
@@ -103,7 +117,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group, resource);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -121,7 +135,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, resource);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -139,7 +153,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user, Facility facility) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user, facility);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -157,7 +171,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Group group) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member, group);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -174,7 +188,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, user);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -191,7 +205,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, member);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -208,7 +222,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Vo vo) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, vo);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -248,7 +262,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -265,7 +279,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, resource);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -282,7 +296,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Facility facility) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, facility);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -299,7 +313,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Host host) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, host);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -316,7 +330,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, UserExtSource ues) {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, ues);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -331,11 +345,7 @@ public class AuthzResolver {
 	 * @return true if principal is authorized, false if not
 	 */
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) {
-		try {
-			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
-		} catch (AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
 	}
 
 	/**
@@ -347,6 +357,7 @@ public class AuthzResolver {
 	 * @return true if the principal authorized, false otherwise
 	 * @throws InternalErrorException if something goes wrong
 	 */
+	@Deprecated
 	public static boolean isAuthorized(PerunSession sess, String role) {
 		if (!roleExists(role)) {
 			throw new InternalErrorException("Role: "+ role +" does not exists.");
@@ -452,9 +463,13 @@ public class AuthzResolver {
 	 * @return list of strings, which represents roles.
 	 */
 	public static List<String> getUserRoleNames(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 		((PerunBl) sess.getPerun()).getUsersManagerBl().checkUserExists(sess, user);
 
-		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getUserRoleNames.");
+		//Authorization
+		if (!authorizedInternal(sess, "getUserRoleNames_User_policy"))
+			throw new PrivilegeException("getUserRoleNames.");
+
 		return AuthzResolverBlImpl.getUserRoleNames(sess, user);
 	}
 
@@ -468,9 +483,13 @@ public class AuthzResolver {
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
 	public static AuthzRoles getUserRoles(PerunSession sess, int userId) throws UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 		User user = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserById(sess, userId);
 
-		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getUserRoles.");
+		//Authorization
+		if (!authorizedInternal(sess, "getUserRoles_int_policy"))
+			throw new PrivilegeException("getUserRoles.");
+
 		return AuthzResolverBlImpl.getUserRoles(sess, user);
 	}
 
@@ -484,9 +503,13 @@ public class AuthzResolver {
 	 * @return list of strings, which represents roles.
 	 */
 	public static List<String> getGroupRoleNames(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 		((PerunBl) sess.getPerun()).getGroupsManagerBl().checkGroupExists(sess, group);
 
-		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getGroupRoleNames.");
+		//Authorization
+		if (!authorizedInternal(sess, "getGroupRoleNames_Group_policy"))
+			throw new PrivilegeException("getGroupRoleNames.");
+
 		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.getGroupRoleNames(sess, group);
 	}
 
@@ -500,9 +523,13 @@ public class AuthzResolver {
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
 	public static AuthzRoles getGroupRoles(PerunSession sess, int groupId) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 		Group group = ((PerunBl) sess.getPerun()).getGroupsManagerBl().getGroupById(sess, groupId);
 
-		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getGroupRoles.");
+		//Authorization
+		if (!authorizedInternal(sess, "getGroupRoles_int_policy"))
+			throw new PrivilegeException("getGroupRoles.");
+
 		return AuthzResolverBlImpl.getGroupRoles(sess, group);
 	}
 
@@ -837,13 +864,13 @@ public class AuthzResolver {
 	 * @param complementaryObjectId id of object for which we will get richUser administrators
 	 * @param complementaryObjectName name of object for which we will get richUser administrators
 	 * @param specificAttributes list of specified attributes which are needed in object richUser
-	 * @param role expected role to filter managers by
+	 * @param role expected role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
 	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
 	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
 	 *
 	 * @return list of richUser administrators for complementary object and role with specified attributes.
 	 */
-	public static List<RichUser> getRichAdmins(PerunSession sess, int complementaryObjectId, String complementaryObjectName, List<String> specificAttributes, String role, boolean onlyDirectAdmins, boolean allUserAttributes) throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FacilityNotExistsException, RoleNotSupportedException, PerunBeanNotSupportedException, UserNotExistsException {
+	public static List<RichUser> getRichAdmins(PerunSession sess, int complementaryObjectId, String complementaryObjectName, List<String> specificAttributes, String role, boolean onlyDirectAdmins, boolean allUserAttributes) throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FacilityNotExistsException, RoleNotSupportedException, PerunBeanNotSupportedException, UserNotExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(role, "role");
 		Utils.notNull(complementaryObjectName, "complementaryObjectName");
@@ -872,6 +899,13 @@ public class AuthzResolver {
 				Facility facility = ((PerunBl) sess.getPerun()).getFacilitiesManagerBl().getFacilityById(sess, complementaryObjectId);
 				richUsers = sess.getPerun().getFacilitiesManager().getRichAdmins(sess, facility, specificAttributes, allUserAttributes, onlyDirectAdmins);
 				break;
+			case "Resource":
+				Resource resource = ((PerunBl) sess.getPerun()).getResourcesManagerBl().getResourceById(sess, complementaryObjectId);
+				if (!Role.RESOURCEADMIN.equals(role)) {
+					throw new RoleNotSupportedException("Not supported other role than resource manager for object Resource.");
+				}
+				richUsers = sess.getPerun().getResourcesManager().getRichAdmins(sess, resource, specificAttributes, allUserAttributes, onlyDirectAdmins);
+				break;
 			default:
 				throw new PerunBeanNotSupportedException("Only Vo, Group and Facility are supported complementary names.");
 		}
@@ -885,11 +919,11 @@ public class AuthzResolver {
 	 * @param sess perun session
 	 * @param complementaryObjectId id of object for which we will get richUser administrators
 	 * @param complementaryObjectName name of object for which we will get richUser administrators
-	 * @param role expected role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR)
+	 * @param role expected role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
 	 *
 	 * @return list of authorizedGroups for complementary object and role
 	 */
-	public static List<Group> getAdminGroups(PerunSession sess, int complementaryObjectId, String complementaryObjectName, String role) throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FacilityNotExistsException, RoleNotSupportedException, PerunBeanNotSupportedException {
+	public static List<Group> getAdminGroups(PerunSession sess, int complementaryObjectId, String complementaryObjectName, String role) throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FacilityNotExistsException, RoleNotSupportedException, PerunBeanNotSupportedException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(role, "role");
 		Utils.notNull(complementaryObjectName, "complementaryObjectName");
@@ -916,6 +950,13 @@ public class AuthzResolver {
 					throw new RoleNotSupportedException("Not supported other role than facility manager for object Facility.");
 				Facility facility = ((PerunBl) sess.getPerun()).getFacilitiesManagerBl().getFacilityById(sess, complementaryObjectId);
 				authorizedGroups = sess.getPerun().getFacilitiesManager().getAdminGroups(sess, facility);
+				break;
+			case "Resource":
+				Resource resource = ((PerunBl) sess.getPerun()).getResourcesManagerBl().getResourceById(sess, complementaryObjectId);
+				if (!Role.RESOURCEADMIN.equals(role)) {
+					throw new RoleNotSupportedException("Not supported other role than resource manager for object Resource.");
+				}
+				authorizedGroups = sess.getPerun().getResourcesManager().getAdminGroups(sess, resource);
 				break;
 			default:
 				throw new PerunBeanNotSupportedException("Only Vo, Group and Facility are supported complementary names.");
@@ -1017,7 +1058,21 @@ public class AuthzResolver {
 	 * @throws PrivilegeException when the principal is not authorized.
 	 */
 	public static void loadAuthorizationComponents(PerunSession sess) throws PrivilegeException {
-		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException(sess, "loadAuthorizationComponents");
+		Utils.checkPerunSession(sess);
+
+		//Authorization
+		if (!authorizedInternal(sess, "loadAuthorizationComponents_policy"))
+			throw new PrivilegeException(sess, "loadAuthorizationComponents");
+
 		AuthzResolverBlImpl.loadAuthorizationComponents();
+	}
+
+	/**
+	 * Return all loaded perun policies.
+	 *
+	 * @return all loaded policies
+	 */
+	public static List<PerunPolicy> getAllPolicies() {
+		return AuthzResolverBlImpl.getAllPolicies();
 	}
 }

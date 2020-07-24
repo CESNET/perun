@@ -55,7 +55,6 @@ import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
-import cz.metacentrum.perun.core.impl.CacheManager;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import org.slf4j.Logger;
@@ -111,7 +110,6 @@ public class PerunBlImpl implements PerunBl {
 	private TasksManagerBl tasksManagerBl = null;
 
 	private Auditer auditer = null;
-	private CacheManager cacheManager = null;
 	private AttributesManagerImplApi attributesManagerImpl = null;
 
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
@@ -133,27 +131,21 @@ public class PerunBlImpl implements PerunBl {
 		log.debug("creating PerunSession for user {}", principal.getActor());
 		if (principal.getUser() == null && usersManagerBl != null && !dontLookupUsersForLogins.contains(principal.getActor())) {
 			// Get the user if we are completely initialized
-			String shibIdentityProvider = principal.getAdditionalInformations().get(ORIGIN_IDENTITY_PROVIDER_KEY);
 			try {
 				PerunSession internalSession = getPerunSession();
-				User user;
-				if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-					UserExtSource ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
-					user = usersManagerBl.getUserByUserExtSource(internalSession, ues);
-				} else {
-					user = usersManagerBl.getUserByExtSourceNameAndExtLogin(internalSession, principal.getExtSourceName(), principal.getActor());
-				}
+				User user = usersManagerBl.getUserByExtSourceInformation(internalSession, principal);
 				principal.setUser(user);
 
 				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
 					UserExtSource ues;
-						if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
-							ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
-						} else {
-							ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
-							ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
-						}
+					String shibIdentityProvider = principal.getAdditionalInformations().get(UsersManagerBl.ORIGIN_IDENTITY_PROVIDER_KEY);
+					if(shibIdentityProvider != null && extSourcesWithMultipleIdentifiers.contains(shibIdentityProvider)) {
+						ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
+					} else {
+						ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
+						ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
+					}
 					if (ues != null && ues.getLoa() != principal.getExtSourceLoa()) {
 						ues.setLoa(principal.getExtSourceLoa());
 						usersManagerBl.updateUserExtSource(internalSession, ues);
@@ -209,7 +201,7 @@ public class PerunBlImpl implements PerunBl {
 					if(attributeWithValue.getType().equals(ArrayList.class.getName()) || attributeWithValue.getType().equals(BeansUtils.largeArrayListClassName)) {
 						List<String> value = new ArrayList<>();
 						if (attrValue != null) {
-							value = new ArrayList<>(Arrays.asList(attrValue.split(UsersManagerBlImpl.multivalueAttributeSeparatorRegExp)));
+							value = new ArrayList<>(Arrays.asList(attrValue.split(UsersManagerBl.MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX)));
 						}
 						attributeWithValue.setValue(value);
 					} else {
@@ -537,14 +529,6 @@ public class PerunBlImpl implements PerunBl {
 		this.searcherBl = searcherBl;
 	}
 
-	public CacheManager getCacheManager() {
-		return cacheManager;
-	}
-
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
-	}
-
 	public void setAttributesManagerImpl(AttributesManagerImplApi attributesManagerImpl) {
 		this.attributesManagerImpl = attributesManagerImpl;
 	}
@@ -564,10 +548,6 @@ public class PerunBlImpl implements PerunBl {
 	public void initialize() {
 		this.extSourcesManagerBl.initialize(this.getPerunSession());
 		this.auditer.initialize();
-		if (coreConfig.isCacheEnabled()) {
-			this.cacheManager.initialize(getPerunSession(), attributesManagerImpl);
-			CacheManager.setCacheDisabled(false);
-		}
 	}
 
 	@Override

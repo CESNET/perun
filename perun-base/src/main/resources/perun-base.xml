@@ -23,6 +23,8 @@
 		<property name="groupStructureSynchronizationTimeout" value="${perun.group.structure.synchronization.timeout}"/>
 		<property name="groupMaxConcurentGroupsToSynchronize" value="${perun.group.maxConcurentGroupsToSynchronize}"/>
 		<property name="groupMaxConcurrentGroupsStructuresToSynchronize" value="${perun.group.structure.maxConcurrentGroupsStructuresToSynchronize}"/>
+		<property name="groupNameSecondaryRegex" value="${perun.group.nameSecondaryRegex}"/>
+		<property name="groupFullNameSecondaryRegex" value="${perun.group.fullNameSecondaryRegex}"/>
 		<property name="instanceId" value="${perun.instanceId}"/>
 		<property name="instanceName" value="${perun.instanceName}"/>
 		<property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
@@ -50,7 +52,6 @@
 		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
 		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
 		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
-		<property name="cacheEnabled" value="${perun.cacheEnabled}" />
 		<property name="pdfFontPath" value="${perun.pdfFontPath}" />
 		<property name="smtpHost" value="${mail.smtp.host}" />
 		<property name="smtpPort" value="${mail.smtp.port}" />
@@ -94,6 +95,8 @@
 				<prop key="perun.group.structure.synchronization.timeout">10</prop>
 				<prop key="perun.group.maxConcurentGroupsToSynchronize">10</prop>
 				<prop key="perun.group.structure.maxConcurrentGroupsStructuresToSynchronize">10</prop>
+				<prop key="perun.group.nameSecondaryRegex"/>
+				<prop key="perun.group.fullNameSecondaryRegex"/>
 				<prop key="perun.rpc.powerusers"/>
 				<prop key="perun.perun.db.name">perun</prop>
 				<prop key="perun.rt.url">https://rt3.cesnet.cz/rt/REST/1.0/ticket/new</prop>
@@ -122,7 +125,6 @@
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
 				<prop key="perun.allowedCorsDomains"></prop>
-				<prop key="perun.cacheEnabled">false</prop>
 				<prop key="perun.queryTimeout">-1</prop>
 				<prop key="perun.defaultLoa.idp">2</prop>
 				<!--

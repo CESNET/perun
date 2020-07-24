@@ -1246,7 +1246,7 @@ public interface MembersManager {
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
 	 * @return list of members from given VO who are sponsored by the given user.
 	 */
-	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws PrivilegeException;
+	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws PrivilegeException, VoNotExistsException, UserNotExistsException;
 
 	/**
 	 * Gets list of sponsored members of a VO.
@@ -1256,7 +1256,7 @@ public interface MembersManager {
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
 	 * @return list of members from given VO who are sponsored
 	 */
-	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException;
+	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Extends expiration date. Sponsored members cannot apply for membership extension, this method allows a sponsor to extend it.
@@ -1267,7 +1267,7 @@ public interface MembersManager {
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
 	 * @return new expiration date
 	 */
-	String extendExpirationForSponsoredMember(PerunSession session, Member sponsored, User sponsor) throws PrivilegeException;
+	String extendExpirationForSponsoredMember(PerunSession session, Member sponsored, User sponsor) throws PrivilegeException, MemberNotExistsException, UserNotExistsException;
 
 	/**
 	 * Removes the sponsor.

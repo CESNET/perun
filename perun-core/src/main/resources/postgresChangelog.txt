@@ -6,6 +6,56 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.64
+ALTER TABLE vos DROP COLUMN status;
+ALTER TABLE users DROP COLUMN status;
+ALTER TABLE owners DROP COLUMN status;
+ALTER TABLE facilities DROP COLUMN status;
+ALTER TABLE resources DROP COLUMN status;
+ALTER TABLE destinations DROP COLUMN status;
+ALTER TABLE facility_owners DROP COLUMN status;
+ALTER TABLE groups DROP COLUMN status;
+ALTER TABLE attr_names DROP COLUMN status;
+ALTER TABLE hosts DROP COLUMN status;
+ALTER TABLE host_attr_values DROP COLUMN status;
+ALTER TABLE services DROP COLUMN status;
+ALTER TABLE service_required_attrs DROP COLUMN status;
+ALTER TABLE service_denials DROP COLUMN status;
+ALTER TABLE resource_services DROP COLUMN status;
+ALTER TABLE facility_service_destinations DROP COLUMN status;
+ALTER TABLE entityless_attr_values DROP COLUMN status;
+ALTER TABLE facility_attr_values DROP COLUMN status;
+ALTER TABLE group_attr_values DROP COLUMN status;
+ALTER TABLE resource_attr_values DROP COLUMN status;
+ALTER TABLE group_resource_attr_values DROP COLUMN status;
+ALTER TABLE groups_members DROP COLUMN status;
+ALTER TABLE groups_resources DROP COLUMN status;
+ALTER TABLE member_attr_values DROP COLUMN status;
+ALTER TABLE member_group_attr_values DROP COLUMN status;
+ALTER TABLE member_resource_attr_values DROP COLUMN status;
+ALTER TABLE user_attr_values DROP COLUMN status;
+ALTER TABLE user_facility_attr_values DROP COLUMN status;
+ALTER TABLE vo_attr_values DROP COLUMN status;
+ALTER TABLE ext_sources DROP COLUMN status;
+ALTER TABLE ext_sources_attributes DROP COLUMN status;
+ALTER TABLE vo_ext_sources DROP COLUMN status;
+ALTER TABLE user_ext_sources DROP COLUMN status;
+ALTER TABLE service_packages DROP COLUMN status;
+ALTER TABLE service_service_packages DROP COLUMN status;
+ALTER TABLE user_ext_source_attr_values DROP COLUMN status;
+ALTER TABLE specific_user_users DROP CONSTRAINT specifu_u_status_chk;
+ALTER TABLE specific_user_users ALTER COLUMN status drop DEFAULT;
+ALTER TABLE specific_user_users ALTER COLUMN status TYPE integer USING status::int;
+ALTER TABLE specific_user_users ALTER COLUMN status SET DEFAULT 0;
+ALTER TABLE specific_user_users ADD CONSTRAINT specifu_u_status_chk check (status in (0,1));
+update configurations set value='3.1.64' where property='DATABASE VERSION';
+
+3.1.63
+ALTER TABLE members ALTER COLUMN status drop DEFAULT;
+ALTER TABLE members ALTER COLUMN status TYPE integer USING status::int;
+ALTER TABLE members ALTER COLUMN status SET DEFAULT 0;
+update configurations set value='3.1.63' where property='DATABASE VERSION';
+
 3.1.62
 ALTER TABLE application_form ALTER COLUMN automatic_approval TYPE boolean USING automatic_approval::boolean;
 ALTER TABLE application_form ALTER COLUMN automatic_approval SET default false;

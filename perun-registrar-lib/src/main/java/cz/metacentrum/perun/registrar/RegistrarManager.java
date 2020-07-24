@@ -227,7 +227,21 @@ public interface RegistrarManager {
 	 * @return stored app data
 	 * @throws PerunException
 	 */
+	@Deprecated
 	List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException;
+
+	/**
+	 * Creates a new application and if succeeds, trigger validation and approval.
+	 *
+	 * <p>The method triggers approval for VOs with auto-approved applications.
+	 *
+	 * @param session user present in session
+	 * @param application application
+	 * @param data data
+	 * @return Application Submitted application
+	 * @throws PerunException
+	 */
+	Application submitApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException;
 
 	/**
 	 * Creates a new application in one transaction
@@ -486,4 +500,22 @@ public interface RegistrarManager {
 	 */
 	ConsolidatorManager getConsolidatorManager();
 
+	/**
+	 * Return all applications from the given list which belong to the principal's identity in perun session.
+	 * Check is performed based on additional identifiers (if the user is logged through proxy for which they are enabled),
+	 * user_id (if principal's user is not null) and extSource name and extSource login.
+	 *
+	 * @param sess principal's session
+	 * @return list of applications which belongs to the principal in the perun session
+	 */
+	List<Application> filterPrincipalApplications(PerunSession sess, List<Application> applications);
+
+	/**
+	 * Return all applications from the given list which belong to the given user.
+	 * Check is performed based on additional identifiers, user_id, and extSource name and extSource login.
+	 *
+	 * @param sess principal's session
+	 * @return list of applications which belongs to the user
+	 */
+	List<Application> filterUserApplications(PerunSession sess, User user, List<Application> applications);
 }

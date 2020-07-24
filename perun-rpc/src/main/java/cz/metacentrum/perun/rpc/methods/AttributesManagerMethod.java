@@ -277,6 +277,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
 	 */
 	/*#
+	 * Returns all Host attributes for selected Host which have name in list attrNames (empty too). Empty list attrNames will return no attributes.
+	 *
+	 * @param host int Host <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<Attribute> All non-empty Host attributes
+	 * @throw HostNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
+	 */
+	/*#
 	 * Returns all non-empty Entityless attributes with subject equaled <code>key</code>.
 	 *
 	 * @param key String String <code>key</code>
@@ -433,8 +442,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getGroupById(parms.readInt("group")));
 				}
 			} else if (parms.contains("host")) {
-				return ac.getAttributesManager().getAttributes(ac.getSession(),
+				if (parms.contains("attrNames")) {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
+						ac.getHostById(parms.readInt("host")),
+						parms.readList("attrNames", String.class));
+				} else {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
 						ac.getHostById(parms.readInt("host")));
+				}
 			} else if (parms.contains("key")) {
 				return ac.getAttributesManager().getAttributes(ac.getSession(),
 						parms.readString("key"));
@@ -450,6 +465,41 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 			else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, group, userExtSource or key");
+			}
+		}
+	},
+
+	/*#
+	 * Get entityless attributes mapped by their keys.
+	 *
+	 * @param attrName String Attribute name
+	 * @return Map<String,Attribute> of entityless attributes mapped by their keys
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw AttributeNotExistsException when the attribute definition for attrName doesn't exist
+	 * @throw WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	/*#
+	 * Get entityless attributes mapped by their keys.
+	 * Returns only attributes for specified keys.
+	 *
+	 * @param attrName String Attribute name
+	 * @param keys List<String> keys
+	 * @return Map<String,Attribute> of entityless attributes mapped by their keys
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw AttributeNotExistsException when the attribute definition for attrName doesn't exist, or
+	 *                                    when there is no such attribute for one of the specified keys
+	 * @throw WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	getEntitylessAttributesWithKeys {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("keys")) {
+				return ac.getAttributesManager()
+						.getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"),
+								parms.readList("keys", String.class));
+			} else {
+				return ac.getAttributesManager()
+						.getEntitylessAttributesWithKeys(ac.getSession(), parms.readString("attrName"));
 			}
 		}
 	},

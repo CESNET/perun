@@ -252,7 +252,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getSpecificUsersByUser(PerunSession sess, User user) {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					" from users, specific_user_users where users.id=specific_user_users.specific_user_id and specific_user_users.status='0' and specific_user_users.user_id=?", USER_MAPPER, user.getId());
+					" from users, specific_user_users where users.id=specific_user_users.specific_user_id and specific_user_users.status=0 and specific_user_users.user_id=?", USER_MAPPER, user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
 			return new ArrayList<>();
@@ -265,7 +265,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					" from users, specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status='0' and specific_user_users.specific_user_id=? " +
+					" from users, specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status=0 and specific_user_users.specific_user_id=? " +
 					" and specific_user_users.type=?", USER_MAPPER, specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
@@ -290,7 +290,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) {
 		try {
-			jdbc.update("insert into specific_user_users(user_id,specific_user_id,status,created_by_uid,modified_at,type) values (?,?,'0',?," + Compatibility.getSysdate() + ",?)",
+			jdbc.update("insert into specific_user_users(user_id,specific_user_id,status,created_by_uid,modified_at,type) values (?,?,0,?," + Compatibility.getSysdate() + ",?)",
 					user.getId(), specificUser.getId(), sess.getPerunPrincipal().getUserId(), specificUser.getMajorSpecificType().getSpecificUserType());
 
 		} catch (RuntimeException err) {
@@ -301,7 +301,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public void enableOwnership(PerunSession sess, User user, User specificUser) {
 		try {
-			jdbc.update("update specific_user_users set status='0', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
+			jdbc.update("update specific_user_users set status=0, modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
 					sess.getPerunPrincipal().getUserId(), user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (RuntimeException er) {
 			throw new InternalErrorException(er);
@@ -311,7 +311,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public void disableOwnership(PerunSession sess, User user, User specificUser) {
 		try {
-			jdbc.update("update specific_user_users set status='1', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
+			jdbc.update("update specific_user_users set status=1, modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
 					sess.getPerunPrincipal().getUserId(), user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (RuntimeException er) {
 			throw new InternalErrorException(er);
@@ -549,10 +549,20 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				userExtSource.getLoa(), userExtSource.getExtSource().getId(),
 				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
 				sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
-					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-					ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+
+			if (userExtSource.getLastAccess() != null) {
+				// user ext source has last access info
+				jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, last_access, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
+								"values (?,?,?,?,?,"+Compatibility.toDate("?", "'YYYY-MM-DD HH24:MI:SS.US'")+",?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+						ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(), userExtSource.getLastAccess(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			} else {
+				// adding new user ext source with default current timestamp
+				jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
+								"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+						ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			}
 
 			userExtSource.setId(ueaId);
 			userExtSource.setUserId(user.getId());
@@ -1384,7 +1394,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" join groups_members on groups.id=groups_members.group_id " +
 							" join members on groups_members.member_id=members.id " +
 							" where members.user_id=? and members.status!=? and members.status!=?",
-					RESOURCE_MAPPER, user.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					RESOURCE_MAPPER, user.getId(), Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

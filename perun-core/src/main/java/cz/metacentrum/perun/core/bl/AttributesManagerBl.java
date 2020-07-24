@@ -492,6 +492,18 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Host host);
 
 	/**
+	 * Get all attributes associated with the host which have name in list attrNames (empty and virtual too). Empty list attrNames will return no attributes.
+	 *
+	 * @param sess perun session
+	 * @param host host to get attributes for
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) throws InternalErrorException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the group on resource.
 	 * @param sess
 	 * @param resource
@@ -563,6 +575,32 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName);
+
+	/**
+	 * Get entityless attributes mapped by their keys.
+	 *
+	 * @param sess session
+	 * @param attrName attribute name
+	 * @return Map of entityless attributes mapped by their keys
+	 * @throws AttributeNotExistsException when the attribute definition for attrName doesn't exist
+	 * @throws WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName)
+			throws AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
+	 * Get entityless attributes mapped by their keys.
+	 * Returns only attributes for specified keys.
+	 *
+	 * @param sess session
+	 * @param attrName attribute name
+	 * @return Map of entityless attributes mapped by their keys
+	 * @throws AttributeNotExistsException when the attribute definition for attrName doesn't exist, or
+	 *                                     when there is no such attribute for one of the specified keys
+	 * @throws WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName, List<String> keys)
+			throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Returns list of Keys which fits the attributeDefinition.

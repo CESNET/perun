@@ -320,7 +320,7 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	List<Group> getAssignedGroups(PerunSession perunSession, Resource resource, Member member) throws PrivilegeException, ResourceNotExistsException;
+	List<Group> getAssignedGroups(PerunSession perunSession, Resource resource, Member member) throws PrivilegeException, ResourceNotExistsException, MemberNotExistsException;
 
 	/**
 	 * List all resources associated with the group.
@@ -644,7 +644,7 @@ public interface ResourcesManager {
 	 * @throws VoNotExistsException
 	 * @throws ResourceTagAlreadyAssignedException
 	 */
-	void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws PrivilegeException, ResourceTagAlreadyAssignedException, VoNotExistsException;
+	void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws PrivilegeException, ResourceTagAlreadyAssignedException, VoNotExistsException, ResourceTagNotExistsException;
 
 	/**
 	 * Delete all ResourcesTags for specific VO.
@@ -1064,7 +1064,7 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException     insufficient permissions
 	 * @throws AlreadyAdminException  already has the role
 	 */
-	void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws PrivilegeException, AlreadyAdminException;
+	void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws PrivilegeException, AlreadyAdminException, ResourceNotExistsException, UserNotExistsException;
 
 	/**
 	 * Sets ResourceSelfService role to given group for given resource.
@@ -1076,7 +1076,7 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException     insufficient permissions
 	 * @throws AlreadyAdminException  already has the role
 	 */
-	void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws PrivilegeException, AlreadyAdminException;
+	void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws PrivilegeException, AlreadyAdminException, ResourceNotExistsException, GroupNotExistsException;
 
 	/**
 	 * Unset ResourceSelfService role to given user for given resource.
@@ -1088,7 +1088,7 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException         insufficient permissions
 	 * @throws UserNotAdminException      user did not have the role
 	 */
-	void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws PrivilegeException, UserNotAdminException;
+	void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws PrivilegeException, UserNotAdminException, ResourceNotExistsException, UserNotExistsException;
 
 	/**
 	 * Unset ResourceSelfService role to given group for given resource.
@@ -1100,5 +1100,5 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException         insufficient permissions
 	 * @throws GroupNotAdminException     group did not have the role
 	 */
-	void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws PrivilegeException, GroupNotAdminException;
+	void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws PrivilegeException, GroupNotAdminException, ResourceNotExistsException, GroupNotExistsException;
 }

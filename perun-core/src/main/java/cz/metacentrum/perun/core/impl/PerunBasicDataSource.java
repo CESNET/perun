@@ -19,7 +19,6 @@ public class PerunBasicDataSource extends HikariDataSource {
 	private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
 
 	private Auditer auditer;
-	private CacheManager cacheManager;
 
 	@Override
 	public Connection getConnection() throws SQLException {
@@ -32,7 +31,7 @@ public class PerunBasicDataSource extends HikariDataSource {
 			con.setReadOnly(false);
 		}
 
-		return new PerunConnection(con, auditer, cacheManager);
+		return new PerunConnection(con, auditer);
 	}
 
 	public Auditer getAuditer() {
@@ -41,14 +40,6 @@ public class PerunBasicDataSource extends HikariDataSource {
 
 	public void setAuditer(Auditer auditer) {
 		this.auditer = auditer;
-	}
-
-	public CacheManager getCacheManager() {
-		return cacheManager;
-	}
-
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
 	}
 
 	@Override

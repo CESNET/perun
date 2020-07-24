@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import java.io.BufferedInputStream;
@@ -9,6 +11,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -37,6 +40,7 @@ public class BeansUtils {
 	private static final char LIST_DELIMITER = ',';
 	private static final char KEY_VALUE_DELIMITER = ':';
 	private final static int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
+	private final static String MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX = ";";
 	private final static String configurationsLocations = "/etc/perun/";
 	public final static String largeStringClassName = "java.lang.LargeString";
 	public final static String largeArrayListClassName = "java.util.LargeArrayList";
@@ -45,6 +49,7 @@ public class BeansUtils {
 
 	private final static JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 	private static boolean mailSenderInitialized = false;
+	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -477,6 +482,17 @@ public class BeansUtils {
 	}
 
 	/**
+	 * Converts string representation of an attribute value to the LinkedHashMap
+	 *
+	 * @param attributesAsString Map attribute in String representation.
+	 * @return LinkedHashMap with key values pairs extracted from the input
+	 */
+	public static LinkedHashMap<String, String> stringToMapOfAttributes(String attributesAsString) {
+		Object mapAsObject = BeansUtils.stringToAttributeValue(attributesAsString, LinkedHashMap.class.getName());
+		return objectMapper.convertValue(mapAsObject, new TypeReference<LinkedHashMap<String, String>>() {});
+	}
+
+	/**
 	 * Take perunBean name and if it is RichObject, convert it to simple name.
 	 *
 	 * RichObject mean: starts with "Rich" and continue with Upper Letter [A-Z]
@@ -648,37 +664,6 @@ public class BeansUtils {
 
 	}
 
-	/**
-	 * Get list of AttributeDefinitions from list of AttributeHolders
-	 * Used in CacheManager to transform result of query (list of AttributeHolders) to list of AttributeDefinitions.
-	 *
-	 * @param attrHolders list of AttributeHolders
-	 * @return list of AttributeDefinitions
-	 */
-	public static List<AttributeDefinition> getAttributeDefinitionsFromAttributeHolders(List<AttributeHolders> attrHolders) {
-		List<AttributeDefinition> attrDefs = new ArrayList<>();
-		for (AttributeHolders attrHolder: attrHolders) {
-			attrDefs.add(new AttributeDefinition(attrHolder));
-		}
-
-		return attrDefs;
-	}
-
-	/**
-	 * Get list of Attributes from list of AttributeHolders
-	 * Used in CacheManager to transform result of query (list of AttributeHolders) to list of Attributes.
-	 *
-	 * @param attrHolders list of AttributeHolders
-	 * @return list of Attributes
-	 */
-	public static List<Attribute> getAttributesFromAttributeHolders(List<AttributeHolders> attrHolders) {
-		List<Attribute> attrs = new ArrayList<>();
-		for (AttributeHolders attrHolder: attrHolders) {
-			attrs.add(new Attribute(attrHolder, true));
-		}
-
-		return attrs;
-	}
 
 	/**
 	 * True if this instance of perun is read only.
@@ -883,5 +868,26 @@ public class BeansUtils {
 		candidate.setAttributes(candidateAttributes);
 
 		return candidate;
+	}
+
+	/**
+	 * creates an intersection of two additionalIdentifiers arrays given as string.
+	 *
+	 * @param firstAdditionalIdentifiers first parameter which contains additional identifiers
+	 * @param secondAdditionalIdentifiers second parameter which contains additional identifiers
+	 * @return Intersection of the given String parameters
+	 */
+	public static List<String> additionalIdentifiersIntersection(String firstAdditionalIdentifiers, String secondAdditionalIdentifiers) {
+		String[] firstIdentifiersArray = {};
+		if (firstAdditionalIdentifiers != null) {
+			firstIdentifiersArray = firstAdditionalIdentifiers.split(MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX);
+		}
+		String[] secondIdentifiersArray = {};
+		if (secondAdditionalIdentifiers != null) {
+			secondIdentifiersArray = secondAdditionalIdentifiers.split(MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX);
+		}
+		HashSet<String> firstIdentifiersSet = new HashSet<>(Arrays.asList(firstIdentifiersArray));
+		firstIdentifiersSet.retainAll(Arrays.asList(secondIdentifiersArray));
+		return new ArrayList<>(firstIdentifiersSet);
 	}
 }

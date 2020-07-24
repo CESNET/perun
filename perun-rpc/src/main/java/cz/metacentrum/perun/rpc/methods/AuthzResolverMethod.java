@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
@@ -98,7 +100,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all managers for complementaryObject and role with specified attributes.
 	 *
-	 * @param role String Expected Role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR)
+	 * @param role String Expected Role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
@@ -129,7 +131,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all groups of managers (authorizedGroups) for complementaryObject and role.
 	 *
-	 * @param role String Expected Role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR)
+	 * @param role String Expected Role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get groups of managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @return List<Group> List of authorizedGroups for complementaryObject and role
@@ -610,6 +612,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return "OK";
+		}
+	},
+
+	/*#
+	 * Return all loaded perun policies.
+	 *
+	 * @return List<PerunPolicy> all loaded policies
+	 */
+	getAllPolicies {
+		@Override
+		public List<PerunPolicy> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return AuthzResolver.getAllPolicies();
 		}
 	},
 

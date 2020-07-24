@@ -205,7 +205,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="RTMessagesManager" ref="RTMessagesManager"/>
 		<property name="securityTeamsManager" ref="securityTeamsManager"/>
 		<property name="searcher" ref="searcher"/>
-		<property name="cacheManager" ref="cacheManager"/>
 		<property name="attributesManagerImpl" ref="attributesManagerImpl"/>
 		<property name="databaseManager" ref="databaseManager"/>
 		<property name="coreConfig" ref="coreConfig"/>
@@ -404,11 +403,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="perunPool" ref="dataSource"/>
 	</bean>
 
-	<bean id="cacheManager" class="cz.metacentrum.perun.core.impl.CacheManager" scope="singleton" destroy-method="stopCacheManager">
-		<property name="perunPool" ref="dataSource"/>
-		<constructor-arg ref="localCacheManager" />
-	</bean>
-
 	<bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="perun" />
 	</bean>
@@ -450,21 +444,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="perun" />
 	</bean>
 
-	<bean id="localCacheManager" class="org.infinispan.manager.DefaultCacheManager" scope="singleton" >
-		<constructor-arg value="infinispan-config.xml" />
-	</bean>
-
 	<!-- merged from perun-core-transaction-manager.xml -->
 	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="auditer" ref="auditer"/>
-		<property name="cacheManager" ref="cacheManager"/>
-		<property name="nestedTransactionAllowed" value="true"/>
-	</bean>
-
-	<bean id="perunTestTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTestTransactionManager">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="cacheManager" ref="cacheManager"/>
 		<property name="nestedTransactionAllowed" value="true"/>
 	</bean>
 
@@ -485,7 +468,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
 
 		<!-- DataSource implementation -->
-		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" depends-on="cacheManager" destroy-method="close">
+		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
 			<property name="driverClassName" value="${jdbc.driver}"/>
 			<property name="jdbcUrl" value="${jdbc.url}"/>
 			<property name="username" value="${jdbc.username}"/>
@@ -499,7 +482,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="leakDetectionThreshold" value="${jdbc.leakDetectionThreshold}" />
 
 			<property name="auditer" ref="auditer"/>
-			<property name="cacheManager" ref="cacheManager"/>
 		</bean>
 
 		<!-- PerunRolesLoader implementation -->

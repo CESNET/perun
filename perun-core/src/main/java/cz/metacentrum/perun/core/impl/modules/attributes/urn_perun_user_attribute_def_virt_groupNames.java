@@ -74,7 +74,7 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 					" JOIN groups ON groups_members.group_id = groups.id" +
 					" ORDER BY vo_short_name, group_name",
 					ROW_MAPPER,
-					user.getId(), String.valueOf(Status.VALID.getCode()), MemberGroupStatus.VALID.getCode());
+					user.getId(), Status.VALID.getCode(), MemberGroupStatus.VALID.getCode());
 		} catch(EmptyResultDataAccessException e) {
 			names = new ArrayList<>();
 		} catch (RuntimeException e) {

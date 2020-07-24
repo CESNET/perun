@@ -613,6 +613,22 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Return all enriched hosts of given facility. That is host with all its attributes.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<EnrichedHosts> enrichedHosts
+	 */
+	getEnrichedHosts {
+		@Override
+		public List<EnrichedHost> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getEnrichedHosts(ac.getSession(),
+				ac.getFacilityById(parms.readInt("facility")),
+				parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
 	 * Return facility which has the host.
 	 * @param host int Host <code>id</code>
 	 * @return Facility Facility object

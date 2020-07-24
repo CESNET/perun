@@ -184,7 +184,7 @@ components:
             displayName: { type: string }
             writable: { type: boolean }
             unique: { type: boolean }
-            FriendlyNameParameter: { type: string, readOnly: true }
+            friendlyNameParameter: { type: string, readOnly: true }
             baseFriendlyName: { type: string, readOnly: true }
             entity:
               type: string
@@ -270,6 +270,12 @@ components:
             hostname: { type: string }
       discriminator:
         propertyName: beanName
+
+    EnrichedHost:
+      type: object
+      properties:
+        host: { $ref: '#/components/schemas/Host' }
+        hostAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
 
     PublicationSystem:
       allOf:
@@ -379,6 +385,22 @@ components:
               enum: [ technical, administrative ]
       discriminator:
         propertyName: beanName
+
+    PerunPolicy:
+      type: object
+      properties:
+        policyName: { type: string }
+        includePolicies: { type: array, items: { type: string } }
+        perunRoles:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+      required:
+        - policyName
+        - includePolicies
+        - perunRoles
 
     Group:
       allOf:
@@ -834,7 +856,8 @@ components:
         service: { $ref: '#/components/schemas/Service' }
         facility: { $ref: '#/components/schemas/Facility' }
         task: { $ref: '#/components/schemas/Task' }
-        isBlockedOnFacility: { type: boolean }
+        blockedOnFacility: { type: boolean }
+        blockedGlobally: { type: boolean, readOnly: true }
         hasDestinations: { type: boolean }
 
     MailText:
@@ -871,6 +894,11 @@ components:
       properties:
         memberPreferredEmail: { type: string }
         ticketNumber: { type: integer }
+
+    EntitylessAttributesByKeys:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Attribute'
 
   #################################################
   #                                               #
@@ -1192,6 +1220,13 @@ components:
             items:
               $ref: "#/components/schemas/Attribute"
 
+    EntitylessAttributesByKeysResponse:
+      description: "Entityless attributes by keys"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EntitylessAttributesByKeys"
+
     GroupResponse:
       description: "returns Group"
       content:
@@ -1214,6 +1249,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Group"
+
+    ListOfPerunPoliciesResponse:
+      description: "returns List<PerunPolicy>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/PerunPolicy"
 
     ListOfRichGroupsResponse:
       description: "returns List<RichGroup>"
@@ -1394,6 +1438,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Host"
+
+    ListOfEnrichedHostsResponse:
+      description: " returns List<EnrichedHost>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedHost"
 
     DestinationResponse:
       description: "returns Destination"
@@ -1771,6 +1824,14 @@ components:
     userId:
       name: user
       description: "id of User"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    specificUserId:
+      name: specificUser
+      description: "id of specific User"
       schema:
         type: integer
       in: query
@@ -2770,6 +2831,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/authzResolver/getAllPolicies:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getAllPolicies
+      summary: Return all loaded perun policies.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfPerunPoliciesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/authzResolver/loadAuthorizationComponents:
     get:
       tags:
@@ -3294,6 +3367,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/attributesManager/getAttributes/h-names:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getHostAttributesByNames
+      description: |
+        Get all non-empty attributes associated with the host which have name in list attrNames (empty too). Empty list attrNames will return no attributes.
+      parameters:
+        - $ref: '#/components/parameters/hostId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/attributesManager/getAttributes/key:
     get:
       tags:
@@ -3373,6 +3462,22 @@ paths:
           $ref: '#/components/responses/ListOfStringsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getEntitylessAttributesWithKeys:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getEntitylessAttributesWithKeys
+      summary: Get entityless attributes mapped by their keys.
+      parameters:
+        - $ref: '#/components/parameters/attrName'
+        - { name: "keys[]", description: "key for entityless attribute", schema: { type: array, items: { type: string } },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/EntitylessAttributesByKeysResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   /json/attributesManager/setAttributes/f-r-g-u-m:
     post:
@@ -7223,6 +7328,51 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getSpecificUsersByUser:
+    get:
+      tags:
+        - UsersManager
+      operationId: getSpecificUsersByUser
+      summary: Get all specific users who are owned by the user.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/addSpecificUserOwner:
+    post:
+      tags:
+        - UsersManager
+      operationId: addSpecificUserOwner
+      summary: Add specific user owner.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/specificUserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/removeSpecificUserOwner:
+    post:
+      tags:
+        - UsersManager
+      operationId: removeSpecificUserOwner
+      summary: Remove specific user owner.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/specificUserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
 
   #################################################
   #                                               #
@@ -7927,6 +8077,21 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/HostResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getEnrichedHosts:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getEnrichedHosts
+      summary: Return all enriched hosts of given facility. That is host with all its attributes.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedHostsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -9340,6 +9505,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/groupsManager/addMember:
+    post:
+      tags:
+        - GroupsManager
+      operationId: addMember
+      summary: Add member to groups. If already a member of a group, the group will be skipped.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/groupsManager/addMembers:
     post:
       tags:
@@ -9349,6 +9529,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/memberIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/removeMember:
+    post:
+      tags:
+        - GroupsManager
+      operationId: removeMember
+      summary: Removes member from a groups. If a member is not in the group or is indirect, it is skipped without a warning, but the rest of groups are processed.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+        - $ref: '#/components/parameters/memberId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9464,6 +9659,29 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/updateGroup:
+    post:
+      tags:
+        - GroupsManager
+      operationId: updateGroup
+      summary: Updates a group.
+      responses:
+        '200':
+          $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateGroup
+              description: "input to updateGroup"
+              type: object
+              required:
+                - group
+              properties:
+                group: {$ref: '#/components/schemas/Group'}
 
   #################################################
   #                                               #
@@ -11471,7 +11689,7 @@ paths:
               description: "input to updateForm"
               type: object
               properties:
-                applicationForm: { $ref: '#/components/schemas/ApplicationForm' }
+                form: { $ref: '#/components/schemas/ApplicationForm' }
 
   /urlinjsonout/registrarManager/copyForm/voToVo:
     post:
@@ -11824,6 +12042,33 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/submitApplication:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: submitApplication
+      summary: Creates a new application and if succeeds, trigger validation and approval.
+        The method triggers approval for VOs with auto-approved applications.
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSubmitApplication
+              description: "input to submitApplication"
+              type: object
+              required:
+                - app
+                - data
+              properties:
+                app: { $ref: '#/components/schemas/Application' }
+                data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
 
   #################################################
   #                                               #
@@ -13117,13 +13362,23 @@ paths:
         - TasksManager
       operationId: deleteTask
       summary:  Delete Task and TaskResults.
-      parameters:
-        - $ref: '#/components/parameters/taskId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: taskIdObject
+              description: "input to deleteTaskObject"
+              type: object
+              required:
+                - task
+              properties:
+                task:  { type: integer, description: "task id", nullable: false }
 
   #################################################
   #                                               #

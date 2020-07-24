@@ -204,6 +204,18 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 						return false;
 					}
 
+					// check on login in password if login is longer than 2 chars
+					// TODO - check for name/surname too
+					String pass = serviceUserPassword.getTextBox().getValue();
+					String login = serviceUserLogin.getTextBox().getValue();
+					if (login.length() > 2) {
+						if (Utils.normalizeString(pass).contains(Utils.normalizeString(login)) ||
+								Utils.normalizeString(pass).contains(Utils.normalizeString(Utils.reverseString((login))))) {
+							serviceUserPassword.setError("Password <b>can't contain login, name or surname</b>, not even backwards!");
+							return false;
+						}
+					}
+
 					// Check that password contains at least 3 of 4 character groups
 
 					RegExp regExpDigit = RegExp.compile("^.*[0-9].*$");

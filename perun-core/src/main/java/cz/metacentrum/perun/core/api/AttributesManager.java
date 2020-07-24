@@ -26,6 +26,7 @@ import cz.metacentrum.perun.utils.graphs.GraphDTO;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -300,6 +301,34 @@ public interface AttributesManager {
 	List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException;
 
 	/**
+	 * Get entityless attributes mapped by their keys.
+	 *
+	 * @param sess session
+	 * @param attrName attribute name
+	 * @return Map of entityless attributes mapped by their keys
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws AttributeNotExistsException when the attribute definition for attrName doesn't exist
+	 * @throws WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
+	 * Get entityless attributes mapped by their keys.
+	 * Returns only attributes for specified keys.
+	 *
+	 * @param sess session
+	 * @param attrName attribute name
+	 * @return Map of entityless attributes mapped by their keys
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws AttributeNotExistsException when the attribute definition for attrName doesn't exist, or
+	 *                                     when there is no such attribute for one of the specified keys
+	 * @throws WrongAttributeAssignmentException when passed non-entityless attribute
+	 */
+	Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName, List<String> keys)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
 	 * Get all <b>non-empty</b> member, user, member-resource and user-facility attributes.
 	 * <p>
 	 * PRIVILEGE: Get only those attributes the principal has access to.
@@ -565,6 +594,20 @@ public interface AttributesManager {
 	 * @throws HostNotExistsException if the host doesn't exist in underlying data source
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Host host) throws HostNotExistsException;
+
+	/**
+	 * Get all attributes associated with the host which have name in list attrNames (empty too). Empty list attrNames will return no attributes.
+	 * <p>
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * @param sess perun session
+	 * @param host host to get attributes for
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 * @throws InternalErrorException if an exception raises in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws HostNotExistsException if the host doesn't exist in underlying data source
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Host host, List<String> attrNames) throws InternalErrorException, HostNotExistsException;
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the group on resource
