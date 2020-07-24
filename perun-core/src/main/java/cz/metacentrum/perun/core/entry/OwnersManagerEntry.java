@@ -98,6 +98,17 @@ public class OwnersManagerEntry implements OwnersManager {
 	}
 
 	@Override
+	public Owner getOwnerByName(PerunSession sess, String name) throws OwnerNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getOwnerByName_String_policy"))
+			throw new PrivilegeException(sess, "getOwnerByName");
+
+		return getOwnersManagerBl().getOwnerByName(sess, name);
+	}
+
+	@Override
 	public List<Owner> getOwners(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 

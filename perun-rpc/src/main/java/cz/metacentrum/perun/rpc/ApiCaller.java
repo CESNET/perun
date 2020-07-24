@@ -284,6 +284,10 @@ public class ApiCaller {
 		return getOwnersManager().getOwnerById(rpcSession, id);
 	}
 
+	public Owner getOwnerByName(String name) throws PerunException {
+		return getOwnersManager().getOwnerByName(rpcSession, name);
+	}
+
 	public Application getApplicationById(int id) throws PerunException {
 		return getRegistrarManager().getApplicationById(rpcSession, id);
 	}

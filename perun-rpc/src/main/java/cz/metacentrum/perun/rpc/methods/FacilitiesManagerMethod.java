@@ -46,6 +46,19 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Lists all users assigned to facility containing resources where service is assigned.
 	 *
 	 * @param service int Service <code>id</code>
+	 * @param facilityName String Facility name
+	 * @return List<User> assigned users
+	 */
+	/*#
+	 * Lists all users assigned to facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @return List<User> assigned users
+	 */
+	/*#
+	 * Lists all users assigned to facility containing resources where service is assigned.
+	 *
+	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @return List<User> assigned users
 	 */
@@ -59,9 +72,9 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("service"))
-				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(parms.readInt("facility")),ac.getServiceById(parms.readInt("service")));
+				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(), getFacility(ac, parms),ac.getServiceById(parms.readInt("service")));
 			else
-				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(),ac.getFacilityById(parms.readInt("facility")));
+				return ac.getFacilitiesManager().getAssignedUsers(ac.getSession(), getFacility(ac, parms));
 		}
 	},
 
@@ -137,6 +150,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns owners of a facility.
 	 *
+	 * @param facilityName String Facility name
+	 * @return List<Owner> Facility owners
+	 */
+	/*#
+	 * Returns owners of a facility.
+	 *
 	 * @param facility int Facility <code>id</code>
 	 * @return List<Owner> Facility owners
 	 */
@@ -145,10 +164,28 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<Owner> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getFacilitiesManager().getOwners(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
+	/*#
+	 * Add owner of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param ownerName String Owner name
+	 */
+	/*#
+	 * Add owner of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param owner int Owner <code>id</code>
+	 */
+	/*#
+	 * Add owner of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param ownerName String Owner name
+	 */
 	/*#
 	 * Add owner of a facility.
 	 *
@@ -159,13 +196,35 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			Owner owner;
+			if (parms.contains("ownerName")) owner = ac.getOwnerByName(parms.readString("ownerName"));
+			else owner = ac.getOwnerById(parms.readInt("owner"));
+
 			ac.getFacilitiesManager().addOwner(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
-					ac.getOwnerById(parms.readInt("owner")));
+					getFacility(ac, parms),
+					owner);
 			return null;
 		}
 	},
 
+	/*#
+	 * Remove owner of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param ownerName String Owner name
+	 */
+	/*#
+	 * Remove owner of a facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param ownerName String Owner name
+	 */
+	/*#
+	 * Remove owner of a facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @param owner int Owner <code>id</code>
+	 */
 	/*#
 	 * Remove owner of a facility.
 	 *
@@ -176,13 +235,23 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			Owner owner;
+			if (parms.contains("ownerName")) owner = ac.getOwnerByName(parms.readString("ownerName"));
+			else owner = ac.getOwnerById(parms.readInt("owner"));
+
 			ac.getFacilitiesManager().removeOwner(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
-					ac.getOwnerById(parms.readInt("owner")));
+					getFacility(ac, parms),
+					owner);
 			return null;
 		}
 	},
 
+	/*#
+	 * Return all VO which can use a facility. (VO must have the resource which belongs to this facility.)
+	 *
+	 * @param facilityName String Facility name
+	 * @return List<Vo> List of VOs
+	 */
 	/*#
 	 * Return all VO which can use a facility. (VO must have the resource which belongs to this facility.)
 	 *
@@ -194,10 +263,38 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getFacilitiesManager().getAllowedVos(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
+	/*#
+	 * Get all assigned groups on Facility.
+	 *
+	 * @param facilityName String Facility name
+	 * @return List<Group> assigned groups
+	 */
+	/*#
+	 * Get all assigned groups on Facility filtered by VO.
+	 *
+	 * @param facilityName String Facility name
+	 * @param vo int Vo <code>id</code> to filter groups by
+	 * @return List<Group> assigned groups
+	 */
+	/*#
+	 * Get all assigned groups on Facility filtered by Service.
+	 *
+	 * @param facilityName String Facility name
+	 * @param service int Service <code>id</code> to filter groups by
+	 * @return List<Group> assigned groups
+	 */
+	/*#
+	 * Get all assigned groups on Facility filtered by VO and Service.
+	 *
+	 * @param facilityName String Facility name
+	 * @param vo int Vo <code>id</code> to filter groups by
+	 * @param service int Service <code>id</code> to filter groups by
+	 * @return List<Group> assigned groups
+	 */
 	/*#
 	 * Get all assigned groups on Facility.
 	 *
@@ -230,7 +327,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			Facility facility = ac.getFacilityById(parms.readInt("facility"));
+			Facility facility = getFacility(ac, parms);
 			Service service = null;
 			Vo vo = null;
 			if (parms.contains("vo")) {
@@ -243,6 +340,42 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Get all assigned RichGroups on Facility with specified set of attributes.
+	 *
+	 * @param facilityName String Facility name
+	 * @param attrNames List<String> Attribute names
+	 * @return List<RichGroup> assigned groups
+	 * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" , "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
+	 */
+	/*#
+	 * Get all assigned RichGroups on Facility filtered by VO with specified set of attributes.
+	 *
+	 * @param facilityName String Facility name
+	 * @param vo int Vo <code>id</code> to filter groups by
+	 * @param attrNames List<String> Attribute names
+	 * @return List<RichGroup> assigned groups
+	 * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" , "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
+	 */
+	/*#
+	 * Get all assigned RichGroups on Facility filtered by Service with specified set of attributes.
+	 *
+	 * @param facilityName String Facility name
+	 * @param service int Service <code>id</code> to filter groups by
+	 * @param attrNames List<String> Attribute names
+	 * @return List<RichGroup> assigned groups
+	 * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" , "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
+	 */
+	/*#
+	 * Get all assigned RichGroups on Facility filtered by VO and Service with specified set of attributes.
+	 *
+	 * @param facilityName String Facility name
+	 * @param vo int Vo <code>id</code> to filter groups by
+	 * @param service int Service <code>id</code> to filter groups by
+	 * @param attrNames List<String> Attribute names
+	 * @return List<RichGroup> assigned groups
+	 * @exampleParam attrNames [ "urn:perun:group:attribute-def:core:name" , "urn:perun:group:attribute-def:def:synchronizationEnabled" ]
+	 */
 	/*#
 	 * Get all assigned RichGroups on Facility with specified set of attributes.
 	 *
@@ -283,7 +416,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			Facility facility = ac.getFacilityById(parms.readInt("facility"));
+			Facility facility = getFacility(ac, parms);
+
 			Service service = null;
 			Vo vo = null;
 			if (parms.contains("vo")) {
@@ -299,6 +433,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all resources assigned to a facility.
 	 *
+	 * @param facilityName String Facility name
+	 * @return List<Resource> Resources
+	 */
+	/*#
+	 * Returns all resources assigned to a facility.
+	 *
 	 * @param facility int Facility <code>id</code>
 	 * @return List<Resource> Resources
 	 */
@@ -307,11 +447,15 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getFacilitiesManager().getAssignedResources(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
-
+	/*#
+	 * Returns all rich resources assigned to a facility with VO property filled.
+	 * @param facilityName String Facility name
+	 * @return List<RichResource> Resources
+	 */
 	/*#
 	 * Returns all rich resources assigned to a facility with VO property filled.
 	 * @param facility int Facility <code>id</code>
@@ -322,7 +466,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getFacilitiesManager().getAssignedRichResources(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
@@ -363,6 +507,15 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Deletes a facility.
+	 * @param facilityName String Facility name
+	 */
+	/*#
+	 * Deletes a facility.
+	 * @param facilityName String Facility name
+	 * @param force Boolean if true deletes all constrains of facility before deleting facility
+	 */
+	/*#
+	 * Deletes a facility.
 	 * @param facility int Facility <code>id</code>
 	 */
 	/*#
@@ -376,12 +529,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("force")){
 				ac.getFacilitiesManager().deleteFacility(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
+					getFacility(ac, parms),
 					parms.readBoolean("force"));
 				return null;
 			} else {
 				ac.getFacilitiesManager().deleteFacility(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
+					getFacility(ac, parms),
 					false);
 				return null;
 			}
@@ -419,6 +572,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Lists hosts of a Facility.
+	 * @param facilityName String Facility name
+	 * @return List<Host> Hosts
+	 */
+	/*#
+	 * Lists hosts of a Facility.
 	 * @param facility int Facility <code>id</code>
 	 * @return List<Host> Hosts
 	 */
@@ -426,7 +584,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public List<Host> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getFacilitiesManager().getHosts(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
@@ -485,6 +643,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Count hosts of Facility.
+	 * @param facilityName String Facility name
+	 * @return int Hosts count
+	 */
+	/*#
+	 * Count hosts of Facility.
 	 * @param facility int Facility <code>id</code>
 	 * @return int Hosts count
 	 */
@@ -492,10 +655,17 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getFacilitiesManager().getHostsCount(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
+	/*#
+	 * Adds hosts to the Facility.
+	 *
+	 * @param hostnames List<String> Host names
+	 * @param facilityName String Facility name
+	 * @return List<Host> Hosts with <code>id</code>'s set.
+	 */
 	/*#
 	 * Adds hosts to the Facility.
 	 *
@@ -508,7 +678,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<Host> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			Facility facility = ac.getFacilityById(parms.readInt("facility"));
+			Facility facility = getFacility(ac, parms);
 
 			List<String> hostnames = parms.readList("hostnames", String.class);
 
@@ -519,6 +689,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove hosts from a Facility.
 	 * @param hosts List<Integer> List of Host IDs
+	 * @param facilityName String Facility name
+	 */
+	/*#
+	 * Remove hosts from a Facility.
+	 * @param hosts List<Integer> List of Host IDs
 	 * @param facility int Facility <code>id</code>
 	 */
 	removeHosts {
@@ -526,7 +701,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			Facility facility = ac.getFacilityById(parms.readInt("facility"));
+			Facility facility = getFacility(ac, parms);
 
 			//TODO: optimalizovat?
 			int[] ids = parms.readArrayOfInts("hosts");
@@ -545,6 +720,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds host to a Facility.
 	 * @param hostname String Hostname
+	 * @param facilityName String Facility name
+	 * @return Host Host with <code>id</code> set.
+	 */
+	/*#
+	 * Adds host to a Facility.
+	 * @param hostname String Hostname
 	 * @param facility int Facility <code>id</code>
 	 * @return Host Host with <code>id</code> set.
 	 */
@@ -553,7 +734,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public Host call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			Facility facility = ac.getFacilityById(parms.readInt("facility"));
+			Facility facility = getFacility(ac, parms);
 
 			String hostname = parms.readString("hostname");
 			Host host = new Host();
@@ -577,6 +758,22 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			Host host = ac.getFacilitiesManager().getHostById(ac.getSession(), id);
 
 			ac.getFacilitiesManager().removeHost(ac.getSession(), host);
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove host from the Facility based on hostname. If there is ambiguity, method throws exception and no host is removed.
+	 *
+	 * @param hostname String hostname
+	 * @throw HostNotExistsException When host doesn't exist or is not unique by name
+	 */
+	removeHostByHostname {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getFacilitiesManager().removeHostByHostname(ac.getSession(), parms.readString("hostname"));
 			return null;
 		}
 	},
@@ -630,6 +827,18 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds a Facility admin.
 	 *
+	 * @param facilityName String Facility name
+	 * @param user int User <code>id</code>
+	 */
+	/*#
+	 *  Adds a group administrator to the Facility.
+	 *
+	 *  @param facilityName String Facility name
+	 *  @param authorizedGroup int Group <code>id</code>
+	 */
+	/*#
+	 * Adds a Facility admin.
+	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
 	 */
@@ -645,17 +854,29 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getFacilitiesManager().addAdmin(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")),
+						getFacility(ac, parms),
 						ac.getUserById(parms.readInt("user")));
 			} else {
 				ac.getFacilitiesManager().addAdmin(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")),
+						getFacility(ac, parms),
 						ac.getGroupById(parms.readInt("authorizedGroup")));
 			}
 			return null;
 		}
 	},
 
+	/*#
+	 * Removes a Facility admin.
+	 *
+	 * @param facilityName String Facility name
+	 * @param user int User <code>id</code>
+	 */
+	/*#
+	 *  Removes a group administrator of the Facility.
+	 *
+	 *  @param facilityName String Facility name
+	 *  @param authorizedGroup int Group <code>id</code>
+	 */
 	/*#
 	 * Removes a Facility admin.
 	 *
@@ -674,17 +895,36 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 			if (parms.contains("user")) {
 				ac.getFacilitiesManager().removeAdmin(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")),
+						getFacility(ac, parms),
 						ac.getUserById(parms.readInt("user")));
 			} else {
 				ac.getFacilitiesManager().removeAdmin(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")),
+						getFacility(ac, parms),
 						ac.getGroupById(parms.readInt("authorizedGroup")));
 			}
 			return null;
 		}
 	},
 
+	/*#
+	 * Get list of all facility administrators for supported role and given facility.
+	 *
+	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
+	 *
+	 * Supported roles: FacilityAdmin
+	 *
+	 * @param facilityName String Facility name
+	 * @param onlyDirectAdmins boolean if true, get only direct facility administrators (if false, get both direct and indirect)
+	 *
+	 * @return List<User> list of all facility administrators of the given facility for supported role
+	 */
+	/*#
+	 * Get all Facility admins.
+	 *
+	 * @deprecated
+	 * @param facilityName String Facility name
+	 * @return List<User> List of Users who are admins in the facility.
+	 */
 	/*#
 	 * Get list of all facility administrators for supported role and given facility.
 	 *
@@ -711,11 +951,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")),
+						getFacility(ac, parms),
 						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")));
+						getFacility(ac, parms));
 			}
 		}
 	},
@@ -724,7 +964,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Get all Facility direct admins.
 	 *
 	 * @deprecated
-	 * @param facility int Facility <code>id</code>
+	 * @param facilityName String Facility name
 	 * @return List<User> list of admins of the facility
 	 */
 	getDirectAdmins {
@@ -733,10 +973,16 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getFacilitiesManager().getDirectAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
+	/*#
+	 * Get all Facility group admins.
+	 *
+	 * @param facilityName String Facility name
+	 * @return List<Group> admins
+	 */
 	/*#
 	 * Get all Facility group admins.
 	 *
@@ -749,10 +995,32 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getFacilitiesManager().getAdminGroups(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
+	/*#
+	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
+	 *
+	 * Supported roles: FacilityAdmin
+	 *
+	 * If "onlyDirectAdmins" is true, return only direct admins of the facility for supported role with specific attributes.
+	 * If "allUserAttributes" is true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param facilityName String Facility name
+	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes boolean if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins boolean if == true, get only direct facility administrators (if false, get both direct and indirect)
+	 *
+	 * @return List<RichUser> list of RichUser administrators for the facility and supported role with attributes
+	 */
+	/*#
+	 * Get all Facility admins as RichUsers
+	 *
+	 * @deprecated
+	 * @param facilityName String Facility name
+	 * @return List<RichUser> admins
+	 */
 	/*#
 	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
 	 *
@@ -782,17 +1050,24 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")),
+						getFacility(ac, parms),
 						parms.readList("specificAttributes", String.class),
 						parms.readBoolean("allUserAttributes"),
 						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")));
+						getFacility(ac, parms));
 			}
 		}
 	},
 
+	/*#
+	 * Get all Facility admins as RichUsers with all their non-null user attributes
+	 *
+	 * @deprecated
+	 * @param facilityName String Facility name
+	 * @return List<RichUser> admins with attributes
+	 */
 	/*#
 	* Get all Facility admins as RichUsers with all their non-null user attributes
 	*
@@ -806,10 +1081,18 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getFacilitiesManager().getRichAdminsWithAttributes(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+					getFacility(ac, parms));
 		}
 	},
 
+	/*#
+	 * Get all Facility admins as RichUsers with specific attributes (from user namespace)
+	 *
+	 * @deprecated
+	 * @param facilityName String Facility name
+	 * @param specificAttributes List<String> list of attributes URNs
+	 * @return List<RichUser> admins with attributes
+	 */
 	/*#
 	* Get all Facility admins as RichUsers with specific attributes (from user namespace)
 	*
@@ -824,11 +1107,20 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getFacilitiesManager().getRichAdminsWithSpecificAttributes(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
+					getFacility(ac, parms),
 					parms.readList("specificAttributes", String.class));
 		}
 	},
 
+	/*#
+	 * Get all Facility admins, which are assigned directly,
+	 * as RichUsers with specific attributes (from user namespace)
+	 *
+	 * @deprecated
+	 * @param facilityName String Facility name
+	 * @param specificAttributes List<String> list of attributes URNs
+	 * @return List<RichUser> direct admins with attributes
+	 */
 	/*#
 	* Get all Facility admins, which are assigned directly,
 	* as RichUsers with specific attributes (from user namespace)
@@ -844,7 +1136,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getFacilitiesManager().getDirectRichAdminsWithSpecificAttributes(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
+					getFacility(ac, parms),
 					parms.readList("specificAttributes", String.class));
 		}
 	},
@@ -882,6 +1174,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all users which can use this facility
 	 *
+	 * @param facilityName String Facility name
+	 * @param vo int VO <code>id</code>, if provided, filter out users who aren't in specific VO
+	 * @param service int Service <code>id</code>, if provided, filter out users who aren't allowed to use the service on the facility
+	 * @return List<User> list of allowed users
+	 */
+	/*#
+	 * Return all users which can use this facility
+	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param vo int VO <code>id</code>, if provided, filter out users who aren't in specific VO
 	 * @param service int Service <code>id</code>, if provided, filter out users who aren't allowed to use the service on the facility
@@ -893,27 +1193,48 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			if(parms.contains("vo")) {
 				if(parms.contains("service")) {
 					return ac.getFacilitiesManager().getAllowedUsers(ac.getSession(),
-							ac.getFacilityById(parms.readInt("facility")),
+							getFacility(ac, parms),
 							ac.getVoById(parms.readInt("vo")),
 							ac.getServiceById(parms.readInt("service")));
 				} else {
 					return ac.getFacilitiesManager().getAllowedUsers(ac.getSession(),
-							ac.getFacilityById(parms.readInt("facility")),
+							getFacility(ac, parms),
 							ac.getVoById(parms.readInt("vo")),
 							null);
 				}
 			} else if(parms.contains("service")) {
 				return ac.getFacilitiesManager().getAllowedUsers(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")),
+						getFacility(ac, parms),
 						null,
 						ac.getServiceById(parms.readInt("service")));
 			} else {
 				return ac.getFacilitiesManager().getAllowedUsers(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")));
+						getFacility(ac, parms));
 			}
 		}
 	},
 
+	/*#
+	 * Copy owners from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacilityName String facility name
+	 * @param destFacilityName String facility name
+	 */
+	/*#
+	 * Copy owners from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacility int facility <code>id</code>
+	 * @param destFacilityName String facility name
+	 */
+	/*#
+	 * Copy owners from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacilityName String facility name
+	 * @param destFacility int facility <code>id</code>
+	 */
 	/*#
 	 * Copy owners from source facility to destination facility.
 	 * You must be facility manager of both.
@@ -927,15 +1248,44 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			Facility srcFacility;
+			if (parms.contains("srcFacilityName")) srcFacility = ac.getFacilityByName(parms.readString("srcFacilityName"));
+			else srcFacility = ac.getFacilityById(parms.readInt("srcFacility"));
+
+			Facility destFacility;
+			if (parms.contains("destFacilityName")) destFacility = ac.getFacilityByName(parms.readString("destFacilityName"));
+			else destFacility = ac.getFacilityById(parms.readInt("destFacility"));
+
 			ac.getFacilitiesManager().copyOwners(ac.getSession(),
-					ac.getFacilityById(parms.readInt("srcFacility")),
-					ac.getFacilityById(parms.readInt("destFacility")));
+					srcFacility,
+					destFacility);
 
 			return null;
 
 		}
 	},
 
+	/*#
+	 * Copy managers from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacilityName String facility name
+	 * @param destFacilityName String facility name
+	 */
+	/*#
+	 * Copy managers from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacility int facility <code>id</code>
+	 * @param destFacilityName String facility name
+	 */
+	/*#
+	 * Copy managers from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacilityName String facility name
+	 * @param destFacility int facility <code>id</code>
+	 */
 	/*#
 	 * Copy managers from source facility to destination facility.
 	 * You must be facility manager of both.
@@ -949,15 +1299,44 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			Facility srcFacility;
+			if (parms.contains("srcFacilityName")) srcFacility = ac.getFacilityByName(parms.readString("srcFacilityName"));
+			else srcFacility = ac.getFacilityById(parms.readInt("srcFacility"));
+
+			Facility destFacility;
+			if (parms.contains("destFacilityName")) destFacility = ac.getFacilityByName(parms.readString("destFacilityName"));
+			else destFacility = ac.getFacilityById(parms.readInt("destFacility"));
+
 			ac.getFacilitiesManager().copyManagers(ac.getSession(),
-					ac.getFacilityById(parms.readInt("srcFacility")),
-					ac.getFacilityById(parms.readInt("destFacility")));
+					srcFacility,
+					destFacility);
 
 			return null;
 
 		}
 	},
 
+	/*#
+	 * Copy attributes (settings) from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacilityName String facility name
+	 * @param destFacilityName String facility name
+	 */
+	/*#
+	 * Copy attributes (settings) from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacility int facility <code>id</code>
+	 * @param destFacilityName String facility name
+	 */
+	/*#
+	 * Copy attributes (settings) from source facility to destination facility.
+	 * You must be facility manager of both.
+	 *
+	 * @param srcFacilityName String facility name
+	 * @param destFacility int facility <code>id</code>
+	 */
 	/*#
 	 * Copy attributes (settings) from source facility to destination facility.
 	 * You must be facility manager of both.
@@ -971,9 +1350,17 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
+			Facility srcFacility;
+			if (parms.contains("srcFacilityName")) srcFacility = ac.getFacilityByName(parms.readString("srcFacilityName"));
+			else srcFacility = ac.getFacilityById(parms.readInt("srcFacility"));
+
+			Facility destFacility;
+			if (parms.contains("destFacilityName")) destFacility = ac.getFacilityByName(parms.readString("destFacilityName"));
+			else destFacility = ac.getFacilityById(parms.readInt("destFacility"));
+
 			ac.getFacilitiesManager().copyAttributes(ac.getSession(),
-					ac.getFacilityById(parms.readInt("srcFacility")),
-					ac.getFacilityById(parms.readInt("destFacility")));
+					srcFacility,
+					destFacility);
 
 			return null;
 
@@ -1001,6 +1388,12 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get list of contact groups for the Facility.
 	 *
+	 * @param facilityName String Facility name
+	 * @return List<ContactGroup> list of assigned contact groups
+	 */
+	/*#
+	 * Get list of contact groups for the Facility.
+	 *
 	 * @param facility int Facility <code>id</code>
 	 * @return List<ContactGroup> list of assigned contact groups
 	 */
@@ -1018,13 +1411,20 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 						ac.getGroupById(parms.readInt("group")));
 			} else if(parms.contains("facility")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")));
+						getFacility(ac, parms));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "owner or user or group or facility");
 			}
 		}
 	},
 
+	/*#
+	 * Get contact group for the facility and the name.
+	 *
+	 * @param facilityName String Facility name
+	 * @param name String name of the contact group
+	 * @return ContactGroup contactGroup for the facility and the name
+	 */
 	/*#
 	 * Get contact group for the facility and the name.
 	 *
@@ -1035,11 +1435,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	getFacilityContactGroup {
 		@Override
 		public ContactGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("facility") && parms.contains("name")) {
+			if((parms.contains("facility") || parms.contains("facilityName")) && parms.contains("name")) {
 				return ac.getFacilitiesManager().getFacilityContactGroup(ac.getSession(),
-						ac.getFacilityById(parms.readInt("facility")), parms.readString("name"));
+						getFacility(ac, parms), parms.readString("name"));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and name");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and name or facilityName and name");
 			}
 		}
 	},
@@ -1127,6 +1527,13 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Return assigned security teams for specific facility
 	 *
+	 * @param facilityName String Facility name
+	 * @return List<SecurityTeam> assigned security teams fot given facility
+	 * @throw FacilityNotExistsException When Facility with given name doesn't exists.
+	 */
+	/*#
+	 * Return assigned security teams for specific facility
+	 *
 	 * @param facility int Facility <code>id</code>
 	 * @return List<SecurityTeam> assigned security teams fot given facility
 	 * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
@@ -1134,10 +1541,19 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	getAssignedSecurityTeams {
 		@Override
 		public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getFacilitiesManager().getAssignedSecurityTeams(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+			return ac.getFacilitiesManager().getAssignedSecurityTeams(ac.getSession(), getFacility(ac, parms));
 		}
 	},
 
+	/*#
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param facilityName String Facility name
+	 * @param securityTeam int SecurityTeam <code>id</code>
+	 * @throw SecurityTeamAlreadyAssignedException When SecurityTeam with given <code>id</code> is already assigned.
+	 * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
+	 * @throw FacilityNotExistsException When Facility with given name doesn't exists.
+	 */
 	/*#
 	 * Assign given security team to given facility (means the facility trusts the security team)
 	 *
@@ -1150,12 +1566,21 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	assignSecurityTeam {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getFacilitiesManager().assignSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+			ac.getFacilitiesManager().assignSecurityTeam(ac.getSession(), getFacility(ac, parms),
 					ac.getSecurityTeamById(parms.readInt("securityTeam")));
 			return null;
 		}
 	},
 
+	/*#
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param facilityName String Facility name
+	 * @param securityTeam int SecurityTeam <code>id</code>
+	 * @throw SecurityTeamNotAssignedException When SecurityTeam with given <code>id</code> is not assigned.
+	 * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
+	 * @throw FacilityNotExistsException When Facility with given name doesn't exists.
+	 */
 	/*#
 	 * Remove (Unassign) given security team from given facility
 	 *
@@ -1168,7 +1593,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	removeSecurityTeam {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getFacilitiesManager().removeSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+			ac.getFacilitiesManager().removeSecurityTeam(ac.getSession(), getFacility(ac, parms),
 					ac.getSecurityTeamById(parms.readInt("securityTeam")));
 			return null;
 		}
@@ -1306,4 +1731,9 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			return null;
 		}
 	};
+	
+	private static Facility getFacility(ApiCaller ac, Deserializer parms) throws PerunException {
+		if (parms.contains("facilityName")) return ac.getFacilityByName(parms.readString("facilityName"));
+		else return ac.getFacilityById(parms.readInt("facility"));
+	}
 }

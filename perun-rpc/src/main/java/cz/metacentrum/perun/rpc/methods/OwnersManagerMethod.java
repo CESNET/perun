@@ -84,6 +84,19 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns an owner by its name.
+	 *
+	 * @param name String Owner name
+	 * @return Owner Found Owner
+	 */
+	getOwnerByName {
+		@Override
+		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getOwnerByName(parms.readString("name"));
+		}
+	},
+
+	/*#
 	 * Returns all owners.
 	 *
 	 * @return List<Owner> All owners

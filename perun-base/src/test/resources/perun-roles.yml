@@ -2162,6 +2162,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getOwnerByName_String_policy:
+    policy_roles:
+      - SELF:
+      - VOADMIN:
+      - VOOBSERVER:
+      - GROUPADMIN:
+      - FACILITYADMIN:
+      - RPC:
+    include_policies:
+      - default_policy
+
   getOwners_policy:
     policy_roles:
       - SELF:
