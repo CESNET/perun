@@ -48,10 +48,12 @@ import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 import cz.metacentrum.perun.utils.graphs.GraphDTO;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -739,6 +741,38 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 
 		return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getEntitylessAttributes(sess, attrName));
+	}
+
+	@Override
+	public Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(attrName, "name of entityless attributes");
+		if (attrName.isEmpty()) {
+			throw new InternalErrorException("name for entityless attribute can't be empty");
+		}
+		if (!AuthzResolver.authorizedInternal(sess, "getEntitylessAttributesWithKeys_String_policy")) {
+			throw new PrivilegeException(sess, "getEntitylessAttributesWithKeys");
+		}
+
+		return attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName);
+	}
+
+	@Override
+	public Map<String, Attribute> getEntitylessAttributesWithKeys(PerunSession sess, String attrName, List<String> keys)
+			throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(attrName, "name of entityless attributes");
+		Utils.notNull(keys, "keys");
+
+		if (attrName.isEmpty()) {
+			throw new InternalErrorException("name for entityless attribute can't be empty");
+		}
+		if (!AuthzResolver.authorizedInternal(sess, "getEntitylessAttributesWithKeys_String_List<String>_policy")) {
+			throw new PrivilegeException(sess, "getEntitylessAttributesWithKeys");
+		}
+
+		return attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName, keys);
 	}
 
 	@Override

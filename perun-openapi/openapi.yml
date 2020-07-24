@@ -895,6 +895,11 @@ components:
         memberPreferredEmail: { type: string }
         ticketNumber: { type: integer }
 
+    EntitylessAttributesByKeys:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Attribute'
+
   #################################################
   #                                               #
   # RESPONSES - type definitions of return values #
@@ -1214,6 +1219,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Attribute"
+
+    EntitylessAttributesByKeysResponse:
+      description: "Entityless attributes by keys"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EntitylessAttributesByKeys"
 
     GroupResponse:
       description: "returns Group"
@@ -3434,6 +3446,22 @@ paths:
           $ref: '#/components/responses/ListOfStringsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/attributesManager/getEntitylessAttributesWithKeys:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getEntitylessAttributesWithKeys
+      summary: Get entityless attributes mapped by their keys.
+      parameters:
+        - $ref: '#/components/parameters/attrName'
+        - { name: "keys[]", description: "key for entityless attribute", schema: { type: array, items: { type: string } },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/EntitylessAttributesByKeysResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   /json/attributesManager/setAttributes/f-r-g-u-m:
     post:

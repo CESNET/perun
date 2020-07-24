@@ -4284,6 +4284,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #AttributesManagerEntry
+  getEntitylessAttributesWithKeys_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getEntitylessAttributesWithKeys_String_List<String>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 perun_roles_management:
 
