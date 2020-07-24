@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembersManager;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -54,11 +55,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -88,7 +93,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "deleteMember");
 		}
 
@@ -102,10 +107,11 @@ public class MembersManagerEntry implements MembersManager {
 
 		for (Member member : members) {
 			getMembersManagerBl().checkMemberExists(sess, member);
+		}
 
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
-				throw new PrivilegeException(sess, "deleteMembers");
-			}
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "deleteMembers_List<Member>_policy", new ArrayList<>(members))) {
+			throw new PrivilegeException(sess, "deleteMembers");
 		}
 
 		getMembersManagerBl().deleteMembers(sess, members);
@@ -115,12 +121,12 @@ public class MembersManagerEntry implements MembersManager {
 	public void deleteAllMembers(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "deleteAllMembers");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		getMembersManagerBl().deleteAllMembers(sess, vo);
 	}
@@ -134,6 +140,16 @@ public class MembersManagerEntry implements MembersManager {
 	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(specificUserType, "specificUserType");
+
+		Utils.notNull(candidate, "candidate");
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		if (specificUserOwners.isEmpty())
+			throw new InternalErrorException("List of specificUserOwners of " + candidate + " can't be empty.");
+
+		for (User u : specificUserOwners) {
+			getPerunBl().getUsersManagerBl().checkUserExists(sess, u);
+		}
 
 		//normal type is not allowed when creating specific member
 		if (specificUserType.equals(SpecificUserType.NORMAL))
@@ -149,16 +165,11 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+		ArrayList<PerunBean> beans = new ArrayList<>();
+		beans.add(vo);
+		if (groups != null) beans.addAll(groups);
+		if (!AuthzResolver.authorizedInternal(sess, "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", beans)) {
 			throw new PrivilegeException(sess, "createSpecificMember (Specific User) - from candidate");
-		}
-		Utils.notNull(candidate, "candidate");
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-		if (specificUserOwners.isEmpty())
-			throw new InternalErrorException("List of specificUserOwners of " + candidate + " can't be empty.");
-
-		for (User u : specificUserOwners) {
-			getPerunBl().getUsersManagerBl().checkUserExists(sess, u);
 		}
 
 		return getMembersManagerBl().createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
@@ -198,6 +209,12 @@ public class MembersManagerEntry implements MembersManager {
 	@Override
 	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
+		Utils.notNull(candidate, "candidate");
+
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// if any group is not from the vo, throw an exception
 		if (groups != null) {
@@ -209,16 +226,12 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+		ArrayList<PerunBean> beans = new ArrayList<>();
+		beans.add(vo);
+		if (groups != null) beans.addAll(groups);
+		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", beans)) {
 			throw new PrivilegeException(sess, "createMember - from candidate");
 		}
-
-		Utils.notNull(candidate, "candidate");
-
-		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
-		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getMembersManagerBl().createMember(sess, vo, candidate, groups);
 	}
@@ -235,10 +248,12 @@ public class MembersManagerEntry implements MembersManager {
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
-			throw new PrivilegeException(sess, "createMember - from candidate");
-		}
+		Utils.notNull(extSourceName, "extSourceName");
+		Utils.notNull(extSourceType, "extSourceType");
+		Utils.notNull(login, "login");
+
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
 
 		// if any group is not from the vo, throw an exception
 		if (groups != null) {
@@ -249,12 +264,13 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 
-		Utils.notNull(extSourceName, "extSourceName");
-		Utils.notNull(extSourceType, "extSourceType");
-		Utils.notNull(login, "login");
-
-		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
-		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+		// Authorization
+		ArrayList<PerunBean> beans = new ArrayList<>();
+		beans.add(vo);
+		if (groups != null) beans.addAll(groups);
+		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_String_Candidate_List<Group>_policy", beans)) {
+			throw new PrivilegeException(sess, "createMember - from candidate");
+		}
 
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, login, candidate, groups);
 	}
@@ -272,11 +288,6 @@ public class MembersManagerEntry implements MembersManager {
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
-			throw new PrivilegeException(sess, "createMember - from candidate");
-		}
-
 		// if any group is not from the vo, throw an exception
 		if (groups != null) {
 			for (Group group : groups) {
@@ -293,6 +304,14 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
 		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
 
+		// Authorization
+		ArrayList<PerunBean> beans = new ArrayList<>();
+		beans.add(vo);
+		if (groups != null) beans.addAll(groups);
+		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_int_String_Candidate_List<Group>_policy", beans)) {
+			throw new PrivilegeException(sess, "createMember - from candidate");
+		}
+
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate, groups);
 	}
 
@@ -308,11 +327,6 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
-			throw new PrivilegeException(sess, "createMember - from user");
-		}
-
 		// if any group is not from the vo, throw an exception
 		if (groups != null) {
 			for (Group group : groups) {
@@ -320,6 +334,15 @@ public class MembersManagerEntry implements MembersManager {
 				if (group.getVoId() != vo.getId())
 					throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where user " + user + " should be added.");
 			}
+		}
+
+		// Authorization
+		ArrayList<PerunBean> beans = new ArrayList<>();
+		beans.add(vo);
+		beans.add(user);
+		if (groups != null) beans.addAll(groups);
+		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_User_List<Group>_policy", beans)) {
+			throw new PrivilegeException(sess, "createMember - from user");
 		}
 
 		return getMembersManagerBl().createMember(sess, vo, user, groups);
@@ -346,30 +369,25 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 
-		// Authorization for vo admin and perun admin automatic
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_ExtSource_String_List<Group>_policy", Arrays.asList(vo, extSource))) {
 			//also group admin of all affected groups is ok
 			if (groups != null && !groups.isEmpty()) {
-				boolean groupAdminOfAllGroups = true;
-				boolean authorizedToExtSource = false;
-				for (Group group : groups) {
-					//User in session has to be GroupAdmin of all affected groups
-					if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
-						groupAdminOfAllGroups = false;
-						break;
-					}
-					//User in session has to have at least one right to work with the ExtSource
-					List<ExtSource> groupExtSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
-					if (groupExtSources.contains(extSource)) authorizedToExtSource = true;
+				if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_ExtSource_String_List<Group>_policy", new ArrayList<>(groups))) {
+					throw new PrivilegeException(sess, "createMember - from login and extSource");
 				}
-
-				if (!groupAdminOfAllGroups || !authorizedToExtSource) {
-					throw new PrivilegeException(sess, "createMember - from login and extSource -- authorized to extSource=" + authorizedToExtSource + " and groupAdmin in all groups=" + groupAdminOfAllGroups);
+				//ExtSource has to be assigned to at least one of the groups
+				boolean groupContainsExtSource = groups.stream()
+					.map(group -> getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group))
+					.anyMatch(extSources -> extSources.contains(extSource));
+				if (!groupContainsExtSource) {
+					throw new PrivilegeException(sess, "createMember - from login and extSource");
 				}
 			} else {
 				throw new PrivilegeException(sess, "createMember - from login and extSource");
 			}
 		}
+
 		// we run async validation
 		Member member = getMembersManagerBl().createMember(sess, vo, extSource, login, groups);
 		getMembersManagerBl().validateMemberAsync(sess, member);
@@ -380,14 +398,12 @@ public class MembersManagerEntry implements MembersManager {
 	public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource uea) throws VoNotExistsException, MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMemberByUserExtSource_Vo_UserExtSource_policy", Arrays.asList(vo, uea))) {
 			throw new PrivilegeException(sess, "getMemberByUserExtSource");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getMembersManagerBl().getMemberByUserExtSource(sess, vo, uea);
 	}
@@ -397,11 +413,9 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 
 		Member member = getMembersManagerBl().getMemberById(sess, id);
+
 		//  Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMemberById_int_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "getMemberById");
 		}
 
@@ -412,17 +426,13 @@ public class MembersManagerEntry implements MembersManager {
 	public Member getMemberByUser(PerunSession sess, Vo vo, User user) throws MemberNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-			throw new PrivilegeException(sess, "getMemberByUser");
-		}
-
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getMemberByUser_Vo_User_policy", Arrays.asList(vo, user))) {
+			throw new PrivilegeException(sess, "getMemberByUser");
+		}
 
 		return getMembersManagerBl().getMemberByUser(sess, vo, user);
 	}
@@ -431,13 +441,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<Member> getMembersByUser(PerunSession sess, User user) throws PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
-			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByUser_User_policy", Collections.singletonList(user))) {
 			throw new PrivilegeException(sess, "getMembersByUser");
 		}
-
-		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		return getMembersManagerBl().getMembersByUser(sess, user);
 	}
@@ -446,15 +455,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<Member> getMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getMembers");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getMembersManagerBl().getMembers(sess, vo);
 	}
@@ -463,15 +469,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<Member> getMembers(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_Status_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getMembers");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getMembersManagerBl().getMembers(sess, vo, status);
 	}
@@ -481,14 +484,9 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 
 		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, id);
-		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMemberById_int_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "getRichMemberById");
 		}
 
@@ -501,14 +499,8 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
-		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMemberWithAttributes_Member_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
@@ -522,10 +514,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_List<AttributeDefinition>_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
@@ -536,15 +525,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_List<String>_Group_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
 		}
-
-		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, allowedStatuses, group), group, true);
 	}
@@ -556,10 +542,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Vo_List<String>_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 		}
 
@@ -573,10 +556,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -590,10 +570,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_List<String>_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -607,10 +584,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_boolean_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -624,9 +598,8 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 		perunBl.getResourcesManagerBl().checkResourceExists(sess, resource);
 
-		// Authorization (only engine and PerunAdmin, because we are not able to filter member-resource and user-facility attributes properly)
-		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
-			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER))
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_Resource_List<String>_List<String>_policy", Arrays.asList(group, resource)))
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 
 		//TODO: method filterOnlyAllowedAttributes can work only with user and member attributes
@@ -641,10 +614,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_List<String>_boolean_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -658,10 +628,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -675,10 +642,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_List<String>_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -690,11 +654,7 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_List<String>_List<String>_String_policy")) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -703,20 +663,14 @@ public class MembersManagerEntry implements MembersManager {
 		Iterator<RichMember> richMemberIter = richMembers.iterator();
 		while (richMemberIter.hasNext()) {
 			RichMember richMember = richMemberIter.next();
-			//Vo object which will be used only for authorization contains only id of richMember's Vo.
-			Vo membersVo = new Vo(richMember.getVoId(), "", "");
 
-			//if voadmin or voobserver or groupadmin or perunobserver has right to this member, its ok
-			if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, membersVo) ||
-					AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, membersVo) ||
-					AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, membersVo) ||
-					AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) continue;
+			if (AuthzResolver.authorizedInternal(sess, "filter-findCompleteRichMembers_List<String>_List<String>_String_policy", Collections.singletonList(richMember)))
+				continue;
 
-			//if not, then try facility admin rights
 			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, richMember);
 			boolean found = false;
 			for (Resource resource : membersResources) {
-				if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+				if (AuthzResolver.authorizedInternal(sess, "filter-findCompleteRichMembers_List<String>_List<String>_String_policy", Collections.singletonList(resource))) {
 					found = true;
 					break;
 				}
@@ -736,10 +690,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_String_boolean_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -753,10 +704,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_List<String>_String_boolean_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -770,10 +718,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Group_List<String>_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 		}
 
@@ -787,10 +732,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Group_List<AttributeDefinition>_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
@@ -804,10 +746,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Group_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "getRichMembers");
 		}
 
@@ -818,15 +757,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getMembers");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo), null, true);
 	}
@@ -835,15 +771,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_Status_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getRichMembers");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo, status), null, true);
 	}
@@ -852,15 +785,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo), null, true);
 	}
@@ -869,15 +799,12 @@ public class MembersManagerEntry implements MembersManager {
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_Status_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
 		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, status), null, true);
 	}
@@ -888,10 +815,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getMembersCount");
 		}
 
@@ -904,10 +828,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_Status_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getMembersCount");
 		}
 
@@ -930,8 +851,7 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersByName_String_policy", Collections.emptyList())) {
 			throw new PrivilegeException(sess, "findMembersByName");
 		}
 
@@ -945,9 +865,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-			!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersByNameInVo_Vo_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "findMembersByNameInVo");
 		}
 
@@ -961,9 +879,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-			!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersInVo_Vo_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "findMembersInVo");
 		}
 
@@ -976,10 +892,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersInGroup_Group_String_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "findMembersInGroup");
 		}
 
@@ -992,10 +905,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInGroup_Group_String_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "findRichMembersInGroup");
 		}
 
@@ -1009,10 +919,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, getPerunBl().getGroupsManagerBl().getParentGroup(sess, group));
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersInParentGroup_Group_String_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "findMembersInParentGroup");
 		}
 
@@ -1025,10 +932,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInParentGroup_Group_String_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "findRichMembersInParentGroup");
 		}
 
@@ -1042,9 +946,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersInVo_Vo_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "findRichMembersInVo");
 		}
 
@@ -1058,9 +960,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInVo_Vo_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "findRichMembersWithAttributesInVo");
 		}
 
@@ -1071,12 +971,12 @@ public class MembersManagerEntry implements MembersManager {
 	public Member setStatus(PerunSession sess, Member member, Status status) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
 		Utils.checkPerunSession(sess);
 
+		getMembersManagerBl().checkMemberExists(sess, member);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "setStatus");
 		}
-
-		getMembersManagerBl().checkMemberExists(sess, member);
 
 		return getMembersManagerBl().setStatus(sess, member, status);
 	}
@@ -1085,12 +985,12 @@ public class MembersManagerEntry implements MembersManager {
 	public Member setStatus(PerunSession sess, Member member, Status status, String message) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
 		Utils.checkPerunSession(sess);
 
+		getMembersManagerBl().checkMemberExists(sess, member);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_String_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "setStatus");
 		}
-
-		getMembersManagerBl().checkMemberExists(sess, member);
 
 		return getMembersManagerBl().setStatus(sess, member, status, message);
 	}
@@ -1100,12 +1000,12 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(suspendedTo, "suspendedTo");
 
+		getMembersManagerBl().checkMemberExists(sess, member);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "suspendMemberTo_Member_Date_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "suspendMemberTo");
 		}
-
-		getMembersManagerBl().checkMemberExists(sess, member);
 
 		membersManagerBl.suspendMemberTo(sess, member, suspendedTo);
 	}
@@ -1114,12 +1014,13 @@ public class MembersManagerEntry implements MembersManager {
 	public void unsuspendMember(PerunSession sess, Member member) throws MemberNotExistsException, MemberNotSuspendedException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
+		getMembersManagerBl().checkMemberExists(sess, member);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "unsuspendMember_Member_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "unsuspendMember");
 		}
 
-		getMembersManagerBl().checkMemberExists(sess, member);
 		if(member.getSuspendedTo() == null) throw new MemberNotSuspendedException(member);
 
 		membersManagerBl.unsuspendMember(sess, member);
@@ -1131,11 +1032,9 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "validateMemberAsync_Member_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "validateMemberAsync");
 		}
-
 
 		return getMembersManagerBl().validateMemberAsync(sess, member);
 	}
@@ -1146,8 +1045,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "extendMembership_Member_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "extendMembership");
 		}
 
@@ -1160,10 +1058,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "canExtendMembership_Member_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "extendMembership");
 		}
 
@@ -1177,10 +1072,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "canExtendMembershipWithReason_Member_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "canExtendMembershipWithReason");
 		}
 
@@ -1193,10 +1085,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "canBeMember_Vo_User_String_policy", Arrays.asList(vo, user))) {
 			throw new PrivilegeException(sess, "canBeMember");
 		}
 
@@ -1210,10 +1099,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "canBeMemberWithReason_Vo_User_String_policy", Arrays.asList(vo, user))) {
 			throw new PrivilegeException(sess, "canBeMemberWithReason");
 		}
 
@@ -1227,9 +1113,8 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.notNull(extLogin, "extLogin");
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getMemberByExtSourceNameAndExtLogin");
 		}
 
@@ -1260,7 +1145,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+		if (!AuthzResolver.authorizedInternal(sess, "sendPasswordResetLinkEmail_Member_String_String_String_String_policy", Collections.singletonList(member))) {
 			throw new PrivilegeException(sess, "sendPasswordResetLinkEmail");
 		}
 
@@ -1311,9 +1196,9 @@ public class MembersManagerEntry implements MembersManager {
 			//sponsor is the caller
 			sponsor = session.getPerunPrincipal().getUser();
 		} else {
-			//sponsor is specified, caller must be in role REGISTRAR
-			if (!AuthzResolver.isAuthorized(session, Role.REGISTRAR)) {
-				throw new PrivilegeException(session, "createSponsoredMember must be called by REGISTRAR");
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(session, "createSponsoredMember_Vo_String_Map<String_String>_String_User_policy", Arrays.asList(vo, sponsor))) {
+				throw new PrivilegeException(session, "createSponsoredMember");
 			}
 		}
 		//create the sponsored member
@@ -1330,9 +1215,9 @@ public class MembersManagerEntry implements MembersManager {
 			sponsor = session.getPerunPrincipal().getUser();
 		}
 
-		//only Perun Admin should has rights to do this operation
-		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) {
-			throw new PrivilegeException(session, "Only PerunAdmin should have rights to call this method.");
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_policy", Collections.singletonList(sponsoredMember))) {
+			throw new PrivilegeException(session, "setSponsorshipForMember");
 		}
 
 		//set member to be sponsored
@@ -1344,9 +1229,9 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(session);
 		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
 
-		//only Perun Admin should has rights to do this operation
-		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) {
-			throw new PrivilegeException(session, "Only PerunAdmin should have rights to call this method.");
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(session, "unsetSponsorshipForMember_Member_policy", Collections.singletonList(sponsoredMember))) {
+			throw new PrivilegeException(session, "unsetSponsorshipForMember");
 		}
 
 		//unset sponsorship for member
@@ -1360,12 +1245,9 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.notNull(sponsor, "sponsor");
 		log.debug("sponsorMember(sponsored={},sponsor={}", sponsored.getId(), sponsor.getId());
 
-		//Get the VO to which the member belongs
-		Vo vo = membersManagerBl.getMemberVo(session, sponsored);
-
-		//Check if the caller is authorised to add sponsor
-		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN)) {
-			throw new PrivilegeException(session, "sponsorMember must be called by VOADMIN");
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(session, "sponsorMember_Member_User_policy", Collections.singletonList(sponsored))) {
+			throw new PrivilegeException(session, "sponsorMember");
 		}
 		//create the link between sponsored and sponsoring users
 		return membersManagerBl.getRichMember(session, membersManagerBl.sponsorMember(session, sponsored, sponsor));
@@ -1377,9 +1259,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_User_List<String>_policy", Arrays.asList(vo, user))) {
 			throw new PrivilegeException(sess, "getSponsoredMembers");
 		}
 
@@ -1399,38 +1279,51 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws PrivilegeException {
+	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(user, "user");
-		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-			throw new PrivilegeException(sess, "getSponsoredMembers must be called by REGISTRAR or VOADMIN");
+
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+		perunBl.getUsersManagerBl().checkUserExists(sess, user);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_User_policy", Arrays.asList(vo, user))) {
+			throw new PrivilegeException(sess, "getSponsoredMembers");
 		}
+
 		return membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo, user));
 	}
 
 	@Override
-	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException {
+	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
-		if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "getSponsoredMembers");
 		}
+
 		return membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo));
 	}
 
 	@Override
-	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws PrivilegeException {
+	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws PrivilegeException, MemberNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sponsoredMember, "sponsoredMember");
 		Utils.notNull(sponsorUser, "sponsorUser");
-		if (!(AuthzResolver.isAuthorized(sess, Role.REGISTRAR)||AuthzResolver.isAuthorized(sess, Role.VOADMIN, membersManagerBl.getMemberVo(sess,sponsoredMember)))) {
-			throw new PrivilegeException(sess, "extendExpirationForSponsoredMember must be called by REGISTRAR or VOADMIN");
+
+		perunBl.getMembersManagerBl().checkMemberExists(sess, sponsoredMember);
+		perunBl.getUsersManagerBl().checkUserExists(sess, sponsorUser);
+
+		//Authorization
+		if (!(AuthzResolver.authorizedInternal(sess, "extendExpirationForSponsoredMember_Member_User_policy", Collections.singletonList(sponsoredMember)))) {
+			throw new PrivilegeException(sess, "extendExpirationForSponsoredMember");
 		}
+
 		return membersManagerBl.extendExpirationForSponsoredMember(sess,sponsoredMember,sponsorUser);
 	}
 
@@ -1444,10 +1337,11 @@ public class MembersManagerEntry implements MembersManager {
 		//Get the VO to which sponsoredMember belongs
 		Vo vo = membersManagerBl.getMemberVo(sess, sponsoredMember);
 
-		//Check if the caller is authorised to remove sponsor
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
-			throw new PrivilegeException(sess, "removeSponsor must be called by VOADMIN");
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "removeSponsor_Member_User_policy", Collections.singletonList(sponsoredMember))) {
+			throw new PrivilegeException(sess, "removeSponsor");
 		}
+
 		//Check that sponsoring user has a role SPONSOR for the VO
 		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSOR, vo, true)) {
 			throw new PrivilegeException(sess, "user " + sponsorToRemove.getId() + " is not in role SPONSOR for VO " + vo.getId());
