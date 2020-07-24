@@ -168,6 +168,104 @@ perun_policies:
     include_policies:
       - test_resource_admin
 
+  #AttributesManagerEntry
+  getAttributes_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getEntitylessAttributes_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getEntitylessAttributesWithKeys_String_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getEntitylessAttributesWithKeys_String_List<String>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getEntitylessKeys_AttributeDefinition_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getAttributesByAttributeDefinition_AttributeDefinition_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  setAttribute_String_Attribute_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  createAttribute_AttributeDefinition_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteAttribute_AttributeDefinition_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  deleteAttribute_AttributeDefinition_boolean:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updateAttributeDefinition_AttributeDefinition_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  doTheMagic_Member_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  doTheMagic_Member_boolean_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAttributeRights_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  setAttributeRights_List<AttributeRights>_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  convertAttributeToUnique_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getModulesDependenciesGraph_GraphTextFormat_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getModulesDependenciesGraph_GraphTextFormat_String_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   #AuditMessagesManagerEntry
   pollConsumerMessages_String_policy:
     policy_roles: []
@@ -4292,17 +4390,6 @@ perun_policies:
   removeSponsorRole_Vo_Group_policy:
     policy_roles:
       - VOADMIN: Vo
-    include_policies:
-      - default_policy
-
-  #AttributesManagerEntry
-  getEntitylessAttributesWithKeys_String_policy:
-    policy_roles: []
-    include_policies:
-      - default_policy
-
-  getEntitylessAttributesWithKeys_String_List<String>_policy:
-    policy_roles: []
     include_policies:
       - default_policy
 
