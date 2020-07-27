@@ -7372,6 +7372,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getUsersBySpecificUser:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUsersBySpecificUser
+      summary: Return all users who owns the specific user.
+      parameters:
+        - $ref: '#/components/parameters/specificUserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
 
   #################################################
