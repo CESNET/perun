@@ -1,0 +1,153 @@
+---
+# A list of Perun roles that are loaded to the database
+perun_roles: []
+
+# A list of Perun policies that are loaded to the PerunPoliciesContainer.
+#
+# Name of each policy starts with method name (usually), continues with parameter's types (except PerunSession)
+# and ends with "policy". Between each of these parts are underscores.
+# In scenarios where one method needs more policies, or there are conflicts between policy names,
+# optional word with a dash at the end can be used before the method name.
+# Example: filter-getAllMembers_Group_policy
+#
+# Each policy is composed of two parts.
+# The first one is called policy_roles, which contains privileged roles for this policy.
+# The second one is include_policies which contains policies which add their policy_roles to this policy.
+#
+# The policy_roles is a list of maps, where the relation between list entries is logical OR
+# and the relation between map entries is logical AND.
+# Each map element contains role name as a key and object type as a value (value is optional).
+# This specifies that a particular role has privileges in the policy with a connection to the type of object.
+# The actual object (or objects) is then passed in the code where the evaluation is called.
+# When there are passed more objects with the specified type, the principal has to have assigned a role to all of them.
+# When there are provided no objects of the specified type, this "role: object type" entry will not be satisfied.
+# Example: policy_roles:
+#            - VOADMIN: Vo
+#            - GROUPADMIN: Group
+#              RESOURCEADMIN: Resource
+#            - PERUNOBESRVER:
+#
+# Explanation: The list contains 3 elements. The first element contains a map with one entry,
+# the second one with two, and the last one with one. It is enough to satisfy just one element in the list.
+# The first map contains one entry where the key is VOADMIN, and the object type is Vo.
+# Meaning that to satisfy this entry, the principal has to have role VOADMIN connected with object type Vo,
+# where the actual object is passed in the code.
+# The second map contains two entries, therefore to satisfy this map, the principal has to be GROUPADMIN on a group
+# and RESOURCEADMIN on a resource.
+# The last map contains one entry specifying that the principal has to have role PERUNOBSERVER
+# but without the connection with any object.
+#
+# The include_policies is a list of policy names that will be included in the policy.
+# Relation between the policy and its included policies is logical OR.
+# Meaning that to satisfy the policy, it is enough to either satisfy policy_roles in the policy
+# or to satisfy policy_roles for at least one of the included policies.
+# Most of the policies are including default_policy, which contains PERUNADMIN's privileges.
+# Example: include_policies:
+#            - default_policy
+#            - getAllVos_policy
+#
+perun_policies:
+
+  default_policy:
+    policy_roles:
+      - PERUNADMIN:
+    include_policies: []
+
+  test_resourceselfservice:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
+    include_policies: []
+
+  test_sponsor:
+    policy_roles:
+      - SPONSOR: Vo
+    include_policies: []
+
+  test_cabinet:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies: []
+
+  test_self:
+    policy_roles:
+      - SELF: User
+    include_policies: []
+
+  test_voobserver_and_topgroupcreator:
+    policy_roles:
+      - VOOBSERVER: Vo
+        TOPGROUPCREATOR:
+    include_policies: []
+
+  test_security_admin:
+    policy_roles:
+      - SECURITYADMIN: SecurityTeam
+    include_policies: []
+
+  test_group_or_vo:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies: []
+
+  test_resource_admin:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+    include_policies: []
+
+  test_resource_and_facility_admin:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+        FACILITYADMIN: Facility
+    include_policies: []
+
+  test_authorized_vo_admin:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies: []
+
+  test_groupadmin_voadmin:
+    policy_roles:
+      - VOADMIN: Vo
+        GROUPADMIN: Group
+    include_policies: []
+
+  test_cycle_voadmin:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - test_cycle_admin
+
+  test_cycle_admin:
+    policy_roles:
+      - PERUNADMIN:
+    include_policies:
+      - test_cycle_voadmin
+
+  test_authorized_group_admin:
+    policy_roles:
+      - GROUPADMIN: Group
+    include_policies:
+      - test_authorized_vo_admin
+
+  test_transitive_one:
+    policy_roles:
+      - PERUNADMIN:
+    include_policies:
+      - test_transitive_two
+
+  test_transitive_two:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - test_transitive_three
+
+  test_transitive_three:
+    policy_roles:
+      - PERUNOBSERVER:
+    include_policies:
+      - test_resource_admin
+
+perun_roles_management: {}
+...
