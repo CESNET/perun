@@ -22,8 +22,11 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -102,25 +105,36 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	@Override
 	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) throws PrivilegeException {
-		if (!AuthzResolverBlImpl.isAuthorized(session, Role.CABINETADMIN)) {
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(session, "createPublicationSystem_PublicationSystem_policy")) {
 			throw new PrivilegeException("createPublicationSystem");
 		}
+
 		return getPublicationSystemManagerBl().createPublicationSystem(session, ps);
 	}
 
 	@Override
 	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException, PrivilegeException {
-		if (!AuthzResolverBlImpl.isAuthorized(session, Role.CABINETADMIN)) {
+		Utils.notNull(ps, "ps");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(session, "updatePublicationSystem_PublicationSystem_policy", Collections.singletonList(ps))) {
 			throw new PrivilegeException("updatePublicationSystem");
 		}
+
 		return getPublicationSystemManagerBl().updatePublicationSystem(session, ps);
 	}
 
 	@Override
 	public void deletePublicationSystem(PerunSession sess, PublicationSystem ps) throws CabinetException, PrivilegeException {
-		if (!AuthzResolverBlImpl.isAuthorized(sess, Role.CABINETADMIN)) {
+		Utils.notNull(ps, "ps");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "deletePublicationSystem_PublicationSystem_policy", Collections.singletonList(ps))) {
 			throw new PrivilegeException("deletePublicationSystem");
 		}
+
 		getPublicationSystemManagerBl().deletePublicationSystem(ps);
 	}
 
@@ -143,14 +157,16 @@ public class CabinetManagerImpl implements CabinetManager {
 	public List<PublicationSystem> getPublicationSystems(PerunSession session) {
 
 		List<PublicationSystem> systems = getPublicationSystemManagerBl().getPublicationSystems();
-		if (AuthzResolverBlImpl.isAuthorized(session, Role.CABINETADMIN)) {
-			return systems;
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(session, "getPublicationSystems_policy")) {
+			// clear authz for non-perun admins
+			for (PublicationSystem system : systems) {
+				system.setUsername(null);
+				system.setPassword(null);
+			}
 		}
-		// clear authz for non-perun admins
-		for (PublicationSystem system : systems) {
-			system.setUsername(null);
-			system.setPassword(null);
-		}
+
 		return systems;
 
 	}
@@ -161,25 +177,36 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	@Override
 	public Category createCategory(PerunSession sess, Category category) throws CabinetException, PrivilegeException {
-		if (!AuthzResolverBlImpl.isAuthorized(sess, Role.CABINETADMIN)) {
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "createCategory_Category_policy")) {
 			throw new PrivilegeException("createCategory");
 		}
+
 		return getCategoryManagerBl().createCategory(sess, category);
 	}
 
 	@Override
 	public Category updateCategory(PerunSession sess, Category category) throws CabinetException, PrivilegeException {
-		if (!AuthzResolverBlImpl.isAuthorized(sess, Role.CABINETADMIN)) {
+		Utils.notNull(category, "category");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "updateCategory_Category_policy", Collections.singletonList(category))) {
 			throw new PrivilegeException("updateCategory");
 		}
+
 		return getCategoryManagerBl().updateCategory(sess, category);
 	}
 
 	@Override
 	public void deleteCategory(PerunSession sess, Category category) throws CabinetException, PrivilegeException {
-		if (!AuthzResolverBlImpl.isAuthorized(sess, Role.CABINETADMIN)) {
+		Utils.notNull(category, "category");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "deleteCategory_Category_policy", Collections.singletonList(category))) {
 			throw new PrivilegeException("deleteCategory");
 		}
+
 		getCategoryManagerBl().deleteCategory(sess, category);
 	}
 
@@ -199,19 +226,26 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	@Override
 	public Thanks createThanks(PerunSession sess, Thanks thanks) throws CabinetException, PrivilegeException {
-		if (!AuthzResolverBlImpl.isAuthorized(sess, Role.SELF)) {
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "createThanks_Thanks_policy")) {
 			throw new PrivilegeException("createThanks");
 		}
+
 		return getThanksManagerBl().createThanks(sess, thanks);
 	}
 
 	@Override
 	public void deleteThanks(PerunSession sess, Thanks thanks) throws CabinetException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(sess, Role.CABINETADMIN) &&
+		Utils.notNull(thanks, "thanks");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "deleteThanks_Thanks_policy", Collections.singletonList(thanks)) &&
 				(!thanks.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor())) &&
 				(thanks.getCreatedByUid() !=(sess.getPerunPrincipal().getUserId()))) {
 			throw new PrivilegeException("deleteThanks");
 		}
+
 		getThanksManagerBl().deleteThanks(sess, thanks);
 	}
 
@@ -256,12 +290,16 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	@Override
 	public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(sess, Role.CABINETADMIN) &&
+		Utils.notNull(authorship, "authorship");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "deleteAuthorship_Authorship_policy", Collections.singletonList(authorship)) &&
 				!authorship.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				!authorship.getUserId().equals(sess.getPerunPrincipal().getUser().getId()) &&
 				authorship.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
 			throw new PrivilegeException("You are not allowed to delete authorships you didn't created or which doesn't concern you.");
 		}
+
 		getAuthorshipManagerBl().deleteAuthorship(sess, authorship);
 	}
 
@@ -297,12 +335,12 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	@Override
 	public List<Author> getAllAuthors(PerunSession sess) throws CabinetException {
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.CABINETADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAllAuthors_policy")) {
 			throw new CabinetException("You are not authorized to list all authors.", NOT_AUTHORIZED);
 		}
+
 		return getAuthorshipManagerBl().getAllAuthors();
 	}
 
@@ -317,10 +355,12 @@ public class CabinetManagerImpl implements CabinetManager {
 				break;
 			}
 		}
-		if (AuthzResolver.isAuthorized(session, Role.CABINETADMIN) ||
-				AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
+
+		//Authorization
+		if (AuthzResolver.authorizedInternal(session, "getAuthorsByPublicationId_int_policy")) {
 			oneOfAuthors = true;
 		}
+
 		if (!oneOfAuthors) {
 			// not author, but check if user created publication, then he can list current authors
 			Publication publication = getPublicationManagerBl().getPublicationById(id);
@@ -341,10 +381,12 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	@Override
 	public List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException {
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findNewAuthors_String_policy")) {
 			throw new CabinetException("You are not authorized to search for new authors.", NOT_AUTHORIZED);
 		}
+
 		return getAuthorshipManagerBl().findNewAuthors(sess, searchString);
 	}
 
@@ -363,7 +405,10 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	@Override
 	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(sess, Role.CABINETADMIN) &&
+		Utils.notNull(publication, "publication");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "updatePublication_Publication_policy", Collections.singletonList(publication)) &&
 				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
 			// not perun admin or author of record
@@ -372,19 +417,23 @@ public class CabinetManagerImpl implements CabinetManager {
 			} catch (PrivilegeException ex) {
 				throw new PrivilegeException("You are not allowed to update publications you didn't created.");
 			}
-
 		}
+
 		return getPublicationManagerBl().updatePublication(sess, publication);
 	}
 
 	@Override
 	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(sess, Role.CABINETADMIN) &&
+		Utils.notNull(publication, "publication");
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "deletePublication_Publication_policy", Collections.singletonList(publication)) &&
 				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
 			// not perun admin or author of record
 			throw new PrivilegeException("You are not allowed to delete publications you didn't created. If you wish, you can remove yourself from authors instead.");
 		}
+
 		getPublicationManagerBl().deletePublication(sess, publication);
 	}
 
@@ -432,13 +481,14 @@ public class CabinetManagerImpl implements CabinetManager {
 	@Override
 	public void lockPublications(PerunSession sess, boolean lockState, List<Publication> publications) throws PrivilegeException {
 
-		if (!AuthzResolver.isAuthorized(sess, Role.CABINETADMIN)) {
-			throw new PrivilegeException("lockPublications");
-		}
-
 		// check input
 		if (publications == null || publications.isEmpty()) {
 			throw new InternalErrorException("Publications to lock/unlock can't be null");
+		}
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "lockPublications_boolean_List<Publication>_policy", new ArrayList<>(publications))) {
+			throw new PrivilegeException("lockPublications");
 		}
 
 		getPublicationManagerBl().lockPublications(lockState, publications);

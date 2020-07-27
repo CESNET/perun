@@ -56,7 +56,7 @@ public interface RegistrarManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	void createApplicationFormInVo(PerunSession sess, Vo vo) throws PrivilegeException;
+	void createApplicationFormInVo(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Create application form for Group
@@ -66,7 +66,7 @@ public interface RegistrarManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	void createApplicationFormInGroup(PerunSession sess, Group group) throws PrivilegeException;
+	void createApplicationFormInGroup(PerunSession sess, Group group) throws PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Gets an application form for a given VO. There is exactly one form for membership per VO, one form is used for both initial registration and annual account expansion,

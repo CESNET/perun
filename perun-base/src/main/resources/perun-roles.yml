@@ -4297,6 +4297,603 @@ perun_policies:
     include_policies:
       - default_policy
 
+  #PerunNotifNotificationManagerImpl
+  getPerunNotifReceiverById_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAllPerunNotifReceivers_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updatePerunNotifReceiver_PerunNotifReceiver_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removePerunNotifReceiverById_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getPerunNotifRegexById_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAllPerunNotifRegexes_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  createPerunNotifRegex_PerunNotifRegex_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updatePerunNotifRegex_PerunNotifRegex_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  removePerunNotifRegexById_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getPerunNotifTemplateById_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAllPerunNotifTemplateMessages_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  createPerunNotifTemplate_PerunNotifTemplate_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updatePerunNotifTemplate_PerunNotifTemplate_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getPerunNotifTemplateMessageById_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  getAllPerunNotifTemplates_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  createPerunNotifTemplateMessage_PerunNotifTemplateMessage_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  updatePerunNotifTemplateMessage_PerunNotifTemplateMessage_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  stopNotifications_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  startNotifications_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
+  #CabinetManagerImpl
+  createPublicationSystem_PublicationSystem_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  updatePublicationSystem_PublicationSystem_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  deletePublicationSystem_PublicationSystem_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  getPublicationSystems_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  createCategory_Category_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  updateCategory_Category_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  deleteCategory_Category_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  createThanks_Thanks_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+  deleteThanks_Thanks_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  deleteAuthorship_Authorship_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  getAllAuthors_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - ENGINE:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  getAuthorsByPublicationId_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  findNewAuthors_String_policy:
+    policy_roles:
+      - SELF:
+    include_policies:
+      - default_policy
+
+  updatePublication_Publication_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  deletePublication_Publication_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  lockPublications_boolean_List<Publication>_policy:
+    policy_roles:
+      - CABINETADMIN:
+    include_policies:
+      - default_policy
+
+  #ConsolidatorManagerImpl
+  group-checkForSimilarUsers_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-checkForSimilarUsers_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  #MailManagerImpl
+  group-addMail_ApplicationForm_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-addMail_ApplicationForm_ApplicationMail_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-deleteMailById_ApplicationForm_Integer_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-deleteMailById_ApplicationForm_Integer_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  copyMailsFromVoToVo_Vo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  copyMailsFromVoToGroup_Vo_Group_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  copyMailsFromGroupToGroup_Group_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  group-sendMessage_Application_MailType_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-sendMessage_Application_MailType_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-sendInvitation_Vo_Group_String_String_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-sendInvitation_Vo_Group_String_String_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - TOPGROUPCREATOR: Vo
+    include_policies:
+      - default_policy
+
+  group-sendInvitation_Vo_Group_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-sendInvitation_Vo_Group_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  #RegistrarManagerImpl
+  createApplicationFormInVo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  createApplicationFormInGroup_Group_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  vo-getFormById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-getFormById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-getFormByItemId_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  group-getFormByItemId_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+      - VOOBSERVER: Vo
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  vo-addFormItem_ApplicationForm_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-addFormItem_ApplicationForm_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-updateForm_ApplicationForm_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-updateForm_ApplicationForm_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  deleteFormItem_ApplicationForm_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  moveFormItem_ApplicationForm_int_boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  vo-updateFormItemTexts_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-updateFormItemTexts_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-deleteApplication_Application_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-deleteApplication_Application_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-verifyApplication_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-verifyApplication_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-rejectApplication_int_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-rejectApplication_int_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-approveApplicationInternal_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-approveApplicationInternal_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-canBeApproved_Application_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-canBeApproved_Application_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-getApplicationById_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - RPC:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  group-getApplicationById_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - RPC:
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  getApplicationsForVo_Vo_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getApplicationsForGroup_Vo_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-getApplicationsForMember_Group_Member_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  group-getApplicationsForMember_Group_Member_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-getFormItems_ApplicationForm_AppType_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  group-getFormItems_ApplicationForm_AppType_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  vo-updateFormItem_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  group-updateFormItem_ApplicationFormItem_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  copyFormFromVoToVo_Vo_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  source-copyFormFromVoToGroup_Vo_Group_Policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  destination-copyFormFromVoToGroup_Vo_Group_Policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  source-copyFormFromGroupToGroup_Group_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  destination-copyFormFromGroupToGroup_Group_Group_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - GROUPADMIN: Group
+    include_policies:
+      - default_policy
+
+  updateFormItemData_int_ApplicationFormItemData_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
 # A list of Perun management rules that are loaded to the PerunPoliciesContainer.
 perun_roles_management:
 
