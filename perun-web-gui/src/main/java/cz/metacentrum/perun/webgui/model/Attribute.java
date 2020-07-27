@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.model;
 
-import com.google.gson.JsonObject;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.json.client.JSONObject;
