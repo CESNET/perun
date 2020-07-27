@@ -19,8 +19,10 @@ import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
+import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -29,9 +31,11 @@ import cz.metacentrum.perun.webgui.json.attributesManager.SetEntitylessAttribute
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.AttributeDefinition;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.tabs.AttributesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.userstabs.SelfDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
@@ -62,15 +66,24 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 	 */
 	private Label titleWidget = new Label("Loading vo attributes");
 
-	//map of attributes and keys
-	private HashMap<Attribute, String> map;
-
-	private AttributeDefinition def;
+	private AttributeDefinition attrDef;
+	private int attrDefId = 0;
 
 	public final static String URL = "edit_keys";
 
-	public EntitylessAttributeEditKeyTabItem(AttributeDefinition aD) {
-		this.def = aD;
+	public EntitylessAttributeEditKeyTabItem(int attrDefId) {
+		this.attrDefId = attrDefId;
+		JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				attrDef = jso.cast();
+			}
+		};
+		new GetEntityById(PerunEntity.ATTRIBUTE_DEFINITION, attrDefId, events).retrieveData();
+	}
+
+	public EntitylessAttributeEditKeyTabItem(AttributeDefinition attrDef) {
+		this.attrDef = attrDef;
+		this.attrDefId = attrDef.getId();
 	}
 
 	@Override
@@ -80,12 +93,13 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 
 	@Override
 	public String getUrlWithParameters() {
-		return MainMenu.PERUN_ADMIN + UrlMapper.TAB_NAME_SEPARATOR + getUrl();
+		return AttributesTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + attrDefId;
 	}
 
 	@Override
 	public Widget draw() {
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(def.getName()) + ": settings");
+
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(attrDef.getName()) + ": settings");
 
 		// MAIN PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
@@ -97,12 +111,10 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// Get Attributes
-		final GetEntitylessAttributes jsonCallback = new GetEntitylessAttributes(def);
+		final GetEntitylessAttributes jsonCallback = new GetEntitylessAttributes(attrDef);
 
 		// get the table
 		CellTable<Attribute> table = jsonCallback.getTable();
-
-		this.map = jsonCallback.getMap();
 
 		if (!isAuthorized()) jsonCallback.setCheckable(false);
 
@@ -124,7 +136,7 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 				Map<String, String> ids = new HashMap<>();
 				SetEntitylessAttribute request = new SetEntitylessAttribute(setButtonEvent);
 				for (Attribute a : list) {
-					ids.put("key", map.get(a));
+					ids.put("key", a.getKey());
 					request.setAttribute(ids, a);
 				}
 				draw();
@@ -142,7 +154,7 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 			ArrayList<Attribute> list = jsonCallback.getTableSelectedList();
 			if (UiElements.cantSaveEmptyListDialogBox(list)) {
 				for (Attribute a : list) {
-					removeAttribute(map.get(a));
+					removeAttribute(a);
 				}
 			}
 		});
@@ -162,10 +174,11 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 		//add attr button
 		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true,
 			ButtonTranslation.INSTANCE.setNewAttributes(), event -> {
-				map = jsonCallback.getMap();
-				if (map.containsValue(keyBox.getText())) {
-					UiElements.generateAlert("", "Key \"" + keyBox.getText() + "\" already exists");
-					return;
+				for (Attribute a : jsonCallback.getList()) {
+					if (a.getKey().equals((keyBox.getText()))) {
+						UiElements.generateAlert("", "Key \"" + keyBox.getText() + "\" already exists");
+						return;
+					}
 				}
 				if (keyBox.getText().equals("")) {
 					UiElements.generateAlert("", "Enter key into key box");
@@ -179,7 +192,7 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 					UiElements.generateAlert("", "Enter value into value box");
 					return;
 				}
-				if (def.getType().equals("java.util.LinkedHashMap")) {
+				if (attrDef.getType().equals("java.util.LinkedHashMap")) {
 					addAttribute(keyBox.getText(), mapValueBox.getText(), mapKeyBox.getText());
 					return;
 				}
@@ -196,7 +209,7 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 			menu.addWidget(valueBox);
 		}
 
-		if (def.getType().equals("java.util.LinkedHashMap")) {
+		if (attrDef.getType().equals("java.util.LinkedHashMap")) {
 			menu.addWidget(new Label("First entry for new key:"));
 			menu.addWidget(mapKeyBox);
 			menu.addWidget(new Label("="));
@@ -254,7 +267,7 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 
 	@Override
 	public boolean isPrepared() {
-		return def != null;
+		return attrDef != null;
 	}
 
 	@Override
@@ -272,16 +285,16 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		EntitylessAttributeEditKeyTabItem that = (EntitylessAttributeEditKeyTabItem) o;
-		return Objects.equals(def, that.def);
+		return Objects.equals(attrDefId, that.attrDefId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(def);
+		return Objects.hash(attrDefId);
 	}
 
 	private void addAttribute(String key, String value, String mapKey) {
-		if (def.getType().equals("java.lang.Integer")) {
+		if (attrDef.getType().equals("java.lang.Integer")) {
 			try {
 				Integer.valueOf(value);
 			} catch (NumberFormatException e) {
@@ -293,12 +306,12 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 
 		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Creating entityless attribute " + def.getDisplayName() +
+				session.getUiElements().setLogErrorText("Creating entityless attribute " + attrDef.getDisplayName() +
 					" with key: " + key + " and value: " + value + " failed");
 			}
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Creating entityless attribute " + def.getDisplayName() +
+				session.getUiElements().setLogSuccessText("Creating entityless attribute " + attrDef.getDisplayName() +
 					" with key: " + key + " and value: " + value + " succeeded");
 				draw();
 			}
@@ -313,18 +326,18 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 		jpc.sendData(JSON_URL, prepareJSONObject(key, value, mapKey));
 	}
 
-	private void removeAttribute(String key) {
+	private void removeAttribute(Attribute a) {
 		String JSON_URL = "attributesManager/removeAttribute";
 
 		JsonCallbackEvents newEvents = new JsonCallbackEvents() {
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Removing entityless attribute " + def.getDisplayName() +
-					" with key: " + key + " failed");
+				session.getUiElements().setLogErrorText("Removing entityless attribute " + a.getDisplayName() +
+					" with key: " + a.getKey() + " failed");
 			}
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Removing entityless attribute " + def.getDisplayName() +
-					" with key: " + key + " succeeded");
+				session.getUiElements().setLogSuccessText("Removing entityless attribute " + a.getDisplayName() +
+					" with key: " + a.getKey() + " succeeded");
 				draw();
 			}
 
@@ -334,8 +347,8 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 		};
 
 		JSONObject jo = new JSONObject();
-		jo.put("key", new JSONString(key));
-		jo.put("attribute", new JSONNumber(def.getId()));
+		jo.put("key", new JSONString(a.getKey()));
+		jo.put("attribute", new JSONNumber(a.getId()));
 
 		JsonPostClient jpc = new JsonPostClient(newEvents);
 		jpc.sendData(JSON_URL, jo);
@@ -350,15 +363,15 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 
 		// create new Attribute jsonObject
 		JSONObject newAttr = new JSONObject();
-		newAttr.put("id", new JSONNumber(def.getId()));
-		newAttr.put("type", new JSONString(def.getType()));
-		newAttr.put("description", new JSONString(def.getDescription()));
-		newAttr.put("namespace", new JSONString(def.getNamespace()));
-		newAttr.put("friendlyName", new JSONString(def.getFriendlyName()));
-		newAttr.put("displayName", new JSONString(def.getDisplayName()));
+		newAttr.put("id", new JSONNumber(attrDef.getId()));
+		newAttr.put("type", new JSONString(attrDef.getType()));
+		newAttr.put("description", new JSONString(attrDef.getDescription()));
+		newAttr.put("namespace", new JSONString(attrDef.getNamespace()));
+		newAttr.put("friendlyName", new JSONString(attrDef.getFriendlyName()));
+		newAttr.put("displayName", new JSONString(attrDef.getDisplayName()));
 		newAttr.put("unique", new JSONString("false"));
 
-		switch (def.getType()) {
+		switch (attrDef.getType()) {
 			case "java.lang.String":
 				newAttr.put("value", new JSONString(value));
 				break;
@@ -399,8 +412,14 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 	}
 
 	private boolean shouldHaveValueBox() {
-		return (def.getType().equals("java.lang.String") ||
-			    def.getType().equals("java.lang.Integer") ||
-			    def.getType().equals("java.lang.LargeString"));
+		return (attrDef.getType().equals("java.lang.String") ||
+				attrDef.getType().equals("java.lang.Integer") ||
+				attrDef.getType().equals("java.lang.LargeString"));
 	}
+
+	static public EntitylessAttributeEditKeyTabItem load(Map<String, String> parameters) {
+		int attrId = Integer.parseInt(parameters.get("id"));
+		return new EntitylessAttributeEditKeyTabItem(attrId);
+	}
+
 }

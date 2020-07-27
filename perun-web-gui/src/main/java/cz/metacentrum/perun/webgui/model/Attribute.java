@@ -384,6 +384,27 @@ public class Attribute extends JavaScriptObject {
 	}-*/;
 
 	/**
+	 * Returns locally stored "key" related to this entityless attribute
+	 *
+	 * @return "key" of entityless attribute
+	 */
+	public final native String getKey() /*-{
+		if (!this.entitlessKey) {
+			return "";
+		}
+		return this.entitlessKey;
+	}-*/;
+
+	/**
+	 * Locally sets "key" of this attribute inside the object.
+	 *
+	 * @param key "key" to be stored
+	 */
+	public final native void setKey(String key) /*-{
+		this.entitlessKey = key;
+	}-*/;
+
+	/**
 	 * Compares to another object
 	 * @param o Object to compare
 	 * @return true, if they are the same
