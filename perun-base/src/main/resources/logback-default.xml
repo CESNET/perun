@@ -106,19 +106,27 @@
 		<appender-ref ref="perun-cabinet"/>
 	</logger>
 
-
-	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-core">
-		<file>${LOGDIR}perun-core.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun-core.log.%d.%i</fileNamePattern>
-			<maxFileSize>100MB</maxFileSize>
-			<maxHistory>${MAXHISTORY}</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${ENCODER_PATTERN}</pattern>
-		</encoder>
+	<appender name="perun-core" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<discriminator>
+			<key>logFileName</key>
+			<defaultValue>perun-core</defaultValue>
+		</discriminator>
+		<sift>
+			<appender name="sift-${logFileName}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+				<file>${LOGDIR}${logFileName}.log</file>
+				<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+					<fileNamePattern>${LOGDIR}${logFileName}.log.%d.%i</fileNamePattern>
+					<maxFileSize>100MB</maxFileSize>
+					<maxHistory>${MAXHISTORY}</maxHistory>
+					<totalSizeCap>1GB</totalSizeCap>
+				</rollingPolicy>
+				<encoder>
+					<pattern>${ENCODER_PATTERN}</pattern>
+				</encoder>
+			</appender>
+		</sift>
 	</appender>
+
 	<logger name="cz.metacentrum.perun.core" level="info" additivity="false">
 		<appender-ref ref="perun-core"/>
 	</logger>
