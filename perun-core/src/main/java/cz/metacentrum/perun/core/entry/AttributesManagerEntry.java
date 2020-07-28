@@ -754,7 +754,13 @@ public class AttributesManagerEntry implements AttributesManager {
 			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
 		}
 
-		return attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName);
+		Map<String, Attribute> result = attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName);
+		result.entrySet().removeIf(entry ->
+				!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(entry.getValue()), entry.getKey()));
+		result.forEach((s, attribute) -> {
+			attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, s));
+		});
+		return result;
 	}
 
 	@Override
@@ -772,7 +778,13 @@ public class AttributesManagerEntry implements AttributesManager {
 			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
 		}
 
-		return attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName, keys);
+		Map<String, Attribute> result = attributesManagerBl.getEntitylessAttributesWithKeys(sess, attrName, keys);
+		result.entrySet().removeIf(entry ->
+				!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(entry.getValue()), entry.getKey()));
+		result.forEach((s, attribute) -> {
+			attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, s));
+		});
+		return result;
 	}
 
 	@Override
