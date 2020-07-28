@@ -7,7 +7,6 @@ import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -245,7 +244,55 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 */
 	deleteTask {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
 			ac.getTasksManager().deleteTask(ac.getSession(), ac.getTasksManager().getTaskById(ac.getSession(), parms.readInt("task")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Delete TaskResult by its ID
+	 *
+	 * @param taskResultId int ID of TaskResult to deleted
+	 */
+	deleteTaskResultById {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getTasksManager().deleteTaskResultById(ac.getSession(), parms.readInt("taskResultId"));
+			return null;
+		}
+	},
+
+	/*#
+	 * Delete TaskResults for specified Task and Destination.
+	 *
+	 * @param taskId int ID of Task to delete TaskResults for
+	 * @param destinationId int ID of Destination to delete TaskResults for
+	 */
+	/*#
+	 * Delete TaskResults for specified Task and Destination.
+	 *
+	 * @param taskId int ID of Task to delete TaskResults for
+	 * @param destinationName String Name of Destination to delete TaskResults for
+	 * @param destinationType String Type of Destination to delete TaskResults for
+	 */
+	deleteTaskResults {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			if (parms.contains("destinationId")) {
+				ac.getTasksManager().deleteTaskResults(ac.getSession(),
+						ac.getTasksManager().getTaskById(ac.getSession(), parms.readInt("taskId")),
+						ac.getServicesManager().getDestinationById(ac.getSession(), parms.readInt("destinationId")));
+			} else {
+				ac.getTasksManager().deleteTaskResults(ac.getSession(),
+						ac.getTasksManager().getTaskById(ac.getSession(), parms.readInt("taskId")),
+						ac.getServicesManager().getDestinationById(ac.getSession(),
+								ac.getServicesManager().getDestinationIdByName(
+										ac.getSession(),
+										parms.readString("destinationName"),
+										parms.readString("destinationType")
+								)));
+			}
 			return null;
 		}
 	};

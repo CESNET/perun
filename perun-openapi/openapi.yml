@@ -13394,6 +13394,84 @@ paths:
               properties:
                 task:  { type: integer, description: "task id", nullable: false }
 
+  /json/tasksManager/deleteTaskResultById:
+    post:
+      tags:
+        - TasksManager
+      operationId: deleteTaskResultById
+      summary:  Delete TaskResult by its ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: taskResultIdObject
+              description: "input to deleteTaskResultObject"
+              type: object
+              required:
+                - taskResultId
+              properties:
+                taskResultId:  { type: integer, description: "task result id", nullable: false }
+
+  /json/tasksManager/deleteTaskResults/id:
+    post:
+      tags:
+        - TasksManager
+      operationId: deleteTaskResultsIds
+      summary: Delete all TaskResults for specified Task and Destination.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: taskAndDestinationIdObject
+              description: "input to deleteTaskResultsIds"
+              type: object
+              required:
+                - taskId
+                - destinationId
+              properties:
+                taskId:  { type: integer, description: "task id", nullable: false }
+                destinationId:  { type: integer, description: "destination id", nullable: false }
+
+  /json/tasksManager/deleteTaskResults/name:
+    post:
+      tags:
+        - TasksManager
+      operationId: deleteTaskResultsNames
+      summary: Delete all TaskResults for specified Task and Destination.
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: taskAndDestinationNameObject
+              description: "input to deleteTaskResultsNames"
+              type: object
+              required:
+                - taskId
+                - destinationName
+                - destinationType
+              properties:
+                taskId:  { type: integer, description: "task id", nullable: false }
+                destinationName:  { type: string, description: "destination name", nullable: false }
+                destinationType:  { type: string, description: "destination type", nullable: false }
+
   #################################################
   #                                               #
   # RTMessagesManager                               #
