@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.model;
 
-import com.google.gson.JsonObject;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.json.client.JSONObject;
@@ -381,6 +380,27 @@ public class Attribute extends JavaScriptObject {
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
+	}-*/;
+
+	/**
+	 * Returns locally stored "key" related to this entityless attribute
+	 *
+	 * @return "key" of entityless attribute
+	 */
+	public final native String getKey() /*-{
+		if (!this.entitlessKey) {
+			return "";
+		}
+		return this.entitlessKey;
+	}-*/;
+
+	/**
+	 * Locally sets "key" of this attribute inside the object.
+	 *
+	 * @param key "key" to be stored
+	 */
+	public final native void setKey(String key) /*-{
+		this.entitlessKey = key;
 	}-*/;
 
 	/**

@@ -52,6 +52,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 
 	static private final String URL_DESTINATION = "servicesManager/getDestinationById";
 
+	static private final String URL_ATTRIBUTE_DEFINITION = "attributesManager/getAttributeDefinitionById";
+
 	/**
 	 * New callback instance
 	 *
@@ -142,6 +144,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 			js.retrieveData(URL_USER_EXT_SRC, param, this);
 		} else if (PerunEntity.DESTINATION.equals(entity)) {
 			js.retrieveData(URL_DESTINATION, param, this);
+		} else if (PerunEntity.ATTRIBUTE_DEFINITION.equals(entity)) {
+			js.retrieveData(URL_ATTRIBUTE_DEFINITION, param, this);
 		} else {
 			// UNSUPPORTED COMBINATION
 		}

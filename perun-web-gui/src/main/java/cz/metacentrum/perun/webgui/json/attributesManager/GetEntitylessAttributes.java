@@ -3,15 +3,14 @@ package cz.metacentrum.perun.webgui.json.attributesManager;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -33,7 +32,6 @@ import cz.metacentrum.perun.webgui.widgets.cells.PerunAttributeValueCell;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -49,9 +47,7 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 	// Json callback events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
-	private HashMap<Attribute, String> map = new HashMap<>();
-
-	final MultiSelectionModel<Attribute> selectionModel = new MultiSelectionModel<>(new EntitylessAttributeKeyProvider(map));
+	final MultiSelectionModel<Attribute> selectionModel = new MultiSelectionModel<>(new EntitylessAttributeKeyProvider());
 	// Table data provider
 	private ListDataProvider<Attribute> dataProvider = new ListDataProvider<>();
 	// Table
@@ -65,9 +61,6 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 	private FieldUpdater<Attribute, String> tableFieldUpdater;
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-
-	// friendly table
-	private FlexTable friendlyTable = new FlexTable();
 
 	private boolean editable = true;
 	private boolean checkable = true;
@@ -107,7 +100,6 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 	@Override
 	public void removeFromTable(Attribute object) {
 		list.remove(object);
-		map.remove(object);
 		selectionModel.getSelectedSet().remove(object);
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -154,14 +146,6 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 		return table;
 	}
 
-	public HashMap<Attribute, String> getMap() {
-		return map;
-	}
-
-	public void setMap(HashMap<Attribute, String> map) {
-		this.map = map;
-	}
-
 	public CellTable<Attribute> getEmptyTable() {
 
 		// Table data provider.
@@ -181,7 +165,7 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-		loaderImage.setEmptyResultMessage("No attributes found. Use 'Add' button to add new attribute.");
+		loaderImage.setEmptyResultMessage("No attributes found. Use 'Add' button to add new key=value.");
 
 		// because of tab index
 		table.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
@@ -233,8 +217,7 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 		TextColumn<Attribute> keyColumn = new TextColumn<Attribute>() {
 			@Override
 			public String getValue(Attribute attribute) {
-				//GWT.log(attribute.getGuiUniqueId() + " : " + map.get(attribute));
-				return map.get(attribute);
+				return attribute.getKey();
 			}
 		};
 		keyColumn.setSortable(true);
@@ -259,14 +242,18 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 
 	@Override
 	public void onFinished(JavaScriptObject jso) {
-		loaderImage.loadingFinished();
-		friendlyTable.clear();
 		if (!ownClear) clearTable();
-		list.addAll(JsonUtils.jsoAsList(jso));
-		for (Attribute a : list) {
-			map.put(a, null);
+		ArrayList<Attribute> attrList = new ArrayList<>();
+		Map<String, JSONValue> bot = JsonUtils.parseJsonToMap(jso);
+		for (String key : bot.keySet()) {
+			Attribute a = bot.get(key).isObject().getJavaScriptObject().cast();
+			a.setKey(key);
+			attrList.add(a);
 		}
-		loadKeys();
+		setList(attrList);
+		sortTable();
+		loaderImage.loadingFinished();
+		events.onFinished(jso);
 	}
 
 	@Override
@@ -286,7 +273,7 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 	@Override
 	public void retrieveData() {
 		String params = "attrName=" + attributeDefinition.getName();
-		String JSON_URL_ATRIBUTES = "attributesManager/getEntitylessAttributes";
+		String JSON_URL_ATRIBUTES = "attributesManager/getEntitylessAttributesWithKeys";
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL_ATRIBUTES, params, this);
 	}
@@ -297,43 +284,4 @@ public class GetEntitylessAttributes implements JsonCallback, JsonCallbackTable<
 		dataProvider.refresh();
 	}
 
-	private void loadKeys() {
-		JsonClient js = new JsonClient();
-		js.retrieveData("attributesManager/getEntitylessKeys", "attributeDefinition=" + attributeDefinition.getId(), new JsonCallback() {
-			@Override
-			public void onFinished(JavaScriptObject result) {
-				JsArray<JavaScriptObject> array = JsonUtils.jsoAsArray(result);
-				int i = 0;
-				for (Map.Entry<Attribute, String> entry : map.entrySet()) {
-					entry.setValue(String.valueOf(array.get(i)));
-					//GWT.log(entry.getKey().getGuiUniqueId() + " & " + entry.getValue());
-					i++;
-				}
-				setMap(map);
-				sortTable();
-				loaderImage.loadingFinished();
-				session.getUiElements().setLogText("Attributes loaded: " + list.size());
-				events.onFinished(result);
-			}
-
-			@Override
-			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Error while loading attributes.");
-				loaderImage.loadingError(error);
-				events.onError(error);
-			}
-
-			@Override
-			public void onLoadingStart() {
-				loaderImage.loadingStart();
-				session.getUiElements().setLogText("Loading attributes started.");
-				events.onLoadingStart();
-			}
-
-			@Override
-			public void retrieveData() {
-
-			}
-		});
-	}
 }
