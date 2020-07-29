@@ -44,7 +44,7 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
 	private final String email3 = "email3@mail.cz";
 	private final String email4 = "email4@mail.cz";
 	private final String email5 = "email5@mail.cz";
-	private final String email6 = " email5@mail.cz"; // to check for the trim() and uniqueness
+	private final String email6 = " Email5@mail.cz"; // to check for the trim() and uniqueness
 
 	Attribute preferredMailAttr = setUpUserAttribute(1, "preferredMail", String.class.getName(), email1);
 	Attribute isMailAttr = setUpUserAttribute(2, "ISMail", String.class.getName(), email2);
@@ -89,12 +89,12 @@ public class urn_perun_user_attribute_def_virt_tcsMails_muTest {
 		ArrayList<String> attributeValue = classInstance.getAttributeValue(sess, user, tcsMailsAttrDef).valueAsList();
 		assertNotNull(attributeValue);
 		//we want to be sure, that preferredEmail is first (defined by sorting in module)
-		assertEquals(attributeValue.get(0), email1);
-		assertEquals(attributeValue.get(1), email2.trim()); // check if was trimmed
-		assertEquals(attributeValue.get(2), email3);
-		assertEquals(attributeValue.get(3), email4);
-		assertEquals(attributeValue.get(4), email5);
-		assertEquals(attributeValue.get(4), email6.trim()); // check if was trimmed and then equals "email5"
+		assertEquals(email1, attributeValue.get(0));
+		assertEquals(email2.trim(), attributeValue.get(1)); // check if was trimmed
+		assertEquals(email3, attributeValue.get(2));
+		assertEquals(email4, attributeValue.get(3));
+		assertEquals(email5, attributeValue.get(4));
+		assertEquals(email6.trim().toLowerCase(), attributeValue.get(4)); // check if was trimmed and then equals "email5"
 		assertEquals(5, attributeValue.size());
 
 	}

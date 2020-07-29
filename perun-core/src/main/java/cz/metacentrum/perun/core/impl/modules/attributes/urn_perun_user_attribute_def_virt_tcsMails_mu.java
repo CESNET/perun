@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -53,7 +54,10 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
 
 		Attribute attribute = new Attribute(attributeDefinition);
 
+		// to keep actual mails in order
 		SortedSet<String> tcsMailsValue = new TreeSet<>();
+		// to filter out case insensitive duplicates
+		Set<String> compareSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
 		List<String> namesOfAttributes = Arrays.asList(A_U_D_preferredMail, A_U_D_ISMail, A_U_D_o365EmailAddressesMU, A_U_D_publicAliasMails, A_U_D_privateAliasMails);
 
@@ -66,10 +70,22 @@ public class urn_perun_user_attribute_def_virt_tcsMails_mu extends UserVirtualAt
 			if (sourceAttribute != null) {
 				// gather values of all attributes
 				if (sourceAttribute.getType().equals(String.class.getName())) {
-					if (sourceAttribute.getValue() != null) tcsMailsValue.add(sourceAttribute.valueAsString().trim());
+					if (sourceAttribute.getValue() != null) {
+						if (!compareSet.contains(sourceAttribute.valueAsString().trim())) {
+							// add only case-insensitive unique values
+							compareSet.add(sourceAttribute.valueAsString().trim());
+							tcsMailsValue.add(sourceAttribute.valueAsString().trim());
+						}
+					}
 				} else if (sourceAttribute.getType().equals(ArrayList.class.getName())) {
 					if (sourceAttribute.getValue() != null) {
-						tcsMailsValue.addAll(sourceAttribute.valueAsList().stream().map(String::trim).collect(Collectors.toList()));
+						sourceAttribute.valueAsList().stream().map(String::trim).collect(Collectors.toList()).forEach(s -> {
+							if (!compareSet.contains(s)) {
+								// add only case-insensitive unique values
+								compareSet.add(s);
+								tcsMailsValue.add(s);
+							}
+						});
 					}
 				} else {
 					//unexpected type of value, log it and skip the attribute
