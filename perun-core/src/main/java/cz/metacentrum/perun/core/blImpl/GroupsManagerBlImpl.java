@@ -143,10 +143,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import static java.util.Collections.reverseOrder;
-import static java.util.Comparator.comparingInt;
 
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
+import static java.util.Collections.reverseOrder;
+import static java.util.Comparator.comparingInt;
 
 /**
  * GroupsManager business logic
@@ -1652,7 +1652,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		try {
 			//set Logback's Mapped Diagnostic Context key for the current thread
-			MDC.put(MDC_LOG_FILE_NAME, "groupsync-"+group.getName());
+			MDC.put(MDC_LOG_FILE_NAME, "groupsync/group_" + group.getId());
 
 			long startTime = System.nanoTime();
 			getPerunBl().getAuditer().log(sess,new GroupSyncStarted(group));
