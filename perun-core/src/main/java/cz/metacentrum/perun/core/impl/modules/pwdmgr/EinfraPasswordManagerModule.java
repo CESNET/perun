@@ -143,14 +143,14 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too short. At least 10 characters is required.");
 		}
 
-		String backwardPassword = StringUtils.reverse(password);
-
-		if (password.equalsIgnoreCase(login) ||
-				backwardPassword.equalsIgnoreCase(login) ||
-				password.toLowerCase().contains(login.toLowerCase()) ||
-				backwardPassword.toLowerCase().contains(login.toLowerCase())) {
-			log.warn("Password for {}:{} must not match/contain login or backwards login.", actualLoginNamespace, login);
-			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " must not match/contain login or backwards login.");
+		// if login is at least 3 chars, test if its not contained in password
+		if (login.length() > 2) {
+			String backwardsLogin = StringUtils.reverse(login);
+			if (password.toLowerCase().contains(login.toLowerCase()) ||
+					password.toLowerCase().contains(backwardsLogin.toLowerCase())) {
+				log.warn("Password for {}:{} must not match/contain login or backwards login.", actualLoginNamespace, login);
+				throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " must not match/contain login or backwards login.");
+			}
 		}
 
 		// TODO - fetch user and get names to make sure they are not part of password
