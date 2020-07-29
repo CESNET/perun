@@ -114,6 +114,7 @@ import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -142,10 +143,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import static java.util.Collections.reverseOrder;
-import static java.util.Comparator.comparingInt;
 
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
+import static java.util.Collections.reverseOrder;
+import static java.util.Comparator.comparingInt;
 
 /**
  * GroupsManager business logic
@@ -156,6 +157,7 @@ import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership
 public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	private final static Logger log = LoggerFactory.getLogger(GroupsManagerBlImpl.class);
+	private static final String MDC_LOG_FILE_NAME = "logFileName";
 
 	private final GroupsManagerImplApi groupsManagerImpl;
 	private PerunBl perunBl;
@@ -1649,6 +1651,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		ExtSource membersSource = null;
 
 		try {
+			//set Logback's Mapped Diagnostic Context key for the current thread
+			MDC.put(MDC_LOG_FILE_NAME, "groupsync/group_" + group.getId());
+
 			long startTime = System.nanoTime();
 			getPerunBl().getAuditer().log(sess,new GroupSyncStarted(group));
 			log.debug("Group synchronization for {} has been started.", group);
@@ -1701,6 +1706,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.info("Group synchronization for {} has been finished.", group);
 		} finally {
 			closeExtSourcesAfterSynchronization(membersSource, source);
+			MDC.remove(MDC_LOG_FILE_NAME);
 		}
 
 		return skippedMembers;
