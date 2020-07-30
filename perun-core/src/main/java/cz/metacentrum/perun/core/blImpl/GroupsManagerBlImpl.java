@@ -2858,7 +2858,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * Get all subjects from loginSource and try to find users in Perun by their login and this ExtSource.
 	 * If found, look if this user is already in synchronized Group. If yes skip him, if not add him to candidateToAdd
-	 * If not found, add him to candidatesToAdd (from source itself or from memberSource if they are different)
+	 * If not found, skip him.
 	 *
 	 * Rest of former members need to be add to membersToRemove to remove them from group.
 	 *
@@ -2926,19 +2926,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 
+			// If user not found in perun, skip him and log it
 			if (user == null) {
-				//If not find, get more information about him from member extSource
-				List<Map<String, String>> subjectToConvert = Collections.singletonList(subjectFromLoginSource);
-				List<Candidate> convertedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, groupMembers, skippedMembers);
-				//Empty means not found (skipped)
-				if(!convertedCandidatesList.isEmpty()) {
-					//We add one subject so we take the one converted candidate
-					candidate = convertedCandidatesList.get(0);
-				}
+				log.debug("Subject {} with login {} was skipped during lightweight synchronization because he is not in perun yet.", subjectFromLoginSource, login);
+				continue;
 			}
 
-			//If user is not null now, we found it so we can use it from perun, in other case he is not in perun at all
-			if(user != null && candidate == null) {
+			//If user is not null now, we found it so we can use it from perun
+			if(candidate == null) {
 				//we can skip this one, because he is already in group, and remove him from the map
 				//but first we need to also validate him if he was disabled before (invalidate and then validate)
 				RichMember richMember = idsOfUsersInGroup.get(user.getId());
@@ -2951,11 +2946,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						}
 				}
 				idsOfUsersInGroup.remove(user.getId());
-			} else if (candidate != null) {
-				candidatesToAdd.add(candidate);
 			} else {
-				//Both null means that we can't find subject by login in extSource at all (will be in skipped members)
-				log.debug("Subject with login {} was skipped because can't be found in extSource {}.", login, memberSource);
+				candidatesToAdd.add(candidate);
 			}
 		}
 
