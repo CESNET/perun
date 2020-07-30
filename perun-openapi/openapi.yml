@@ -7525,6 +7525,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/validateMemberAsync:
+    post:
+      tags:
+        - MembersManager
+      operationId: validateMemberAsync
+      summary: Validate all attributes for member and set member's status to VALID. This method runs asynchronously.
+        It immediately return member with original status and after asynchronous validation successfully finishes it
+        switch member's status to VALID. If validation ends with error, member keeps his status.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   #################################################
   #                                               #
