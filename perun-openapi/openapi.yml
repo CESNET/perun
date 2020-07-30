@@ -5350,8 +5350,19 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-
-  #TODO getRequiredAttributesDefinition
+  /json/attributesManager/getRequiredAttributesDefinition:
+    get:
+      tags:
+        - AttributesManager
+      operationId: getRequiredAttributesDefinition
+      summary: Returns required attributes definition for a Service.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #TODO getResourceRequiredAttributes
 
