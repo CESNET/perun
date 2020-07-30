@@ -327,7 +327,7 @@ create table hosts (
 create table host_attr_values (
 	host_id integer not null,  --identifier of host (hosts.id)
 	attr_id integer not null,  --identifier of attributes (attr_names.id)
-	attr_value varchar,  --value of attribute
+	attr_value text,  --value of attribute
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar default user not null,
 	modified_at timestamp default statement_timestamp() not null,
