@@ -3795,12 +3795,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return attribute.getNamespace().startsWith(namespace + ":") || attribute.getNamespace().equals(namespace);
 	}
 
-	public boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute) {
-		return (attribute.getType().equals(LinkedHashMap.class.getName()) ||
-				attribute.getType().equals(BeansUtils.largeStringClassName) ||
-				attribute.getType().equals(BeansUtils.largeArrayListClassName));
-	}
-
 	@Override
 	public void checkNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) throws WrongAttributeAssignmentException {
 		if (!isFromNamespace(attribute, namespace)) throw new WrongAttributeAssignmentException(attribute);
