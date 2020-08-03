@@ -5370,13 +5370,9 @@ paths:
 
   #TODO fillAttributes
 
-  #TODO checkAttributeValue
-
   #TODO checkAttributeSyntax
 
   #TODO checkAttributeSemantics
-
-  #TODO checkAttributesValue
 
   #TODO checkAttributesSemantics
 

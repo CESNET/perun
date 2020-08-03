@@ -159,29 +159,9 @@ sub fillAttributes
 #(vo => $voId, attribute => $attribute)
 #(resource => $resourceId, attribute => $attribute)
 #(resource => $resourceId, member => $memberId, attribute => $attribute)
-sub checkAttributeValue
-{
-	print STDERR "Warning: method 'checkAttributeValue' is deprecated. Please use 'checkAttributeSemantics' and 'checkAttributeSyntax' instead.";
-	return Perun::Common::callManagerMethod('checkAttributeSemantics', '', @_);
-}
-
-#(facility => $facilityId, attribute => $attribute)
-#(vo => $voId, attribute => $attribute)
-#(resource => $resourceId, attribute => $attribute)
-#(resource => $resourceId, member => $memberId, attribute => $attribute)
 sub checkAttributeSemantics
 {
 	return Perun::Common::callManagerMethod('checkAttributeSemantics', '', @_);
-}
-
-#(facility => $facilityId, attributes => $arrayOfAttributes)
-#(vo => $voId, attributes => $arrayOfAttributes)
-#(resource => $resourceId, attributes => $arrayOfAttributes)
-#(resource => $resourceId, member => $memberId, attributes => $arrayOfAttributes)
-sub checkAttributesValue
-{
-	print STDERR "Warning: method 'checkAttributesValue' is deprecated. Please use 'checkAttributesSemantics' and 'checkAttributesSyntax' instead.";
-	return Perun::Common::callManagerMethod('checkAttributesSemantics', '', @_);
 }
 
 #(facility => $facilityId, attributes => $arrayOfAttributes)
