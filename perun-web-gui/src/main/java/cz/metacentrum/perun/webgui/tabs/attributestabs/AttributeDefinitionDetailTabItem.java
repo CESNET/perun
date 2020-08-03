@@ -153,7 +153,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 				public void onValueChange(ValueChangeEvent<Boolean> valueChangeEvent) {
 
 					if (valueChangeEvent.getValue()) {
-						UiElements.generateAlert("Change confirmation", "Changing attribute to UNIQUE might take a lot of time if there is large number of entities with set values. Perun will check uniqueness during the process. If values are not unique, conversion will be stopped.<p style=\"color:red;\">We strongly recommend to refresh whole browser window after conversion is DONE to prevent errors when modyfying attributes from GUI.", new ClickHandler() {
+						UiElements.generateAlert("Change confirmation", "Changing attribute to UNIQUE might take a lot of time if there is large number of entities with set values. Perun will check uniqueness during the process. If values are not unique, conversion will be stopped.<p style=\"color:red;\">We strongly recommend to refresh whole browser window after conversion is DONE to prevent errors when modifying attributes from GUI.", new ClickHandler() {
 							@Override
 							public void onClick(ClickEvent clickEvent) {
 								ConvertAttributeToUnique convert = new ConvertAttributeToUnique(new JsonCallbackEvents() {

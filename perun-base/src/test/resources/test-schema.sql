@@ -2,7 +2,7 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.64 (don't forget to update insert statement at the end of file)
+-- database version 3.1.65 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -336,7 +336,6 @@ create table host_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,   --value of attribute if it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint hostav_pk primary key (host_id,attr_id),
@@ -612,7 +611,6 @@ create table entityless_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint entlatval_pk primary key(subject,attr_id),
@@ -628,7 +626,6 @@ create table facility_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint facattval_pk primary key (facility_id,attr_id),
@@ -655,7 +652,6 @@ create table group_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grpattval_pk primary key (group_id,attr_id),
@@ -681,7 +677,6 @@ create table resource_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,           --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint resatval_pk primary key (resource_id,attr_id),
@@ -708,7 +703,6 @@ create table group_resource_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,          --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grpresav_pk primary key (group_id,resource_id,attr_id),
@@ -770,7 +764,6 @@ create table member_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memattval_pk primary key (member_id,attr_id),
@@ -797,7 +790,6 @@ create table member_group_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memgav_pk primary key(member_id,group_id,attr_id),
@@ -826,7 +818,6 @@ create table member_resource_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint memrav_pk primary key(member_id,resource_id,attr_id),
@@ -854,7 +845,6 @@ create table user_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrav_pk primary key(user_id,attr_id),
@@ -881,7 +871,6 @@ create table user_facility_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,         --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usrfacav_u primary key(user_id,facility_id,attr_id),
@@ -909,7 +898,6 @@ create table vo_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,      --attribute value in case it is very long text
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint voattval_pk primary key (vo_id,attr_id),
@@ -1370,7 +1358,6 @@ create table user_ext_source_attr_values (
 	created_by longvarchar default user not null,
 	modified_at timestamp default current_date not null,
 	modified_by longvarchar default user not null,
-	attr_value_text longvarchar,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint uesattrval_pk primary key (user_ext_source_id, attr_id),
@@ -1632,7 +1619,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.64');
+insert into configurations values ('DATABASE VERSION','3.1.65');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');
