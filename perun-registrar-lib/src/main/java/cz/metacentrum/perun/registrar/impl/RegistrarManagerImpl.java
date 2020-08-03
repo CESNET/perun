@@ -3036,10 +3036,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				// if attribute exists
 				if (a != null) {
-					if (a.getType().equalsIgnoreCase("java.util.LinkedHashMap")) {
+					if (a.getType().equalsIgnoreCase(LinkedHashMap.class.getName())) {
 						// FIXME do not set hash map attributes - not supported in GUI and registrar
 						continue;
-					} else if (a.getType().equalsIgnoreCase("java.util.ArrayList") || a.getType().equalsIgnoreCase(BeansUtils.largeArrayListClassName)) {
+					} else if (a.getType().equalsIgnoreCase(ArrayList.class.getName()) || a.getType().equalsIgnoreCase(BeansUtils.largeArrayListClassName)) {
 						// we expects that list contains strings
 						ArrayList<String> value = a.valueAsList();
 						// if value not present in list => add

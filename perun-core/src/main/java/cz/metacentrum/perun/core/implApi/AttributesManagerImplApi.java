@@ -883,31 +883,27 @@ public interface AttributesManagerImplApi {
 	 * Insert attribute value in DB.
 	 *
 	 * @param sess perun session
-	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
 	 * @param attribute that will be stored in the DB
 	 * @param tableName in the database in which the attribute will be inserted
 	 * @param columnNames of the database table in which the attribute will be written
 	 * @param columnValues of the objects, for which the attribute will be written, corresponding to the columnNames
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException
 	 */
-	boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues);
+	boolean insertAttribute(PerunSession sess, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues);
 
 	/**
 	 * Update attribute value in DB.
 	 *
 	 * @param sess perun session
-	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
 	 * @param attribute that will be stored in the DB
 	 * @param tableName in the database for updating
 	 * @param columnNames of the database table in which the attribute will be written
 	 * @param columnValues of the objects, for which the attribute will be written, corresponding to the columnNames
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException
 	 */
-	boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues);
+	boolean updateAttribute(PerunSession sess, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues);
 
 	/**
 	 * Set entityless attribute with null value (for key and attribute). Shouldn't be called from upper layer !!!

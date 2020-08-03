@@ -2438,10 +2438,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if (!Arrays.asList("def","opt").contains(attribute.getNamespace().split(":")[4])) {
 				throw new InternalErrorException("only 'def' and 'opt' attributes can be unique");
 			}
-			if(attribute.getType().equals(BeansUtils.largeStringClassName) ||
-					attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
-				throw new InternalErrorException("large attributes cannot be marked unique");
-			}
 		}
 
 		attribute = getAttributesManagerImpl().createAttribute(sess, attribute);
@@ -8128,10 +8124,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if(attrDef.getNamespace().startsWith(NS_ENTITYLESS_ATTR)) throw new InternalErrorException("entityless atributes cannot be converted to unique");
 		if(!Arrays.asList("def","opt").contains(attrDef.getNamespace().split(":")[4])) {
 			throw new InternalErrorException("only 'def' and 'opt' attributes can be converted to unique");
-		}
-		if(attrDef.getType().equals(BeansUtils.largeStringClassName) ||
-				attrDef.getType().equals(BeansUtils.largeArrayListClassName)) {
-			throw new InternalErrorException("large attributes cannot be marked unique");
 		}
 		log.info("converting attribute {} to unique",attrDef.getName());
 		attrDef.setUnique(true);

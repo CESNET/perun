@@ -488,9 +488,6 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws WrongAttributeAssignmentException {
 		try {
 			AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
-			if (Utils.isLargeAttribute(sess, attributeDef)) {
-				throw new InternalErrorException("Attribute " + attributeName + " is large attribute, which is not supported.");
-			}
 			Attribute attribute = new Attribute(attributeDef);
 			attribute.setValue(BeansUtils.stringToAttributeValue(attributeValue, attribute.getType()));
 			getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_FACILITY_ATTR);
