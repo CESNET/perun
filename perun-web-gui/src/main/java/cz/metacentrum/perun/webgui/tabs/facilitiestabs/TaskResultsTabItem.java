@@ -1,17 +1,22 @@
 package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
+import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.tasksManager.DeleteTaskResults;
 import cz.metacentrum.perun.webgui.json.tasksManager.GetRichTaskResultsByTask;
 import cz.metacentrum.perun.webgui.model.Task;
 import cz.metacentrum.perun.webgui.model.TaskResult;
@@ -19,9 +24,11 @@ import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -98,6 +105,9 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 
 		final GetRichTaskResultsByTask callback = new GetRichTaskResultsByTask(task.getId());
 
+		// refresh table events
+		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
+
 		TabMenu menu = new TabMenu();
 		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
@@ -107,6 +117,29 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 			}
 		}, "Filter results by destination");
 
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove all TaskResults for Destination");
+		removeButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<TaskResult> tasksResultsToDelete = callback.getTableSelectedList();
+				String text = "<b>All TaskResults</b> for following Destinations will be deleted.";
+				UiElements.showDeleteConfirm(tasksResultsToDelete, text, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i = 0; i < tasksResultsToDelete.size(); i++) {
+							if (i == tasksResultsToDelete.size()-1) {
+								DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+								request.deleteTaskResults(tasksResultsToDelete.get(i).getTaskId(), tasksResultsToDelete.get(i).getDestination().getId());
+							} else {
+								DeleteTaskResults request = new DeleteTaskResults(JsonCallbackEvents.disableButtonEvents(removeButton));
+								request.deleteTaskResults(tasksResultsToDelete.get(i).getTaskId(), tasksResultsToDelete.get(i).getDestination().getId());
+							}
+						}
+					}});
+			}
+		});
+		menu.addWidget(removeButton);
 
 		// on row click
 		CellTable<TaskResult> table = callback.getTable((index, taskResult, value) -> {
@@ -125,6 +158,8 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
+		removeButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, removeButton);
 
 		this.contentWidget.setWidget(vp);
 

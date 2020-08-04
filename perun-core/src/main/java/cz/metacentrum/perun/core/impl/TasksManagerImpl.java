@@ -9,7 +9,6 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -37,7 +36,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	private static final int MAX_NUMBER_OF_UTF8_BYTES = 4;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-	private static JdbcPerunTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 
 	/**
 	 * Create new instance of this class.
@@ -102,7 +101,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		return this.namedParameterJdbcTemplate;
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public int insertNewTaskResult(TaskResult taskResult) {
 		int newTaskResultId = Utils.getNewId(jdbc, "tasks_results_id_seq");
@@ -141,7 +139,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 		return newTaskResultId;
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<TaskResult> getTaskResults() {
 		// jdbc template cannot be null
@@ -154,7 +151,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			TASKRESULT_ROWMAPPER);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public TaskResult getTaskResultById(int taskResultId) {
 		// jdbc template cannot be null
@@ -167,41 +163,63 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			TASKRESULT_ROWMAPPER, taskResultId);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
-	public int clearByTask(int taskId) {
-		// jdbc template cannot be null
-		return jdbc.update("delete from tasks_results where task_id = ?", taskId);
+	public void deleteTaskResultById(int taskResultId) {
+		try {
+			jdbc.update("delete from tasks_results where id = ?", taskResultId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
-	public int clearAll() {
-		// jdbc template cannot be null
-		return jdbc.update("delete from tasks_results");
+	public int deleteTaskResults(int taskId) {
+		try {
+			return jdbc.update("delete from tasks_results where task_id = ?", taskId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
-	public int clearOld(int numDays) {
-
-		String compareDate = LocalDateTime.now().minusDays(numDays).format(getDateTimeFormatter());
-
-		// jdbc template cannot be null
-		return jdbc.update("delete from tasks_results where " +
-				"id in (" +
-				"select otr.id from tasks_results otr " +
-				"         left join ( " +
-				"	select tr.destination_id, tr.task_id, max(tr.timestamp) as maxtimestamp " +
-				"	from tasks_results tr " +
-				"		inner join tasks t on tr.task_id = t.id " +
-				"		group by tr.destination_id,tr.task_id " +
-				"   )  tmp on otr.task_id = tmp.task_id and otr.destination_id = tmp.destination_id " +
-				"where otr.timestamp < maxtimestamp and otr.timestamp < "+Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'")+" )",
-			compareDate);
+	public int deleteTaskResults(int taskId, int destinationId) {
+		try {
+			return jdbc.update("delete from tasks_results where task_id = ? and destination_id = ?", taskId, destinationId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
-	@SuppressWarnings("ConstantConditions")
+	@Override
+	public int deleteOldTaskResults(int numDays) {
+		try {
+			String compareDate = LocalDateTime.now().minusDays(numDays).format(getDateTimeFormatter());
+
+			return jdbc.update("delete from tasks_results where " +
+							"id in (" +
+							"select otr.id from tasks_results otr " +
+							"         left join ( " +
+							"	select tr.destination_id, tr.task_id, max(tr.timestamp) as maxtimestamp " +
+							"	from tasks_results tr " +
+							"		inner join tasks t on tr.task_id = t.id " +
+							"		group by tr.destination_id,tr.task_id " +
+							"   )  tmp on otr.task_id = tmp.task_id and otr.destination_id = tmp.destination_id " +
+							"where otr.timestamp < maxtimestamp and otr.timestamp < "+Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'")+" )",
+					compareDate);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public int deleteAllTaskResults() {
+		try {
+			return jdbc.update("delete from tasks_results");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId) {
 		// jdbc template cannot be null
@@ -215,8 +233,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			TASKRESULT_ROWMAPPER, taskId);
 	}
 
-
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId) {
 		// jdbc template cannot be null
@@ -244,7 +260,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			TASKRESULT_ROWMAPPER, taskId, taskId, taskId);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId) {
 		// jdbc template cannot be null

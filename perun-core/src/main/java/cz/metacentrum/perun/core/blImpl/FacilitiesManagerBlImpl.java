@@ -308,7 +308,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			}
 			List<Task> tasks = perunBl.getTasksManagerBl().listAllTasksForFacility(facility.getId());
 			for (Task task : tasks) {
-				perunBl.getTasksManagerBl().clearByTask(task.getId());
+				perunBl.getTasksManagerBl().deleteTaskResults(task.getId());
 				perunBl.getTasksManagerBl().removeTask(task.getId());
 			}
 		} else {

@@ -248,7 +248,7 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	public void cleanOldTaskResults() {
 		if (cleanTaskResultsJobEnabled) {
 			try {
-				int numRows = tasksManagerBl.clearOld(3);
+				int numRows = tasksManagerBl.deleteOldTaskResults(3);
 				log.debug("Cleaned {} old task results for engine", numRows);
 			} catch (Throwable e) {
 				log.error("Error cleaning old task results for engine: {}", e);

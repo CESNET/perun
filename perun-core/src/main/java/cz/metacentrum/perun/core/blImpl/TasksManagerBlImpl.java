@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
@@ -51,18 +50,28 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public int clearByTask(int taskId) {
-		return getTasksManagerImpl().clearByTask(taskId);
+	public void deleteTaskResultById(int taskResultId) {
+		getTasksManagerImpl().deleteTaskResultById(taskResultId);
 	}
 
 	@Override
-	public int clearAll() {
-		return getTasksManagerImpl().clearAll();
+	public int deleteTaskResults(int taskId) {
+		return getTasksManagerImpl().deleteTaskResults(taskId);
 	}
 
 	@Override
-	public int clearOld(int numDays) {
-		return getTasksManagerImpl().clearOld(numDays);
+	public int deleteTaskResults(int taskId, int destinationId) {
+		return getTasksManagerImpl().deleteTaskResults(taskId, destinationId);
+	}
+
+	@Override
+	public int deleteAllTaskResults() {
+		return getTasksManagerImpl().deleteAllTaskResults();
+	}
+
+	@Override
+	public int deleteOldTaskResults(int numDays) {
+		return getTasksManagerImpl().deleteOldTaskResults(numDays);
 	}
 
 	@Override
@@ -396,7 +405,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 		Service service = task.getService();
 
 		// clear all task results
-		getTasksManagerImpl().clearByTask(task.getId());
+		getTasksManagerImpl().deleteTaskResults(task.getId());
 
 		// remove task itself
 		getTasksManagerImpl().removeTask(service, facility);
