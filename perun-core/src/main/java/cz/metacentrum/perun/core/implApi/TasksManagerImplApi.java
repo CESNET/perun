@@ -86,23 +86,45 @@ public interface TasksManagerImplApi {
 	TaskResult getTaskResultById(int taskResultId);
 
 	/**
-	 * Clear all results tied to a particular Task
+	 * Delete TaskResult by its ID
 	 *
-	 * @param taskId
-	 * @return number of deleted TaskResults
+	 * @param taskResultId ID of TaskResult to delete
 	 */
-	int clearByTask(int taskId);
+	void deleteTaskResultById(int taskResultId);
 
 	/**
-	 * Clear all results
+	 * Delete all TaskResults for the particular Task
+	 *
+	 * @param taskId ID of Task to delete TaskResults
+	 * @return number of deleted TaskResults
+	 */
+	int deleteTaskResults(int taskId);
+
+	/**
+	 * Delete all TaskResults for the particular Task and Destination.
+	 *
+	 * @param taskId ID of Task to delete TaskResults
+	 * @param destinationId ID of Destination to delete TaskResults
+	 * @return number of deleted TaskResults
+	 */
+	int deleteTaskResults(int taskId, int destinationId);
+
+	/**
+	 * Delete all TaskResults older than specified number of days
+	 *
+	 * @param numDays Number of days to keep
+	 * @return number of deleted TaskResults
+	 */
+	int deleteOldTaskResults(int numDays);
+
+	/**
+	 * Delete all TaskResults
 	 *
 	 * @return number of deleted TaskResults
 	 */
-	int clearAll();
+	int deleteAllTaskResults();
 
 	int insertNewTaskResult(TaskResult taskResult);
-
-	int clearOld(int numDays);
 
 	/**
 	 * Returns list of tasks results for defined destinations (string representation).

@@ -138,4 +138,23 @@ public interface TasksManager {
 	 */
 	void deleteTask(PerunSession sess, Task task) throws PrivilegeException;
 
+	/**
+	 * Delete TaskResult by its ID
+	 *
+	 * @param sess PerunSession
+	 * @param taskResultId Id of TaskResults to be deleted
+	 * @throws PrivilegeException
+	 */
+	void deleteTaskResultById(PerunSession sess, int taskResultId) throws PrivilegeException;
+
+	/**
+	 * Delete all TaskResults related to specified Task and Destination
+	 *
+	 * @param sess PerunSession
+	 * @param task Task to have TaskResults deleted
+	 * @param destination Destination to have TasksResults deleted
+	 * @throws PrivilegeException
+	 */
+	void deleteTaskResults(PerunSession sess, Task task, Destination destination) throws PrivilegeException;
+
 }

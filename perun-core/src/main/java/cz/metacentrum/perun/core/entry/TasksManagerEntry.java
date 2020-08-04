@@ -13,12 +13,10 @@ import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.TasksManagerBl;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -211,6 +209,26 @@ public class TasksManagerEntry implements TasksManager {
 			throw new PrivilegeException(sess, "deleteTask");
 		}
 		tasksManagerBl.deleteTask(sess, task);
+	}
+
+	@Override
+	public void deleteTaskResultById(PerunSession sess, int taskResultId) throws PrivilegeException {
+		TaskResult result = tasksManagerBl.getTaskResultById(taskResultId);
+		Task task = tasksManagerBl.getTaskById(result.getTaskId());
+		Facility facility = task.getFacility();
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "deleteTaskResults");
+		}
+		tasksManagerBl.deleteTaskResultById(result.getId());
+	}
+
+	@Override
+	public void deleteTaskResults(PerunSession sess, Task task, Destination destination) throws PrivilegeException {
+		Facility facility = task.getFacility();
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "deleteTaskResults");
+		}
+		tasksManagerBl.deleteTaskResults(task.getId(), destination.getId());
 	}
 
 	public void setPerunBl(PerunBl perunBl) {

@@ -31,6 +31,10 @@ public class TaskResult extends JavaScriptObject {
 		return this.service;
 	}-*/;
 
+	public final native int getTaskId() /*-{
+		return this.taskId;
+	}-*/;
+
 	public final native String getStandardMessage() /*-{
 		if (!this.standardMessage) { return ""; }
 		return this.standardMessage;
