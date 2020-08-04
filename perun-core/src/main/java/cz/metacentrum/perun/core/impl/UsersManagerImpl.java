@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -794,90 +795,92 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public List<User> findUsers(PerunSession sess, String searchString) {
-		Set<User> users = new HashSet<>();
-
-		log.debug("Searching for users using searchString '{}'", searchString);
-
-		// Search by mail (member)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-					" from users, members, member_attr_values, attr_names " +
-					"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
-					"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
-					"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search preferred email (user)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-					" from users, user_attr_values, attr_names " +
-					"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
-					"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
-					"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search logins in userExtSources
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-					" from users, user_ext_sources " +
-					"where lower(user_ext_sources.login_ext)=lower(?) and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
-
-		// Search logins in attributes: login-namespace:*
-		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
-					" from attr_names, user_attr_values, users " +
-					"where attr_names.friendly_name like 'login-namespace:%' and lower(user_attr_values.attr_value)=lower(?) " +
-					"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
-					USER_MAPPER, searchString));
-
-		// Search by userId
-		try {
-			int userId = Integer.parseInt(searchString);
-			users.addAll(jdbc.query("select " + userMappingSelectQuery + " from users where id=?", USER_MAPPER, userId));
-		} catch (NumberFormatException e) {
-			// IGNORE
-		}
-
-		users.addAll(findUsersByName(sess, searchString));
-
-		return new ArrayList<>(users);
+		return findUsers(searchString, false);
 	}
 
 	@Override
 	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) {
-		Set<User> users = new HashSet<>();
+		return findUsers(searchString, true);
+	}
 
-		log.debug("Searching for users using searchString '{}'", searchString);
-
-		// Search by mail (member)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-				" from users, members, member_attr_values, attr_names " +
-				"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
-				"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
-				"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search preferred email (user)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-				" from users, user_attr_values, attr_names " +
-				"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
-				"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
-				"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search logins in userExtSources
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-				" from users, user_ext_sources " +
-				"where lower(user_ext_sources.login_ext)=lower(?) and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
-
-		// Search logins in attributes: login-namespace:*
-		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
-						" from attr_names, user_attr_values, users " +
-						"where attr_names.friendly_name like 'login-namespace:%' and lower(user_attr_values.attr_value)=lower(?) " +
-						"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
-				USER_MAPPER, searchString));
-
-		// Search by userId
-		try {
-			int userId = Integer.parseInt(searchString);
-			users.addAll(jdbc.query("select " + userMappingSelectQuery + " from users where id=?", USER_MAPPER, userId));
-		} catch (NumberFormatException e) {
-			// IGNORE
+	/**
+	 * Returns list of users who matches the searchString, searching name, id, member attributes, user attributes
+	 * and userExtSource attributes (listed in CoreConfig).
+	 *
+	 * @param searchString string used to search by
+	 * @param exactMatch if true, searches name only by exact match
+	 * @return list of users
+	 */
+	private List<User> findUsers(String searchString, boolean exactMatch) {
+		String userNameQueryString;
+		if (exactMatch) {
+			// Part of query to search by user name (exact)
+			if (Compatibility.isPostgreSql()) {
+				userNameQueryString= " strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=?";
+			} else if (Compatibility.isHSQLDB()) {
+				userNameQueryString=" lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=?";
+			} else {
+				throw new InternalErrorException("Unsupported db type");
+			}
+		} else {
+			// Part of query to search by user name (not exact)
+			if (Compatibility.isPostgreSql()) {
+				userNameQueryString = " strpos(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "),?) > 0 ";
+			} else if (Compatibility.isHSQLDB()) {
+				userNameQueryString = " lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ") like '%' || ? || '%' ";
+			} else {
+				throw new InternalErrorException("Unsupported db type");
+			}
 		}
 
-		users.addAll(findUsersByExactName(sess, searchString));
+		// Part of query to search by user id
+		String idQueryString = "";
+		try {
+			int id = Integer.parseInt(searchString);
+			idQueryString = " users.id=" + id + " or ";
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of ID
+		}
+
+		// Divide attributes received from CoreConfig into member, user and userExtSource attributes
+		List<String> allAttributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+		StringBuilder memberAttributes = new StringBuilder("''");
+		StringBuilder userAttributes = new StringBuilder("''");
+		StringBuilder uesAttributes = new StringBuilder("''");
+		for (String attribute : allAttributes) {
+			if (attribute.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+				memberAttributes.append(",'").append(attribute).append("'");
+			} else if (attribute.startsWith(AttributesManager.NS_USER_ATTR)) {
+				userAttributes.append(",'").append(attribute).append("'");
+			} else if (attribute.startsWith(AttributesManager.NS_UES_ATTR)) {
+				uesAttributes.append(",'").append(attribute).append("'");
+			}
+		}
+
+		// Search by member attributes
+		// Search by user attributes
+		// Search by login in userExtSources
+		// Search by userExtSource attributes
+		// Search by user id
+		// Search by name for user
+		Set<User> users = new HashSet<>(jdbc.query("select distinct " + userMappingSelectQuery +
+			" from users " +
+			" left join members m on users.id=m.user_id " +
+			" left join member_attr_values mav on m.id=mav.member_id and mav.attr_id in (select id from attr_names where attr_name in (" + memberAttributes.toString() + "))" +
+			" left join user_attr_values uav on users.id=uav.user_id and uav.attr_id in (select id from attr_names where attr_name in (" + userAttributes.toString() + "))" +
+			" left join user_ext_sources ues on ues.user_id=users.id " +
+			" left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in (select id from attr_names where attr_name in (" + uesAttributes.toString() + "))" +
+			" where " +
+			" ( " +
+			" lower(mav.attr_value)=lower(?) or " +
+			" lower(uav.attr_value)=lower(?) or " +
+			" lower(ues.login_ext)=lower(?) or " +
+			" lower(uesav.attr_value)=lower(?) or " +
+			idQueryString +
+			userNameQueryString +
+			" ) ", USER_MAPPER, searchString, searchString, searchString, searchString, Utils.utftoasci(searchString.toLowerCase())));
+
+		log.debug("Searching for users using searchString '{}'", searchString);
 
 		return new ArrayList<>(users);
 	}

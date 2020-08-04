@@ -524,6 +524,21 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			// IGNORE wrong format of ID
 		}
 
+		// Divide attributes received from CoreConfig into member, user and userExtSource attributes
+		List<String> allAttributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+		StringBuilder memberAttributes = new StringBuilder("''");
+		StringBuilder userAttributes = new StringBuilder("''");
+		StringBuilder uesAttributes = new StringBuilder("''");
+		for (String attribute : allAttributes) {
+			if (attribute.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+				memberAttributes.append(",'").append(attribute).append("'");
+			} else if (attribute.startsWith(AttributesManager.NS_USER_ATTR)) {
+				userAttributes.append(",'").append(attribute).append("'");
+			} else if (attribute.startsWith(AttributesManager.NS_UES_ATTR)) {
+				uesAttributes.append(",'").append(attribute).append("'");
+			}
+		}
+
 		//searching by member mail
 		//searching by user preferredMail
 		//searching by login in userExtSources
@@ -533,18 +548,18 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		Set<Member> members = new HashSet<>(jdbc.query("select distinct " + memberMappingSelectQuery +
 				" from members " +
 				" left join users u on members.user_id=u.id " +
-				" left join member_attr_values mav1 on members.id=mav1.member_id and mav1.attr_id in (select id from attr_names where attr_name='" + MembersManagerImpl.A_D_MEMBER_MAIl + "') " +
-				" left join user_attr_values uav1 on u.id=uav1.user_id and uav1.attr_id in (select id from attr_names where attr_name='" + MembersManagerImpl.A_D_USER_PREFERRED_MAIL + "') " +
-				" left join user_attr_values uav2 on u.id=uav2.user_id and uav2.attr_id in (select id from attr_names where friendly_name like 'login-namespace:%') " +
+				" left join member_attr_values mav on members.id=mav.member_id and mav.attr_id in (select id from attr_names where attr_name in (" + memberAttributes.toString() + "))" +
+				" left join user_attr_values uav on u.id=uav.user_id and uav.attr_id in (select id from attr_names where attr_name in (" + userAttributes.toString() + "))" +
 				" left join user_ext_sources ues on ues.user_id=u.id " +
+				" left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in (select id from attr_names where attr_name in (" + uesAttributes.toString() + "))" +
 				" where " +
 				voIdQueryString +
 				sponsoredQueryString +
 				" ( " +
-				" lower(mav1.attr_value)=lower(?) or " +
-				" lower(uav1.attr_value)=lower(?) or " +
-				" lower(uav2.attr_value)=lower(?) or " +
+				" lower(mav.attr_value)=lower(?) or " +
+				" lower(uav.attr_value)=lower(?) or " +
 				" lower(ues.login_ext)=lower(?) or " +
+				" lower(uesav.attr_value)=lower(?) or " +
 				idQueryString +
 				userNameQueryString +
 				" ) ", MEMBER_MAPPER, searchString, searchString, searchString, searchString, Utils.utftoasci(searchString.toLowerCase())));
