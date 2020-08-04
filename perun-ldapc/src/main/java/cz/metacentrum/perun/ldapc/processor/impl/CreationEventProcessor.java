@@ -1,21 +1,10 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.ldapc.model.PerunEntry;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CreationEventProcessor extends AbstractEventProcessor {
 
@@ -39,9 +28,6 @@ public class CreationEventProcessor extends AbstractEventProcessor {
 					case MessageBeans.RESOURCE_F:
 						log.debug("Adding new resource: {}", beans.getResource());
 						perunResource.addResource(beans.getResource());
-						// push also facility attributes with it using sync
-						PerunEntry.SyncOperation op = perunResource.beginSynchronizeEntry(beans.getResource(), getFacilityAttributes(beans.getResource()));
-						perunResource.commitSyncOperation(op);
 						break;
 
 					case MessageBeans.FACILITY_F:
@@ -71,31 +57,5 @@ public class CreationEventProcessor extends AbstractEventProcessor {
 		}
 
 	}
-
-	/**
-	 * Get facility attributes requested by the resource
-	 *
-	 * @param resource to get facility from
-	 * @return List of facility attributes requested by resource
-	 * @throws InternalErrorException if some exception is thrown from RPC
-	 */
-	private List<Attribute> getFacilityAttributes(Resource resource) {
-
-		PerunBl perun = (PerunBl) ldapcManager.getPerunBl();
-		PerunSession perunSession = ldapcManager.getPerunSession();
-		Facility facility = null;
-		try {
-			facility = perun.getFacilitiesManagerBl().getFacilityById(perunSession, resource.getFacilityId());
-		} catch (FacilityNotExistsException ex) {
-			//If facility not exist in perun now, probably will be deleted in next step so its ok. The value is null anyway.
-			return new ArrayList<>();
-		}
-		// get only facility attributes
-		List<String> filteredNames = perunResource.getPerunAttributeNames();
-		filteredNames.removeIf(attrName -> !attrName.startsWith(AttributesManager.NS_FACILITY_ATTR));
-		return perun.getAttributesManagerBl().getAttributes(perunSession, facility, filteredNames);
-
-	}
-
 
 }
