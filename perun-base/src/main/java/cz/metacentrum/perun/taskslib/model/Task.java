@@ -122,7 +122,7 @@ public class Task implements Serializable {
 		this.schedule = schedule;
 	}
 
-	public void setSchdule(Long schedule) {
+	public void setSchedule(Long schedule) {
 		if (schedule != null) {
 			this.schedule = Instant.ofEpochMilli(schedule).atZone(ZoneId.systemDefault()).toLocalDateTime();
 		} else {
@@ -316,6 +316,7 @@ public class Task implements Serializable {
 				.append("', schedule='").append(schedule)
 				.append("', startTime='").append(startTime)
 				.append("', endTime='").append(endTime)
+				.append("', sentToEngine='").append(sentToEngine)
 				.append("', genStartTime='").append(genStartTime)
 				.append("', genEndTime='").append(genEndTime)
 				.append("', sendStartTime='").append(sendStartTime)
