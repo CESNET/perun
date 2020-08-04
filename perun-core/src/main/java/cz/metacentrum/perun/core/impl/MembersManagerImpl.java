@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -509,9 +510,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		String userNameQueryString;
 		if (Compatibility.isPostgreSql()) {
-			userNameQueryString= " strpos(lower("+Compatibility.convertToAscii("COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'')")+"),?) > 0 ";
+			userNameQueryString= " strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"),:nameString) > 0 ";
 		} else if (Compatibility.isHSQLDB()) {
-			userNameQueryString=" lower("+Compatibility.convertToAscii("COALESCE(u.first_name,'') || COALESCE(u.middle_name,'') || COALESCE(u.last_name,'')")+") like '%' || ? || '%' ";
+			userNameQueryString=" lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+") like '%' || :nameString || '%' ";
 		} else {
 			throw new InternalErrorException("Unsupported db type");
 		}
@@ -526,43 +527,63 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		// Divide attributes received from CoreConfig into member, user and userExtSource attributes
 		List<String> allAttributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
-		StringBuilder memberAttributes = new StringBuilder("''");
-		StringBuilder userAttributes = new StringBuilder("''");
-		StringBuilder uesAttributes = new StringBuilder("''");
+		List<String> memberAttributes = new ArrayList<>();
+		List<String> userAttributes = new ArrayList<>();
+		List<String> uesAttributes = new ArrayList<>();
 		for (String attribute : allAttributes) {
 			if (attribute.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
-				memberAttributes.append(",'").append(attribute).append("'");
+				memberAttributes.add(attribute);
 			} else if (attribute.startsWith(AttributesManager.NS_USER_ATTR)) {
-				userAttributes.append(",'").append(attribute).append("'");
+				userAttributes.add(attribute);
 			} else if (attribute.startsWith(AttributesManager.NS_UES_ATTR)) {
-				uesAttributes.append(",'").append(attribute).append("'");
+				uesAttributes.add(attribute);
 			}
 		}
 
-		//searching by member mail
-		//searching by user preferredMail
+		Pair<String, String> memberAttributesQueryString = new Pair<>("", "");
+		if (!memberAttributes.isEmpty()) {
+			memberAttributesQueryString.put(" left join member_attr_values mav on members.id=mav.member_id and mav.attr_id in (select id from attr_names where attr_name in (:memberAttributes))", " lower(mav.attr_value)=lower(:searchString) or " );
+		}
+		Pair<String, String> userAttributesQueryString = new Pair<>("", "");
+		if (!userAttributes.isEmpty()) {
+			userAttributesQueryString.put(" left join user_attr_values uav on users.id=uav.user_id and uav.attr_id in (select id from attr_names where attr_name in (:userAttributes))" , " lower(uav.attr_value)=lower(:searchString) or ");
+		}
+		Pair<String, String> uesAttributesQueryString = new Pair<>("", "");
+		if (!uesAttributes.isEmpty()) {
+			uesAttributesQueryString.put(" left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in (select id from attr_names where attr_name in (:uesAttributes))", " lower(uesav.attr_value)=lower(:searchString) or ");
+		}
+
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("searchString", searchString);
+		namedParams.addValue("nameString", Utils.utftoasci(searchString.toLowerCase()));
+		namedParams.addValue("memberAttributes", memberAttributes);
+		namedParams.addValue("userAttributes", userAttributes);
+		namedParams.addValue("uesAttributes", uesAttributes);
+
+		//searching by member attributes
+		//searching by user attributes
 		//searching by login in userExtSources
-		//searching by login in logins (all namespaces)
+		//searching by userExtSource attributes
 		//searching by name for user
 		//searching by user and member id
-		Set<Member> members = new HashSet<>(jdbc.query("select distinct " + memberMappingSelectQuery +
+		Set<Member> members = new HashSet<>(namedParameterJdbcTemplate.query("select distinct " + memberMappingSelectQuery +
 				" from members " +
-				" left join users u on members.user_id=u.id " +
-				" left join member_attr_values mav on members.id=mav.member_id and mav.attr_id in (select id from attr_names where attr_name in (" + memberAttributes.toString() + "))" +
-				" left join user_attr_values uav on u.id=uav.user_id and uav.attr_id in (select id from attr_names where attr_name in (" + userAttributes.toString() + "))" +
-				" left join user_ext_sources ues on ues.user_id=u.id " +
-				" left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in (select id from attr_names where attr_name in (" + uesAttributes.toString() + "))" +
+				" left join users on members.user_id=users.id " +
+				" left join user_ext_sources ues on ues.user_id=users.id " +
+				memberAttributesQueryString.getLeft() +
+				userAttributesQueryString.getLeft() +
+				uesAttributesQueryString.getLeft() +
 				" where " +
 				voIdQueryString +
 				sponsoredQueryString +
 				" ( " +
-				" lower(mav.attr_value)=lower(?) or " +
-				" lower(uav.attr_value)=lower(?) or " +
-				" lower(ues.login_ext)=lower(?) or " +
-				" lower(uesav.attr_value)=lower(?) or " +
+				" lower(ues.login_ext)=lower(:searchString) or " +
+				memberAttributesQueryString.getRight() +
+				userAttributesQueryString.getRight() +
+				uesAttributesQueryString.getRight() +
 				idQueryString +
 				userNameQueryString +
-				" ) ", MEMBER_MAPPER, searchString, searchString, searchString, searchString, Utils.utftoasci(searchString.toLowerCase())));
+				" ) ", namedParams, MEMBER_MAPPER));
 
 		if (vo != null) {
 			log.debug("Searching members of VO '{}' using searchString '{}', sponsored '{}'. Found: {} member(s).", vo.getShortName(), searchString, onlySponsored, members.size());

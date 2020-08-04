@@ -1327,8 +1327,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
-	public void findUserByMemberMail() throws Exception {
-		System.out.println(CLASS_NAME + "findUserByMemberMail");
+	public void findUserByMemberAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "findUserByMemberAttribute");
 
 		Member member = setUpMember(vo);
 
