@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -24,7 +25,11 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Registration module for BBMRI Collections
@@ -33,7 +38,8 @@ import java.util.*;
  *    - group representing collection has attribute CollectionID assigned and value represents the ID
  * 2. adds users to the appropriate groups
  *
- * NOTE!!!: Groups representing collections must be subgroups of Group to which module is assigned!
+ * NOTE!!!: On the form, configure item "targetGroupName" as hidden and value should be name of the group, under which
+ * collections are stored.
  *
  * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
@@ -45,6 +51,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 	private static final String COLLECTION_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
 	private static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
 	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
+	private static final String TARGET_GROUP_FIELD = "targetGroupName";
 
 	/**
 	 * Find groups representing collections by input. Groups are looked for in subgroups
@@ -67,7 +74,13 @@ public class BBMRICollections extends DefaultRegistrarModule {
 		Set<String> collectionIDsInApplication = getCollectionIDsFromApplication(session, app);
 
 		// get map of collection IDs to group from Perun
-		Group directoryGroup = app.getGroup();
+		String directoryGroupName = this.getDirectoryGroupNameFromApplication(session, app);
+		Group directoryGroup;
+		try {
+			directoryGroup = perun.getGroupsManager().getGroupByName(session, vo, directoryGroupName);
+		} catch (GroupNotExistsException | InvalidGroupNameException e) {
+			throw new InternalErrorException("Target group does not exist");
+		}
 		Map<String, Group> collectionIDsToGroupsMap = getCollectionIDsToGroupsMap(session, perun, directoryGroup);
 
 		// add user to all groups from the field on application
@@ -109,7 +122,6 @@ public class BBMRICollections extends DefaultRegistrarModule {
 		Group collectionsGroup = app.getGroup();
 		Set<String> collectionIDsInPerun = getCollectionIDs(session, perun, collectionsGroup);
 
-
 		// get the field of application with the collections
 		Set<String> collectionIDsInApplication = getCollectionIDsFromApplication(session, app);
 
@@ -121,6 +133,30 @@ public class BBMRICollections extends DefaultRegistrarModule {
 			throw new CantBeApprovedException("Collections " + collectionIDsInApplication + " do not exist." +
 					"If you approve the application, these collections will be skipped.", "", "", "", true);
 		}
+	}
+
+	/**
+	 * Gets name of target group, where subgroups representing collections are placed.
+	 *
+	 * @return collection IDs set
+	 */
+	private String getDirectoryGroupNameFromApplication(PerunSession session, Application app)
+			throws RegistrarException, PrivilegeException
+	{
+		String directoryGroupName = null;
+		List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
+		for (ApplicationFormItemData field : formData) {
+			if (TARGET_GROUP_FIELD.equals(field.getShortname())) {
+				directoryGroupName = field.getValue();
+				break;
+			}
+		}
+
+		if (directoryGroupName == null) {
+			throw new InternalErrorException("There is no field with target group name on the registration form.");
+		}
+
+		return directoryGroupName;
 	}
 
 	/**
