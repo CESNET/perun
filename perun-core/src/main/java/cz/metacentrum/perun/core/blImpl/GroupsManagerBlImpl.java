@@ -2916,7 +2916,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				try {
 					user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, source);
 					// check if user is already member of group's vo
-					if (sess.getPerun().getUsersManager().getVosWhereUserIsMember(sess, user).contains(groupVo)) {
+					if (getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user).contains(groupVo)) {
 						if (idsOfUsersInGroup.containsKey(user.getId())) {
 							//we can skip this one, because he is already in group, and remove him from the map
 							//but first we need to also validate him if he was disabled before (invalidate and then validate)
@@ -2939,9 +2939,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						}
 						break;
 					}
-				} catch(UserNotExistsException | PrivilegeException e) {
+				} catch(UserNotExistsException e) {
 					//skip because the user from this ExtSource does not exist so we can continue
-					//skip because we do not have privilege to get vos of this user
 				}
 			}
 
