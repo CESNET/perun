@@ -173,4 +173,9 @@ sub getMemberGroups
 	return Perun::Common::callManagerMethod('getMemberGroups', '[]Group', @_);
 }
 
+sub getAllRichSubGroupsWithAttributesByNames
+{
+	return Perun::Common::callManagerMethod('getAllRichSubGroupsWithAttributesByNames', '[]Group', @_)
+}
+
 1;
