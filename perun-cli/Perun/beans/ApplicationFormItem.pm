@@ -1,4 +1,4 @@
-package Perun::beans::FormItem;
+package Perun::beans::ApplicationFormItem;
 
 use strict;
 use warnings;
@@ -75,11 +75,11 @@ sub TO_JSON
         $regex = undef;
     }
 
-    my $applicationTypes;
+    my @applicationTypes;
     if (defined($self->{_applicationTypes})) {
-        $applicationTypes = $self->{_applicationTypes};
+        @applicationTypes = @{$self->{_applicationTypes}};
     } else {
-        $applicationTypes = undef;
+        @applicationTypes = undef;
     }
 
     my $ordnum;
@@ -111,11 +111,11 @@ sub TO_JSON
         perunSourceAttribute      => $perunSourceAttribute,
         perunDestinationAttribute => $perunDestinationAttribute,
         regex                     => $regex,
-        applicationTypes          => $applicationTypes,
+        applicationTypes          => \@applicationTypes,
         ordnum                    => $ordnum,
         forDelete                 => $forDelete,
         i18n                      => $i18n,
-        beanName                  => 'FormItem'
+        beanName                  => 'ApplicationFormItem'
     };
 }
 
@@ -141,17 +141,32 @@ sub setShortname
     return;
 }
 
-sub getRequired
+sub isRequired
 {
     my $self = shift;
+    return ($self->{_required}) ? 1 : 0;
+}
 
-    return $self->{_required};
+sub isRequiredToPrint
+{
+    my $self = shift;
+    return ($self->{_required}) ? 'true' : 'false';
 }
 
 sub setRequired
 {
     my $self = shift;
-    $self->{_required} = shift;
+    my $value = shift;
+    if (ref $value eq "JSON::XS::Boolean")
+    {
+        $self->{_required} = $value;
+    } elsif ($value eq 'true' || $value eq 1)
+    {
+        $self->{_required} = JSON::XS::true;
+    } else
+    {
+        $self->{_required} = JSON::XS::false;
+    }
 
     return;
 }
@@ -235,7 +250,7 @@ sub getApplicationTypes
 {
     my $self = shift;
 
-    return $self->{_applicationTypes};
+    return @{$self->{_applicationTypes}};
 }
 
 sub setApplicationTypes
@@ -261,17 +276,34 @@ sub setOrdnum
     return;
 }
 
-sub getForDelete
+sub isForDelete
 {
     my $self = shift;
 
-    return $self->{_forDelete};
+    return ($self->{_forDelete}) ? 1 : 0;
+}
+
+sub isForDeleteToPrint
+{
+    my $self = shift;
+
+    return ($self->{_forDelete}) ? 'true' : 'false';
 }
 
 sub setForDelete
 {
     my $self = shift;
-    $self->{_forDelete} = shift;
+    my $value = shift;
+    if (ref $value eq "JSON::XS::Boolean")
+    {
+        $self->{_forDelete} = $value;
+    } elsif ($value eq 'true' || $value eq 1)
+    {
+        $self->{_forDelete} = JSON::XS::true;
+    } else
+    {
+        $self->{_forDelete} = JSON::XS::false;
+    }
 
     return;
 }
