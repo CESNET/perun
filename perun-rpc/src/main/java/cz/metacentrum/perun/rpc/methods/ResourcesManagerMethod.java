@@ -24,7 +24,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourceById(parms.readInt("id"));
+			return ac.getResourcesManager().getResourceById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 

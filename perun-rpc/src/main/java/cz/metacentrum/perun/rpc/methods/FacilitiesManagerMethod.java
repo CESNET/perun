@@ -24,7 +24,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Facility call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getFacilityById(parms.readInt("id"));
+			return ac.getFacilitiesManager().getFacilityById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 
@@ -38,7 +38,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Facility call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getFacilityByName(parms.readString("name"));
+			return ac.getFacilitiesManager().getFacilityByName(ac.getSession(), parms.readString("name"));
 		}
 	},
 

@@ -364,6 +364,7 @@ perun_policies:
 
   getExtSourceById_int_policy:
     policy_roles:
+      - SELF:
       - RPC:
       - PERUNOBSERVER:
     include_policies:
@@ -1061,6 +1062,8 @@ perun_policies:
 
   getGroupById_int_policy:
     policy_roles:
+#      Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
       - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - RPC:
@@ -1787,6 +1790,7 @@ perun_policies:
 
   getMemberById_int_policy:
     policy_roles:
+      - SELF: User
       - RPC:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -2341,6 +2345,7 @@ perun_policies:
   #ResourcesManagerEntry
   getResourceById_int_policy:
     policy_roles:
+      - FACILITYADMIN: Facility
       - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - RPC:
@@ -3348,6 +3353,7 @@ perun_policies:
 
   getServiceById_int_policy:
     policy_roles:
+      - FACILITYADMIN:
       - VOADMIN:
       - VOOBSERVER:
       - ENGINE:
@@ -3358,6 +3364,7 @@ perun_policies:
 
   getServiceByName_String_policy:
     policy_roles:
+      - FACILITYADMIN:
       - VOADMIN:
       - VOOBSERVER:
       - ENGINE:
@@ -3448,6 +3455,7 @@ perun_policies:
 
   getServicesPackages_policy:
     policy_roles:
+      - FACILITYADMIN:
       - VOADMIN:
       - VOOBSERVER:
       - PERUNOBSERVER:
@@ -3456,6 +3464,7 @@ perun_policies:
 
   getServicesPackageById_int_policy:
     policy_roles:
+      - FACILITYADMIN:
       - RPC:
       - VOADMIN:
       - VOOBSERVER:
@@ -3465,6 +3474,7 @@ perun_policies:
 
   getServicesPackageByName_String_policy:
     policy_roles:
+      - FACILITYADMIN:
       - VOADMIN:
       - VOOBSERVER:
       - PERUNOBSERVER:
@@ -3498,6 +3508,7 @@ perun_policies:
 
   getServicesFromServicesPackage_ServicesPackage_policy:
     policy_roles:
+      - FACILITYADMIN:
       - VOADMIN:
       - VOOBSERVER:
       - PERUNOBSERVER:

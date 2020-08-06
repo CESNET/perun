@@ -57,7 +57,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 		@Override
 		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getUserById(parms.readInt("id"));
+			return ac.getUsersManager().getUserById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 

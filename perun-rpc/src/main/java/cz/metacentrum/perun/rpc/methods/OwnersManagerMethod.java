@@ -79,7 +79,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	getOwnerById {
 		@Override
 		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getOwnerById(parms.readInt("id"));
+			return ac.getOwnersManager().getOwnerById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 
@@ -92,7 +92,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	getOwnerByName {
 		@Override
 		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getOwnerByName(parms.readString("name"));
+			return ac.getOwnersManager().getOwnerByName(ac.getSession(), parms.readString("name"));
 		}
 	},
 
