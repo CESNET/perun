@@ -41,11 +41,21 @@ sub updateForm
 sub getApplicationForm
 {
 	return Perun::Common::callManagerMethod('getApplicationForm', 'ApplicationForm', @_);
-}	
+}
 
 sub setApplicationForm
 {
 	return Perun::Common::callManagerMethod('setApplicationForm', 'null', @_);
-}	
+}
+
+sub getFormItems
+{
+	return Perun::Common::callManagerMethod('getFormItems', '[]FormItem', @_);
+}
+
+sub updateFormItems
+{
+	return Perun::Common::callManagerMethod('updateFormItems', 'null', @_);
+}
 
 1;
