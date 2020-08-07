@@ -93,6 +93,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -2858,7 +2859,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * Get all subjects from loginSource and try to find users in Perun by their login and this ExtSource.
 	 * If found, look if this user is already in synchronized Group. If yes skip him, if not add him to candidateToAdd
-	 * If not found, add him to candidatesToAdd (from source itself or from memberSource if they are different)
+	 * If not found in vo of the group, skip him.
 	 *
 	 * Rest of former members need to be add to membersToRemove to remove them from group.
 	 *
@@ -2874,7 +2875,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param candidatesToAdd
 	 * @param membersToRemove
 	 * @param skippedMembers
-	 * @throws InternalErrorException
 	 */
 	private void categorizeMembersForLightweightSynchronization(PerunSession sess, Group group, ExtSource loginSource, ExtSource memberSource, List<RichMember> groupMembers, List<Candidate> candidatesToAdd, List<RichMember> membersToRemove, List<String> skippedMembers) {
 		//Get subjects from loginSource
@@ -2901,7 +2901,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			//try to find user from perun by login and member extSource (need to use memberSource because loginSource is not saved by synchronization)
 			User user = null;
-			Candidate candidate = null;
 
 			List<UserExtSource> userExtSources = new ArrayList<>();
 			try {
@@ -2910,52 +2909,44 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (UserExtSourceNotExistsException e) {
 				//skipping, this extSource does not exist and thus won't be in the list
 			}
+			Vo groupVo = getVo(sess, group);
 			List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subjectFromLoginSource);
 			userExtSources.addAll(additionalUserExtSources);
 			for (UserExtSource source : userExtSources) {
 				try {
 					user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, source);
-					if(!idsOfUsersInGroup.containsKey(user.getId())) {
-						candidate = new Candidate(user, source);
-						//for lightweight synchronization we want to skip all update of attributes
-						candidate.setAttributes(new HashMap<>());
+					// check if user is already member of group's vo
+					if (getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user).contains(groupVo)) {
+						if (idsOfUsersInGroup.containsKey(user.getId())) {
+							//we can skip this one, because he is already in group, and remove him from the map
+							//but first we need to also validate him if he was disabled before (invalidate and then validate)
+							RichMember richMember = idsOfUsersInGroup.get(user.getId());
+							if (richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
+								getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
+								try {
+									getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
+								} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+									log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
+								}
+							}
+							idsOfUsersInGroup.remove(user.getId());
+						} else {
+							//he is not yet in group, so we need to create a candidate
+							Candidate candidate = new Candidate(user, source);
+							//for lightweight synchronization we want to skip all update of attributes
+							candidate.setAttributes(new HashMap<>());
+							candidatesToAdd.add(candidate);
+						}
+						break;
 					}
-					break;
 				} catch(UserNotExistsException e) {
 					//skip because the user from this ExtSource does not exist so we can continue
 				}
 			}
 
+			// If user not found in group's vo, skip him and log it
 			if (user == null) {
-				//If not find, get more information about him from member extSource
-				List<Map<String, String>> subjectToConvert = Collections.singletonList(subjectFromLoginSource);
-				List<Candidate> convertedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, groupMembers, skippedMembers);
-				//Empty means not found (skipped)
-				if(!convertedCandidatesList.isEmpty()) {
-					//We add one subject so we take the one converted candidate
-					candidate = convertedCandidatesList.get(0);
-				}
-			}
-
-			//If user is not null now, we found it so we can use it from perun, in other case he is not in perun at all
-			if(user != null && candidate == null) {
-				//we can skip this one, because he is already in group, and remove him from the map
-				//but first we need to also validate him if he was disabled before (invalidate and then validate)
-				RichMember richMember = idsOfUsersInGroup.get(user.getId());
-				if(richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
-						getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
-						try {
-							getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
-						} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-							log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
-						}
-				}
-				idsOfUsersInGroup.remove(user.getId());
-			} else if (candidate != null) {
-				candidatesToAdd.add(candidate);
-			} else {
-				//Both null means that we can't find subject by login in extSource at all (will be in skipped members)
-				log.debug("Subject with login {} was skipped because can't be found in extSource {}.", login, memberSource);
+				log.debug("Subject {} with login {} was skipped during lightweight synchronization of group {} because he is not in vo of the group yet.", subjectFromLoginSource, login, group);
 			}
 		}
 
