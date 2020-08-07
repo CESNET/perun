@@ -97,7 +97,7 @@ public class BBMRICollections extends DefaultRegistrarModule {
 			}
 		}
 		try {
-			perun.getGroupsManager().removeMember(session, directoryGroup, member);
+			perun.getGroupsManager().removeMember(session, app.getGroup(), member);
 		} catch (MemberNotExistsException | NotGroupMemberException e) {
 			//we can ignore these exceptions
 		}
@@ -119,8 +119,14 @@ public class BBMRICollections extends DefaultRegistrarModule {
 		Vo vo = app.getVo();
 
 		// get all collection IDs from Perun
-		Group collectionsGroup = app.getGroup();
-		Set<String> collectionIDsInPerun = getCollectionIDs(session, perun, collectionsGroup);
+		String directoryGroupName = getDirectoryGroupNameFromApplication(session, app);
+		Group directoryGroup;
+		try {
+			directoryGroup = perun.getGroupsManager().getGroupByName(session, vo, directoryGroupName);
+		} catch (GroupNotExistsException | InvalidGroupNameException e) {
+			throw new InternalErrorException("Target group does not exist");
+		}
+		Set<String> collectionIDsInPerun = getCollectionIDs(session, perun, directoryGroup);
 
 		// get the field of application with the collections
 		Set<String> collectionIDsInApplication = getCollectionIDsFromApplication(session, app);
