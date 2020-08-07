@@ -1531,7 +1531,8 @@ public class MailManagerImpl implements MailManager {
 			String text = getPerunUrl(vo, group);
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
-				text += "gui/";
+				text += "gui/?vo/appdetail?id="+appId;
+				/*
 				String separator = "#";
 				for (String s : getFedAuthz()) {
 					if (text.endsWith(s+"/gui/")) {
@@ -1540,6 +1541,7 @@ public class MailManagerImpl implements MailManager {
 					}
 				}
 				text += separator + "vo/appdetail?id="+appId;
+				*/
 			}
 			mailText = mailText.replace(FIELD_APP_DETAIL_URL, text != null ? text : EMPTY_STRING);
 		}
@@ -1566,7 +1568,8 @@ public class MailManagerImpl implements MailManager {
 					if (newValue != null && !newValue.isEmpty()) {
 						if (!newValue.endsWith("/")) newValue += "/";
 						newValue += namespace + "/gui/";
-						newValue += getFedAuthz().contains(namespace) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId;
+						newValue += "?vo/appdetail?id="+appId;
+						//newValue += getFedAuthz().contains(namespace) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId;
 					}
 
 				}
