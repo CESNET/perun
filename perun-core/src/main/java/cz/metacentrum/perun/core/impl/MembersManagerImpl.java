@@ -48,7 +48,6 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	final static String memberMappingSelectQuery = "members.id as members_id, members.user_id as members_user_id, members.vo_id as members_vo_id, members.status as members_status, " +
 			"members.sponsored as members_sponsored, " +
 			"members.created_at as members_created_at, members.created_by as members_created_by, members.modified_by as members_modified_by, members.modified_at as members_modified_at, " +
-			"members.suspended_to as members_suspended_to, " +
 			"members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
 
 	final static String groupsMembersMappingSelectQuery = memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
@@ -68,7 +67,6 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
 				rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
 		member.setSponsored(rs.getBoolean("members_sponsored"));
-		member.setSuspendedTo(rs.getDate("members_suspended_to"));
 		return member;
 	};
 
@@ -243,27 +241,6 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			return false;
 		} catch (EmptyResultDataAccessException ex) {
 			return false;
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) {
-		Utils.notNull(member, "member");
-		Utils.notNull(suspendedTo, "suspendedTo");
-		try {
-			jdbc.update("update members set suspended_to=?, modified_by=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", suspendedTo, sess.getPerunPrincipal().getActor(), member.getId());
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public void unsuspendMember(PerunSession sess, Member member) {
-		Utils.notNull(member, "member");
-		try {
-			jdbc.update("update members set suspended_to=?, modified_by=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", null, sess.getPerunPrincipal().getActor(), member.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

@@ -606,8 +606,6 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 					ir = SmallIcons.INSTANCE.acceptIcon();
 				} else if (member.getStatus().equalsIgnoreCase("INVALID")){
 					ir = SmallIcons.INSTANCE.flagRedIcon();
-				} else if (member.getStatus().equalsIgnoreCase("SUSPENDED")){
-					ir = SmallIcons.INSTANCE.stopIcon();
 				} else if (member.getStatus().equalsIgnoreCase("EXPIRED")){
 					ir = SmallIcons.INSTANCE.flagYellowIcon();
 				} else if (member.getStatus().equalsIgnoreCase("DISABLED")){

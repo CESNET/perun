@@ -6,6 +6,7 @@ import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberInvalidated;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberSuspended;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberUnsuspended;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberValidated;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberValidatedFailed;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsoredMemberSet;
@@ -18,6 +19,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -92,6 +94,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -99,8 +102,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -173,15 +178,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		//Remove all members bans
-		List<BanOnResource> bansOnResource = getPerunBl().getResourcesManagerBl().getBansForMember(sess, member.getId());
-		for(BanOnResource banOnResource : bansOnResource) {
-			try {
-				getPerunBl().getResourcesManagerBl().removeBan(sess, banOnResource.getId());
-			} catch (BanNotExistsException ex) {
-				//it is ok, we just want to remove it anyway
-			}
-		}
+		removeAllMemberBans(sess, member);
 
 		if(member.isSponsored()) {
 			membersManagerImpl.deleteSponsorLinks(sess, member);
@@ -1335,12 +1332,26 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) {
-		getMembersManagerImpl().suspendMemberTo(sess, member, suspendedTo);
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+		ban.setVoId(member.getVoId());
+		ban.setValidityTo(suspendedTo);
+
+		try {
+			perunBl.getVosManagerBl().setBan(sess, ban);
+		} catch (MemberNotExistsException e) {
+			// shouldn't happen, we expect that the given member exists
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
 	public void unsuspendMember(PerunSession sess, Member member) {
-		getMembersManagerImpl().unsuspendMember(sess, member);
+		try {
+			perunBl.getVosManagerBl().removeBanForMember(sess, member.getId());
+		} catch (BanNotExistsException e) {
+			log.warn("Member not unsuspended because he was not suspended.");
+		}
 	}
 
 	@Override
@@ -1358,38 +1369,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			case INVALID:
 				return invalidateMember(sess, member);
 			//break;
-			case SUSPENDED:
-				return suspendMember(sess, member);
-			//break;
 			case EXPIRED:
 				return expireMember(sess, member);
 			//break;
 			case DISABLED:
 				return disableMember(sess, member);
 			//break;
-			default:
-				throw new InternalErrorException("Unknown status:" + status);
-		}
-	}
-
-	@Override
-	public Member setStatus(PerunSession sess, Member member, Status status, String message) throws WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
-		switch(status) {
-			case VALID:
-				return validateMember(sess, member);
-				//break;
-			case INVALID:
-				return invalidateMember(sess, member);
-				//break;
-			case SUSPENDED:
-				return suspendMember(sess, member, message);
-				//break;
-			case EXPIRED:
-				return expireMember(sess, member);
-				//break;
-			case DISABLED:
-				return disableMember(sess, member);
-				//break;
 			default:
 				throw new InternalErrorException("Unknown status:" + status);
 		}
@@ -1452,47 +1437,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getMembersManagerImpl().setStatus(sess, member, Status.INVALID);
 		member.setStatus(Status.INVALID);
 		getPerunBl().getAuditer().log(sess, new MemberInvalidated(member));
-		return member;
-	}
-
-	@Override
-	public Member suspendMember(PerunSession sess, Member member) throws MemberNotValidYetException {
-		if(this.haveStatus(sess, member, Status.SUSPENDED)) {
-			log.warn("Trying to suspend member who is already suspended. Suspend operation will be procesed anyway (to be shure)." + member);
-		}
-
-		if(this.haveStatus(sess, member, Status.INVALID) || this.haveStatus(sess, member, Status.DISABLED)) throw new MemberNotValidYetException(member);
-		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
-		member.setStatus(Status.SUSPENDED);
-		getPerunBl().getAuditer().log(sess, new MemberSuspended(member, Auditer.engineForceKeyword));
-		return member;
-	}
-
-	@Override
-	public Member suspendMember(PerunSession sess, Member member, String message) throws MemberNotValidYetException {
-		if(this.haveStatus(sess, member, Status.SUSPENDED)) {
-			log.warn("Trying to suspend member who is already suspended. Suspend operation will be procesed anyway (to be shure)." + member);
-		}
-
-		if(this.haveStatus(sess, member, Status.INVALID) || this.haveStatus(sess, member, Status.DISABLED)) throw new MemberNotValidYetException(member);
-		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
-		member.setStatus(Status.SUSPENDED);
-		try {
-			Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:suspensionInfo");
-			HashMap<String, String> map = new LinkedHashMap<>();
-			if (message != null) {
-				map.put("reason", message);
-			}
-			int id = sess.getPerunPrincipal().getUserId();
-			map.put("userId", String.valueOf(id));
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			map.put("timestamp", String.valueOf(timestamp));
-			attribute.setValue(map);
-			perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		}
-		getPerunBl().getAuditer().log(sess, new MemberSuspended(member, Auditer.engineForceKeyword));
 		return member;
 	}
 
@@ -2453,6 +2397,29 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored) {
 		return getMembersManagerImpl().findMembers(sess, vo, searchString, onlySponsored);
+	}
+
+	/**
+	 * For given member, remove all of his bans on all entities.
+	 *
+	 * @param sess session
+	 * @param member member
+	 */
+	private void removeAllMemberBans(PerunSession sess, Member member) {
+		List<BanOnResource> bansOnResource = getPerunBl().getResourcesManagerBl().getBansForMember(sess, member.getId());
+		for(BanOnResource banOnResource : bansOnResource) {
+			try {
+				getPerunBl().getResourcesManagerBl().removeBan(sess, banOnResource.getId());
+			} catch (BanNotExistsException ex) {
+				//it is ok, we just want to remove it anyway
+			}
+		}
+
+		try {
+			perunBl.getVosManagerBl().removeBanForMember(sess, member.getId());
+		} catch (BanNotExistsException e) {
+			// it is ok, we just want to remove it if it exists
+		}
 	}
 
 	/**

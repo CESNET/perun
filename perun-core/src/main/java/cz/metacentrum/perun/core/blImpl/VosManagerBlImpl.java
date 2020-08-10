@@ -1,8 +1,11 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberSuspended;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberUnsuspended;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoCreated;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -21,6 +24,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
@@ -39,6 +43,8 @@ import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
+import cz.metacentrum.perun.core.impl.Auditer;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
@@ -46,10 +52,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,6 +73,7 @@ import java.util.stream.Collectors;
 public class VosManagerBlImpl implements VosManagerBl {
 
 	private final static Logger log = LoggerFactory.getLogger(VosManagerBlImpl.class);
+	private final static Date FAR_FUTURE = new GregorianCalendar(2999, Calendar.JANUARY, 1).getTime();
 
 	private final VosManagerImplApi vosManagerImpl;
 	private PerunBl perunBl;
@@ -715,6 +726,96 @@ public class VosManagerBlImpl implements VosManagerBl {
 				}
 				break;
 		}
+	}
+
+	@Override
+	public BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) throws MemberNotExistsException {
+		Utils.notNull(banOnVo, "banOnVo");
+
+		Member member = perunBl.getMembersManagerBl().getMemberById(sess, banOnVo.getMemberId());
+		banOnVo.setVoId(member.getVoId());
+
+		if (vosManagerImpl.isMemberBanned(sess, member.getId())) {
+			return updateBan(sess, banOnVo);
+		}
+
+		// if the validity is not specified, set a date from far future
+		if (banOnVo.getValidityTo() == null) {
+			banOnVo.setValidityTo(FAR_FUTURE);
+		}
+
+		banOnVo = vosManagerImpl.setBan(sess, banOnVo);
+
+		// fetch all ban information
+		try {
+			banOnVo = vosManagerImpl.getBanById(sess, banOnVo.getId());
+		} catch (BanNotExistsException e) {
+			// shouldn't happen
+			throw new ConsistencyErrorException(e);
+		}
+
+		perunBl.getAuditer().log(sess, new MemberSuspended(member));
+
+		return banOnVo;
+	}
+
+	@Override
+	public BanOnVo getBanById(PerunSession sess, int banId) throws BanNotExistsException {
+		return vosManagerImpl.getBanById(sess, banId);
+	}
+
+	@Override
+	public Optional<BanOnVo> getBanForMember(PerunSession sess, int memberId) {
+		try {
+			return Optional.of(vosManagerImpl.getBanForMember(sess, memberId));
+		} catch (BanNotExistsException e) {
+			return Optional.empty();
+		}
+	}
+
+	@Override
+	public List<BanOnVo> getBansForVo(PerunSession sess, int voId) {
+		return vosManagerImpl.getBansForVo(sess, voId);
+	}
+
+	@Override
+	public BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo) {
+		Utils.notNull(banOnVo, "banOnVo");
+
+		// if the validity is not specified, set a date from far future
+		if (banOnVo.getValidityTo() == null) {
+			banOnVo.setValidityTo(FAR_FUTURE);
+		}
+
+		return vosManagerImpl.updateBan(sess, banOnVo);
+	}
+
+	@Override
+	public void removeBan(PerunSession sess, int banId) throws BanNotExistsException {
+		BanOnVo ban = vosManagerImpl.getBanById(sess, banId);
+
+		vosManagerImpl.removeBan(sess, banId);
+		Member member;
+		try {
+			member = perunBl.getMembersManagerBl().getMemberById(sess, ban.getMemberId());
+		} catch (MemberNotExistsException e) {
+			// shouldn't happen
+			log.error("Failed to find member who was just banned.", e);
+			throw new ConsistencyErrorException("Failed to find member who was just banned.", e);
+		}
+
+		perunBl.getAuditer().log(sess, new MemberUnsuspended(member));
+	}
+
+	@Override
+	public void removeBanForMember(PerunSession sess, int memberId) throws BanNotExistsException {
+		BanOnVo ban = vosManagerImpl.getBanForMember(sess, memberId);
+		removeBan(sess, ban.getId());
+	}
+
+	@Override
+	public boolean isMemberBanned(PerunSession sess, int memberId) {
+		return vosManagerImpl.isMemberBanned(sess, memberId);
 	}
 
 	private void removeSponsorFromSponsoredMembers(PerunSession sess, Vo vo, User user) {

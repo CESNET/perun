@@ -24,7 +24,6 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 
 	static private final ImageResource VALID = SmallIcons.INSTANCE.acceptIcon();
 	static private final ImageResource INVALID = SmallIcons.INSTANCE.flagRedIcon();
-	static private final ImageResource SUSPENDED = SmallIcons.INSTANCE.stopIcon();
 	static private final ImageResource EXPIRED = SmallIcons.INSTANCE.flagYellowIcon();
 	static private final ImageResource DISABLED = SmallIcons.INSTANCE.binClosedIcon();
 
@@ -142,8 +141,6 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 			ir = VALID;
 		} else if (status.equalsIgnoreCase("INVALID")){
 			ir = INVALID;
-		} else if (status.equalsIgnoreCase("SUSPENDED")){
-			ir = SUSPENDED;
 		} else if (status.equalsIgnoreCase("EXPIRED")){
 			ir = EXPIRED;
 		} else if (status.equalsIgnoreCase("DISABLED")){

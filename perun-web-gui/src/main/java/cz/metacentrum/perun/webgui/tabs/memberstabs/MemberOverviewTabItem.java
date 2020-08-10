@@ -160,8 +160,6 @@ public class MemberOverviewTabItem implements TabItem {
 			memberLayout.setHTML(1, 0, "Member is properly configured and have access on provided resources.");
 		} else if (member.getStatus().equalsIgnoreCase("INVALID")) {
 			memberLayout.setHTML(1, 0, "Member have configuration error and DON'T have access on provided resources. You can check what is wrong by changing member's status to VALID. If possible, procedure will configure all necessary settings by itself.");
-		} else if (member.getStatus().equalsIgnoreCase("SUSPENDED")) {
-			memberLayout.setHTML(1, 0, "Member violated some rules and DON'T have access on provided resources.");
 		} else if (member.getStatus().equalsIgnoreCase("EXPIRED")) {
 			memberLayout.setHTML(1, 0, "Member didn't extend membership and DON'T have access on provided resources.");
 		} else if (member.getStatus().equalsIgnoreCase("DISABLED")) {

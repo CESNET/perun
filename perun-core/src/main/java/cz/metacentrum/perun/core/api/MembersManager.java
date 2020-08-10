@@ -953,23 +953,6 @@ public interface MembersManager {
 	Member setStatus(PerunSession sess, Member member, Status status) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
 
 	/**
-	 *  Set status of the member to specified status.
-	 *
-	 * @param sess
-	 * @param member
-	 * @param status new status
-	 * @param message message with reason for suspension
-	 * @return member with status set
-	 * @throws InternalErrorException
-	 * @throws MemberNotExistsException
-	 * @throws MemberNotValidYetException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
-	 * @throws PrivilegeException
-	 */
-	Member setStatus(PerunSession sess, Member member, Status status, String message) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
-
-	/**
 	 * Set date to which will be member suspended in his VO.
 	 *
 	 * For almost unlimited time please use time in the far future.

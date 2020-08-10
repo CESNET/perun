@@ -19,13 +19,11 @@ public class PerunStatusCell extends ClickableTextCell {
 	/*
 		 VALID  (0),
 		 INVALID (1),    //just created object, where some information (e.g. attribute)  is missing
-		 SUSPENDED (2),  //security issue
 		 EXPIRED (3),
 		 DISABLED (4);   //use this status instead of deleting the entity
 		 */
 	static private final ImageResource VALID = SmallIcons.INSTANCE.acceptIcon();
 	static private final ImageResource INVALID = SmallIcons.INSTANCE.flagRedIcon();
-	static private final ImageResource SUSPENDED = SmallIcons.INSTANCE.stopIcon();
 	static private final ImageResource EXPIRED = SmallIcons.INSTANCE.flagYellowIcon();
 	static private final ImageResource DISABLED = SmallIcons.INSTANCE.binClosedIcon();
 
@@ -44,8 +42,6 @@ public class PerunStatusCell extends ClickableTextCell {
 			ir = VALID;
 		} else if (status.equalsIgnoreCase("INVALID")){
 			ir = INVALID;
-		} else if (status.equalsIgnoreCase("SUSPENDED")){
-			ir = SUSPENDED;
 		} else if (status.equalsIgnoreCase("EXPIRED")){
 			ir = EXPIRED;
 		} else if (status.equalsIgnoreCase("DISABLED")){

@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -11,6 +12,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -21,6 +23,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -378,6 +382,125 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		System.out.println(CLASS_NAME + "deleteVoWhichNotExists");
 
 		vosManagerEntry.deleteVo(sess, new Vo());
+	}
+
+	@Test
+	public void setBanCorrectly() throws Exception {
+		System.out.println(CLASS_NAME + "setBanCorrectly");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+
+		ban = vosManagerEntry.setBan(sess, ban);
+
+		assertThat(ban.getId()).isNotNull();
+		assertThat(ban.getVoId()).isNotNull();
+
+		BanOnVo foundBan = vosManagerEntry.getBanById(sess, ban.getId());
+
+		assertThat(foundBan).isEqualToIgnoringNullFields(ban);
+	}
+
+	@Test
+	public void removeBanCorrectly() throws Exception {
+		System.out.println(CLASS_NAME + "removeBanCorrectly");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+
+		vosManagerEntry.setBan(sess, ban);
+
+		vosManagerEntry.removeBan(sess, ban.getId());
+
+		assertThatExceptionOfType(BanNotExistsException.class)
+				.isThrownBy(() -> vosManagerEntry.getBanById(sess, ban.getId()));
+	}
+
+	@Test
+	public void removeBanForMemberCorrectly() throws Exception {
+		System.out.println(CLASS_NAME + "removeBanForMemberCorrectly");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+
+		vosManagerEntry.setBan(sess, ban);
+
+		vosManagerEntry.removeBanForMember(sess, member);
+
+		assertThat(vosManagerEntry.getBanForMember(sess, member))
+				.isNull();
+	}
+
+	@Test
+	public void getBanByIdCorrectly() throws Exception {
+		System.out.println(CLASS_NAME + "getBanByIdCorrectly");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+
+		ban = vosManagerEntry.setBan(sess, ban);
+
+		BanOnVo foundBan = vosManagerEntry.getBanById(sess, ban.getId());
+
+		assertThat(foundBan).isEqualToIgnoringNullFields(ban);
+	}
+
+	@Test
+	public void getBanForMemberCorrectly() throws Exception {
+		System.out.println(CLASS_NAME + "getBanForMemberCorrectly");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+
+		ban = vosManagerEntry.setBan(sess, ban);
+
+		BanOnVo foundBan = vosManagerEntry.getBanForMember(sess, member);
+
+		assertThat(foundBan).isEqualToIgnoringNullFields(ban);
+	}
+
+	@Test
+	public void getBanForMemberReturnsNullIfNoBanExists() throws Exception {
+		System.out.println(CLASS_NAME + "getBanForMemberReturnsNullIfNoBanExists");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo foundBan = vosManagerEntry.getBanForMember(sess, member);
+
+		assertThat(foundBan).isNull();
+	}
+
+	@Test
+	public void getBansForVo() throws Exception {
+		System.out.println(CLASS_NAME + "getBansForVo");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		Member member = createMemberFromExtSource(createdVo);
+
+		BanOnVo ban = new BanOnVo();
+		ban.setMemberId(member.getId());
+
+		vosManagerEntry.setBan(sess, ban);
+
+		List<BanOnVo> voBans = vosManagerEntry.getBansForVo(sess, createdVo.getId());
+
+		assertThat(voBans).containsOnly(ban);
 	}
 
 	// private methods ------------------------------------------------------------------

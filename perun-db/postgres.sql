@@ -1,4 +1,4 @@
--- database version 3.1.67 (don't forget to update insert statement at the end of file)
+-- database version 3.1.68 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -238,7 +238,6 @@ create table members (
 	modified_by varchar default user not null,
 	status integer default 0 not null, --status of membership
 	sponsored boolean default false not null,
-	suspended_to timestamp,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint mem_pk primary key(id),
@@ -1312,6 +1311,24 @@ create table blacklists (
   constraint bllist_user_fk foreign key (user_id) references users(id)
 );
 
+create table vos_bans (
+	id integer not null,
+	member_id integer not null,
+	vo_id integer not null,
+	description varchar,
+	banned_to timestamp default '2999-01-01 00:00:00' not null,
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint vos_bans_pk primary key (id),
+	constraint vos_bans_u unique (member_id),
+	constraint vos_bans_mem_fk foreign key (member_id) references members (id),
+	constraint vos_bans_vo_fk foreign key (vo_id) references vos (id)
+);
+
 create table resources_bans (
 	id integer not null,
 	member_id integer not null,
@@ -1463,6 +1480,7 @@ create sequence "pwdreset_id_seq";
 create sequence "security_teams_id_seq";
 create sequence "resources_bans_id_seq";
 create sequence "facilities_bans_id_seq";
+create sequence "vos_bans_id_seq";
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1599,6 +1617,8 @@ create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id
 create index idx_fk_fac_ban_user on facilities_bans (user_id);
 create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
+create index idx_fk_vos_ban_member on vos_bans (member_id);
+create index idx_fk_vos_ban_vos on vos_bans (vo_id);
 create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (user_ext_source_id);
 create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
 create index idx_fk_memspons_mem ON members_sponsored(sponsored_id);
@@ -1709,13 +1729,14 @@ grant all on security_teams_facilities to perun;
 grant all on blacklists to perun;
 grant all on resources_bans to perun;
 grant all on facilities_bans to perun;
+grant all on vos_bans to perun;
 grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
 grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.67');
+insert into configurations values ('DATABASE VERSION','3.1.68');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

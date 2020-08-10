@@ -3,6 +3,9 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.68
+update configurations set value='3.1.68' where property='DATABASE VERSION';
+
 3.1.67
 update configurations set value='3.1.67' where property='DATABASE VERSION';
 

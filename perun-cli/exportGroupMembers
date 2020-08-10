@@ -32,7 +32,7 @@ sub help {
 		   ...
 		   default value -a u:d:preferredMail m:d:organization
 		**)if parameter -s is not used the default value is
-		   VALID+INVALID+SUSPENDED
+		   VALID+INVALID
 		   if parameter -s is used but the list of statuses is empty
 		   ALL statuses are listed
 	};
@@ -72,13 +72,13 @@ unless (defined $groupId) {
 }
 
 unless (defined $statuses[0]) {
-	@statuses = ("VALID", "INVALID", "SUSPENDED");
+	@statuses = ("VALID", "INVALID");
 }
 if (defined $statuses[0] and $statuses[0] eq "") {
 	@statuses = ();
 }
 foreach my $stat (@statuses) {
-	if ($stat ne "VALID" and $stat ne "INVALID" and $stat ne "SUSPENDED" and $stat ne "EXPIRED" and $stat ne "DISABLED") {die "ERROR: wrong status value. \n";}
+	if ($stat ne "VALID" and $stat ne "INVALID" and $stat ne "EXPIRED" and $stat ne "DISABLED") {die "ERROR: wrong status value. \n";}
 }
 
 my $parentGroup = 0;

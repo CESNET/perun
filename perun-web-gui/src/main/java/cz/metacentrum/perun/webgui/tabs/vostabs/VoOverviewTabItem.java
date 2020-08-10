@@ -216,7 +216,6 @@ public class VoOverviewTabItem implements TabItem {
 		final GetMembersCount countMembers = new GetMembersCount(vo.getId(), null);
 		final GetMembersCount countValidMembers = new GetMembersCount(vo.getId(), PerunStatus.VALID);
 		final GetMembersCount countInvalidMembers = new GetMembersCount(vo.getId(), PerunStatus.INVALID);
-		final GetMembersCount countSuspendedMembers = new GetMembersCount(vo.getId(), PerunStatus.SUSPENDED);
 		final GetMembersCount countExpiredMembers = new GetMembersCount(vo.getId(), PerunStatus.EXPIRED);
 		final GetMembersCount countDisabledMembers = new GetMembersCount(vo.getId(), PerunStatus.DISABLED);
 
@@ -245,7 +244,6 @@ public class VoOverviewTabItem implements TabItem {
 					countMembers.retrieveData();
 					countValidMembers.retrieveData();
 					countInvalidMembers.retrieveData();
-					countSuspendedMembers.retrieveData();
 					countExpiredMembers.retrieveData();
 					countDisabledMembers.retrieveData();
 
@@ -263,18 +261,16 @@ public class VoOverviewTabItem implements TabItem {
 		vosTable.setWidget(1, 1, countValidMembers.getMembersCountLabel());
 		vosTable.setWidget(2, 0, new HTML(" - invalid"));
 		vosTable.setWidget(2, 1, countInvalidMembers.getMembersCountLabel());
-		vosTable.setWidget(3, 0, new HTML(" - suspended"));
-		vosTable.setWidget(3, 1, countSuspendedMembers.getMembersCountLabel());
-		vosTable.setWidget(4, 0, new HTML(" - expired"));
-		vosTable.setWidget(4, 1, countExpiredMembers.getMembersCountLabel());
-		vosTable.setWidget(5, 0, new HTML(" - disabled"));
+		vosTable.setWidget(3, 0, new HTML(" - expired"));
+		vosTable.setWidget(3, 1, countExpiredMembers.getMembersCountLabel());
+		vosTable.setWidget(4, 0, new HTML(" - disabled"));
 		vosTable.setWidget(5, 1, countDisabledMembers.getMembersCountLabel());
 
-		vosTable.setWidget(6, 0, new HTML("<strong>" + "Resources" + "</strong>"));
-		vosTable.setWidget(6, 1, countResources.getResourcesCountLabel());
+		vosTable.setWidget(5, 0, new HTML("<strong>" + "Resources" + "</strong>"));
+		vosTable.setWidget(5, 1, countResources.getResourcesCountLabel());
 
-		vosTable.setWidget(7, 0, new HTML("<strong>" + "Groups" + "</strong>"));
-		vosTable.setWidget(7, 1, countGroups.getGroupsCountLabel());
+		vosTable.setWidget(6, 0, new HTML("<strong>" + "Groups" + "</strong>"));
+		vosTable.setWidget(6, 1, countGroups.getGroupsCountLabel());
 
 		vp2.add(statistics);
 

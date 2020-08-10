@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -2118,6 +2119,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * The source object is returned alongside its related objects.
 	 */
 	private enum RelatedObjectsResolver implements Function<PerunBean, List<PerunBean>> {
+		BanOnVo((object) -> {
+			Vo vo = new Vo();
+			vo.setId(((BanOnVo)object).getVoId());
+			Member member = new Member();
+			member.setId(((BanOnVo)object).getMemberId());
+			return Arrays.asList(vo, object);
+		}),
 		UserExtSource((object) -> {
 			User user = new User();
 			user.setId(((UserExtSource) object).getUserId());

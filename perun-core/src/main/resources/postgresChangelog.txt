@@ -6,6 +6,17 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.68
+CREATE TABLE vos_bans (id integer not null, member_id integer not null, vo_id integer not null, description varchar, banned_to timestamp default '2999-01-01 00:00:00' not null, created_at timestamp default statement_timestamp() not null, created_by varchar default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar default user not null, created_by_uid integer, modified_by_uid integer, constraint vos_bans_pk primary key (id), constraint vos_bans_u unique (member_id), constraint vos_bans_mem_fk foreign key (member_id) references members (id), constraint vos_bans_vo_fk foreign key (vo_id) references vos (id));
+CREATE SEQUENCE "vos_bans_id_seq";
+CREATE INDEX idx_fk_vos_ban_member ON vos_bans (member_id);
+CREATE INDEX idx_fk_vos_ban_vos ON vos_bans (vo_id);
+GRANT ALL ON vos_bans TO perun;
+INSERT INTO vos_bans (id, description, banned_to, member_id, vo_id) SELECT nextval('vos_bans_id_seq'), 'AUTO CREATED FROM SUSPEND STATUS', members.suspended_to, members.id, members.vo_id FROM members WHERE status = 2;
+UPDATE members SET status=0 WHERE status = 2;
+ALTER TABLE members DROP COLUMN suspended_to;
+UPDATE configurations SET value='3.1.68' WHERE property='DATABASE VERSION';
+
 3.1.67
 ALTER TABLE users ADD COLUMN uu_id UUID not null default gen_random_uuid();
 ALTER TABLE groups ADD COLUMN uu_id UUID not null default gen_random_uuid();
