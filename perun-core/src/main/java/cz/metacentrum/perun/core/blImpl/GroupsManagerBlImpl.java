@@ -3404,6 +3404,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private List<AttributeDefinition> getAttributesToSynchronizeFromCandidates(PerunSession sess, Group group, Candidate candidate) {
 		List<AttributeDefinition> attrDefs = new ArrayList<>();
 
+		if (candidate.getAttributes() == null) {
+			return attrDefs;
+		}
+
 		for(String attrName : candidate.getAttributes().keySet()) {
 			try {
 				AttributeDefinition attrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
