@@ -815,22 +815,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		String userNameQueryString;
 		if (exactMatch) {
 			// Part of query to search by user name (exact)
-			if (Compatibility.isPostgreSql()) {
-				userNameQueryString= " strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=:nameString";
-			} else if (Compatibility.isHSQLDB()) {
-				userNameQueryString=" lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=:nameString";
-			} else {
-				throw new InternalErrorException("Unsupported db type");
-			}
+			userNameQueryString = Utils.prepareUserSearchQueryExactMatch();
 		} else {
 			// Part of query to search by user name (not exact)
-			if (Compatibility.isPostgreSql()) {
-				userNameQueryString = " strpos(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "),:nameString) > 0 ";
-			} else if (Compatibility.isHSQLDB()) {
-				userNameQueryString = " lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ") like '%' || :nameString || '%' ";
-			} else {
-				throw new InternalErrorException("Unsupported db type");
-			}
+			userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
 		}
 
 		// Part of query to search by user id
@@ -843,39 +831,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 
 		// Divide attributes received from CoreConfig into member, user and userExtSource attributes
-		List<String> allAttributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
-		List<String> memberAttributes = new ArrayList<>();
-		List<String> userAttributes = new ArrayList<>();
-		List<String> uesAttributes = new ArrayList<>();
-		for (String attribute : allAttributes) {
-			if (attribute.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
-				memberAttributes.add(attribute);
-			} else if (attribute.startsWith(AttributesManager.NS_USER_ATTR)) {
-				userAttributes.add(attribute);
-			} else if (attribute.startsWith(AttributesManager.NS_UES_ATTR)) {
-				uesAttributes.add(attribute);
-			}
-		}
+		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
 
-		Pair<String, String> memberAttributesQueryString = new Pair<>("", "");
-		if (!memberAttributes.isEmpty()) {
-			memberAttributesQueryString.put(" left join member_attr_values mav on members.id=mav.member_id and mav.attr_id in (select id from attr_names where attr_name in (:memberAttributes))", " lower(mav.attr_value)=lower(:searchString) or " );
-		}
-		Pair<String, String> userAttributesQueryString = new Pair<>("", "");
-		if (!userAttributes.isEmpty()) {
-			userAttributesQueryString.put(" left join user_attr_values uav on users.id=uav.user_id and uav.attr_id in (select id from attr_names where attr_name in (:userAttributes))" , " lower(uav.attr_value)=lower(:searchString) or ");
-		}
-		Pair<String, String> uesAttributesQueryString = new Pair<>("", "");
-		if (!uesAttributes.isEmpty()) {
-			uesAttributesQueryString.put(" left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in (select id from attr_names where attr_name in (:uesAttributes))", " lower(uesav.attr_value)=lower(:searchString) or ");
-		}
+		// Parts of query to search by attributes
+		Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
 
-		MapSqlParameterSource namedParams = new MapSqlParameterSource();
-		namedParams.addValue("searchString", searchString);
-		namedParams.addValue("nameString", Utils.utftoasci(searchString.toLowerCase()));
-		namedParams.addValue("memberAttributes", memberAttributes);
-		namedParams.addValue("userAttributes", userAttributes);
-		namedParams.addValue("uesAttributes", uesAttributes);
+		MapSqlParameterSource namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(searchString, attributesToSearchBy);
 
 		// Search by member attributes
 		// Search by user attributes
@@ -887,15 +848,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			" from users " +
 			" left join members on users.id=members.user_id " +
 			" left join user_ext_sources ues on ues.user_id=users.id " +
-			memberAttributesQueryString.getLeft() +
-			userAttributesQueryString.getLeft() +
-			uesAttributesQueryString.getLeft() +
+			attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
+			attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
+			attributesToSearchByQueries.get("uesAttributesQuery").getLeft() +
 			" where " +
 			" ( " +
 			" lower(ues.login_ext)=lower(:searchString) or " +
-			memberAttributesQueryString.getRight() +
-			userAttributesQueryString.getRight() +
-			uesAttributesQueryString.getRight() +
+			attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
+			attributesToSearchByQueries.get("userAttributesQuery").getRight() +
+			attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
 			idQueryString +
 			userNameQueryString +
 			" ) ", namedParams, USER_MAPPER));
