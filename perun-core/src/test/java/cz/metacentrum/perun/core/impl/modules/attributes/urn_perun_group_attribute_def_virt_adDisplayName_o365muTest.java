@@ -31,7 +31,8 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365muTest {
 	private final Group groupC = setUpGroup(3, 2, "groupC", "C");
 	private final Group groupD = setUpGroup(4, 3, "groupD", "D");
 	private final Group groupE = setUpGroup(5, 4, "groupE", "E");
-	private final Group groupWithoutAttributes = setUpGroup(6, null, "groupWithoutAttributes", "groupWithoutAttributes");
+	private final Group groupF = setUpGroup(6, 1, "groupF", "F");
+	private final Group groupWithoutAttributes = setUpGroup(7, null, "groupWithoutAttributes", "groupWithoutAttributes");
 
 	private final AttributeDefinition defaultAdDisplayNameAttrDef = setUpGroupAttributeDefinition(1, "adDisplayName:o365mu", String.class.getName());
 	private final AttributeDefinition inetCisprAttrDef = setUpGroupAttributeDefinition(2, "inetCispr", String.class.getName());
@@ -53,7 +54,7 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365muTest {
 		PerunBl perunBl = mock(PerunBl.class);
 		AttributesManagerBl am = mock(AttributesManagerBl.class);
 		GroupsManagerBl gm = mock(GroupsManagerBl.class);
-		
+
 		when(sess.getPerunBl())
 			.thenReturn(perunBl);
 		when(perunBl.getAttributesManagerBl())
@@ -69,6 +70,8 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365muTest {
 			.thenReturn(groupC);
 		when(sess.getPerunBl().getGroupsManagerBl().getParentGroup(sess, groupE))
 			.thenReturn(groupD);
+		when(sess.getPerunBl().getGroupsManagerBl().getParentGroup(sess, groupF))
+			.thenReturn(groupA);
 
 		//group A is the main group with cispr 000000, it has no default display name
 		setWhenClauseByParametersForGroup(sess, groupA, null, "000000", groupA.getName(), groupA.getDescription(), typeOfWorkplacesA);
@@ -80,6 +83,8 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365muTest {
 		setWhenClauseByParametersForGroup(sess, groupD, predefinedDisplayName, null, null, null, null);
 		//group E is other type of group, it has no default display name
 		setWhenClauseByParametersForGroup(sess, groupE, null, "123456", groupE.getName(), groupE.getDescription(), typeOfWorkplacesC);
+		//group E is other type of group, it has no default display name, but displayName is missing
+		setWhenClauseByParametersForGroup(sess, groupF, null, "654321", groupF.getName(), groupF.getDescription(), typeOfWorkplacesB);
 
 		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, groupWithoutAttributes, defaultAdDisplayNameAttrDef.getName()))
 			.thenThrow(AttributeNotExistsException.class);
@@ -162,6 +167,13 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365muTest {
 		String attributeValue = classInstance.getAttributeValue(sess, groupE, adDisplayNameO365MuAttrDef).valueAsString();
 		assertNotNull(attributeValue);
 		assertEquals(groupE.getName() + ", " + groupC.getDescription() + ", " + typeOfWorkplacesC, attributeValue);
+	}
+
+	@Test
+	public void getAttributeValueForGroupF() {
+		String attributeValue = classInstance.getAttributeValue(sess, groupF, adDisplayNameO365MuAttrDef).valueAsString();
+		assertNotNull(attributeValue);
+		assertEquals(groupF.getName() + ", " + typeOfWorkplacesB, attributeValue);
 	}
 
 	@Test

@@ -77,10 +77,14 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
 			//other parts of university with expression as [1-9][0-9]{5}
 			//for these groups we need to find parent group with part of university cispr and use also abbreviation for it in the final name
 			String groupNameCS = getStringValueOfGroupAttribute(sess, group, A_G_D_INET_GROUP_NAME_CS);
-			String abbreviation = getParentGroupAbbreviation(sess, group);
-			//we can use abbreviation only if exists
-			if (abbreviation != null && groupNameCS != null) {
-				finalName = groupNameCS + ", " + abbreviation + ", " + typeOfWorkplaces;
+			if (groupNameCS != null) {
+				String abbreviation = getParentGroupAbbreviation(sess, group);
+				//we can use abbreviation only if exists
+				if (abbreviation != null) {
+					finalName = groupNameCS + ", " + abbreviation + ", " + typeOfWorkplaces;
+				} else {
+					finalName = groupNameCS + ", " + typeOfWorkplaces;
+				}
 			}
 		}
 
@@ -100,24 +104,24 @@ public class urn_perun_group_attribute_def_virt_adDisplayName_o365mu extends Gro
 	 * @return abbreviation of searched parent group or null if there is none
 	 */
 	private String getParentGroupAbbreviation(PerunSessionImpl sess, Group group) {
-		Group workingGorup = group;
-		while(workingGorup.getParentGroupId() != null) {
+		Group workingGroup = group;
+		while(workingGroup.getParentGroupId() != null) {
 			try {
-				workingGorup = sess.getPerunBl().getGroupsManagerBl().getParentGroup(sess, workingGorup);
+				workingGroup = sess.getPerunBl().getGroupsManagerBl().getParentGroup(sess, workingGroup);
 			} catch (ParentGroupNotExistsException ex) {
 				//We don't want this part of code to throw an exception even if it is weird behavior, return null instead, log it
 				//The only proper reason to get this exception is race-condition between this module and group structure changes
-				log.error("Unexpected behavior when reaching parent group of " + workingGorup, ex);
+				log.error("Unexpected behavior when reaching parent group of " + workingGroup, ex);
 				return null;
 			}
 
-			String parentGroupCispr = getStringValueOfGroupAttribute(sess, workingGorup, A_G_D_INET_CISPR);
+			String parentGroupCispr = getStringValueOfGroupAttribute(sess, workingGroup, A_G_D_INET_CISPR);
 			//If there is no cispr to check, continue in searching
 			if(parentGroupCispr == null) continue;
 			Matcher partOfUniversityMatcher = partOfUniversityPattern.matcher(parentGroupCispr);
 			//if this is group we are looking for, get the abbreviation from it, if not then continue in searching
 			if(partOfUniversityMatcher.matches()) {
-				return getStringValueOfGroupAttribute(sess, workingGorup, A_G_D_INET_GROUP_NAME_ABB_EN);
+				return getStringValueOfGroupAttribute(sess, workingGroup, A_G_D_INET_GROUP_NAME_ABB_EN);
 			}
 		}
 		//If not found, return null instead
