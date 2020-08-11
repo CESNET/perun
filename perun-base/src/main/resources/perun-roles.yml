@@ -958,6 +958,8 @@ perun_policies:
   destination_null-moveGroup_Group_Group_policy:
     policy_roles:
       - VOADMIN: Vo
+      - GROUPADMIN: Group
+        TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -1203,6 +1205,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - VOADMIN: Vo
+      - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -1221,6 +1224,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - VOADMIN: Vo
+      - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -1266,6 +1270,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
       - VOADMIN: Vo
+      - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -1460,6 +1465,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -4110,6 +4116,7 @@ perun_policies:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
+      - TOPGROUPCREATOR:
     include_policies:
       - default_policy
 
@@ -4119,6 +4126,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
+      - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
 
@@ -4129,6 +4137,7 @@ perun_policies:
       - VOOBSERVER:
       - VOADMIN:
       - PERUNOBSERVER:
+      - TOPGROUPCREATOR:
     include_policies:
       - default_policy
 
@@ -4174,6 +4183,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
+      - TOPGROUPCREATOR: Vo
     include_policies:
       - default_policy
 
