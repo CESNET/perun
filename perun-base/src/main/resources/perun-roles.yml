@@ -1,5 +1,84 @@
 ---
 # A list of Perun roles that are loaded to the database
+#
+# PERUNADMIN role can perform all the actions possible in the Perun system.
+# It is the only role that is able to also set this role to other users.
+#
+# PERUNOBSERVER role has access to all the information, but it is not able to perform any changes.
+# The role can be set only by Perun administrators.
+#
+# VOADMIN role has full control over a virtual organization that is associated with the role.
+# It can create, set up and manage groups in the VO, assign groups and services to resources, set up external
+# sources for the VO, define rules for VO membership, and set up registration sheet for the VO.
+# VO administrators are able to set up roles associated with the Vo: other VO administrators, Resource administrators,
+# Group administrators, Top group creators, Resource self-service, and Sponsor roles.
+# The VO administrator role may be set to users or groups of users by other VO administrators or Perun administrators.
+#
+# GROUPADMIN role can create subgroups for the group which is associated with this role
+# and add members to the group and its subgroups. Users with this role are also able to send group invitations
+# to other VO members, and to create a registration sheet for group membership. The role may be set
+# to users or groups of users by Perun administrators, VO administrators, and other Group administrators.
+#
+# SELF role is a user’s primary role through which the user is able to read and to change
+# only their personal information. It is assigned to all the authenticated users and cannot be removed.
+#
+# FACILITYADMIN role has complete control over a facility that is associated with the role.
+# For example, Facility administrators have a right to create facility resources, to set up attributes and destinations
+# for services, or to propagate these services. This role may be set by a Perun administrator
+# or by another facility administrator associated with the same facility.
+# Moreover, the role can also be assigned to a single user or a group of users.
+#
+# RESOURCEADMIN role can assign groups to and remove them from the resources with which this role is connected.
+# The group and the resource have to be in the same VO in order to make an assignment or to remove it.
+# Resource administrators, VO administrators, and Perun administrators are able to set this role
+# to other users or groups of users.
+#
+# RESOURCESELFSERVICE has the same privileges as the Resource administrator role,
+# but users with this role are able to manage group on resources only when they are Group administrators for that group.
+# VO administrators, Perun administrators, and Resource administrators are allowed to assign this role
+# to users or groups of users. However, a user with Resource self-service role cannot delegate this role further.
+#
+# REGISTRAR is a system role that belongs to the Registration module. It is allowed to perform actions
+# that are connected to users’ registrations and to creating and changing users’ passwords.
+# It cannot be managed by other roles.
+#
+# ENGINE is another system role that represents the Engine component. This role is authorized to take actions
+# connected with users’ propagations to services. Same as the role RPC, this role cannot be managed by other roles.
+#
+# RPC is a system role, which allows the RPC component to call the API and thus transfer outer API parameters
+# into objects. Perun does not provide an explicit functionality for managing system roles.
+# Therefore, it is not possible to manage this role by any other role.
+#
+# NOTIFICATIONS role does not have any special privileges. Its purpose is to identify whether
+# the Notification module is calling the core API. It is a system role; therefore, it cannot be assigned to anyone.
+#
+# SERVICEUSER is a role that can be assigned to a certain process, service, or user.
+# It is a sign of an account with a Self role being created by someone else.
+# The only role with privileges to create a Service user is the Perun administrator role.
+#
+# SPONSOR users or groups of a VO can provide other users with VO membership even without them passing the VO registration.
+# The sponsor role may be assigned to users or groups of users by VO administrators or Perun administrators.
+# However, Sponsors are not allowed to delegate this role to other users or groups.
+#
+# VOOBSERVER can see everything that VO admin sees, but the observer is not able to perform any changes in the VO.
+# Roles which have a right to set this role are Perun administrator and VO administrator.
+#
+# TOPGROUPCREATOR role is able to create a new top-level group in a VO (a group which does not have a parent group)
+# and to copy forms and emails from one group to another (within the same VO). This role can also be assigned to
+# users and groups of users. The only roles which have a right to set this role are the Perun administrator and the
+# VO administrator.
+#
+# SECURITYADMIN role has the privilege to put users on a blacklist in a facility. The blacklist is associated
+# with a security team, and the team is associated with the facility. Security administrators are members
+# of at least one security team, either directly, or indirectly as members of another group.
+# Together with Perun administrators, they can add other administrators to the team.
+#
+# CABINETADMIN role is able to manage users’ publications in the cabinet module.
+# Cabinet administrators and Perun administrators are able to delegate this role to other users,
+# but the role cannot be set to groups.
+#
+# UNKNOWN exists, but it is not used in Perun.
+#
 perun_roles:
   - PERUNADMIN
   - PERUNOBSERVER
