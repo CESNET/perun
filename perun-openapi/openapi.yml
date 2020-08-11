@@ -5938,7 +5938,35 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
 
 
-  #TODO convertAttributeToUnique
+  /urlinjsonout/attributesManager/convertAttributeToUnique:
+    post:
+      tags:
+        - AttributesManager
+      operationId: convertAttributeToUnique
+      summary: "Converts attribute to unique - marks its definition as unique and ensures that all its values are unique.
+      Entityless attributes cannot be converted to unique, only attributes attached to PerunBeans or pairs of PerunBeans."
+      parameters:
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/attributesManager/convertAttributeToNonunique:
+    post:
+      tags:
+        - AttributesManager
+      operationId: convertAttributeToNonunique
+      summary: "Converts attribute to nonunique - unmarks unique flag from attribute definition, and deletes all values
+      from a special table with unique constraint that ensures that all values remain unique. Already nonunique attribute is skipped."
+      parameters:
+        - $ref: '#/components/parameters/attributeInteger'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/attributesManager/getAttributeModulesDependenciesGraphText:
     get:

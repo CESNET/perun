@@ -4056,6 +4056,19 @@ public interface AttributesManager {
 	void convertAttributeToUnique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException;
 
 	/**
+	 * Converts attribute to non-unique.
+	 *
+	 * Unmarks unique flag from attribute definition, and deletes all values from a special table with unique constraint
+	 * that ensures that all values remain unique. Already non-unique attribute is skipped.
+	 *
+	 * @param session perun session
+	 * @param attrId  attribute id
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws AttributeNotExistsException when the attribute definition for attrId doesn't exist
+	 */
+	void convertAttributeToNonunique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException;
+
+	/**
 	 * Generates graph describing attribute modules dependencies.
 	 * Text output format can be specified by {@link GraphTextFormat} format.
 	 *

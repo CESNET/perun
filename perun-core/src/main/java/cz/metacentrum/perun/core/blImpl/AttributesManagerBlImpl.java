@@ -8116,10 +8116,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		log.info("converting attribute {} to unique",attrDef.getName());
 		attrDef.setUnique(true);
 		this.updateAttributeDefinition(session, attrDef);
-		long startTime = System.currentTimeMillis();
+
 		attributesManagerImpl.convertAttributeValuesToUnique(session, attrDef);
-		long endTime = System.currentTimeMillis();
-		log.debug("Attribute {} was converted to unique in {} ms",attrDef.getName(),(endTime-startTime));
+	}
+
+	@Override
+	public void convertAttributeToNonunique(PerunSession session, int attrId) throws AttributeNotExistsException {
+		AttributeDefinition attrDef = getAttributeDefinitionById(session, attrId);
+		if(!attrDef.isUnique()) return;
+		log.info("converting unique attribute {} to nonunique",attrDef.getName());
+		attrDef.setUnique(false);
+		this.updateAttributeDefinition(session, attrDef);
+
+		attributesManagerImpl.convertAttributeValuesToNonunique(session, attrDef);
 	}
 
 	@Override

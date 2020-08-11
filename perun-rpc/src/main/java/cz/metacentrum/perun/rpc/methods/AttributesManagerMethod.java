@@ -3975,6 +3975,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Converts attribute to nonunique - unmarks unique flag from attribute definition, and deletes all values
+	 * from a special table with unique constraint that ensures that all values remain unique.
+	 * Already nonunique attribute is skipped.
+	 *
+	 * @param attrDefId int AttributeDefinition <code>id</code>
+	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 */
+	convertAttributeToNonunique {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PrivilegeException, AttributeNotExistsException {
+			parms.stateChangingCheck();
+			ac.getAttributesManager().convertAttributeToNonunique(ac.getSession(), parms.readInt("attrDefId"));
+			return null;
+		}
+	},
+
+	/*#
 	 * Generates text file describing dependencies between attribute modules.
 	 * The format of text file can be specified by parameter.
 	 * Modules that has no dependency relations are omitted.

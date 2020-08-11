@@ -2601,4 +2601,9 @@ public interface AttributesManagerImplApi {
 	 * Copies all values of the attribute to table _attr_u_values which has unique constraint.
 	 */
 	void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef);
+
+	/**
+	 * Deletes all values of the attribute from table _attr_u_values which has unique constraint.
+	 */
+	void convertAttributeValuesToNonunique(PerunSession session, AttributeDefinition attrDef);
 }

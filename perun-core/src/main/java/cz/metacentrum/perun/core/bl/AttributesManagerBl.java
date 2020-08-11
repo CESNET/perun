@@ -4609,6 +4609,18 @@ public interface AttributesManagerBl {
 	void convertAttributeToUnique(PerunSession session, int attrId) throws AttributeNotExistsException, AttributeAlreadyMarkedUniqueException;
 
 	/**
+	 * Converts attribute to nonunique.
+	 *
+	 * Unmarks unique flag from attribute definition, and deletes all values from a special table with unique constraint
+	 * that ensures that all values remain unique. Already nonunique attribute is skipped.
+	 *
+	 * @param session perun session
+	 * @param attrId attribute id
+	 * @throws AttributeNotExistsException when the attribute definition for attrId doesn't exist
+	 */
+	void convertAttributeToNonunique(PerunSession session, int attrId) throws AttributeNotExistsException;
+
+	/**
 	 * Generates graph describing attribute modules dependencies.
 	 * Text output format can be specified by {@link GraphTextFormat} format.
 	 *
