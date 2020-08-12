@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -1301,6 +1302,124 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			},
 			ATTR_UES_O
 		);
+	}
+
+	@Test
+	public void findUserById() {
+		System.out.println(CLASS_NAME + "findUserById");
+
+		List<User> users = perun.getUsersManagerBl().findUsers(sess, String.valueOf(user.getId()));
+		assertEquals(1, users.size());
+		assertEquals(user, users.get(0));
+	}
+
+	@Test
+	public void findUserByNames() {
+		System.out.println(CLASS_NAME + "findUserByNames");
+
+		List<User> users = perun.getUsersManagerBl().findUsers(sess, user.getFirstName());
+		assertEquals(1, users.size());
+		assertEquals(user, users.get(0));
+
+		users = perun.getUsersManagerBl().findUsers(sess, user.getLastName());
+		assertEquals(1, users.size());
+		assertEquals(user, users.get(0));
+	}
+
+	@Test
+	public void findUserByMemberAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "findUserByMemberAttribute");
+
+		Member member = setUpMember(vo);
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		// add member attribute to CoreConfig
+		List<String> attributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+		attributes.add("urn:perun:member:attribute-def:def:test");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace("urn:perun:member:attribute-def:def");
+		attrDef.setFriendlyName("test");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("login");
+		perun.getAttributesManagerBl().setAttribute(sess, member, attribute);
+
+		List<User> users = perun.getUsersManagerBl().findUsers(sess, "login");
+		assertEquals(1, users.size());
+		assertEquals(user, users.get(0));
+
+		// reset CoreConfig to previous state
+		attributes.remove("urn:perun:member:attribute-def:def:test");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
+	}
+
+	@Test
+	public void findUserByUserAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "findUserByUserAttribute");
+
+		// add user attribute to CoreConfig
+		List<String> attributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+		attributes.add("urn:perun:user:attribute-def:def:test");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace("urn:perun:user:attribute-def:def");
+		attrDef.setFriendlyName("test");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("login");
+
+		perun.getAttributesManagerBl().setAttribute(sess, user, attribute);
+
+		List<User> users = perun.getUsersManagerBl().findUsers(sess, "login");
+		assertEquals(1, users.size());
+		assertEquals(user, users.get(0));
+
+		// reset CoreConfig to previous state
+		attributes.remove("urn:perun:user:attribute-def:def:test");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
+	}
+
+	@Test
+	public void findUserByUserExtSourceAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "findUserByUserExtSourceAttribute");
+
+		// add userExtSource attribute to CoreConfig
+		List<String> attributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+		attributes.add("urn:perun:ues:attribute-def:def:test");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace("urn:perun:ues:attribute-def:def");
+		attrDef.setFriendlyName("test");
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("login");
+
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+
+		List<User> users = perun.getUsersManagerBl().findUsers(sess, "login");
+		assertEquals(1, users.size());
+		assertEquals(user, users.get(0));
+
+		// reset CoreConfig to previous state
+		attributes.remove("urn:perun:ues:attribute-def:def:test");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
+	}
+
+	@Test
+	public void findUserByUserExtSourceLogin() {
+		System.out.println(CLASS_NAME + "findUserByUserExtSourceLogin");
+
+		List<User> users = perun.getUsersManagerBl().findUsers(sess, extLogin);
+		assertEquals(1, users.size());
+		assertEquals(user, users.get(0));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

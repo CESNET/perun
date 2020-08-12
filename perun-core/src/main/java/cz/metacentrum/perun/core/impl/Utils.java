@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -1640,5 +1642,125 @@ public class Utils {
 		} catch (PatternSyntaxException e) {
 			throw new InternalErrorException("Invalid group name regex defined: " + regex, e);
 		}
+	}
+
+	/**
+	 * Returns search query to search by user name (exact match) based on databased in use.
+	 *
+	 * @return search query
+	 */
+	public static String prepareUserSearchQueryExactMatch() {
+		if (Compatibility.isPostgreSql()) {
+			return " strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=:nameString";
+		} else if (Compatibility.isHSQLDB()) {
+			return " lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=:nameString";
+		} else {
+			throw new InternalErrorException("Unsupported db type");
+		}
+	}
+
+	/**
+	 * Returns search query to search by user name (similar match) based on databased in use.
+	 *
+	 * @return search query
+	 */
+	public static String prepareUserSearchQuerySimilarMatch() {
+		if (Compatibility.isPostgreSql()) {
+			return " strpos(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "),:nameString) > 0 ";
+		} else if (Compatibility.isHSQLDB()) {
+			return " lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ") like '%' || :nameString || '%' ";
+		} else {
+			throw new InternalErrorException("Unsupported db type");
+		}
+	}
+
+	/**
+	 * Takes attributes from CoreConfig used in users or members search and divides them into correct categories based
+	 * on attribute type (member, user, userExtSource).
+	 *
+	 * Then returns map: memberAttributes -> list of member attributes
+	 *                   userAttributes -> list of user attributes
+	 *                   uesAttributes -> list of userExtSource attributes
+	 *
+	 * @return map of attributes
+	 */
+	public static Map<String, List<String>> getDividedAttributes() {
+		Map<String, List<String>> result = new HashMap<>();
+
+		List<String> allAttributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+		List<String> memberAttributes = new ArrayList<>();
+		List<String> userAttributes = new ArrayList<>();
+		List<String> uesAttributes = new ArrayList<>();
+		for (String attribute : allAttributes) {
+			if (attribute.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+				memberAttributes.add(attribute);
+			} else if (attribute.startsWith(AttributesManager.NS_USER_ATTR)) {
+				userAttributes.add(attribute);
+			} else if (attribute.startsWith(AttributesManager.NS_UES_ATTR)) {
+				uesAttributes.add(attribute);
+			}
+		}
+
+		result.put("memberAttributes", memberAttributes);
+		result.put("userAttributes", userAttributes);
+		result.put("uesAttributes", uesAttributes);
+
+		return result;
+	}
+
+	/**
+	 * Prepares query to search users or members by attributes if received attribute list is not empty.
+	 *
+	 * Returns map: memberAttributesQueryString -> pair of parts of query to search by member attributes
+	 * 	            userAttributesQueryString -> pair of parts of query to search by user attributes
+	 * 	            uesAttributesQueryString -> pair of parts of query to search by userExtSource attributes
+	 *
+	 * @param memberAttributes member attributes
+	 * @param userAttributes user attributes
+	 * @param uesAttributes userExtSource attributes
+	 *
+	 * @return map of parts of query
+	 */
+	public static Map<String, Pair<String, String>> getAttributesQuery(List<String> memberAttributes, List<String> userAttributes, List<String> uesAttributes) {
+		Map<String, Pair<String, String>> result = new HashMap<>();
+
+		Pair<String, String> memberAttributesQueryString = new Pair<>("", "");
+		if (!memberAttributes.isEmpty()) {
+			memberAttributesQueryString.put(" left join member_attr_values mav on members.id=mav.member_id and mav.attr_id in (select id from attr_names where attr_name in (:memberAttributes))", " lower(mav.attr_value)=lower(:searchString) or " );
+		}
+		result.put("memberAttributesQuery", memberAttributesQueryString);
+
+		Pair<String, String> userAttributesQueryString = new Pair<>("", "");
+		if (!userAttributes.isEmpty()) {
+			userAttributesQueryString.put(" left join user_attr_values uav on users.id=uav.user_id and uav.attr_id in (select id from attr_names where attr_name in (:userAttributes))" , " lower(uav.attr_value)=lower(:searchString) or ");
+		}
+		result.put("userAttributesQuery", userAttributesQueryString);
+
+		Pair<String, String> uesAttributesQueryString = new Pair<>("", "");
+		if (!uesAttributes.isEmpty()) {
+			uesAttributesQueryString.put(" left join user_ext_source_attr_values uesav on uesav.user_ext_source_id=ues.id and uesav.attr_id in (select id from attr_names where attr_name in (:uesAttributes))", " lower(uesav.attr_value)=lower(:searchString) or ");
+		}
+		result.put("uesAttributesQuery", uesAttributesQueryString);
+
+		return result;
+	}
+
+	/**
+	 * Returns MapSqlParameterSource with values added to search members or users.
+	 *
+	 * @param searchString string used to search by
+	 * @param attributesToSearchBy map of attributes used to search for users or members
+	 *
+	 * @return filled MapSqlParameterSource
+	 */
+	public static MapSqlParameterSource getMapSqlParameterSourceToSearchUsersOrMembers(String searchString, Map<String, List<String>> attributesToSearchBy) {
+		MapSqlParameterSource namedParams = new MapSqlParameterSource();
+		namedParams.addValue("searchString", searchString);
+		namedParams.addValue("nameString", Utils.utftoasci(searchString.toLowerCase()));
+		namedParams.addValue("memberAttributes", attributesToSearchBy.get("memberAttributes"));
+		namedParams.addValue("userAttributes", attributesToSearchBy.get("userAttributes"));
+		namedParams.addValue("uesAttributes", attributesToSearchBy.get("uesAttributes"));
+
+		return namedParams;
 	}
 }

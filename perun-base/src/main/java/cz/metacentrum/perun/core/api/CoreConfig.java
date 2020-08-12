@@ -81,6 +81,7 @@ public class CoreConfig {
 	private List<String> autocreatedNamespaces;
 	private String groupNameSecondaryRegex;
 	private String groupFullNameSecondaryRegex;
+	private List<String> attributesToSearchUsersAndMembersBy;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -670,5 +671,13 @@ public class CoreConfig {
 
 	public void setGroupFullNameSecondaryRegex(String groupFullNameSecondaryRegex) {
 		this.groupFullNameSecondaryRegex = groupFullNameSecondaryRegex;
+	}
+
+	public List<String> getAttributesToSearchUsersAndMembersBy() {
+		return attributesToSearchUsersAndMembersBy;
+	}
+
+	public void setAttributesToSearchUsersAndMembersBy(List<String> attributesToSearchUsersAndMembersBy) {
+		this.attributesToSearchUsersAndMembersBy = attributesToSearchUsersAndMembersBy;
 	}
 }
