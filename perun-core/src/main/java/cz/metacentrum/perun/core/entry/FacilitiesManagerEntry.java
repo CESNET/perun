@@ -659,7 +659,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) &&
+			!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getHosts");
 		}
 
