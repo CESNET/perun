@@ -497,8 +497,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("vo")) {
-				if(cz.metacentrum.perun.core.api.AuthzResolver.isAuthorized(
-					ac.getSession(), Role.VOADMIN, ac.getVoById(parms.readInt("vo")))) return 1;
+				if(ac.getSession().getPerunPrincipal().getRoles().hasRole(
+					Role.VOADMIN, ac.getVoById(parms.readInt("vo")))) return 1;
 				else return 0;
 			} else {
 				if (cz.metacentrum.perun.core.api.AuthzResolver.isVoAdmin(ac.getSession())) return 1;
@@ -524,8 +524,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("group")){
-				if(cz.metacentrum.perun.core.api.AuthzResolver.isAuthorized(
-					ac.getSession(), Role.GROUPADMIN, ac.getGroupById(parms.readInt("group")))) return 1;
+				if(ac.getSession().getPerunPrincipal().getRoles().hasRole(
+					Role.GROUPADMIN, ac.getGroupById(parms.readInt("group")))) return 1;
 				else return 0;
 			} else{
 				if (cz.metacentrum.perun.core.api.AuthzResolver.isGroupAdmin(ac.getSession())) return 1;
@@ -551,8 +551,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility")) {
-				if(cz.metacentrum.perun.core.api.AuthzResolver.isAuthorized(
-					ac.getSession(), Role.FACILITYADMIN, ac.getFacilityById(parms.readInt("facility")))) return 1;
+				if(ac.getSession().getPerunPrincipal().getRoles().hasRole(
+					Role.FACILITYADMIN, ac.getFacilityById(parms.readInt("facility")))) return 1;
 				else return 0;
 			} else {
 				if (cz.metacentrum.perun.core.api.AuthzResolver.isFacilityAdmin(ac.getSession())) return 1;
