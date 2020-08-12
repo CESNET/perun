@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -2099,7 +2100,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		for (PerunBean object: objects) {
 			if (object == null) throw new InternalErrorException("A list of PerunBeans, used in authorization evaluation, cannot contain a null value.");
-			relatedObjects.add(object);
 			List<PerunBean> retrievedObjects = RelatedObjectsResolver.getValue(object.getBeanName()).apply(object);
 			relatedObjects.addAll(retrievedObjects);
 		}
@@ -2115,53 +2115,65 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	/**
 	 * Enum defines PerunBean's name and action. The action retrieves all related objects for the object with that name.
+	 * The source object is returned alongside its related objects.
 	 */
 	private enum RelatedObjectsResolver implements Function<PerunBean, List<PerunBean>> {
+		UserExtSource((object) -> {
+			User user = new User();
+			user.setId(((UserExtSource) object).getUserId());
+			return Arrays.asList(user, object);
+		}),
 		Member((object) -> {
 			User user = new User();
 			user.setId(((Member) object).getUserId());
 			Vo vo = new Vo();
 			vo.setId(((Member) object).getVoId());
-			return Arrays.asList(user,vo);
+			return Arrays.asList(user,vo, object);
 		}),
 		Group((object) -> {
 			Vo vo = new Vo();
 			vo.setId(((Group) object).getVoId());
-			return Collections.singletonList(vo);
+			return Arrays.asList(vo, object);
 		}),
 		Resource((object) -> {
 			Vo vo = new Vo();
 			vo.setId(((Resource) object).getVoId());
 			Facility facility = new Facility();
 			facility.setId(((Resource) object).getFacilityId());
-			return Arrays.asList(vo, facility);
+			return Arrays.asList(vo, facility, object);
 		}),
 		ResourceTag((object) -> {
 			Vo vo = new Vo();
 			vo.setId(((ResourceTag) object).getVoId());
-			return Collections.singletonList(vo);
+			return Arrays.asList(vo, object);
 		}),
 		RichMember((object) -> {
 			User user = new User();
 			user.setId(((RichMember) object).getUserId());
 			Vo vo = new Vo();
 			vo.setId(((Member) object).getVoId());
-			return Arrays.asList(user,vo);
+			Member member = new Member();
+			member.setId(object.getId());
+			return Arrays.asList(user,vo, member);
 		}),
 		RichGroup((object) -> {
 			Vo vo = new Vo();
 			vo.setId(((RichGroup) object).getVoId());
-			return Collections.singletonList(vo);
+			Group group = new Group();
+			group.setId(object.getId());
+			return Arrays.asList(vo, group);
 		}),
 		RichResource((object) -> {
 			Vo vo = new Vo();
 			vo.setId(((RichResource) object).getVoId());
 			Facility facility = new Facility();
 			facility.setId(((Resource) object).getFacilityId());
-			return Arrays.asList(vo, facility);
+			Resource resource = new Resource();
+			resource.setId(object.getId());
+			return Arrays.asList(vo, facility, resource);
 		}),
 		Default((object) -> {
-			return Collections.emptyList();
+			return Collections.singletonList(object);
 		});
 
 		private Function<PerunBean, List<PerunBean>> function;
