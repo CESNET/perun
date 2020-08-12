@@ -506,22 +506,22 @@ public interface UsersManagerImplApi {
 	List<Vo> getVosWhereUserIsMember(PerunSession sess, User user);
 
 	/**
-	 * Returns list of users who matches the searchString, searching name, email and logins.
+	 * Returns list of users who matches the searchString, searching name, id, member attributes, user attributes
+	 * and userExtSource attributes (listed in perun.properties).
 	 *
-	 * @param sess
-	 * @param searchString
+	 * @param sess perun session
+	 * @param searchString it will be looking for this search string in the specific parameters in DB
 	 * @return list of users
-	 * @throws InternalErrorException
 	 */
 	List<User> findUsers(PerunSession sess, String searchString);
 
 	/**
-	 * Returns list of users who matches the searchString, searching name, email and logins.
+	 * Returns list of users who matches the searchString, searching name (exact match), id, member attributes, user attributes
+	 * and userExtSource attributes (listed in perun.properties).
 	 *
-	 * @param sess
-	 * @param searchString
+	 * @param sess perun session
+	 * @param searchString it will be looking for this search string in the specific parameters in DB
 	 * @return list of users
-	 * @throws InternalErrorException
 	 */
 	List<User> findUsersByExactMatch(PerunSession sess, String searchString);
 

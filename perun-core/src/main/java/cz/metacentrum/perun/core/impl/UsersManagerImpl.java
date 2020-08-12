@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -794,90 +795,73 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public List<User> findUsers(PerunSession sess, String searchString) {
-		Set<User> users = new HashSet<>();
-
-		log.debug("Searching for users using searchString '{}'", searchString);
-
-		// Search by mail (member)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-					" from users, members, member_attr_values, attr_names " +
-					"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
-					"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
-					"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search preferred email (user)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-					" from users, user_attr_values, attr_names " +
-					"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
-					"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
-					"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search logins in userExtSources
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-					" from users, user_ext_sources " +
-					"where lower(user_ext_sources.login_ext)=lower(?) and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
-
-		// Search logins in attributes: login-namespace:*
-		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
-					" from attr_names, user_attr_values, users " +
-					"where attr_names.friendly_name like 'login-namespace:%' and lower(user_attr_values.attr_value)=lower(?) " +
-					"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
-					USER_MAPPER, searchString));
-
-		// Search by userId
-		try {
-			int userId = Integer.parseInt(searchString);
-			users.addAll(jdbc.query("select " + userMappingSelectQuery + " from users where id=?", USER_MAPPER, userId));
-		} catch (NumberFormatException e) {
-			// IGNORE
-		}
-
-		users.addAll(findUsersByName(sess, searchString));
-
-		return new ArrayList<>(users);
+		return findUsers(searchString, false);
 	}
 
 	@Override
 	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) {
-		Set<User> users = new HashSet<>();
+		return findUsers(searchString, true);
+	}
 
-		log.debug("Searching for users using searchString '{}'", searchString);
-
-		// Search by mail (member)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-				" from users, members, member_attr_values, attr_names " +
-				"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
-				"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
-				"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search preferred email (user)
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-				" from users, user_attr_values, attr_names " +
-				"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
-				"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
-				"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString));
-
-		// Search logins in userExtSources
-		users.addAll(jdbc.query("select " + userMappingSelectQuery +
-				" from users, user_ext_sources " +
-				"where lower(user_ext_sources.login_ext)=lower(?) and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
-
-		// Search logins in attributes: login-namespace:*
-		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
-						" from attr_names, user_attr_values, users " +
-						"where attr_names.friendly_name like 'login-namespace:%' and lower(user_attr_values.attr_value)=lower(?) " +
-						"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
-				USER_MAPPER, searchString));
-
-		// Search by userId
-		try {
-			int userId = Integer.parseInt(searchString);
-			users.addAll(jdbc.query("select " + userMappingSelectQuery + " from users where id=?", USER_MAPPER, userId));
-		} catch (NumberFormatException e) {
-			// IGNORE
+	/**
+	 * Returns list of users who matches the searchString, searching name, id, member attributes, user attributes
+	 * and userExtSource attributes (listed in CoreConfig).
+	 *
+	 * @param searchString string used to search by
+	 * @param exactMatch if true, searches name only by exact match
+	 * @return list of users
+	 */
+	private List<User> findUsers(String searchString, boolean exactMatch) {
+		String userNameQueryString;
+		if (exactMatch) {
+			// Part of query to search by user name (exact)
+			userNameQueryString = Utils.prepareUserSearchQueryExactMatch();
+		} else {
+			// Part of query to search by user name (not exact)
+			userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
 		}
 
-		users.addAll(findUsersByExactName(sess, searchString));
+		// Part of query to search by user id
+		String idQueryString = "";
+		try {
+			int id = Integer.parseInt(searchString);
+			idQueryString = " users.id=" + id + " or ";
+		} catch (NumberFormatException e) {
+			// IGNORE wrong format of ID
+		}
+
+		// Divide attributes received from CoreConfig into member, user and userExtSource attributes
+		Map<String, List<String>> attributesToSearchBy = Utils.getDividedAttributes();
+
+		// Parts of query to search by attributes
+		Map<String, Pair<String, String>> attributesToSearchByQueries = Utils.getAttributesQuery(attributesToSearchBy.get("memberAttributes"), attributesToSearchBy.get("userAttributes"), attributesToSearchBy.get("uesAttributes"));
+
+		MapSqlParameterSource namedParams = Utils.getMapSqlParameterSourceToSearchUsersOrMembers(searchString, attributesToSearchBy);
+
+		// Search by member attributes
+		// Search by user attributes
+		// Search by login in userExtSources
+		// Search by userExtSource attributes
+		// Search by user id
+		// Search by name for user
+		Set<User> users = new HashSet<>(namedParameterJdbcTemplate.query("select distinct " + userMappingSelectQuery +
+			" from users " +
+			" left join members on users.id=members.user_id " +
+			" left join user_ext_sources ues on ues.user_id=users.id " +
+			attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
+			attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
+			attributesToSearchByQueries.get("uesAttributesQuery").getLeft() +
+			" where " +
+			" ( " +
+			" lower(ues.login_ext)=lower(:searchString) or " +
+			attributesToSearchByQueries.get("memberAttributesQuery").getRight() +
+			attributesToSearchByQueries.get("userAttributesQuery").getRight() +
+			attributesToSearchByQueries.get("uesAttributesQuery").getRight() +
+			idQueryString +
+			userNameQueryString +
+			" ) ", namedParams, USER_MAPPER));
+
+		log.debug("Searching for users using searchString '{}'", searchString);
 
 		return new ArrayList<>(users);
 	}

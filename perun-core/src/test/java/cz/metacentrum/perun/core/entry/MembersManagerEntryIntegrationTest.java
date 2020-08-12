@@ -1345,6 +1345,11 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		groupsManagerEntry.addMember(sess, createdGroup, member);
 		groupsManagerEntry.addMember(sess, createdGroup, member2);
 
+		// add user attribute to CoreConfig
+		List<String> attributes = BeansUtils.getCoreConfig().getAttributesToSearchUsersAndMembersBy();
+		attributes.add("urn:perun:user:attribute-def:def:login-namespace:testMichal");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
+
 		List<Member> foundMembers = membersManagerEntry.findMembersInGroup(sess, createdGroup, "FirstTest");
 		assertTrue(foundMembers.contains(member));
 		foundMembers.remove(member);
@@ -1362,6 +1367,10 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue(foundMembers.contains(member));
 		foundMembers.remove(member);
 		assertTrue(foundMembers.isEmpty());
+
+		// reset CoreConfig to previous state
+		attributes.remove("urn:perun:user:attribute-def:def:login-namespace:testMichal");
+		BeansUtils.getCoreConfig().setAttributesToSearchUsersAndMembersBy(attributes);
 	}
 
 	@Ignore
