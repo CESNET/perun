@@ -6,15 +6,12 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
-import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
@@ -70,8 +67,10 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 		when(um.getUserById(session, member.getUserId())).thenReturn(user);
 		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("member"))))
 				.thenReturn(Sets.newHashSet(new Pair<>(member.getId(), 0)));
-		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("group_resource"))))
+		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("group"))))
 				.thenReturn(Sets.newHashSet());
+		when(am.getAttributeDefinition(session, urn_perun_member_attribute_def_def_o365EmailAddresses_mu.G_D_O365_EMAIL_ADDRESSES_O365MU_ATTR))
+				.thenReturn(new urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu().getAttributeDefinition());
 		attributeToCheck = new Attribute(classInstance.getAttributeDefinition());
 		attributeToCheck.setId(101);
 	}
@@ -166,36 +165,14 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 	}
 
 	@Test
-	public void testClashMember() throws Exception {
-		System.out.println("testClashMember()");
-		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("member"))))
-				.thenReturn(Sets.newHashSet(new Pair<>(1000, 0)));
-		Member memberWithDuplicateEmail = mock(Member.class);
-		MembersManagerBl membersManagerBl = mock(MembersManagerBl.class);
-		when(session.getPerunBl().getMembersManagerBl()).thenReturn(membersManagerBl);
-		when(session.getPerunBl().getMembersManagerBl().getMemberById(session, 1000)).thenReturn(memberWithDuplicateEmail);
-		attributeToCheck.setValue(Lists.newArrayList("my@example.com", uco + "@muni.cz"));
-		try {
-			classInstance.checkAttributeSemantics(session, member, attributeToCheck);
-			fail("should throw WrongReferenceAttributeValueException");
-		} catch (WrongReferenceAttributeValueException ex) {
-			assertThat(ex.getMessage(), endsWith("some of the email addresses are already assigned."));
-		}
-	}
-
-	@Test
 	public void testClashGroupResource() throws Exception {
 		System.out.println("testClashGroupResource()");
-		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("group_resource"))))
-				.thenReturn(Sets.newHashSet(new Pair<>(55, 66)));
+		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session), argThat(new BeanAttributeMatcher("group"))))
+				.thenReturn(Sets.newHashSet(new Pair<>(55, 0)));
 		Group groupWithDuplicateEmail = mock(Group.class);
-		Resource resourceWithDuplicateEmail = mock(Resource.class);
-		ResourcesManagerBl resourcesManagerBl = mock(ResourcesManagerBl.class);
 		GroupsManagerBl groupsManagerBl = mock(GroupsManagerBl.class);
 		when(session.getPerunBl().getGroupsManagerBl()).thenReturn(groupsManagerBl);
-		when(session.getPerunBl().getResourcesManagerBl()).thenReturn(resourcesManagerBl);
 		when(session.getPerunBl().getGroupsManagerBl().getGroupById(session, 55)).thenReturn(groupWithDuplicateEmail);
-		when(session.getPerunBl().getResourcesManagerBl().getResourceById(session, 66)).thenReturn(resourceWithDuplicateEmail);
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", uco + "@muni.cz"));
 		try {
 			classInstance.checkAttributeSemantics(session, member, attributeToCheck);
