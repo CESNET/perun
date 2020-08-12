@@ -4364,6 +4364,8 @@ perun_roles_management:
   RESOURCEADMIN:
     assign_to_objects:
       Resource: resource_id
+      Vo: vo_id
+      Facility: facility_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
@@ -4375,6 +4377,8 @@ perun_roles_management:
   RESOURCESELFSERVICE:
     assign_to_objects:
       Resource: resource_id
+      Vo: vo_id
+      Facility: facility_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
