@@ -75,6 +75,7 @@ import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -8121,14 +8122,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void convertAttributeToNonunique(PerunSession session, int attrId) throws AttributeNotExistsException {
+	public int convertAttributeToNonunique(PerunSession session, int attrId) throws AttributeNotExistsException, AttributeNotMarkedUniqueException {
 		AttributeDefinition attrDef = getAttributeDefinitionById(session, attrId);
-		if(!attrDef.isUnique()) return;
+		if(!attrDef.isUnique()) throw new AttributeNotMarkedUniqueException("Cannot convert attribute because it is already marked as unique", attrDef);
 		log.info("converting unique attribute {} to nonunique",attrDef.getName());
 		attrDef.setUnique(false);
 		this.updateAttributeDefinition(session, attrDef);
 
-		attributesManagerImpl.convertAttributeValuesToNonunique(session, attrDef);
+		return attributesManagerImpl.convertAttributeValuesToNonunique(session, attrDef);
 	}
 
 	@Override

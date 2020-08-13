@@ -5959,7 +5959,7 @@ paths:
         - AttributesManager
       operationId: convertAttributeToNonunique
       summary: "Converts attribute to nonunique - unmarks unique flag from attribute definition, and deletes all values
-      from a special table with unique constraint that ensures that all values remain unique. Already nonunique attribute is skipped."
+      from a special table with unique constraint that ensures that all values remain unique."
       parameters:
         - $ref: '#/components/parameters/attributeInteger'
       responses:

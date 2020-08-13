@@ -2603,7 +2603,7 @@ public interface AttributesManagerImplApi {
 	void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef);
 
 	/**
-	 * Deletes all values of the attribute from table _attr_u_values which has unique constraint.
+	 * Deletes all values of the attribute from table _attr_u_values which has unique constraint. And returns how many rows were deleted.
 	 */
-	void convertAttributeValuesToNonunique(PerunSession session, AttributeDefinition attrDef);
+	int convertAttributeValuesToNonunique(PerunSession session, AttributeDefinition attrDef);
 }

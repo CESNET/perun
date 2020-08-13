@@ -6,6 +6,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
@@ -3980,11 +3981,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Already nonunique attribute is skipped.
 	 *
 	 * @param attrDefId int AttributeDefinition <code>id</code>
+	 * @throw PrivilegeException Insufficient permissions.
 	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeNotMarkedUniqueException When Attribute with <code>id</code> is not unique.
 	 */
 	convertAttributeToNonunique {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PrivilegeException, AttributeNotExistsException {
+		public Void call(ApiCaller ac, Deserializer parms) throws PrivilegeException, AttributeNotExistsException, AttributeNotMarkedUniqueException {
 			parms.stateChangingCheck();
 			ac.getAttributesManager().convertAttributeToNonunique(ac.getSession(), parms.readInt("attrDefId"));
 			return null;

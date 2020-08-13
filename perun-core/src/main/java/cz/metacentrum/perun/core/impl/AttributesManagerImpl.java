@@ -4516,10 +4516,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void convertAttributeValuesToNonunique(PerunSession session, AttributeDefinition attrDef) {
+	public int convertAttributeValuesToNonunique(PerunSession session, AttributeDefinition attrDef) {
 		String tablePrefix = attributeToTablePrefix(attrDef);
 		try {
-			jdbc.update("DELETE FROM " + tablePrefix + "_attr_u_values WHERE attr_id=?", attrDef.getId());
+			return jdbc.update("DELETE FROM " + tablePrefix + "_attr_u_values WHERE attr_id=?", attrDef.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

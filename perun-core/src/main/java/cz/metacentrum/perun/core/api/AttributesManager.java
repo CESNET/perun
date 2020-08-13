@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -4059,14 +4060,15 @@ public interface AttributesManager {
 	 * Converts attribute to non-unique.
 	 *
 	 * Unmarks unique flag from attribute definition, and deletes all values from a special table with unique constraint
-	 * that ensures that all values remain unique. Already non-unique attribute is skipped.
+	 * that ensures that all values remain unique.
 	 *
 	 * @param session perun session
 	 * @param attrId  attribute id
 	 * @throws PrivilegeException insufficient permissions
 	 * @throws AttributeNotExistsException when the attribute definition for attrId doesn't exist
+	 * @throws AttributeNotMarkedUniqueException when the attribute definition is not unique
 	 */
-	void convertAttributeToNonunique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException;
+	void convertAttributeToNonunique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException, AttributeNotMarkedUniqueException;
 
 	/**
 	 * Generates graph describing attribute modules dependencies.

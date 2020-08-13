@@ -5616,10 +5616,39 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 					default:
 						throw new Exception("unknown entity "+bean);
 				}
-				attributesManager.convertAttributeToNonunique(sess, attributeDefinition.getId());
+				int rowsChanged = attributesManagerBl.convertAttributeToNonunique(sess, attributeDefinition.getId());
 				assertFalse(attributesManager.getAttributeDefinition(sess, attributeDefinition.getName()).isUnique());
+				assertTrue(rowsChanged > 0);
 			}
 		}
+	}
+
+	@Test
+	public void testConvertingToNonuniqAttributeExactlyRowsDeleted() throws Exception {
+		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttributeExactlyRowsDeleted");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+
+		String namespace = AttributesManager.NS_USER_ATTR_DEF;
+		String friendlyName = "test-conv-attr";
+		String description = "poznamka";
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setUnique(true);
+		attrDef.setFriendlyName(friendlyName);
+		attrDef.setNamespace(namespace);
+		attrDef.setDescription(description);
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+		attrDef = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
+
+		Attribute a = new Attribute(attrDef);
+		Attribute b = new Attribute(attrDef);
+		a.setValue("string1");
+		b.setValue("string2");
+		attributesManager.setAttribute(sess, user1, a);
+		attributesManager.setAttribute(sess, user2, b);
+
+		int rowsChanged = attributesManagerBl.convertAttributeToNonunique(sess, attrDef.getId());
+		assertEquals(2, rowsChanged);
 	}
 
 	@Test

@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -4516,19 +4517,19 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(session, "convertAttributeToUnique_int_policy")) {
-			throw new PrivilegeException("This operation can do only PerunAdmin.");
+			throw new PrivilegeException(session, "convertAttributeToUnique");
 		}
 
 		getAttributesManagerBl().convertAttributeToUnique(session, attrId);
 	}
 
 	@Override
-	public void convertAttributeToNonunique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException {
+	public void convertAttributeToNonunique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException, AttributeNotMarkedUniqueException {
 		Utils.checkPerunSession(session);
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(session, "convertAttributeToNonunique_int_policy")) {
-			throw new PrivilegeException("This operation can do only PerunAdmin.");
+			throw new PrivilegeException(session, "convertAttributeToNonunique");
 		}
 
 		getAttributesManagerBl().convertAttributeToNonunique(session, attrId);
