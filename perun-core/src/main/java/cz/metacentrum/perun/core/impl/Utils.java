@@ -934,6 +934,9 @@ public class Utils {
 				path = "/krb/gui/";
 			} else if (urlObject.getPath().contains("/fed/")) {
 				path = "/fed/gui/";
+			} else if (urlObject.getPath().contains("/ceitec/")) {
+				// to support ceitec proxy, since it gets more fed attributes than IDM SP.
+				path = "/ceitec/gui/";
 			} else if (urlObject.getPath().contains("/cert/")) {
 				path = "/cert/gui/";
 			}
