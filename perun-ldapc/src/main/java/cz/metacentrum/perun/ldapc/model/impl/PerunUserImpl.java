@@ -25,12 +25,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser {
 
 	private final static Logger log = LoggerFactory.getLogger(PerunUserImpl.class);
+
+	private static final Pattern EPPN_EPUID_PATTERN = Pattern.compile("[^@]+@[^@]+");
 
 	@Autowired
 	private PerunGroup perunGroup;
@@ -131,14 +134,26 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	@Override
 	public void addPrincipal(User user, String login) {
 		DirContextOperations entry = findByDN(buildDN(user));
-		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
+
+		// FIXME - this will be uncommented in the next release
+//		if (isEppnEpuidLogin(login)) {
+			entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
+//		}
+
+		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities, login);
 		ldapTemplate.modifyAttributes(entry);
 	}
 
 	@Override
 	public void removePrincipal(User user, String login) {
 		DirContextOperations entry = findByDN(buildDN(user));
-		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
+
+		// FIXME - this will be uncommented in the next release
+//		if (isEppnEpuidLogin(login)) {
+			entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
+//		}
+
+		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities, login);
 		ldapTemplate.modifyAttributes(entry);
 	}
 
@@ -202,13 +217,17 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	protected void doSynchronizePrincipals(DirContextOperations entry, List<UserExtSource> extSources) {
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames,
 				extSources.stream()
-						.filter(ues -> ues != null && ues.getExtSource() != null
-								&& ues.getExtSource().getType() != null
-								&& ues.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP))
-						.map(ues -> ues.getLogin())
-						.filter(login -> login != null)
+						.filter(this::isIdpUes)
+						.map(UserExtSource::getLogin)
+						// FIXME - this will be uncommented in the next release
+//						.filter(this::isEppnEpuidLogin)
 						.toArray(String[]::new)
 		);
+		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities,
+				extSources.stream()
+						.filter(this::isIdpUes)
+						.map(UserExtSource::getLogin)
+						.toArray(String[]::new));
 	}
 
 	private void doSynchronizeAdminRoles(DirContextOperations entry, List<Group> admin_groups, List<Vo> admin_vos, List<Facility> admin_facilities) {
@@ -300,5 +319,13 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 				getNameMapper());
 	}
 
+	private boolean isEppnEpuidLogin(String login) {
+		return login != null && EPPN_EPUID_PATTERN.matcher(login).matches();
+	}
 
+	private boolean isIdpUes(UserExtSource ues) {
+		return ues != null && ues.getExtSource() != null
+				&& ues.getExtSource().getType() != null
+				&& ues.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP);
+	}
 }

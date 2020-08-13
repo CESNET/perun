@@ -31,6 +31,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrCommonName = "cn";
 		public static final String ldapAttrPerunUniqueGroupName = "perunUniqueGroupName";
 		public static final String ldapAttrEduPersonPrincipalNames = "eduPersonPrincipalNames";
+		public static final String ldapAttrUserIdentities = "userIdentities";
 		public static final String ldapAttrPreferredMail = perunAttrPreferredMail;
 		public static final String ldapAttrMail = perunAttrMail;
 		public static final String ldapAttrOrganization = "o";
