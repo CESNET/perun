@@ -124,6 +124,7 @@ public class RequestPreferredEmailChange {
 		String locale = LocaleInfo.getCurrentLocale().getLocaleName();
 		if ("default".equals(locale)) locale = "en";
 		jsonQuery.put("lang", new JSONString(locale));
+		jsonQuery.put("linkPath", new JSONString("/"+PerunWebSession.getInstance().getRpcServer() + "/gui/"));
 		return jsonQuery;
 	}
 
