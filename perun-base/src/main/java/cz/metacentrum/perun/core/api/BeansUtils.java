@@ -486,10 +486,13 @@ public class BeansUtils {
 	 *
 	 * @param attributesAsString Map attribute in String representation.
 	 * @return LinkedHashMap with key values pairs extracted from the input
+	 *         or an empty map when the input parameter is an empty string or null.
 	 */
+	@SuppressWarnings("unchecked") // It is ok, we know that stringToAttributeValue always returns LinkedHashMap or null
 	public static LinkedHashMap<String, String> stringToMapOfAttributes(String attributesAsString) {
 		Object mapAsObject = BeansUtils.stringToAttributeValue(attributesAsString, LinkedHashMap.class.getName());
-		return objectMapper.convertValue(mapAsObject, new TypeReference<LinkedHashMap<String, String>>() {});
+		if (mapAsObject == null) return new LinkedHashMap<>();
+		return (LinkedHashMap<String, String>) mapAsObject;
 	}
 
 	/**
