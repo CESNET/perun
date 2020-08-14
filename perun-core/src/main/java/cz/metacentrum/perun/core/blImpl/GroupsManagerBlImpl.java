@@ -211,7 +211,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//set creator as group admin unless he already have authz right on the group (he is VO admin or this is "members" group of VO)
 		User user = sess.getPerunPrincipal().getUser();
 		if(user != null) {   //user can be null in tests
-			if(!AuthzResolverBlImpl.isAuthorized(sess, Role.VOADMIN, vo) && !VosManager.MEMBERS_GROUP.equals(group.getName())) {
+			if(!sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)
+				&& !sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, vo)
+				&& !VosManager.MEMBERS_GROUP.equals(group.getName())) {
 				try {
 					AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
 				} catch (AlreadyAdminException e) {
@@ -2471,12 +2473,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Map<String, Boolean> contextMap = new HashMap<>();
 
 		for(RichGroup richGroup : richGroups) {
-
-			String voadmin = ((AuthzResolver.isAuthorized(sess, Role.VOADMIN, richGroup) ? "VOADMIN" : ""));
-			String voobserver = ((AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, richGroup) ? "VOOBSERVER" : ""));
-			String groupadmin = ((AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, richGroup) ? "GROUPADMIN" : ""));
-			String facilityadmin = ((AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) ? "FACILITYADMIN" : ""));
-			String key = voadmin + voobserver + groupadmin + facilityadmin;
+			String key = "";
+			if (sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)) {
+				key = "VOADMINVOOBSERVERGROUPADMINFACILITYADMIN";
+			} else {
+				String voadmin = ((sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN, richGroup) ? "VOADMIN" : ""));
+				String voobserver = ((sess.getPerunPrincipal().getRoles().hasRole(Role.VOOBSERVER, richGroup) ? "VOOBSERVER" : ""));
+				String groupadmin = ((sess.getPerunPrincipal().getRoles().hasRole(Role.GROUPADMIN, richGroup) ? "GROUPADMIN" : ""));
+				String facilityadmin = ((sess.getPerunPrincipal().getRoles().hasRole(Role.FACILITYADMIN) ? "FACILITYADMIN" : ""));
+				key = voadmin + voobserver + groupadmin + facilityadmin;
+			}
 
 			//Filtering group attributes
 			if(richGroup.getAttributes() != null) {
