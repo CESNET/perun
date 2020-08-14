@@ -76,7 +76,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteExtSource_ExtSource_policy", Collections.singletonList(extSource)))
+		if (!AuthzResolver.authorizedInternal(sess, "deleteExtSource_ExtSource_policy", extSource))
 			throw new PrivilegeException(sess, "deleteExtSource");
 
 		getExtSourcesManagerBl().deleteExtSource(sess, extSource);
@@ -113,7 +113,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getVoExtSources_Vo_policy", Collections.singletonList(vo)))
+		if (!AuthzResolver.authorizedInternal(sess, "getVoExtSources_Vo_policy", vo))
 			throw new PrivilegeException(sess, "getVoExtSources");
 
 		return getExtSourcesManagerBl().getVoExtSources(sess, vo);
@@ -126,7 +126,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getGroupExtSources_Group_policy", Collections.singletonList(group)))
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupExtSources_Group_policy", group))
 			throw new PrivilegeException(sess, "getGroupExtSources");
 
 		return getExtSourcesManagerBl().getGroupExtSources(sess, group);
@@ -218,7 +218,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(sess, source);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getInvalidUsers_ExtSource_policy", Collections.singletonList(source)))
+		if (!AuthzResolver.authorizedInternal(sess, "getInvalidUsers_ExtSource_policy", source))
 			throw new PrivilegeException(sess, "removeExtSource");
 
 		return getExtSourcesManagerBl().getInvalidUsers(sess, source);
@@ -275,7 +275,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(sess, source);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCandidate_ExtSource_String_policy", Collections.singletonList(source)))
+		if (!AuthzResolver.authorizedInternal(sess, "getCandidate_ExtSource_String_policy", source))
 			throw new PrivilegeException(sess, "getCandidate");
 
 		return getExtSourcesManagerBl().getCandidate(sess, source, login);
@@ -290,7 +290,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(perunSession, source);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getCandidate_Map<String_String>_ExtSource_policy", Collections.singletonList(source)))
+		if (!AuthzResolver.authorizedInternal(perunSession, "getCandidate_Map<String_String>_ExtSource_policy", source))
 			throw new PrivilegeException(perunSession, "getCandidate");
 
 		return getExtSourcesManagerBl().getCandidate(perunSession, subjectData, source, subjectData.get("login"));
@@ -303,7 +303,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAttributes_ExtSource_policy", Collections.singletonList(extSource)))
+		if (!AuthzResolver.authorizedInternal(sess, "getAttributes_ExtSource_policy", extSource))
 			throw new PrivilegeException(sess, "getAttributes");
 
 		return getExtSourcesManagerBl().getAttributes(extSource);

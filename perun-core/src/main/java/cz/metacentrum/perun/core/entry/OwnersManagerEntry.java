@@ -65,7 +65,7 @@ public class OwnersManagerEntry implements OwnersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_policy", Collections.singletonList(owner)))
+		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_policy", owner))
 			throw new PrivilegeException(sess, "deleteOwner");
 
 		getOwnersManagerBl().checkOwnerExists(sess, owner);
@@ -78,7 +78,7 @@ public class OwnersManagerEntry implements OwnersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", Collections.singletonList(owner)))
+		if (!AuthzResolver.authorizedInternal(sess, "deleteOwner_Owner_boolean_policy", owner))
 			throw new PrivilegeException(sess, "deleteOwner");
 
 		getOwnersManagerBl().checkOwnerExists(sess, owner);

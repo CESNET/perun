@@ -101,7 +101,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Facility facility = getFacilitiesManagerBl().getFacilityById(sess, id);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getFacilityById_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getFacilityById_int_policy", facility)) {
 			throw new PrivilegeException(sess, "getFacilityById");
 				}
 
@@ -116,7 +116,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Facility facility = getFacilitiesManagerBl().getFacilityByName(sess, name);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getFacilityByName_String_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getFacilityByName_String_policy", facility)) {
 			throw new PrivilegeException(sess, "getFacilityByName");
 				}
 
@@ -132,7 +132,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "getRichFacilities");
 		}
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilities(sess);
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getRichFacilities_policy", Collections.singletonList(facility)));
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getRichFacilities_policy", facility));
 
 		return getFacilitiesManagerBl().getRichFacilities(sess, facilities);
 	}
@@ -147,7 +147,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "getFacilitiesByDestination");
 		}
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination);
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilitiesByDestination_String_policy", Collections.singletonList(facility)));
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilitiesByDestination_String_policy", facility));
 
 		return facilities;
 	}
@@ -195,7 +195,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "getFacilities");
 		}
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilities(sess);
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilities_policy", Collections.singletonList(facility)));
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilities_policy", facility));
 
 		return facilities;
 	}
@@ -207,7 +207,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getOwners_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getOwners_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getOwners");
 				}
 
@@ -286,7 +286,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAllowedVos_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAllowedVos_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAllowedVos");
 		}
 
@@ -331,7 +331,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAllowedUsers_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAllowedUsers_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAllowedUsers");
 		}
 
@@ -359,7 +359,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedResources_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedResources_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAssignedResources");
 		}
 
@@ -373,7 +373,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedRichResources_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedRichResources_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAssignedRichResources");
 		}
 
@@ -400,7 +400,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteFacility_Facility_Boolean_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteFacility_Facility_Boolean_policy", facility)) {
 			throw new PrivilegeException(sess, "deleteFacility");
 		}
 
@@ -415,7 +415,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.notNull(facility.getName(), "facility.name");
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "updateFacility_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "updateFacility_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "updateFacility");
 		}
 
@@ -429,7 +429,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getOwnerFacilities_Owner_policy", Collections.singletonList(owner))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getOwnerFacilities_Owner_policy", owner)) {
 			throw new PrivilegeException(sess, "getOwnerFacilities");
 		}
 
@@ -590,7 +590,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getHostsCount_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getHostsCount_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getHostsCount");
 		}
 
@@ -605,7 +605,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addHosts_List<Host>_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addHosts_List<Host>_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "addHosts");
 		}
 
@@ -620,7 +620,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByHostname: facilitiesByHostname) {
-					if(AuthzResolver.authorizedInternal(sess, "addHosts_List<Host>_Facility_policy", Collections.singletonList(facilityByHostname))) {
+					if(AuthzResolver.authorizedInternal(sess, "addHosts_List<Host>_Facility_policy", facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -630,7 +630,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByDestination: facilitiesByDestination) {
-					if(AuthzResolver.authorizedInternal(sess, "addHosts_List<Host>_Facility_policy", Collections.singletonList(facilityByDestination))) {
+					if(AuthzResolver.authorizedInternal(sess, "addHosts_List<Host>_Facility_policy", facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -652,7 +652,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addHosts_Facility_List<String>_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addHosts_Facility_List<String>_policy", facility)) {
 			throw new PrivilegeException(sess, "addHosts");
 		}
 
@@ -672,7 +672,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByHostname: facilitiesByHostname) {
-					if(AuthzResolver.authorizedInternal(sess, "addHosts_Facility_List<String>_policy", Collections.singletonList(facilityByHostname))) {
+					if(AuthzResolver.authorizedInternal(sess, "addHosts_Facility_List<String>_policy", facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -682,7 +682,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByDestination: facilitiesByDestination) {
-					if(AuthzResolver.authorizedInternal(sess, "addHosts_Facility_List<String>_policy", Collections.singletonList(facilityByDestination))) {
+					if(AuthzResolver.authorizedInternal(sess, "addHosts_Facility_List<String>_policy", facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -781,7 +781,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getAdmins_Facility_boolean_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getAdmins_Facility_boolean_policy", facility)) {
 			throw new PrivilegeException(perunSession, "getAdmins");
 		}
 
@@ -796,7 +796,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if(!allUserAttributes) Utils.notNull(specificAttributes, "specificAttributes");
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getRichAdmins_Facility_List<String>_boolean_boolean_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getRichAdmins_Facility_List<String>_boolean_boolean_policy", facility)) {
 			throw new PrivilegeException(perunSession, "getRichAdmins");
 		}
 
@@ -840,7 +840,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAdminGroups_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAdminGroups_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAdminGroups");
 		}
 
@@ -914,7 +914,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getFacilitiesWhereUserIsAdmin_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getFacilitiesWhereUserIsAdmin_User_policy", user)) {
 			throw new PrivilegeException(sess, "getFacilitiesWhereUserIsAdmin");
 		}
 
@@ -974,7 +974,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addHost_Host_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addHost_Host_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "addHost");
 		}
 
@@ -987,7 +987,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if(!facilitiesByHostname.isEmpty()) {
 			boolean hasRight = false;
 			for(Facility facilityByHostname: facilitiesByHostname) {
-				if(AuthzResolver.authorizedInternal(sess, "addHost_Host_Facility_policy", Collections.singletonList(facilityByHostname))) {
+				if(AuthzResolver.authorizedInternal(sess, "addHost_Host_Facility_policy", facilityByHostname)) {
 					hasRight = true;
 					break;
 				}
@@ -997,7 +997,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if(!facilitiesByDestination.isEmpty()) {
 			boolean hasRight = false;
 			for(Facility facilityByDestination: facilitiesByDestination) {
-				if(AuthzResolver.authorizedInternal(sess, "addHost_Host_Facility_policy", Collections.singletonList(facilityByDestination))) {
+				if(AuthzResolver.authorizedInternal(sess, "addHost_Host_Facility_policy", facilityByDestination)) {
 					hasRight = true;
 					break;
 				}
@@ -1088,7 +1088,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkHostExists(sess, host);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getFacilityForHost_Host_policy", Collections.singletonList(host))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getFacilityForHost_Host_policy", host)) {
 			throw new PrivilegeException(sess, "getFacilityForHost");
 		}
 
@@ -1102,7 +1102,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByHostName(sess, hostname);
 
 		//Authorization
-		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "getFacilitiesByHostName_String_policy", Collections.singletonList(facility)));
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "getFacilitiesByHostName_String_policy", facility));
 
 		return facilities;
 	}
@@ -1114,7 +1114,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedUsers_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedUsers_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAssignedUser");
 		}
 
@@ -1187,7 +1187,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		perunBl.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getFacilityContactGroups_Facility_policy", Collections.singletonList(facility))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getFacilityContactGroups_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getFacilityContactGroups");
 		}
 
@@ -1201,7 +1201,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		this.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getFacilityContactGroup_Facility_String_policy", Collections.singletonList(facility))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getFacilityContactGroup_Facility_String_policy", facility)) {
 			throw new PrivilegeException(sess, "getFacilityContactGroup");
 		}
 
@@ -1220,7 +1220,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		this.checkFacilityContactsEntitiesExist(sess, contactGroupsToAdd);
 
 		//Authorization
-		contactGroupsToAdd.removeIf(contactGroupToAdd -> !AuthzResolver.authorizedInternal(sess, "addFacilityContacts_List<ContactGroup>_policy", Collections.singletonList(contactGroupToAdd.getFacility())));
+		contactGroupsToAdd.removeIf(contactGroupToAdd -> !AuthzResolver.authorizedInternal(sess, "addFacilityContacts_List<ContactGroup>_policy", contactGroupToAdd.getFacility()));
 
 		if(!contactGroupsToAdd.isEmpty()) {
 			this.facilitiesManagerBl.addFacilityContacts(sess, contactGroupsToAdd);
@@ -1233,7 +1233,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		this.checkFacilityContactEntitiesExists(sess, contactGroupToAdd);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "addFacilityContact_ContactGroup_policy", Collections.singletonList(contactGroupToAdd.getFacility()))) {
+		if(!AuthzResolver.authorizedInternal(sess, "addFacilityContact_ContactGroup_policy", contactGroupToAdd.getFacility())) {
 			throw new PrivilegeException(sess, "addFacilityContact");
 		}
 
@@ -1247,7 +1247,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		//Authorization
 		for (ContactGroup contactGroupToRemove : contactGroupsToRemove) {
-			if (!AuthzResolver.authorizedInternal(sess, "removeFacilityContacts_List<ContactGroup>_policy", Collections.singletonList(contactGroupToRemove.getFacility()))) {
+			if (!AuthzResolver.authorizedInternal(sess, "removeFacilityContacts_List<ContactGroup>_policy", contactGroupToRemove.getFacility())) {
 				throw new PrivilegeException(sess, "removeFacilityContacts");
 			}
 		}
@@ -1261,7 +1261,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		this.checkFacilityContactEntitiesExists(sess, contactGroupToRemove);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "removeFacilityContact_ContactGroup_policy", Collections.singletonList(contactGroupToRemove.getFacility()))) {
+		if(!AuthzResolver.authorizedInternal(sess, "removeFacilityContact_ContactGroup_policy", contactGroupToRemove.getFacility())) {
 			throw new PrivilegeException(sess, "contactGroupToRemove");
 		}
 
@@ -1274,7 +1274,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getAssignedSecurityTeams_Facility_policy", Collections.singletonList(facility))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getAssignedSecurityTeams_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAssignedSecurityTeams");
 		}
 
@@ -1383,7 +1383,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, facilityId);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getBansForFacility_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getBansForFacility_int_policy", facility)) {
 			throw new PrivilegeException(sess, "getBansForFacility");
 		}
 

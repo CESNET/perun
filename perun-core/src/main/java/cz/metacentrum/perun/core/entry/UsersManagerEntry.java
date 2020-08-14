@@ -125,7 +125,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		User user = getUsersManagerBl().getUserById(sess, id);
 
-		if(!AuthzResolver.authorizedInternal(sess, "getUserById_int_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getUserById_int_policy", user)) {
 			throw new PrivilegeException(sess, "getUserById");
 		}
 
@@ -173,8 +173,8 @@ public class UsersManagerEntry implements UsersManager {
 		if (!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "removeSpecificUserOwner_User_User_policy", Collections.singletonList(specificUser)) &&
-		!AuthzResolver.authorizedInternal(sess, "owner-removeSpecificUserOwner_User_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "removeSpecificUserOwner_User_User_policy", specificUser) &&
+		!AuthzResolver.authorizedInternal(sess, "owner-removeSpecificUserOwner_User_User_policy", user)) {
 			throw new PrivilegeException(sess, "removeSpecificUserOwner");
 		}
 		getUsersManagerBl().removeSpecificUserOwner(sess, user, specificUser);
@@ -190,8 +190,8 @@ public class UsersManagerEntry implements UsersManager {
 		if (!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "addSpecificUserOwner_User_User_policy", Collections.singletonList(specificUser)) &&
-			!AuthzResolver.authorizedInternal(sess, "owner-addSpecificUserOwner_User_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "addSpecificUserOwner_User_User_policy", specificUser) &&
+			!AuthzResolver.authorizedInternal(sess, "owner-addSpecificUserOwner_User_User_policy", user)) {
 			throw new PrivilegeException(sess, "addSpecificUserOwner");
 		}
 		getUsersManagerBl().addSpecificUserOwner(sess, user, specificUser);
@@ -210,7 +210,7 @@ public class UsersManagerEntry implements UsersManager {
 	public User getUserByMember(PerunSession sess, Member member) throws MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		if(!AuthzResolver.authorizedInternal(sess, "getUserByMember_Member_policy", Collections.singletonList(member))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getUserByMember_Member_policy", member)) {
 			throw new PrivilegeException(sess, "getUserByMember");
 		}
 
@@ -225,7 +225,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		User user = getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, extSourceName, extLogin);
 
-		if(!AuthzResolver.authorizedInternal(sess, "getUserByExtSourceNameAndExtLogin_String_String_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getUserByExtSourceNameAndExtLogin_String_String_policy", user)) {
 			throw new PrivilegeException(sess, "getUserByExtSourceNameAndExtLogin");
 		}
 
@@ -251,7 +251,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichUser_User_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichUser_User_policy", user)) {
 			throw new PrivilegeException(sess, "getRichUser");
 		}
 
@@ -265,7 +265,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichUserWithAttributes_User_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichUserWithAttributes_User_policy", user)) {
 			throw new PrivilegeException(sess, "getRichUserWithAttributes");
 		}
 
@@ -355,8 +355,8 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, specificUser);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "setSpecificUser_User_SpecificUserType_User_policy", Collections.singletonList(specificUser)) &&
-			!AuthzResolver.authorizedInternal(sess, "owner-setSpecificUser_User_SpecificUserType_User_policy", Collections.singletonList(owner))) {
+		if(!AuthzResolver.authorizedInternal(sess, "setSpecificUser_User_SpecificUserType_User_policy", specificUser) &&
+			!AuthzResolver.authorizedInternal(sess, "owner-setSpecificUser_User_SpecificUserType_User_policy", owner)) {
 			throw new PrivilegeException(sess, "Only PerunAdmin should have rights to call this method.");
 		}
 
@@ -371,7 +371,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, specificUser);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "unsetSpecificUser_User_SpecificUserType_policy", Collections.singletonList(specificUser))) {
+		if(!AuthzResolver.authorizedInternal(sess, "unsetSpecificUser_User_SpecificUserType_policy", specificUser)) {
 			throw new PrivilegeException(sess, "Only PerunAdmin should have rights to call this method.");
 		}
 
@@ -384,7 +384,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "deleteUser_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "deleteUser_User_policy", user)) {
 			throw new PrivilegeException(sess, "deleteUser");
 		}
 
@@ -398,7 +398,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "deleteUser_User_boolean_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "deleteUser_User_boolean_policy", user)) {
 			throw new PrivilegeException(sess, "deleteUser");
 		}
 
@@ -412,7 +412,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "updateUser_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "updateUser_User_policy", user)) {
 			throw new PrivilegeException(sess, "updateUser");
 		}
 
@@ -430,7 +430,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkMaxLength("TitleAfter", user.getTitleAfter(), 40);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "updateNameTitles_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "updateNameTitles_User_policy", user)) {
 			throw new PrivilegeException(sess, "updateNameTitles");
 		}
 
@@ -444,7 +444,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "updateUserExtSource_UserExtSource_policy", Collections.singletonList(userExtSource))) {
+		if(!AuthzResolver.authorizedInternal(sess, "updateUserExtSource_UserExtSource_policy", userExtSource)) {
 			throw new PrivilegeException(sess, "updateUserExtSource");
 		}
 
@@ -465,7 +465,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getUserExtSources_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getUserExtSources_User_policy", user)) {
 			throw new PrivilegeException(sess, "getUserExtSources");
 		}
 
@@ -484,7 +484,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getRichUserExtSources_User_List<String>_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getRichUserExtSources_User_List<String>_policy", user)) {
 			throw new PrivilegeException(sess, "getRichUserExtSources");
 		}
 
@@ -606,7 +606,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getUserExtSourceByExtLogin_ExtSource_String_policy", Collections.singletonList(source))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getUserExtSourceByExtLogin_ExtSource_String_policy", source)) {
 			throw new PrivilegeException(sess, "findUserExtSourceByExtLogin");
 		}
 
@@ -621,7 +621,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getVosWhereUserIsAdmin_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getVosWhereUserIsAdmin_User_policy", user)) {
 			throw new PrivilegeException(sess, "getVosWhereUserIsAdmin");
 		}
 
@@ -635,7 +635,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getGroupsWhereUserIsAdmin_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getGroupsWhereUserIsAdmin_User_policy", user)) {
 			throw new PrivilegeException(sess, "getGroupsWhereUserIsAdmin");
 		}
 
@@ -663,7 +663,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getVosWhereUserIsMember_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getVosWhereUserIsMember_User_policy", user)) {
 			throw new PrivilegeException(sess, "getVosWhereUserIsMember");
 		}
 
@@ -690,7 +690,7 @@ public class UsersManagerEntry implements UsersManager {
 	public List<Resource> getAllowedResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		if(!AuthzResolver.authorizedInternal(sess, "getAllowedResources_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getAllowedResources_User_policy", user)) {
 			throw new PrivilegeException(sess, "getAllowedResources");
 		}
 
@@ -703,7 +703,7 @@ public class UsersManagerEntry implements UsersManager {
 	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		if(!AuthzResolver.authorizedInternal(sess, "getAssignedRichResources_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getAssignedRichResources_User_policy", user)) {
 			throw new PrivilegeException(sess, "getAssignedRichResources");
 		}
 
@@ -737,7 +737,7 @@ public class UsersManagerEntry implements UsersManager {
 	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		if(!AuthzResolver.authorizedInternal(sess, "getUsersWithoutSpecificVo_Vo_String_policy", Collections.singletonList(vo))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getUsersWithoutSpecificVo_Vo_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findUsersByName");
 		}
 
@@ -860,7 +860,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "isUserPerunAdmin_User_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "isUserPerunAdmin_User_policy", user)) {
 			throw new PrivilegeException(sess, "isUserPerunAdmin");
 		}
 
@@ -875,7 +875,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "changePassword_User_String_String_String_boolean_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "changePassword_User_String_String_String_boolean_policy", user)) {
 			throw new PrivilegeException(sess, "changePassword");
 		}
 
@@ -911,7 +911,7 @@ public class UsersManagerEntry implements UsersManager {
 		User user = users.get(0);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "changePassword_String_String_String_String_boolean_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "changePassword_String_String_String_String_boolean_policy", user)) {
 			throw new PrivilegeException(sess, "changePassword");
 		}
 
@@ -923,8 +923,8 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "reserveRandomPassword_User_String_policy", Collections.singletonList(user))
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-reserveRandomPassword_User_String_policy", Collections.singletonList(user)) && user.isServiceUser()))) {
+		if(!AuthzResolver.authorizedInternal(sess, "reserveRandomPassword_User_String_policy", user)
+			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-reserveRandomPassword_User_String_policy", user)) && user.isServiceUser())) {
 			throw new PrivilegeException(sess, "reserveRandomPassword");
 		}
 
@@ -957,8 +957,8 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "reservePassword_User_String_String_policy", Collections.singletonList(user))
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-reservePassword_User_String_String_policy", Collections.singletonList(user)) && user.isServiceUser()))) {
+		if(!AuthzResolver.authorizedInternal(sess, "reservePassword_User_String_String_policy", user)
+			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-reservePassword_User_String_String_policy", user)) && user.isServiceUser())) {
 			throw new PrivilegeException(sess, "reservePassword");
 		}
 
@@ -991,8 +991,8 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "validatePasswordAndSetExtSources_User_String_String_policy", Collections.singletonList(user))
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-validatePasswordAndSetExtSources_User_String_String_policy", Collections.singletonList(user)) && user.isServiceUser()))) {
+		if(!AuthzResolver.authorizedInternal(sess, "validatePasswordAndSetExtSources_User_String_String_policy", user)
+			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-validatePasswordAndSetExtSources_User_String_String_policy", user)) && user.isServiceUser())) {
 			throw new PrivilegeException(sess, "validatePasswordAndSetExtSources");
 		}
 
@@ -1011,7 +1011,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", user)) {
 			throw new PrivilegeException(sess, "validatePassword");
 		}
 
@@ -1056,7 +1056,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.notNull(password, "password");
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "createAlternativePassword_User_String_String_String_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "createAlternativePassword_User_String_String_String_policy", user)) {
 			throw new PrivilegeException(sess, "createAlternativePassword");
 		}
 
@@ -1072,7 +1072,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.notNull(passwordId, "passwordId");
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "deleteAlternativePassword_User_String_String_policy", Collections.singletonList(user))) {
+		if(!AuthzResolver.authorizedInternal(sess, "deleteAlternativePassword_User_String_String_policy", user)) {
 			throw new PrivilegeException(sess, "deleteAlternativePassword");
 		}
 
@@ -1168,7 +1168,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findRichUsersWithoutSpecificVoWithAttributes_Vo_String_List<String>_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichUsersWithoutSpecificVoWithAttributes_Vo_String_List<String>_policy", vo)) {
 			throw new PrivilegeException(sess, "findRichUsersWithoutSpecificVoWithAttributes");
 		}
 
@@ -1195,7 +1195,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "setLogin_User_String_String_policy", Collections.singletonList(user)) && !user.isSpecificUser()) {
+		if (!AuthzResolver.authorizedInternal(sess, "setLogin_User_String_String_policy", user) && !user.isSpecificUser()) {
 			throw new PrivilegeException(sess, "setLogin");
 		}
 
@@ -1216,7 +1216,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "requestPreferredEmailChange_String_User_String_String_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "requestPreferredEmailChange_String_User_String_String_policy", user)) {
 			throw new PrivilegeException(sess, "requestPreferredEmailChange");
 		}
 
@@ -1231,7 +1231,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "validatePreferredEmailChange_User_String_String_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "validatePreferredEmailChange_User_String_String_policy", user)) {
 			throw new PrivilegeException(sess, "validatePreferredEmailChange");
 		}
 
@@ -1252,7 +1252,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getPendingPreferredEmailChanges_User_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getPendingPreferredEmailChanges_User_policy", user)) {
 			throw new PrivilegeException(sess, "getPendingPreferredEmailChanges");
 		}
 
@@ -1288,7 +1288,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "updateUserExtSourceLastAccess_UserExtSource_policy", Collections.singletonList(userExtSource))) {
+		if (!AuthzResolver.authorizedInternal(sess, "updateUserExtSourceLastAccess_UserExtSource_policy", userExtSource)) {
 			throw new PrivilegeException(sess, "updateUserExtSourceLastAccess");
 		}
 
@@ -1313,7 +1313,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(member, "member");
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getSponsors_Member_List<String>_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getSponsors_Member_List<String>_policy", member)) {
 			throw new PrivilegeException(sess, "getSponsors can be called only by REGISTRAR");
 		}
 		List<User> sponsors = usersManagerBl.getSponsors(sess, member);
@@ -1331,7 +1331,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "changePasswordRandom_User_String_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "changePasswordRandom_User_String_policy", user)) {
 			throw new PrivilegeException("changePasswordRandom");
 		}
 

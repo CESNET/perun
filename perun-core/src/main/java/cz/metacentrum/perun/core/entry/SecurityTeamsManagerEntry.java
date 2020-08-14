@@ -71,7 +71,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 			throw new PrivilegeException("getSecurityTeams");
 		} else {
 			List<SecurityTeam> securityTeams = getSecurityTeamsManagerBl().getAllSecurityTeams(sess);
-			securityTeams.removeIf(st -> !AuthzResolver.authorizedInternal(sess, "filter-getSecurityTeams_policy", Collections.singletonList(st)));
+			securityTeams.removeIf(st -> !AuthzResolver.authorizedInternal(sess, "filter-getSecurityTeams_policy", st));
 			return securityTeams;
 		}
 	}
@@ -126,7 +126,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "updateSecurityTeam_SecurityTeam_policy", Collections.singletonList(securityTeam))) {
+		if (!AuthzResolver.authorizedInternal(sess, "updateSecurityTeam_SecurityTeam_policy", securityTeam)) {
 			throw new PrivilegeException(sess, "updateSecurityTeam");
 		}
 
@@ -166,7 +166,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteSecurityTeam_SecurityTeam__boolean_policy", Collections.singletonList(securityTeam))) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteSecurityTeam_SecurityTeam__boolean_policy", securityTeam)) {
 			throw new PrivilegeException(sess, "deleteSecurityTeam");
 		}
 
@@ -204,7 +204,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAdmins_SecurityTeam_policy", Collections.singletonList(securityTeam))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAdmins_SecurityTeam_policy", securityTeam)) {
 			throw new PrivilegeException(sess, "getAdmins");
 		}
 
@@ -218,7 +218,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAdminGroups_SecurityTeam_policy", Collections.singletonList(securityTeam))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAdminGroups_SecurityTeam_policy", securityTeam)) {
 			throw new PrivilegeException(sess, "getAdminGroups");
 		}
 
@@ -334,7 +334,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getBlacklist_SecurityTeam_policy", Collections.singletonList(securityTeam))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getBlacklist_SecurityTeam_policy", securityTeam)) {
 			throw new PrivilegeException(sess, "getBlacklist");
 		}
 
@@ -347,7 +347,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getBlacklist_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getBlacklist_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getBlacklist");
 		}
 
@@ -360,7 +360,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getBlacklistWithDescription_SecurityTeam_policy", Collections.singletonList(securityTeam))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getBlacklistWithDescription_SecurityTeam_policy", securityTeam)) {
 			throw new PrivilegeException(sess, "getBlacklistWithDescription");
 		}
 
@@ -373,7 +373,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getBlacklistWithDescription_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getBlacklistWithDescription_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getBlacklistWithDescription");
 		}
 

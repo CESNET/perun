@@ -806,7 +806,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attributeDefinition);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getAttributesByAttributeDefinition_AttributeDefinition_policy", Collections.singletonList(attributeDefinition))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getAttributesByAttributeDefinition_AttributeDefinition_policy", attributeDefinition)) {
 			throw new PrivilegeException("For getting the attributes, you need to be PerunAdmin or PerunObserver.");
 		}
 
@@ -1616,7 +1616,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_policy", Collections.singletonList(attribute))) {
+		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_policy", attribute)) {
 			throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
 		}
 
@@ -1629,7 +1629,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(sess, attributeDefinition);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_boolean", Collections.singletonList(attributeDefinition))) {
+		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_boolean", attributeDefinition)) {
 			throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
 		}
 
@@ -4444,7 +4444,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(perunSession, attributeDefinition);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(perunSession, "updateAttributeDefinition_AttributeDefinition_policy", Collections.singletonList(attributeDefinition))) {
+		if(!AuthzResolver.authorizedInternal(perunSession, "updateAttributeDefinition_AttributeDefinition_policy", attributeDefinition)) {
 			throw new PrivilegeException("Only PerunAdmin can update AttributeDefinition");
 		}
 
@@ -4457,7 +4457,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_policy", Collections.singletonList(member))) {
+		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_policy", member)) {
 			throw new PrivilegeException("This operation can do only PerunAdmin.");
 		}
 
@@ -4470,7 +4470,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_boolean_policy", Collections.singletonList(member))) {
+		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_boolean_policy", member)) {
 			throw new PrivilegeException("This operation can do only PerunAdmin.");
 		}
 
