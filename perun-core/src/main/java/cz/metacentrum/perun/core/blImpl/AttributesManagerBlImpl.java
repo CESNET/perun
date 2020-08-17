@@ -7357,6 +7357,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:group:attribute-def:def:startOfLastSynchronization
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("startOfLastSynchronization");
+		attr.setDisplayName("Start of last synchronization");
+		attr.setDescription("If group started synchronization, start time of last synchronization will be set.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
 		//urn:perun:group:attribute-def:def:groupStructureSynchronizationEnabled
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);

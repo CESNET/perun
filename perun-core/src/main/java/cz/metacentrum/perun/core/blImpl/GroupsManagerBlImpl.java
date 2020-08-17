@@ -2056,6 +2056,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					// Set the start time, so we can check the timeout of the thread
 					startTime = System.currentTimeMillis();
 
+					try {
+						// Create attribute with start of last synchronization timestamp
+						Attribute startOfSynchronization = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUP_START_OF_LAST_SYNC_ATTRNAME));
+						startOfSynchronization.setValue(BeansUtils.getDateFormatter().format(new Date(startTime)));
+						((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttribute(sess, group, startOfSynchronization);
+					} catch (AttributeNotExistsException ex) {
+						log.error("Can't save startOfLastSynchronization, because there is missing attribute with name {}", GroupsManager.GROUP_START_OF_LAST_SYNC_ATTRNAME);
+					}
+
 					log.debug("Synchronization thread started synchronization for group {}.", group);
 
 					//synchronize Group and get information about skipped Members
