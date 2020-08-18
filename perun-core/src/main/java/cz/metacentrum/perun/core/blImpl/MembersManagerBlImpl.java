@@ -131,22 +131,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public void deleteMember(PerunSession sess, Member member) throws MemberAlreadyRemovedException {
 		Vo vo = this.getMemberVo(sess, member);
 
-		User user;
-		try {
-			user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
-		} catch (UserNotExistsException e1) {
-			throw new ConsistencyErrorException("Removing member who doesn't have corresponding user.", e1);
-		}
-
-		List<Facility> allowedFacilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
-
-		Map<Facility, List<Attribute>> requiredAttributesBeforeMemberRemove = new HashMap<>();
-
-		for(Facility facility : allowedFacilities) {
-			// Get actually required attributes, they will be later compared with list of required attributes when the member will be removed from all resources in this VO
-			requiredAttributesBeforeMemberRemove.put(facility, getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user));
-		}
-
 		// Remove member from all groups
 		List<Group> memberGroups = getPerunBl().getGroupsManagerBl().getMemberDirectGroups(sess, member);
 		for (Group group: memberGroups) {
@@ -189,19 +173,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		// Remove user-facility attributes which are no longer required
-		for(Facility facility : allowedFacilities) {
-			List<Attribute> requiredAttributes = requiredAttributesBeforeMemberRemove.get(facility);
-			//remove currently required attributes from requiredAttributesBeforeMemberRemove
-			requiredAttributes.removeAll(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user));
-			//remove attributes which are no longer required
-			try {
-				getPerunBl().getAttributesManagerBl().removeAttributes(sess, facility, user, requiredAttributes);
-			} catch(AttributeValueException | WrongAttributeAssignmentException ex) {
-				throw new ConsistencyErrorException(ex);
-			}
-		}
-
 		//Remove all members bans
 		List<BanOnResource> bansOnResource = getPerunBl().getResourcesManagerBl().getBansForMember(sess, member.getId());
 		for(BanOnResource banOnResource : bansOnResource) {
@@ -212,17 +183,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 
-		/* TODO this can be used for future optimization. If the user is not asigned to the facility anymore all user-facility attributes (for this facility) can be safely removed.
-			 for (Facility facility: facilitiesBeforeMemberRemove) {
-		// Remove user-facility attributes
-		try {
-		getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, facility, user);
-		log.debug("Removing user-facility attributes for facility {}", facility);
-		} catch (AttributeValueException e) {
-		throw new ConsistencyErrorException("Member is removed from all resources. There are no required attribute for this member. User-facility attributes can be removed without problem.", e);
-		}
-			 }
-			 */
 		if(member.isSponsored()) {
 			membersManagerImpl.deleteSponsorLinks(sess, member);
 		}
