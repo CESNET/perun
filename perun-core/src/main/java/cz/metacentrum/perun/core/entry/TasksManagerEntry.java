@@ -59,7 +59,7 @@ public class TasksManagerEntry implements TasksManager {
 		Facility facility = task.getFacility();
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getTaskById_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getTaskById_int_policy", facility)) {
 			throw new PrivilegeException(perunSession, "getTaskResultsByTask");
 		}
 
@@ -78,7 +78,7 @@ public class TasksManagerEntry implements TasksManager {
 		facility.setId(facilityId);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "listAllTasksForFacility_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(session, "listAllTasksForFacility_int_policy", facility)) {
 			throw new PrivilegeException(session, "listAllTasksForFacility");
 		}
 
@@ -117,7 +117,7 @@ public class TasksManagerEntry implements TasksManager {
 		facility.setId(facilityId);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getTask_int_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getTask_int_int_policy", facility)) {
 			throw new PrivilegeException(perunSession, "getTask");
 		}
 
@@ -136,7 +136,7 @@ public class TasksManagerEntry implements TasksManager {
 		Facility facility = task.getFacility();
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getTaskResultsByTask_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getTaskResultsByTask_int_policy", facility)) {
 			throw new PrivilegeException(sess, "getTaskResultsByTask");
 		}
 
@@ -150,7 +150,7 @@ public class TasksManagerEntry implements TasksManager {
 		Facility facility = task.getFacility();
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "getTaskResultsForGUIByTaskOnlyNewest_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(session, "getTaskResultsForGUIByTaskOnlyNewest_int_policy", facility)) {
 			throw new PrivilegeException(session, "getTaskResultsByTask");
 		}
 
@@ -164,7 +164,7 @@ public class TasksManagerEntry implements TasksManager {
 		Facility facility = task.getFacility();
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "getTaskResultsForGUIByTaskAndDestination_int_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(session, "getTaskResultsForGUIByTaskAndDestination_int_int_policy", facility)) {
 			throw new PrivilegeException(session, "getTaskResultsByTask");
 		}
 
@@ -178,7 +178,7 @@ public class TasksManagerEntry implements TasksManager {
 		Facility facility = task.getFacility();
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "getTaskResultsForGUIByTask_int_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(session, "getTaskResultsForGUIByTask_int_policy", facility)) {
 			throw new PrivilegeException(session, "getTaskResultsByTask");
 		}
 
@@ -191,7 +191,7 @@ public class TasksManagerEntry implements TasksManager {
 		perun.getFacilitiesManagerBl().checkFacilityExists(session, facility);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "getFacilityState_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(session, "getFacilityState_Facility_policy", facility)) {
 			throw new PrivilegeException(session, "getFacilityState");
 		}
 
@@ -211,7 +211,7 @@ public class TasksManagerEntry implements TasksManager {
 		perun.getVosManagerBl().checkVoExists(session, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "getAllFacilitiesStatesForVo_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(session, "getAllFacilitiesStatesForVo_Vo_policy", vo)) {
 			throw new PrivilegeException(session, "getAllFacilitiesStatesForVo");
 		}
 
@@ -236,7 +236,7 @@ public class TasksManagerEntry implements TasksManager {
 		perun.getVosManagerBl().checkVoExists(session, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "getResourcesState_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(session, "getResourcesState_Vo_policy", vo)) {
 			throw new PrivilegeException(session, "getResourcesState");
 		}
 
@@ -249,7 +249,7 @@ public class TasksManagerEntry implements TasksManager {
 		perun.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getFacilityServicesState_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getFacilityServicesState_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getFacilityServicesState");
 		}
 
@@ -263,7 +263,7 @@ public class TasksManagerEntry implements TasksManager {
 		Facility facility = task.getFacility();
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteTask_Task_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteTask_Task_policy", facility)) {
 			throw new PrivilegeException(sess, "deleteTask");
 		}
 

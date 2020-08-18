@@ -93,7 +93,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws FacilityNotExistsException, PrivilegeException {
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "blockAllServicesOnFacility_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "blockAllServicesOnFacility_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "blockAllServicesOnFacility");
 		}
 		getServicesManagerBl().blockAllServicesOnFacility(sess, facility);
@@ -106,7 +106,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
 
 		for (Facility facility : destinationFacilities) {
-			if (AuthzResolver.authorizedInternal(sess, "blockAllServicesOnDestination_int_policy", Collections.singletonList(facility))) {
+			if (AuthzResolver.authorizedInternal(sess, "blockAllServicesOnDestination_int_policy", facility)) {
 				getServicesManagerBl().blockAllServicesOnDestination(sess, destinationId);
 				return;
 			}
@@ -117,7 +117,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	@Override
 	public List<Service> getServicesBlockedOnFacility(PerunSession perunSession, Facility facility) throws PrivilegeException {
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getServicesBlockedOnFacility_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getServicesBlockedOnFacility_Facility_policy", facility)) {
 			throw new PrivilegeException(perunSession, "getServicesBlockedOnFacility");
 		}
 		return getServicesManagerBl().getServicesBlockedOnFacility(perunSession, facility);
@@ -129,7 +129,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		for (Facility facility : destinationFacilities) {
-			if (AuthzResolver.authorizedInternal(sess, "getServicesBlockedOnDestination_int_policy", Collections.singletonList(facility))) {
+			if (AuthzResolver.authorizedInternal(sess, "getServicesBlockedOnDestination_int_policy", facility)) {
 				return getServicesManagerBl().getServicesBlockedOnDestination(sess, destinationId);
 			}
 		}
@@ -161,7 +161,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	@Override
 	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) throws PrivilegeException {
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "unblockAllServicesOnDestination_String_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "unblockAllServicesOnDestination_String_policy", facility)) {
 			throw new PrivilegeException(sess, "unblockAllServicesOnFacility");
 		}
 		getServicesManagerBl().unblockAllServicesOnFacility(sess, facility);
@@ -175,7 +175,7 @@ public class ServicesManagerEntry implements ServicesManager {
 				List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 				boolean servicesUnblocked = false;
 				for (Facility facility : destinationFacilities) {
-					if (AuthzResolver.authorizedInternal(sess, "unblockAllServicesOnDestination_String_policy", Collections.singletonList(facility))) {
+					if (AuthzResolver.authorizedInternal(sess, "unblockAllServicesOnDestination_String_policy", facility)) {
 						getServicesManagerBl().unblockAllServicesOnDestination(sess, destination.getId());
 						servicesUnblocked = true;
 						break;
@@ -194,7 +194,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		List<Facility> destinationFacilities = perunBl.getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getDestination());
 
 		for (Facility facility : destinationFacilities) {
-			if (AuthzResolver.authorizedInternal(sess, "unblockAllServicesOnDestination_int_policy", Collections.singletonList(facility))) {
+			if (AuthzResolver.authorizedInternal(sess, "unblockAllServicesOnDestination_int_policy", facility)) {
 				getServicesManagerBl().unblockAllServicesOnDestination(sess, destinationId);
 				return;
 			}
@@ -237,7 +237,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	@Override
 	public boolean forceServicePropagation(PerunSession sess, Service service) throws PrivilegeException {
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "forceServicePropagation_Service_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "forceServicePropagation_Service_policy", service)) {
 			throw new PrivilegeException(sess, "forceServicePropagation");
 		}
 		return getServicesManagerBl().forceServicePropagation(sess, service);
@@ -255,7 +255,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	@Override
 	public boolean planServicePropagation(PerunSession perunSession, Service service) throws PrivilegeException {
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "planServicePropagation_Service_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "planServicePropagation_Service_policy", service)) {
 			throw new PrivilegeException(perunSession, "planServicePropagation");
 		}
 		return getServicesManagerBl().planServicePropagation(perunSession, service);
@@ -264,7 +264,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	@Override
 	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException {
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getFacilityAssignedServicesForGUI_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getFacilityAssignedServicesForGUI_Facility_policy", facility)) {
 			throw new PrivilegeException(perunSession, "getFacilityAssignedServicesForGUI");
 		}
 		return getServicesManagerBl().getFacilityAssignedServicesForGUI(perunSession, facility);
@@ -293,7 +293,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteService_Service_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteService_Service_policy", service)) {
 			throw new PrivilegeException(sess, "deleteService");
 		}
 
@@ -307,7 +307,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "updateService_Service_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "updateService_Service_policy", service)) {
 			throw new PrivilegeException(sess, "updateService");
 		}
 
@@ -485,7 +485,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "createServicesPackage_ServicesPackage_policy", Collections.singletonList(servicesPackage))) {
+		if (!AuthzResolver.authorizedInternal(sess, "createServicesPackage_ServicesPackage_policy", servicesPackage)) {
 			throw new PrivilegeException(sess, "createServicesPackage");
 		}
 
@@ -499,7 +499,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "updateServicesPackage_ServicesPackage_policy", Collections.singletonList(servicesPackage))) {
+		if (!AuthzResolver.authorizedInternal(sess, "updateServicesPackage_ServicesPackage_policy", servicesPackage)) {
 			throw new PrivilegeException(sess, "updateServicesPackage");
 		}
 
@@ -513,7 +513,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteServicesPackage_ServicesPackage_policy", Collections.singletonList(servicesPackage))) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteServicesPackage_ServicesPackage_policy", servicesPackage)) {
 			throw new PrivilegeException(sess, "deleteServicesPackage");
 		}
 
@@ -557,7 +557,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getServicesFromServicesPackage_ServicesPackage_policy", Collections.singletonList(servicesPackage))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getServicesFromServicesPackage_ServicesPackage_policy", servicesPackage)) {
 			throw new PrivilegeException(sess, "getServicesFromServicesPackage");
 		}
 
@@ -571,7 +571,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addRequiredAttribute_Service_AttributeDefinition_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addRequiredAttribute_Service_AttributeDefinition_policy", service)) {
 			throw new PrivilegeException(sess, "addRequiredAttribute");
 		}
 
@@ -586,7 +586,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addRequiredAttributes_Service_List<AttributeDefinition>_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addRequiredAttributes_Service_List<AttributeDefinition>_policy", service)) {
 			throw new PrivilegeException(sess, "addRequiredAttributes");
 		}
 
@@ -601,7 +601,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeRequiredAttribute_Service_AttributeDefinition_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeRequiredAttribute_Service_AttributeDefinition_policy", service)) {
 			throw new PrivilegeException(sess, "removeRequiredAttribute");
 		}
 
@@ -616,7 +616,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeRequiredAttributes_Service_List<AttributeDefinition>_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeRequiredAttributes_Service_List<AttributeDefinition>_policy", service)) {
 			throw new PrivilegeException(sess, "removeRequiredAttributes");
 		}
 
@@ -631,7 +631,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAllRequiredAttributes_Service_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeAllRequiredAttributes_Service_policy", service)) {
 			throw new PrivilegeException(sess, "removeRequiredAttribute");
 		}
 
@@ -647,7 +647,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "addDestination_List<Service>_Facility_Destination_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "addDestination_List<Service>_Facility_Destination_policy", facility)) {
 			throw new PrivilegeException(perunSession, "addDestination");
 		}
 
@@ -665,7 +665,7 @@ public class ServicesManagerEntry implements ServicesManager {
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByHostname: facilitiesByHostname) {
-					if(AuthzResolver.authorizedInternal(perunSession, "addDestination_List<Service>_Facility_Destination_policy", Collections.singletonList(facilityByHostname))) {
+					if(AuthzResolver.authorizedInternal(perunSession, "addDestination_List<Service>_Facility_Destination_policy", facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -676,7 +676,7 @@ public class ServicesManagerEntry implements ServicesManager {
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByDestination: facilitiesByDestination) {
-					if(AuthzResolver.authorizedInternal(perunSession, "addDestination_List<Service>_Facility_Destination_policy", Collections.singletonList(facilityByDestination))) {
+					if(AuthzResolver.authorizedInternal(perunSession, "addDestination_List<Service>_Facility_Destination_policy", facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -702,7 +702,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addDestination_Service_Facility_Destination_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addDestination_Service_Facility_Destination_policy", facility)) {
 			throw new PrivilegeException(sess, "addDestination");
 		}
 
@@ -720,7 +720,7 @@ public class ServicesManagerEntry implements ServicesManager {
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByHostname: facilitiesByHostname) {
-					if(AuthzResolver.authorizedInternal(sess, "addDestination_Service_Facility_Destination_policy", Collections.singletonList(facilityByHostname))) {
+					if(AuthzResolver.authorizedInternal(sess, "addDestination_Service_Facility_Destination_policy", facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -731,7 +731,7 @@ public class ServicesManagerEntry implements ServicesManager {
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
 				for(Facility facilityByDestination: facilitiesByDestination) {
-					if(AuthzResolver.authorizedInternal(sess, "addDestination_Service_Facility_Destination_policy", Collections.singletonList(facilityByDestination))) {
+					if(AuthzResolver.authorizedInternal(sess, "addDestination_Service_Facility_Destination_policy", facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -811,7 +811,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(perunSession);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getAllRichDestinations_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getAllRichDestinations_Facility_policy", facility)) {
 			throw new PrivilegeException(perunSession, "getAllRichDestinations");
 				}
 
@@ -824,7 +824,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(perunSession);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getAllRichDestinations_Service_policy", Collections.singletonList(service))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getAllRichDestinations_Service_policy", service)) {
 			throw new PrivilegeException(perunSession, "getAllRichDestinations");
 		}
 
@@ -880,7 +880,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedServices_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedServices_Facility_policy", facility)) {
 			throw new PrivilegeException(sess, "getAssignedServices");
 		}
 
@@ -977,7 +977,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(perunSession);
 
 		// Auhtorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "addDestinationsDefinedByHostsOnFacility_Facility_policy", Collections.singletonList(facility))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "addDestinationsDefinedByHostsOnFacility_Facility_policy", facility)) {
 			throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
 		}
 

@@ -93,7 +93,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteMember_Member_policy", member)) {
 			throw new PrivilegeException(sess, "deleteMember");
 		}
 
@@ -124,7 +124,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteAllMembers_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "deleteAllMembers");
 		}
 
@@ -415,7 +415,7 @@ public class MembersManagerEntry implements MembersManager {
 		Member member = getMembersManagerBl().getMemberById(sess, id);
 
 		//  Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMemberById_int_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMemberById_int_policy", member)) {
 			throw new PrivilegeException(sess, "getMemberById");
 		}
 
@@ -444,7 +444,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMembersByUser_User_policy", Collections.singletonList(user))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByUser_User_policy", user)) {
 			throw new PrivilegeException(sess, "getMembersByUser");
 		}
 
@@ -458,7 +458,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getMembers");
 		}
 
@@ -472,7 +472,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_Status_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembers_Vo_Status_policy", vo)) {
 			throw new PrivilegeException(sess, "getMembers");
 		}
 
@@ -486,7 +486,7 @@ public class MembersManagerEntry implements MembersManager {
 		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, id);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMemberById_int_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMemberById_int_policy", member)) {
 			throw new PrivilegeException(sess, "getRichMemberById");
 		}
 
@@ -500,7 +500,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMemberWithAttributes_Member_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMemberWithAttributes_Member_policy", member)) {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
@@ -514,7 +514,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_List<AttributeDefinition>_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_List<AttributeDefinition>_policy", vo)) {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
@@ -528,7 +528,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_List<String>_Group_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_List<String>_Group_policy", group)) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
 		}
 
@@ -542,7 +542,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Vo_List<String>_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Vo_List<String>_policy", vo)) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 		}
 
@@ -556,7 +556,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_policy", vo)) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -570,7 +570,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_List<String>_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Vo_List<String>_List<String>_policy", vo)) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -584,7 +584,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_boolean_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_boolean_policy", group)) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -614,7 +614,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_List<String>_boolean_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_List<String>_boolean_policy", group)) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
@@ -628,7 +628,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -642,7 +642,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_List<String>_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Vo_List<String>_List<String>_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -664,13 +664,13 @@ public class MembersManagerEntry implements MembersManager {
 		while (richMemberIter.hasNext()) {
 			RichMember richMember = richMemberIter.next();
 
-			if (AuthzResolver.authorizedInternal(sess, "filter-findCompleteRichMembers_List<String>_List<String>_String_policy", Collections.singletonList(richMember)))
+			if (AuthzResolver.authorizedInternal(sess, "filter-findCompleteRichMembers_List<String>_List<String>_String_policy", richMember))
 				continue;
 
 			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, richMember);
 			boolean found = false;
 			for (Resource resource : membersResources) {
-				if (AuthzResolver.authorizedInternal(sess, "filter-findCompleteRichMembers_List<String>_List<String>_String_policy", Collections.singletonList(resource))) {
+				if (AuthzResolver.authorizedInternal(sess, "filter-findCompleteRichMembers_List<String>_List<String>_String_policy", resource)) {
 					found = true;
 					break;
 				}
@@ -690,7 +690,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_String_boolean_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_String_boolean_policy", group)) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -704,7 +704,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_List<String>_String_boolean_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_List<String>_String_boolean_policy", group)) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
@@ -718,7 +718,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Group_List<String>_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributesByNames_Group_List<String>_policy", group)) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 		}
 
@@ -732,7 +732,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Group_List<AttributeDefinition>_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Group_List<AttributeDefinition>_policy", group)) {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
@@ -746,7 +746,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Group_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Group_policy", group)) {
 			throw new PrivilegeException(sess, "getRichMembers");
 		}
 
@@ -760,7 +760,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getMembers");
 		}
 
@@ -774,7 +774,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_Status_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembers_Vo_Status_policy", vo)) {
 			throw new PrivilegeException(sess, "getRichMembers");
 		}
 
@@ -788,7 +788,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
 		}
 
@@ -802,7 +802,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_Status_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersWithAttributes_Vo_Status_policy", vo)) {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
 		}
 
@@ -815,7 +815,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getMembersCount");
 		}
 
@@ -828,7 +828,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_Status_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersCount_Vo_Status_policy", vo)) {
 			throw new PrivilegeException(sess, "getMembersCount");
 		}
 
@@ -865,7 +865,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findMembersByNameInVo_Vo_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersByNameInVo_Vo_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findMembersByNameInVo");
 		}
 
@@ -879,7 +879,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findMembersInVo_Vo_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersInVo_Vo_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findMembersInVo");
 		}
 
@@ -892,7 +892,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findMembersInGroup_Group_String_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersInGroup_Group_String_policy", group)) {
 			throw new PrivilegeException(sess, "findMembersInGroup");
 		}
 
@@ -905,7 +905,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInGroup_Group_String_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInGroup_Group_String_policy", group)) {
 			throw new PrivilegeException(sess, "findRichMembersInGroup");
 		}
 
@@ -919,7 +919,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, getPerunBl().getGroupsManagerBl().getParentGroup(sess, group));
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findMembersInParentGroup_Group_String_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findMembersInParentGroup_Group_String_policy", group)) {
 			throw new PrivilegeException(sess, "findMembersInParentGroup");
 		}
 
@@ -932,7 +932,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInParentGroup_Group_String_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInParentGroup_Group_String_policy", group)) {
 			throw new PrivilegeException(sess, "findRichMembersInParentGroup");
 		}
 
@@ -946,7 +946,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersInVo_Vo_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersInVo_Vo_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findRichMembersInVo");
 		}
 
@@ -960,7 +960,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInVo_Vo_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findRichMembersWithAttributesInVo_Vo_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findRichMembersWithAttributesInVo");
 		}
 
@@ -974,7 +974,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_policy", member)) {
 			throw new PrivilegeException(sess, "setStatus");
 		}
 
@@ -988,7 +988,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_String_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_String_policy", member)) {
 			throw new PrivilegeException(sess, "setStatus");
 		}
 
@@ -1003,7 +1003,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "suspendMemberTo_Member_Date_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "suspendMemberTo_Member_Date_policy", member)) {
 			throw new PrivilegeException(sess, "suspendMemberTo");
 		}
 
@@ -1017,7 +1017,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "unsuspendMember_Member_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "unsuspendMember_Member_policy", member)) {
 			throw new PrivilegeException(sess, "unsuspendMember");
 		}
 
@@ -1032,7 +1032,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "validateMemberAsync_Member_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "validateMemberAsync_Member_policy", member)) {
 			throw new PrivilegeException(sess, "validateMemberAsync");
 		}
 
@@ -1045,7 +1045,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "extendMembership_Member_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "extendMembership_Member_policy", member)) {
 			throw new PrivilegeException(sess, "extendMembership");
 		}
 
@@ -1058,7 +1058,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "canExtendMembership_Member_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "canExtendMembership_Member_policy", member)) {
 			throw new PrivilegeException(sess, "extendMembership");
 		}
 
@@ -1072,7 +1072,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "canExtendMembershipWithReason_Member_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "canExtendMembershipWithReason_Member_policy", member)) {
 			throw new PrivilegeException(sess, "canExtendMembershipWithReason");
 		}
 
@@ -1114,7 +1114,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy", Collections.singletonList(vo))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy", vo)) {
 			throw new PrivilegeException(sess, "getMemberByExtSourceNameAndExtLogin");
 		}
 
@@ -1145,7 +1145,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "sendPasswordResetLinkEmail_Member_String_String_String_String_policy", Collections.singletonList(member))) {
+		if (!AuthzResolver.authorizedInternal(sess, "sendPasswordResetLinkEmail_Member_String_String_String_String_policy", member)) {
 			throw new PrivilegeException(sess, "sendPasswordResetLinkEmail");
 		}
 
@@ -1216,7 +1216,7 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_policy", Collections.singletonList(sponsoredMember))) {
+		if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_policy", sponsoredMember)) {
 			throw new PrivilegeException(session, "setSponsorshipForMember");
 		}
 
@@ -1230,7 +1230,7 @@ public class MembersManagerEntry implements MembersManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "unsetSponsorshipForMember_Member_policy", Collections.singletonList(sponsoredMember))) {
+		if (!AuthzResolver.authorizedInternal(session, "unsetSponsorshipForMember_Member_policy", sponsoredMember)) {
 			throw new PrivilegeException(session, "unsetSponsorshipForMember");
 		}
 
@@ -1246,7 +1246,7 @@ public class MembersManagerEntry implements MembersManager {
 		log.debug("sponsorMember(sponsored={},sponsor={}", sponsored.getId(), sponsor.getId());
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "sponsorMember_Member_User_policy", Collections.singletonList(sponsored))) {
+		if (!AuthzResolver.authorizedInternal(session, "sponsorMember_Member_User_policy", sponsored)) {
 			throw new PrivilegeException(session, "sponsorMember");
 		}
 		//create the link between sponsored and sponsoring users
@@ -1303,7 +1303,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", Collections.singletonList(vo))) {
+		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getSponsoredMembers");
 		}
 
@@ -1320,7 +1320,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getUsersManagerBl().checkUserExists(sess, sponsorUser);
 
 		//Authorization
-		if (!(AuthzResolver.authorizedInternal(sess, "extendExpirationForSponsoredMember_Member_User_policy", Collections.singletonList(sponsoredMember)))) {
+		if (!(AuthzResolver.authorizedInternal(sess, "extendExpirationForSponsoredMember_Member_User_policy", sponsoredMember))) {
 			throw new PrivilegeException(sess, "extendExpirationForSponsoredMember");
 		}
 
@@ -1338,7 +1338,7 @@ public class MembersManagerEntry implements MembersManager {
 		Vo vo = membersManagerBl.getMemberVo(sess, sponsoredMember);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeSponsor_Member_User_policy", Collections.singletonList(sponsoredMember))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeSponsor_Member_User_policy", sponsoredMember)) {
 			throw new PrivilegeException(sess, "removeSponsor");
 		}
 

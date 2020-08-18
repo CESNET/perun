@@ -71,7 +71,7 @@ public class VosManagerEntry implements VosManager {
 			List<Vo> tempVos = vosManagerBl.getVos(sess);
 			tempVos.removeIf(vo -> {
 				try {
-					return !AuthzResolver.authorizedInternal(sess, "filter-getVos_policy", Collections.singletonList(vo));
+					return !AuthzResolver.authorizedInternal(sess, "filter-getVos_policy", vo);
 				} catch (InternalErrorException e) {
 					// if we can't determine authorization prevent returning it
 					return true;
@@ -148,7 +148,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "updateVo_Vo_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "updateVo_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "updateVo");
 		}
 
@@ -170,7 +170,7 @@ public class VosManagerEntry implements VosManager {
 		Vo vo = vosManagerBl.getVoByShortName(sess, shortName);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getVoByShortName_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getVoByShortName_String_policy", vo)) {
 			throw new PrivilegeException(sess, "getVoByShortName");
 		}
 
@@ -183,7 +183,7 @@ public class VosManagerEntry implements VosManager {
 		Vo vo = vosManagerBl.getVoById(sess, id);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getVoById_int_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getVoById_int_policy", vo)) {
 			throw new PrivilegeException(sess, "getVoById");
 				}
 
@@ -197,7 +197,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCandidates_Vo_String_int_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCandidates_Vo_String_int_policy", vo)) {
 			throw new PrivilegeException(sess, "findCandidates");
 				}
 
@@ -211,7 +211,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCandidates_Vo_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCandidates_Vo_String_policy", vo)) {
 			throw new PrivilegeException(sess, "findCandidates");
 		}
 
@@ -225,7 +225,7 @@ public class VosManagerEntry implements VosManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCandidates_Group_String_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCandidates_Group_String_policy", group)) {
 			throw new PrivilegeException(sess, "findCandidates");
 		}
 
@@ -242,7 +242,7 @@ public class VosManagerEntry implements VosManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCompleteCandidates_Vo_List<String>_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteCandidates_Vo_List<String>_String_policy", vo)) {
 			throw new PrivilegeException(sess, "getCompleteCandidates");
 		}
 
@@ -263,12 +263,12 @@ public class VosManagerEntry implements VosManager {
 		Vo vo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 
 		// Authorization
-		if (AuthzResolver.authorizedInternal(sess, "getCompleteCandidates_Group_List<String>_String_policy", Collections.singletonList(vo))) {
+		if (AuthzResolver.authorizedInternal(sess, "getCompleteCandidates_Group_List<String>_String_policy", vo)) {
 			extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 
 			// null the vo so users are searched in whole perun
 			vo = null;
-		} else if (AuthzResolver.authorizedInternal(sess, "groupExtSource-getCompleteCandidates_Group_List<String>_String_policy", Collections.singletonList(group))) {
+		} else if (AuthzResolver.authorizedInternal(sess, "groupExtSource-getCompleteCandidates_Group_List<String>_String_policy", group)) {
 			extSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
 		} else {
 			throw new PrivilegeException(sess, "getCompleteCandidates");
@@ -284,7 +284,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Vo_User_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Vo_User_policy", vo)) {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
@@ -299,7 +299,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Vo_Group_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Vo_Group_policy", vo)) {
 			throw new PrivilegeException(sess, "addAdmin");
 		}
 
@@ -313,7 +313,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Vo_User_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Vo_User_policy", vo)) {
 			throw new PrivilegeException(sess, "deleteAdmin");
 		}
 
@@ -327,7 +327,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Vo_Group_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Vo_Group_policy", vo)) {
 			throw new PrivilegeException(sess, "deleteAdmin");
 		}
 
@@ -352,7 +352,7 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getAdmins_Vo_String_boolean_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getAdmins_Vo_String_boolean_policy", vo)) {
 			throw new PrivilegeException(perunSession, "getAdmins");
 		}
 
@@ -377,7 +377,7 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getRichAdmins_Vo_String_List<String>_boolean_boolean_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getRichAdmins_Vo_String_List<String>_boolean_boolean_policy", vo)) {
 			throw new PrivilegeException(perunSession, "getDirectRichAdminsWithSpecificAttributes");
 		}
 
@@ -402,7 +402,7 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(perunSession, "getAdminGroups_Vo_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(perunSession, "getAdminGroups_Vo_String_policy", vo)) {
 			throw new PrivilegeException(perunSession, "getAdminGroups");
 				}
 
@@ -539,7 +539,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addSponsorRole_Vo_User_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addSponsorRole_Vo_User_policy", vo)) {
 			throw new PrivilegeException(sess, "addSponsorRole");
 		}
 		log.debug("addSponsorRole({},{})",vo.getShortName(),user.getId());
@@ -556,7 +556,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addSponsorRole_Vo_Group_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "addSponsorRole_Vo_Group_policy", vo)) {
 			throw new PrivilegeException(sess, "addSponsorRole");
 		}
 		AuthzResolverBlImpl.setRole(sess, group, vo, Role.SPONSOR);
@@ -572,7 +572,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeSponsorRole_Vo_User_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeSponsorRole_Vo_User_policy", vo)) {
 			throw new PrivilegeException(sess, "removeSponsorRole");
 		}
 		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.SPONSOR);
@@ -588,7 +588,7 @@ public class VosManagerEntry implements VosManager {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeSponsorRole_Vo_Group_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeSponsorRole_Vo_Group_policy", vo)) {
 			throw new PrivilegeException(sess, "removeSponsorRole");
 		}
 		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.SPONSOR);

@@ -65,7 +65,7 @@ public class SearcherEntry implements Searcher {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMembersByUserAttributes_Vo_Map<String_String>_policy", Collections.singletonList(vo)))
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByUserAttributes_Vo_Map<String_String>_policy", vo))
 			throw new PrivilegeException(sess, "getMembersByUserAttributes");
 
 		//If map is null or empty, return all members from vo
@@ -172,7 +172,7 @@ public class SearcherEntry implements Searcher {
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getMembersByGroupExpiration_Group_String_LocalDate_policy", Collections.singletonList(group)))
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByGroupExpiration_Group_String_LocalDate_policy", group))
 			throw new PrivilegeException(sess, "getMembersByGroupExpiration");
 
 		return getPerunBl().getSearcherBl().getMembersByGroupExpiration(sess, group, operator, date);
