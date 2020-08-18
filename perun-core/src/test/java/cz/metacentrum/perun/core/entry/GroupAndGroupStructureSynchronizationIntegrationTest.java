@@ -4,14 +4,20 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
@@ -35,11 +41,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +64,7 @@ import static org.mockito.Mockito.when;
  * @author Peter Balčirák
  * @author Erik Horváth
  */
-public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunIntegrationTest{
+public class GroupAndGroupStructureSynchronizationIntegrationTest extends AbstractPerunIntegrationTest{
 	private final static String CLASS_NAME = "GroupsManager.";
 	private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
 	private static final String ADDITIONAL_STRING = "additionalString";
@@ -65,9 +74,12 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	private final Group baseGroup = new Group("baseGroup", "I am base group");
 	private Vo vo;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_LDAP);
+	private final ExtSource extSourceForUserCreation = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Resource resource1;
 	private Resource resource2;
 	private Facility facility;
+	private Member member;
+	private Group group;
 
 	//This annotation is used so spied extSourceManagerBl is used in the perun object.
 	//Mocks are not injected yet. They are injected to perun when initMocks method is called.
@@ -104,6 +116,8 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		setUpBaseGroup(vo);
 		setUpFacility();
 		setUpResources();
+		setUpGroup(vo);
+		setUpMember(vo);
 
 		MockitoAnnotations.initMocks(this);
 
@@ -745,6 +759,281 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		assertThat(otherSubGroupResources).containsOnly(resource2);
 	}
 
+	@Test
+	public void synchronizeGroupRemoveMember() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupRemoveMember");
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		groupsManagerBl.addMember(sess, group, member);
+
+		assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+	}
+
+	@Test
+	public void synchronizeGroupRemoveMemberInAuthoritativeGroup() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupRemoveMemberInAuthoritativeGroup");
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		groupsManagerBl.addMember(sess, group, member);
+
+		Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup");
+		attribute.setValue(1);
+		attributesManagerBl.setAttribute(sess, group, attribute);
+
+		assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+	}
+
+	@Test
+	public void synchronizeGroupRemoveMemberInMembersGroup() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupRemoveMemberInMembersGroup");
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		groupsManagerBl.addMember(sess, group, member);
+		group.setName(VosManager.MEMBERS_GROUP);
+
+		assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+	}
+
+	@Test
+	public void synchronizeGroupRemoveInvalidMemberInMembersGroup() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupRemoveInvalidMemberInMembersGroup");
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		perun.getMembersManagerBl().setStatus(sess, member, Status.INVALID);
+		groupsManagerBl.addMember(sess, group, member);
+		group.setName(VosManager.MEMBERS_GROUP);
+
+		assertTrue(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertFalse(groupsManagerBl.getGroupMembers(sess, group).contains(member));
+	}
+
+	@Test
+	public void synchronizeGroupAddMissingMember() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMember");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
+	}
+
+	@Test
+	public void synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMemberWhileCandidateAlreadyMember");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
+	}
+
+	@Test
+	public void synchronizeGroupUpdateUserAttributeOfMember() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateUserAttributeOfMember");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		groupsManagerBl.addMember(sess, group, member);
+
+		Attribute attribute = new Attribute();
+		String namespace = "user-test-unique-attribute:specialNamespace";
+		attribute.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attribute.setFriendlyName(namespace + "1");
+		attribute.setType(String.class.getName());
+		attribute.setValue("UserAttribute");
+		assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, attribute));
+
+		Map<String, String> candidateAttrs = new HashMap<>();
+		candidateAttrs.put(attribute.getName(), attribute.valueAsString());
+		candidate.setAttributes(candidateAttrs);
+
+		Map<String, String> map = new HashMap<>();
+		map.put("overwriteUserAttributes", attribute.getName());
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+		doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap)essa);
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		assertNotEquals(candidate.getAttributes().get(attribute.getName()), attributesManagerBl.getAttribute(sess, user, attribute.getName()).valueAsString());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(candidate.getAttributes().get(attribute.getName()), attributesManagerBl.getAttribute(sess, user, attribute.getName()).valueAsString());
+	}
+
+	@Test
+	public void synchronizeGroupUpdateFirstNameOfMember() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateFirstNameOfMember");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		groupsManagerBl.addMember(sess, group, member);
+		candidate.setFirstName("metodej");
+
+		Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, perun.getUsersManagerBl().getUserByMember(sess, member), AttributesManager.NS_USER_ATTR_CORE+":firstName");
+
+		Map<String, String> candidateAttrs = new HashMap<>();
+		candidateAttrs.put(attribute.getName(), attribute.valueAsString());
+		candidate.setAttributes(candidateAttrs);
+
+		Map<String, String> map = new HashMap<>();
+		map.put("overwriteUserAttributes", attribute.getName());
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+		doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap)essa);
+
+		assertNotEquals(candidate.getFirstName(), perun.getUsersManagerBl().getUserByMember(sess, member).getFirstName());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(candidate.getFirstName(), perun.getUsersManagerBl().getUserByMember(sess, member).getFirstName());
+	}
+
+	@Test
+	public void synchronizeGroupMergeMemberAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupMergeMemberAttributeValue");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		groupsManagerBl.addMember(sess, group, member);
+		candidate.setFirstName("metodej");
+
+		Attribute attribute = new Attribute();
+		String namespace = "member-test-unique-attribute:specialNamespace";
+		attribute.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		attribute.setFriendlyName(namespace + "1");
+		attribute.setType(ArrayList.class.getName());
+		attribute.setValue(Stream.of("value1", "value2").collect(Collectors.toList()));
+		assertNotNull("unable to create member attribute", attributesManagerBl.createAttribute(sess, attribute));
+
+		Map<String, String> candidateAttrs = new HashMap<>();
+		candidateAttrs.put(attribute.getName(), "value2,value3");
+		candidate.setAttributes(candidateAttrs);
+		attributesManagerBl.setAttribute(sess, member, attribute);
+
+		Map<String, String> map = new HashMap<>();
+		map.put("mergeMemberAttributes", attribute.getName());
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+		doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap)essa);
+
+		assertEquals(2, attributesManagerBl.getAttribute(sess, member, attribute.getName()).valueAsList().size());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(3, attributesManagerBl.getAttribute(sess, member, attribute.getName()).valueAsList().size());
+	}
+
+	@Test
+	public void synchronizeGroupUpdateExistingMemberStatus() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateExistingMemberStatus");
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		Candidate candidate = setUpCandidate();
+
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		perun.getMembersManagerBl().setStatus(sess, member, Status.DISABLED);
+		groupsManagerBl.addMember(sess, group, member);
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+	}
+
+	// PRIVATE METHODS
+
 	private void setSynchronizationResourcesAttribute(int resourceId, String... logins) throws Exception {
 		Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, baseGroup, A_G_D_SYNC_RESOURCES);
 		if (attribute.getValue() == null) {
@@ -982,5 +1271,35 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		facility = new Facility(-1, "Facility");
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
 		return facility;
+	}
+
+	private void setUpGroup(Vo vo) throws Exception {
+		group = new Group("GroupsManagerTestGroup1","testovaci1");
+		group = groupsManagerBl.createGroup(sess, vo, group);
+		assertNotNull("unable to create testing Group",group);
+	}
+
+	private void setUpMember(Vo vo) throws Exception {
+		Candidate candidate = setUpCandidate();
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		assertNotNull("No member created", member);
+	}
+
+	private Candidate setUpCandidate() {
+		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+		Candidate candidate = new Candidate();
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		final UserExtSource userExtSource = new UserExtSource(extSourceForUserCreation, extLogin);
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<>());
+		return candidate;
 	}
 }
