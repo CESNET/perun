@@ -1179,6 +1179,8 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		List<RichGroup> richGroups = getGroupsManagerBl().getRichGroupsWithAttributesAssignedToResource(sess, resource, attrNames);
 
+		richGroups.removeIf(richGroup -> !AuthzResolver.authorizedInternal(sess, "filter-getRichGroupsAssignedToResourceWithAttributesByNames_Resource_List<String>_policy", richGroup, resource));
+
 		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, resource, true);
 	}
 

@@ -395,9 +395,13 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getAssignedGroups_Resource_policy", resource)) {
 			throw new PrivilegeException(sess, "getAssignedGroups");
-				}
+		}
 
-		return getResourcesManagerBl().getAssignedGroups(sess, resource);
+		List<Group> assignedGroups = getResourcesManagerBl().getAssignedGroups(sess, resource);
+
+		assignedGroups.removeIf(assignedGroup -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedGroups_Resource_policy", assignedGroup, resource));
+
+		return assignedGroups;
 	}
 
 	@Override
