@@ -30,6 +30,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -5503,142 +5504,15 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	public void testConvertingToNonuniqAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttribute");
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
-		int counter = 1;
-		for (String bean : AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.keySet()) {
 
-			//entityless attributes cannot be unique, no need for conversion
-			if (bean.equals("entityless")) continue;
-
-			for (String type : AttributesManagerImpl.ATTRIBUTE_TYPES) {
-				//large string and large array are unsupported types for uniqueness
-
-				log.debug("conversion to unique bean {} type {}", bean, type);
-				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
-				String friendlyName = "test-conv-attr" + (counter++);
-				String description = "poznamka";
-				AttributeDefinition attrDef = new AttributeDefinition();
-				attrDef.setUnique(true);
-				attrDef.setFriendlyName(friendlyName);
-				attrDef.setNamespace(namespace);
-				attrDef.setDescription(description);
-				attrDef.setType(type);
-				attributesManager.createAttribute(sess, attrDef);
-				AttributeDefinition attributeDefinition = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
-				assertTrue("attribute is not marked unique", attributeDefinition.isUnique());
-				assertEquals("friendly name not loaded correctly", friendlyName, attributeDefinition.getFriendlyName());
-				assertEquals("namespace not loaded correctly", namespace, attributeDefinition.getNamespace());
-				assertEquals("description not loaded correctly", description, attributeDefinition.getDescription());
-
-				//create values
-				Attribute a = new Attribute(attributeDefinition);
-				Attribute b = new Attribute(attributeDefinition);
-				switch (type) {
-					case "java.lang.String":
-					case BeansUtils.largeStringClassName:
-						a.setValue("string1");
-						b.setValue("string2");
-						break;
-					case "java.lang.Integer":
-						a.setValue(Integer.MIN_VALUE);
-						b.setValue(Integer.MAX_VALUE);
-						break;
-					case "java.lang.Boolean":
-						a.setValue(Boolean.FALSE);
-						b.setValue(Boolean.TRUE);
-						break;
-					case "java.util.ArrayList":
-					case BeansUtils.largeArrayListClassName:
-						a.setValue(new ArrayList<>(Arrays.asList("value1","value2")));
-						b.setValue(new ArrayList<>(Arrays.asList("value3","value4")));
-						break;
-					case "java.util.LinkedHashMap":
-						LinkedHashMap<String,String> m1 = new LinkedHashMap<>();
-						m1.put("k1","v1");
-						m1.put("k2","v2");
-						LinkedHashMap<String,String> m2 = new LinkedHashMap<>();
-						m2.put("k4","v4");
-						m2.put("k3","v3");
-						a.setValue(m1);
-						b.setValue(m2);
-						break;
-					default:
-						throw new Exception("unknown type "+type);
-				}
-				switch (bean) {
-					case "user":
-						attributesManager.setAttribute(sess, user1, a);
-						attributesManager.setAttribute(sess, user2, b);
-						break;
-					case "member":
-						attributesManager.setAttribute(sess, member1OfUser1, a);
-						attributesManager.setAttribute(sess, member2OfUser1, b);
-						break;
-					case "facility":
-						attributesManager.setAttribute(sess, facility1, a);
-						attributesManager.setAttribute(sess, facility2, b);
-						break;
-					case "vo":
-						attributesManager.setAttribute(sess, vo1, a);
-						attributesManager.setAttribute(sess, vo2, b);
-						break;
-					case "host":
-						attributesManager.setAttribute(sess, host1OnFacility1, a);
-						attributesManager.setAttribute(sess, host2OnFacility2, b);
-						break;
-					case "group":
-						attributesManager.setAttribute(sess, group1InVo1, a);
-						attributesManager.setAttribute(sess, group2InVo2, b);
-						break;
-					case "resource":
-						attributesManager.setAttribute(sess, resource1InVo1, a);
-						attributesManager.setAttribute(sess, resource2InVo2, b);
-						break;
-					case "member_resource":
-						attributesManager.setAttribute(sess, member1OfUser1, resource1InVo1, a);
-						attributesManager.setAttribute(sess, member2OfUser2, resource2InVo1, b);
-						break;
-					case "member_group":
-						attributesManager.setAttribute(sess, member1OfUser1, group1InVo1, a);
-						attributesManager.setAttribute(sess, member2OfUser2, group2InVo1, b);
-						break;
-					case "user_facility":
-						attributesManager.setAttribute(sess, facility1, user1, a);
-						attributesManager.setAttribute(sess, facility2, user2, b);
-						break;
-					case "group_resource":
-						attributesManager.setAttribute(sess, resource1InVo1, group1InVo1, a);
-						attributesManager.setAttribute(sess, resource2InVo2, group2InVo2, b);
-						break;
-					case "user_ext_source":
-						attributesManager.setAttribute(sess, userExtSource1, a);
-						attributesManager.setAttribute(sess, userExtSource2, b);
-						break;
-					default:
-						throw new Exception("unknown entity "+bean);
-				}
-				int rowsChanged = attributesManagerBl.convertAttributeToNonunique(sess, attributeDefinition.getId());
-				assertFalse(attributesManager.getAttributeDefinition(sess, attributeDefinition.getName()).isUnique());
-				assertTrue(rowsChanged > 0);
-			}
-		}
-	}
-
-	@Test
-	public void testConvertingToNonuniqAttributeExactlyRowsDeleted() throws Exception {
-		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttributeExactlyRowsDeleted");
-		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
-
-		String namespace = AttributesManager.NS_USER_ATTR_DEF;
-		String friendlyName = "test-conv-attr";
-		String description = "poznamka";
 		AttributeDefinition attrDef = new AttributeDefinition();
 		attrDef.setUnique(true);
-		attrDef.setFriendlyName(friendlyName);
-		attrDef.setNamespace(namespace);
-		attrDef.setDescription(description);
+		attrDef.setFriendlyName("test-conv-attr");
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("poznamka");
 		attrDef.setType(String.class.getName());
 		attributesManager.createAttribute(sess, attrDef);
-		attrDef = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
+		attrDef = attributesManager.getAttributeDefinition(sess, attrDef.getName());
 
 		Attribute a = new Attribute(attrDef);
 		Attribute b = new Attribute(attrDef);
@@ -5648,7 +5522,44 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attributesManager.setAttribute(sess, user2, b);
 
 		int rowsChanged = attributesManagerBl.convertAttributeToNonunique(sess, attrDef.getId());
+		assertFalse("attribute is still unique", attributesManager.getAttributeDefinition(sess, attrDef.getName()).isUnique());
 		assertEquals(2, rowsChanged);
+	}
+
+	@Test
+	public void testConvertingToNonuniqAttributeWhichIsNotSet() throws Exception {
+		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttributeWhichIsNotSet");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setUnique(true);
+		attrDef.setFriendlyName("test-conv-attr");
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("poznamka");
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+		attrDef = attributesManager.getAttributeDefinition(sess, attrDef.getName());
+
+		int rowsChanged = attributesManagerBl.convertAttributeToNonunique(sess, attrDef.getId());
+		assertFalse("attribute is still unique", attributesManager.getAttributeDefinition(sess, attrDef.getName()).isUnique());
+		assertEquals(0, rowsChanged);
+	}
+
+	@Test(expected = AttributeNotMarkedUniqueException.class)
+	public void testConvertingToNonuniqAttributeAlreadyNonuniq() throws Exception {
+		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttributeAlreadyNonuniq");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setUnique(false);
+		attrDef.setFriendlyName("test-conv-attr");
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("poznamka");
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+		attrDef = attributesManager.getAttributeDefinition(sess, attrDef.getName());
+
+		attributesManagerBl.convertAttributeToNonunique(sess, attrDef.getId());
 	}
 
 	@Test

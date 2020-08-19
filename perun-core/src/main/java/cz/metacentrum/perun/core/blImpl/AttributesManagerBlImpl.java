@@ -8124,7 +8124,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public int convertAttributeToNonunique(PerunSession session, int attrId) throws AttributeNotExistsException, AttributeNotMarkedUniqueException {
 		AttributeDefinition attrDef = getAttributeDefinitionById(session, attrId);
-		if(!attrDef.isUnique()) throw new AttributeNotMarkedUniqueException("Cannot convert attribute because it is already marked as unique", attrDef);
+		if(!attrDef.isUnique()) throw new AttributeNotMarkedUniqueException("Cannot convert attribute because it is already marked as nonunique", attrDef);
 		log.info("converting unique attribute {} to nonunique",attrDef.getName());
 		attrDef.setUnique(false);
 		this.updateAttributeDefinition(session, attrDef);

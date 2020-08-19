@@ -3978,10 +3978,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Converts attribute to nonunique - unmarks unique flag from attribute definition, and deletes all values
 	 * from a special table with unique constraint that ensures that all values remain unique.
-	 * Already nonunique attribute is skipped.
 	 *
 	 * @param attrDefId int AttributeDefinition <code>id</code>
-	 * @throw PrivilegeException Insufficient permissions.
 	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 * @throw AttributeNotMarkedUniqueException When Attribute with <code>id</code> is not unique.
 	 */

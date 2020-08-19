@@ -1743,6 +1743,14 @@ components:
       in: query
       required: true
 
+    attrDefId:
+      name: attributeDefinition
+      description: "id of AttributeDefinition"
+      schema:
+        type: integer
+      in: query
+      required: true
+
     attributes:
       name: "attributes[]"
       description: "list of attribute ids List<Integer>"
@@ -5946,7 +5954,7 @@ paths:
       summary: "Converts attribute to unique - marks its definition as unique and ensures that all its values are unique.
       Entityless attributes cannot be converted to unique, only attributes attached to PerunBeans or pairs of PerunBeans."
       parameters:
-        - $ref: '#/components/parameters/attributeInteger'
+        - $ref: '#/components/parameters/attrDefId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -5961,7 +5969,7 @@ paths:
       summary: "Converts attribute to nonunique - unmarks unique flag from attribute definition, and deletes all values
       from a special table with unique constraint that ensures that all values remain unique."
       parameters:
-        - $ref: '#/components/parameters/attributeInteger'
+        - $ref: '#/components/parameters/attrDefId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
