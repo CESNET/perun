@@ -918,25 +918,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	protected List<Member> addIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		// save list of old group members
-		List<Member> oldMembers = this.getGroupMembers(sess, group);
-		List<Member> membersToAdd = new ArrayList<>(members);
-
 		lockGroupMembership(group, members);
 
-		for (Member member : membersToAdd) {
+		List<Member> newMembers = new ArrayList<>();
+		for (Member member : members) {
+			//we want to process only newly added members
+			if(!isGroupMember(sess, group, member)) newMembers.add(member);
 			groupsManagerImpl.addMember(sess, group, member, MembershipType.INDIRECT, sourceGroupId);
 		}
 
-		// select only newly added members
-		membersToAdd.removeAll(oldMembers);
-
-		for (Member member : membersToAdd) {
+		for (Member member : newMembers) {
 			setRequiredAttributes(sess, member, group);
 			getPerunBl().getAuditer().log(sess, new IndirectMemberAddedToGroup(member, group));
 		}
 
-		return membersToAdd;
+		return newMembers;
 	}
 
 	/**
