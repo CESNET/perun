@@ -1,16 +1,22 @@
 package cz.metacentrum.perun.webgui.json.servicesManager;
 
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonCallbackOracle;
+import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.keyproviders.DestinationKeyProvider;
 import cz.metacentrum.perun.webgui.model.Destination;
 import cz.metacentrum.perun.webgui.model.Facility;
@@ -24,16 +30,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Ajax query to get all rich destinations for selected facility or service
+ * Ajax query to get destinations for selected facility and service
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<Destination>, JsonCallbackOracle<Destination> {
+
+public class GetRichDestinations implements JsonCallback, JsonCallbackTable<Destination>, JsonCallbackOracle<Destination> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// json url for services
-	private final String JSON_URL = "servicesManager/getAllRichDestinations";
+	private final String JSON_URL = "servicesManager/getRichDestinations";
 	// Data provider and tables
 	private ListDataProvider<Destination> dataProvider = new ListDataProvider<Destination>();
 	private PerunTable<Destination> table;
@@ -42,11 +49,12 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	final MultiSelectionModel<Destination> selectionModel = new MultiSelectionModel<Destination>(new DestinationKeyProvider());
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
+	// Table field updater
+	private FieldUpdater<Destination, String> tableFieldUpdater;
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private Facility facility = null;
 	private Service service = null;
 	private boolean showFac = false;
-	private boolean showServ = true; // display service column by default
 	private boolean checkable = true;
 	// oracle support
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
@@ -58,7 +66,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 * @param facility facility to get destinations for
 	 * @param service service to get destinations for
 	 */
-	public GetAllRichDestinations(Facility facility, Service service) {
+	public GetRichDestinations(Facility facility, Service service) {
 		this.facility = facility;
 		this.service = service;
 	}
@@ -70,17 +78,30 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 * @param service service to get destinations for
 	 * @param events custom events
 	 */
-	public GetAllRichDestinations(Facility facility, Service service, JsonCallbackEvents events) {
+	public GetRichDestinations(Facility facility, Service service, JsonCallbackEvents events) {
 		this.events = events;
 		this.facility = facility;
 		this.service = service;
 	}
 
 	/**
+	 * Returns table with destinations and custom onClick
+	 *
+	 * @param fu field updater
+	 * @return table widget
+	 */
+	public CellTable<Destination> getTable(FieldUpdater<Destination, String> fu){
+		this.tableFieldUpdater = fu;
+		return this.getTable();
+	}
+
+	/**
 	 * Returns table with destinations
 	 * @return table widget
 	 */
-	public CellTable<Destination> getTable() {
+	public CellTable<Destination> getTable()
+	{
+		// retrieves data
 		retrieveData();
 		return getEmptyTable();
 	}
@@ -100,12 +121,6 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
-		if (showFac) {
-			loaderImage.setEmptyResultMessage("Service has no destination.");
-		} else {
-			loaderImage.setEmptyResultMessage("Facility has no services destinations. Service configuration can't be propagated.");
-		}
-
 		// Sorting
 		ListHandler<Destination> columnSortHandler = new ListHandler<Destination>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
@@ -116,54 +131,51 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-		if(this.checkable) {
+		if(this.checkable)
+		{
+			// checkbox column column
 			table.addCheckBoxColumn();
 		}
 
 		//add id column
-		table.addIdColumn("Destination ID", null);
+		table.addIdColumn("Destination ID", tableFieldUpdater);
 
 		// DESTINATION COLUMN
-		TextColumn<Destination> destinationColumn = new TextColumn<Destination>(){
-			public String getValue(Destination object) {
-				return object.getDestination();
+		Column<Destination, String> destinationColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination,String>() {
+			public String getValue(Destination dest) {
+				return dest.getDestination();
 			}
-		};
+		}, tableFieldUpdater);
 
 		// TYPE COLUMN
-		TextColumn<Destination> typeColumn = new TextColumn<Destination>(){
-			public String getValue(Destination object) {
-				return object.getType().toUpperCase();
+		Column<Destination, String> typeColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination,String>() {
+			public String getValue(Destination dest) {
+				return dest.getType().toUpperCase();
 			}
-		};
+		}, tableFieldUpdater);
 
 		// SERVICE COLUMN
-		TextColumn<Destination> serviceColumn = new TextColumn<Destination>(){
-			public String getValue(Destination object) {
-				return object.getService().getName();
+		Column<Destination, String> serviceColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination,String>() {
+			public String getValue(Destination dest) {
+				if (dest.getService() != null ) { return dest.getService().getName(); }
+				else { return ""; }
 			}
-		};
+		}, tableFieldUpdater);
 
 		// FACILITY COLUMN
-		TextColumn<Destination> facilityColumn = new TextColumn<Destination>(){
-			public String getValue(Destination object) {
-				return object.getFacility().getName();
+		Column<Destination, String> facilityColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination, String>() {
+			public String getValue(Destination dest) {
+				if (dest.getService() != null ) { return dest.getFacility().getName(); }
+				else { return ""; }
 			}
-		};
-
-		// BLOCKED TYPE
-		TextColumn<Destination> blockedColumn = new TextColumn<Destination>(){
-			public String getValue(Destination object) {
-				return (object.isBlocked()) ? "BLOCKED" : "ALLOWED";
-			}
-		};
+		}, tableFieldUpdater);
 
 		// PROPAGATION TYPE
-		TextColumn<Destination> propTypeColumn = new TextColumn<Destination>(){
-			public String getValue(Destination object) {
-				return object.getPropagationType();
+		Column<Destination, String> propColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination, String>() {
+			public String getValue(Destination dest) {
+				return dest.getPropagationType();
 			}
-		};
+		}, tableFieldUpdater);
 
 		destinationColumn.setSortable(true);
 		columnSortHandler.setComparator(destinationColumn, new Comparator<Destination>() {
@@ -193,39 +205,31 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 			}
 		});
 
-		blockedColumn.setSortable(true);
-		columnSortHandler.setComparator(blockedColumn, new Comparator<Destination>() {
-			public int compare(Destination o1, Destination o2) {
-				String val1 = (o1.isBlocked()) ? "BLOCKED" : "ALLOWED";
-				String val2 = (o2.isBlocked()) ? "BLOCKED" : "ALLOWED";
-				return val1.compareToIgnoreCase(val2);
-			}
-		});
-
-		propTypeColumn.setSortable(true);
-		columnSortHandler.setComparator(propTypeColumn, new Comparator<Destination>() {
+		propColumn.setSortable(true);
+		columnSortHandler.setComparator(propColumn, new Comparator<Destination>() {
 			public int compare(Destination o1, Destination o2) {
 				return o1.getPropagationType().compareToIgnoreCase(o2.getPropagationType());
 			}
 		});
 
+
 		// updates the columns size
-		table.setColumnWidth(serviceColumn, 250.0, Unit.PX);
-		table.setColumnWidth(facilityColumn, 250.0, Unit.PX);
+		table.setColumnWidth(serviceColumn, 200.0, Unit.PX);
+		table.setColumnWidth(facilityColumn, 200.0, Unit.PX);
 
 		// Add the columns.
 
-		if (showServ) {
-			table.addColumn(serviceColumn, "Service");
-		}
+
+		table.addColumn(serviceColumn, "Service");
+
 		if (showFac) {
+			table.removeColumn(serviceColumn);
 			table.addColumn(facilityColumn, "Facility");
 		}
 
 		table.addColumn(destinationColumn, "Destination");
 		table.addColumn(typeColumn, "Type");
-		table.addColumn(blockedColumn, "Blocked");
-		table.addColumn(propTypeColumn, "Propagation type");
+		table.addColumn(propColumn, "Propagation type");
 
 		return table;
 
@@ -235,13 +239,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 * Sorts table by objects Name
 	 */
 	public void sortTable() {
-		if (service == null) {
-			list = new TableSorter<Destination>().sortByDestination(getList());
-		} else if (!showServ) {
-			list = new TableSorter<Destination>().sortByDestination(getList());
-		} else {
-			list = new TableSorter<Destination>().sortByService(getList());
-		}
+		list = new TableSorter<Destination>().sortByService(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -253,12 +251,10 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 */
 	public void addToTable(Destination object) {
 		list.add(object);
-		oracle.add(object.getDestination());
-		if (service == null) {
+		if (object.getService() != null) {
 			oracle.add(object.getService().getName());
-		} else {
-			oracle.add(object.getFacility().getName());
 		}
+		oracle.add(object.getDestination());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -281,9 +277,9 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	public void clearTable(){
 		loaderImage.loadingStart();
 		list.clear();
-		selectionModel.clear();
-		oracle.clear();
 		fullBackup.clear();
+		oracle.clear();
+		selectionModel.clear();
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -325,21 +321,24 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 * Called, when operation finishes successfully.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		setList(JsonUtils.<Destination>jsoAsList(jso));
+		ArrayList<Destination> dest = JsonUtils.jsoAsList(jso);
+		for (Destination d : dest) {
+			d.setFacility(facility);
+			d.setService(service);
+			addToTable(d);
+		}
 		sortTable();
+		loaderImage.loadingFinished();
 		session.getUiElements().setLogText("Destinations loaded: " + list.size());
 		events.onFinished(jso);
-		loaderImage.loadingFinished();
 	}
 
 	public void insertToTable(int index, Destination object) {
 		list.add(index, object);
-		oracle.add(object.getDestination());
-		if (service == null) {
+		if (object.getService() != null) {
 			oracle.add(object.getService().getName());
-		} else {
-			oracle.add(object.getFacility().getName());
 		}
+		oracle.add(object.getDestination());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -355,13 +354,11 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	public void setList(ArrayList<Destination> list) {
 		clearTable();
 		this.list.addAll(list);
-		for (Destination d : list) {
-			oracle.add(d.getDestination());
-			if (service == null) {
-				oracle.add(d.getService().getName());
-			} else {
-				oracle.add(d.getFacility().getName());
+		for (Destination object : list) {
+			if (object.getService() != null) {
+				oracle.add(object.getService().getName());
 			}
+			oracle.add(object.getDestination());
 		}
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -375,12 +372,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData(){
-		String param = "";
-		if (service != null) {
-			param = "service="+service.getId();
-		} else if (facility != null) {
-			param = "facility="+facility.getId();
-		}
+		String param = "service="+service.getId()+"&facility="+facility.getId();
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
@@ -396,38 +388,27 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 
 	/**
 	 * Sets service object for this callback
-	 * (clears facility object)
 	 *
 	 * @param service service to get destinations for
 	 */
 	public void setService(Service service) {
 		this.service = service;
-		this.facility = null;
 	}
 
 	/**
 	 * Sets facility object for this callback
-	 * (clears service object)
 	 *
 	 * @param facility facility to get destinations for
 	 */
 	public void setFacility(Facility facility) {
 		this.facility = facility;
-		this.service = null;
 	}
 
 	/**
-	 * Allow facility column
+	 * Switch view to facility column
 	 */
-	public void showFacilityColumn(boolean show){
-		showFac = show;
-	}
-
-	/**
-	 * Allow service column (true by default)
-	 */
-	public void showServiceColumn(boolean show){
-		showServ = show;
+	public void showFacilityColumn(){
+		showFac = true;
 	}
 
 	public void filterTable(String text){
@@ -446,26 +427,15 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		} else {
 			for (Destination dst : fullBackup){
 				// store facility by filter
-				if (service == null) {
+				if (dst.getService() != null) {
 					if (dst.getDestination().toLowerCase().contains(text.toLowerCase()) || dst.getService().getName().toLowerCase().contains(text.toLowerCase())) {
 						list.add(dst);
 					}
 				} else {
-					if (dst.getDestination().toLowerCase().contains(text.toLowerCase()) || dst.getFacility().getName().toLowerCase().contains(text.toLowerCase())) {
+					if (dst.getDestination().toLowerCase().contains(text.toLowerCase())) {
 						list.add(dst);
 					}
 				}
-			}
-
-		}
-
-		if (list.isEmpty() && !text.isEmpty()) {
-			loaderImage.setEmptyResultMessage("No destination matching '"+text+"' found.");
-		} else {
-			if (showFac) {
-				loaderImage.setEmptyResultMessage("Service has no destination.");
-			} else {
-				loaderImage.setEmptyResultMessage("Facility has no services destinations. Service configuration can't be propagated.");
 			}
 		}
 

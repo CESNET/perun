@@ -16,8 +16,10 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.GetAssignedFacilities;
+import cz.metacentrum.perun.webgui.json.servicesManager.BlockUnblockServiceOnDestination;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetAllRichDestinations;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetDestinations;
+import cz.metacentrum.perun.webgui.json.servicesManager.GetRichDestinations;
 import cz.metacentrum.perun.webgui.json.servicesManager.RemoveDestination;
 import cz.metacentrum.perun.webgui.model.Destination;
 import cz.metacentrum.perun.webgui.model.Facility;
@@ -126,6 +128,12 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 
 		menu.addWidget(addDestButton);
 		menu.addWidget(removeDestButton);
+
+		final CustomButton blockButton = new CustomButton(ButtonTranslation.INSTANCE.blockPropagationButton(), ButtonTranslation.INSTANCE.blockServicesOnFacility(), SmallIcons.INSTANCE.stopIcon());
+		final CustomButton allowButton = new CustomButton(ButtonTranslation.INSTANCE.allowPropagationButton(), ButtonTranslation.INSTANCE.allowServicesOnFacility(), SmallIcons.INSTANCE.acceptIcon());
+
+		menu.addWidget(allowButton);
+		menu.addWidget(blockButton);
 		menu.addWidget(new HTML("<strong>Selected facility:</strong>"));
 
 		// listbox with facilities
@@ -157,8 +165,8 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 						public void onFinished(JavaScriptObject jso){
 							ArrayList<Destination> dest = JsonUtils.jsoAsList(jso);
 							for (Destination d : dest) {
-								d.setFacility(ls.getSelectedObject());
-								d.setService(service);
+								//d.setFacility(ls.getSelectedObject());
+								//d.setService(service);
 								callback.addToTable(d);
 							}
 							((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
@@ -168,7 +176,7 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 							((AjaxLoaderImage)table.getEmptyTableWidget()).loadingError(error);
 						}
 					};
-					final GetDestinations callback = new GetDestinations(ls.getSelectedObject(), service, localEvents);
+					final GetRichDestinations callback = new GetRichDestinations(ls.getSelectedObject(), service, localEvents);
 					callback.retrieveData();
 				}
 			}
@@ -260,6 +268,42 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
+
+		allowButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				final ArrayList<Destination> destForBlockUnblock = callback.getTableSelectedList();
+				// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+				for (int i=0; i<destForBlockUnblock.size(); i++ ) {
+					if (i == destForBlockUnblock.size()-1) {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(allowButton, refreshEvents));
+						request.unblockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					} else {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(allowButton));
+						request.unblockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					}
+				}
+			}
+		});
+		blockButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				final ArrayList<Destination> destForBlockUnblock = callback.getTableSelectedList();
+				// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+				for (int i=0; i<destForBlockUnblock.size(); i++ ) {
+					if (i == destForBlockUnblock.size()-1) {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(blockButton, refreshEvents));
+						request.blockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					} else {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(blockButton));
+						request.blockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					}
+				}
+			}
+		});
+
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
 			public void searchFor(String text) {
@@ -274,7 +318,11 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		vp.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
+		blockButton.setEnabled(false);
+		allowButton.setEnabled(false);
 		removeDestButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(callback, table, blockButton);
+		JsonUtils.addTableManagedButton(callback, table, allowButton);
 		JsonUtils.addTableManagedButton(callback, table, removeDestButton);
 
 		// add tabs to the main panel

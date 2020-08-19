@@ -107,7 +107,7 @@ public class BlockServiceOnFacility {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Exec service " + serviceId + " blocked on facility.");
+				session.getUiElements().setLogSuccessText("Service " + serviceId + " blocked on facility.");
 				events.onFinished(jso);
 			};
 
