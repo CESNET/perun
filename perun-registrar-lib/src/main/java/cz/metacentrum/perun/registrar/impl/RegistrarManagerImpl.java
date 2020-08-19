@@ -633,11 +633,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void createApplicationFormInVo(PerunSession sess, Vo vo) throws PrivilegeException {
+	public void createApplicationFormInVo(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+		vosManager.checkVoExists(sess, vo);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "createApplicationFormInVo_Vo_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(sess, "createApplicationFormInVo");
 		}
+
 		int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
 		try {
 			jdbc.update("insert into application_form(id, vo_id) values (?,?)", id, vo.getId());
@@ -648,11 +651,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void createApplicationFormInGroup(PerunSession sess, Group group) throws PrivilegeException {
+	public void createApplicationFormInGroup(PerunSession sess, Group group) throws PrivilegeException, GroupNotExistsException {
+		groupsManager.checkGroupExists(sess, group);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "createApplicationFormInGroup_Group_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(sess, "createApplicationFormInGroup");
 		}
+
 		int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
 		try {
 			jdbc.update("insert into application_form(id, vo_id, group_id) values (?,?,?)", id, group.getVoId(), group.getId());
@@ -739,16 +745,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			if (form == null) throw new FormNotExistsException("Form with ID: "+id+" doesn't exists.");
 
+			//Authorization
 			if (Objects.isNull(form.getGroup())) {
 				// VO application
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+				if (!AuthzResolver.authorizedInternal(sess, "vo-getFormById_int_policy", Collections.singletonList(form.getVo()))) {
 					throw new PrivilegeException(sess, "getFormById");
 				}
 			} else {
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) &&
-						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) ) {
+				if (!AuthzResolver.authorizedInternal(sess, "group-getFormById_int_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 					throw new PrivilegeException(sess, "getFormById");
 				}
 			}
@@ -787,20 +791,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			if (Objects.isNull(form)) throw new FormNotExistsException("Form with ID: "+id+" doesn't exists.");
 
+			//Authorization
 			if (form.getGroup() == null) {
 				// VO application
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
-						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+				if (!AuthzResolver.authorizedInternal(sess, "vo-getFormByItemId_int_policy", Collections.singletonList(form.getVo()))) {
 					throw new PrivilegeException(sess, "getFormByItemId");
 				}
 			} else {
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
-						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) &&
-						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) ) {
+				if (!AuthzResolver.authorizedInternal(sess, "group-getFormByItemId_int_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 					throw new PrivilegeException(sess, "getFormByItemId");
 				}
 			}
@@ -817,14 +815,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public ApplicationFormItem addFormItem(PerunSession user, ApplicationForm form, ApplicationFormItem item) throws PrivilegeException {
 
+		//Authorization
 		if (form.getGroup() == null) {
 			// VO application
-			if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo())) {
+			if (!AuthzResolver.authorizedInternal(user, "vo-addFormItem_ApplicationForm_ApplicationFormItem_policy", Collections.singletonList(form.getVo()))) {
 				throw new PrivilegeException(user, "addFormItem");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo()) &&
-					!AuthzResolver.isAuthorized(user, Role.GROUPADMIN, form.getGroup()) ) {
+			if (!AuthzResolver.authorizedInternal(user, "group-addFormItem_ApplicationForm_ApplicationFormItem_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException(user, "addFormItem");
 			}
 		}
@@ -872,14 +870,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Transactional(rollbackFor = Exception.class)
 	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException {
 
+		//Authorization
 		if (form.getGroup() == null) {
 			// VO application
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy", Collections.singletonList(form.getVo()))) {
 				throw new PrivilegeException(sess, "updateFormItems");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-updateFormItems_ApplicationForm_List<ApplicationFormItem>_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException(sess, "updateFormItems");
 			}
 		}
@@ -950,14 +948,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public int updateForm(PerunSession user, ApplicationForm form) throws PrivilegeException {
 
+		//Authorization
 		if (form.getGroup() == null) {
 			// VO application
-			if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo())) {
+			if (!AuthzResolver.authorizedInternal(user, "vo-updateForm_ApplicationForm_policy", Collections.singletonList(form.getVo()))) {
 				throw new PrivilegeException(user, "updateForm");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo()) &&
-					!AuthzResolver.isAuthorized(user, Role.GROUPADMIN, form.getGroup()) ) {
+			if (!AuthzResolver.authorizedInternal(user, "group-updateForm_ApplicationForm_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException(user, "updateForm");
 			}
 		}
@@ -972,9 +970,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void deleteFormItem(PerunSession user, ApplicationForm form, int ordnum) throws PrivilegeException {
 
-		if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo())) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(user, "deleteFormItem_ApplicationForm_int_policy", Collections.singletonList(form.getVo()))) {
 			throw new PrivilegeException(user, "deleteFormItem");
 		}
+
 		jdbc.update("delete from application_form_items where form_id=? and ordnum=?", form.getId(), ordnum);
 		jdbc.update("update application_form_items set ordnum=ordnum-1 where form_id=? and ordnum>?", form.getId(), ordnum);
 
@@ -986,7 +986,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void moveFormItem(PerunSession user, ApplicationForm form, int ordnum, boolean up) throws PrivilegeException {
 
-		if (!AuthzResolver.isAuthorized(user, Role.VOADMIN, form.getVo())) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(user, "moveFormItem_ApplicationForm_int_boolean_policy", Collections.singletonList(form.getVo()))) {
 			throw new PrivilegeException(user, "moveFormItem");
 		}
 
@@ -1036,14 +1037,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} catch (PrivilegeException ex) {
 			throw new PrivilegeException(sess, "updateFormItemById");
 		}
-		// check authz
+
+		//Authorization
 		if (form.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-updateFormItemTexts_ApplicationFormItem_policy", Collections.singletonList(form.getVo()))) {
 				throw new PrivilegeException(sess, "updateFormItemById");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-updateFormItemTexts_ApplicationFormItem_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException(sess, "updateFormItemById");
 			}
 		}
@@ -1257,12 +1258,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void deleteApplication(PerunSession sess, Application app) throws PerunException {
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-			if (app.getGroup() != null) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-					throw new PrivilegeException(sess, "deleteApplication");
-				}
-			} else {
+		//Authorization
+		if (app.getGroup() == null) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-deleteApplication_Application_policy", Collections.singletonList(app.getVo()))) {
+				throw new PrivilegeException(sess, "deleteApplication");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "group-deleteApplication_Application_policy", Arrays.asList(app.getVo(), app.getGroup()))) {
 				throw new PrivilegeException(sess, "deleteApplication");
 			}
 		}
@@ -1322,15 +1324,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-			if (app.getGroup() != null) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-					throw new PrivilegeException(sess, "verifyApplication");
-				}
-			} else {
+		//Authorization
+		if (app.getGroup() == null) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-verifyApplication_int_policy", Collections.singletonList(app.getVo()))) {
+				throw new PrivilegeException(sess, "verifyApplication");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "group-verifyApplication_int_policy", Arrays.asList(app.getVo(), app.getGroup()))) {
 				throw new PrivilegeException(sess, "verifyApplication");
 			}
 		}
+
 		// proceed
 		markApplicationVerified(sess, appId);
 		perun.getAuditer().log(sess, new ApplicationVerified(app));
@@ -1346,13 +1350,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
 
-		// authz
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-			if (app.getGroup() != null) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-					throw new PrivilegeException(sess, "rejectApplication");
-				}
-			} else {
+		//Authorization
+		if (app.getGroup() == null) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-rejectApplication_int_String_policy", Collections.singletonList(app.getVo()))) {
+				throw new PrivilegeException(sess, "rejectApplication");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "group-rejectApplication_int_String_policy", Arrays.asList(app.getVo(), app.getGroup()))) {
 				throw new PrivilegeException(sess, "rejectApplication");
 			}
 		}
@@ -1524,14 +1528,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");
 		Member member;
 
-		// authz
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-			if (app.getGroup() != null) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-					throw new PrivilegeException(sess, "approveApplication");
-				}
-			} else {
-				throw new PrivilegeException(sess, "approveApplication");
+		//Authorization
+		if (app.getGroup() == null) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-approveApplicationInternal_int_policy", Collections.singletonList(app.getVo()))) {
+				throw new PrivilegeException(sess, "approveApplicationInternal");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "group-approveApplicationInternal_int_policy", Arrays.asList(app.getVo(), app.getGroup()))) {
+				throw new PrivilegeException(sess, "approveApplicationInternal");
 			}
 		}
 
@@ -1790,13 +1794,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void canBeApproved(PerunSession session, Application application) throws PerunException {
 
-		// authz
-		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN, application.getVo())) {
-			if (application.getGroup() != null) {
-				if (!AuthzResolver.isAuthorized(session, Role.GROUPADMIN, application.getGroup())) {
-					throw new PrivilegeException(session, "canBeApproved");
-				}
-			} else {
+		//Authorization
+		if (application.getGroup() == null) {
+			if (!AuthzResolver.authorizedInternal(session, "vo-canBeApproved_Application_policy", Collections.singletonList(application.getVo()))) {
+				throw new PrivilegeException(session, "canBeApproved");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(session, "group-canBeApproved_Application_policy", Arrays.asList(application.getVo(), application.getGroup()))) {
 				throw new PrivilegeException(session, "canBeApproved");
 			}
 		}
@@ -1846,13 +1850,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
-			&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
-			&& !AuthzResolver.selfAuthorizedForApplication(sess, app)
-			&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-			if (app.getGroup() == null ||  !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+		//Authorization
+		if (app.getGroup() == null) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-getApplicationById_int_policy", Collections.singletonList(app.getVo()))
+				&& !AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+				throw new PrivilegeException(sess, "getApplicationById");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "group-getApplicationById_int_policy", Arrays.asList(app.getVo(), app.getGroup()))
+				&& !AuthzResolver.selfAuthorizedForApplication(sess, app)) {
 				throw new PrivilegeException(sess, "getApplicationById");
 			}
 		}
@@ -1863,11 +1869,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state) throws PerunException {
+		vosManager.checkVoExists(userSession, vo);
 
-		// authz
-		if (!AuthzResolver.isAuthorized(userSession, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(userSession, Role.PERUNOBSERVER)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(userSession, "getApplicationsForVo");
 		}
 		if (state == null || state.isEmpty()) {
@@ -1893,12 +1898,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	public List<Application> getApplicationsForGroup(PerunSession userSession, Group group, List<String> state) throws PerunException {
+		groupsManager.checkGroupExists(userSession, group);
 
-		// authz
-		if (!AuthzResolver.isAuthorized(userSession, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(userSession, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(userSession, Role.PERUNOBSERVER)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Vo_List<String>_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(userSession, "getApplicationsForGroup");
 		}
 		if (state == null || state.isEmpty()) {
@@ -1948,16 +1951,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	public List<Application> getApplicationsForMember(PerunSession sess, Group group, Member member) throws PerunException {
+		membersManager.checkMemberExists(sess, member);
 
-		// authz
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
-			if (group != null) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
-					throw new PrivilegeException(sess, "getApplicationsForMember");
-				}
-			} else {
+		//Authorization
+		if (group == null) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-getApplicationsForMember_Group_Member_policy", Collections.singletonList(member))) {
+				throw new PrivilegeException(sess, "getApplicationsForMember");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "group-getApplicationsForMember_Group_Member_policy", Arrays.asList(member, group))) {
 				throw new PrivilegeException(sess, "getApplicationsForMember");
 			}
 		}
@@ -1977,19 +1979,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm form, AppType appType) throws PerunException {
 
-		// authz
+		//Authorization
 		if (form.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-getFormItems_ApplicationForm_AppType_policy", Collections.singletonList(form.getVo()))) {
 				throw new PrivilegeException("getFormItems");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, form.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())
-					&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-getFormItems_ApplicationForm_AppType_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException("getFormItems");
 			}
 		}
@@ -2058,14 +2054,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} catch (PrivilegeException ex) {
 			throw new PrivilegeException(sess, "updateFormItemById");
 		}
-		// check authz
+
+		//Authorization
 		if (form.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-updateFormItem_ApplicationFormItem_policy", Collections.singletonList(form.getVo()))) {
 				throw new PrivilegeException(sess, "updateFormItemById");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-updateFormItem_ApplicationFormItem_policy", Arrays.asList(form.getVo(), form.getGroup()))) {
 				throw new PrivilegeException(sess, "updateFormItemById");
 			}
 		}
@@ -2451,9 +2447,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	public void copyFormFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException {
+		vosManager.checkVoExists(sess, fromVo);
+		vosManager.checkVoExists(sess, toVo);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo) ||
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toVo)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "copyFormFromVoToVo_Vo_Vo_policy", Arrays.asList(fromVo, toVo))) {
 			throw new PrivilegeException(sess, "copyFormFromVoToVo");
 		}
 
@@ -2467,10 +2465,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException {
+		vosManager.checkVoExists(sess, fromVo);
+		groupsManager.checkGroupExists(sess, toGroup);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo) ||
-				((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) &&
-						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup)))) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(fromVo))
+			|| !AuthzResolver.authorizedInternal(sess, "destination-copyFormFromVoToGroup_Vo_Group_Policy", Collections.singletonList(toGroup))) {
 			throw new PrivilegeException(sess, "copyFormFromVoToGroup");
 		}
 
@@ -2498,12 +2498,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	@Override
 	public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
+		groupsManager.checkGroupExists(sess, fromGroup);
+		groupsManager.checkGroupExists(sess, toGroup);
 
-		Vo fromVO = vosManager.getVoById(sess, fromGroup.getVoId());
-
-		if ((!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, fromVO)) ||
-				(!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup))) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "source-copyFormFromGroupToGroup_Group_Group_policy", Collections.singletonList(fromGroup))
+			|| !AuthzResolver.authorizedInternal(sess, "destination-copyFormFromGroupToGroup_Group_Group_policy", Collections.singletonList(toGroup))) {
 			throw new PrivilegeException(sess, "copyFormFromGroupToGroup");
 		}
 
@@ -2526,7 +2526,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	public void updateFormItemData(PerunSession sess, int appId, ApplicationFormItemData data) throws RegistrarException, PrivilegeException {
 
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "updateFormItemData_int_ApplicationFormItemData_policy")) {
 			throw new PrivilegeException(sess, "updateApplicationData");
 		}
 

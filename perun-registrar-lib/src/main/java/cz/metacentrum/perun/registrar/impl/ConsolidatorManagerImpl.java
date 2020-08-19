@@ -187,10 +187,15 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		Application app = registrarManager.getApplicationById(registrarSession, appId);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
-			!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) &&
-			!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
-			if (app.getGroup() == null ||  !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+		//Authorization
+		if (app.getGroup() != null) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-checkForSimilarUsers_int_policy", Arrays.asList(app.getGroup(), app.getVo())) &&
+				!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+				throw new PrivilegeException("checkForSimilarUsers");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-checkForSimilarUsers_int_policy", Collections.singletonList(app.getVo())) &&
+				!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
 				throw new PrivilegeException("checkForSimilarUsers");
 			}
 		}

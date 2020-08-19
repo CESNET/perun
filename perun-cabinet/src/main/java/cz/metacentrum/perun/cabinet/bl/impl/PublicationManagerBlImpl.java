@@ -190,11 +190,8 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 			}
 
 			// delete publication
-			if (AuthzResolver.isAuthorized(sess, Role.CABINETADMIN)) {
-				// only cabinet admin can actually delete publication
-				getPublicationManagerDao().deletePublication(publication);
-				log.debug("{} deleted.", publication);
-			}
+			getPublicationManagerDao().deletePublication(publication);
+			log.debug("{} deleted.", publication);
 
 			// publications without authors are: "to be deleted by perun admin"
 

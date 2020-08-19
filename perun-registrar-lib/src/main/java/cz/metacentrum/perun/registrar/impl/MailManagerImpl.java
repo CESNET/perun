@@ -148,13 +148,14 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws ApplicationMailExistsException, PrivilegeException {
+
+		//Authorization
 		if (form.getGroup() != null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-addMail_ApplicationForm_ApplicationMail_policy", Arrays.asList(form.getGroup(), form.getVo()))) {
 				throw new PrivilegeException(sess, "addMail");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-addMail_ApplicationForm_ApplicationMail_policy", Collections.singletonList(form.getVo()))) {
 				throw new PrivilegeException(sess, "addMail");
 			}
 		}
@@ -190,13 +191,15 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	public void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws ApplicationMailAlreadyRemovedException, PrivilegeException, ApplicationMailNotExistsException {
+
+		//Authorization
 		if (form.getGroup() != null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
-				throw new PrivilegeException(sess, "deleteMail");
+			if (!AuthzResolver.authorizedInternal(sess, "group-deleteMailById_ApplicationForm_Integer_policy", Arrays.asList(form.getGroup(), form.getVo()))) {
+				throw new PrivilegeException(sess, "deleteMailById");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
-				throw new PrivilegeException(sess, "deleteMail");
+			if (!AuthzResolver.authorizedInternal(sess, "vo-deleteMailById_ApplicationForm_Integer_policy", Collections.singletonList(form.getVo()))) {
+				throw new PrivilegeException(sess, "deleteMailById");
 			}
 		}
 
@@ -328,8 +331,11 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	public void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException {
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo) ||
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toVo)) {
+		perun.getVosManagerBl().checkVoExists(sess, fromVo);
+		perun.getVosManagerBl().checkVoExists(sess, toVo);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToVo_Vo_Vo_policy", Arrays.asList(fromVo, toVo))) {
 			throw new PrivilegeException(sess, "copyMailsFromVoToVo");
 		}
 
@@ -340,9 +346,11 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	public void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException {
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromVo)) {
-			throw new PrivilegeException(sess, "copyMailsFromVoToGroup");
-		} else if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup)) {
+		perun.getVosManagerBl().checkVoExists(sess, fromVo);
+		perun.getGroupsManagerBl().checkGroupExists(sess, toGroup);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToGroup_Vo_Group_boolean_policy", Arrays.asList(fromVo, toGroup))) {
 			throw new PrivilegeException(sess, "copyMailsFromVoToGroup");
 		}
 
@@ -361,15 +369,11 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
-		Vo fromVO = perun.getVosManagerBl().getVoById(registrarSession, fromGroup.getVoId());
+		perun.getGroupsManagerBl().checkGroupExists(sess, fromGroup);
+		perun.getGroupsManagerBl().checkGroupExists(sess, toGroup);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup) &&
-				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, fromVO)) {
-			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
-		}
-		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup)) {
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromGroupToGroup_Group_Group_policy", Arrays.asList(fromGroup, toGroup))) {
 			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
 		}
 
@@ -434,10 +438,15 @@ public class MailManagerImpl implements MailManager {
 			throw new RegistrarException("USER_INVITE notification can't be sent this way. Use sendInvitation() instead.");
 		}
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
-			!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
-			if (app.getGroup() == null ||  !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+		//Authorization
+		if (app.getGroup() != null) {
+			if (!AuthzResolver.authorizedInternal(sess, "group-sendMessage_Application_MailType_String_policy", Arrays.asList(app.getGroup(), app.getVo())) &&
+				!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+				throw new PrivilegeException(sess, "sendMessage");
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-sendMessage_Application_MailType_String_policy", Collections.singletonList(app.getVo())) &&
+				!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
 				throw new PrivilegeException(sess, "sendMessage");
 			}
 		}
@@ -493,19 +502,20 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language) throws PerunException {
+		perun.getVosManagerBl().checkVoExists(sess, vo);
+
 		if (email == null || email.isEmpty()) {
 			throw new RegistrarException("You must provide non-empty email of person you are inviting.");
 		}
 
-		//authz
-		if (group == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
+		//Authorization
+		if (group != null) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+			if (!AuthzResolver.authorizedInternal(sess, "group-sendInvitation_Vo_Group_String_String_String_policy", Arrays.asList(vo, group))) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-sendInvitation_Vo_Group_String_String_String_policy", Collections.singletonList(vo))) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		}
@@ -523,16 +533,17 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	public void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException {
+		perun.getVosManagerBl().checkVoExists(sess, vo);
 		if (user == null) throw new RegistrarException("Missing user to send notification to.");
 
-		//authz
-		if (group == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+		//Authorization
+		if (group != null) {
+			perun.getGroupsManagerBl().checkGroupExists(sess, group);
+			if (!AuthzResolver.authorizedInternal(sess, "group-sendInvitation_Vo_Group_User_policy", Arrays.asList(vo, group, user))) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			if (!AuthzResolver.authorizedInternal(sess, "vo-sendInvitation_Vo_Group_User_policy", Arrays.asList(vo, user))) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		}
