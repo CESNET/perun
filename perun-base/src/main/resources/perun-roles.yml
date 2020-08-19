@@ -616,6 +616,7 @@ perun_policies:
 
   getAssignedFacilities_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -627,6 +628,7 @@ perun_policies:
 
   filter-getAssignedFacilities_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1044,6 +1046,7 @@ perun_policies:
 
   getGroupById_int_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - RPC:
       - GROUPADMIN: Group
@@ -1054,6 +1057,7 @@ perun_policies:
 
   getGroupByName_Vo_String_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - VOOBSERVER: Vo
@@ -1280,6 +1284,7 @@ perun_policies:
 
   getAllGroups_Vo_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
@@ -1290,6 +1295,7 @@ perun_policies:
 
   filter-getAllGroups_Vo_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1299,6 +1305,7 @@ perun_policies:
 
   getAllGroupsWithHierarchy_Vo_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
@@ -1309,6 +1316,7 @@ perun_policies:
 
   filter-getAllGroupsWithHierarchy_Vo_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1318,6 +1326,7 @@ perun_policies:
 
   getSubGroups_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1327,6 +1336,7 @@ perun_policies:
 
   getAllSubGroups_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1336,6 +1346,7 @@ perun_policies:
 
   getParentGroup_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1345,6 +1356,7 @@ perun_policies:
 
   getGroups_Vo_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Vo
@@ -1355,6 +1367,7 @@ perun_policies:
 
   filter-getGroups_Vo_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1364,6 +1377,7 @@ perun_policies:
 
   getGroupsCount_Vo_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -1372,6 +1386,7 @@ perun_policies:
 
   getSubGroupsCount_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1381,6 +1396,7 @@ perun_policies:
 
   getVo_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
@@ -1504,6 +1520,7 @@ perun_policies:
 
   getRichGroupsAssignedToResourceWithAttributesByNames_Resource_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1513,6 +1530,7 @@ perun_policies:
 
   getRichGroupsAssignedToResourceWithAttributesByNames_Member_Resource_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1540,6 +1558,7 @@ perun_policies:
 
   getAllRichGroupsWithAttributesByNames_Vo_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1550,6 +1569,7 @@ perun_policies:
 
   filter-getAllRichGroupsWithAttributesByNames_Vo_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1559,6 +1579,7 @@ perun_policies:
 
   getRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1568,6 +1589,7 @@ perun_policies:
 
   filter-getRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1577,6 +1599,7 @@ perun_policies:
 
   getAllRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1586,6 +1609,7 @@ perun_policies:
 
   filter-getAllRichSubGroupsWithAttributesByNames_Group_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -1595,6 +1619,7 @@ perun_policies:
 
   getRichGroupByIdWithAttributesByNames_int_List<String>_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -2240,6 +2265,7 @@ perun_policies:
 
   getOwnerById_int_policy:
     policy_roles:
+      - RESOURCEADMIN:
       - SELF:
       - VOADMIN:
       - VOOBSERVER:
@@ -2251,6 +2277,7 @@ perun_policies:
 
   getOwnerByName_String_policy:
     policy_roles:
+      - RESOURCEADMIN:
       - SELF:
       - VOADMIN:
       - VOOBSERVER:
@@ -2262,6 +2289,7 @@ perun_policies:
 
   getOwners_policy:
     policy_roles:
+      - RESOURCEADMIN:
       - SELF:
       - VOADMIN:
       - VOOBSERVER:
@@ -2274,6 +2302,7 @@ perun_policies:
   #ResourcesManagerEntry
   getResourceById_int_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - RPC:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2283,6 +2312,7 @@ perun_policies:
 
   getRichResourceById_int_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2292,6 +2322,7 @@ perun_policies:
 
   getResourceByName_Vo_Facility_String_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - RPC:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2333,6 +2364,7 @@ perun_policies:
 
   getFacility_Resource_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - ENGINE:
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
@@ -2343,6 +2375,7 @@ perun_policies:
 
   getVo_Resource_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - ENGINE:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2416,6 +2449,7 @@ perun_policies:
 
   assignGroupToResources_Group_List<Resource>_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2440,12 +2474,14 @@ perun_policies:
 
   removeGroupFromResources_Group_List<Resource>_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - VOADMIN: Vo
     include_policies:
       - default_policy
 
   getAssignedGroups_Resource_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2455,6 +2491,7 @@ perun_policies:
 
   getAssignedGroups_Resource_Member_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2464,6 +2501,7 @@ perun_policies:
 
   getAssignedResources_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - ENGINE:
       - GROUPADMIN: Group
       - VOADMIN: Vo
@@ -2474,6 +2512,7 @@ perun_policies:
 
   getAssignedRichResources_Group_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2517,7 +2556,7 @@ perun_policies:
 
   getResources_Vo_policy:
     policy_roles:
-      - RESOURCEADMIN:
+      - RESOURCEADMIN: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -2535,7 +2574,7 @@ perun_policies:
 
   getRichResources_Vo_policy:
     policy_roles:
-      - RESOURCEADMIN:
+      - RESOURCEADMIN: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -2694,6 +2733,7 @@ perun_policies:
 
   copyGroups_Resource_Resource_policy:
     policy_roles:
+      - RESOURCEADMIN: Resource
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2724,7 +2764,7 @@ perun_policies:
   getResourcesWhereUserIsAdmin_Facility_Vo_User_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - RESOURCEADMIN:
+      - RESOURCEADMIN: Vo
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -2740,7 +2780,7 @@ perun_policies:
   getResourcesWhereUserIsAdmin_Vo_User_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - RESOURCEADMIN:
+      - RESOURCEADMIN: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
     include_policies:
@@ -2758,7 +2798,7 @@ perun_policies:
   getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
     policy_roles:
       - PERUNOBSERVER:
-      - RESOURCEADMIN:
+      - RESOURCEADMIN: Vo
       - VOADMIN: Vo
     include_policies:
       - default_policy
@@ -4191,6 +4231,7 @@ perun_policies:
   #VosManagerEntry
   getVos_policy:
     policy_roles:
+      - RESOURCEADMIN:
       - GROUPADMIN:
       - VOOBSERVER:
       - VOADMIN:
@@ -4201,6 +4242,7 @@ perun_policies:
 
   filter-getVos_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - GROUPADMIN: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -4211,6 +4253,7 @@ perun_policies:
 
   getAllVos_policy:
     policy_roles:
+      - RESOURCEADMIN:
       - FACILITYADMIN:
       - GROUPADMIN:
       - VOOBSERVER:
@@ -4244,6 +4287,7 @@ perun_policies:
 
   getVoByShortName_String_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - ENGINE:
       - TOPGROUPCREATOR: Vo
       - GROUPADMIN: Vo
@@ -4255,6 +4299,7 @@ perun_policies:
 
   getVoById_int_policy:
     policy_roles:
+      - RESOURCEADMIN: Vo
       - SELF:
       - RPC:
       - ENGINE:
