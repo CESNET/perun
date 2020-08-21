@@ -1877,32 +1877,27 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			groupsToAssign.add(rootGroup);
 		}
 
-		assignGroupsToResource(sess, groupsToAssign, resource, skippedMessages);
+		assignGroupsToResource(sess, groupsToAssign, resource);
 	}
 
 	/**
-	 * Assign resource to the given groups. If any of the assignments fails,
-	 * information is added to the given skippedMessages. If some of the groups
+	 * Assign resource to the given groups. If some of the groups
 	 * is already assigned, the group is skipped silently.
 	 *
 	 * @param sess perun session
 	 * @param groups groups which should be assigned to the given resource
 	 * @param resource resource
-	 * @param skippedMessages list where are added messages about skipped operations
 	 */
-	private void assignGroupsToResource(PerunSession sess, Collection<Group> groups, Resource resource,
-	                                    List<String> skippedMessages) {
+	private void assignGroupsToResource(PerunSession sess, Collection<Group> groups, Resource resource) {
 		Set<Group> groupsToAssign = new HashSet<>(groups);
 		groupsToAssign.removeAll(perunBl.getResourcesManagerBl().getAssignedGroups(sess, resource));
 
-		groupsToAssign.forEach(group -> {
-			try {
-				perunBl.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | GroupAlreadyAssignedException | GroupResourceMismatchException e) {
-				log.error("Failed to assign group during group structure synchronization. Group {}, resource {}", group, resource);
-				skippedMessages.add("Skipped assignment of a resource to a group. Group id: " + group.getId() + ", resource id: " + resource.getId());
-			}
-		});
+		try {
+			perunBl.getResourcesManagerBl().assignGroupsToResource(sess, groupsToAssign, resource);
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | GroupResourceMismatchException e) {
+			log.error("Failed to assign groups during group structure synchronization. Groups {}, resource {}," +
+					" exception: {}", groups, resource, e);
+		}
 	}
 
 	@Override
