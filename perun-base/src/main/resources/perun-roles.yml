@@ -1520,6 +1520,19 @@ perun_policies:
 
   getRichGroupsAssignedToResourceWithAttributesByNames_Resource_List<String>_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getRichGroupsAssignedToResourceWithAttributesByNames_Resource_List<String>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
       - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - PERUNOBSERVER:
@@ -1530,7 +1543,6 @@ perun_policies:
 
   getRichGroupsAssignedToResourceWithAttributesByNames_Member_Resource_List<String>_policy:
     policy_roles:
-      - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
@@ -2265,6 +2277,7 @@ perun_policies:
 
   getOwnerById_int_policy:
     policy_roles:
+      - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - SELF:
       - VOADMIN:
@@ -2277,6 +2290,7 @@ perun_policies:
 
   getOwnerByName_String_policy:
     policy_roles:
+      - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - SELF:
       - VOADMIN:
@@ -2289,6 +2303,7 @@ perun_policies:
 
   getOwners_policy:
     policy_roles:
+      - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - SELF:
       - VOADMIN:
@@ -2302,6 +2317,7 @@ perun_policies:
   #ResourcesManagerEntry
   getResourceById_int_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - RPC:
       - VOADMIN: Vo
@@ -2312,6 +2328,7 @@ perun_policies:
 
   getRichResourceById_int_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
@@ -2322,6 +2339,7 @@ perun_policies:
 
   getResourceByName_Vo_Facility_String_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - RPC:
       - VOADMIN: Vo
@@ -2364,6 +2382,7 @@ perun_policies:
 
   getFacility_Resource_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - ENGINE:
       - FACILITYADMIN: Facility
@@ -2375,6 +2394,7 @@ perun_policies:
 
   getVo_Resource_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - ENGINE:
       - VOADMIN: Vo
@@ -2449,6 +2469,8 @@ perun_policies:
 
   assignGroupToResources_Group_List<Resource>_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
     include_policies:
@@ -2474,6 +2496,8 @@ perun_policies:
 
   removeGroupFromResources_Group_List<Resource>_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
     include_policies:
@@ -2481,6 +2505,19 @@ perun_policies:
 
   getAssignedGroups_Resource_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - FACILITYADMIN: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getAssignedGroups_Resource_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+        GROUPADMIN: Group
       - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
@@ -2491,7 +2528,6 @@ perun_policies:
 
   getAssignedGroups_Resource_Member_policy:
     policy_roles:
-      - RESOURCEADMIN: Resource
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2556,6 +2592,7 @@ perun_policies:
 
   getResources_Vo_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2565,6 +2602,7 @@ perun_policies:
 
   filter-getResources_Vo_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2574,6 +2612,7 @@ perun_policies:
 
   getRichResources_Vo_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2583,6 +2622,7 @@ perun_policies:
 
   filter-getRichResources_Vo_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -2740,6 +2780,7 @@ perun_policies:
 
   getAdmins_Resource_boolean_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
@@ -2748,6 +2789,7 @@ perun_policies:
 
   getRichAdmins_Resource_List<String>_boolean_boolean_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: resource
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
@@ -2823,6 +2865,7 @@ perun_policies:
 
   getAdminGroups_Resource_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Resource
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
@@ -4231,6 +4274,7 @@ perun_policies:
   #VosManagerEntry
   getVos_policy:
     policy_roles:
+      - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - GROUPADMIN:
       - VOOBSERVER:
@@ -4242,6 +4286,7 @@ perun_policies:
 
   filter-getVos_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo
       - GROUPADMIN: Vo
       - VOOBSERVER: Vo
@@ -4253,6 +4298,7 @@ perun_policies:
 
   getAllVos_policy:
     policy_roles:
+      - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - FACILITYADMIN:
       - GROUPADMIN:
@@ -4287,6 +4333,7 @@ perun_policies:
 
   getVoByShortName_String_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo
       - ENGINE:
       - TOPGROUPCREATOR: Vo
@@ -4299,6 +4346,7 @@ perun_policies:
 
   getVoById_int_policy:
     policy_roles:
+      - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo
       - SELF:
       - RPC:
