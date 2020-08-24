@@ -39,6 +39,11 @@ public class PerunRolesLoader {
 	private Resource configurationPath;
 	private Resource secondaryConfigurationPath;
 
+	/**
+	 * Load perun roles from the configuration file to the database.
+	 *
+	 * @param jdbc connection to database
+	 */
 	public void loadPerunRoles(JdbcPerunTemplate jdbc) {
 		try {
 			Set<String> roles = new HashSet<>(loadPerunRolesFromResource(configurationPath));

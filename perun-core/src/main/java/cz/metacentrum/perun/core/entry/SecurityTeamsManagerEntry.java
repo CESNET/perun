@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -226,69 +227,48 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		getSecurityTeamsManagerBl().checkUserIsNotSecurityAdmin(sess, securityTeam, user);
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_SecurityTeam_User_policy", Arrays.asList(securityTeam, user))) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, user, securityTeam, Role.SECURITYADMIN);
+		AuthzResolver.setRole(sess, user, securityTeam, Role.SECURITYADMIN);
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		getSecurityTeamsManagerBl().checkGroupIsNotSecurityAdmin(sess, securityTeam, group);
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_SecurityTeam_Group_policy", Arrays.asList(securityTeam, group))) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, group, securityTeam, Role.SECURITYADMIN);
+		AuthzResolver.setRole(sess, group, securityTeam, Role.SECURITYADMIN);
 
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException {
+	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		getSecurityTeamsManagerBl().checkUserIsSecurityAdmin(sess, securityTeam, user);
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_SecurityTeam_User_policy", Arrays.asList(securityTeam, user))) {
-			throw new PrivilegeException(sess, "removeAdmin");
-		}
-
-
-		AuthzResolverBlImpl.unsetRole(sess, user, securityTeam, Role.SECURITYADMIN);
+		AuthzResolver.unsetRole(sess, user, securityTeam, Role.SECURITYADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException {
+	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
 		getSecurityTeamsManagerBl().checkGroupIsSecurityAdmin(sess, securityTeam, group);
 
-		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_SecurityTeam_Group_policy", Arrays.asList(securityTeam, group))) {
-			throw new PrivilegeException(sess, "removeAdmin");
-		}
-
-		AuthzResolverBlImpl.unsetRole(sess, group, securityTeam, Role.SECURITYADMIN);
+		AuthzResolver.unsetRole(sess, group, securityTeam, Role.SECURITYADMIN);
 	}
 
 	@Override

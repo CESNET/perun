@@ -21,9 +21,12 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -61,6 +64,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		"authz.service_id as pb_service_id, authz.security_team_id as pb_security_team_id, " +
 		"authz.sponsored_user_id as pb_sponsored_user_id";
 
+	private static final Pattern columnNamesPattern = Pattern.compile("^[_0-9a-zA-Z]+$");
 
 	private static final RowMapper<String> AUTHZROLE_MAPPER_FOR_ATTRIBUTES = (rs, i) -> rs.getString("name").toUpperCase();
 
@@ -179,6 +183,11 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		return authzRoles;
 	}
 
+	/**
+	 * Load all authorization components to the database and to the PerunPoliciesContainer
+	 *
+	 * @throws InternalErrorException
+	 */
 	public void initialize() {
 		if (BeansUtils.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");
 
@@ -768,10 +777,24 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		perunPoliciesContainer.setRolesManagementRules(this.perunRolesLoader.loadPerunRolesManagement());
 	}
 
+	/**
+	 * Get PerunPolicy for the policy name from the PerunPoliciesContainer
+	 *
+	 * @param policyName for which will be the policy fetched
+	 * @return PerunPolicy for the role name
+	 * @throws PolicyNotExistsException of there is no policy for the policy name
+	 */
 	public static PerunPolicy getPerunPolicy(String policyName) throws PolicyNotExistsException {
 		return perunPoliciesContainer.getPerunPolicy(policyName);
 	}
 
+	/**
+	 * Get the policy according the policy name and all its inlcuded policies (without cycle).
+	 *
+	 * @param policyName from which will be the policies fetched
+	 * @return list of policies
+	 * @throws PolicyNotExistsException if policy or some included policies does not exists in PerunPoliciesContainer
+	 */
 	public static List<PerunPolicy> fetchPolicyWithAllIncludedPolicies(String policyName) throws PolicyNotExistsException {
 		return perunPoliciesContainer.fetchPolicyWithAllIncludedPolicies(policyName);
 	}
@@ -785,7 +808,110 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		return new ArrayList<>(perunPoliciesContainer.getAllPolicies());
 	}
 
+	/**
+	 * Get RoleManagementRules for the role name from the PerunPoliciesContainer
+	 *
+	 * @param roleName for which will be the rules fetched
+	 * @return RoleManagementRules for the role name
+	 * @throws PolicyNotExistsException of there are no rules for the role name
+	 */
 	public static RoleManagementRules getRoleManagementRules(String roleName) throws RoleManagementRulesNotExistsException {
 		return perunPoliciesContainer.getRoleManagementRules(roleName);
+	}
+
+	@Override
+	public Integer getRoleId(String role) {
+		try {
+			return jdbc.queryForInt("SELECT id FROM roles WHERE name=?", role.toLowerCase());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void setRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleAlreadySetException {
+		String query = prepareQueryToSetRole(mappingOfValues);
+
+		try {
+			jdbc.update(query);
+		} catch (DataIntegrityViolationException e) {
+			throw new RoleAlreadySetException(role);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void unsetRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleNotSetException {
+		String query = prepareQueryToUnsetRole(mappingOfValues);
+
+		try {
+			if (0 == jdbc.update(query)) {
+				throw new RoleNotSetException(role);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Create query to set role according to the mapping of values
+	 *
+	 * @param mappingOfValues from which will be the query created
+	 * @return sql query
+	 */
+	private String prepareQueryToSetRole(Map<String, Integer> mappingOfValues) {
+		String columnsFromMapping;
+		String valuesFromMapping;
+		List<String> columnNames = new ArrayList<>();
+		List<String> columnValues = new ArrayList<>();
+
+		for (String columnName: mappingOfValues.keySet()) {
+
+			if (columnName == null || mappingOfValues.get(columnName) == null) {
+				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to unset a role.");
+			}
+
+			Matcher matcher = columnNamesPattern.matcher(columnName);
+			if (!matcher.matches()) {
+				throw new InternalErrorException("Cannot create a query to set a role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
+			}
+			columnNames.add(columnName);
+			columnValues.add(mappingOfValues.get(columnName).toString());
+		}
+
+		columnsFromMapping = StringUtils.join(columnNames, ",");
+		valuesFromMapping = StringUtils.join(columnValues, ",");
+
+		return "insert into authz (" + columnsFromMapping + ") values (" + valuesFromMapping + ")";
+	}
+
+	/**
+	 * Create query to unset role according to the mapping of values
+	 *
+	 * @param mappingOfValues from which will be the query created
+	 * @return sql query
+	 */
+	private String prepareQueryToUnsetRole(Map<String, Integer> mappingOfValues) {
+		String mappingAsString;
+		List<String> listofConditions = new ArrayList<>();
+
+		for (String columnName: mappingOfValues.keySet()) {
+
+			if (columnName == null || mappingOfValues.get(columnName) == null) {
+				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to set a role.");
+			}
+
+			Matcher matcher = columnNamesPattern.matcher(columnName);
+			if (!matcher.matches()) {
+				throw new InternalErrorException("Cannot create a query to unset a role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
+			}
+			String condition = columnName + "=" + mappingOfValues.get(columnName).toString();
+			listofConditions.add(condition);
+		}
+
+		mappingAsString = StringUtils.join(listofConditions, " and ");
+
+		return "delete from authz where " + mappingAsString;
 	}
 }

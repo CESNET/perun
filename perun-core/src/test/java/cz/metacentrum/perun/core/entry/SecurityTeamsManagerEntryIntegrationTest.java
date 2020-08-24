@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
@@ -979,7 +980,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		return authGroup;
 	}
 
-	private List<User> setUpAdmins(User u0, User u1, Group group) throws PrivilegeException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, GroupNotExistsException, MemberNotExistsException {
+	private List<User> setUpAdmins(User u0, User u1, Group group) throws PrivilegeException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, GroupNotExistsException, MemberNotExistsException, RoleCannotBeManagedException {
 		securityTeamsManagerEntry.addAdmin(sess, st0, u0);
 		securityTeamsManagerEntry.addAdmin(sess, st0, u1);
 

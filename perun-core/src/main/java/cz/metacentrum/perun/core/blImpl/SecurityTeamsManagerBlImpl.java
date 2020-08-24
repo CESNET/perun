@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -85,6 +86,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 				AuthzResolverBlImpl.setRole(sess, user, securityTeam, Role.SECURITYADMIN);
 			} catch (AlreadyAdminException e) {
 				throw new ConsistencyErrorException("Newly created securityTeam already have an admin.", e);
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException(e);
 			}
 		}
 
@@ -110,6 +113,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 			} catch (GroupNotAdminException e) {
 				log.warn("When trying to unsetRole SecurityAdmin for group {} in the securityTeam {} the exception was thrown {}", adminGroup, securityTeam, e);
 				//skip and log as warning
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException(e);
 			}
 		}
 
@@ -121,6 +126,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 			} catch (UserNotAdminException e) {
 				log.warn("When trying to unsetRole SecurityAdmin for user {} in the securityTeam {} the exception was thrown {}", adminUser, securityTeam, e);
 				//skip and log as warning
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException(e);
 			}
 		}
 

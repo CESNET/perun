@@ -38,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -1047,61 +1048,39 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Resource resource, User user) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException {
+	public void addAdmin(PerunSession sess, Resource resource, User user) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Resource_User_policy", Arrays.asList(resource, user))) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCEADMIN);
+		AuthzResolver.setRole(sess, user, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Resource resource, Group group) throws GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException {
+	public void addAdmin(PerunSession sess, Resource resource, Group group) throws GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Resource_Group_policy", resource) &&
-			!AuthzResolver.authorizedInternal(sess, "group-addAdmin_Resource_Group_policy", group)) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCEADMIN);
+		AuthzResolver.setRole(sess, group, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Resource resource, User user) throws UserNotExistsException, PrivilegeException, UserNotAdminException, ResourceNotExistsException {
+	public void removeAdmin(PerunSession sess, Resource resource, User user) throws UserNotExistsException, PrivilegeException, UserNotAdminException, ResourceNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Resource_User_policy", Arrays.asList(resource, user))) {
-			throw new PrivilegeException(sess, "removeAdmin");
-		}
-
-		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCEADMIN);
+		AuthzResolver.unsetRole(sess, user, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws GroupNotExistsException, PrivilegeException, GroupNotAdminException, ResourceNotExistsException {
+	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws GroupNotExistsException, PrivilegeException, GroupNotAdminException, ResourceNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Resource_Group_policy", resource) &&
-			!AuthzResolver.authorizedInternal(sess, "group-removeAdmin_Resource_Group_policy", group)) {
-			throw new PrivilegeException(sess, "removeAdmin");
-		}
-
-		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
+		AuthzResolver.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
 	}
 
 	@Override

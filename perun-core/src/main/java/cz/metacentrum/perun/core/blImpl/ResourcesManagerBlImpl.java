@@ -53,6 +53,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -206,6 +207,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			} catch (GroupNotAdminException e) {
 				log.warn("When trying to unsetRole ResourceAdmin for group {} in the resource {} the exception was thrown {}", adminGroup, resource, e);
 				//skip and log as warning
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException(e);
 			}
 		}
 
@@ -217,6 +220,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			} catch (UserNotAdminException e) {
 				log.warn("When trying to unsetRole ResourceAdmin for user {} in the resource {} the exception was thrown {}", adminUser, resource, e);
 				//skip and log as warning
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException(e);
 			}
 		}
 
@@ -971,25 +976,40 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws AlreadyAdminException {
-		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCESELFSERVICE);
-		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceAddedForUser(resource, user));
+		try {
+			AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCESELFSERVICE);
+		} catch (RoleCannotBeManagedException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
 	public void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException {
-		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+		try {
+			AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+		} catch (RoleCannotBeManagedException e) {
+			throw new InternalErrorException(e);
+		}
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceAddedForGroup(resource, group));
 	}
 
 	@Override
 	public void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws UserNotAdminException {
-		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCESELFSERVICE);
+		try {
+			AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCESELFSERVICE);
+		} catch (RoleCannotBeManagedException e) {
+			throw new InternalErrorException(e);
+		}
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceRemovedForUser(resource, user));
 	}
 
 	@Override
 	public void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException {
-		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+		try {
+			AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+		} catch (RoleCannotBeManagedException e) {
+			throw new InternalErrorException(e);
+		}
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceRemovedForGroup(resource, group));
 	}
 

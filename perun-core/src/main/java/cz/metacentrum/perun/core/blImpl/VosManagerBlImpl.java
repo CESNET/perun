@@ -35,6 +35,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
@@ -223,6 +224,8 @@ public class VosManagerBlImpl implements VosManagerBl {
 				log.debug("User {} added like administrator to VO {}", user, vo);
 			} catch (AlreadyAdminException ex) {
 				throw new ConsistencyErrorException("Add manager to newly created VO failed because there is a particular manager already assigned", ex);
+			} catch (RoleCannotBeManagedException e) {
+				throw new InternalErrorException(e);
 			}
 		} else {
 			log.error("Can't set VO manager during creating of the VO. User from perunSession is null. {} {}", vo, sess);

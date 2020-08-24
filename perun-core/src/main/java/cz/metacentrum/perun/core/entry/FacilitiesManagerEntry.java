@@ -47,6 +47,7 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
@@ -700,64 +701,44 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Facility_User_policy", Arrays.asList(facility, user))) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, user, facility, Role.FACILITYADMIN);
+		AuthzResolver.setRole(sess, user, facility, Role.FACILITYADMIN);
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, AlreadyAdminException {
+	public void addAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, AlreadyAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Facility_Group_policy", Arrays.asList(facility, group))) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, group, facility, Role.FACILITYADMIN);
+		AuthzResolver.setRole(sess, group, facility, Role.FACILITYADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException {
+	public void removeAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Facility_User_policy", Arrays.asList(facility, user))) {
-			throw new PrivilegeException(sess, "deleteAdmin");
-		}
-
-		AuthzResolverBlImpl.unsetRole(sess, user, facility, Role.FACILITYADMIN);
+		AuthzResolver.unsetRole(sess, user, facility, Role.FACILITYADMIN);
 
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException {
+	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Facility_Group_policy", Arrays.asList(facility, group))) {
-			throw new PrivilegeException(sess, "deleteAdmin");
-		}
-
-		AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
+		AuthzResolver.unsetRole(sess, group, facility, Role.FACILITYADMIN);
 
 	}
 

@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
@@ -386,26 +387,26 @@ public interface FacilitiesManager {
 	/**
 	 * Adds user administrator to the Facility.
 	 */
-	void addAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Adds group administrator to the Facility.
 	 *
 	 * @param group that will become a Facility administrator
 	 */
-	void addAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, AlreadyAdminException;
+	void addAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, AlreadyAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Removes a user administrator from the Facility.
 	 */
-	void removeAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException;
+	void removeAdmin(PerunSession sess, Facility facility, User user) throws FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Removes a group administrator from the Facility.
 	 *
 	 * @param group group that will lose a Facility administrator role
 	 */
-	void removeAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException;
+	void removeAdmin(PerunSession sess, Facility facility, Group group) throws FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Get list of all user administrators for supported role and given facility.
