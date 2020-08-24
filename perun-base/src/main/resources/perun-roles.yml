@@ -5200,7 +5200,6 @@ perun_roles_management:
     privileged_roles:
       - PERUNADMIN:
       - VOADMIN: Vo
-      - VOOBSERVER: Vo
 
   TOPGROUPCREATOR:
     assign_to_objects:
