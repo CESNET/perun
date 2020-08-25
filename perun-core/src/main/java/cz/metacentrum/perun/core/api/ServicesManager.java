@@ -376,6 +376,102 @@ public interface ServicesManager {
 	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
+	 * Generates hashed hierarchical data structure for given service and facility.
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *    ** facility **
+	 *    hashes: [...hashes...]
+	 *    members: []
+	 *    children: [
+	 *      {
+	 *        ** resource1 **
+	 *        hashes: [...hashes...]
+	 *        children: []
+	 *        members: [
+	 *          {
+	 *            ** member 1 **
+	 *            hashes: [...hashes...]
+	 *          },
+	 *          {
+	 *            ** member 2 **
+	 *            ...
+	 *          }
+	 *        ]
+	 *      },
+	 *      {
+	 *        ** resource2 **
+	 *        ...
+	 *      }
+	 *    ]
+	 * }
+	 *
+	 * @param perunSession perun session
+	 * @param service service
+	 * @param facility facility
+	 * @param filterExpiredMembers if the generator should filter expired members
+	 * @return generated hashed data structure
+	 * @throws FacilityNotExistsException if there is no such facility
+	 * @throws ServiceNotExistsException if there is no such service
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	HashedGenData getHashedHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+
+	/**
+	 * Generates hashed data with group structure for given service and facility.
+	 *
+	 *  Generates data in format:
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *    ** facility **
+	 *    hashes: [...hashes...]
+	 *    members: []
+	 *    children: [
+	 *      {
+	 *        ** resource1 **
+	 *        hashes: [...hashes...]
+	 *        children: [
+	 *          {
+	 *            ** group A **
+	 *            hashes: [...hashes...]
+	 *            members: [...group members...]
+	 *            children: [...sub groups...]
+	 *          },
+	 *          {
+	 *            ** group B **
+	 *            ...
+	 *          }
+	 *        ]
+	 *        members: [
+	 *          {
+	 *            ** member 1 **
+	 *            hashes: [...hashes...]
+	 *          },
+	 *          {
+	 *            ** member 2 **
+	 *            ...
+	 *          }
+	 *        ]
+	 *      },
+	 *      {
+	 *        ** resource2 **
+	 *        ...
+	 *      }
+	 *    ]
+	 * }
+	 * @param perunSession perun session
+	 * @param service service
+	 * @param facility facility
+	 * @param filterExpiredMembers if the generator should filter expired members
+	 * @return generated hashed data structure
+	 * @throws FacilityNotExistsException if there is no such facility
+	 * @throws ServiceNotExistsException if there is no such service
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	HashedGenData getHashedDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
+
+	/**
 	 * Generates the list of attributes per each user and per each resource. Resources are filtered by service.
 	 * Never return member or member-resource attribute.
 	 *

@@ -3036,7 +3036,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, MemberGroupMismatchException {
+	public Map<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<Member> members, Group group) throws MemberGroupMismatchException {
+		for (Member member : members) {
+			checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
+		}
+		if (members.isEmpty()) {
+			return new HashMap<>();
+		}
+		return getAttributesManagerImpl().getRequiredAttributes(sess, service, members, group);
+	}
+
+	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group, boolean workWithUserAttributes) throws MemberGroupMismatchException {
 		this.checkMemberIsFromTheSameVoLikeGroup(sess, member, group);
 		if (!workWithUserAttributes)
 			return getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group);
@@ -3116,7 +3127,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user) throws InternalErrorException {
+	public Map<Group, List<Attribute>> getRequiredAttributesForGroups(PerunSession sess, Service service, List<Group> groups) {
+		return getAttributesManagerImpl().getRequiredAttributesForGroups(sess, service, groups);
+	}
+
+	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user) {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, user);
 	}
 

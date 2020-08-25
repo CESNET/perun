@@ -20,6 +20,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithGroups(..))"/>
 		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithVos(..))"/>
 		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getFlatData(..))"/>
+        <aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedHierarchicalData(..))"/>
+        <aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHashedDataWithGroups(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.entry.*.*(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.setAttributeInNestedTransaction(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.insertAttribute(..))"/>

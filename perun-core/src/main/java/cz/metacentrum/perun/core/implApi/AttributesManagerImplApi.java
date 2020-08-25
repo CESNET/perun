@@ -1313,6 +1313,19 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group);
 
 	/**
+	 * Get member-group attributes which are required by the service, for the given members and the given group.
+	 *
+	 * @param sess perun session
+	 * @param members you get attributes for this member and the group
+	 * @param group you get attributes for these groups in which member is associated
+	 * @param service attribute required by this service you'll get
+	 * @return list of attributes which are required by the service.
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	Map<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<Member> members, Group group);
+
+	/**
 	 * Get member-group attributes which are required by services. Services are known from the resourceToGetServicesFrom.
 	 *
 	 * @param sess perun session
@@ -1378,6 +1391,16 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host);
 
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group);
+
+	/**
+	 * Get group attributes which are required by the given service for given groups.
+	 *
+	 * @param sess session
+	 * @param service service for which are taken the required attributes
+	 * @param groups groups
+	 * @return attributes mapped by their groups
+	 */
+	Map<Group, List<Attribute>> getRequiredAttributesForGroups(PerunSession sess, Service service, List<Group> groups);
 
 	/**
 	 * Get group attributes which are required by the given services.
