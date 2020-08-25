@@ -67,6 +67,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_ATTR;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -7292,6 +7293,82 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 			host.setId(id);
 			throw ex;
 		}
+	}
+
+	@Test
+	public void getMemberGroupRequiredAttributesForMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberGroupRequiredAttributesForMembers");
+
+		service = setUpService();
+		facility = setUpFacility();
+		vo = setUpVo();
+		resource = setUpResource();
+		group = setUpGroup();
+		Member member1 = setUpMember();
+		Member member2 = setUpMember();
+
+		perun.getResourcesManagerBl().assignService(sess, resource, service);
+
+		perun.getGroupsManagerBl().addMember(sess, group, member1);
+		perun.getGroupsManagerBl().addMember(sess, group, member2);
+
+		String member1AttrValue = "member1";
+		String member2AttrValue = "member2";
+
+		Attribute attribute = setUpMemberGroupAttribute().get(0);
+
+		perun.getServicesManagerBl().addRequiredAttribute(sess, service, attribute);
+
+		Attribute m1Attribute = new Attribute(attribute);
+		Attribute m2Attribute = new Attribute(attribute);
+
+		m1Attribute.setValue(member1AttrValue);
+		m2Attribute.setValue(member2AttrValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, member1, group, m1Attribute);
+		perun.getAttributesManagerBl().setAttribute(sess, member2, group, m2Attribute);
+
+		Map<Member, List<Attribute>> requiredAttributes = perun.getAttributesManagerBl()
+				.getRequiredAttributes(sess, service, Arrays.asList(member1, member2), group);
+
+		assertThat(requiredAttributes.get(member1)).containsExactly(m1Attribute);
+		assertThat(requiredAttributes.get(member2)).containsExactly(m2Attribute);
+	}
+
+	@Test
+	public void getGroupRequiredAttributesForGroups() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupRequiredAttributesForGroups");
+
+		service = setUpService();
+		facility = setUpFacility();
+		vo = setUpVo();
+		resource = setUpResource();
+		Group group1 = setUpGroup("group 1");
+		Group group2 = setUpGroup("group 2");
+
+		perun.getResourcesManagerBl().assignService(sess, resource, service);
+
+		String group1AttrValue = "group1";
+		String group2AttrValue = "group2";
+
+		Attribute attribute = setUpGroupAttribute().get(0);
+
+		perun.getServicesManagerBl().addRequiredAttribute(sess, service, attribute);
+
+		Attribute g1Attribute = new Attribute(attribute);
+		Attribute g2Attribute = new Attribute(attribute);
+
+		g1Attribute.setValue(group1AttrValue);
+		g2Attribute.setValue(group2AttrValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, group1, g1Attribute);
+		perun.getAttributesManagerBl().setAttribute(sess, group2, g2Attribute);
+
+		Map<Group, List<Attribute>> requiredAttributes = perun.getAttributesManagerBl()
+				.getRequiredAttributesForGroups(sess, service, Arrays.asList(group1, group2));
+
+		assertThat(requiredAttributes.get(group1)).containsExactly(g1Attribute);
+		assertThat(requiredAttributes.get(group2)).containsExactly(g2Attribute);
 	}
 
 
@@ -14786,8 +14863,14 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	}
 
 	private Group setUpGroup() throws Exception {
-
 		Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("AttrTestGroup","AttrTestGroupDescription"));
+		assertNotNull("unable to create a group", group);
+		return group;
+
+	}
+	private Group setUpGroup(String name) throws Exception {
+
+		Group group = perun.getGroupsManager().createGroup(sess, vo, new Group(name, name));
 		assertNotNull("unable to create a group", group);
 		return group;
 

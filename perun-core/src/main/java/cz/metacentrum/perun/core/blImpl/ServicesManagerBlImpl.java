@@ -29,10 +29,15 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCr
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
+import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
+import cz.metacentrum.perun.core.provisioning.GroupsHashedDataGenerator;
+import cz.metacentrum.perun.core.provisioning.HierarchicalHashedDataGenerator;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.provisioning.HashedDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -505,6 +510,28 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			serviceAttributes.addChildElement(resourceServiceAttributes);
 		}
 		return serviceAttributes;
+	}
+
+	@Override
+	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
+		HashedDataGenerator hashedDataGenerator = new HierarchicalHashedDataGenerator.Builder()
+				.sess((PerunSessionImpl) sess)
+				.service(service)
+				.facility(facility)
+				.build();
+
+		return hashedDataGenerator.generateData();
+	}
+
+	@Override
+	public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) {
+		HashedDataGenerator hashedDataGenerator = new GroupsHashedDataGenerator.Builder()
+				.sess((PerunSessionImpl) sess)
+				.service(service)
+				.facility(facility)
+				.build();
+
+		return hashedDataGenerator.generateData();
 	}
 
 	@Override

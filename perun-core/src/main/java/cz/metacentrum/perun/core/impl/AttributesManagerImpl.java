@@ -70,6 +70,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.lang.Nullable;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
@@ -2441,6 +2442,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public Map<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<Member> members, Group group) {
+		return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("mem_gr") + ", members.id FROM attr_names " +
+				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+				"JOIN members ON members.id " + Compatibility.getStructureForInClause() +
+				"LEFT JOIN member_group_attr_values mem_gr ON attr_names.id=mem_gr.attr_id AND group_id=? AND member_id=members.id " +
+				"WHERE namespace IN (?,?,?)", (PreparedStatementCallback<HashMap<Member, List<Attribute>>>) preparedStatement -> {
+			Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbers(members, preparedStatement);
+			preparedStatement.setInt(1, service.getId());
+			preparedStatement.setArray(2, sqlArray);
+			preparedStatement.setInt(3, group.getId());
+			preparedStatement.setString(4, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+			preparedStatement.setString(5, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
+			preparedStatement.setString(6, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+			MemberGroupAttributeExtractor memberAttributeExtractor = new MemberGroupAttributeExtractor(sess, this, members, group);
+			return memberAttributeExtractor.extractData(preparedStatement.executeQuery());
+		});
+	}
+
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
@@ -2537,6 +2557,55 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+
+
+	private static class GroupAttributeExtractor implements ResultSetExtractor<HashMap<Group, List<Attribute>>> {
+		private final PerunSession sess;
+		private final AttributesManagerImpl attributesManager;
+		private final List<Group> groups;
+
+		/**
+		 * Sets up parameters for data extractor
+		 *
+		 * @param sess              perun session
+		 * @param attributesManager attribute manager
+		 * @param groups           list of groups
+		 */
+		GroupAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager, List<Group> groups) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
+			this.groups = groups;
+		}
+
+		@Override
+		public HashMap<Group, List<Attribute>> extractData(ResultSet rs) throws SQLException {
+			HashMap<Group, List<Attribute>> map = new HashMap<>();
+			HashMap<Integer, Group> groupObjectMap = new HashMap<>();
+
+			for (Group group : groups) {
+				groupObjectMap.put(group.getId(), group);
+			}
+
+			while (rs.next()) {
+				// fetch from map by ID
+				Integer id = rs.getInt("id");
+				Group group = groupObjectMap.get(id);
+
+				map.computeIfAbsent(group, k -> new ArrayList<>());
+				// if not present, put in map
+				AttributeRowMapper<Group, Group> attributeRowMapper =
+						new SingleBeanAttributeRowMapper<>(sess, attributesManager, group);
+				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
+
+				if (attribute != null) {
+					// add only if exists
+					map.get(group).add(attribute);
+				}
+			}
+			return map;
+		}
+	}
+
 	private static class MemberAttributeExtractor implements ResultSetExtractor<HashMap<Member, List<Attribute>>> {
 		private final PerunSession sess;
 		private final AttributesManagerImpl attributesManager;
@@ -2595,6 +2664,58 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				} else {
 					attributeRowMapper = new SingleBeanAttributeRowMapper<>(sess, attributesManager, mem);
 				}
+				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
+
+				if (attribute != null) {
+					// add only if exists
+					map.get(mem).add(attribute);
+				}
+			}
+			return map;
+		}
+	}
+
+	private static class MemberGroupAttributeExtractor implements ResultSetExtractor<HashMap<Member, List<Attribute>>> {
+		private final PerunSession sess;
+		private final AttributesManagerImpl attributesManager;
+		private final List<Member> members;
+		private final Group group;
+
+		/**
+		 * Sets up parameters for data extractor
+		 * For memberResource attributes we need also know the resource.
+		 *
+		 * @param sess              perun session
+		 * @param attributesManager attribute manager
+		 * @param resource          resource for member resource attributes
+		 * @param members           list of members
+		 */
+		MemberGroupAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager, List<Member> members,
+		                              Group group) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
+			this.members = members;
+			this.group = group;
+		}
+
+		@Override
+		public HashMap<Member, List<Attribute>> extractData(ResultSet rs) throws SQLException {
+			HashMap<Member, List<Attribute>> map = new HashMap<>();
+			HashMap<Integer, Member> memberObjectMap = new HashMap<>();
+
+			for (Member member : members) {
+				memberObjectMap.put(member.getId(), member);
+			}
+
+			while (rs.next()) {
+				// fetch from map by ID
+				Integer id = rs.getInt("id");
+				Member mem = memberObjectMap.get(id);
+
+				map.computeIfAbsent(mem, k -> new ArrayList<>());
+				// if not present, put in map
+				AttributeRowMapper attributeRowMapper;
+				attributeRowMapper = new MemberGroupAttributeRowMapper(sess, attributesManager, mem, group);
 				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
 
 				if (attribute != null) {
@@ -2773,6 +2894,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) {
 		return getRequiredAttributes(sess, Collections.singletonList(service), group);
+	}
+
+	@Override
+	public Map<Group, List<Attribute>> getRequiredAttributesForGroups(PerunSession sess, Service service, List<Group> groups) {
+		return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("grp") + ", groups.id FROM attr_names " +
+				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+				"JOIN groups ON groups.id " + Compatibility.getStructureForInClause() +
+				"LEFT JOIN group_attr_values grp ON attr_names.id=grp.attr_id " +
+				"AND grp.group_id=groups.id WHERE namespace IN (?,?,?,?)",
+				(PreparedStatementCallback<HashMap<Group, List<Attribute>>>) preparedStatement -> {
+			Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbers(groups, preparedStatement);
+			preparedStatement.setInt(1, service.getId());
+			preparedStatement.setArray(2, sqlArray);
+			preparedStatement.setString(3, AttributesManager.NS_GROUP_ATTR_CORE);
+			preparedStatement.setString(4, AttributesManager.NS_GROUP_ATTR_DEF);
+			preparedStatement.setString(5, AttributesManager.NS_GROUP_ATTR_OPT);
+			preparedStatement.setString(6, AttributesManager.NS_GROUP_ATTR_VIRT);
+			GroupAttributeExtractor groupAttributeExtractor = new GroupAttributeExtractor(sess, this, groups);
+			return groupAttributeExtractor.extractData(preparedStatement.executeQuery());
+		});
 	}
 
 	@Override

@@ -3372,6 +3372,22 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getHashedHierarchicalData_Service_Facility_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getHashedDataWithGroups_Service_Facility_boolean_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - ENGINE:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getFlatData_Service_Facility_boolean_policy:
     policy_roles:
       - FACILITYADMIN: Facility

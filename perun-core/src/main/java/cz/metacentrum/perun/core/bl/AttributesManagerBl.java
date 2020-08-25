@@ -2410,6 +2410,18 @@ public interface AttributesManagerBl {
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws MemberGroupMismatchException;
 
+	/**
+	 * Get member-group attributes which are required by the service, for the given members and the given group.
+	 *
+	 * @param sess session
+	 * @param service service
+	 * @param members members
+	 * @param group group
+	 * @return Member-Group attributes grouped by members
+	 * @throws MemberGroupMismatchException if some of the given members is not from the same vo as the given group
+	 */
+	Map<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<Member> members, Group group) throws MemberGroupMismatchException;
+
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group, boolean workWithUserAttributes) throws MemberGroupMismatchException;
 
 	/**
@@ -2487,6 +2499,16 @@ public interface AttributesManagerBl {
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws GroupResourceMismatchException;
 
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group);
+
+	/**
+	 * Get group attributes which are required by the given service for given groups.
+	 *
+	 * @param sess session
+	 * @param service service for which are taken the required attributes
+	 * @param groups groups
+	 * @return attributes mapped by their groups
+	 */
+	Map<Group, List<Attribute>> getRequiredAttributesForGroups(PerunSession sess, Service service, List<Group> groups);
 
 	/**
 	 * Get host attributes which are required by service

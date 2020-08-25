@@ -5,11 +5,11 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesManager;
@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -37,15 +36,12 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -396,6 +392,36 @@ public class ServicesManagerEntry implements ServicesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		return getServicesManagerBl().getHierarchicalData(sess, service, facility, filterExpiredMembers);
+	}
+
+	@Override
+	public HashedGenData getHashedHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getHashedHierarchicalData_Service_Facility_boolean_policy", service, facility)) {
+			throw new PrivilegeException(sess, "getHashedHierarchicalData");
+		}
+
+		return getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, filterExpiredMembers);
+	}
+
+	@Override
+	public HashedGenData getHashedDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		getServicesManagerBl().checkServiceExists(sess, service);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getHashedDataWithGroups_Service_Facility_boolean_policy", service, facility)) {
+			throw new PrivilegeException(sess, "getHashedDataWithGroups");
+		}
+
+		return getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, filterExpiredMembers);
 	}
 
 	@Override
