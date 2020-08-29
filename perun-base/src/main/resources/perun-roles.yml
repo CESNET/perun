@@ -1655,6 +1655,7 @@ perun_policies:
 
   getGroupUnions_Group_boolean_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - VOADMIN: Vo
@@ -1670,6 +1671,7 @@ perun_policies:
 
   getGroupMemberById_Group_int_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - GROUPADMIN: Group
       - VOADMIN: Vo
@@ -1686,6 +1688,7 @@ perun_policies:
 
   canExtendMembershipInGroup_Member_Group_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - SELF: User
       - GROUPADMIN: Group
@@ -1695,6 +1698,7 @@ perun_policies:
 
   canExtendMembershipInGroupWithReason_Member_Group_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - SELF: User
       - GROUPADMIN: Group
@@ -1937,7 +1941,6 @@ perun_policies:
       - VOADMIN: Vo
     include_policies:
       - default_policy
-
 
   findCompleteRichMembers_Group_List<String>_String_boolean_policy:
     policy_roles:
@@ -2224,6 +2227,7 @@ perun_policies:
 
   getSponsoredMembers_Vo_User_List<String>_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
@@ -2232,6 +2236,7 @@ perun_policies:
 
   getSponsoredMembers_Vo_User_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
@@ -2240,6 +2245,7 @@ perun_policies:
 
   getSponsoredMembers_Vo_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
@@ -2738,6 +2744,7 @@ perun_policies:
 
   getAllResourcesByResourceTag_ResourceTag_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
     include_policies:
@@ -2780,6 +2787,7 @@ perun_policies:
 
   getAdmins_Resource_boolean_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - RESOURCESELFSERVICE: Resource
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
@@ -2789,6 +2797,7 @@ perun_policies:
 
   getRichAdmins_Resource_List<String>_boolean_boolean_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - RESOURCESELFSERVICE: resource
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
@@ -2805,6 +2814,7 @@ perun_policies:
 
   getResourcesWhereUserIsAdmin_Facility_Vo_User_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - RESOURCEADMIN: Vo
       - VOADMIN: Vo
@@ -2813,6 +2823,7 @@ perun_policies:
 
   filter-getResourcesWhereUserIsAdmin_Facility_Vo_User_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
@@ -2839,6 +2850,7 @@ perun_policies:
 
   getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - RESOURCEADMIN: Vo
       - VOADMIN: Vo
@@ -2852,6 +2864,7 @@ perun_policies:
 
   filter-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
@@ -2865,6 +2878,7 @@ perun_policies:
 
   getAdminGroups_Resource_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - RESOURCESELFSERVICE: Resource
       - PERUNOBSERVER:
       - RESOURCEADMIN: Resource
@@ -3658,6 +3672,7 @@ perun_policies:
 
   getAllFacilitiesStatesForVo_Vo_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
     include_policies:
@@ -3665,6 +3680,7 @@ perun_policies:
 
   getResourcesState_Vo_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
     include_policies:
@@ -3954,6 +3970,7 @@ perun_policies:
 
   getGroupsWhereUserIsAdmin_Vo_User_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - SELF: User
       - PERUNOBSERVER:
@@ -4182,6 +4199,7 @@ perun_policies:
 
   findRichUsersWithoutSpecificVoWithAttributes_Vo_String_List<String>_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
     include_policies:
@@ -4243,6 +4261,7 @@ perun_policies:
 
   getGroupsWhereUserIsActive_Resource_User_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -4251,6 +4270,7 @@ perun_policies:
 
   getRichGroupsWhereUserIsActive_Resource_User_List<String>_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - FACILITYADMIN: Facility
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -4678,6 +4698,7 @@ perun_policies:
   #ConsolidatorManagerImpl
   group-checkForSimilarUsers_int_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
       - GROUPADMIN: Group
@@ -4686,6 +4707,7 @@ perun_policies:
 
   vo-checkForSimilarUsers_int_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
     include_policies:
@@ -4794,6 +4816,7 @@ perun_policies:
 
   vo-getFormById_int_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - VOADMIN: Vo
     include_policies:
@@ -4801,6 +4824,7 @@ perun_policies:
 
   group-getFormById_int_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - VOADMIN: Vo
       - GROUPADMIN: Group
@@ -4944,12 +4968,14 @@ perun_policies:
 
   vo-canBeApproved_Application_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
     include_policies:
       - default_policy
 
   group-canBeApproved_Application_policy:
     policy_roles:
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - GROUPADMIN: Group
     include_policies:
