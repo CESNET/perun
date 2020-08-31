@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
@@ -190,7 +189,10 @@ public interface ResourcesManager {
 	List<User> getAllowedUsers(PerunSession sess, Resource resource) throws ResourceNotExistsException, PrivilegeException;
 
 	/**
-	 * Assign group to a resource. Check if attributes for each member form group are valid. Fill members' attributes with missing value.
+	 * Assign group to a resource. Check if attributes for each member form group are valid.
+	 * Fill members' attributes with missing value.
+	 *
+	 * If the group is already assigned, nothing it performed.
 	 *
 	 * @param perunSession
 	 * @param group
@@ -201,11 +203,10 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeValueException
-	 * @throws GroupAlreadyAssignedException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Assign groups to a resource. Check if attributes for each member from all groups are valid. Fill members' attributes with missing values.
@@ -220,10 +221,9 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws GroupAlreadyAssignedException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException;
+	void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Assign group to the resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
@@ -238,10 +238,9 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws GroupAlreadyAssignedException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException;
+	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws PrivilegeException, GroupNotExistsException, ResourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Remove group from a resource.

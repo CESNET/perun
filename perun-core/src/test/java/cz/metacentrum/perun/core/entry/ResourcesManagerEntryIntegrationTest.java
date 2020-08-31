@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -482,7 +481,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
-	@Test (expected=GroupAlreadyAssignedException.class)
 	public void assginGroupToResourceWhenGroupAlreadyAssigned() throws Exception {
 		System.out.println(CLASS_NAME + "assignGroupToResourceWhenGroupAlreadyAssigned");
 

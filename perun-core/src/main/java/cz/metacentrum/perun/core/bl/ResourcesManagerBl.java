@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
@@ -260,29 +259,33 @@ public interface ResourcesManagerBl {
 
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
-	 * @throws GroupAlreadyAssignedException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException;
+	void assignGroupToResource(PerunSession perunSession, Group group, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
-	 * Assign groups to a resource. Check if attributes for each member from all groups are valid. Fill members' attributes with missing values.
+	 * Assign groups to a resource. Check if attributes for each member from all groups are valid.
+	 * Fill members' attributes with missing values.
+	 *
+	 * Already assigned groups are silently skipped.
 	 *
 	 * @param perunSession
-	 * @param groups list of resources
+	 * @param groups groups to assign
 	 * @param resource
 	 *
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws GroupAlreadyAssignedException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException;
+	void assignGroupsToResource(PerunSession perunSession, Iterable<Group> groups, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
-	 * Assign group to the resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
+	 * Assign group to the resources. Check if attributes for each member from group are valid.
+	 * Fill members' attributes with missing values.
+	 *
+	 * If the group is already assigned to some of the resources, the assignment is silently skipped.
 	 *
 	 * @param perunSession
 	 * @param group the group
@@ -291,10 +294,9 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws GroupAlreadyAssignedException
 	 * @throws GroupResourceMismatchException
 	 */
-	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException;
+	void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Remove group from a resource.
