@@ -283,6 +283,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					// TODO   since Task is switched to SENDING before blockingSubmit() of any SendWorker.
 					break;
 
+				case WARNING:
 				case SENDERROR:
 
 					LocalDateTime endTime = task.getSendEndTime();

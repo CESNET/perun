@@ -267,6 +267,9 @@ public class GetRichTaskResultsByTaskAndDestination implements JsonCallback, Jso
 				else if (row.getStatus().equalsIgnoreCase("ERROR")){
 					return "roworange";
 				}
+				else if (row.getStatus().equalsIgnoreCase("WARNING")){
+					return "rowgreenyellow";
+				}
 				return "";
 
 			}

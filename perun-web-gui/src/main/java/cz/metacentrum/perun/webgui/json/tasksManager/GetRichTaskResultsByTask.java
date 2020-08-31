@@ -249,7 +249,11 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 				else if (row.getStatus().equalsIgnoreCase("ERROR")){
 					return "roworange";
 				}
-		return "";
+				else if (row.getStatus().equalsIgnoreCase("WARNING")){
+					return "rowgreenyellow";
+				}
+				
+				return "";
 
 			}
 		});
