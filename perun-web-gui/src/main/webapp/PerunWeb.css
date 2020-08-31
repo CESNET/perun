@@ -1075,6 +1075,12 @@ td div.customTextCell {
 .rowgreen:hover, .rowgreen:hover td {
     background: #9CFFA7 !important;
 }
+.rowgreenyellow, .rowgreenyellow td {
+    background: #ADFF2F !important;
+}
+.rowgreenyellow:hover, .rowgreenyellow:hover td {
+    background: #8DFF0F !important;
+}
 .rowdarkgreen, .rowdarkgreen td {
     background: #8CE696 !important;
 }

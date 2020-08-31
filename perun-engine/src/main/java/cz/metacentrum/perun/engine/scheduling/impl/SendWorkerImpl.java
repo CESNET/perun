@@ -15,6 +15,8 @@ import java.util.Date;
 
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.ERROR;
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENT;
+import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.WARNING;
+
 
 /**
  * Implementation of SendWorker, which is used for starting SEND scripts.
@@ -92,14 +94,20 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
 						task.getId(), getReturnCode(), getStdout(), getStderr());
 
 				sendTask.setStatus(ERROR);
+				// XXX: why exception? There is nothing exceptional about the situation.
 				throw new TaskExecutionException(task, sendTask.getDestination(), getReturnCode(), getStdout(), getStderr());
 
 			} else {
 
-				log.info("[{}] SEND worker finished for Task. Ret code {}, STDOUT: {}, STDERR: {}",
-						sendTask.getTask().getId(), getReturnCode(), getStdout(), getStderr());
+				if(getStderr().isEmpty()) {
+					sendTask.setStatus(SENT);
+				} else {
+					sendTask.setStatus(WARNING);
+				}
 
-				sendTask.setStatus(SENT);
+				log.info("[{}] SEND worker finished for Task with status {}. Ret code {}, STDOUT: {}, STDERR: {}",
+						sendTask.getTask().getId(), sendTask.getStatus(), getReturnCode(), getStdout(), getStderr());
+
 				return sendTask;
 
 			}

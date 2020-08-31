@@ -390,6 +390,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		int sending = getTasksWithStatus(TaskStatus.SENDING).size();
 		int senderror = getTasksWithStatus(TaskStatus.SENDERROR).size();
 		int done = getTasksWithStatus(TaskStatus.DONE).size();
+		int warning = getTasksWithStatus(TaskStatus.WARNING).size();
 		int error = getTasksWithStatus(TaskStatus.ERROR).size();
 
 		return "Dispatcher SchedulingPool Task report:\n" +
@@ -401,6 +402,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				"  SENDING:  " + sending +
 				"  SENDEEROR:  " + senderror +
 				"  DONE: " + done +
+				"  WARNING: " + warning + 
 				"  ERROR: " + error;
 	}
 
@@ -430,7 +432,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 			// if service was not in DONE or any kind of ERROR - reschedule now
 			// error/done tasks will be rescheduled later by periodic jobs !!
-			if (!Arrays.asList(TaskStatus.DONE, TaskStatus.ERROR, TaskStatus.GENERROR, TaskStatus.SENDERROR).contains(task.getStatus())) {
+			if (!Arrays.asList(TaskStatus.DONE, TaskStatus.ERROR, TaskStatus.GENERROR, TaskStatus.SENDERROR, TaskStatus.WARNING).contains(task.getStatus())) {
 				if (task.getStatus().equals(TaskStatus.WAITING)) {
 					// if were in WAITING, reset timestamp to now
 					task.setSchedule(LocalDateTime.now());
@@ -452,7 +454,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				TaskStatus.PLANNED,
 				TaskStatus.GENERATING,
 				TaskStatus.GENERATED,
-				TaskStatus.SENDING
+				TaskStatus.SENDING,
+				TaskStatus.WARNING
 				);
 
 		// switch all processing tasks to error, remove the engine queue association
@@ -502,6 +505,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				task.setSendStartTime(changeDate);
 				break;
 			case DONE:
+			case WARNING:
 			case SENDERROR:
 				task.setSendEndTime(changeDate);
 				task.setEndTime(changeDate);

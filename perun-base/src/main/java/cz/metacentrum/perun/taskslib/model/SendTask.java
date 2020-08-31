@@ -238,6 +238,6 @@ public class SendTask implements Serializable {
 	 * Represent state in which sending task is
 	 */
 	public static enum SendTaskStatus {
-		SENDING, SENT, ERROR
+		SENDING, SENT, ERROR, WARNING
 	}
 }

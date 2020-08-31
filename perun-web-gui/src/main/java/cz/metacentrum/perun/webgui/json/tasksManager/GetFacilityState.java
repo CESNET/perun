@@ -176,6 +176,7 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 					return "";
 				}
 				else if (row.getState().equalsIgnoreCase("OK")){
+				
 					return "rowgreen";
 				}
 				else if (row.getState().equalsIgnoreCase("PROCESSING")){
@@ -187,7 +188,10 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 				else if (row.getState().equalsIgnoreCase("ERROR")){
 					return "rowred";
 				}
-		return "";
+				else if (row.getState().equalsIgnoreCase("WARNING")){
+					return "rowgreenyellow";
+				}
+				return "";
 
 			}
 		});

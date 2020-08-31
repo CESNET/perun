@@ -92,7 +92,7 @@ public class PropagationMaintainer extends AbstractRunner {
 	/**
 	 * This method runs in own thread as periodic job which:
 	 *
-	 * takes DONE Tasks and reschedule them if source data were updated or Task hasn't run for X hours from the last time.
+	 * takes DONE/WARNING Tasks and reschedule them if source data were updated or Task hasn't run for X hours from the last time.
 	 * takes ERROR Tasks and reschedule them if -- || -- or (end time + (delay * recurrence)) > now
 	 * takes PROCESSING Tasks and switch them to error if we haven`t heard about result for more than 3 hours.
 	 */
@@ -135,7 +135,7 @@ public class PropagationMaintainer extends AbstractRunner {
 
 
 	/**
-	 * Reschedule Tasks in DONE if their
+	 * Reschedule Tasks in DONE/WARNING if their
 	 * - source was updated
 	 * - OR haven't run for X hours
 	 * - or have no end time set
@@ -143,9 +143,9 @@ public class PropagationMaintainer extends AbstractRunner {
 	private void rescheduleDoneTasks() {
 
 		// Reschedule tasks in DONE that haven't been running for quite a while
-		log.info("Checking DONE tasks...");
+		log.info("Checking DONE/WARNING tasks...");
 
-		for (Task task : schedulingPool.getTasksWithStatus(TaskStatus.DONE)) {
+		for (Task task : schedulingPool.getTasksWithStatus(TaskStatus.DONE, TaskStatus.WARNING)) {
 
 			LocalDateTime tooManyHoursAgo = LocalDateTime.now().minusHours(oldRescheduleHours);
 
