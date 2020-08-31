@@ -147,7 +147,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 					templateGroupResourceAttributes.removeIf(groupResourceAttribute -> groupResourceAttribute.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT));
 					perunBl.getAttributesManagerBl().setAttributes(sess, newResource, group, templateGroupResourceAttributes);
 				}
-			} catch (GroupResourceMismatchException | WrongAttributeValueException | GroupAlreadyAssignedException |
+			} catch (GroupResourceMismatchException | WrongAttributeValueException |
 				WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
 				throw new ConsistencyErrorException("DB inconsistency while copying group-resource attributes. Cause:{}", ex);
 			}
@@ -345,12 +345,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 
 	@Override
-	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
+	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		assignGroupsToResource(sess, Collections.singletonList(group), resource);
 	}
 
 	@Override
-	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
+	public void assignGroupsToResource(PerunSession perunSession, Iterable<Group> groups, Resource resource) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		Set<Member> members = new HashSet<>();
 
 		// skip processing of required attributes, if there are no services
@@ -359,10 +359,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		for(Group g: groups) {
 			getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(perunSession, g, resource);
 
-			if(isGroupAssigned(perunSession, g, resource)) throw new GroupAlreadyAssignedException(g);
-
 			//first we must assign group to resource and then set and check attributes, because methods checkAttributesSemantics and fillAttribute need actual state to work correctly
-			getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource);
+			try {
+				getResourcesManagerImpl().assignGroupToResource(perunSession, g, resource);
+			} catch (GroupAlreadyAssignedException e) {
+				// silently skip
+				continue;
+			}
 			getPerunBl().getAuditer().log(perunSession, new GroupAssignedToResource(g, resource));
 
 			if (skipAttributes) continue;
@@ -397,7 +400,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException, GroupResourceMismatchException {
+	public void assignGroupToResources(PerunSession perunSession, Group group, List<Resource> resources) throws WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		for(Resource r: resources) {
 			this.assignGroupToResource(perunSession, group, r);
 		}
@@ -807,7 +810,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		for (Group group: getAssignedGroups(sess, sourceResource)) {
 			try {
 				assignGroupToResource(sess, group, destinationResource);
-			} catch (GroupAlreadyAssignedException | GroupResourceMismatchException ex) {
+			} catch (GroupResourceMismatchException ex) {
 				// we can ignore the exception in this particular case, group can exists in both of the resources
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException("Copying of groups failed.", ex);
