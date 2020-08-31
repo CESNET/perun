@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -63,42 +64,17 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		// Get the url query for users subjects
+		String queryForUsers = getAttributes().get("usersQuery");
+
+		return querySource(queryForUsers, null, 0);
 	}
 
 	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) {
 
-		// Get the URL, if query was provided it has precedence over url attribute defined in extSource
-		String url;
-		if (query != null && !query.isEmpty()) {
-			url = query;
-		} else if (getAttributes().get("url") != null) {
-			url = getAttributes().get("url");
-		} else {
-			throw new InternalErrorException("url attribute or query is required");
-		}
-
-		log.debug("Searching in external source url:'{}'", url);
-
-		// If there is a search string, replace all occurences of the * with the searchstring
-		if (searchString != null && !searchString.isEmpty()) {
-			url = url.replaceAll("\\*", searchString);
-		}
-
 		try {
-			URL u = new URL(url);
-
-			// Check supported protocols
-			HttpURLConnection http;
-			if (u.getProtocol().equals("https")) {
-				http = (HttpsURLConnection)u.openConnection();
-			} else if (u.getProtocol().equals("http")) {
-				http = (HttpURLConnection)u.openConnection();
-			} else {
-				throw new InternalErrorException("Protocol " + u.getProtocol() + " is not supported by this extSource.");
-			}
-
+			HttpURLConnection http = getHttpConnection(query, searchString);
 			// Prepare the basic auth, if the username and password was specified
 			if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
 				String val = getAttributes().get("user") + ":" + getAttributes().get("password");
@@ -156,6 +132,39 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		} catch (Exception e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	protected HttpURLConnection getHttpConnection(String query, String searchString) throws IOException {
+		// Get the URL, if query was provided it has precedence over url attribute defined in extSource
+		String url;
+		if (query != null && !query.isEmpty()) {
+			url = query;
+		} else if (getAttributes().get("url") != null) {
+			url = getAttributes().get("url");
+		} else {
+			throw new InternalErrorException("url attribute or query is required");
+		}
+
+		log.debug("Searching in external source url:'{}'", url);
+
+		// If there is a search string, replace all occurences of the * with the searchstring
+		if (searchString != null && !searchString.isEmpty()) {
+			url = url.replaceAll("\\*", searchString);
+		}
+
+		URL u = new URL(url);
+
+		// Check supported protocols
+		HttpURLConnection http;
+		if (u.getProtocol().equals("https")) {
+			http = (HttpsURLConnection) u.openConnection();
+		} else if (u.getProtocol().equals("http")) {
+			http = (HttpURLConnection) u.openConnection();
+		} else {
+			throw new InternalErrorException("Protocol " + u.getProtocol() + " is not supported by this extSource.");
+		}
+
+		return http;
 	}
 
 	@Override

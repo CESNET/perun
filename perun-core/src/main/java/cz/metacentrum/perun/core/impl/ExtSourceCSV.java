@@ -147,8 +147,25 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		try {
+			// Get the query for the user subjects
+			String queryForUsers = getAttributes().get("usersQuery");
+
+			// If there is no query for users, throw exception
+			if (queryForUsers == null) {
+				throw new InternalErrorException("usersQuery can't be null");
+			}
+
+			// Get CSV file
+			prepareFile();
+
+			return csvParsing(queryForUsers, 0);
+
+		} catch (IOException ex) {
+			log.error("IOException in getUsersSubjects() method while parsing csv file", ex);
+		}
+		return null;
 	}
 
     @Override

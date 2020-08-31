@@ -186,9 +186,32 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 
 	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
+		// Get the query for the group subjects
+		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+
+		//If there is no query for group, throw exception
+		if (queryForGroup == null) {
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
+		}
+
+		return getUsersOrGroupSubjects(queryForGroup);
+	}
+
+	@Override
+	public List<Map<String, String>> getUsersSubjects() {
+		// Get the query for the user subjects
+		String queryForUsers = getAttributes().get("usersQuery");
+
+		//If there is no query for users, throw exception
+		if (queryForUsers == null) {
+			throw new InternalErrorException("usersQuery can't be null");
+		}
+
+		return getUsersOrGroupSubjects(queryForUsers);
+	}
+
+	private List<Map<String, String>> getUsersOrGroupSubjects(String queryToGetSubjects) {
 		try {
-			// Get the query for the group subjects
-			String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 			domainName = getAttributes().get("domain");
 			groupName = getAttributes().get("group");
 
@@ -200,15 +223,10 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 				throw new InternalErrorException("groupName attribute is required");
 			}
 
-			//If there is no query for group, throw exception
-			if (queryForGroup == null) {
-				throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
-			}
-
 			//Get connection to Google Groups
 			prepareEnvironment();
 
-			return querySource(queryForGroup, 0);
+			return querySource(queryToGetSubjects, 0);
 
 		} catch (IOException ex) {
 			log.error("IOException in getGroupSubjects() method while parsing data from Google Groups", ex);
@@ -216,11 +234,6 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 			log.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
 		}
 		return null;
-	}
-
-	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override

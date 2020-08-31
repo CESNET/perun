@@ -164,8 +164,16 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		// if usersQuery is null, there is no filter and method returns all users subjects
+		String filter = getAttributes().get("usersQuery");
+
+		String base = getAttributes().get("base");
+		if (base == null) {
+			throw new InternalErrorException("base attributes is required");
+		}
+
+		return querySource(filter, base, 0);
 	}
 
 	protected void initContext() {

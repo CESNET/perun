@@ -111,7 +111,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String,String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException{
+	public List<Map<String,String>> getUsersSubjects() {
 		String query = getAttributes().get("usersQuery");
 
 		if (query == null) {
@@ -456,7 +456,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	 * @return
 	 * @throws SQLException
 	 */
-	private PreparedStatement getPreparedStatement(String query, String searchString, int maxResults) throws SQLException {
+	protected PreparedStatement getPreparedStatement(String query, String searchString, int maxResults) throws SQLException {
 		PreparedStatement st = this.con.prepareStatement(query);
 
 		// Substitute the ? in the query by the searchString

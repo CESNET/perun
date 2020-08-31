@@ -159,8 +159,19 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		query = getAttributes().get("usersQuery");
+
+		prepareEnvironment();
+
+		try {
+			return getUsersFromRemote(getGroupsFromRemote(), 0);
+		} catch (IOException ex) {
+			log.error("IOException in getUsersSubjects() method while obtaining users"
+				+ "from VOOT external source", ex);
+		}
+
+		return null;
 	}
 
     @Override
@@ -169,7 +180,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
                 "Using this method is not supported for VOOT");
     }
 
-    private HttpURLConnection createConnection(String uri) throws IOException {
+    protected HttpURLConnection createConnection(String uri) throws IOException {
         HttpURLConnection connection;
 
         username = getAttributes().get("user");

@@ -123,8 +123,12 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		String query = getAttributes().get("usersQuery");
+
+		setEnviroment();
+
+		return convertRichUsersToListOfSubjects(findRichUsers(query));
 	}
 
 	private List<Map<String, String>> convertRichUsersToListOfSubjects(List<RichUser> richUsers) {
@@ -294,7 +298,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return this.call(managerName, methodName, null);
 	}
 
-	private Deserializer call(String managerName, String methodName, String query) throws PerunException {
+	protected Deserializer call(String managerName, String methodName, String query) throws PerunException {
 		//Prepare sending message
 		HttpResponse response;
 		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();

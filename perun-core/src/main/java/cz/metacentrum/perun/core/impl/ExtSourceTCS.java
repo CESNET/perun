@@ -85,8 +85,10 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		String url = getAttributes().get("usersQuery");
+
+		return getUsersOrGroupSubjects(url);
 	}
 
 	@Override
@@ -104,6 +106,18 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 		//get pem file from url and parse it
 		String url = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
+		return getUsersOrGroupSubjects(url);
+	}
+
+	//Private methods
+
+	/**
+	 * Get the list of the subjects by query (either members of group or users).
+	 *
+	 * @param url url to get subjects from
+	 * @return list of maps, which contains attr_name-&gt;attr_value, e.g. firstName-&gt;Michal
+	 */
+	private List<Map<String, String>> getUsersOrGroupSubjects(String url) {
 		//Prepare structure of all valid certificates mapped by login
 		Map<String, Pair<X509CertificateHolder, String>> validCertificatesForLogin = prepareStructureOfValidCertificates(url);
 
@@ -125,8 +139,6 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 
 		return subjects;
 	}
-
-	//Private methods
 
 	/**
 	 * Create perunSession for ExtSourceTCS
@@ -174,7 +186,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	 * @return map of logins (in key) to pair of parsed certificate in the left part and certificate in base64 in the right part
 	 * @throws InternalErrorException If there is any IO problem with parsing and processing the certificate
 	 */
-	private Map<String, Pair<X509CertificateHolder, String>> prepareStructureOfValidCertificates(String url) {
+	protected Map<String, Pair<X509CertificateHolder, String>> prepareStructureOfValidCertificates(String url) {
 		Map<String, Pair<X509CertificateHolder, String>> validCertificatesForLogin = new HashMap<>();
 
 		//prepare all already known logins from Perun
@@ -300,5 +312,9 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 			throw new InternalErrorException(ex);
 		}
 		return exportedCert;
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

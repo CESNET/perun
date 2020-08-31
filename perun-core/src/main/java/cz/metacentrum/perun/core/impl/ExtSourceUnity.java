@@ -128,8 +128,12 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		String query = getAttributes().get("usersQuery");
+
+		prepareEnvironment();
+
+		return jsonParsing(query, 0);
 	}
 
     @Override
@@ -212,7 +216,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @param uri
      * @returns if responseCode to the uri is 200, then returns connection
      */
-    private HttpURLConnection createConnection(String uri) throws IOException {
+    protected HttpURLConnection createConnection(String uri) throws IOException {
         HttpURLConnection connection;
 
         username = getAttributes().get("user");

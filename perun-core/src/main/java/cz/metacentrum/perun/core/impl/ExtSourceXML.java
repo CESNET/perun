@@ -150,8 +150,17 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		// Get the query for the users subjects
+		String queryForUsers = getAttributes().get("usersQuery");
+
+		//If there is no query for users, throw exception
+		if(queryForUsers == null) throw new InternalErrorException("usersQuery can't be null");
+
+		//Get file or uri of xml
+		prepareEnvironment();
+
+		return xpathParsing(queryForUsers, 0);
 	}
 
 	protected void prepareEnvironment() {
