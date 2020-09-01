@@ -147,22 +147,21 @@ sub call
 	my $content = $self->{_jsonXs}->encode( $hash );
 	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
 	my $code = $response->code;
-	my $decodedContent = $response->decoded_content;
 
 	#print $response->decoded_content;
 	#print "\n\n\n";
 
 	unless ($code == 200 || $code == 400 || $code == 500) {
 		die Perun::Exception->fromHash( { type => 'http', errorInfo =>
-					("HTTP STATUS CODE: $code\nCONTENT:\n".$decodedContent) } );
+					("HTTP STATUS CODE: $code\nCONTENT:\n".$response->decoded_content) } );
 	}
 
 	my $returnedHash;
 	eval {
-		$returnedHash = $self->{_jsonXs}->decode( $decodedContent );
+		$returnedHash = $self->{_jsonXs}->decode( $response->decoded_content );
 	};
 	if ($@) {
-		die Perun::Exception->fromHash( { type => 'parse_error', errorInfo => ("CONTENT:\n".$decodedContent) } );
+		die Perun::Exception->fromHash( { type => 'parse_error', errorInfo => ("CONTENT:\n".$response->decoded_content) } );
 	}
 
 	if ($code == 256 || $code == 400 || $code == 500) {
