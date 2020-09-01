@@ -165,12 +165,14 @@ perun_policies:
       - default_policy
 
   getEntitylessAttributesWithKeys_String_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getEntitylessAttributesWithKeys_String_List<String>_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -287,22 +289,26 @@ perun_policies:
 
   #AuthzResolver
   getUserRoleNames_User_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getUserRoles_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getGroupRoleNames_Group_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getGroupRoles_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -314,24 +320,28 @@ perun_policies:
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - SELF:
     include_policies:
       - default_policy
 
   getDatabaseDriverInformation_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - SELF:
     include_policies:
       - default_policy
 
   getDatabaseInformation_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - SELF:
     include_policies:
       - default_policy
 
   getTimeOfQueryPerformance_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - SELF:
     include_policies:
       - default_policy
@@ -2291,11 +2301,13 @@ perun_policies:
       - GROUPADMIN:
       - FACILITYADMIN:
       - RPC:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getOwnerByName_String_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - SELF:
@@ -2309,6 +2321,7 @@ perun_policies:
 
   getOwners_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - RESOURCESELFSERVICE:
       - RESOURCEADMIN:
       - SELF:
@@ -2858,7 +2871,8 @@ perun_policies:
       - default_policy
 
   authorizedGroup-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -2872,7 +2886,8 @@ perun_policies:
       - default_policy
 
   filter_authorizedGroup-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -2928,28 +2943,28 @@ perun_policies:
 
   resource-getBanById_int_policy:
     policy_roles:
-      - PERUNOBSERBER:
+      - PERUNOBSERVER:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
   resource-getBan_int_int_policy:
     policy_roles:
-      - PERUNOBSERBER:
+      - PERUNOBSERVER:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
   getBansForMember_int_policy:
     policy_roles:
-      - PERUNOBSERBER:
+      - PERUNOBSERVER:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
   getBansForResource_int_policy:
     policy_roles:
-      - PERUNOBSERBER:
+      - PERUNOBSERVER:
       - FACILITYADMIN: Facility
     include_policies:
       - default_policy
@@ -4501,12 +4516,14 @@ perun_policies:
 
   #PerunNotifNotificationManagerImpl
   getPerunNotifReceiverById_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getAllPerunNotifReceivers_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -4521,12 +4538,14 @@ perun_policies:
       - default_policy
 
   getPerunNotifRegexById_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getAllPerunNotifRegexes_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -4546,12 +4565,14 @@ perun_policies:
       - default_policy
 
   getPerunNotifTemplateById_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getAllPerunNotifTemplateMessages_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -4566,12 +4587,14 @@ perun_policies:
       - default_policy
 
   getPerunNotifTemplateMessageById_int_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
   getAllPerunNotifTemplates_policy:
-    policy_roles: []
+    policy_roles:
+      - PERUNOBSERVER:
     include_policies:
       - default_policy
 
@@ -4616,6 +4639,7 @@ perun_policies:
 
   getPublicationSystems_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - CABINETADMIN:
     include_policies:
       - default_policy
@@ -4673,6 +4697,7 @@ perun_policies:
 
   findNewAuthors_String_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - SELF:
     include_policies:
       - default_policy
@@ -4968,6 +4993,7 @@ perun_policies:
 
   vo-canBeApproved_Application_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
     include_policies:
@@ -4975,6 +5001,7 @@ perun_policies:
 
   group-canBeApproved_Application_policy:
     policy_roles:
+      - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - GROUPADMIN: Group
