@@ -7393,6 +7393,30 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/updateUser:
+    post:
+      tags:
+        - UsersManager
+      operationId: updateUser
+      summary: Updates user
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputUpdateUser
+              description: "input to updateUser"
+              type: object
+              required:
+                - user
+              properties:
+                user: { $ref: '#/components/schemas/User' }
+
 
 
   #################################################
