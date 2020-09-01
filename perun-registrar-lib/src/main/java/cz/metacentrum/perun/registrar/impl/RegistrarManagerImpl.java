@@ -1664,6 +1664,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						u = perun.getUsersManagerBl().getUserByExtSourceInformation(registrarSession, applicationPrincipal);
 						log.debug("[REGISTRAR] Trying to make member from user {}", u);
 						member = membersManager.createMember(sess, app.getVo(), u);
+						// set NEW user id back to application
+						app.setUser(u);
 						// store all attributes (but not logins)
 						storeApplicationAttributes(app);
 						// if user was already known to perun, createMember() will set attributes
@@ -1681,6 +1683,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 						member = membersManager.createMember(sess, app.getVo(), app.getExtSourceName(), app.getExtSourceType(), app.getExtSourceLoa(), app.getCreatedBy(), candidate);
 						u = usersManager.getUserById(registrarSession, member.getUserId());
+						// set NEW user id back to application
+						app.setUser(u);
 					}
 					// user originally not known -> set UserExtSource attributes from source identity for new User and UES
 					ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, app.getExtSourceName());
@@ -1693,8 +1697,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					}
 				}
 
-				// set NEW user id back to application
-				app.setUser(u);
 				result = jdbc.update("update application set user_id=? where id=?", member.getUserId(), appId);
 				if (result == 0) {
 					throw new RegistrarException("User ID hasn't been associated with the application " + appId + ", because the application was not found!");
