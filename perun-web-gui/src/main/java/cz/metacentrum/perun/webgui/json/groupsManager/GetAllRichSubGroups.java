@@ -184,7 +184,7 @@ public class GetAllRichSubGroups implements JsonCallback, JsonCallbackTable<Rich
 
 						final RichGroup object = jso.cast();
 
-						String name, syncEnabled, syncInterval, syncTimestamp, syncSuccessTimestamp, syncState, authGroup, syncTimes, syncSuccessStartTimestamp;
+						String name, syncEnabled, syncInterval, syncStartTimestamp, syncTimestamp, syncSuccessTimestamp, syncState, authGroup, syncTimes, syncSuccessStartTimestamp;
 						name = object.getName();
 						if (object.isSyncEnabled()) {
 							syncEnabled = "enabled";
@@ -231,6 +231,11 @@ public class GetAllRichSubGroups implements JsonCallback, JsonCallbackTable<Rich
 						} else {
 							syncTimestamp = object.getLastSynchronizationTimestamp().split("\\.")[0];
 						}
+						if (object.getStartOfLastSynchronizationTimestamp() == null) {
+							syncStartTimestamp = "N/A";
+						} else {
+							syncStartTimestamp = object.getStartOfLastSynchronizationTimestamp().split("\\.")[0];
+						}
 						if (object.getLastSuccessSynchronizationTimestamp() == null) {
 							syncSuccessTimestamp = "N/A";
 						} else {
@@ -255,7 +260,8 @@ public class GetAllRichSubGroups implements JsonCallback, JsonCallbackTable<Rich
 
 						if (object.isSyncEnabled()) {
 							html += "Last sync. state: <b>"+SafeHtmlUtils.fromString(syncState).asString()+"</b><br>";
-							html += "Last sync. timestamp: <b>"+SafeHtmlUtils.fromString(syncTimestamp).asString()+"</b><br>";
+							html += "Last sync. timestamp (start): <b>"+SafeHtmlUtils.fromString(syncStartTimestamp).asString()+"</b><br>";
+							html += "Last sync. timestamp (end): <b>"+SafeHtmlUtils.fromString(syncTimestamp).asString()+"</b><br>";
 							html += "Last successful sync. timestamp (start): <b>"+SafeHtmlUtils.fromString(syncSuccessStartTimestamp).asString()+"</b><br>";
 							html += "Last successful sync. timestamp (end): <b>"+SafeHtmlUtils.fromString(syncSuccessTimestamp).asString()+"</b><br>";
 						}
