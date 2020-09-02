@@ -14,6 +14,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.servicesManager.BlockUnblockServiceOnDestination;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetAllRichDestinations;
 import cz.metacentrum.perun.webgui.json.servicesManager.RemoveDestination;
 import cz.metacentrum.perun.webgui.model.Destination;
@@ -156,8 +157,53 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
+		final CustomButton blockButton = new CustomButton(ButtonTranslation.INSTANCE.blockPropagationButton(), ButtonTranslation.INSTANCE.blockServicesOnFacility(), SmallIcons.INSTANCE.stopIcon());
+		final CustomButton allowButton = new CustomButton(ButtonTranslation.INSTANCE.allowPropagationButton(), ButtonTranslation.INSTANCE.allowServicesOnFacility(), SmallIcons.INSTANCE.acceptIcon());
+
+		allowButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				final ArrayList<Destination> destForBlockUnblock = callback.getTableSelectedList();
+				// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+				for (int i=0; i<destForBlockUnblock.size(); i++ ) {
+					if (i == destForBlockUnblock.size()-1) {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(allowButton, events));
+						request.unblockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					} else {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(allowButton));
+						request.unblockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					}
+				}
+			}
+		});
+		blockButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				final ArrayList<Destination> destForBlockUnblock = callback.getTableSelectedList();
+				// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+				for (int i=0; i<destForBlockUnblock.size(); i++ ) {
+					if (i == destForBlockUnblock.size()-1) {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(blockButton, events));
+						request.blockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					} else {
+						BlockUnblockServiceOnDestination request = new BlockUnblockServiceOnDestination(JsonCallbackEvents.disableButtonEvents(blockButton));
+						request.blockServiceOnDestination(destForBlockUnblock.get(i).getService().getId(), destForBlockUnblock.get(i).getId());
+					}
+				}
+			}
+		});
+
+		blockButton.setEnabled(false);
+		allowButton.setEnabled(false);
 		removeButton.setEnabled(false);
 		JsonUtils.addTableManagedButton(callback, table, removeButton);
+		JsonUtils.addTableManagedButton(callback, table, blockButton);
+		JsonUtils.addTableManagedButton(callback, table, allowButton);
+
+		menu.addWidget(allowButton);
+		menu.addWidget(blockButton);
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {

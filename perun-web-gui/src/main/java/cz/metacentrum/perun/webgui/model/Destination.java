@@ -95,6 +95,16 @@ public class Destination extends JavaScriptObject {
 	}-*/;
 
 	/**
+	 * Get ServiceDenial associated with destination
+	 * ONLY FOR RICH-DESTINATION
+	 *
+	 * @return serviceDenial
+	 */
+	public final native boolean isBlocked() /*-{
+		return this.blocked
+	}-*/;
+
+	/**
 	 * Returns Perun specific type of object
 	 *
 	 * @return type of object
