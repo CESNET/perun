@@ -8,7 +8,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -16,6 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.ConvertAttributeToNonUnique;
 import cz.metacentrum.perun.webgui.json.attributesManager.ConvertAttributeToUnique;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributeRights;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributeRights;
@@ -72,8 +72,6 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 	private final CheckBox groupWrite = new CheckBox();
 	private final CheckBox facilityRead = new CheckBox();
 	private final CheckBox facilityWrite = new CheckBox();
-
-	private final CheckBox unique = new CheckBox();
 
 	/**
 	 * Creates a tab instance
@@ -138,8 +136,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		description.setValidator(validator);
 		displayName.setValidator(validatorName);
 
-
-		//unique.setEnabled(false);
+		CheckBox unique = new CheckBox();
 		unique.setValue(def.isUnique());
 
 		if (Arrays.asList("core","virt").contains(def.getDefinition()) || def.getEntity().equals("entityless")) {
@@ -160,7 +157,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 									@Override
 									public void onFinished(JavaScriptObject jso) {
 										unique.setValue(true);
-										unique.setEnabled(false);
+										unique.setEnabled(true);
 										def.setUnique(true);
 									}
 
@@ -186,8 +183,27 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 							}
 						});
 					} else {
-						UiElements.generateInfo("Change not allowed", "Once converted to UNIQUE, attributes can't be converted back to non-unique.");
-						unique.setValue(true);
+						ConvertAttributeToNonUnique convert = new ConvertAttributeToNonUnique(new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								unique.setValue(false);
+								unique.setEnabled(true);
+								def.setUnique(false);
+							}
+
+							@Override
+							public void onError(PerunError error) {
+								unique.setValue(true);
+								unique.setEnabled(true);
+								def.setUnique(true);
+							}
+
+							@Override
+							public void onLoadingStart() {
+								unique.setEnabled(false);
+							}
+						});
+						convert.convertAttributeDefinitionToNonUnique(def.getId());
 					}
 
 				}
