@@ -239,6 +239,11 @@ perun_policies:
     include_policies:
       - default_policy
 
+  convertAttributeToNonunique_int_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   getModulesDependenciesGraph_GraphTextFormat_policy:
     policy_roles:
       - PERUNOBSERVER:
