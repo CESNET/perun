@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -2184,6 +2185,153 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		return new ArrayList<>(groups);
 
+	}
+
+	@Override
+	public User createUser(PerunSession sess, Candidate candidate) throws UserExtSourceExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+		checkThatCandidateUesesDontExist(sess, candidate);
+
+		User user = createUserFromCandidate(candidate);
+		user = getPerunBl().getUsersManagerBl().createUser(sess, user);
+
+		addMissingCandidatesUes(sess, user, candidate);
+
+		setCandidateAttributes(sess, user, candidate);
+
+		log.info("Created user: {}", user);
+		return user;
+	}
+
+	@Override
+	public User createServiceUser(PerunSession sess, Candidate candidate, List<User> owners) throws WrongAttributeAssignmentException, UserExtSourceExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException {
+		candidate.setServiceUser(true);
+
+		User serviceUser = createUser(sess, candidate);
+
+		for(User owner: owners) {
+			try {
+				getPerunBl().getUsersManagerBl().addSpecificUserOwner(sess, owner, serviceUser);
+			} catch (RelationExistsException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+
+		log.info("Created service user: {}", serviceUser);
+		return serviceUser;
+	}
+
+
+	/**
+	 * Creates a User object from given candidate.
+	 *
+	 * @param candidate candidate
+	 * @return created User object
+	 */
+	private User createUserFromCandidate(Candidate candidate) {
+		User user = new User();
+		user.setFirstName(candidate.getFirstName());
+		user.setLastName(candidate.getLastName());
+		user.setMiddleName(candidate.getMiddleName());
+		user.setTitleAfter(candidate.getTitleAfter());
+		user.setTitleBefore(candidate.getTitleBefore());
+		user.setServiceUser(candidate.isServiceUser());
+		user.setSponsoredUser(candidate.isSponsoredUser());
+		return user;
+	}
+
+	/**
+	 * Check that none of the given userExtSources exist. If so, the UserExtSourceExistsException
+	 * is thrown.
+	 *
+	 * @param sess session
+	 * @param candidate candidate
+	 * @throws UserExtSourceExistsException if some of the given userExtSources already exist.
+	 */
+	private void checkThatCandidateUesesDontExist(PerunSession sess, Candidate candidate) throws UserExtSourceExistsException {
+		if (candidate.getUserExtSources() != null) {
+			for (UserExtSource ues : candidate.getUserExtSources()) {
+				// Check if the extSource exists
+				ExtSource tmpExtSource = getPerunBl().getExtSourcesManagerBl()
+						.checkOrCreateExtSource(sess, ues.getExtSource().getName(), ues.getExtSource().getType());
+				// Set the extSource ID
+				ues.getExtSource().setId(tmpExtSource.getId());
+				try {
+					// Try to find the user by userExtSource
+					User user = getPerunBl().getUsersManagerBl()
+							.getUserByExtSourceNameAndExtLogin(sess, ues.getExtSource().getName(), ues.getLogin());
+					if (user != null) {
+						throw new UserExtSourceExistsException(ues);
+					}
+				} catch (UserExtSourceNotExistsException | UserNotExistsException | ExtSourceNotExistsException e) {
+					// This is OK, we don't want it to exist
+				}
+			}
+		}
+	}
+
+	/**
+	 * For given user, set user extsources from candiate, which have not been set before.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param candidate candidate to take userExtSources
+	 */
+	private void addMissingCandidatesUes(PerunSession sess, User user, Candidate candidate) {
+		if (candidate.getUserExtSources() != null) {
+			for (UserExtSource userExtSource : candidate.getUserExtSources()) {
+				try {
+					UserExtSource currentUserExtSource = getPerunBl().getUsersManagerBl()
+							.getUserExtSourceByExtLogin(sess, userExtSource.getExtSource(), userExtSource.getLogin());
+					// Update LoA
+					currentUserExtSource.setLoa(userExtSource.getLoa());
+					getPerunBl().getUsersManagerBl().updateUserExtSource(sess, currentUserExtSource);
+				} catch (UserExtSourceNotExistsException e) {
+					// Create userExtSource
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+					} catch (UserExtSourceExistsException e1) {
+						throw new ConsistencyErrorException("Adding userExtSource which already exists: " +
+								userExtSource, e1);
+					}
+				} catch (UserExtSourceExistsException e1) {
+					throw new ConsistencyErrorException("Updating login of userExtSource to value which already" +
+							" exists: " + userExtSource, e1);
+				}
+			}
+		}
+	}
+
+	/**
+	 * For given user, set user attributes from given candidate.
+	 * Can set only user-def and user-opt attributes.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param candidate candidate to take attributes
+	 * @throws AttributeNotExistsException if some of the given attributes dont exist
+	 * @throws WrongAttributeAssignmentException if some of the given attributes have unsupported namespace
+	 * @throws WrongReferenceAttributeValueException if some of the given attribute value cannot be set because of
+	 *                                               some other attribute constraint
+	 * @throws WrongAttributeValueException if some of the given attribute value is invalid
+	 */
+	private void setCandidateAttributes(PerunSession sess, User user, Candidate candidate) throws WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+		if (candidate.getAttributes() == null) {
+			return;
+		}
+		List<Attribute> attributesToSet = new ArrayList<>();
+		AttributesManagerBl attrsManager = perunBl.getAttributesManagerBl();
+		for (String attributeName: candidate.getAttributes().keySet()) {
+			if (!attributeName.startsWith(AttributesManager.NS_USER_ATTR_DEF) &&
+			    !attributeName.startsWith(AttributesManager.NS_USER_ATTR_OPT)) {
+				throw new WrongAttributeAssignmentException("Cannot set non-(user DEF/OPT) attribute: " + attributeName);
+			}
+			AttributeDefinition definition = attrsManager.getAttributeDefinition(sess, attributeName);
+			Attribute attribute = new Attribute(definition);
+			attribute.setValue(attrsManager
+					.stringToAttributeValue(candidate.getAttributes().get(attributeName), attribute.getType()));
+				attributesToSet.add(attribute);
+		}
+		attrsManager.setAttributes(sess, user, attributesToSet);
 	}
 
 }

@@ -1218,4 +1218,24 @@ public interface UsersManager {
 	 */
 	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user, List<String> attrNames) throws PrivilegeException;
 
+	/**
+	 * From given candidate, creates a service user and assign given owners to him.
+	 * This method also checks if some of given userExtSources do exist. If so,
+	 * this method throws a UserExtSourceExistsException.
+	 * This method can also set only user-def and user-opt attributes for the given candidate.
+	 *
+	 * @param sess session
+	 * @param candidate candidate
+	 * @param specificUserOwners owners to be set for the new user
+	 * @return created service user
+	 * @throws UserNotExistsException if some of the given owners does not exist
+	 * @throws AttributeNotExistsException if some of the given attributes dont exist
+	 * @throws WrongAttributeAssignmentException if some of the given attributes have unsupported namespace
+	 * @throws UserExtSourceExistsException if some of the given UES already exist
+	 * @throws WrongReferenceAttributeValueException if some of the given attribute value cannot be set because of
+	 *                                               some other attribute constraint
+	 * @throws WrongAttributeValueException if some of the given attribute value is invalid
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	User createServiceUser(PerunSession sess, Candidate candidate, List<User> specificUserOwners) throws PrivilegeException, WrongAttributeAssignmentException, UserExtSourceExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, UserNotExistsException;
 }

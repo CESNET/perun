@@ -5,6 +5,11 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -1416,6 +1421,35 @@ public enum UsersManagerMethod implements ManagerMethod {
 						parms.readList("attrNames", String.class));
 			}
 
+		}
+	},
+
+	/*#
+	 * From given candidate, creates a service user and assign given owners to him.
+	 * This method also checks if some of given userExtSources do exist. If so,
+	 * this method throws a UserExtSourceExistsException.
+	 * This method can also set only user-def and user-opt attributes for the given candidate.
+	 *
+	 * @param candidate Candidate candidate
+	 * @param specificUserOwners List<User> owners to be set for the new user
+	 * @return User created service user
+	 * @throw UserNotExistsException if some of the given owners does not exist
+	 * @throw AttributeNotExistsException if some of the given attributes dont exist
+	 * @throw WrongAttributeAssignmentException if some of the given attributes have unsupported namespace
+	 * @throw UserExtSourceExistsException if some of the given UES already exist
+	 * @throw WrongReferenceAttributeValueException if some of the given attribute value cannot be set because of
+	 *                                               some other attribute constraint
+	 * @throw WrongAttributeValueException if some of the given attribute value is invalid
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	createServiceUser {
+		@Override
+		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getUsersManager().createServiceUser(ac.getSession(),
+					parms.read("candidate", Candidate.class),
+					parms.readList("specificUserOwners", User.class));
 		}
 	}
 
