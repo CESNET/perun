@@ -124,6 +124,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
 		attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
 		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
+		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
 
 		final GetAllRichSubGroups subgroups = new GetAllRichSubGroups(groupId, attrNames);
 
