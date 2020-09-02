@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -4475,7 +4476,19 @@ public class AttributesManagerEntry implements AttributesManager {
 	}
 
 	@Override
-	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format) throws InternalErrorException, PrivilegeException {
+	public void convertAttributeToNonunique(PerunSession session, int attrId) throws PrivilegeException, AttributeNotExistsException, AttributeNotMarkedUniqueException {
+		Utils.checkPerunSession(session);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
+
+		getAttributesManagerBl().convertAttributeToNonunique(session, attrId);
+	}
+
+	@Override
+	public GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format) throws PrivilegeException {
+
+		// Authorization
 		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN) &&
 				!AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");

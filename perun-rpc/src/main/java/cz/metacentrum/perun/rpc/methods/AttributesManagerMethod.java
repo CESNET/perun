@@ -6,7 +6,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
@@ -4406,6 +4406,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws AttributeAlreadyMarkedUniqueException, PrivilegeException, AttributeNotExistsException {
 			parms.stateChangingCheck();
 			ac.getAttributesManager().convertAttributeToUnique(ac.getSession(), parms.readInt("attrDefId"));
+			return null;
+		}
+	},
+
+	/*#
+	 * Converts attribute to nonunique - unmarks unique flag from attribute definition, and deletes all values
+	 * from a special table with unique constraint that ensures that all values remain unique.
+	 *
+	 * @param attrDefId int AttributeDefinition <code>id</code>
+	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeNotMarkedUniqueException When Attribute with <code>id</code> is not unique.
+	 */
+	convertAttributeToNonunique {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PrivilegeException, AttributeNotExistsException, AttributeNotMarkedUniqueException {
+			parms.stateChangingCheck();
+			ac.getAttributesManager().convertAttributeToNonunique(ac.getSession(), parms.readInt("attrDefId"));
 			return null;
 		}
 	},

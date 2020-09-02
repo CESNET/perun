@@ -30,6 +30,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -5497,6 +5498,68 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 				attributesManager.convertAttributeToUnique(sess,attributeDefinition.getId());
 			}
 		}
+	}
+
+	@Test
+	public void testConvertingToNonuniqAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttribute");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setUnique(true);
+		attrDef.setFriendlyName("test-conv-attr");
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("poznamka");
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+		attrDef = attributesManager.getAttributeDefinition(sess, attrDef.getName());
+
+		Attribute a = new Attribute(attrDef);
+		Attribute b = new Attribute(attrDef);
+		a.setValue("string1");
+		b.setValue("string2");
+		attributesManager.setAttribute(sess, user1, a);
+		attributesManager.setAttribute(sess, user2, b);
+
+		int rowsChanged = attributesManagerBl.convertAttributeToNonunique(sess, attrDef.getId());
+		assertFalse("attribute is still unique", attributesManager.getAttributeDefinition(sess, attrDef.getName()).isUnique());
+		assertEquals(2, rowsChanged);
+	}
+
+	@Test
+	public void testConvertingToNonuniqAttributeWhichIsNotSet() throws Exception {
+		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttributeWhichIsNotSet");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setUnique(true);
+		attrDef.setFriendlyName("test-conv-attr");
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("poznamka");
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+		attrDef = attributesManager.getAttributeDefinition(sess, attrDef.getName());
+
+		int rowsChanged = attributesManagerBl.convertAttributeToNonunique(sess, attrDef.getId());
+		assertFalse("attribute is still unique", attributesManager.getAttributeDefinition(sess, attrDef.getName()).isUnique());
+		assertEquals(0, rowsChanged);
+	}
+
+	@Test(expected = AttributeNotMarkedUniqueException.class)
+	public void testConvertingToNonuniqAttributeAlreadyNonuniq() throws Exception {
+		System.out.println(CLASS_NAME + "testConvertingToNonuniqAttributeAlreadyNonuniq");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setUnique(false);
+		attrDef.setFriendlyName("test-conv-attr");
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setDescription("poznamka");
+		attrDef.setType(String.class.getName());
+		attributesManager.createAttribute(sess, attrDef);
+		attrDef = attributesManager.getAttributeDefinition(sess, attrDef.getName());
+
+		attributesManagerBl.convertAttributeToNonunique(sess, attrDef.getId());
 	}
 
 	@Test

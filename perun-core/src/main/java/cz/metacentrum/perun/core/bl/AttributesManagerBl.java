@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
@@ -4607,6 +4608,19 @@ public interface AttributesManagerBl {
 	 * @param attrId attribute id
 	 */
 	void convertAttributeToUnique(PerunSession session, int attrId) throws AttributeNotExistsException, AttributeAlreadyMarkedUniqueException;
+
+	/**
+	 * Converts attribute to nonunique.
+	 *
+	 * Unmarks unique flag from attribute definition, and deletes all values from a special table with unique constraint
+	 * that ensures that all values remain unique.
+	 *
+	 * @param session perun session
+	 * @param attrId attribute id
+	 * @throws AttributeNotExistsException when the attribute definition for attrId doesn't exist
+	 * @throws AttributeNotMarkedUniqueException when the attribute definition is not unique
+	 */
+	int convertAttributeToNonunique(PerunSession session, int attrId) throws AttributeNotExistsException, AttributeNotMarkedUniqueException;
 
 	/**
 	 * Generates graph describing attribute modules dependencies.
