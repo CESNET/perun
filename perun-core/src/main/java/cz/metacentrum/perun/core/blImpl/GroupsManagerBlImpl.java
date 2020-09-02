@@ -93,7 +93,6 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -148,6 +147,8 @@ import java.util.stream.Collectors;
 import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 import static java.util.Collections.reverseOrder;
 import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 /**
  * GroupsManager business logic
@@ -2392,36 +2393,61 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) {
-		Set<Member> filteredMembers = new HashSet<>();
-		Iterator<Member> membersIterator = members.iterator();
+		Map<Integer, List<Member>> indirectMembersById = members.stream()
+				.filter(m -> m.getMembershipType().equals(MembershipType.INDIRECT))
+				.collect(groupingBy(Member::getId, toList()));
 
-		//Add members with direct membership type
-		while(membersIterator.hasNext()) {
-			Member m = membersIterator.next();
-			if(m.getMembershipType().equals(MembershipType.DIRECT)) {
-				filteredMembers.add(m);
-				membersIterator.remove();
-			}
+		List<Member> directMembers = members.stream()
+				.filter(m -> m.getMembershipType().equals(MembershipType.DIRECT))
+				.distinct()
+				.map(m -> addGroupStatuses(m, indirectMembersById.get(m.getId())))
+				.collect(toList());
+
+		directMembers.forEach(directMember -> indirectMembersById.remove(directMember.getId()));
+
+		indirectMembersById.values().stream()
+				.map(this::mergeMembers)
+				.forEach(directMembers::add);
+
+		return directMembers;
+	}
+
+	/**
+	 * To the given member, put all group statuses from the other given members.
+	 *
+	 * @param member where the group statuses are put
+	 * @param members from whom are the group statuses taken
+	 * @return given member with added group statuses
+	 */
+	private Member addGroupStatuses(Member member, Collection<Member> members) {
+		if (members != null) {
+			members.forEach(indirectMember -> member.putGroupStatuses(indirectMember.getGroupStatuses()));
 		}
+		return member;
+	}
 
-		//Add not containing members with indirect membership type
-		for(Member m: members) {
-			boolean alreadyAdded = false;
+	/**
+	 * Merge given members into one and their group statuses.
+	 *
+	 * @param members to merge
+	 * @return member with merged group statuses
+	 */
+	private Member mergeMembers(List<Member> members) {
+		return members.stream()
+				.reduce(this::mergeMembers)
+				.orElseThrow(() -> new InternalErrorException("Tried to merge member from empty list"));
+	}
 
-			for (Member filteredMember : filteredMembers) {
-				if (filteredMember.equals(m)) {
-					filteredMember.putGroupStatuses(m.getGroupStatuses());
-					alreadyAdded = true;
-					break;
-				}
-			}
-
-			if (!alreadyAdded) {
-				filteredMembers.add(m);
-			}
-		}
-
-		return new ArrayList<>(filteredMembers);
+	/**
+	 * Add group statuses from m2 into m1 and return it.
+	 *
+	 * @param m1 first member to merge
+	 * @param m2 second member to merge
+	 * @return member with merged group statuses
+	 */
+	private Member mergeMembers(Member m1, Member m2) {
+		m1.putGroupStatuses(m2.getGroupStatuses());
+		return m1;
 	}
 
 	@Override
