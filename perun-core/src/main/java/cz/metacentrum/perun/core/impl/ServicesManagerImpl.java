@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.ServiceDenial;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
@@ -36,6 +37,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.FACILITY_MAPPER;
+
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
@@ -60,6 +63,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"services.modified_by as services_modified_by, services.modified_at as services_modified_at, " +
 		"services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid";
 
+	public final static String serviceDenialMappingSelectQuery = " service_denials.id as service_denials_id, " +
+		"service_denials.service_id as service_denials_service_id, service_denials.facility_id as service_denials_facility_id, " +
+		"service_denials.destination_id as service_denials_destination_id, " +
+		"service_denials.created_at as service_denials_created_at, service_denials.created_by as service_denials_created_by, " +
+		"service_denials.modified_by as service_denials_modified_by, service_denials.modified_at as service_denials_modified_at, " +
+		"service_denials.created_by_uid as service_denials_created_by_uid, service_denials.modified_by_uid as service_denials_modified_by_uid";
+
 	public final static String servicePackageMappingSelectQuery = " service_packages.id as service_packages_id, service_packages.description as service_packages_description, " +
 		"service_packages.name as service_packages_name, service_packages.created_at as service_packages_created_at, service_packages.created_by as service_packages_created_by, " +
 		"service_packages.modified_by as service_packages_modified_by, service_packages.modified_at as service_packages_modified_at, " +
@@ -73,10 +83,11 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	public final static String facilityDestinationMappingSelectQuery = destinationMappingSelectQuery + ", facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
 	public final static String richDestinationMappingSelectQuery = " " + destinationMappingSelectQuery + ", " +
-		"facilities.id as facilities_id, facilities.name as facilities_name, " +
+		"facilities.id as facilities_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, " +
 		"facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
 		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
 		serviceMappingSelectQuery + ", " +
+		serviceDenialMappingSelectQuery + ", " +
 		"facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
 	public static final RowMapper<Service> SERVICE_MAPPER = (resultSet, i) -> {
@@ -98,6 +109,26 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		else service.setCreatedByUid(resultSet.getInt("services_created_by_uid"));
 		return service;
 
+	};
+
+	public static final RowMapper<ServiceDenial> SERVICE_DENIAL_MAPPER = (resultSet, i) -> {
+		if (resultSet.getInt("service_denials_id") == 0) {
+			return null;
+		}
+		ServiceDenial serviceDenial = new ServiceDenial();
+		serviceDenial.setId(resultSet.getInt("service_denials_id"));
+		serviceDenial.setFacilityId(resultSet.getInt("service_denials_facility_id"));
+		serviceDenial.setDestinationId(resultSet.getInt("service_denials_destination_id"));
+		serviceDenial.setServiceId(resultSet.getInt("service_denials_service_id"));
+		serviceDenial.setCreatedAt(resultSet.getString("service_denials_created_at"));
+		serviceDenial.setCreatedBy(resultSet.getString("service_denials_created_by"));
+		serviceDenial.setModifiedAt(resultSet.getString("service_denials_modified_at"));
+		serviceDenial.setModifiedBy(resultSet.getString("service_denials_modified_by"));
+		if(resultSet.getInt("service_denials_modified_by_uid") == 0) serviceDenial.setModifiedByUid(null);
+		else serviceDenial.setModifiedByUid(resultSet.getInt("service_denials_modified_by_uid"));
+		if(resultSet.getInt("service_denials_created_by_uid") == 0) serviceDenial.setCreatedByUid(null);
+		else serviceDenial.setCreatedByUid(resultSet.getInt("service_denials_created_by_uid"));
+		return serviceDenial;
 	};
 
 	public static final RowMapper<ServicesPackage> SERVICESPACKAGE_MAPPER = (resultSet, i) -> {
@@ -171,21 +202,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		if(resultSet.getInt("destinations_created_by_uid") == 0) destination.setCreatedByUid(null);
 		else destination.setCreatedByUid(resultSet.getInt("destinations_created_by_uid"));
 
-		Facility facility = new Facility();
-		facility.setId(resultSet.getInt("facilities_id"));
-		facility.setName(resultSet.getString("facilities_name"));
-		facility.setCreatedAt(resultSet.getString("facilities_created_at"));
-		facility.setCreatedBy(resultSet.getString("facilities_created_by"));
-		facility.setModifiedAt(resultSet.getString("facilities_modified_at"));
-		facility.setModifiedBy(resultSet.getString("facilities_modified_by"));
-		if(resultSet.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
-		else facility.setModifiedByUid(resultSet.getInt("facilities_modified_by_uid"));
-		if(resultSet.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
-		else facility.setCreatedByUid(resultSet.getInt("facilities_created_by_uid"));
+		Facility facility = FACILITY_MAPPER.mapRow(resultSet, i);
 
 		Service service = SERVICE_MAPPER.mapRow(resultSet, i);
 
-		return new RichDestination(destination, facility, service);
+		ServiceDenial serviceDenial = SERVICE_DENIAL_MAPPER.mapRow(resultSet, i);
+
+		return new RichDestination(destination, facility, service, serviceDenial != null);
 	};
 
 	@SuppressWarnings("ConstantConditions")
@@ -707,7 +730,9 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
 					"join services on services.id=facility_service_destinations.service_id " +
 					"join facilities on facilities.id=facility_service_destinations.facility_id " +
-					"where facility_id=? order by destinations.destination", RICH_DESTINATION_MAPPER, facility.getId());
+					"left join service_denials on services.id = service_denials.service_id and " +
+					"                        destinations.id = service_denials.destination_id " +
+					"where facility_service_destinations.facility_id=? order by destinations.destination", RICH_DESTINATION_MAPPER, facility.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -720,7 +745,10 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
 					"join services on services.id=facility_service_destinations.service_id " +
 					"join facilities on facilities.id=facility_service_destinations.facility_id " +
-					"where service_id=? order by destinations.destination", RICH_DESTINATION_MAPPER, service.getId());
+					"left join service_denials on services.id = service_denials.service_id and " +
+					"                        destinations.id = service_denials.destination_id " +
+					"where facility_service_destinations.service_id=? " +
+					"order by destinations.destination", RICH_DESTINATION_MAPPER, service.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -733,7 +761,10 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 					"join destinations on destinations.id=facility_service_destinations.destination_id " +
 					"join services on services.id=facility_service_destinations.service_id " +
 					"join facilities on facilities.id=facility_service_destinations.facility_id " +
-					"where facility_id=? and service_id=? order by destinations.destination", RICH_DESTINATION_MAPPER, facility.getId(), service.getId());
+					"left join service_denials on services.id = service_denials.service_id and " +
+					"                        destinations.id = service_denials.destination_id " +
+					"where facility_service_destinations.facility_id=? and facility_service_destinations.service_id=? " +
+					"order by destinations.destination", RICH_DESTINATION_MAPPER, facility.getId(), service.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
