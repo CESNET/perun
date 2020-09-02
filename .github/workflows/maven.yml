@@ -1,4 +1,4 @@
-name: Maven build
+name: "test build"
 on: [ push, pull_request ]
 jobs:
   test:
