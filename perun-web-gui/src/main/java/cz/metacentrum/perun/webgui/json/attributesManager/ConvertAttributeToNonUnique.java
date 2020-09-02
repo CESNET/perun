@@ -11,18 +11,18 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
- * Ajax query which converts attribute definition to unique
+ * Ajax query which converts attribute definition to non-unique
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
-public class ConvertAttributeToUnique {
+public class ConvertAttributeToNonUnique {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 
 	// URL to call
-	final String JSON_URL = "attributesManager/convertAttributeToUnique";
+	final String JSON_URL = "attributesManager/convertAttributeToNonunique";
 
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
@@ -32,22 +32,22 @@ public class ConvertAttributeToUnique {
 	/**
 	 * Creates a new request
 	 */
-	public ConvertAttributeToUnique() {}
+	public ConvertAttributeToNonUnique() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 * @param events external events
 	 */
-	public ConvertAttributeToUnique(final JsonCallbackEvents events) {
+	public ConvertAttributeToNonUnique(final JsonCallbackEvents events) {
 		this.events = events;
 	}
 
 	/**
-	 * Converts attribute definition to unique - make RPC call
+	 * Converts attribute definition to non-unique - make RPC call
 	 *
 	 * @param attrDefId - ID of attribute definition which should be converted
 	 */
-	public void convertAttributeDefinitionToUnique(final int attrDefId) {
+	public void convertAttributeDefinitionToNonUnique(final int attrDefId) {
 
 		this.attrDefId = attrDefId;
 
@@ -64,7 +64,7 @@ public class ConvertAttributeToUnique {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Attribute definition: "+ attrDefId +" successfully converted to UNIQUE.");
+				session.getUiElements().setLogSuccessText("Attribute definition: "+ attrDefId +" successfully converted to NON-UNIQUE.");
 				events.onFinished(jso);
 			};
 
