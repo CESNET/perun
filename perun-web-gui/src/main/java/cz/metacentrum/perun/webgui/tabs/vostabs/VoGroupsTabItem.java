@@ -120,6 +120,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
 		attrNames.add("urn:perun:group:attribute-def:def:groupSynchronizationTimes");
 		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSuccessfulSynchronization");
+		attrNames.add("urn:perun:group:attribute-def:def:startOfLastSynchronization");
 		final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
 		if (!session.isVoAdmin(voId)) groups.setCheckable(false);

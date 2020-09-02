@@ -69,6 +69,14 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
+	public final native String getStartOfLastSynchronizationTimestamp() /*-{
+		for (var id in this.attributes) {
+			if (this.attributes[id].friendlyName === "startOfLastSynchronization") {
+				return this.attributes[id].value;
+			}
+		}
+		return null;
+	}-*/;
 	public final native String getLastSuccessSynchronizationTimestamp() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "lastSuccessSynchronizationTimestamp") {
