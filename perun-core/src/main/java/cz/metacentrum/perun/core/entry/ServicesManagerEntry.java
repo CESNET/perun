@@ -956,18 +956,17 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(services, "services");
 
-		// Auhtorization
-		List<PerunBean> beans = new ArrayList<>(services);
-		beans.add(facility);
-		if (!AuthzResolver.authorizedInternal(perunSession, "addDestinationsDefinedByHostsOnFacility_List<Services>_Facility_policy", beans)) {
-			throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
-		}
-
 		for(Service s: services) {
 			getServicesManagerBl().checkServiceExists(perunSession, s);
 		}
-
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+
+		// Authorization
+		for (Service service: services) {
+			if (!AuthzResolver.authorizedInternal(perunSession, "addDestinationsDefinedByHostsOnFacility_List<Services>_Facility_policy", service, facility)) {
+				throw new PrivilegeException(perunSession, "addDestinationsDefinedByHostsOnFacility");
+			}
+		}
 
 		return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, services, facility);
 	}

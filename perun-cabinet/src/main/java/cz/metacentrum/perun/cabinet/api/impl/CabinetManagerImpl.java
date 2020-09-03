@@ -487,8 +487,10 @@ public class CabinetManagerImpl implements CabinetManager {
 		}
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "lockPublications_boolean_List<Publication>_policy", new ArrayList<>(publications))) {
-			throw new PrivilegeException("lockPublications");
+		for (Publication publication: publications) {
+			if (!AuthzResolver.authorizedInternal(sess, "lockPublications_boolean_List<Publication>_policy", publication)) {
+				throw new PrivilegeException("lockPublications");
+			}
 		}
 
 		getPublicationManagerBl().lockPublications(lockState, publications);

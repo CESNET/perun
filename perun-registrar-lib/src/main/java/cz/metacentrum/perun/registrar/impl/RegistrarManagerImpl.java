@@ -2453,7 +2453,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		vosManager.checkVoExists(sess, toVo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyFormFromVoToVo_Vo_Vo_policy", Arrays.asList(fromVo, toVo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyFormFromVoToVo_Vo_Vo_policy", fromVo) ||
+			!AuthzResolver.authorizedInternal(sess, "copyFormFromVoToVo_Vo_Vo_policy", toVo)) {
 			throw new PrivilegeException(sess, "copyFormFromVoToVo");
 		}
 

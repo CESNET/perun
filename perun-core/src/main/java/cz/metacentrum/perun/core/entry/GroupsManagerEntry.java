@@ -188,9 +188,11 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		//test of privileges on groups
-		if(!AuthzResolver.authorizedInternal(perunSession, "deleteGroups_List<Group>_boolean_policy", new ArrayList<>(groups))) {
-			throw new PrivilegeException(perunSession, "deleteGroups");
+		//Authorization
+		for (Group group: groups) {
+			if(!AuthzResolver.authorizedInternal(perunSession, "deleteGroups_List<Group>_boolean_policy", group)) {
+				throw new PrivilegeException(perunSession, "deleteGroups");
+			}
 		}
 
 		getGroupsManagerBl().deleteGroups(perunSession, groups, forceDelete);
@@ -208,7 +210,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "updateGroup_Group_policy", group)) {
 			throw new PrivilegeException(sess, "updateGroup");
-				}
+		}
 
 		return getGroupsManagerBl().updateGroup(sess, group);
 	}
@@ -252,7 +254,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		Group group = getGroupsManagerBl().getGroupById(sess, id);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getGroupById_int_policy")) {
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupById_int_policy", group)) {
 			throw new PrivilegeException(sess, "getGroupById");
 		}
 
@@ -272,7 +274,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getGroupByName_Vo_String_policy", Arrays.asList(vo, group))) {
 			throw new PrivilegeException(sess, "getGroupByName");
-				}
+		}
 
 		return group;
 	}
@@ -291,10 +293,10 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		ArrayList<PerunBean> beans = new ArrayList<>(members);
-		beans.add(group);
-		if (!AuthzResolver.authorizedInternal(sess, "addMembers_Group_List<Member>_policy", beans)) {
-			throw new PrivilegeException(sess, "addMembers");
+		for (Member member: members) {
+			if (!AuthzResolver.authorizedInternal(sess, "addMembers_Group_List<Member>_policy", member, group)) {
+				throw new PrivilegeException(sess, "addMembers");
+			}
 		}
 
 		// Check if the group is externally synchronized
@@ -325,10 +327,10 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(groups);
-		beans.add(member);
-		if (!AuthzResolver.authorizedInternal(sess, "addMember_List<Group>_Member_policy", beans)) {
-			throw new PrivilegeException(sess, "addMember");
+		for (Group group: groups) {
+			if (!AuthzResolver.authorizedInternal(sess, "addMember_List<Group>_Member_policy", group, member)) {
+				throw new PrivilegeException(sess, "addMember");
+			}
 		}
 
 		getGroupsManagerBl().addMember(sess, groups, member);
@@ -404,10 +406,10 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		ArrayList<PerunBean> beans = new ArrayList<>(members);
-		beans.add(group);
-		if (!AuthzResolver.authorizedInternal(sess, "removeMembers_Group_List<Member>_policy", beans)) {
-			throw new PrivilegeException(sess, "removeMembers");
+		for (Member member: members) {
+			if (!AuthzResolver.authorizedInternal(sess, "removeMembers_Group_List<Member>_policy", member, group)) {
+				throw new PrivilegeException(sess, "removeMembers");
+			}
 		}
 
 		// Check if the group is externally synchronized
@@ -433,10 +435,10 @@ public class GroupsManagerEntry implements GroupsManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(groups);
-		beans.add(member);
-		if (!AuthzResolver.authorizedInternal(sess, "removeMember_Member_List<Group>_policy", beans)) {
-			throw new PrivilegeException(sess, "removeMember");
+		for (Group group: groups) {
+			if (!AuthzResolver.authorizedInternal(sess, "removeMember_Member_List<Group>_policy", member, group)) {
+				throw new PrivilegeException(sess, "removeMember");
+			}
 		}
 
 		getGroupsManagerBl().removeMember(sess, groups, member);
@@ -450,7 +452,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getGroupMembers_Group_policy", group)) {
 			throw new PrivilegeException(sess, "getGroupMembers");
-				}
+		}
 
 		return getGroupsManagerBl().getGroupMembers(sess, group);
 	}
@@ -1291,7 +1293,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "createGroupUnion_Group_Group_policy", Arrays.asList(resultGroup, operandGroup))) {
+		if (!AuthzResolver.authorizedInternal(sess, "createGroupUnion_Group_Group_policy", resultGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "createGroupUnion_Group_Group_policy", operandGroup)) {
 			throw new PrivilegeException(sess, "createGroupUnion");
 		}
 
@@ -1309,7 +1312,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeGroupUnion_Group_Group_policy", Arrays.asList(resultGroup, operandGroup))) {
+		if (!AuthzResolver.authorizedInternal(sess, "removeGroupUnion_Group_Group_policy", resultGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "removeGroupUnion_Group_Group_policy", operandGroup)) {
 			throw new PrivilegeException(sess, "removeGroupUnion");
 		}
 

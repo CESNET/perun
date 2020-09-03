@@ -110,10 +110,11 @@ public class UsersManagerEntry implements UsersManager {
 
 		User user = getUsersManagerBl().getUserByUserExtSources(sess, userExtSources);
 
-		List<PerunBean> beans = new ArrayList<>(userExtSources);
-		beans.add(user);
-		if(!AuthzResolver.authorizedInternal(sess, "getUserByUserExtSources_List<UserExtSource>_policy", beans)) {
-			throw new PrivilegeException(sess, "getUserByUserExtSources");
+		// Authorization
+		for (UserExtSource ues: userExtSources) {
+			if(!AuthzResolver.authorizedInternal(sess, "getUserByUserExtSources_List<UserExtSource>_policy", ues, user)) {
+				throw new PrivilegeException(sess, "getUserByUserExtSources");
+			}
 		}
 
 		return user;
@@ -307,8 +308,10 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichUsersFromListOfUsers_List<User>_policy", new ArrayList<>(users))) {
-			throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
+		for (User user: users) {
+			if (!AuthzResolver.authorizedInternal(sess, "getRichUsersFromListOfUsers_List<User>_policy", user)) {
+				throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
+			}
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersFromListOfUsers(sess, users));
@@ -325,8 +328,10 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getRichUsersWithAttributesFromListOfUsers_List<User>_policy", new ArrayList<>(users))) {
-			throw new PrivilegeException(sess, "getRichUsersWithAttributesFromListOfUsers");
+		for (User user: users) {
+			if (!AuthzResolver.authorizedInternal(sess, "getRichUsersWithAttributesFromListOfUsers_List<User>_policy", user)) {
+				throw new PrivilegeException(sess, "getRichUsersWithAttributesFromListOfUsers");
+			}
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, users));
@@ -582,16 +587,17 @@ public class UsersManagerEntry implements UsersManager {
 	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "moveUserExtSource_User_User_UserExtSource_policy", Arrays.asList(sourceUser, targetUser, userExtSource))) {
-			throw new PrivilegeException(sess, "moveUserExtSource");
-		}
-
 		getUsersManagerBl().checkUserExists(sess, targetUser);
 		getUsersManagerBl().checkUserExists(sess, sourceUser);
 		// set userId, so checkUserExtSourceExists can check the userExtSource for the particular user
 		userExtSource.setUserId(sourceUser.getId());
 		getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "moveUserExtSource_User_User_UserExtSource_policy", sourceUser, userExtSource) ||
+			!AuthzResolver.authorizedInternal(sess, "moveUserExtSource_User_User_UserExtSource_policy", targetUser)) {
+			throw new PrivilegeException(sess, "moveUserExtSource");
+		}
 
 		if (userExtSource.isPersistent()) {
 			throw new InternalErrorException("Given UserExtSource: " + userExtSource + " is marked as persistent. " +
