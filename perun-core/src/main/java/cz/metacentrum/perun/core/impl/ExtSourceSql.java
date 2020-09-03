@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -112,7 +113,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 	@Override
 	public List<Map<String,String>> getUsersSubjects() {
-		String query = getAttributes().get("usersQuery");
+		String query = getAttributes().get(UsersManager.USERS_QUERY);
 
 		if (query == null) {
 			throw new InternalErrorException("usersQuery attribute is required");

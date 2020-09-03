@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -166,7 +167,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	@Override
 	public List<Map<String, String>> getUsersSubjects() {
 		// if usersQuery is null, there is no filter and method returns all users subjects
-		String filter = getAttributes().get("usersQuery");
+		String filter = getAttributes().get(UsersManager.USERS_QUERY);
 
 		String base = getAttributes().get("base");
 		if (base == null) {

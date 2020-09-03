@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -160,7 +161,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 
 	@Override
 	public List<Map<String, String>> getUsersSubjects() {
-		query = getAttributes().get("usersQuery");
+		query = getAttributes().get(UsersManager.USERS_QUERY);
 
 		prepareEnvironment();
 
@@ -211,7 +212,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 
     // use uriMembership attribute to obtain list of available groups
     private List<String> getGroupsFromRemote() throws IOException {
-        List<String> groups = new ArrayList();
+        List<String> groups = new ArrayList<>();
 
         HttpURLConnection connection = createConnection(uriMembership);
         InputStream is = null;
@@ -236,7 +237,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 		        connection.disconnect();
 	        }
         }
-        return null;
+        return groups;
     }
 
     private List<Map<String, String>> getUsersFromRemote(List<String> groups, int maxResults) throws IOException {

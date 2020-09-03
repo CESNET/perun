@@ -5,6 +5,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
@@ -66,7 +67,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	@Override
 	public List<Map<String, String>> getUsersSubjects() {
 		// Get the url query for users subjects
-		String queryForUsers = getAttributes().get("usersQuery");
+		String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
 
 		return querySource(queryForUsers, null, 0);
 	}

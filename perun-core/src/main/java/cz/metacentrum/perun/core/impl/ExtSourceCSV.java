@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -150,7 +151,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 	public List<Map<String, String>> getUsersSubjects() {
 		try {
 			// Get the query for the user subjects
-			String queryForUsers = getAttributes().get("usersQuery");
+			String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
 
 			// If there is no query for users, throw exception
 			if (queryForUsers == null) {

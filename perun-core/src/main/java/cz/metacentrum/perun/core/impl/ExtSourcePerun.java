@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -124,7 +125,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 	@Override
 	public List<Map<String, String>> getUsersSubjects() {
-		String query = getAttributes().get("usersQuery");
+		String query = getAttributes().get(UsersManager.USERS_QUERY);
 
 		setEnviroment();
 

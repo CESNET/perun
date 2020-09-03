@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -86,7 +87,7 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 
 	@Override
 	public List<Map<String, String>> getUsersSubjects() {
-		String url = getAttributes().get("usersQuery");
+		String url = getAttributes().get(UsersManager.USERS_QUERY);
 
 		return getUsersOrGroupSubjects(url);
 	}
