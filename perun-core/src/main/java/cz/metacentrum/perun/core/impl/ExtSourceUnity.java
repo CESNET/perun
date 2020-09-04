@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -128,8 +129,12 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		String query = getAttributes().get(UsersManager.USERS_QUERY);
+
+		prepareEnvironment();
+
+		return jsonParsing(query, 0);
 	}
 
     @Override
@@ -212,7 +217,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @param uri
      * @returns if responseCode to the uri is 200, then returns connection
      */
-    private HttpURLConnection createConnection(String uri) throws IOException {
+    protected HttpURLConnection createConnection(String uri) throws IOException {
         HttpURLConnection connection;
 
         username = getAttributes().get("user");

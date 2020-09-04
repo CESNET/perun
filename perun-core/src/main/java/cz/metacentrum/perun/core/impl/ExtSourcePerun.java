@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -123,8 +124,12 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		String query = getAttributes().get(UsersManager.USERS_QUERY);
+
+		setEnviroment();
+
+		return convertRichUsersToListOfSubjects(findRichUsers(query));
 	}
 
 	private List<Map<String, String>> convertRichUsersToListOfSubjects(List<RichUser> richUsers) {
@@ -294,7 +299,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return this.call(managerName, methodName, null);
 	}
 
-	private Deserializer call(String managerName, String methodName, String query) throws PerunException {
+	protected Deserializer call(String managerName, String methodName, String query) throws PerunException {
 		//Prepare sending message
 		HttpResponse response;
 		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();

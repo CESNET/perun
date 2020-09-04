@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
@@ -33,34 +34,9 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 
 	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
-		List<Map<String, String>> subjects = new ArrayList<>();
-		NamingEnumeration<SearchResult> results = null;
-
 		String query = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-		String base = "ou=People,dc=egi,dc=eu";
 
-		List<String> ldapGroupSubjects = new ArrayList<>();
-		try {
-			SearchControls controls = new SearchControls();
-			controls.setTimeLimit(5000);
-			results = getContext().search(base, query, controls);
-			while(results.hasMore()) {
-				SearchResult searchResult = results.next();
-				subjects.add(processResultToSubject(searchResult));
-			}
-		} catch (NamingException e) {
-			log.error("LDAP exception during query {}.", query);
-			throw new InternalErrorException("LDAP exception during running query " + query , e);
-		} finally {
-			try {
-				if (results != null) { results.close(); }
-			} catch (Exception e) {
-				log.error("LDAP exception during closing result, while running query '{}'", query);
-				throw new InternalErrorException(e);
-			}
-		}
-
-		return subjects;
+		return getUsersOrGroupSubjects(query);
 	}
 
 	@Override
@@ -110,8 +86,10 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		String query = getAttributes().get(UsersManager.USERS_QUERY);
+
+		return getUsersOrGroupSubjects(query);
 	}
 
 	protected Map<String,String> processResultToSubject(SearchResult sr) {
@@ -222,5 +200,34 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 		}
 
 		return subjectCert;
+	}
+
+	private List<Map<String, String>> getUsersOrGroupSubjects(String query) {
+		List<Map<String, String>> subjects = new ArrayList<>();
+		NamingEnumeration<SearchResult> results = null;
+
+		String base = "ou=People,dc=egi,dc=eu";
+
+		try {
+			SearchControls controls = new SearchControls();
+			controls.setTimeLimit(5000);
+			results = getContext().search(base, query, controls);
+			while(results.hasMore()) {
+				SearchResult searchResult = results.next();
+				subjects.add(processResultToSubject(searchResult));
+			}
+		} catch (NamingException e) {
+			log.error("LDAP exception during query {}.", query);
+			throw new InternalErrorException("LDAP exception during running query " + query , e);
+		} finally {
+			try {
+				if (results != null) { results.close(); }
+			} catch (Exception e) {
+				log.error("LDAP exception during closing result, while running query '{}'", query);
+				throw new InternalErrorException(e);
+			}
+		}
+
+		return subjects;
 	}
 }

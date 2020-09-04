@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -159,8 +160,19 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		query = getAttributes().get(UsersManager.USERS_QUERY);
+
+		prepareEnvironment();
+
+		try {
+			return getUsersFromRemote(getGroupsFromRemote(), 0);
+		} catch (IOException ex) {
+			log.error("IOException in getUsersSubjects() method while obtaining users"
+				+ "from VOOT external source", ex);
+		}
+
+		return null;
 	}
 
     @Override
@@ -169,7 +181,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
                 "Using this method is not supported for VOOT");
     }
 
-    private HttpURLConnection createConnection(String uri) throws IOException {
+    protected HttpURLConnection createConnection(String uri) throws IOException {
         HttpURLConnection connection;
 
         username = getAttributes().get("user");
@@ -200,7 +212,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 
     // use uriMembership attribute to obtain list of available groups
     private List<String> getGroupsFromRemote() throws IOException {
-        List<String> groups = new ArrayList();
+        List<String> groups = new ArrayList<>();
 
         HttpURLConnection connection = createConnection(uriMembership);
         InputStream is = null;
@@ -225,7 +237,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 		        connection.disconnect();
 	        }
         }
-        return null;
+        return groups;
     }
 
     private List<Map<String, String>> getUsersFromRemote(List<String> groups, int maxResults) throws IOException {

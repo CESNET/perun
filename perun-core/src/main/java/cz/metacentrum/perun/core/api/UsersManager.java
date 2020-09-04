@@ -46,6 +46,9 @@ import java.util.Map;
  */
 public interface UsersManager {
 
+	// Contains query needed to get users from external source
+	String USERS_QUERY = "usersQuery";
+
 	/**
 	 * Returns user by his login in external source and external source.
 	 *

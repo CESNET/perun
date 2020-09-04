@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -150,8 +151,17 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+	public List<Map<String, String>> getUsersSubjects() {
+		// Get the query for the users subjects
+		String queryForUsers = getAttributes().get(UsersManager.USERS_QUERY);
+
+		//If there is no query for users, throw exception
+		if(queryForUsers == null) throw new InternalErrorException("usersQuery can't be null");
+
+		//Get file or uri of xml
+		prepareEnvironment();
+
+		return xpathParsing(queryForUsers, 0);
 	}
 
 	protected void prepareEnvironment() {
