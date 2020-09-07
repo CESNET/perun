@@ -6,13 +6,17 @@ import java.util.List;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -521,6 +525,220 @@ public enum ServicesManagerMethod implements ManagerMethod {
 					ac.getServiceById(parms.readInt("service")),
 					ac.getFacilityById(parms.readInt("facility")),
 					false);
+			}
+		}
+	},
+
+	/*#
+	 * Generates hashed hierarchical data structure for given service and facility.
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *    ** facility **
+	 *    hashes: [...hashes...]
+	 *    members: []
+	 *    children: [
+	 *      {
+	 *        ** resource1 **
+	 *        hashes: [...hashes...]
+	 *        children: []
+	 *        members: [
+	 *          {
+	 *            ** member 1 **
+	 *            hashes: [...hashes...]
+	 *          },
+	 *          {
+	 *            ** member 2 **
+	 *            ...
+	 *          }
+	 *        ]
+	 *      },
+	 *      {
+	 *        ** resource2 **
+	 *        ...
+	 *      }
+	 *    ]
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @param filterExpiredMembers Boolean if the generator should filter expired members
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	/*#
+	 * Generates hashed hierarchical data structure for given service and facility.
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *    ** facility **
+	 *    hashes: [...hashes...]
+	 *    members: []
+	 *    children: [
+	 *      {
+	 *        ** resource1 **
+	 *        hashes: [...hashes...]
+	 *        children: []
+	 *        members: [
+	 *          {
+	 *            ** member 1 **
+	 *            hashes: [...hashes...]
+	 *          },
+	 *          {
+	 *            ** member 2 **
+	 *            ...
+	 *          }
+	 *        ]
+	 *      },
+	 *      {
+	 *        ** resource2 **
+	 *        ...
+	 *      }
+	 *    ]
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	getHashedHierarchicalData {
+		@Override
+		public HashedGenData call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("filterExpiredMembers")) {
+				return ac.getServicesManager().getHashedHierarchicalData(ac.getSession(),
+						ac.getServiceById(parms.readInt("service")),
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readBoolean("filterExpiredMembers"));
+			} else {
+				return ac.getServicesManager().getHashedHierarchicalData(ac.getSession(),
+						ac.getServiceById(parms.readInt("service")),
+						ac.getFacilityById(parms.readInt("facility")),
+						false);
+			}
+		}
+	},
+
+	/*#
+	 * Generates hashed data with group structure for given service and resource.
+	 *
+	 * Generates data in format:
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *    ** facility **
+	 *    hashes: [...hashes...]
+	 *    members: []
+	 *    children: [
+	 *      {
+	 *        ** resource1 **
+	 *        hashes: [...hashes...]
+	 *        children: [
+	 *          {
+	 *            ** group A **
+	 *            hashes: [...hashes...]
+	 *            members: [...group members...]
+	 *            children: []
+	 *          },
+	 *          {
+	 *            ** group B **
+	 *            ...
+	 *          }
+	 *        ]
+	 *        members: [
+	 *          {
+	 *            ** member 1 **
+	 *            hashes: [...hashes...]
+	 *          },
+	 *          {
+	 *            ** member 2 **
+	 *            ...
+	 *          }
+	 *        ]
+	 *      },
+	 *      {
+	 *        ** resource2 **
+	 *        ...
+	 *      }
+	 *    ]
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @param filterExpiredMembers Boolean if the generator should filter expired members
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	/*#
+	 * Generates hashed data with group structure for given service and resource.
+	 *
+	 *  Generates data in format:
+	 *
+	 * attributes: {...hashes...}
+	 * hierarchy: {
+	 *    ** facility **
+	 *    hashes: [...hashes...]
+	 *    members: []
+	 *    children: [
+	 *      {
+	 *        ** resource1 **
+	 *        hashes: [...hashes...]
+	 *        children: [
+	 *          {
+	 *            ** group A **
+	 *            hashes: [...hashes...]
+	 *            members: [...group members...]
+	 *            children: []
+	 *          },
+	 *          {
+	 *            ** group B **
+	 *            ...
+	 *          }
+	 *        ]
+	 *        members: [
+	 *          {
+	 *            ** member 1 **
+	 *            hashes: [...hashes...]
+	 *          },
+	 *          {
+	 *            ** member 2 **
+	 *            ...
+	 *          }
+	 *        ]
+	 *      },
+	 *      {
+	 *        ** resource2 **
+	 *        ...
+	 *      }
+	 *    ]
+	 * }
+	 *
+	 * @param service Integer service
+	 * @param facility Integer facility
+	 * @return HashedGenData generated hashed data structure
+	 * @throw FacilityNotExistsException if there is no such facility
+	 * @throw ServiceNotExistsException if there is no such service
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	getHashedDataWithGroups {
+		@Override
+		public HashedGenData call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("filterExpiredMembers")) {
+				return ac.getServicesManager().getHashedDataWithGroups(ac.getSession(),
+						ac.getServiceById(parms.readInt("service")),
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readBoolean("filterExpiredMembers"));
+			} else {
+				return ac.getServicesManager().getHashedDataWithGroups(ac.getSession(),
+						ac.getServiceById(parms.readInt("service")),
+						ac.getFacilityById(parms.readInt("facility")),
+						false);
 			}
 		}
 	},

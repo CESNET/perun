@@ -759,6 +759,29 @@ components:
         attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
         childElements: { type: array, items: { $ref: '#/components/schemas/ServiceAttributes' } }
 
+    GenDataNode:
+      type: object
+      properties:
+        h: { type: array, items: { type: string } }
+        c: { type: array, items: { $ref: '#/components/schemas/HashedGenData' } }
+        m: { type: array, items: { $ref: '#/components/schemas/GenMemberDataNode' } }
+
+    GenMemberDataNode:
+      type: object
+      properties:
+        h: { type: array, items: { type: string } }
+
+    HashedGenData:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            items: { $ref: '#/components/schemas/Attribute' }
+        hierarchy:
+          $ref: '#/components/schemas/GenDataNode'
+
     ServicesPackage:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1584,6 +1607,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ServiceAttributes"
+
+    HashedGenDataResponse:
+      description: "return hashed gen data"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HashedGenData"
 
     ServicesPackageResponse:
       description: "return ServicesPackage"
@@ -12613,6 +12643,38 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ServiceAttributesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getHashedHierarchicalData:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getHashedHierarchicalData
+      summary: Generates hashed hierarchical data structure for given service and facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/HashedGenDataResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/servicesManager/getHashedDataWithGroups:
+    get:
+      tags:
+        - ServicesManager
+      operationId: getHashedDataWithGroups
+      summary: Generates hashed group structure data for given service and facility.
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+        - $ref: '#/components/parameters/facilityId'
+        - { name: filterExpiredMembers, description: "if true the method does not take members expired in groups into account", schema: { type: boolean },  in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/HashedGenDataResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

@@ -8,7 +8,10 @@ import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.GenDataNode;
+import cz.metacentrum.perun.core.api.GenMemberDataNode;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
@@ -40,8 +43,10 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -55,6 +60,11 @@ import static org.junit.Assert.assertTrue;
 public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private final static String CLASS_NAME = "ServicesManager.";
+
+	private final static String A_F_C_NAME = "urn:perun:facility:attribute-def:core:name";
+	private final static String A_R_C_NAME = "urn:perun:resource:attribute-def:core:name";
+	private final static String A_G_C_NAME = "urn:perun:group:attribute-def:core:name";
+	private final static String A_M_C_ID = "urn:perun:member:attribute-def:core:id";
 
 	// these are in DB only after setUp"Type"() method and must be set up in right order.
 	private Service service;
@@ -1813,6 +1823,214 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		sess.getPerunPrincipal().setUser(userTwo);
 		// Adds same destination to secondFacility -> should throw exception
  		perun.getServicesManager().addDestination(sess, service, secondFacility, testDestination);
+	}
+
+	@Test
+	public void testGetHashedDataWithGroups() throws Exception {
+		System.out.println(CLASS_NAME + "testGetHashedDataWithGroups");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, A_F_C_NAME);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, A_R_C_NAME);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqGrpAttr;
+		reqGrpAttr = perun.getAttributesManager().getAttribute(sess, group, A_G_C_NAME);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqGrpAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		// create second (but same) resource
+		Resource resource2 = new Resource();
+		resource2.setName("HierarchDataResource");
+		resource2 = perun.getResourcesManager().createResource(sess, resource2, vo, facility);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource2);
+		perun.getResourcesManager().assignService(sess, resource2, service);
+
+		//create third resource but without service
+		Resource resource3 = new Resource();
+		resource3.setName("HierarchDataResource2");
+		resource3 = perun.getResourcesManager().createResource(sess, resource3, vo, facility);
+
+		HashedGenData data = perun.getServicesManagerBl().getHashedDataWithGroups(sess, service, facility, false);
+		assertThat(data.getAttributes()).isNotEmpty();
+
+		Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+		String facilityAttrsHash = "f-" + facility.getId();
+		String memberAttrsHash = "m-" + member.getId();
+		String groupAttrsHash = "g-" + group.getId();
+		String resource1AttrsHash = "r-" + resource.getId();
+		String resource2AttrsHash = "r-" + resource2.getId();
+		String resource3AttrsHash = "r-" + resource3.getId();
+
+		// Verify that the list of all attributes contains correct attributes
+		assertThat(attributes).containsKeys(facilityAttrsHash, memberAttrsHash, resource1AttrsHash, groupAttrsHash,
+				resource2AttrsHash);
+		assertThat(attributes).doesNotContainKey(resource3AttrsHash);
+
+		Map<String, Object> facilityAttributes = attributes.get(facilityAttrsHash);
+		assertThat(facilityAttributes).hasSize(1);
+		assertThat(facilityAttributes.get(A_F_C_NAME)).isEqualTo(facility.getName());
+
+		Map<String, Object> memberAttributes = attributes.get(memberAttrsHash);
+		assertThat(memberAttributes).hasSize(1);
+		assertThat(memberAttributes.get(A_M_C_ID)).isEqualTo(member.getId());
+
+		Map<String, Object> groupAttributes = attributes.get(groupAttrsHash);
+		assertThat(groupAttributes).hasSize(1);
+		assertThat(groupAttributes.get(A_G_C_NAME)).isEqualTo(group.getName());
+
+		Map<String, Object> resource1Attributes = attributes.get(resource1AttrsHash);
+		assertThat(resource1Attributes).hasSize(1);
+		assertThat(resource1Attributes.get(A_R_C_NAME)).isEqualTo(resource.getName());
+
+		Map<String, Object> resource2Attributes = attributes.get(resource2AttrsHash);
+		assertThat(resource2Attributes).hasSize(1);
+		assertThat(resource2Attributes.get(A_R_C_NAME)).isEqualTo(resource2.getName());
+
+		// verify hierarchy
+		GenDataNode facilityNode = data.getHierarchy();
+		assertThat(facilityNode.getHashes()).containsExactly(facilityAttrsHash);
+		assertThat(facilityNode.getMembers()).hasSize(0);
+		assertThat(facilityNode.getChildren()).hasSize(2);
+
+		GenDataNode res1Node = facilityNode.getChildren().get(0);
+		assertThat(res1Node.getHashes()).containsExactly(resource1AttrsHash);
+		assertThat(res1Node.getMembers()).hasSize(1);
+		assertThat(res1Node.getChildren()).hasSize(1);
+		GenMemberDataNode res1MemNode = res1Node.getMembers().get(0);
+		assertThat(res1MemNode.getH()).containsExactly(memberAttrsHash);
+
+		GenDataNode res2Node = facilityNode.getChildren().get(1);
+		assertThat(res2Node.getHashes()).containsExactly(resource2AttrsHash);
+		assertThat(res2Node.getMembers()).hasSize(1);
+		assertThat(res2Node.getChildren()).hasSize(1);
+		GenMemberDataNode res2MemNode = res2Node.getMembers().get(0);
+		assertThat(res2MemNode.getH()).containsExactly(memberAttrsHash);
+
+		GenDataNode res1GroupNode = res1Node.getChildren().get(0);
+		assertThat(res1GroupNode.getHashes()).containsExactly(groupAttrsHash);
+		assertThat(res1GroupNode.getChildren()).isEmpty();
+		assertThat(res1GroupNode.getMembers()).hasSize(1);
+		assertThat(res1GroupNode.getMembers().get(0).getH()).containsExactly(memberAttrsHash);
+
+		GenDataNode res2GroupNode = res2Node.getChildren().get(0);
+		assertThat(res2GroupNode.getHashes()).containsExactly(groupAttrsHash);
+		assertThat(res2GroupNode.getChildren()).isEmpty();
+		assertThat(res2GroupNode.getMembers()).hasSize(1);
+		assertThat(res2GroupNode.getMembers().get(0).getH()).containsExactly(memberAttrsHash);
+	}
+
+	@Test
+	public void testGetHashedHierarchicalData() throws Exception {
+		System.out.println(CLASS_NAME + "testGetHashedHierarchicalData");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, A_F_C_NAME);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, A_R_C_NAME);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqGrpAttr;
+		reqGrpAttr = perun.getAttributesManager().getAttribute(sess, group, A_G_C_NAME);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqGrpAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		// create second (but same) resource
+		Resource resource2 = new Resource();
+		resource2.setName("HierarchDataResource");
+		resource2 = perun.getResourcesManager().createResource(sess, resource2, vo, facility);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource2);
+		perun.getResourcesManager().assignService(sess, resource2, service);
+
+		//create third resource but without service
+		Resource resource3 = new Resource();
+		resource3.setName("HierarchDataResource2");
+		resource3 = perun.getResourcesManager().createResource(sess, resource3, vo, facility);
+
+		HashedGenData data = perun.getServicesManagerBl().getHashedHierarchicalData(sess, service, facility, false);
+		assertThat(data.getAttributes()).isNotEmpty();
+
+		Map<String, Map<String, Object>> attributes = data.getAttributes();
+
+		String facilityAttrsHash = "f-" + facility.getId();
+		String memberAttrsHash = "m-" + member.getId();
+		String groupAttrsHash = "g-" + group.getId();
+		String resource1AttrsHash = "r-" + resource.getId();
+		String resource2AttrsHash = "r-" + resource2.getId();
+		String resource3AttrsHash = "r-" + resource3.getId();
+
+		// Verify that the list of all attributes contains correct attributes
+		assertThat(attributes).containsKeys(facilityAttrsHash, memberAttrsHash, resource1AttrsHash,
+				resource2AttrsHash);
+		assertThat(attributes).doesNotContainKeys(resource3AttrsHash, groupAttrsHash);
+
+		Map<String, Object> facilityAttributes = attributes.get(facilityAttrsHash);
+		assertThat(facilityAttributes).hasSize(1);
+		assertThat(facilityAttributes.get(A_F_C_NAME)).isEqualTo(facility.getName());
+
+		Map<String, Object> memberAttributes = attributes.get(memberAttrsHash);
+		assertThat(memberAttributes).hasSize(1);
+		assertThat(memberAttributes.get(A_M_C_ID)).isEqualTo(member.getId());
+
+		Map<String, Object> resource1Attributes = attributes.get(resource1AttrsHash);
+		assertThat(resource1Attributes).hasSize(1);
+		assertThat(resource1Attributes.get(A_R_C_NAME)).isEqualTo(resource.getName());
+
+		Map<String, Object> resource2Attributes = attributes.get(resource2AttrsHash);
+		assertThat(resource2Attributes).hasSize(1);
+		assertThat(resource2Attributes.get(A_R_C_NAME)).isEqualTo(resource2.getName());
+
+		// verify hierarchy
+		GenDataNode facilityNode = data.getHierarchy();
+		assertThat(facilityNode.getHashes()).containsExactly(facilityAttrsHash);
+		assertThat(facilityNode.getMembers()).hasSize(0);
+		assertThat(facilityNode.getChildren()).hasSize(2);
+
+		GenDataNode res1Node = facilityNode.getChildren().get(0);
+		assertThat(res1Node.getHashes()).containsExactly(resource1AttrsHash);
+		assertThat(res1Node.getMembers()).hasSize(1);
+		assertThat(res1Node.getChildren()).isEmpty();
+		GenMemberDataNode res1MemNode = res1Node.getMembers().get(0);
+		assertThat(res1MemNode.getH()).containsExactly(memberAttrsHash);
+
+		GenDataNode res2Node = facilityNode.getChildren().get(1);
+		assertThat(res2Node.getHashes()).containsExactly(resource2AttrsHash);
+		assertThat(res2Node.getMembers()).hasSize(1);
+		assertThat(res2Node.getChildren()).isEmpty();
+		GenMemberDataNode res2MemNode = res2Node.getMembers().get(0);
+		assertThat(res2MemNode.getH()).containsExactly(memberAttrsHash);
 	}
 
 	// PRIVATE METHODS ----------------------------------------------------
