@@ -16,6 +16,8 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -157,7 +159,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String FRIENDLY_NAME_GROUP_MAIL_FOOTER = "mailFooter";
 	private static final String NAMESPACE_GROUP_MAIL_FOOTER = AttributesManager.NS_GROUP_ATTR_DEF;
 	static final String URN_GROUP_MAIL_FOOTER = NAMESPACE_GROUP_MAIL_FOOTER + ":" + FRIENDLY_NAME_GROUP_MAIL_FOOTER;
-
 
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
@@ -1677,7 +1678,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						// ==> updateNameTitles() in case of change in appForm.
 						updateUserNameTitles(app);
 					} catch (UserExtSourceNotExistsException | UserNotExistsException | ExtSourceNotExistsException  ex) {
-						Candidate candidate = createCandidateFromApplicationData(appId);
+						Candidate candidate = createCandidateFromApplicationData(app);
 						// create member and user
 						log.debug("[REGISTRAR] Trying to make member from candidate {}", candidate);
 
@@ -3277,10 +3278,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	/**
 	 * Method creates a candidate object from application according to the application id.
 	 *
-	 * @param appId id of the application
+	 * @param app the application
 	 * @return Candidate
 	 */
-	private Candidate createCandidateFromApplicationData(Integer appId) {
+	private Candidate createCandidateFromApplicationData(Application app) {
 		// put application data into Candidate
 		final Map<String, String> attributes = new HashMap<>();
 		jdbc.query("select dst_attr,value from application_data d, application_form_items i where d.item_id=i.id "
@@ -3288,7 +3289,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			(resultSet, i) -> {
 				attributes.put(resultSet.getString("dst_attr"), resultSet.getString("value"));
 				return null;
-			}, appId);
+			}, app.getId());
+
+		Map<String, String> fedData = BeansUtils.stringToMapOfAttributes(app.getFedInfo());
 
 		// DO NOT STORE LOGINS THROUGH CANDIDATE
 		// we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
@@ -3300,8 +3303,32 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		log.debug("[REGISTRAR] Retrieved candidate from DB {}", candidate);
 
 		// first try to parse display_name if not null and not empty
-		if (attributes.containsKey(URN_USER_DISPLAY_NAME) && attributes.get(URN_USER_DISPLAY_NAME) != null &&
-			!attributes.get(URN_USER_DISPLAY_NAME).isEmpty()) {
+		parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+		// if names are separated, used them after
+		for (String attrName : attributes.keySet()) {
+			// if value not null or empty - set to candidate
+			if (attributes.get(attrName) != null
+				&& !attributes.get(attrName).isEmpty()) {
+				if (URN_USER_TITLE_BEFORE.equals(attrName)) {
+					candidate.setTitleBefore(attributes.get(attrName));
+				} else if (URN_USER_TITLE_AFTER.equals(attrName)) {
+					candidate.setTitleAfter(attributes.get(attrName));
+				} else if (URN_USER_FIRST_NAME.equals(attrName)) {
+					candidate.setFirstName(attributes.get(attrName));
+				} else if (URN_USER_LAST_NAME.equals(attrName)) {
+					candidate.setLastName(attributes.get(attrName));
+				} else if (URN_USER_MIDDLE_NAME.equals(attrName)) {
+					candidate.setMiddleName(attributes.get(attrName));
+				}
+			}
+		}
+
+		return candidate;
+	}
+
+	public void parseNamesFromDisplayName(Candidate candidate, Map<String, String> attributes) {
+		if (containsNonEmptyValue(attributes, URN_USER_DISPLAY_NAME)) {
 			// parse
 			Map<String, String> commonName = Utils.parseCommonName(attributes.get(URN_USER_DISPLAY_NAME));
 			if (commonName.get("titleBefore") != null
@@ -3326,27 +3353,134 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				candidate.setTitleAfter(commonName.get("titleAfter"));
 			}
 		}
+	}
 
-		// if names are separated, used them after
-		for (String attrName : attributes.keySet()) {
-			// if value not null or empty - set to candidate
-			if (attributes.get(attrName) != null
-				&& !attributes.get(attrName).isEmpty()) {
-				if (URN_USER_TITLE_BEFORE.equals(attrName)) {
-					candidate.setTitleBefore(attributes.get(attrName));
-				} else if (URN_USER_TITLE_AFTER.equals(attrName)) {
-					candidate.setTitleAfter(attributes.get(attrName));
-				} else if (URN_USER_FIRST_NAME.equals(attrName)) {
-					candidate.setFirstName(attributes.get(attrName));
-				} else if (URN_USER_LAST_NAME.equals(attrName)) {
-					candidate.setLastName(attributes.get(attrName));
-				} else if (URN_USER_MIDDLE_NAME.equals(attrName)) {
-					candidate.setMiddleName(attributes.get(attrName));
-				}
+	/**
+	 * Check if the given fed info contains givenName and sn (surname). If so,
+	 * it sets it to the candidate and tries to match titles and middle name from
+	 * display name.
+	 *
+	 * @param candidate candidate
+	 * @param attributes attributes with values
+	 * @param fedInfo key-value info from idp
+	 */
+	public void parseNamesFromDisplayNameAndFedInfo(Candidate candidate, Map<String, String> attributes,
+	                                                Map<String, String> fedInfo) {
+		if (fedInfo != null && containsNonEmptyValue(fedInfo, shibFirstNameVar) &&
+				containsNonEmptyValue(fedInfo, shibLastNameVar)) {
+			String firstName = fedInfo.get(shibFirstNameVar);
+			String lastName = fedInfo.get(shibLastNameVar);
+
+			candidate.setFirstName(firstName);
+			candidate.setLastName(lastName);
+
+			tryToParseTitlesAndMiddleName(candidate, attributes, firstName, lastName);
+		} else {
+			parseNamesFromDisplayName(candidate, attributes);
+		}
+	}
+
+	/**
+	 * If the given map of attributes contains a user display name, it tries to match
+	 * the given firstName and lastName and find titles and middle name.
+	 *
+	 * @param candidate candidate
+	 * @param attributes map of attributes with values
+	 * @param firstName first name to match
+	 * @param lastName last name to match
+	 */
+	private void tryToParseTitlesAndMiddleName(Candidate candidate, Map<String, String> attributes, String firstName,
+	                                           String lastName) {
+		if (containsNonEmptyValue(attributes, URN_USER_DISPLAY_NAME)) {
+			String displayName = attributes.get(URN_USER_DISPLAY_NAME);
+
+			Pattern pattern = getNamesPattern(firstName, lastName);
+			if (!tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, pattern)) {
+				Pattern reversePattern = getNamesPattern(lastName, firstName);
+				tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, reversePattern);
 			}
 		}
+	}
 
-		return candidate;
+	/**
+	 * Tries to match the given pattern to the given display name. If it matches, its sets
+	 * titles and middle name from matcher of the given pattern to the given candidate.
+	 *
+	 * This method expects the pattern to define 3 groups in order - 1. Titles before, 2. Middle name, 3. Titles after
+	 *
+	 * @param candidate candidate
+	 * @param displayName display name
+	 * @param pattern pattern with 3 matching groups
+	 * @return true, if the matcher matched
+	 */
+	private boolean tryToParseTitlesAndMiddleNameFromPattern(Candidate candidate, String displayName, Pattern pattern) {
+		Matcher matcher = pattern.matcher(displayName);
+		if (!matcher.matches()) {
+			return false;
+		}
+		if (matcher.groupCount() != 3) {
+			throw new InternalErrorException("Expected pattern with 3 groups to match - titles before, middle name and " +
+					"titles after, but get " + matcher.groupCount() + " groups." );
+		}
+
+		parseTitlesBefore(candidate, matcher.group(1));
+		parseMiddleName(candidate, matcher.group(2));
+		parseTitlesAfter(candidate, matcher.group(3));
+
+		return true;
+	}
+
+	/**
+	 * To given candidate, sets titleBefore from trim of given value, or null if empty.
+	 *
+	 * @param candidate candidate
+	 * @param value value
+	 */
+	private void parseTitlesBefore(Candidate candidate, String value) {
+		candidate.setTitleBefore(value.trim().isEmpty() ? null : value.trim());
+	}
+
+	/**
+	 * To given candidate, sets middle name from trim of given value.
+	 * @param candidate candidate
+	 * @param value value
+	 */
+	private void parseMiddleName(Candidate candidate, String value) {
+		candidate.setMiddleName(value.trim().isEmpty() ? null : value.trim());
+	}
+
+	/**
+	 * To given candidate, sets titleAfter from trim of given value, or null if empty.
+	 *
+	 * @param candidate candidate
+	 * @param value value
+	 */
+	private void parseTitlesAfter(Candidate candidate, String value) {
+		candidate.setTitleAfter(value.trim().isEmpty() ? null : value.trim());
+	}
+
+	/**
+	 * Generates pattern for parsing titles and middle name from given values.
+	 *
+	 * The pattern is of format: ^(.*){firstName}(.*){lastName}(.*)$
+	 *
+	 * @param firstName first name
+	 * @param lastName last name
+	 * @return pattern for parsing titles and middle name
+	 */
+	private Pattern getNamesPattern(String firstName, String lastName) {
+		return Pattern.compile("^(.*)" + firstName + "(.*)" + lastName + "(.*)$");
+	}
+
+	/**
+	 * Returns true if the given map contains a non-empty value for given key.
+	 *
+	 * @param map map
+	 * @param key key
+	 * @return true if the given map contains a non-empty value for given key, false otherwise
+	 */
+	private boolean containsNonEmptyValue(Map<String, String> map, String key) {
+		return map.containsKey(key) && map.get(key) != null && !map.get(key).isEmpty();
 	}
 
 	/**
