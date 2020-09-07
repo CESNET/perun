@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -62,6 +63,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private final static String CLASS_NAME = "UsersManager.";
 	private final static String ATTR_UES_O = "o";
 	private final static String ATTR_UES_CN = "cn";
+	private final static String URN_ATTR_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 	private final static String URN_ATTR_UES_O = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_O;
 	private final static String URN_ATTR_UES_CN = AttributesManager.NS_UES_ATTR_DEF + ':' + ATTR_UES_CN;
 
@@ -1420,6 +1422,64 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<User> users = perun.getUsersManagerBl().findUsers(sess, extLogin);
 		assertEquals(1, users.size());
 		assertEquals(user, users.get(0));
+	}
+
+	@Test
+	public void testCreateServiceUser() throws Exception {
+		System.out.println(CLASS_NAME + "testCreateServiceUser");
+
+		Candidate candidate = setUpCandidateForSpecificUser1();
+
+		User createdUser = usersManager.createServiceUser(sess, candidate, Collections.emptyList());
+
+		createdUser = usersManager.getUserById(sess, createdUser.getId());
+
+		assertThat(createdUser).isEqualToComparingOnlyGivenFields(candidate, "firstName", "lastName");
+		assertThat(createdUser.isServiceUser());
+	}
+
+	@Test
+	public void testCreateServiceUserSetsAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "testCreateServiceUserSetsAttributes");
+
+		Candidate candidate = setUpCandidateForSpecificUser1();
+		Map<String, String> attrs = new HashMap<>();
+		String value = "asdf@sdf.df";
+		attrs.put(URN_ATTR_USER_PREFERRED_MAIL, value);
+		candidate.setAttributes(attrs);
+
+		User createdUser = usersManager.createServiceUser(sess, candidate, Collections.emptyList());
+
+		Attribute attr = perun.getAttributesManagerBl().getAttribute(sess, createdUser, URN_ATTR_USER_PREFERRED_MAIL);
+
+		assertThat(attr.getValue()).isEqualTo(value);
+	}
+
+	@Test
+	public void testCreateServiceUserSetsUes() throws Exception {
+		System.out.println(CLASS_NAME + "testCreateServiceUserSetsUes");
+
+		Candidate candidate = setUpCandidateForSpecificUser1();
+
+		User createdUser = usersManager.createServiceUser(sess, candidate, Collections.emptyList());
+
+		UserExtSource candidateUes = candidate.getUserExtSource();
+		User userByUes = usersManager.getUserByExtSourceNameAndExtLogin(sess, candidateUes.getExtSource().getName(),
+				candidateUes.getLogin());
+
+		assertThat(createdUser).isEqualByComparingTo(userByUes);
+	}
+
+	@Test
+	public void testCreateServiceUserFailsForAlreadyExistingUes() throws Exception {
+		System.out.println(CLASS_NAME + "testCreateServiceUserFailsForAlreadyExistingUes");
+
+		Candidate candidate = setUpCandidateForSpecificUser1();
+
+		usersManager.createServiceUser(sess, candidate, Collections.emptyList());
+
+		assertThatExceptionOfType(UserExtSourceExistsException.class)
+				.isThrownBy(() -> usersManager.createServiceUser(sess, candidate, Collections.emptyList()));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

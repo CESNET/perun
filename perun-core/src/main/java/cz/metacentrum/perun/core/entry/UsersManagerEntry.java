@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -61,7 +62,6 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -1393,4 +1393,19 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
+	public User createServiceUser(PerunSession sess, Candidate candidate, List<User> owners) throws PrivilegeException, WrongAttributeAssignmentException, UserExtSourceExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(candidate, "candidate");
+
+		for (User owner : owners) {
+			getPerunBl().getUsersManagerBl().checkUserExists(sess, owner);
+		}
+
+		if (!AuthzResolver.authorizedInternal(sess, "createServiceUser_policy")) {
+			throw new PrivilegeException("createServiceUser");
+		}
+
+		return perunBl.getUsersManagerBl().createServiceUser(sess, candidate, owners);
+	}
 }

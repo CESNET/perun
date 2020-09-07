@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import org.json.JSONObject;
 
 /**
- * Candidate member of a Virtual Organization.
+ * Candidate member of a Virtual Organization or candidate user.
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Martin Kuba makub@ics.muni.cz
  */

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.bl;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -1431,4 +1432,40 @@ public interface UsersManagerBl {
 	 */
 	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user);
 
+	/**
+	 * From given candidate, creates a user.
+	 * This method also checks if some of given userExtSources do exist. If so, this method
+	 * throws a UserExtSourceExistsException.
+	 * This method can also set only user-def and user-opt attributes for the given candidate.
+	 *
+	 * @param sess session
+	 * @param candidate candidate
+	 * @return created user
+	 * @throws AttributeNotExistsException if some of the given attributes dont exist
+	 * @throws WrongAttributeAssignmentException if some of the given attributes have unsupported namespace
+	 * @throws UserExtSourceExistsException if some of the given UES already exist
+	 * @throws WrongReferenceAttributeValueException if some of the given attribute value cannot be set because of
+	 *                                               some other attribute constraint
+	 * @throws WrongAttributeValueException if some of the given attribute value is invalid
+	 */
+	User createUser(PerunSession sess, Candidate candidate) throws UserExtSourceExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * From given candidate, creates a service user and assign given owners to him.
+	 * This method also checks if some of given userExtSources do exist. If so,
+	 * this method throws a UserExtSourceExistsException.
+	 * This method can also set only user-def and user-opt attributes for the given candidate.
+	 *
+	 * @param sess session
+	 * @param candidate candidate
+	 * @param owners owners to be set for the new user
+	 * @return created service user
+	 * @throws AttributeNotExistsException if some of the given attributes dont exist
+	 * @throws WrongAttributeAssignmentException if some of the given attributes have unsupported namespace
+	 * @throws UserExtSourceExistsException if some of the given UES already exist
+	 * @throws WrongReferenceAttributeValueException if some of the given attribute value cannot be set because of
+	 *                                               some other attribute constraint
+	 * @throws WrongAttributeValueException if some of the given attribute value is invalid
+	 */
+	User createServiceUser(PerunSession sess, Candidate candidate, List<User> owners) throws WrongAttributeAssignmentException, UserExtSourceExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException;
 }

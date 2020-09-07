@@ -7483,6 +7483,36 @@ paths:
               properties:
                 user: { $ref: '#/components/schemas/User' }
 
+  /json/usersManager/createServiceUser:
+    post:
+      tags:
+        - UsersManager
+      operationId: createServiceUser
+      summary: From given candidate, creates a service user and assign given owners to him.
+      description: |
+        This method also checks if some of given userExtSources do exist. If so,
+        this method throws a UserExtSourceExistsException.
+        This method can also set only user-def and user-opt attributes for the given candidate.
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateServiceUser
+              description: "input to createServiceUser"
+              type: object
+              required:
+                - candidate
+                - specificUserOwners
+              properties:
+                candidate: { $ref: '#/components/schemas/Candidate' }
+                specificUserOwners: { type: array, items: { $ref: "#/components/schemas/User" } }
+
 
 
   #################################################
