@@ -102,34 +102,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a new SPONSORED member from given parameters map.
-	 *
-	 * @param parameters Map<String,String> Map containing all parameters, must contain at least:
-	 *                   "sponsor" - uco of sponsor for new created account
-	 * @param namespace String namespace
-	 * @param extSource int extSource ID
-	 * @param extSourcePostfix String extSource login postfix, e.g. "@muni.cz"
-	 * @param vo int VO ID
-	 * @param loa int Level of assurance (0,1,2)
-	 * @return Member newly created sponsored member
-	 */
-	@Deprecated
-	createSponsoredAccount {
-		@SuppressWarnings("unchecked")
-		@Override
-		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			parms.stateChangingCheck();
-			return ac.getMembersManager().createSponsoredAccount(ac.getSession(),
-					parms.read("parameters", HashMap.class),
-					parms.readString("namespace"),
-					ac.getExtSourceById(parms.readInt("extSource")),
-					parms.readString("extSourcePostfix"),
-					ac.getVoById(parms.readInt("vo")),
-					parms.readInt("loa"));
-		}
-	},
-
-	/*#
 	 * Creates a new sponsored member in a given VO and namespace.
 	 *
 	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,

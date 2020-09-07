@@ -123,9 +123,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		final ExtendedTextBox certDN = new ExtendedTextBox();
 		final ExtendedTextBox cacertDN = new ExtendedTextBox();
 
-		final ListBox userType = new ListBox();
-		userType.addItem("Service", "SERVICE");
-		userType.addItem("Sponsored", "SPONSORED");
+		final String serviceType = "SERVICE";
 
 		serviceUserPassword.getTextBox().setWidth("200px");
 		serviceUserPassword2.getTextBox().setWidth("200px");
@@ -360,10 +358,6 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		layout.setWidget(6, 1, certDN);
 		layout.setHTML(7, 0, "<strong>Issuer DN: </strong>");
 		layout.setWidget(7, 1, cacertDN);
-		if (session.isPerunAdmin()) {
-			layout.setHTML(8, 0, "<strong>User type: </strong>");
-			layout.setWidget(8, 1, userType);
-		}
 
 		final FlexTable firstTabLayout = new FlexTable();
 		firstTabLayout.setSize("100%", "100%");
@@ -409,10 +403,6 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				final FindUsersInVo callback = new FindUsersInVo();
 				// Service users can't own another Service or Guest (Sponsored) account.
 				callback.hideService(true);
-				if (userType.getSelectedValue().equals("SPONSORED")) {
-					// Sponsored account can't sponsor another !
-					callback.setHideSponsored(true);
-				}
 
 				// HORIZONTAL MENU
 				TabMenu tabMenu = new TabMenu();
@@ -675,7 +665,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								serviceUserLogin.getTextBox().getValue().trim(),
 								certDN.getTextBox().getValue().trim(),
 								cacertDN.getTextBox().getValue().trim(),
-								userType.getSelectedValue()
+								serviceType
 						);
 
 					}

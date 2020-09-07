@@ -94,7 +94,7 @@ public interface MembersManagerBl {
 	 * @param vo
 	 * @param candidate prepared future specificUser
 	 * @param specificUserOwners list of users who own specificUser (can't be empty or contain specific user)
-	 * @param specificUserType type of specific user (service or sponsored)
+	 * @param specificUserType type of specific user (service)
 	 * @return newly created member (of specific User)
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
@@ -116,7 +116,7 @@ public interface MembersManagerBl {
 	 * @param vo
 	 * @param candidate prepared future specificUser
 	 * @param specificUserOwners list of users who own specificUser (can't be empty or contain specific user)
-	 * @param specificUserType type of specific user (service or sponsored)
+	 * @param specificUserType type of specific user (service)
 	 * @param groups list of groups where member will be added too
 	 * @return newly created member (of specific User)
 	 * @throws InternalErrorException
@@ -286,7 +286,7 @@ public interface MembersManagerBl {
 	 * @param sess
 	 * @param vo
 	 * @param candidate
-	 * @param SpecificUserType (Normal or service or sponsored)
+	 * @param specificUserType (Normal or service or sponsored)
 	 * @param groups list of groups where member will be added too
 	 * @param overwriteUserAttributes list of user attributes names which will be overwrite instead of merged
 	 *
@@ -343,25 +343,6 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException if something unexpected happend
 	 */
 	Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotSponsoredException;
-
-	/**
-	 * Generates account with params in given namespace, which is used to create a new Candidate for MembersManager.createSpecificMember
-	 * with SPONSORED type and is asynchronously validated after that
-	 *
-	 * @param sess session
-	 * @param params map with parameters for generating account in namespace
-	 * @param namespace namespace to generate account in
-	 * @param extSource external source
-	 * @param extSourcePostfix login postfix if external source uses postfix after login from given namespace, e.g. "@muni.cz"
-	 * @param owner owner of newly created member
-	 * @param vo vo to create member in
-	 * @param loa level of assurance
-	 * @return newly created Member
-	 *
-	 * @deprecated replaced by {@link #createSponsoredMember(PerunSession, Vo, String, String, String, User, boolean)}
-	 */
-	@Deprecated
-	Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException, PasswordStrengthException, InvalidLoginException;
 
 	/**
 	 * Creates member. Runs synchronously.

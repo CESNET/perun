@@ -251,8 +251,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws RelationExistsException {
-		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) {
-			throw new InternalErrorException("We don't support specific and sponsored users together yet.");
+		if(specificUserType.equals(SpecificUserType.SPONSORED)) {
+			throw new InternalErrorException("We don't support sponsored users anymore.");
 		}
 
 		if(specificUser.getMajorSpecificType().equals(specificUserType)) {
