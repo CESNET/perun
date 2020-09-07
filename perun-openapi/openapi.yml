@@ -7597,6 +7597,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getMembersCount:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMembersCount
+      summary: Returns count of all VO members.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   #################################################
   #                                               #
@@ -9779,6 +9793,20 @@ paths:
                 - group
               properties:
                 group: {$ref: '#/components/schemas/Group'}
+
+  /json/groupsManager/getGroupMembersCount:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupMembersCount
+      summary: Returns count of group members.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
