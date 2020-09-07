@@ -335,7 +335,8 @@ public class MailManagerImpl implements MailManager {
 		perun.getVosManagerBl().checkVoExists(sess, toVo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToVo_Vo_Vo_policy", Arrays.asList(fromVo, toVo))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToVo_Vo_Vo_policy", fromVo) ||
+			!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToVo_Vo_Vo_policy", toVo)) {
 			throw new PrivilegeException(sess, "copyMailsFromVoToVo");
 		}
 
@@ -350,7 +351,8 @@ public class MailManagerImpl implements MailManager {
 		perun.getGroupsManagerBl().checkGroupExists(sess, toGroup);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToGroup_Vo_Group_boolean_policy", Arrays.asList(fromVo, toGroup))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToGroup_Vo_Group_boolean_policy", fromVo) ||
+			!AuthzResolver.authorizedInternal(sess, "copyMailsFromVoToGroup_Vo_Group_boolean_policy", toGroup)) {
 			throw new PrivilegeException(sess, "copyMailsFromVoToGroup");
 		}
 
@@ -373,7 +375,8 @@ public class MailManagerImpl implements MailManager {
 		perun.getGroupsManagerBl().checkGroupExists(sess, toGroup);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromGroupToGroup_Group_Group_policy", Arrays.asList(fromGroup, toGroup))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyMailsFromGroupToGroup_Group_Group_policy", fromGroup) ||
+			!AuthzResolver.authorizedInternal(sess, "copyMailsFromGroupToGroup_Group_Group_policy", toGroup)) {
 			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
 		}
 

@@ -110,8 +110,10 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteMembers_List<Member>_policy", new ArrayList<>(members))) {
-			throw new PrivilegeException(sess, "deleteMembers");
+		for (Member member: members) {
+			if (!AuthzResolver.authorizedInternal(sess, "deleteMembers_List<Member>_policy", member)) {
+				throw new PrivilegeException(sess, "deleteMembers");
+			}
 		}
 
 		getMembersManagerBl().deleteMembers(sess, members);
@@ -165,11 +167,16 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// Authorization
-		ArrayList<PerunBean> beans = new ArrayList<>();
-		beans.add(vo);
-		if (groups != null) beans.addAll(groups);
-		if (!AuthzResolver.authorizedInternal(sess, "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", beans)) {
-			throw new PrivilegeException(sess, "createSpecificMember (Specific User) - from candidate");
+		if (groups != null && !groups.isEmpty()) {
+			for (Group group: groups) {
+				if (!AuthzResolver.authorizedInternal(sess, "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", vo, group)) {
+					throw new PrivilegeException("createSpecificMember");
+				}
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "createSpecificMember_Vo_Candidate_List<User>_SpecificUserType_List<Group>_policy", vo)) {
+				throw new PrivilegeException("createSpecificMember");
+			}
 		}
 
 		return getMembersManagerBl().createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
@@ -226,11 +233,16 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// Authorization
-		ArrayList<PerunBean> beans = new ArrayList<>();
-		beans.add(vo);
-		if (groups != null) beans.addAll(groups);
-		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", beans)) {
-			throw new PrivilegeException(sess, "createMember - from candidate");
+		if (groups != null && !groups.isEmpty()) {
+			for (Group group: groups) {
+				if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", vo, group)) {
+					throw new PrivilegeException("createMember");
+				}
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_Candidate_List<Group>_policy", vo)) {
+				throw new PrivilegeException("createMember");
+			}
 		}
 
 		return getMembersManagerBl().createMember(sess, vo, candidate, groups);
@@ -265,11 +277,16 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// Authorization
-		ArrayList<PerunBean> beans = new ArrayList<>();
-		beans.add(vo);
-		if (groups != null) beans.addAll(groups);
-		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_String_Candidate_List<Group>_policy", beans)) {
-			throw new PrivilegeException(sess, "createMember - from candidate");
+		if (groups != null && !groups.isEmpty()) {
+			for (Group group: groups) {
+				if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_String_Candidate_List<Group>_policy", vo, group)) {
+					throw new PrivilegeException("createMember");
+				}
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_String_Candidate_List<Group>_policy", vo)) {
+				throw new PrivilegeException("createMember");
+			}
 		}
 
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, login, candidate, groups);
@@ -305,11 +322,16 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
 
 		// Authorization
-		ArrayList<PerunBean> beans = new ArrayList<>();
-		beans.add(vo);
-		if (groups != null) beans.addAll(groups);
-		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_int_String_Candidate_List<Group>_policy", beans)) {
-			throw new PrivilegeException(sess, "createMember - from candidate");
+		if (groups != null && !groups.isEmpty()) {
+			for (Group group: groups) {
+				if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_int_String_Candidate_List<Group>_policy", vo, group)) {
+					throw new PrivilegeException("createMember");
+				}
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_String_String_int_String_Candidate_List<Group>_policy", vo)) {
+				throw new PrivilegeException("createMember");
+			}
 		}
 
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate, groups);
@@ -337,12 +359,16 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// Authorization
-		ArrayList<PerunBean> beans = new ArrayList<>();
-		beans.add(vo);
-		beans.add(user);
-		if (groups != null) beans.addAll(groups);
-		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_User_List<Group>_policy", beans)) {
-			throw new PrivilegeException(sess, "createMember - from user");
+		if (groups != null && !groups.isEmpty()) {
+			for (Group group: groups) {
+				if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_User_List<Group>_policy", vo, group, user)) {
+					throw new PrivilegeException("createMember");
+				}
+			}
+		} else {
+			if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_User_List<Group>_policy", vo, user)) {
+				throw new PrivilegeException("createMember");
+			}
 		}
 
 		return getMembersManagerBl().createMember(sess, vo, user, groups);
@@ -373,8 +399,10 @@ public class MembersManagerEntry implements MembersManager {
 		if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_ExtSource_String_List<Group>_policy", Arrays.asList(vo, extSource))) {
 			//also group admin of all affected groups is ok
 			if (groups != null && !groups.isEmpty()) {
-				if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_ExtSource_String_List<Group>_policy", new ArrayList<>(groups))) {
-					throw new PrivilegeException(sess, "createMember - from login and extSource");
+				for (Group group: groups) {
+					if (!AuthzResolver.authorizedInternal(sess, "createMember_Vo_ExtSource_String_List<Group>_policy", group)) {
+						throw new PrivilegeException(sess, "createMember - from login and extSource");
+					}
 				}
 				//ExtSource has to be assigned to at least one of the groups
 				boolean groupContainsExtSource = groups.stream()

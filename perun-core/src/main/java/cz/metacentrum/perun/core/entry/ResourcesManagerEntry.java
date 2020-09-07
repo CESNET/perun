@@ -148,7 +148,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, templateResource);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyResource_Resource_Resource_boolean_policy", Arrays.asList(templateResource, destinationResource))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyResource_Resource_Resource_boolean_policy", templateResource) ||
+			!AuthzResolver.authorizedInternal(sess, "copyResource_Resource_Resource_boolean_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyResource");
 		}
 
@@ -157,7 +158,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 				throw new InternalErrorException("Resources are not from the same VO.");
 			}
 
-			if(!AuthzResolver.authorizedInternal(sess, "withGroups-copyResource_Resource_Resource_boolean_policy", Arrays.asList(templateResource, destinationResource))) {
+			if(!AuthzResolver.authorizedInternal(sess, "withGroups-copyResource_Resource_Resource_boolean_policy", templateResource) ||
+				!AuthzResolver.authorizedInternal(sess, "withGroups-copyResource_Resource_Resource_boolean_policy", destinationResource)) {
 				throw new PrivilegeException(sess, "copyResource");
 			}
 		}
@@ -306,10 +308,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(perunSession, resource);
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(groups);
-		beans.add(resource);
-		if (!AuthzResolver.authorizedInternal(perunSession, "assignGroupsToResource_List<Group>_Resource_policy", beans)) {
-			throw new PrivilegeException(perunSession, "assignGroupsToResource");
+		for (Group group: groups) {
+			if (!AuthzResolver.authorizedInternal(perunSession, "assignGroupsToResource_List<Group>_Resource_policy", group, resource)) {
+				throw new PrivilegeException(perunSession, "assignGroupsToResource");
+			}
 		}
 
 		getResourcesManagerBl().assignGroupsToResource(perunSession, groups, resource);
@@ -325,10 +327,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(resources);
-		beans.add(group);
-		if (!AuthzResolver.authorizedInternal(perunSession, "assignGroupToResources_Group_List<Resource>_policy", beans)) {
-			throw new PrivilegeException(perunSession, "assignGroupToResources");
+		for (Resource resource: resources) {
+			if (!AuthzResolver.authorizedInternal(perunSession, "assignGroupToResources_Group_List<Resource>_policy", resource, group)) {
+				throw new PrivilegeException(perunSession, "assignGroupToResources");
+			}
 		}
 
 		getResourcesManagerBl().assignGroupToResources(perunSession, group, resources);
@@ -358,10 +360,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(groups);
-		beans.add(resource);
-		if (!AuthzResolver.authorizedInternal(perunSession, "removeGroupsFromResource_List<Group>_Resource_policy", beans)) {
-			throw new PrivilegeException(perunSession, "removeGroupsFromResource");
+		for (Group group: groups) {
+			if (!AuthzResolver.authorizedInternal(perunSession, "removeGroupsFromResource_List<Group>_Resource_policy", group, resource)) {
+				throw new PrivilegeException(perunSession, "removeGroupsFromResource");
+			}
 		}
 
 		getResourcesManagerBl().removeGroupsFromResource(perunSession, groups, resource);
@@ -377,10 +379,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(resources);
-		beans.add(group);
-		if (!AuthzResolver.authorizedInternal(perunSession, "removeGroupFromResources_Group_List<Resource>_policy", beans)) {
-			throw new PrivilegeException(perunSession, "removeGroupFromResources");
+		for (Resource resource: resources) {
+			if (!AuthzResolver.authorizedInternal(perunSession, "removeGroupFromResources_Group_List<Resource>_policy", resource, group)) {
+				throw new PrivilegeException(perunSession, "removeGroupFromResources");
+			}
 		}
 
 		getResourcesManagerBl().removeGroupFromResources(perunSession, group, resources);
@@ -467,10 +469,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(services);
-		beans.add(resource);
-		if(!AuthzResolver.authorizedInternal(sess, "assignServices_Resource_List<Service>_policy", beans)){
-			throw new PrivilegeException(sess, "assignServices");
+		for (Service service: services) {
+			if(!AuthzResolver.authorizedInternal(sess, "assignServices_Resource_List<Service>_policy", service, resource)){
+				throw new PrivilegeException(sess, "assignServices");
+			}
 		}
 
 		getResourcesManagerBl().assignServices(sess, resource, services);
@@ -515,10 +517,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(services);
-		beans.add(resource);
-		if(!AuthzResolver.authorizedInternal(sess, "removeServices_Resource_List<Service>_policy", beans)){
-			throw new PrivilegeException(sess, "removeServices");
+		for (Service service: services) {
+			if(!AuthzResolver.authorizedInternal(sess, "removeServices_Resource_List<Service>_policy", service, resource)){
+				throw new PrivilegeException(sess, "removeServices");
+			}
 		}
 
 		getResourcesManagerBl().removeServices(sess, resource, services);
@@ -842,7 +844,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, destinationResource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyAttributes_Resource_Resource_policy", Arrays.asList(sourceResource, destinationResource))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyAttributes_Resource_Resource_policy", sourceResource) ||
+			!AuthzResolver.authorizedInternal(sess, "copyAttributes_Resource_Resource_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyAttributes");
 		}
 
@@ -857,7 +860,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, destinationResource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyServices_Resource_Resource_policy", Arrays.asList(sourceResource, destinationResource))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyServices_Resource_Resource_policy", sourceResource) ||
+			!AuthzResolver.authorizedInternal(sess, "copyServices_Resource_Resource_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyServices");
 		}
 
@@ -872,7 +876,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, destinationResource);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyGroups_Resource_Resource_policy", Arrays.asList(sourceResource, destinationResource))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyGroups_Resource_Resource_policy", sourceResource) ||
+			!AuthzResolver.authorizedInternal(sess, "copyGroups_Resource_Resource_policy", destinationResource)) {
 			throw new PrivilegeException(sess, "copyGroups");
 		}
 
@@ -918,8 +923,6 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "getResourcesWhereUserIsAdmin");
 		}
 
-		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-
 		return getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, user);
 	}
 
@@ -930,14 +933,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, authorizedUser);
 
-		List<Resource> resources = getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, facility, vo, authorizedUser);
-
 		//Authorization
-		List<PerunBean> beans = new ArrayList<>(resources);
-		beans.addAll(Arrays.asList(facility, vo, authorizedUser));
-		if(!AuthzResolver.authorizedInternal(sess, "getResourcesWhereUserIsAdmin_Facility_Vo_User_policy", beans)){
+		if(!AuthzResolver.authorizedInternal(sess, "getResourcesWhereUserIsAdmin_Facility_Vo_User_policy", facility, vo, authorizedUser)){
 			throw new PrivilegeException(sess, "getResourcesByResourceManager");
 		}
+		List<Resource> resources = getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, facility, vo, authorizedUser);
 		resources.removeIf(resource -> !AuthzResolver.authorizedInternal(sess, "filter-getResourcesWhereUserIsAdmin_Facility_Vo_User_policy", Arrays.asList(vo, facility, resource, authorizedUser)));
 
 		return resources;
@@ -949,14 +949,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, authorizedUser);
 
-		List<Resource> resources = getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, vo, authorizedUser);
-
 		//Authorization
-		List<PerunBean> beans = new ArrayList<>(resources);
-		beans.addAll(Arrays.asList( vo, authorizedUser));
-		if(!AuthzResolver.authorizedInternal(sess, "getResourcesWhereUserIsAdmin_Vo_User_policy", beans)){
+		if(!AuthzResolver.authorizedInternal(sess, "getResourcesWhereUserIsAdmin_Vo_User_policy", vo, authorizedUser)){
 			throw new PrivilegeException(sess, "getResourcesWhereUserIsAdmin");
 		}
+		List<Resource> resources = getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, vo, authorizedUser);
 		resources.removeIf(resource -> !AuthzResolver.authorizedInternal(sess, "filter-getResourcesWhereUserIsAdmin_Vo_User_policy", Arrays.asList(vo, resource, authorizedUser)));
 
 		return resources;
@@ -969,13 +966,12 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, authorizedGroup);
 
-		List<Resource> resources = getResourcesManagerBl().getResourcesWhereGroupIsAdmin(sess, facility, vo, authorizedGroup);
-
 		//Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy", Arrays.asList(facility, vo)) &&
-		!AuthzResolver.authorizedInternal(sess, "authorizedGroup-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy", authorizedGroup)){
+			!AuthzResolver.authorizedInternal(sess, "authorizedGroup-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy", authorizedGroup)){
 			throw new PrivilegeException(sess, "getResourcesByResourceManager");
 		}
+		List<Resource> resources = getResourcesManagerBl().getResourcesWhereGroupIsAdmin(sess, facility, vo, authorizedGroup);
 		resources.removeIf(resource -> !AuthzResolver.authorizedInternal(sess, "filter-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy", Arrays.asList(vo, resource, facility)) &&
 			!AuthzResolver.authorizedInternal(sess, "filter_authorizedGroup-getResourcesWhereGroupIsAdmin_Facility_Vo_Group_policy", authorizedGroup));
 

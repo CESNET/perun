@@ -225,10 +225,10 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(owners);
-		beans.add(facility);
-		if (!AuthzResolver.authorizedInternal(sess, "setOwners_Facility_List<Owner>_policy", beans)) {
-			throw new PrivilegeException(sess, "setOwners");
+		for (Owner owner: owners) {
+			if (!AuthzResolver.authorizedInternal(sess, "setOwners_Facility_List<Owner>_policy", owner, facility)) {
+				throw new PrivilegeException(sess, "setOwners");
+			}
 		}
 
 		getFacilitiesManagerBl().setOwners(sess, facility, owners);
@@ -272,7 +272,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "copyOwners_Facility_Facility_policy", Arrays.asList(sourceFacility, destinationFacility))) {
+		if (!AuthzResolver.authorizedInternal(sess, "copyOwners_Facility_Facility_policy", sourceFacility) ||
+			!AuthzResolver.authorizedInternal(sess, "copyOwners_Facility_Facility_policy", destinationFacility)) {
 			throw new PrivilegeException(sess, "copyOwners");
 		}
 
@@ -441,14 +442,11 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, group);
-
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(facilities);
-		beans.add(group);
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_Group_policy", beans)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_Group_policy", group)) {
 			throw new PrivilegeException(sess, "getAssignedFacilities");
 		}
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, group);
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedFacilities_Group_policy", Arrays.asList(facility, group)));
 
 		return facilities;
@@ -459,14 +457,11 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
-		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, member);
-
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(facilities);
-		beans.add(member);
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_Member_policy", beans)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_Member_policy", member)) {
 			throw new PrivilegeException(sess, "getAssignedFacilities");
 		}
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, member);
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedFacilities_Member_policy", Arrays.asList(facility, member)));
 
 		return facilities;
@@ -477,14 +472,11 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, user);
-
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(facilities);
-		beans.add(user);
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_User_policy", beans)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_User_policy", user)) {
 			throw new PrivilegeException(sess, "getAssignedFacilities");
 		}
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, user);
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedFacilities_User_policy", Arrays.asList(facility, user)));
 
 		return facilities;
@@ -495,14 +487,11 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 
-		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, service);
-
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(facilities);
-		beans.add(service);
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_Service_policy", beans)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_Service_policy", service)) {
 			throw new PrivilegeException(sess, "getAssignedFacilities");
 		}
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, service);
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedFacilities_Service_policy", Arrays.asList(facility, service)));
 
 		return facilities;
@@ -513,14 +502,11 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
-		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
-
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(facilities);
-		beans.add(securityTeam);
-		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_SecurityTeam_policy", beans)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedFacilities_SecurityTeam_policy", securityTeam)) {
 			throw new PrivilegeException(sess, "getAssignedFacilities");
 		}
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getAssignedFacilities_SecurityTeam_policy", Arrays.asList(securityTeam, facility)));
 
 		return facilities;
@@ -704,10 +690,10 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		// Authorization
-		List<PerunBean> beans = new ArrayList<>(hosts);
-		beans.add(facility);
-		if (!AuthzResolver.authorizedInternal(sess, "removeHosts_List<Host>_Facility_policy", beans)) {
-			throw new PrivilegeException(sess, "removeHosts");
+		for (Host host: hosts) {
+			if (!AuthzResolver.authorizedInternal(sess, "removeHosts_List<Host>_Facility_policy", host, facility)) {
+				throw new PrivilegeException(sess, "removeHosts");
+			}
 		}
 
 		getFacilitiesManagerBl().removeHosts(sess, hosts, facility);
@@ -928,8 +914,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, sourceFacility);
 		getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
 
-		// Authorization - facility admin of the both facilities required
-		if (!AuthzResolver.authorizedInternal(sess, "copyManagers_Facility_Facility_policy", Arrays.asList(sourceFacility, destinationFacility))) {
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "copyManagers_Facility_Facility_policy", sourceFacility) ||
+			!AuthzResolver.authorizedInternal(sess, "copyManagers_Facility_Facility_policy", destinationFacility)) {
 			throw new PrivilegeException(sess, "copyManager");
 		}
 
@@ -943,8 +930,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, sourceFacility);
 		getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
 
-		// Authorization - facility admin of the both facilities required
-		if (!AuthzResolver.authorizedInternal(sess, "copyAttributes_Facility_Facility_policy", Arrays.asList(sourceFacility, destinationFacility))) {
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "copyAttributes_Facility_Facility_policy", sourceFacility) ||
+			!AuthzResolver.authorizedInternal(sess, "copyAttributes_Facility_Facility_policy", destinationFacility)) {
 			throw new PrivilegeException(sess, "copyAttributes");
 		}
 
