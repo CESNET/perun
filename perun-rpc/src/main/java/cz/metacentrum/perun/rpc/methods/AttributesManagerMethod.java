@@ -1141,7 +1141,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 		@Override
 		public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAttributeDefinitionById(parms.readInt("id"));
+			return ac.getAttributesManager().getAttributeDefinitionById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 

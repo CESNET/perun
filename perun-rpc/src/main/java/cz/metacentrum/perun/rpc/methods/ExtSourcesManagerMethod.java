@@ -62,7 +62,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getExtSourceById(parms.readInt("id"));
+			return ac.getExtSourcesManager().getExtSourceById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 

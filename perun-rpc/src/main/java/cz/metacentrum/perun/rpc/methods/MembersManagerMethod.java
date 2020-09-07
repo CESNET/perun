@@ -501,7 +501,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	getMemberById {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getMemberById(parms.readInt("id"));
+			return ac.getMembersManager().getMemberById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 

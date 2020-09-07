@@ -403,7 +403,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public Service call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServiceById(parms.readInt("id"));
+			return ac.getServicesManager().getServiceById(ac.getSession(), parms.readInt("id"));
 		}
 	},
 
@@ -1184,7 +1184,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ServicesPackage call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesPackageById(parms.readInt("servicesPackageId"));
+			return ac.getServicesManager().getServicesPackageById(ac.getSession(), parms.readInt("servicesPackageId"));
 		}
 	},
 
