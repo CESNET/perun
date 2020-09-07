@@ -101,6 +101,7 @@ public class Utils {
 	public static final String TITLE_AFTER = "titleAfter";
 	private static Properties properties;
 	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+	public static final Pattern ucoEmailPattern = Pattern.compile("^[0-9]+@muni\\.cz$");
 
 	private static final Pattern titleBeforePattern = Pattern.compile("^(([\\p{L}]+[.])|(et))$");
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");

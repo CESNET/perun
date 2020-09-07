@@ -134,6 +134,15 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 		classInstance.checkAttributeSemantics(session, group, resource, attributeToCheck);
 	}
 
+	@Test(expected = WrongAttributeValueException.class)
+	public void testUcoEmail() throws Exception {
+		System.out.println("testUcoEmail");
+		when(adNameAttr.getValue()).thenReturn(null);
+		when(am.getPerunBeanIdsForUniqueAttributeValue(eq(session),any(Attribute.class))).thenReturn(Sets.newHashSet());
+		attributeToCheck.setValue(Lists.newArrayList("451570@muni.cz"));
+		classInstance.checkAttributeSyntax(session, group, resource, attributeToCheck);
+	}
+
 	@Test
 	public void testUniqItself() throws Exception {
 		System.out.println("testUniqItself");

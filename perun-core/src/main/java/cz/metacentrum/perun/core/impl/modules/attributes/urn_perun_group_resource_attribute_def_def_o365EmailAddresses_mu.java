@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 
 import static cz.metacentrum.perun.core.impl.Utils.emailPattern;
 import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
+import static cz.metacentrum.perun.core.impl.Utils.ucoEmailPattern;
 
 /**
  * Module for email addresses for Office365 at Masaryk University.
@@ -39,6 +40,7 @@ import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
  * <li>type is list</li>
  * <li>all values are email addresses</li>
  * <li>must contain at least one value if urn:perun:group-resource:attribute-def:def:adName is set</li>
+ * <li>no uco based emails among the list values</li>
  * <li>no duplicates among the list values</li>
  * <li>no duplicates among all values of this attribute and all values of
  * attribute urn:perun:member:attribute-def:def:o365EmailAddresses:mu</li>
@@ -66,6 +68,9 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 			Matcher emailMatcher = emailPattern.matcher(email);
 			if (!emailMatcher.matches())
 				throw new WrongAttributeValueException(attribute, resource, group, "Email " + email + " is not in correct form.");
+			Matcher ucoEmailMatcher = ucoEmailPattern.matcher(email);
+			if (ucoEmailMatcher.matches())
+				throw new WrongAttributeValueException(attribute, resource, group, "Email " + email + " is based on UCO which is not supported.");
 		}
 
 		//check for duplicities
