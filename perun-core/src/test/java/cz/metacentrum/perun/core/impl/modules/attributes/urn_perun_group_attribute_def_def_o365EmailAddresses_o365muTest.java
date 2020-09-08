@@ -92,6 +92,13 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365muTest {
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
+	public void testCheckUcoEmailSyntax() throws Exception {
+		System.out.println("testCheckUcoEmailSyntax()");
+		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "451570@muni.cz"));
+		classInstance.checkAttributeSyntax(session, group, attributeToCheck);
+	}
+
+	@Test(expected = WrongAttributeValueException.class)
 	public void testCheckDuplicates() throws Exception {
 		System.out.println("testCheckDuplicates()");
 		attributeToCheck.setValue(Lists.newArrayList("my@example.com", "aaa@bbb.com", "my@example.com"));
