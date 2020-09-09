@@ -3616,8 +3616,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			"a.user_id as user_id,a.extsourcename as extsourcename, a.extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as app_modified_by, " +
 			"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
 			"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
-			"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
-			"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
+			"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, g.uu_id as group_uu_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
+			"u.title_before as user_title_before, u.title_after as user_title_after, u.service_acc as user_service_acc, u.sponsored_acc as user_sponsored_acc , u.uu_id as user_uu_id from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
 
 	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
 
@@ -3657,6 +3657,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					resultSet.getString("group_modified_by"), resultSet.getInt("group_created_by_uid"),
 					resultSet.getInt("group_modified_by_uid")));
 			app.getGroup().setVoId(resultSet.getInt("vo_id"));
+			app.getGroup().setUuid(resultSet.getObject("group_uu_id", UUID.class));
 
 			if (resultSet.getInt("group_parent_group_id") != 0) {
 				app.getGroup().setParentGroupId(resultSet.getInt("group_parent_group_id"));
@@ -3670,6 +3671,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					resultSet.getString("user_last_name"), resultSet.getString("user_middle_name"),
 					resultSet.getString("user_title_before"), resultSet.getString("user_title_after"),
 					resultSet.getBoolean("user_service_acc"), resultSet.getBoolean("user_sponsored_acc")));
+			app.getUser().setUuid(resultSet.getObject("user_uu_id", UUID.class));
 		}
 
 		app.setCreatedAt(resultSet.getString("app_created_at"));

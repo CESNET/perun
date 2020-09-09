@@ -22,6 +22,7 @@ public class RichGroup extends Group {
 				group.getParentGroupId(), group.getCreatedByUid(),
 				group.getModifiedByUid());
 		this.setVoId(group.getVoId());
+		this.setUuid(group.getUuid());
 		this.groupAttributes = attrs;
 	}
 
@@ -40,6 +41,8 @@ public class RichGroup extends Group {
 		ret.append(":[");
 		ret.append("id='");
 		ret.append(this.getId());
+		ret.append("', uuid='");
+		ret.append(getUuid());
 		ret.append("', parentGroupId='");
 		ret.append(getParentGroupId());
 		ret.append("', name='");
@@ -74,6 +77,7 @@ public class RichGroup extends Group {
 
 		return str.append(this.getClass().getSimpleName()).append(":["
 				).append("id=<").append(getId()).append(">"
+				).append(", uuid=<").append(getUuid()).append(">"
 				).append(", parentGroupId=<").append(getParentGroupId() == null ? "\\0" : getParentGroupId()).append(">"
 				).append(", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">"
 				).append(", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">"

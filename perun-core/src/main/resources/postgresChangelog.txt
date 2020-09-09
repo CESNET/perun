@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.67
+ALTER TABLE users ADD COLUMN uu_id UUID not null default gen_random_uuid();
+ALTER TABLE groups ADD COLUMN uu_id UUID not null default gen_random_uuid();
+ALTER TABLE resources ADD COLUMN uu_id UUID not null default gen_random_uuid();
+update configurations set value='3.1.67' where property='DATABASE VERSION';
+
 3.1.66
 ALTER TABLE tasks DROP CONSTRAINT task_stat_chk;
 ALTER TABLE tasks ADD CONSTRAINT task_stat_chk check (status in ('WAITING', 'PLANNED', 'GENERATING', 'GENERROR', 'GENERATED', 'SENDING', 'DONE', 'SENDERROR', 'ERROR', 'WARNING'));

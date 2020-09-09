@@ -67,7 +67,8 @@ public interface ResourcesManagerImplApi {
 	Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws ResourceNotExistsException;
 
 	/**
-	 * Creates the resource.
+	 * Creates the resource. This methods sets ids and uuid to the given resource object
+	 * but returns a new resource object loaded from db.
 	 *
 	 * @param perunSession
 	 * @param vo

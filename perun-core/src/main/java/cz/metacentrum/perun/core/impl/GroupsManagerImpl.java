@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Implementation of GroupsManager
@@ -58,7 +59,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public final static int ADMINSGROUP = 2;
 	public final static int SUBGROUP = 3;
 
-	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_name, groups.dsc as groups_dsc, "
+	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.uu_id as groups_uu_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_name, groups.dsc as groups_dsc, "
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
@@ -70,6 +71,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	protected static final RowMapper<Group> GROUP_MAPPER = (resultSet, i) -> {
 		Group g = new Group();
 		g.setId(resultSet.getInt("groups_id"));
+		g.setUuid(resultSet.getObject("groups_uu_id", UUID.class));
 		//ParentGroup with ID=0 is not supported
 		if(resultSet.getInt("groups_parent_group_id") != 0) g.setParentGroupId(resultSet.getInt("groups_parent_group_id"));
 		else g.setParentGroupId(null);
@@ -129,21 +131,28 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 
+		int newId;
 		try {
 			// Store the group into the DB
-			int newId = Utils.getNewId(jdbc, "groups_id_seq");
+			newId = Utils.getNewId(jdbc, "groups_id_seq");
 
 			jdbc.update("insert into groups (id, parent_group_id, name, dsc, vo_id, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
 					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, group.getParentGroupId(),
 					group.getName(), group.getDescription(), vo.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			group.setId(newId);
-
-			group.setVoId(vo.getId());
-
-			return group;
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
+		Group newGroup;
+		try {
+			newGroup = getGroupById(sess, newId);
+		} catch (GroupNotExistsException e) {
+			throw new InternalErrorException("Failed to read newly created group with id: " + newId, e);
+		}
+		group.setId(newId);
+		group.setUuid(newGroup.getUuid());
+		group.setVoId(newGroup.getVoId());
+
+		return newGroup;
 	}
 
 

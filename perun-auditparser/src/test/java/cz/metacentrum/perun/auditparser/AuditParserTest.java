@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -139,7 +140,7 @@ public class AuditParserTest {
 			+ "Facility:[id=<371>, name=<konos.fav.zcu.cz>, type=<cluster>]";
 
 		String log2 = "RichMember:[id=<12521>, userId=<9181>, voId=<21>, status=<DISABLED>, sourceGroupId=<\\0>, sponsored=<true>, suspendedTo=<\\0>, "
-			+ "user=<User:[id=<9181>,titleBefore=<null>,firstName=<Gracian>,lastName=<Tejral>,middleName=<null>,titleAfter=<null>]>, "
+			+ "user=<User:[id=<9181>,uuid=<null>,titleBefore=<null>,firstName=<Gracian>,lastName=<Tejral>,middleName=<null>,titleAfter=<null>]>, "
 			+ "userExtSources=<[UserExtSource:[id=<13621>, login=<8087>, source=<ExtSource:[id=<2>, name=<PERUNPEOPLE>, type=<cz.metacentrum.perun.core.impl.ExtSourceSql>]>, userId=<-1> loa=<0>, lastAccess=<2019-06-17 00:00:00.000000>]]>, "
 			+ "userAttributes=<[Attribute:[id=<800>, friendlyName=<kerberosLogins>, namespace=<urn:perun:user:attribute-def:def>, type=<java.util.ArrayList>, value=<[tejral@META, tejral@EINFRA]>], "
 			+ "Attribute:[id=<49>, friendlyName=<id>, namespace=<urn:perun:user:attribute-def:core>, type=<java.lang.Integer>, value=<9181>], "
@@ -223,10 +224,12 @@ public class AuditParserTest {
 
 		//FOR USER
 		User user = new User(8, null, textMismatch, null, textMismatch, null, true, true);
+		user.setUuid(UUID.randomUUID());
 
 		List<PerunBean> userInList = AuditParser.parseLog(user.serializeToString());
 		assertEquals(user.toString(), ((User) userInList.get(0)).toString());
 		assertEquals(user.getFirstName(), ((User) userInList.get(0)).getFirstName());
+		assertEquals(user.getUuid(), ((User) userInList.get(0)).getUuid());
 
 		//FOR EXTSOURCE
 		ExtSource extSource = new ExtSource(11, null, textMismatch);
@@ -258,13 +261,16 @@ public class AuditParserTest {
 
 		//FOR RESOURCE
 		Resource resource = new Resource(15, textMismatch, null, 10, 10);
+		resource.setUuid(UUID.randomUUID());
 		List<PerunBean> resourceInList = AuditParser.parseLog(resource.serializeToString());
 		assertEquals(resource.toString(), ((Resource) resourceInList.get(0)).toString());
 		assertEquals(resource.getDescription(), ((Resource) resourceInList.get(0)).getDescription());
+		assertEquals(resource.getUuid(), ((Resource) resourceInList.get(0)).getUuid());
 
 		//FOR GROUP
 		Group group = new Group(textMismatch, null);
 		group.setId(15);
+		group.setUuid(UUID.randomUUID());
 		group.setParentGroupId(320);
 		Group group2 = new Group(textMismatch, null);
 		group2.setId(36);
@@ -273,6 +279,7 @@ public class AuditParserTest {
 		List<PerunBean> groupInList2 = AuditParser.parseLog(group2.serializeToString());
 		assertEquals(group.toString(), ((Group) groupInList.get(0)).toString());
 		assertEquals(group.getDescription(), ((Group) groupInList.get(0)).getDescription());
+		assertEquals(group.getUuid(), ((Group) groupInList.get(0)).getUuid());
 		assertEquals(group2.toString(), ((Group) groupInList2.get(0)).toString());
 		assertEquals(group2.getParentGroupId(), ((Group) groupInList2.get(0)).getParentGroupId());
 
@@ -450,20 +457,24 @@ public class AuditParserTest {
 
 		//FOR RICHUSER
 		RichUser richUser1 = new RichUser(user, null, null);
+		richUser1.setUuid(UUID.randomUUID());
 		RichUser richUser2 = new RichUser(user, null, listOfAttributes);
 		List<PerunBean> richUserInList = AuditParser.parseLog(richUser.serializeToString());
 		List<PerunBean> richUser1InList = AuditParser.parseLog(richUser1.serializeToString());
 		List<PerunBean> richUser2InList = AuditParser.parseLog(richUser2.serializeToString());
 		assertEquals(richUser.toString(), ((RichUser) richUserInList.get(0)).toString());
 		assertEquals(richUser1.toString(), ((RichUser) richUser1InList.get(0)).toString());
+		assertEquals(richUser1.getUuid(), ((RichUser) richUser1InList.get(0)).getUuid());
 		assertEquals(richUser2.toString(), ((RichUser) richUser2InList.get(0)).toString());
 
 		//FOR RICHGROUP
 		RichGroup richGroup1 = new RichGroup(group, null);
+		richGroup1.setUuid(UUID.randomUUID());
 		List<PerunBean> richGroupInList = AuditParser.parseLog(richGroup.serializeToString());
 		List<PerunBean> richGroup1InList = AuditParser.parseLog(richGroup1.serializeToString());
 		assertEquals(richGroup.toString(), ((RichGroup) richGroupInList.get(0)).toString());
 		assertEquals(richGroup1.toString(), ((RichGroup) richGroup1InList.get(0)).toString());
+		assertEquals(richGroup1.getUuid(), ((RichGroup) richGroup1InList.get(0)).getUuid());
 
 		//FOR RICHFACILITY
 		RichFacility richFacility1 = new RichFacility(facility, null);
@@ -482,9 +493,11 @@ public class AuditParserTest {
 		richResource.setFacility(null);
 		richResource.setVo(null);
 		richResource.addResourceTag(resourceTag1);
+		richResource.setUuid(UUID.randomUUID());
 		List<PerunBean> richResourceInList = AuditParser.parseLog(richResource.serializeToString());
 		assertEquals(richResource.toString(), ((RichResource) richResourceInList.get(0)).toString());
 		assertEquals(richResource.getFacility(), ((RichResource) richResourceInList.get(0)).getFacility());
+		assertEquals(richResource.getUuid(), ((RichResource) richResourceInList.get(0)).getUuid());
 
 		//FOR RICHDESTINATION
 		RichDestination richDestination = new RichDestination(destination, null, null);

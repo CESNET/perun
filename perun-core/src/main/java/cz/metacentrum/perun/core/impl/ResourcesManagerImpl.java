@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_MAPPER;
 
@@ -60,7 +61,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	final static Logger log = LoggerFactory.getLogger(ResourcesManagerImpl.class);
 
-	protected final static String resourceMappingSelectQuery = "resources.id as resources_id, resources.facility_id as resources_facility_id, " +
+	protected final static String resourceMappingSelectQuery = "resources.id as resources_id, resources.uu_id as resources_uu_id, resources.facility_id as resources_facility_id, " +
 		"resources.name as resources_name, resources.dsc as resources_dsc, resources.vo_id as resources_vo_id, " +
 		"resources.created_at as resources_created_at, resources.created_by as resources_created_by, resources.modified_by as resources_modified_by, " +
 		"resources.modified_at as resources_modified_at, resources.modified_by_uid as resources_modified_by_uid, resources.created_by_uid as resources_created_by_uid";
@@ -81,6 +82,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	protected static final RowMapper<Resource> RESOURCE_MAPPER = (resultSet, i) -> {
 		Resource resource = new Resource();
 		resource.setId(resultSet.getInt("resources_id"));
+		resource.setUuid(resultSet.getObject("resources_uu_id", UUID.class));
 		resource.setName(resultSet.getString("resources_name"));
 		resource.setDescription(resultSet.getString("resources_dsc"));
 		resource.setFacilityId(resultSet.getInt("resources_facility_id"));
@@ -222,22 +224,28 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public Resource createResource(PerunSession sess, Vo vo, Resource resource, Facility facility) {
 		Utils.notNull(resource.getName(), "resource.getName()");
 
+		int newId;
 		try {
-			int newId = Utils.getNewId(jdbc, "resources_id_seq");
+			newId = Utils.getNewId(jdbc, "resources_id_seq");
 
 			jdbc.update("insert into resources(id, name, dsc, facility_id, vo_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
 					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
 					newId, resource.getName(), resource.getDescription(), facility.getId(), vo.getId(), sess.getPerunPrincipal().getActor(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-
-			resource.setId(newId);
-			resource.setFacilityId(facility.getId());
-			resource.setVoId(vo.getId());
-
-			return resource;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		Resource newResource;
+		try {
+			newResource = getResourceById(sess, newId);
+		} catch (ResourceNotExistsException e) {
+			throw new InternalErrorException("Failed to read newly created resource with id: " + newId, e);
+		}
+		resource.setId(newId);
+		resource.setVoId(newResource.getVoId());
+		resource.setFacilityId(newResource.getFacilityId());
+		resource.setUuid(newResource.getUuid());
+		return newResource;
 	}
 
 	@Override

@@ -94,7 +94,8 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		Resource returnedResource = resourcesManager.getResourceById(sess, resource.getId());
 		assertNotNull("unable to get our resource from DB", returnedResource);
 		assertEquals("created and returned resource should be the same",returnedResource,resource);
-
+		assertThat(returnedResource.getUuid()).isNotNull();
+		assertThat(returnedResource.getUuid().version()).isEqualTo(4);
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
@@ -120,6 +121,20 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertNotNull("unable to create Resource", returnedResource);
 		assertEquals("created and returned resource should be the same", returnedResource, resource);
 
+	}
+
+	@Test
+	public void createResourceSetsUUID() throws Exception {
+		System.out.println(CLASS_NAME + "createResourceSetsUUID");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource = new Resource(-1, "test", "", facility.getId(), vo.getId());
+
+		resource = resourcesManager.createResource(sess, resource, vo, facility);
+
+		assertThat(resource.getUuid()).isNotNull();
+		assertThat(resource.getUuid().version()).isEqualTo(4);
 	}
 
 	@Test (expected = ResourceExistsException.class)

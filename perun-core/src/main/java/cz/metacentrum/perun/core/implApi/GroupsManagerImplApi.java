@@ -40,6 +40,9 @@ public interface GroupsManagerImplApi {
 	 * For this method the new group has always same shortName like Name.
 	 * Important: voId in object group is ignored
 	 *
+	 * This method sets ids and uuid to the given group object but returns a new
+	 * group object loaded from the DB.
+	 *
 	 * @param perunSession
 	 * @param vo to associates group with
 	 * @param group new group with name without ":"

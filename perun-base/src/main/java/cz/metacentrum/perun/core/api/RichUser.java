@@ -18,7 +18,7 @@ public class RichUser extends User {
 	}
 
 	public RichUser(User user, List<UserExtSource> userExtSources) {
-		super(user.getId(), user.getFirstName(), user.getLastName(), user.getMiddleName(),
+		super(user.getId(), user.getUuid(), user.getFirstName(), user.getLastName(), user.getMiddleName(),
 				user.getTitleBefore(), user.getTitleAfter(), user.getCreatedAt(), user.getCreatedBy(),
 				user.getModifiedAt(), user.getModifiedBy(), user.isServiceUser(), user.isSponsoredUser(), user.getCreatedByUid(), user.getModifiedByUid());
 		this.userExtSources = userExtSources;
@@ -74,6 +74,7 @@ public class RichUser extends User {
 		}
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
+			", uuid=<").append(getUuid()).append(">").append(
 			", titleBefore=<").append(getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())).append(">").append(
 			", firstName=<").append(getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName())).append(">").append(
 			", lastName=<").append(getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())).append(">").append(
@@ -88,7 +89,7 @@ public class RichUser extends User {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append("RichUser:[id='").append(getId()).append("', titleBefore='").append(getTitleBefore()).append("', firstName='").append(getFirstName()).append("', lastName='").append(getLastName()).append(
+		return str.append("RichUser:[id='").append(getId()).append("', uuid='").append(getUuid()).append("', titleBefore='").append(getTitleBefore()).append("', firstName='").append(getFirstName()).append("', lastName='").append(getLastName()).append(
 			"', middleName='").append(getMiddleName()).append("', titleAfter='").append(getTitleAfter()).append("', userExtSources='").append(userExtSources).append("', userAttributes='").append(userAttributes).append("']").toString();
 	}
 }

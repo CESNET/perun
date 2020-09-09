@@ -1,16 +1,19 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.UUID;
+
 /**
  * Group entity.
  *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 
-public class Group extends Auditable implements Comparable<PerunBean> {
+public class Group extends Auditable implements Comparable<PerunBean>, HasUUID {
 	private int voId;
 	private Integer parentGroupId;
 	private String name;
 	private String description;
+	private UUID uuid;
 
 
 	/**
@@ -67,6 +70,15 @@ public class Group extends Auditable implements Comparable<PerunBean> {
 		this.name = name;
 		this.description = description;
 		this.parentGroupId = parentGroupId;
+	}
+
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
 	}
 
 	public String getName() {
@@ -136,6 +148,7 @@ public class Group extends Auditable implements Comparable<PerunBean> {
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
+			", uuid=<").append(getUuid()).append(">").append(
 			", parentGroupId=<").append(getParentGroupId() == null ? "\\0" : getParentGroupId()).append(">").append(
 			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
 			", shortName=<").append(getShortName() == null ? "\\0" : BeansUtils.createEscaping(getShortName())).append(">").append(
@@ -151,6 +164,8 @@ public class Group extends Auditable implements Comparable<PerunBean> {
 		ret.append(":[");
 		ret.append("id='");
 		ret.append(this.getId());
+		ret.append("', uuid='");
+		ret.append(uuid);
 		ret.append("', parentGroupId='");
 		ret.append(parentGroupId);
 		ret.append("', name='");

@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -277,6 +278,10 @@ public class AuditParser {
 		if(beanAttr==null) return null;
 		User user = new User();
 		user.setId(Integer.valueOf(beanAttr.get("id")));
+		String uuidString = beanAttr.get("uuid");
+		if (uuidString != null && !"null".equals(uuidString)) {
+			user.setUuid(UUID.fromString(uuidString));
+		}
 		user.setTitleBefore(BeansUtils.eraseEscaping(beanAttr.get("titleBefore")));
 		user.setTitleAfter(BeansUtils.eraseEscaping(beanAttr.get("titleAfter")));
 		user.setFirstName(BeansUtils.eraseEscaping(beanAttr.get("firstName")));
@@ -370,6 +375,10 @@ public class AuditParser {
 		if(beanAttr.get("parentGroupId").equals("\\0")) group.setParentGroupId(null);
 		else group.setParentGroupId(Integer.valueOf(beanAttr.get("parentGroupId")));
 		group.setId(Integer.valueOf(beanAttr.get("id")));
+		String uuidString = beanAttr.get("uuid");
+		if (uuidString != null && !"null".equals(uuidString)) {
+			group.setUuid(UUID.fromString(uuidString));
+		}
 		group.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		group.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		group.setVoId(Integer.valueOf(beanAttr.get("voId")));
@@ -416,6 +425,10 @@ public class AuditParser {
 		if(beanAttr==null) return null;
 		Resource resource = new Resource();
 		resource.setId(Integer.valueOf(beanAttr.get("id")));
+		String uuidString = beanAttr.get("uuid");
+		if (uuidString != null && !"null".equals(uuidString)) {
+			resource.setUuid(UUID.fromString(uuidString));
+		}
 		resource.setVoId(Integer.valueOf(beanAttr.get("voId")));
 		resource.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")));
 		resource.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
@@ -715,6 +728,10 @@ public class AuditParser {
 		if(beanAttr==null) return null;
 		RichResource richResource = new RichResource();
 		richResource.setId(Integer.valueOf(beanAttr.get("id")));
+		String uuidString = beanAttr.get("uuid");
+		if (uuidString != null && !"null".equals(uuidString)) {
+			richResource.setUuid(UUID.fromString(uuidString));
+		}
 		richResource.setVoId(Integer.valueOf(beanAttr.get("voId")));
 		richResource.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")));
 		richResource.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
