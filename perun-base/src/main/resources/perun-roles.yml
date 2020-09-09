@@ -2355,6 +2355,18 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getEnrichedResourceById_int_List<String>_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RPC:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getRichResourceById_int_policy:
     policy_roles:
       - RESOURCESELFSERVICE: Resource
@@ -2655,6 +2667,48 @@ perun_policies:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
       - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getEnrichedResourcesForVo_Vo_policy:
+    policy_roles:
+      - FACILITYADMIN:
+      - RESOURCESELFSERVICE: Vo
+      - RESOURCEADMIN: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getEnrichedResourcesForVo_Vo_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getEnrichedResourcesForFacility_Facility_policy:
+    policy_roles:
+      - RESOURCEADMIN: Facility
+      - RESOURCESELFSERVICE: Facility
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getEnrichedResourcesForFacility_Facility_policy:
+    policy_roles:
+      - RESOURCEADMIN: Resource
+      - RESOURCESELFSERVICE: Resource
+      - ENGINE:
+      - FACILITYADMIN: Facility
       - PERUNOBSERVER:
     include_policies:
       - default_policy

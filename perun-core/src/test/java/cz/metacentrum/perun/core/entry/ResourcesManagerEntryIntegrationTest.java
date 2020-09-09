@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -40,6 +41,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +61,8 @@ import static org.junit.Assert.assertTrue;
 public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private final static String CLASS_NAME = "ResourcesManager.";
+
+	private final static String A_R_C_ID = "urn:perun:resource:attribute-def:core:id";
 
 	// these are in DB only when needed and must be setUp"type"() in right order before use !!
 	private Vo vo;
@@ -1915,6 +1919,99 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		List<String> roles = AuthzResolverBlImpl.getGroupRoleNames(sess, group);
 
 		assertFalse(roles.contains("RESOURCESELFSERVICE"));
+	}
+
+	@Test
+	public void getEnrichedResourceByIdWithAllAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedResourceByIdWithAllAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource = setUpResource();
+
+		EnrichedResource eResource = resourcesManager.getEnrichedResourceById(sess, resource.getId(), null);
+
+		assertThat(eResource.getResource()).isEqualTo(resource);
+		assertThat(eResource.getAttributes()).isNotEmpty();
+	}
+
+	@Test
+	public void getEnrichedResourceByIdWithGivenAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedResourceByIdWithGivenAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource = setUpResource();
+
+		EnrichedResource eResource = resourcesManager.getEnrichedResourceById(sess, resource.getId(),
+				Collections.singletonList(A_R_C_ID));
+
+		assertThat(eResource.getResource()).isEqualTo(resource);
+		assertThat(eResource.getAttributes()).hasSize(1);
+		assertThat(eResource.getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+	}
+
+	@Test
+	public void getEnrichedResourcesForVoWithAllAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedResourcesForVoWithAllAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource = setUpResource();
+
+		List<EnrichedResource> eResources = resourcesManager.getEnrichedResourcesForVo(sess, vo, null);
+
+		assertThat(eResources).hasSize(1);
+		assertThat(eResources.get(0).getResource()).isEqualTo(resource);
+		assertThat(eResources.get(0).getAttributes()).isNotEmpty();
+	}
+
+	@Test
+	public void getEnrichedResourcesForVoWithGivenAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedResourcesForVoWithGivenAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		setUpResource();
+
+		List<EnrichedResource> eResources =
+				resourcesManager.getEnrichedResourcesForVo(sess, vo, Collections.singletonList(A_R_C_ID));
+
+		assertThat(eResources).hasSize(1);
+		assertThat(eResources.get(0).getAttributes()).hasSize(1);
+		assertThat(eResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
+	}
+
+	@Test
+	public void getEnrichedResourcesForFacilityWithAllAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedResourcesForFacilityWithAllAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource = setUpResource();
+
+		List<EnrichedResource> eResources =
+				resourcesManager.getEnrichedResourcesForFacility(sess, facility, null);
+
+		assertThat(eResources).hasSize(1);
+		assertThat(eResources.get(0).getResource()).isEqualTo(resource);
+		assertThat(eResources.get(0).getAttributes()).isNotEmpty();
+	}
+
+	@Test
+	public void getEnrichedResourcesForFacilityWithGivenAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedResourcesForFacilityWithGivenAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		setUpResource();
+
+		List<EnrichedResource> eResources =
+				resourcesManager.getEnrichedResourcesForFacility(sess, facility, Collections.singletonList(A_R_C_ID));
+
+		assertThat(eResources).hasSize(1);
+		assertThat(eResources.get(0).getAttributes()).hasSize(1);
+		assertThat(eResources.get(0).getAttributes().get(0).getName()).isEqualTo(A_R_C_ID);
 	}
 
 	// PRIVATE METHODS -----------------------------------------------------------

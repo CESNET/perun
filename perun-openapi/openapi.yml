@@ -271,6 +271,12 @@ components:
       discriminator:
         propertyName: beanName
 
+    EnrichedResource:
+      type: object
+      properties:
+        resource: { $ref: '#/components/schemas/Resource' }
+        attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+
     EnrichedHost:
       type: object
       properties:
@@ -1330,6 +1336,13 @@ components:
           schema:
             $ref: "#/components/schemas/RichResource"
 
+    EnrichedResourceResponse:
+      description: "returns EnrichedResource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EnrichedResource"
+
     ListOfRichResourcesResponse:
       description: "returns List<RichResource>"
       content:
@@ -1338,6 +1351,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RichResource"
+
+    ListOfEnrichedResourcesResponse:
+      description: "returns List<EnrichedResource>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedResource"
 
     VoResponse:
       description: "returns Vo"
@@ -9888,6 +9910,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+
+  /json/resourcesManager/getEnrichedResourceById:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getEnrichedResourceById
+      summary: Find resource for given id and returns it with given attributes. If attrNames are null or empty, all resource attributes are returned.
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/EnrichedResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/resourcesManager/getResourceByName:
     get:
       tags:
@@ -10559,6 +10597,36 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getEnrichedResourcesForVo:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getEnrichedResourcesForVo
+      summary: Find resources for given vo and attributes for given names. If the attrNames are empty or null, return all attributes.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getEnrichedResourcesForFacility:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getEnrichedResourcesForFacility
+      summary: Find resources for given facility and attributes for given names. If the attrNames are empty or null, return all attributes.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

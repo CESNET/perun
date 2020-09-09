@@ -2,8 +2,8 @@ package cz.metacentrum.perun.rpc.methods;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -25,6 +25,33 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getResourcesManager().getResourceById(ac.getSession(), parms.readInt("id"));
+		}
+	},
+
+	/*#
+	 * Find resource for given id and returns it with given attributes.
+	 * If attrNames are null or empty, all resource attributes are returned.
+	 *
+	 * @param id int resource id
+	 * @param attrNames List<String> names of attributes to return
+	 * @return EnrichedResource resource for given id with desired attributes
+	 * @throw ResourceNotExistsException if there is no resource with given id
+	 */
+	/*#
+	 * Find resource for given id and returns it with all attributes.
+	 *
+	 * @param id int resource id
+	 * @return EnrichedResource resource for given id with desired attributes
+	 * @throw ResourceNotExistsException if there is no resource with given id
+	 */
+	getEnrichedResourceById {
+		@Override
+		public EnrichedResource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+			return ac.getResourcesManager().getEnrichedResourceById(ac.getSession(), parms.readInt("id"), attrNames);
 		}
 	},
 
@@ -822,6 +849,62 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getResourcesManager().getRichResources(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
+	 * Find resources for given vo and attributes for given names. If the
+	 * attrNames are empty or null, return all attributes.
+	 *
+	 * @param vo int vo
+	 * @param attrNames List<String> names of attributes to return
+	 * @return EnrichedResource resources with desired attributes
+	 * @throw VoNotExistsException if there is no vo with given id
+	 */
+	/*#
+	 * Find resources for given vo and all attributes.
+	 *
+	 * @param vo int vo
+	 * @return EnrichedResource resources with desired attributes
+	 * @throw VoNotExistsException if there is no vo with given id
+	 */
+	getEnrichedResourcesForVo {
+		@Override
+		public List<EnrichedResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+			return ac.getResourcesManager()
+					.getEnrichedResourcesForVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), attrNames);
+		}
+	},
+
+	/*#
+	 * Find resources for given facility and attributes for given names. If the
+	 * attrNames are empty or null, return all attributes.
+	 *
+	 * @param facility int facility
+	 * @param attrNames List<String> names of attributes to return
+	 * @return List<EnrichedResource> resources with desired attributes
+	 * @throw FacilityNotExistsException if there is not facility with given id
+	 */
+	/*#
+	 * Find resources for given facility and all attributes.
+	 *
+	 * @param facility int facility
+	 * @return List<EnrichedResource> resources with desired attributes
+	 * @throw FacilityNotExistsException if there is not facility with given id
+	 */
+	getEnrichedResourcesForFacility {
+		@Override
+		public List<EnrichedResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> attrNames = null;
+			if (parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+			return ac.getResourcesManager().getEnrichedResourcesForFacility(ac.getSession(),
+					ac.getFacilityById(parms.readInt("facility")), attrNames);
 		}
 	},
 
