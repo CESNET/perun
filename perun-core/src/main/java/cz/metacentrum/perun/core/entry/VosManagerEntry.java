@@ -372,8 +372,9 @@ public class VosManagerEntry implements VosManager {
 		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
 		if(!role.equals(Role.TOPGROUPCREATOR) &&
 						!role.equals(Role.VOADMIN) &&
-						!role.equals(Role.VOOBSERVER)) {
-			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", role);
+						!role.equals(Role.VOOBSERVER) &&
+						!role.equals(Role.SPONSOR)) {
+			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver, Sponsor and TopGroupCreator.", role);
 		}
 
 		// Authorization

@@ -279,7 +279,7 @@ public interface VosManager {
 	/**
 	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
 	 *
-	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN, SPONSOR
 	 *
 	 * If "onlyDirectAdmins" is "true", return only direct users of the vo for supported role with specific attributes.
 	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
