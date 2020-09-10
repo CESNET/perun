@@ -455,16 +455,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "Non-empty list of groups not sent.");
 				}
 				List<Group> groups = new ArrayList<>();
-				Member member = ac.getMemberById(parms.readInt("member"));
 				for (Integer groupInt : groupsInts) {
-					Group group = ac.getGroupById(groupInt);
-					if (!ac.getGroupsManager().isDirectGroupMember(ac.getSession(), group, member)) {
-						groups.add(group);
-					}
+					groups.add(ac.getGroupById(groupInt));
 				}
 				ac.getGroupsManager().addMember(ac.getSession(),
 					groups,
-					member);
+					ac.getMemberById(parms.readInt("member")));
 
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Parameter not provided. 'group' or 'groups' missing.");
