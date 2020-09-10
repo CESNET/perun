@@ -1817,6 +1817,16 @@ components:
         items:
           type: string
 
+    attrsNames:
+      name: "attrsNames"
+      description: "list of attribute names List<String>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+
     attrNamesOptional:
       name: "attrNames[]"
       description: "list of attribute names List<String> or null"
@@ -2337,41 +2347,17 @@ components:
       in: query
       required: true
 
-    firstName:
-      name: firstName
-      description: firstName of user
-      schema:
-        type: string
-      in: query
-      required: true
-
-    lastName:
-      name: lastName
-      description: lastName of user
-      schema:
-        type: string
-      in: query
-      required: true
-
-    titleBefore:
-      name: titleBefore
-      description: title before name of user
-      schema:
-        type: string
-      in: query
-      required: false
-
-    titleAfter:
-      name: titleAfter
-      description: title after name of user
-      schema:
-        type: string
-      in: query
-      required: false
-
     password:
       name: password
       description: password
+      schema:
+        type: string
+      in: query
+      required: true
+
+    login:
+      name: login
+      description: "login"
       schema:
         type: string
       in: query
@@ -2382,32 +2368,6 @@ components:
       description: id of sponsor
       schema:
         type: integer
-      in: query
-      required: true
-
-    specificUserType:
-      name: specificUserType
-      description: "Type of user: SERVICE or SPONSORED"
-      schema:
-        type: string
-      in: query
-      required: true
-
-    specificUserOwners:
-      name: specificUserOwners
-      description: "List of users who own specificUser (can't be empty or contain specificUser)"
-      schema:
-        type: array
-        items:
-          $ref: "#/components/schemas/User"
-      in: query
-      required: true
-
-    login:
-      name: login
-      description: "login"
-      schema:
-        type: string
       in: query
       required: true
 
@@ -7794,20 +7754,35 @@ paths:
         - MembersManager
       operationId: createSponsoredMember
       summary: Creates a new sponsored member in a given VO and namespace.
-      parameters:
-        - $ref: '#/components/parameters/firstName'
-        - $ref: '#/components/parameters/lastName'
-        - $ref: '#/components/parameters/titleBefore'
-        - $ref: '#/components/parameters/titleAfter'
-        - $ref: '#/components/parameters/password'
-        - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/sponsorId'
-        - $ref: '#/components/parameters/namespace'
       responses:
         '200':
           $ref: '#/components/responses/RichMemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateSponsoredMember
+              description: "input for createSponsoredMember"
+              type: object
+              required:
+                - firstName
+                - lastName
+                - password
+                - vo
+                - sponsor
+                - namespace
+              properties:
+                firstName: { type: string }
+                lastName: { type: string }
+                titleBefore: { type: string}
+                titleAfter: { type: string }
+                password: { type: string }
+                vo: { type: integer }
+                sponsor: { type: integer }
+                namespace: { type: string }
 
   /json/membersManager/createSpecificMember:
     post:
@@ -7815,16 +7790,30 @@ paths:
         - MembersManager
       operationId: createSpecificMember
       summary: Creates a new member from candidate which is prepared for creating specificUser.
-      parameters:
-        - { name: candidate, in: query, required: true, schema: { $ref: '#/components/schemas/Candidate'}, description: 'candidate'}
-        - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/specificUserType'
-        - $ref: '#/components/parameters/specificUserOwners'
       responses:
         '200':
           $ref: '#/components/responses/MemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSpecificMember
+              description: "input to createSpecificMember"
+              type: object
+              required:
+                - candidate
+                - vo
+                - specificUserType
+                - specificUserOwners
+              properties:
+                candidate: { $ref: '#/components/schemas/Candidate' }
+                vo: { type: integer }
+                specificUserType: { type: string }
+                specificUserOwners: { type: array, items: { $ref: '#/components/schemas/User' } }
+
 
   /urlinjsonout/membersManager/removeSponsor:
     post:
@@ -7864,7 +7853,7 @@ paths:
         and option to return only sponosred members.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/attrsNames'
         - $ref: '#/components/parameters/searchString'
         - $ref: '#/components/parameters/onlySponsored'
       responses:
