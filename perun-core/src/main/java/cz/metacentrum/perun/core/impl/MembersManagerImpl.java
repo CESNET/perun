@@ -505,7 +505,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		String sponsoredQueryString = "";
 		if(onlySponsored) {
 			//only sponsored members
-			sponsoredQueryString+=" members.sponsored=1 and ";
+			sponsoredQueryString+=" members.sponsored=true and ";
 		}
 
 		String userNameQueryString = Utils.prepareUserSearchQuerySimilarMatch();
