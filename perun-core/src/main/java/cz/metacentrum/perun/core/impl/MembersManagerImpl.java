@@ -57,6 +57,11 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	private final JdbcPerunTemplate jdbc;
 	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+	/**
+	 * Simple member mapper.
+	 *
+	 * Use with `memberMappingSelectQuery`
+	 */
 	static final RowMapper<Member> MEMBER_MAPPER = (rs, i) -> {
 		Member member = new Member(rs.getInt("members_id"), rs.getInt("members_user_id"), rs.getInt("members_vo_id"), Status.getStatus(rs.getInt("members_status")),
 				rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
@@ -64,12 +69,20 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
 		member.setSponsored(rs.getBoolean("members_sponsored"));
 		member.setSuspendedTo(rs.getDate("members_suspended_to"));
-		try {
+		return member;
+	};
+
+	/**
+	 * Member mapper that also maps member's group statues.
+	 *
+	 * Use with `groupsMembersMappingSelectQuery`.
+	 */
+	static final RowMapper<Member> MEMBER_MAPPER_WITH_GROUP = (rs, i) -> {
+		Member member = MEMBER_MAPPER.mapRow(rs, i);
+		if (member != null) {
 			member.putGroupStatus(rs.getInt("group_id"), MemberGroupStatus.getMemberGroupStatus(rs.getInt("source_group_status")));
 			member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
 			member.setSourceGroupId(rs.getInt("source_group_id"));
-		} catch (SQLException ex) {
-			// this is ok, member does not need to always have membership_type and source_group_id set
 		}
 		return member;
 	};
@@ -77,11 +90,16 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	public static final String A_D_MEMBER_MAIl = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 	public static final String A_D_USER_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 
+	/**
+	 * Member extractor that also sets correctly all member group statues.
+	 *
+	 * Use with `groupsMembersMappingSelectQuery`
+	 */
 	public static final ResultSetExtractor<List<Member>> MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
 		Map<Integer, Member> members = new HashMap<>();
 
 		while(resultSet.next()) {
-			Member member = MembersManagerImpl.MEMBER_MAPPER.mapRow(resultSet, resultSet.getRow());
+			Member member = MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP.mapRow(resultSet, resultSet.getRow());
 			if (member != null) {
 				if (members.containsKey(member.getId())) {
 					members.get(member.getId()).putGroupStatuses(member.getGroupStatuses());
