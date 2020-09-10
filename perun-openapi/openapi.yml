@@ -2377,7 +2377,7 @@ components:
       in: query
       required: true
 
-    sponsor:
+    sponsorId:
       name: sponsor
       description: id of sponsor
       schema:
@@ -2408,6 +2408,14 @@ components:
       description: "login"
       schema:
         type: string
+      in: query
+      required: true
+
+    onlySponsored:
+      name: onlySponsored
+      description: "Boolean specifying if only sponsored members should be returned"
+      schema:
+        type: boolean
       in: query
       required: true
 #################################################
@@ -7793,7 +7801,7 @@ paths:
         - $ref: '#/components/parameters/titleAfter'
         - $ref: '#/components/parameters/password'
         - $ref: '#/components/parameters/voId'
-        - $ref: '#/components/parameters/sponsor'
+        - $ref: '#/components/parameters/sponsorId'
         - $ref: '#/components/parameters/namespace'
       responses:
         '200':
@@ -7826,7 +7834,7 @@ paths:
       summary: Removes sponsor of existing member.
       parameters:
         - $ref: '#/components/parameters/memberId'
-        - $ref: '#/components/parameters/sponsor'
+        - $ref: '#/components/parameters/sponsorId'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7844,6 +7852,24 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/findCompleteRichMembers/v-sponsored:
+    get:
+      tags:
+        - MembersManager
+      operationId: findCompleteRichMembers
+      summary: Returns list of RichMembers for vo, with reqested attributes, filterd by search string
+        and option to return only sponosred members.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNames'
+        - $ref: '#/components/parameters/searchString'
+        - $ref: '#/components/parameters/onlySponsored'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
