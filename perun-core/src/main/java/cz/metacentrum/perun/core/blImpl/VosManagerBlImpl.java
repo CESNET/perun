@@ -753,24 +753,33 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @return list of MemberCandidates for given RichUsers, group and candidates
 	 * @throws InternalErrorException internal error
 	 */
-	private List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, Group group, List<Candidate> candidates, List<String> attrNames) {
+	public List<MemberCandidate> createMemberCandidates(PerunSession sess, List<RichUser> users, Vo vo, Group group, List<Candidate> candidates, List<String> attrNames) {
 		List<MemberCandidate> memberCandidates = new ArrayList<>();
+		Set<Integer> allUsersIds = new HashSet<>();
+		int userId;
 
 		// try to find matching RichUser for candidates
 		for (Candidate candidate : candidates) {
 			MemberCandidate mc = new MemberCandidate();
-			mc.setCandidate(candidate);
 
 			try {
 				User user = getPerunBl().getUsersManagerBl().getUserByUserExtSources(sess, candidate.getUserExtSources());
-				RichUser richUser = getPerunBl().getUsersManagerBl().convertUserToRichUserWithAttributesByNames(sess, user, attrNames);
+				userId = user.getId();
 
-				mc.setRichUser(richUser);
+				// check if user already exists in the list
+				if(!allUsersIds.contains(userId)) {
+					RichUser richUser = getPerunBl().getUsersManagerBl().convertUserToRichUserWithAttributesByNames(sess, user, attrNames);
+					mc.setRichUser(richUser);
+					memberCandidates.add(mc);
+				}
+				allUsersIds.add(userId);
+
 			} catch (UserNotExistsException ignored) {
 				// no matching user was found
+				mc.setCandidate(candidate);
+				memberCandidates.add(mc);
 			}
 
-			memberCandidates.add(mc);
 		}
 
 		List<RichUser> foundRichUsers = memberCandidates.stream()
