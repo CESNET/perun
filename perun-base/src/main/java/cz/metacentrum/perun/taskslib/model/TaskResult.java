@@ -22,7 +22,7 @@ public class TaskResult extends PerunBean implements Serializable {
 	private static final long serialVersionUID = 5656828750714418582L;
 
 	public static enum TaskResultStatus {
-		DONE, ERROR, FATAL_ERROR, DENIED, WARNING
+		DONE, ERROR, DENIED, WARNING
 	}
 
 	private int taskId;

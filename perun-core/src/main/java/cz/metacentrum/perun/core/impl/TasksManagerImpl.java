@@ -79,8 +79,6 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			taskResult.setStatus(TaskResult.TaskResultStatus.DONE);
 		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.ERROR.toString())) {
 			taskResult.setStatus(TaskResult.TaskResultStatus.ERROR);
-		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.FATAL_ERROR.toString())) {
-			taskResult.setStatus(TaskResult.TaskResultStatus.FATAL_ERROR);
 		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.DENIED.toString())) {
 			taskResult.setStatus(TaskResult.TaskResultStatus.DENIED);
 		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.WARNING.toString())) {
