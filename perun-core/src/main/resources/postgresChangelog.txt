@@ -10,7 +10,7 @@
 ALTER TABLE tasks DROP CONSTRAINT task_stat_chk;
 ALTER TABLE tasks ADD CONSTRAINT task_stat_chk check (status in ('WAITING', 'PLANNED', 'GENERATING', 'GENERROR', 'GENERATED', 'SENDING', 'DONE', 'SENDERROR', 'ERROR', 'WARNING'));
 ALTER TABLE tasks_results DROP CONSTRAINT taskres_stat_chk;
-ALTER TABLE tasks_results ADD CONSTRAINT taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED', 'WARNING'));
+ALTER TABLE tasks_results ADD CONSTRAINT taskres_stat_chk check (status in ('DONE','ERROR','DENIED', 'WARNING'));
 update configurations set value='3.1.66' where property='DATABASE VERSION';
 
 3.1.65

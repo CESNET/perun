@@ -1062,7 +1062,7 @@ create table tasks_results (
 	constraint taskres_pk primary key (id),
 	constraint taskres_task_fk foreign key (task_id) references tasks(id),
   constraint taskres_dest_fk foreign key (destination_id) references destinations(id),
-  constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED', 'WARNING'))
+  constraint taskres_stat_chk check (status in ('DONE','ERROR','DENIED', 'WARNING'))
 );
 
 create table auditer_log (

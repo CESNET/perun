@@ -2,7 +2,7 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.65 (don't forget to update insert statement at the end of file)
+-- database version 3.1.66 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1043,7 +1043,7 @@ create table tasks (
 	constraint task_u unique (service_id, facility_id),
 	constraint task_srv_fk foreign key (service_id) references services(id),
 	constraint task_fac_fk foreign key (facility_id) references facilities(id),
-	constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'))
+	constraint task_stat_chk check (status in ('WAITING', 'PLANNED', 'GENERATING', 'GENERROR', 'GENERATED', 'SENDING', 'DONE', 'SENDERROR', 'ERROR', 'WARNING'))
 );
 
 -- TASKS_RESULTS - contains partial results of tasks (executing, waiting and at near past finished)
@@ -1066,7 +1066,7 @@ create table tasks_results (
 	constraint taskres_pk primary key (id),
 	constraint taskres_task_fk foreign key (task_id) references tasks(id),
 	constraint taskres_dest_fk foreign key (destination_id) references destinations(id),
-	constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'))
+	constraint taskres_stat_chk check (status in ('DONE','ERROR','DENIED', 'WARNING'))
 );
 
 -- AUDITER_LOG - logging
@@ -1619,7 +1619,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.65');
+insert into configurations values ('DATABASE VERSION','3.1.66');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');
