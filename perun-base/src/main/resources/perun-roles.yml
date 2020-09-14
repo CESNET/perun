@@ -1790,6 +1790,7 @@ perun_policies:
 
   getMemberById_int_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - SELF: User
       - RPC:
       - PERUNOBSERVER:
@@ -2068,6 +2069,7 @@ perun_policies:
 
   findMembersByNameInVo_Vo_String_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -2076,6 +2078,7 @@ perun_policies:
 
   findMembersInVo_Vo_String_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
@@ -2120,6 +2123,7 @@ perun_policies:
 
   findRichMembersInVo_Vo_String_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2128,6 +2132,7 @@ perun_policies:
 
   findRichMembersWithAttributesInVo_Vo_String_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2210,6 +2215,7 @@ perun_policies:
 
   getMemberByExtSourceNameAndExtLogin_Vo_String_String_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
@@ -2246,6 +2252,7 @@ perun_policies:
 
   getSponsoredMembers_Vo_User_List<String>_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2255,6 +2262,7 @@ perun_policies:
 
   getSponsoredMembers_Vo_User_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -2264,6 +2272,7 @@ perun_policies:
 
   getSponsoredMembers_Vo_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
@@ -3827,7 +3836,7 @@ perun_policies:
 
   getUserByMember_Member_policy:
     policy_roles:
-      - GROUPADMIN:
+      - GROUPADMIN: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -4246,6 +4255,7 @@ perun_policies:
 
   findRichUsersWithoutSpecificVoWithAttributes_Vo_String_List<String>_policy:
     policy_roles:
+      - GROUPADMIN: Vo
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
@@ -4466,6 +4476,7 @@ perun_policies:
 
   getCompleteCandidates_Group_List<String>_String_policy:
     policy_roles:
+      - GROUPADMIN: Group
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
