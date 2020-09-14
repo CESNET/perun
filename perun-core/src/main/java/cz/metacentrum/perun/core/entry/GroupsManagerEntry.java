@@ -326,14 +326,20 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		// Authorization
+		List<Group> groupsMemberIsNotDirect = new ArrayList<>();
 		for (Group group: groups) {
+			// Authorization
 			if (!AuthzResolver.authorizedInternal(sess, "addMember_List<Group>_Member_policy", group, member)) {
 				throw new PrivilegeException(sess, "addMember");
 			}
+
+			// Filter groups where member is direct member
+			if (!isDirectGroupMember(sess, group, member)) {
+				groupsMemberIsNotDirect.add(group);
+			}
 		}
 
-		getGroupsManagerBl().addMember(sess, groups, member);
+		getGroupsManagerBl().addMember(sess, groupsMemberIsNotDirect, member);
 	}
 
 	@Override

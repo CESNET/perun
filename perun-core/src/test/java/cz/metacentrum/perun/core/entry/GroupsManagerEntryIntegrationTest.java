@@ -3870,6 +3870,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		}
 	}
 
+	@Test
+	public void addMemberToGroupsFilterDirect() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberToGroupsFilterDirect");
+
+		vo = setUpVo();
+
+		groupsManagerBl.createGroup(sess, vo, group);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+		assertTrue("List of members should contain member", groupsManager.isDirectGroupMember(sess, group, member));
+
+		groupsManager.addMember(sess, Collections.singletonList(group), member);
+	}
+
 
 	@Test
 	public void addMembersToGroup() throws Exception {
