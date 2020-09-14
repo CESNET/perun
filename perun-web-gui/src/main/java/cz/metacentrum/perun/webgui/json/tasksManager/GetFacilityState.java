@@ -22,6 +22,7 @@ import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -176,16 +177,15 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 					return "";
 				}
 				else if (row.getState().equalsIgnoreCase("OK")){
-				
 					return "rowgreen";
 				}
 				else if (row.getState().equalsIgnoreCase("PROCESSING")){
 					return "rowyellow";
 				}
-				else if (row.getState().equalsIgnoreCase("OPEN")){
+				else if (row.getState().equalsIgnoreCase("WARNING")){
 					return "roworange";
 				}
-				else if (row.getState().equalsIgnoreCase("ERROR")){
+				else if (Arrays.asList("GENERROR","SENDERROR","ERROR").contains(row.getState())){
 					return "rowred";
 				}
 				else if (row.getState().equalsIgnoreCase("WARNING")){

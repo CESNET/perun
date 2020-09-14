@@ -237,14 +237,11 @@ public class GetTaskResultsByDestinations implements JsonCallback, JsonCallbackT
 				else if (row.getStatus().equalsIgnoreCase("DENIED")){
 					return "rowyellow";
 				}
-				else if (row.getStatus().equalsIgnoreCase("FATAL_ERROR")){
-					return "rowred";
-				}
-				else if (row.getStatus().equalsIgnoreCase("ERROR")){
+				else if (row.getStatus().equalsIgnoreCase("WARNING")){
 					return "roworange";
 				}
-				else if (row.getStatus().equalsIgnoreCase("WARNING")){
-					return "rowgreenyellow";
+				else if (row.getStatus().equalsIgnoreCase("ERROR")){
+					return "rowred";
 				}
 				return "";
 

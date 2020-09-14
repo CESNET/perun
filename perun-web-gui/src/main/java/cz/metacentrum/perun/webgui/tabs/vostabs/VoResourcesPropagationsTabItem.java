@@ -26,6 +26,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -190,7 +191,7 @@ public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 
 						boolean allOk = true;
 						for (Task tsk :tasks) {
-							if (tsk.getStatus().equalsIgnoreCase("ERROR")) {
+							if (tsk.getStatus().equalsIgnoreCase("ERROR") || tsk.getStatus().equalsIgnoreCase("SENDERROR") || tsk.getStatus().equalsIgnoreCase("GENERROR")) {
 								errorCounter++;
 								allOk = false;
 								break;
@@ -280,8 +281,11 @@ public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 								else if (row.getStatus().equalsIgnoreCase("PROCESSING")){
 									return "rowyellow";
 								}
-								else if (row.getStatus().equalsIgnoreCase("ERROR")){
+								else if (Arrays.asList("GENERROR","SENDERROR","ERROR").contains(row.getStatus())){
 									return "rowred";
+								}
+								else if (row.getStatus().equalsIgnoreCase("WARNING")){
+									return "roworange";
 								}
 								return "";
 
