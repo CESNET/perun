@@ -79,6 +79,12 @@
 #
 # UNKNOWN exists, but it is not used in Perun.
 #
+# TRUSTEDFACILITYADMIN role can be assign to a user or a group in specific VO. Only VO administrator is able to set this
+# role, but only in his own VO. User with role Trusted facility admin has privileges to assign group(s) to resource(s)
+# and remove group(s) from resource(s), but only if the user has the role Facility Admin for the specific facility at
+# the same time. In this case Trusted facility admin also has rights to set roles Resource admin and Resource self
+# service.
+#
 perun_roles:
   - PERUNADMIN
   - PERUNOBSERVER
@@ -99,6 +105,7 @@ perun_roles:
   - SECURITYADMIN
   - CABINETADMIN
   - UNKNOWN
+  - TRUSTEDFACILITYADMIN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
 #
@@ -1070,6 +1077,7 @@ perun_policies:
       - GROUPADMIN: Group
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1081,6 +1089,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1308,6 +1317,7 @@ perun_policies:
       - GROUPADMIN: Vo
       - VOADMIN: Vo
       - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1318,6 +1328,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1329,6 +1340,7 @@ perun_policies:
       - GROUPADMIN: Vo
       - VOADMIN: Vo
       - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1339,6 +1351,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1349,6 +1362,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1359,6 +1373,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1369,6 +1384,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1380,6 +1396,7 @@ perun_policies:
       - GROUPADMIN: Vo
       - VOADMIN: Vo
       - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1390,6 +1407,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1399,6 +1417,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1409,6 +1428,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1419,6 +1439,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1594,6 +1615,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1604,6 +1626,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1614,6 +1637,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1624,6 +1648,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1634,6 +1659,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1644,6 +1670,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -1654,6 +1681,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -2374,6 +2402,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2429,6 +2458,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -2484,6 +2514,8 @@ perun_policies:
       - VOADMIN: Vo
       - RESOURCESELFSERVICE: Resource
         GROUPADMIN: Group
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2493,6 +2525,8 @@ perun_policies:
       - VOADMIN: Vo
       - RESOURCESELFSERVICE: Resource
         GROUPADMIN: Group
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2502,6 +2536,8 @@ perun_policies:
         GROUPADMIN: Group
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2511,6 +2547,8 @@ perun_policies:
       - VOADMIN: Vo
       - RESOURCESELFSERVICE: Resource
         GROUPADMIN: Group
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2520,6 +2558,8 @@ perun_policies:
       - VOADMIN: Vo
       - RESOURCESELFSERVICE: Resource
         GROUPADMIN: Group
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2529,6 +2569,8 @@ perun_policies:
         GROUPADMIN: Group
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2572,6 +2614,20 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAssignedResources_Group_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - ENGINE:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2582,6 +2638,19 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  filter-getAssignedRichResources_Group_policy:
+    policy_roles:
+      - RESOURCEADMIN: Vo
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2626,6 +2695,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -2636,6 +2706,8 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2646,6 +2718,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -2656,6 +2729,8 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -2805,6 +2880,8 @@ perun_policies:
     policy_roles:
       - RESOURCEADMIN: Resource
       - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
     include_policies:
       - default_policy
 
@@ -4353,6 +4430,7 @@ perun_policies:
       - VOADMIN:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
+      - TRUSTEDFACILITYADMIN:
     include_policies:
       - default_policy
 
@@ -4365,6 +4443,7 @@ perun_policies:
       - VOADMIN: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -4378,6 +4457,7 @@ perun_policies:
       - VOADMIN:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
+      - TRUSTEDFACILITYADMIN:
     include_policies:
       - default_policy
 
@@ -4413,6 +4493,7 @@ perun_policies:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
       - PERUNOBSERVER:
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -4428,6 +4509,7 @@ perun_policies:
       - VOADMIN: Vo
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
     include_policies:
       - default_policy
 
@@ -5232,6 +5314,8 @@ perun_roles_management:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
 
   RESOURCESELFSERVICE:
     assign_to_objects:
@@ -5245,6 +5329,8 @@ perun_roles_management:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
 
   REGISTRAR:
     assign_to_objects: {}
@@ -5323,5 +5409,15 @@ perun_roles_management:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles: []
+
+  TRUSTEDFACILITYADMIN:
+    assign_to_objects:
+      Vo: vo_id
+    entities_to_manage:
+      User: user_id
+      Group: authorized_group_id
+    privileged_roles:
+      - PERUNADMIN:
+      - VOADMIN: Vo
 
 ...
