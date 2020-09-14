@@ -402,7 +402,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				"  SENDING:  " + sending +
 				"  SENDEEROR:  " + senderror +
 				"  DONE: " + done +
-				"  WARNING: " + warning + 
+				"  WARNING: " + warning +
 				"  ERROR: " + error;
 	}
 
@@ -454,8 +454,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				TaskStatus.PLANNED,
 				TaskStatus.GENERATING,
 				TaskStatus.GENERATED,
-				TaskStatus.SENDING,
-				TaskStatus.WARNING
+				TaskStatus.SENDING
 				);
 
 		// switch all processing tasks to error, remove the engine queue association
