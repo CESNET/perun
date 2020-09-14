@@ -326,7 +326,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Member> getGroupMembers(PerunSession sess, Group group) {
 		try {
 			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_members join members on members.id=groups_members.member_id " +
-					"where groups_members.group_id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId());
+					"where groups_members.group_id=?", MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP, group.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -341,7 +341,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					" from groups_members" +
 					" join members on members.id=groups_members.member_id" +
 					" and groups_members.group_id=? " +
-					" and members.id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId(), id);
+					" and members.id=?", MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP, group.getId(), id);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -353,7 +353,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType) {
 		try {
 			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_members join members on members.id=groups_members.member_id " +
-					"where groups_members.group_id=? and groups_members.membership_type=?", MembersManagerImpl.MEMBER_MAPPER, group.getId(), membershipType.getCode());
+					"where groups_members.group_id=? and groups_members.membership_type=?", MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP, group.getId(), membershipType.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -376,12 +376,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				// Exclude members with one of the status
 				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
 						" from groups_members join members on members.id=groups_members.member_id " +
-						"where groups_members.group_id=:group_id and members.status not in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
+						"where groups_members.group_id=:group_id and members.status not in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP);
 			} else {
 				// Include members with one of the status
 				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
 						" from groups_members join members on members.id=groups_members.member_id " +
-						"where groups_members.group_id=:group_id and members.status in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
+						"where groups_members.group_id=:group_id and members.status in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER_WITH_GROUP);
 			}
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();

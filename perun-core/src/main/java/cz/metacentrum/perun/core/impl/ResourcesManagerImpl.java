@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_MAPPER;
+
 /**
  *
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -376,13 +378,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) {
 		try  {
-			// we do include all group statuses for such members
 			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources" +
 							" join groups on groups_resources.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id" +
 							" join members on groups_members.member_id=members.id" +
 							" where groups_resources.resource_id=? and members.status!=? and members.status!=?",
-					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
+					MEMBER_MAPPER, resource.getId(),
 					Status.INVALID.getCode(), Status.DISABLED.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
