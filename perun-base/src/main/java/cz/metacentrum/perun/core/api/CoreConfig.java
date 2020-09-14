@@ -492,6 +492,10 @@ public class CoreConfig {
 					attr.setDisplayName("schacHomeOrganization");
 					attr.setDescription("domain name of person's organization (SChema for Academia)");
 					break;
+				case "schacPersonalUniqueCode":
+					attr.setDisplayName("schacPersonalUniqueCode");
+					attr.setDescription("Unique code of a person (Schema for Academia)");
+					break;
 				case "alternativeLoginName":
 					attr.setDisplayName("alternativeLoginName");
 					attr.setDescription("person's alternative login name in organization (not related to IdP identity).");
