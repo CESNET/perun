@@ -53,6 +53,19 @@ public interface ResourcesManager {
 	Resource getResourceById(PerunSession perunSession, int id) throws PrivilegeException, ResourceNotExistsException;
 
 	/**
+	 * Find resource for given id and returns it with given attributes.
+	 * If attrNames are null or empty, all resource attributes are returned.
+	 *
+	 * @param sess session
+	 * @param id resource id
+	 * @param attrNames names of attributes to return
+	 * @return resource for given id with desired attributes
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws ResourceNotExistsException if there is no resource with given id
+	 */
+	EnrichedResource getEnrichedResourceById(PerunSession sess, int id, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException;
+
+	/**
 	 * Search for the RichResource with specific id.
 	 *
 	 * @param perunSession
@@ -500,6 +513,32 @@ public interface ResourcesManager {
 	 * @return list of rich resources
 	 */
 	List<RichResource> getRichResources(PerunSession perunSession, Vo vo) throws PrivilegeException, VoNotExistsException;
+
+	/**
+	 * Find resources for given vo and attributes for given names. If the
+	 * attrNames are empty or null, return all attributes.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrNames names of attributes to return
+	 * @return resources with desired attributes
+	 * @throws VoNotExistsException if there is no vo with given id
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	List<EnrichedResource> getEnrichedResourcesForVo(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Find resources for given facility and attributes for given names. If the
+	 * attrNames are empty or null, return all attributes.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrNames names of attributes to return
+	 * @return resources with desired attributes
+	 * @throws FacilityNotExistsException if there is not facility with given id
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	List<EnrichedResource> getEnrichedResourcesForFacility(PerunSession sess, Facility facility, List<String> attrNames) throws FacilityNotExistsException, PrivilegeException;
 
 	/**
 	 * Get all VO resources count.

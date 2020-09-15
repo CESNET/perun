@@ -17,6 +17,7 @@ import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceRemovedFro
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -72,6 +73,7 @@ import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -91,6 +93,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public Resource getResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
 		return getResourcesManagerImpl().getResourceById(sess, id);
+	}
+
+	@Override
+	public EnrichedResource getEnrichedResourceById(PerunSession sess, int id, List<String> attrNames) throws ResourceNotExistsException {
+		Resource resource = getResourceById(sess, id);
+		return convertToEnrichedResource(sess, resource, attrNames);
 	}
 
 	@Override
@@ -983,6 +991,38 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	public void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException {
 		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCESELFSERVICE);
 		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceRemovedForGroup(resource, group));
+	}
+
+	@Override
+	public EnrichedResource convertToEnrichedResource(PerunSession sess, Resource resource, List<String> attrNames) {
+		List<Attribute> attributes;
+		if (attrNames == null || attrNames.isEmpty() ) {
+			attributes = perunBl.getAttributesManagerBl().getAttributes(sess, resource);
+		} else {
+			attributes = perunBl.getAttributesManagerBl().getAttributes(sess, resource, attrNames);
+		}
+		return new EnrichedResource(resource, attributes);
+	}
+
+	@Override
+	public EnrichedResource filterOnlyAllowedAttributes(PerunSession sess, EnrichedResource enrichedResource) {
+		enrichedResource.setAttributes(AuthzResolverBlImpl
+				.filterNotAllowedAttributes(sess, enrichedResource.getResource(), enrichedResource.getAttributes()));
+		return enrichedResource;
+	}
+
+	@Override
+	public List<EnrichedResource> getEnrichedRichResourcesForVo(PerunSession sess, Vo vo, List<String> attrNames) {
+		return getResources(sess, vo).stream()
+				.map(resource -> convertToEnrichedResource(sess, resource, attrNames))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<EnrichedResource> getEnrichedRichResourcesForFacility(PerunSession sess, Facility facility, List<String> attrNames) {
+		return perunBl.getFacilitiesManagerBl().getAssignedResources(sess, facility).stream()
+				.map(resource -> convertToEnrichedResource(sess, resource, attrNames))
+				.collect(Collectors.toList());
 	}
 
 	/**

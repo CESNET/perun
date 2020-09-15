@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -59,6 +60,18 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Resource getResourceById(PerunSession perunSession, int id) throws ResourceNotExistsException;
+
+	/**
+	 * Find resource for given id and returns it with given attributes.
+	 * If attrNames are null or empty, all resource attributes are returned.
+	 *
+	 * @param sess session
+	 * @param id resource id
+	 * @param attrNames names of attributes to return
+	 * @return resource for given id with desired attributes
+	 * @throws ResourceNotExistsException if there is no resource with given id
+	 */
+	EnrichedResource getEnrichedResourceById(PerunSession sess, int id, List<String> attrNames) throws ResourceNotExistsException;
 
 	/**
 	 * Searches for the RichResource with specified id.
@@ -1081,4 +1094,47 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException;
+
+	/**
+	 * Creates enrichedResource from given resource and load attributes with given names.
+	 * If the attrNames are null or emtpy, all resource attributes are added.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrNames names of attributes to return
+	 * @return EnrichedResource for given resource with desired attributes
+	 */
+	EnrichedResource convertToEnrichedResource(PerunSession sess, Resource resource, List<String> attrNames);
+
+	/**
+	 * Filter attributes in given enrichedResources, which are allowed for
+	 * current principal.
+	 *
+	 * @param sess session
+	 * @param enrichedResource resource with attributes to filter
+	 * @return resource with attributes that are allowed for current principal
+	 */
+	EnrichedResource filterOnlyAllowedAttributes(PerunSession sess, EnrichedResource enrichedResource);
+
+	/**
+	 * Find resources for given vo and attributes for given names. If the
+	 * attrNames are empty or null, return all attributes.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrNames names of attributes to return
+	 * @return resources with desired attributes
+	 */
+	List<EnrichedResource> getEnrichedRichResourcesForVo(PerunSession sess, Vo vo, List<String> attrNames);
+
+	/**
+	 * Find resources for given facility and attributes for given names. If the
+	 * attrNames are empty or null, return all attributes.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrNames names of attributes to return
+	 * @return resources with desired attributes
+	 */
+	List<EnrichedResource> getEnrichedRichResourcesForFacility(PerunSession sess, Facility facility, List<String> attrNames);
 }

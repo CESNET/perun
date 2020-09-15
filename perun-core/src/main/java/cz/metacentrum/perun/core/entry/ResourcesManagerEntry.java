@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -38,7 +39,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
@@ -56,9 +56,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -91,6 +91,21 @@ public class ResourcesManagerEntry implements ResourcesManager {
 				}
 
 		return resource;
+	}
+
+	@Override
+	public EnrichedResource getEnrichedResourceById(PerunSession sess, int id, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		EnrichedResource eResource = resourcesManagerBl.getEnrichedResourceById(sess, id, attrNames);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedResourceById_int_List<String>_policy",
+					eResource.getResource())) {
+			throw new PrivilegeException(sess, "getEnrichedResourceById");
+		}
+
+		return resourcesManagerBl.filterOnlyAllowedAttributes(sess, eResource);
 	}
 
 	@Override
@@ -587,6 +602,42 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		resources = allowedResources;
 
 		return resources;
+	}
+
+	@Override
+	public List<EnrichedResource> getEnrichedResourcesForVo(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedResourcesForVo_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getEnrichedResourcesForVo");
+		}
+
+		return getResourcesManagerBl().getEnrichedRichResourcesForVo(sess, vo, attrNames).stream()
+				.filter(eResource -> AuthzResolver.authorizedInternal(sess,
+						"filter-getEnrichedResourcesForVo_Vo_policy", vo, eResource.getResource()))
+				.map(eResource -> getResourcesManagerBl().filterOnlyAllowedAttributes(sess, eResource))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<EnrichedResource> getEnrichedResourcesForFacility(PerunSession sess, Facility facility, List<String> attrNames) throws FacilityNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedResourcesForFacility_Facility_policy", facility)) {
+			throw new PrivilegeException(sess, "getEnrichedResourcesForFacility");
+		}
+
+		return getResourcesManagerBl().getEnrichedRichResourcesForFacility(sess, facility, attrNames).stream()
+				.filter(eResource -> AuthzResolver.authorizedInternal(sess,
+						"filter-getEnrichedResourcesForFacility_Facility_policy", facility, eResource.getResource()))
+				.map(eResource -> getResourcesManagerBl().filterOnlyAllowedAttributes(sess, eResource))
+				.collect(Collectors.toList());
 	}
 
 	@Override
