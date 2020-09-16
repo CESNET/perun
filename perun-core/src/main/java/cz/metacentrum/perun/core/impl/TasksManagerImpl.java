@@ -79,10 +79,10 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			taskResult.setStatus(TaskResult.TaskResultStatus.DONE);
 		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.ERROR.toString())) {
 			taskResult.setStatus(TaskResult.TaskResultStatus.ERROR);
-		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.FATAL_ERROR.toString())) {
-			taskResult.setStatus(TaskResult.TaskResultStatus.FATAL_ERROR);
 		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.DENIED.toString())) {
 			taskResult.setStatus(TaskResult.TaskResultStatus.DENIED);
+		} else if (resultSet.getString("tasks_results_status").equalsIgnoreCase(TaskResult.TaskResultStatus.WARNING.toString())) {
+			taskResult.setStatus(TaskResult.TaskResultStatus.WARNING);
 		} else {
 			throw new IllegalArgumentException("Unknown TaskResult state.");
 		}
@@ -433,6 +433,8 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			task.setStatus(Task.TaskStatus.DONE);
 		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(Task.TaskStatus.ERROR.toString())) {
 			task.setStatus(Task.TaskStatus.ERROR);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(Task.TaskStatus.WARNING.toString())) {
+			task.setStatus(Task.TaskStatus.WARNING);
 		} else {
 			throw new IllegalArgumentException("Task status [" + resultSet.getString("tasks_status") + "] unknown");
 		}

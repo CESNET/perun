@@ -246,6 +246,9 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 				else if (row.getStatus().equalsIgnoreCase("DONE")){
 					return "rowgreen";
 				}
+				else if (row.getStatus().equalsIgnoreCase("WARNING")){
+					return "roworange";
+				}
 				else if (Arrays.asList("GENERROR","SENDERROR","ERROR").contains(row.getStatus())){
 					return "rowred";
 				}
