@@ -519,7 +519,7 @@ public interface ServicesManager {
 	 * @return attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first child is abstract structure which children are groups.
 	 *         Resource  second chi is abstract structure which children are members.
-	 *         Group first child is abstract structure which children are groups.
+	 *         Group first child is empty structure.
 	 *         Group second chi is abstract structure which children are members.
 	 <pre>
 	 Facility
@@ -549,10 +549,6 @@ public interface ServicesManager {
 	 |              |       |        +-------Attrs
 	 |              |       |        +-------ChildNodes
 	 |              |       |                   +-------()
-	 |              |       |                   |        +---ChildNodes
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +...
 	 |              |       |                   +-------()
 	 |              |       |                            +---ChildNodes
 	 |              |       |                                   +------Member
