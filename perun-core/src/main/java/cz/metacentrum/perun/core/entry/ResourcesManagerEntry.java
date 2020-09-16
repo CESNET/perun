@@ -444,7 +444,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "getAssignedResources");
 		}
 
-		return getResourcesManagerBl().getAssignedResources(sess, group);
+		return getResourcesManagerBl().getAssignedResources(sess, group).stream()
+			.filter(resource -> AuthzResolver.authorizedInternal(sess, "filter-getAssignedResources_Group_policy", group, resource))
+			.collect(Collectors.toList());
 	}
 
 	@Override
@@ -457,7 +459,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "getAssignedRichResources");
 				}
 
-		return getResourcesManagerBl().getAssignedRichResources(sess, group);
+		return getResourcesManagerBl().getAssignedRichResources(sess, group).stream()
+			.filter(resource -> AuthzResolver.authorizedInternal(sess, "filter-getAssignedRichResources_Group_policy", group, resource))
+			.collect(Collectors.toList());
 	}
 
 	@Override
