@@ -52,7 +52,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		return "Engine SchedulingPool Task report:\n" +
 				" PLANNED: " + printListWithWhitespace(getTasksWithStatus(PLANNED)) +
 				" GENERATING:" + printListWithWhitespace(getTasksWithStatus(GENERATING)) +
-				" SENDING:" + printListWithWhitespace(getTasksWithStatus(SENDING,SENDERROR)) +
+				" SENDING:" + printListWithWhitespace(getTasksWithStatus(SENDING,WARNING,SENDERROR)) +
 				" SENDTASKCOUNT map: " + sendTaskCount.toString();
 	}
 
@@ -121,14 +121,15 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	public Integer decreaseSendTaskCount(Task task, int decrease) throws TaskStoreException {
 
 		Integer count = sendTaskCount.get(task.getId());
-		log.debug("[{}] Task SendTasks count is {}", task.getId(), count);
+		log.debug("[{}] Task SendTasks count is {}, state {}", task.getId(), count, task.getStatus());
 
 		if (count == null) {
 			return null;
 
 		} else if (count <= 1) {
 
-			if (!Objects.equals(task.getStatus(), SENDERROR)) {
+			if (!Objects.equals(task.getStatus(), SENDERROR) &&
+					!Objects.equals(task.getStatus(), WARNING)) {
 				task.setStatus(DONE);
 			}
 			if(task.getSendEndTime() == null) {
@@ -139,7 +140,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			} catch (JMSException e) {
 				log.error("[{}] Error while sending final status update for Task to Dispatcher", task.getId());
 			}
-			log.debug("[{}] Trying to remove Task from allTasks since its done", task.getId());
+			log.debug("[{}] Trying to remove Task from allTasks since its done ({})", task.getId(), task.getStatus());
 			removeTask(task);
 			return 1;
 		} else {
@@ -199,7 +200,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		taskResult.setErrorMessage(stderr);
 		taskResult.setStandardMessage(stdout);
 		taskResult.setReturnCode(returnCode);
-		taskResult.setStatus(returnCode == 0 ? TaskResult.TaskResultStatus.DONE : TaskResult.TaskResultStatus.ERROR);
+		taskResult.setStatus(returnCode == 0 ? 
+				(stderr.isEmpty() ? TaskResult.TaskResultStatus.DONE : TaskResult.TaskResultStatus.WARNING) 
+				: TaskResult.TaskResultStatus.ERROR);
 		taskResult.setTimestamp(new Date(System.currentTimeMillis()));
 		taskResult.setService(service);
 		return taskResult;

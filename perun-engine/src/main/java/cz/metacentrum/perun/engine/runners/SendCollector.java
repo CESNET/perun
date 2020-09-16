@@ -8,7 +8,10 @@ import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.scheduling.impl.BlockingSendExecutorCompletionService;
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.taskslib.model.SendTask;
+import cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus;
+import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.runners.impl.AbstractRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +28,11 @@ import java.util.Objects;
  * For each SendTask its outcome is reported to Dispatcher as a TaskResult.
  *
  * If any of SendTasks fails its processing (has ERROR status), whole Task is set to SENDERROR.
+ * If any of SendTasks completes its processing with WARNING status, whole Task is set to WARNING, unless there was other failure..
  * Otherwise SENDING or DONE is kept for whole Task.
  * Once all SendTasks are finished Task status is reported to Dispatcher.
  *
- * Expected Task status change is SENDING -> DONE | SENDERROR based on all SendWorkers outcome.
+ * Expected Task status change is SENDING -> DONE | WARNING | SENDERROR based on all SendWorkers outcome.
  *
  * @see BlockingSendExecutorCompletionService
  * @see SchedulingPool#createTaskResult(int, int, String, String, int, Service)
@@ -83,9 +87,15 @@ public class SendCollector extends AbstractRunner {
 				 all Destinations (whole Task). Default rescheduleTime is 3 hours * no.of destinations.
 				 */
 				task.setSendEndTime(LocalDateTime.now());
-				if (!Objects.equals(task.getStatus(), Task.TaskStatus.SENDERROR)) {
-					// keep SENDING status only if if task previously doesn't failed
+				// XXX: why is this necessary? Rewriting status with every completed destination? 
+				if (!Objects.equals(task.getStatus(), Task.TaskStatus.SENDERROR) &&
+						!Objects.equals(task.getStatus(), Task.TaskStatus.WARNING) &&
+						!Objects.equals(sendTask.getStatus(), SendTaskStatus.WARNING)) {
+					// keep SENDING status only if task previously hasn't failed
 					task.setStatus(Task.TaskStatus.SENDING);
+				} else if(!Objects.equals(task.getStatus(), Task.TaskStatus.SENDERROR) &&
+						sendTask.getStatus() == SendTaskStatus.WARNING) {
+					task.setStatus(Task.TaskStatus.WARNING);
 				}
 				destination = sendTask.getDestination();
 				stderr = sendTask.getStderr();

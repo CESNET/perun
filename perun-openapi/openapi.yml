@@ -809,6 +809,7 @@ components:
         - DONE
         - SENDERROR
         - ERROR
+        - WARNING
 
     Task:
       type: object
@@ -836,9 +837,8 @@ components:
       enum:
         - DONE
         - ERROR
-        - FATAL_ERROR
         - DENIED
-        - WARN
+        - WARNING
 
     TaskResult:
       allOf:

@@ -535,8 +535,7 @@ public class AuditParser {
 			if (status.equals("DENIED")) st = TaskResultStatus.DENIED;
 			else if (status.equals("DONE")) st = TaskResultStatus.DONE;
 			else if (status.equals("ERROR")) st = TaskResultStatus.ERROR;
-			else if (status.equals("FATAL_ERROR")) st = TaskResultStatus.FATAL_ERROR;
-			else if (status.equals("WARN")) st = TaskResultStatus.WARN;
+			else if (status.equals("WARNING")) st = TaskResultStatus.WARNING;
 			else st = null;
 		}
 		taskResult.setStatus(st);
