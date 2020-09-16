@@ -1175,6 +1175,32 @@ public interface MembersManager {
 	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
 
 	/**
+	 * Creates a sponsored membership for the given user.
+	 *
+	 * @param session actor
+	 * @param vo virtual organization for the member
+	 * @param userToBeSponsored user, that will be sponsored by sponsor
+	 * @param namespace namespace for selecting password module
+	 * @param password password
+	 * @param sponsor sponsoring user or null for the caller
+	 *
+	 * @return sponsored member
+	 *
+	 * @throws PrivilegeException
+	 * @throws AlreadyMemberException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordCreationFailedException
+	 * @throws ExtendMembershipException
+	 * @throws WrongAttributeValueException
+	 * @throws ExtSourceNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws UserNotInRoleException
+	 * @throws PasswordStrengthException
+	 * @throws InvalidLoginException
+	 */
+	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+
+	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
 	 *
 	 * @param session perun session
