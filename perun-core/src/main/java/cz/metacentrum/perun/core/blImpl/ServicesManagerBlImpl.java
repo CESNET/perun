@@ -429,14 +429,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		} catch (GroupResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
-		ServiceAttributes groupsSubGroupsElement = new ServiceAttributes();
-		// FIXME Do not get subgroups of the members group
-		if (!group.getName().equals(VosManager.MEMBERS_GROUP)) {
-			List<Group> subGroups = getPerunBl().getGroupsManagerBl().getSubGroups(sess, group);
-			for(Group subGroup : subGroups) {
-				groupsSubGroupsElement.addChildElement(getData(sess, service, facility, resource, subGroup, memberAttributes, filterExpiredMembers));
-			}
-		}
 
 		ServiceAttributes groupsMembersElement = new ServiceAttributes();
 		//Invalid and disabled are not allowed here
@@ -467,7 +459,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			groupsMembersElement.addChildElement(tempAttrs);
 		}
 
-		groupServiceAttributes.addChildElement(groupsSubGroupsElement);
+		// Services expect members to be second child element, so we create empty ServiceAttributes where subgroups used to be.
+		groupServiceAttributes.addChildElement(new ServiceAttributes());
 		groupServiceAttributes.addChildElement(groupsMembersElement);
 		return groupServiceAttributes;
 	}
