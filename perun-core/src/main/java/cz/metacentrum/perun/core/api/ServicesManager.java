@@ -518,9 +518,9 @@ public interface ServicesManager {
 	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first child is abstract structure which children are groups.
-	 *         Resource  second chi is abstract structure which children are members.
-	 *         Group first child is abstract structure which children are groups.
-	 *         Group second chi is abstract structure which children are members.
+	 *         Resource  second child is abstract structure which children are members.
+	 *         Group first child is empty structure (services expect members to be second child, here used to be subgroups).
+	 *         Group second child is abstract structure which children are members.
 	 <pre>
 	 Facility
 	 +---Attrs                              ...................................................
@@ -533,10 +533,6 @@ public interface ServicesManager {
 	 |              |       |        +-------Attrs                                     .
 	 |              |       |        +-------ChildNodes                                .
 	 |              |       |                   +-------()                             .
-	 |              |       |                   |        +---ChildNodes                .
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +...
 	 |              |       |                   +-------()
 	 |              |       |                            +---ChildNodes
 	 |              |       |                                   +------Member
@@ -549,10 +545,6 @@ public interface ServicesManager {
 	 |              |       |        +-------Attrs
 	 |              |       |        +-------ChildNodes
 	 |              |       |                   +-------()
-	 |              |       |                   |        +---ChildNodes
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +...
 	 |              |       |                   +-------()
 	 |              |       |                            +---ChildNodes
 	 |              |       |                                   +------Member
