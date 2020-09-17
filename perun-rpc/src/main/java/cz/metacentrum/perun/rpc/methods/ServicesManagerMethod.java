@@ -902,10 +902,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
 	 * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
-	 *         Resource first chil is abstract structure which children are groups.
-	 *         Resource  second chi is abstract structure which children are members.
-	 *         Group first chil is abstract structure which children are groups.
-	 *         Group second chi is abstract structure which children are members.
+	 *         Resource first child is abstract structure which children are groups.
+	 *         Resource  second child is abstract structure which children are members.
+	 *         Group first child is empty structure (services expect members to be second child, here used to be subgroups).
+	 *         Group second child is abstract structure which children are members.
 	 <pre>
 	 Facility
 	 +---Attrs                       ...................................................
@@ -918,10 +918,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 |              |       |        +-------Attrs                                     .
 	 |              |       |        +-------ChildNodes                                .
 	 |              |       |                   +-------()                             .
-	 |              |       |                   |        +---ChildNodes                .
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +...
 	 |              |       |                   +-------()
 	 |              |       |                            +---ChildNodes
 	 |              |       |                                   +------Member
@@ -934,10 +930,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 |              |       |        +-------Attrs
 	 |              |       |        +-------ChildNodes
 	 |              |       |                   +-------()
-	 |              |       |                   |        +---ChildNodes
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +------- GROUP (same structure as any other group)
-	 |              |       |                   |               +...
 	 |              |       |                   +-------()
 	 |              |       |                            +---ChildNodes
 	 |              |       |                                   +------Member

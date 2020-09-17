@@ -451,9 +451,9 @@ public interface ServicesManagerBl {
 	 * @param filterExpiredMembers if true the method does not take expired members into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first child is abstract structure which children are groups.
-	 *         Resource  second chi is abstract structure which children are members.
-	 *         Group first child is empty structure.
-	 *         Group second chi is abstract structure which children are members.
+	 *         Resource  second child is abstract structure which children are members.
+	 *         Group first child is empty structure (services expect members to be second child, here used to be subgroups).
+	 *         Group second child is abstract structure which children are members.
 	 */
 	ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers);
 	/**
