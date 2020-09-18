@@ -309,33 +309,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	@Deprecated
-	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException, PasswordStrengthException, InvalidLoginException {
-		String loginNamespaceUri = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + namespace;
-		boolean passwordPresent = params.get("password") != null;
-		if (params.get(loginNamespaceUri) == null) {
-			Map<String, String> generatedParams = getPerunBl().getUsersManagerBl().generateAccount(sess, namespace, params);
-			params.putAll(generatedParams);
-		} else if (passwordPresent) {
-			getPerunBl().getUsersManagerBl().reservePassword(sess, params.get(loginNamespaceUri), namespace, params.get("password"));
-		} else {
-			throw new InternalErrorException("If login for new account is provided, password must be provided also");
-		}
-		// remove non-valid entries from map for Candidate otherwise it would fail to create member
-		params.keySet().removeIf(next -> !next.startsWith("urn:perun:user") && !next.startsWith("urn:perun:member"));
-		String extSourceLogin = params.get(loginNamespaceUri) + extSourcePostfix;
-		UserExtSource userExtSource = new UserExtSource(extSource, loa, extSourceLogin);
-		Candidate candidate = new Candidate(userExtSource, params);
-		Member member = this.createSpecificMember(sess, vo, candidate, Collections.singletonList(owner), SpecificUserType.SPONSORED);
-		this.validateMemberAsync(sess, member);
-		if (passwordPresent) {
-			User user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
-			getPerunBl().getUsersManagerBl().validatePasswordAndSetExtSources(sess, user, params.get(loginNamespaceUri), namespace);
-		}
-		return member;
-	}
-
-	@Override
 	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createMemberSync(sess, vo, candidate, null);
 	}

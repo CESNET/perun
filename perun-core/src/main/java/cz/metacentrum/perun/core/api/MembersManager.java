@@ -93,7 +93,7 @@ public interface MembersManager {
 	 * @param vo
 	 * @param candidate prepared future specificUser
 	 * @param specificUserOwners list of users who own specificUser (can't be empty or contain specificUser)
-	 * @param specificUserType type of specific user (service or sponsored)
+	 * @param specificUserType type of specific user (service)
 	 * @return newly created member (of specificUser)
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
@@ -119,7 +119,7 @@ public interface MembersManager {
 	 * @param vo
 	 * @param candidate prepared future specificUser
 	 * @param specificUserOwners list of users who own specificUser (can't be empty or contain specificUser)
-	 * @param specificUserType type of specific user (service or sponsored)
+	 * @param specificUserType type of specific user (service)
 	 * @param groups list of groups where member will be added too
 	 * @return newly created member (of specific User)
 	 * @throws InternalErrorException
@@ -231,25 +231,6 @@ public interface MembersManager {
 	 * @throws GroupNotExistsException
 	 */
 	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
-
-	/**
-	 * Creates a new sponsored member in given namespace and external source.
-	 * Owner of the member must be specified in params map under key "sponsor"
-	 *
-	 * @param sess session
-	 * @param params Map containing parameters about user that will be created, will be used to create Candidate,
-	 *               must contain key "sponsor" with value of user login in given namespace that will be owner of created member
-	 * @param namespace namespace to generate account in
-	 * @param extSource external source
-	 * @param extSourcePostfix login postfix if external source uses postfix after login from given namespace, e.g. "@muni.cz"
-	 * @param vo VO in which user will be created
-	 * @param loa level of assurance
-	 * @return newly created sponsored member
-	 *
-	 * @deprecated replaced by {@link #createSponsoredMember(PerunSession, Vo, String, String, String, User)}
-	 */
-	@Deprecated
-	Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, Vo vo, int loa) throws PrivilegeException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, AlreadyMemberException, PasswordStrengthFailedException, PasswordOperationTimeoutException, WrongAttributeValueException, PasswordStrengthException, InvalidLoginException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
