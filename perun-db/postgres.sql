@@ -1,4 +1,4 @@
--- database version 3.1.66 (don't forget to update insert statement at the end of file)
+-- database version 3.1.67 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -18,6 +18,7 @@ create table vos (
 -- USERS - information about user as real person
 create table users (
 	id integer not null,
+	uu_id uuid not null default gen_random_uuid(),
 	first_name varchar,   -- christening name
 	last_name varchar,    -- family name
 	middle_name varchar,   -- second name
@@ -143,6 +144,7 @@ create table facilities (
 -- RESOURCES - facility assigned to VO
 create table resources (
 	id integer not null,
+	uu_id uuid not null default gen_random_uuid(),
 	facility_id integer not null, --facility identifier (facility.id)
 	name varchar not null,   --name of resource
 	dsc varchar,            --purpose and description
@@ -191,6 +193,7 @@ create table facility_owners (
 -- GROUPS - groups of users
 create table groups (
 	id integer not null,
+	uu_id uuid not null default gen_random_uuid(),
 	name text not null,         --group name
 	dsc varchar,          --purpose and description
 	vo_id integer not null,     --identifier of VO (vos.id)
@@ -1712,7 +1715,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.66');
+insert into configurations values ('DATABASE VERSION','3.1.67');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

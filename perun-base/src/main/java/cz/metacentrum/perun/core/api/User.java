@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.UUID;
+
 /**
  * Represents user of some source.
  *
@@ -7,7 +9,7 @@ package cz.metacentrum.perun.core.api;
  * @author Slavek Licehammer
  * @author Martin Kuba
  */
-public class User extends Auditable implements Comparable<PerunBean> {
+public class User extends Auditable implements Comparable<PerunBean>, HasUUID {
 
 	protected String firstName;
 	protected String lastName;
@@ -16,6 +18,7 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	protected String titleAfter;
 	private boolean serviceUser = false;
 	private boolean sponsoredUser = false;
+	private UUID uuid;
 
 	public User() {
 		super();
@@ -46,13 +49,22 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		this.titleBefore = titleBefore;
 	}
 
-	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
+	public User(int id, UUID uuid, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
 	            String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, boolean sponsoredUser, Integer createdByUid, Integer modifiedByUid) {
 		this(id, firstName, lastName, middleName, titleBefore, titleAfter, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
+		this.uuid = uuid;
 		this.serviceUser = serviceUser;
 		this.sponsoredUser = sponsoredUser;
 	}
 
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
 
 	public String getFirstName() {
 		return firstName;
@@ -194,6 +206,7 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	public String serializeToString() {
 		return this.getClass().getSimpleName() + ":[" +
 				"id=<" + getId() + ">" +
+				", uuid=<" + getUuid() + ">" +
 				", titleBefore=<" + (getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())) + ">" +
 				", firstName=<" + (getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName())) + ">" +
 				", lastName=<" + (getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())) + ">" +
@@ -209,6 +222,8 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		return getClass().getSimpleName() +
 				":[id='" +
 				getId() +
+				"', uuid='" +
+				uuid +
 				"', titleBefore='" +
 				titleBefore +
 				"', firstName='" +

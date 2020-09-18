@@ -187,7 +187,8 @@ public interface UsersManagerImplApi {
 	List<User> getUsers(PerunSession sess);
 
 	/**
-	 *  Creates the user, stores it in the DB. This method will fill user.id property.
+	 *  Creates the user, stores it in the DB. This method will fill id and uuid to
+	 *  the given user object, but returns a new user object loaded from the DB.
 	 *
 	 * @param perunSession
 	 * @param user user bean with filled properties

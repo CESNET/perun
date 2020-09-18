@@ -118,13 +118,28 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void createUserSetsUUID() throws Exception {
+		System.out.println(CLASS_NAME + "createUserSetsUUID");
+
+		user = new User();
+		user.setFirstName(userFirstName);
+		user.setLastName(userLastName);
+
+		User createdUser = perun.getUsersManagerBl().createUser(sess, user);
+
+		assertThat(createdUser.getUuid()).isNotNull();
+		assertThat(createdUser.getUuid().version()).isEqualTo(4);
+	}
+
+	@Test
 	public void getUserById() throws Exception {
 		System.out.println(CLASS_NAME + "getUserById");
 
 		User secondUser = usersManager.getUserById(sess, user.getId());
 		assertNotNull(secondUser);
 		assertEquals("both users should be the same",user,secondUser);
-
+		assertThat(secondUser.getUuid()).isNotNull();
+		assertThat(secondUser.getUuid().version()).isEqualTo(4);
 	}
 
 

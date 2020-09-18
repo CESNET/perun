@@ -29,6 +29,7 @@ public class RichResource extends Resource {
 	public RichResource(Resource resource) {
 		super(resource.getId(), resource.getName(), resource.getDescription(), resource.getFacilityId(), resource.getVoId(), resource.getCreatedAt(),
 				resource.getCreatedBy(), resource.getModifiedAt(), resource.getModifiedBy(), resource.getCreatedByUid(), resource.getModifiedByUid());
+		this.setUuid(resource.getUuid());
 	}
 
 	/**
@@ -114,6 +115,7 @@ public class RichResource extends Resource {
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
+			", uuid=<").append(getUuid()).append(">").append(
 			", voId=<").append(getVoId()).append(">").append(
 			", facilityId=<").append(getFacilityId()).append(">").append(
 			", name=<").append(super.getName() == null ? "\\0" : BeansUtils.createEscaping(super.getName())).append(">").append(
@@ -130,6 +132,7 @@ public class RichResource extends Resource {
 
 		return str.append(getClass().getSimpleName()).append(":["
 			).append("id='").append(getId()
+			).append("', uuid='").append(getUuid()
 			).append("', voId='").append(super.getVoId()
 			).append("', facilityId='").append(super.getFacilityId()
 			).append("', name='").append(super.getName()

@@ -3,16 +3,19 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.core.api.Auditable;
 import cz.metacentrum.perun.core.api.BeansUtils;
 
+import java.util.UUID;
+
 /**
  * Represents resource.
  *
  * @author  Slavek Licehammer
  */
-public class Resource extends Auditable implements Comparable<PerunBean> {
+public class Resource extends Auditable implements Comparable<PerunBean>, HasUUID {
 	private int facilityId;
 	private int voId;
 	private String name;
 	private String description;
+	private UUID uuid;
 
 	/**
 	 * Constructs a new instance.
@@ -48,6 +51,15 @@ public class Resource extends Auditable implements Comparable<PerunBean> {
 		this.description = description;
 		this.facilityId = facilityId;
 		this.voId = voId;
+	}
+
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
 	}
 
 	/**
@@ -108,6 +120,7 @@ public class Resource extends Auditable implements Comparable<PerunBean> {
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
+			", uuid=<").append(getUuid()).append(">").append(
 			", voId=<").append(getVoId()).append(">").append(
 			", facilityId=<").append(getFacilityId()).append(">").append(
 			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
@@ -120,6 +133,7 @@ public class Resource extends Auditable implements Comparable<PerunBean> {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(getClass().getSimpleName()).append(":[id='").append(getId()
+			).append("', uuid='").append(uuid
 			).append("', voId='").append(voId
 			).append("', facilityId='").append(facilityId
 			).append("', name='").append(name

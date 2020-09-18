@@ -61,6 +61,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -2542,6 +2543,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void createGroupSetsUUID() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupSetsUUID");
+
+		vo = setUpVo();
+		Group createdGroup = groupsManagerBl.createGroup(sess, vo, group);
+		assertThat(createdGroup.getUuid()).isNotNull();
+		assertThat(createdGroup.getUuid().version()).isEqualTo(4);
+	}
+
+	@Test
 	public void getGroupById() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupById");
 
@@ -2551,7 +2562,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group returnedGroup = groupsManager.getGroupById(sess, group.getId());
 		assertNotNull(returnedGroup);
 		assertEquals("both groups should be the same",returnedGroup,group);
-
+		assertThat(returnedGroup.getUuid()).isNotNull();
+		assertThat(returnedGroup.getUuid().version()).isEqualTo(4);
 	}
 
 	@Test

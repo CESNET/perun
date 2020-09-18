@@ -54,6 +54,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPER;
@@ -80,7 +81,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	private static final int MAX_OLD_OF_ACTIVE_USER_EXTSOURCE = 13;
 
 	// Part of the SQL script used for getting the User object
-	protected final static String userMappingSelectQuery = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
+	protected final static String userMappingSelectQuery = "users.id as users_id, users.uu_id as users_uu_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
 		"users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
 		"users.created_at as users_created_at, users.created_by as users_created_by, users.modified_by as users_modified_by, users.modified_at as users_modified_at, " +
 		"users.sponsored_acc as users_sponsored_acc, users.service_acc as users_service_acc, users.created_by_uid as users_created_by_uid, users.modified_by_uid as users_modified_by_uid";
@@ -111,7 +112,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
 	protected static final RowMapper<User> USER_MAPPER = (resultSet, i) ->
-		new User(resultSet.getInt("users_id"), resultSet.getString("users_first_name"), resultSet.getString("users_last_name"),
+		new User(resultSet.getInt("users_id"), resultSet.getObject("users_uu_id", UUID.class), resultSet.getString("users_first_name"), resultSet.getString("users_last_name"),
 			resultSet.getString("users_middle_name"), resultSet.getString("users_title_before"), resultSet.getString("users_title_after"),
 			resultSet.getString("users_created_at"), resultSet.getString("users_created_by"), resultSet.getString("users_modified_at"), resultSet.getString("users_modified_by"), resultSet.getBoolean("users_service_acc"),
 			resultSet.getBoolean("users_sponsored_acc"),
@@ -367,18 +368,25 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public User createUser(PerunSession sess, User user) {
+		int newId;
 		try {
-			int newId = Utils.getNewId(jdbc, "users_id_seq");
+			newId = Utils.getNewId(jdbc, "users_id_seq");
 			jdbc.update("insert into users(id,first_name,last_name,middle_name,title_before,title_after,created_by,modified_by,service_acc,sponsored_acc,created_by_uid,modified_by_uid)" +
 					" values (?,?,?,?,?,?,?,?,?,?,?,?)", newId, user.getFirstName(), user.getLastName(), user.getMiddleName(),
 					user.getTitleBefore(), user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), user.isServiceUser(), user.isSponsoredUser(),
 					sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			user.setId(newId);
-
-			return user;
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
+		User newUser;
+		try {
+			newUser = getUserById(sess, newId);
+		} catch (UserNotExistsException e) {
+			throw new InternalErrorException("Failed to read newly created user with id: " + newId, e);
+		}
+		user.setId(newId);
+		user.setUuid(newUser.getUuid());
+		return newUser;
 	}
 
 	@Override
