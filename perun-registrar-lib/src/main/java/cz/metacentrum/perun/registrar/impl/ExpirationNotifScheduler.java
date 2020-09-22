@@ -7,8 +7,10 @@ import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpi
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInMonthNotification;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpired;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -17,6 +19,8 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
@@ -28,6 +32,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Synchronizer;
+import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +43,22 @@ import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.autoExtensionExtSources;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.autoExtensionLastLoginPeriod;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Class handling incoming membership expiration notifications for VOs and Groups
@@ -58,6 +73,10 @@ public class ExpirationNotifScheduler {
 
 	private PerunBl perun;
 	private JdbcPerunTemplate jdbc;
+
+	private final DateTimeFormatter lastAccessFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+	private static final String A_VO_MEMBERSHIP_EXP_RULES = "urn:perun:vo:attribute-def:def:membershipExpirationRules";
 
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
@@ -319,13 +338,149 @@ public class ExpirationNotifScheduler {
 			vosMap.put(vo.getId(), vo);
 		}
 
+		performAutoExtension(vosMap.values());
+
 		auditIncomingExpirations(allowedStatuses, vosMap);
 
 		auditOldExpirations(allowedStatuses, vosMap);
 
-		LocalDate today = LocalDate.now();
+		LocalDate today = getCurrentLocalDate();
 		expireMembers(today);
 		validateMembers(today);
+	}
+
+	/**
+	 * For given vos, perform auto extension of soon expiring members (in a month or less).
+	 *
+	 * @param vos vos where the auto extension will be performed
+	 */
+	private void performAutoExtension(Collection<Vo> vos) {
+		LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
+
+		List<Member> soonExpiringMembers = perun.getSearcherBl().getMembersByExpiration(sess, "<=", nextMonth);
+
+		Map<Integer, Attribute> expAttrsByVos = vos.stream()
+				.collect(toMap(Vo::getId, this::getVoExpirationAttribute));
+
+		for (Member member : soonExpiringMembers) {
+			Attribute voExpAttribute = expAttrsByVos.get(member.getVoId());
+			if (canBeAutoExtended(member, voExpAttribute)) {
+				try {
+					perun.getMembersManagerBl().extendMembership(sess, member);
+				} catch (ExtendMembershipException e) {
+					log.error("Failed to auto-extend member: {}, exception: {}", member, e);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns true, if the member can be auto extended in his vo. This method expects the vo's
+	 * memberExpirationRules attribute which should be loaded from DB.
+	 *
+	 * Member can be autoExtended if:
+	 *   * His vo has memberExpirationRules defined, and
+	 *   * He has accessed any extSource (or the ones defined in vo rules) lately (this period is also defined
+	 *     in the vo's memberExpirationRules)
+	 *
+	 * @param member member to check, if can be auto extended
+	 * @param expirationRulesAttribute member's vo's memberExpirationRules attribute
+	 * @return true, if the member can be autoExtended, false otherwise
+	 */
+	private boolean canBeAutoExtended(Member member, Attribute expirationRulesAttribute) {
+		if (expirationRulesAttribute == null || expirationRulesAttribute.getValue() == null) {
+			return false;
+		}
+		LinkedHashMap<String, String> rulesAttrValue = expirationRulesAttribute.valueAsMap();
+		String lastAccessPeriod = rulesAttrValue.get(autoExtensionLastLoginPeriod);
+		if (lastAccessPeriod == null) {
+			return false;
+		}
+
+		if (!perun.getMembersManagerBl().canExtendMembership(sess, member)) {
+			return false;
+		}
+
+		Set<Integer> allowedExtSourceIds = null;
+		String attrExtSources = rulesAttrValue.get(autoExtensionExtSources);
+		if (attrExtSources != null) {
+			allowedExtSourceIds = Arrays.stream(attrExtSources.split(","))
+					.map(Integer::valueOf)
+					.collect(Collectors.toSet());
+		}
+		LocalDate lastAcceptableDate = Utils.shortenDateByPeriod(getCurrentLocalDate(), lastAccessPeriod);
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		if (allowedExtSourceIds == null) {
+			return hasAccessedAfterDate(user, lastAcceptableDate);
+		} else {
+			return hasAccessedAfterDate(user, lastAcceptableDate, allowedExtSourceIds);
+		}
+	}
+
+	/**
+	 * Returns true, if the given user has last access in an extSource with given id.
+	 *
+	 * @param user user to check
+	 * @param lastAcceptableDate last acceptable date
+	 * @param allowedExtSourceIds set of extSource ids which are used to check the last access
+	 * @return true, if the given user has last access in any UES after the given date, false otherwise
+	 */
+	private boolean hasAccessedAfterDate(User user, LocalDate lastAcceptableDate, Set<Integer> allowedExtSourceIds) {
+		List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(sess, user);
+		return userExtSources.stream()
+				.filter(ues -> allowedExtSourceIds.contains(ues.getExtSource().getId()))
+				.map(ues -> lastAccessToLocalDate(ues.getLastAccess()))
+				.anyMatch(lastAccessDate -> lastAccessDate.isAfter(lastAcceptableDate));
+	}
+
+	/**
+	 * Returns true, if the given user has last access in any ext source after the given date.
+	 *
+	 * @param user user to check
+	 * @param lastAcceptableDate last acceptable date
+	 * @return true, if the given user has last access in any ext source after the given date, false otherwise
+	 */
+	private boolean hasAccessedAfterDate(User user, LocalDate lastAcceptableDate) {
+		List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(sess, user);
+		return userExtSources.stream()
+				.map(ues -> lastAccessToLocalDate(ues.getLastAccess()))
+				.anyMatch(lastAccessDate -> lastAccessDate.isAfter(lastAcceptableDate));
+	}
+
+	/**
+	 * Parse given last access into a LocalDate, ignoring the micro seconds in it.
+	 *
+	 * @param lastAccess String with last access info, e.g.: '2018-01-31 12:53:20.220569'
+	 * @return LocalDate from given last access
+	 */
+	private LocalDate lastAccessToLocalDate(String lastAccess) {
+		return LocalDate.parse(lastAccess.substring(0, lastAccess.indexOf(".")), lastAccessFormatter);
+	}
+
+	/**
+	 * For given vo, return vo expiration rules attribute.
+	 *
+	 * @param vo vo to find the attribute
+	 * @return vo expiration rules attribute
+	 */
+	private Attribute getVoExpirationAttribute(Vo vo) {
+		try {
+			return perun.getAttributesManagerBl().getAttribute(sess, vo, A_VO_MEMBERSHIP_EXP_RULES);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+			// shouldn't happen
+			log.error("Failed to get vo expiration rules attribute.", e);
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Returns current system time.
+	 *
+	 * @return current time.
+	 */
+	public LocalDate getCurrentLocalDate() {
+		return LocalDate.now();
 	}
 
 	/**
@@ -380,7 +535,7 @@ public class ExpirationNotifScheduler {
 	 */
 	private void auditOldExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) {
 		// log message for all members which expired 7 days ago
-		LocalDate expiredWeekAgo = LocalDate.now().minusDays(7);
+		LocalDate expiredWeekAgo = getCurrentLocalDate().minusDays(7);
 		List<Member> expired7DaysAgo = perun.getSearcherBl().getMembersByExpiration(sess, "=", expiredWeekAgo);
 		// include expired in this case
 		allowedStatuses.add(Status.EXPIRED);
@@ -408,7 +563,7 @@ public class ExpirationNotifScheduler {
 	 */
 	private void auditOldGroupExpirations(List<Status> allowedStatuses, Group group) {
 		// log message for all members which expired 7 days ago
-		LocalDate expiredWeekAgo = LocalDate.now().minusDays(7);
+		LocalDate expiredWeekAgo = getCurrentLocalDate().minusDays(7);
 		List<Member> expired7DaysAgo = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "=", expiredWeekAgo);
 		for (Member m : expired7DaysAgo) {
 			if (allowedStatuses.contains(m.getStatus())) {
@@ -438,21 +593,21 @@ public class ExpirationNotifScheduler {
 	 * @throws InternalErrorException internal error
 	 */
 	private void auditIncomingExpirations(List<Status> allowedStatuses, Map<Integer, Vo> vosMap) {
-		LocalDate nextMonth = LocalDate.now().plusMonths(1);
+		LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
 
 		// log message for all members which will expire in 30 days
 		auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, nextMonth, ExpirationPeriod.MONTH);
 
 		// log message for all members which will expire in 14 days
-		LocalDate expireInA14Days = LocalDate.now().plusDays(14);
+		LocalDate expireInA14Days = getCurrentLocalDate().plusDays(14);
 		auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expireInA14Days, ExpirationPeriod.DAYS_14);
 
 		// log message for all members which will expire in 7 days
-		LocalDate expireInA7Days = LocalDate.now().plusDays(7);
+		LocalDate expireInA7Days = getCurrentLocalDate().plusDays(7);
 		auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expireInA7Days, ExpirationPeriod.DAYS_7);
 
 		// log message for all members which will expire tomorrow
-		LocalDate expireInADay = LocalDate.now().plusDays(1);
+		LocalDate expireInADay = getCurrentLocalDate().plusDays(1);
 		auditInfoAboutIncomingMembersExpirationInGivenTime(allowedStatuses, vosMap, expireInADay, ExpirationPeriod.DAYS_1);
 	}
 
@@ -464,21 +619,21 @@ public class ExpirationNotifScheduler {
 	 * @throws InternalErrorException internal error
 	 */
 	private void auditIncomingGroupExpirations(List<Status> allowedStatuses, Group group) {
-		LocalDate nextMonth = LocalDate.now().plusMonths(1);
+		LocalDate nextMonth = getCurrentLocalDate().plusMonths(1);
 
 		// log message for all members which will expire in 30 days
 		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, nextMonth, GroupExpirationPeriod.MONTH);
 
 		// log message for all members which will expire in 14 days
-		LocalDate expireInA14Days = LocalDate.now().plusDays(14);
+		LocalDate expireInA14Days = getCurrentLocalDate().plusDays(14);
 		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInA14Days, GroupExpirationPeriod.DAYS_14);
 
 		// log message for all members which will expire in 7 days
-		LocalDate expireInA7Days = LocalDate.now().plusDays(7);
+		LocalDate expireInA7Days = getCurrentLocalDate().plusDays(7);
 		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInA7Days, GroupExpirationPeriod.DAYS_7);
 
 		// log message for all members which will expire tomorrow
-		LocalDate expireInADay = LocalDate.now().plusDays(1);
+		LocalDate expireInADay = getCurrentLocalDate().plusDays(1);
 		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInADay, GroupExpirationPeriod.DAYS_1);
 	}
 
@@ -574,7 +729,7 @@ public class ExpirationNotifScheduler {
 			allGroups.addAll(perun.getGroupsManagerBl().getGroups(sess, vo));
 		}
 
-		LocalDate today = LocalDate.now();
+		LocalDate today = getCurrentLocalDate();
 
 		// remove member groups
 		allGroups = allGroups.stream()
