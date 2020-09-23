@@ -77,6 +77,7 @@ public class CreateFormItemTabItem implements TabItem {
 		aMap.put("TIMEZONE", "Selection of timezone");
 		aMap.put("FROM_FEDERATION_HIDDEN", "Hidden input text pre-filled from external source");
 		aMap.put("FROM_FEDERATION_SHOW", "Input text field pre-filled from external source");
+		aMap.put("NAME_WIDGET", "Input text fields for names and titles");
 		inputTypes = Collections.unmodifiableMap(aMap);
 	}
 

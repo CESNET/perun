@@ -194,7 +194,12 @@ public class ApplicationFormItem {
 		/**
 		 * Special item with pre-defined Timezone selection. Value is autoselected in GUI using Google's API
 		 */
-		TIMEZONE
+		TIMEZONE,
+		/**
+		 * Special item which allows user to set his first name, middle name, last name and titles manually in
+		 * application form.
+		 */
+		NAME_WIDGET
 	}
 
 	public static class ItemTexts {

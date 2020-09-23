@@ -34,6 +34,7 @@ import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
 import cz.metacentrum.perun.registrar.model.Identity;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1699,6 +1700,26 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, additionalAttributes);
 					} catch (Exception ex) {
 						log.error("Unable to store UES attributes from application ID: {}, attributes: {}, with exception: {}", appId, app.getFedInfo(), ex);
+					}
+				}
+
+				// get all app items
+				List<ApplicationFormItemData> items = getApplicationDataById(registrarSession, app.getId());
+				for (ApplicationFormItemData item : items) {
+					// there we want to set first name, middle name, last name, and titles from name widget
+					if (item.getFormItem().getType() == NAME_WIDGET){
+						User user = usersManager.getUserById(registrarSession, app.getUser().getId());
+						if (item.getValue() != null && !item.getValue().isEmpty()) {
+							// user's attributes in JSON format from name widget
+							JSONObject fullName = new JSONObject(item.getValue());
+							user.setTitleBefore(fullName.getString("titleBefore"));
+							user.setFirstName(fullName.getString("firstName"));
+							user.setMiddleName(fullName.getString("middleName"));
+							user.setLastName(fullName.getString("lastName"));
+							user.setTitleAfter(fullName.getString("titleAfter"));
+							app.setUser(user);
+							usersManager.updateUser(registrarSession, user);
+						}
 					}
 				}
 
