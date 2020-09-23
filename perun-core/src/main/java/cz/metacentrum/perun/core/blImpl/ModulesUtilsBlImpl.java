@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -784,11 +785,10 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 			//testing if path is unique
 			String canonicalPath;
-			try {
-				canonicalPath = new URI(path).normalize().getPath();
-				//path should not end on '/' (problem with some systems as GPFS)
-				if(!canonicalPath.equals("/") && canonicalPath.endsWith("/")) canonicalPath = canonicalPath.substring(0, canonicalPath.length() - 1);
-			} catch (URISyntaxException ex) {
+			canonicalPath = Paths.get(path).normalize().toString();
+			//path should not end on '/' (problem with some systems as GPFS)
+			if(!canonicalPath.equals("/") && canonicalPath.endsWith("/")) canonicalPath = canonicalPath.substring(0, canonicalPath.length() - 1);
+			if(!canonicalPath.matches("^[-a-zA-Z.0-9_/:=,]+$")) {
 				throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Path '" + path + "' is not correct form.");
 			}
 
