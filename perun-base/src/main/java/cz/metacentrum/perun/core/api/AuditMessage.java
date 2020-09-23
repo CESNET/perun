@@ -71,14 +71,6 @@ public class AuditMessage {
 		this.createdByUid = createdByUid;
 	}
 
-	public String getUIMessage() {
-		if (event != null) {
-			return BeansUtils.eraseEscaping(BeansUtils.replaceEscapedNullByStringNull(BeansUtils.replacePointyBracketsByApostrophe(event.getMessage())));
-		} else {
-			return null;
-		}
-	}
-
 	@Override
 	public String toString() {
 		StringBuilder ret = new StringBuilder();

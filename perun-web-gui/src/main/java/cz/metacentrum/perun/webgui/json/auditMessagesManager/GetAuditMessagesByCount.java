@@ -10,7 +10,11 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.AuditMessage;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -92,6 +96,10 @@ public class GetAuditMessagesByCount implements JsonCallback, JsonCallbackTable<
 		}
 	}
 
+	private String getAuditEventName(AuditMessage auditMessage) {
+		return auditMessage.getEventName().substring(1 + auditMessage.getEventName().lastIndexOf("."));
+	}
+
 	public CellTable<AuditMessage> getTable() {
 
 		retrieveData();
@@ -123,20 +131,26 @@ public class GetAuditMessagesByCount implements JsonCallback, JsonCallbackTable<
 
 		table.addIdColumn("Message ID", null, 120);
 
-		// MESSAGE COLUMN
-		Column<AuditMessage,String> messageColumn = JsonUtils.addColumn(new CustomTextCell(),
-				new JsonUtils.GetValue<AuditMessage, String>() {
-					public String getValue(AuditMessage msg) {
-						return msg.getActor() +": "+msg.getMessage();
-					}
-				}, null);
+		// Event name column
+		Column<AuditMessage, String> eventNameColumn = JsonUtils.addColumn(new CustomTextCell(),
+				this::getAuditEventName, null);
+		eventNameColumn.setSortable(true);
+		columnSortHandler.setComparator(eventNameColumn,
+				(o1, o2) -> (getAuditEventName(o1)).compareToIgnoreCase(getAuditEventName(o2)));
 
-		messageColumn.setSortable(true);
-		columnSortHandler.setComparator(messageColumn, new Comparator<AuditMessage>() {
-			public int compare(AuditMessage o1, AuditMessage o2) {
-				return (o1.getActor() +": "+o1.getMessage()).compareToIgnoreCase(o2.getActor() +": "+o2.getMessage());
-			}
-		});
+		// Event objects column
+		Column<AuditMessage, String> objectsColumn = JsonUtils.addColumn(new CustomTextCell(),
+				AuditMessage::getAuditEventObjectsMessage, null);
+		eventNameColumn.setSortable(true);
+		columnSortHandler.setComparator(eventNameColumn,
+				(o1, o2) -> (o1.getAuditEventObjectsMessage()).compareToIgnoreCase(o2.getAuditEventObjectsMessage()));
+
+		// Actor column
+		Column<AuditMessage, String> actorColumn = JsonUtils.addColumn(new CustomTextCell(),
+				AuditMessage::getActor, null);
+		eventNameColumn.setSortable(true);
+		columnSortHandler.setComparator(eventNameColumn,
+				(o1, o2) -> (o1.getActor()).compareToIgnoreCase(o2.getActor()));
 
 		// TIME COLUMN
 		TextColumn<AuditMessage> timeColumn = new TextColumn<AuditMessage>() {
@@ -159,7 +173,11 @@ public class GetAuditMessagesByCount implements JsonCallback, JsonCallbackTable<
 
 		table.addColumn(timeColumn, "Created at");
 		table.setColumnWidth(timeColumn, "180px");
-		table.addColumn(messageColumn, "Message");
+		table.addColumn(eventNameColumn, "Event name");
+		table.setColumnWidth(eventNameColumn, "250px");
+		table.addColumn(actorColumn, "Actor");
+		table.setColumnWidth(actorColumn, "150px");
+		table.addColumn(objectsColumn, "Related objects");
 
 		return table;
 

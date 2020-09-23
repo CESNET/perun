@@ -38,10 +38,6 @@ public final class JsonSerializer implements Serializer {
 	private interface UserMixIn {
 	}
 
-	@JsonIgnoreProperties({"uimessage"})
-	private interface AuditMessageMixIn {
-	}
-
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 
@@ -49,7 +45,6 @@ public final class JsonSerializer implements Serializer {
 		mixinMap.put(Attribute.class, AttributeMixIn.class);
 		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mixinMap.put(User.class, UserMixIn.class);
-		mixinMap.put(AuditMessage.class, AuditMessageMixIn.class);
 
 		mapper.setMixIns(mixinMap);
 	}
