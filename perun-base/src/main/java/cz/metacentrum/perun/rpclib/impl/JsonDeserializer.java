@@ -49,9 +49,6 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType"})
 	public interface UserMixIn {}
 
-	@JsonIgnoreProperties({"uimessage"})
-	public interface AuditMessageMixIn {}
-
 	@JsonIgnoreProperties({"beanName"})
 	public interface PerunBeanMixIn {}
 
@@ -103,7 +100,6 @@ public class JsonDeserializer extends Deserializer {
 		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mixinMap.put(User.class, UserMixIn.class);
 		mixinMap.put(Member.class, MemberMixIn.class);
-		mixinMap.put(AuditMessage.class, AuditMessageMixIn.class);
 		mixinMap.put(PerunBean.class, PerunBeanMixIn.class);
 		mixinMap.put(Candidate.class, CandidateMixIn.class);
 		mixinMap.put(PerunException.class, PerunExceptionMixIn.class);

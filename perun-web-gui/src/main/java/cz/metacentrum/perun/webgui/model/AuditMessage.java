@@ -29,13 +29,26 @@ public class AuditMessage extends JavaScriptObject {
 			return this.event;
 		}-*/;
 
-	/**
-	 * Get message
-	 * @return message
-	 */
-	public final native String getMessage() /*-{
-		if (!this.uimessage) return "";
-		return this.uimessage;
+	public final native String getEventName() /*-{
+        if (!this.event) return "";
+        return this.event.name;
+    }-*/;
+
+	public final native String getAuditEventObjectsMessage() /*-{
+    	if (!this.event) return "";
+    	var keys = Object.keys(this.event);
+    	var message = "";
+    	for (i = 0; i < keys.length; i++) {
+    	    var key = keys[i];
+    	    if (key !== "message" && key !== "name") {
+    	        if (message !== "") {
+    	            message += "\n\n";
+	            }
+    	        message += key + ":";
+    	        message += JSON.stringify(this.event[key]);
+		    }
+	    }
+    	return message;
 	}-*/;
 
 		/**
