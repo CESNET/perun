@@ -1651,7 +1651,7 @@ public class Utils {
 	 */
 	public static String prepareUserSearchQueryExactMatch() {
 		if (Compatibility.isPostgreSql()) {
-			return " strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=:nameString";
+			return " lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=:nameString";
 		} else if (Compatibility.isHSQLDB()) {
 			return " lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=:nameString";
 		} else {
