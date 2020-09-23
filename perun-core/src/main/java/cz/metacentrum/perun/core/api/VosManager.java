@@ -1,9 +1,11 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
@@ -482,4 +484,68 @@ public interface VosManager {
 	 */
 	void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws GroupNotAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException;
 
+	/**
+	 * Set ban for member on his vo.
+	 *
+	 * @param sess session
+	 * @param ban ban information
+	 * @return created ban object
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws MemberNotExistsException if there is no member with specified id
+	 */
+	BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException;
+
+	/**
+	 * Remove vo ban with given id.
+	 *
+	 * @param sess session
+	 * @param banId if of vo ban
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws BanNotExistsException if there is no ban with specified id
+	 */
+	void removeBan(PerunSession sess, int banId) throws PrivilegeException, BanNotExistsException;
+
+	/**
+	 * Remove vo ban for given member.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws BanNotExistsException if there is no ban for member with given id
+	 * @throws MemberNotExistsException if there is no such member
+	 */
+	void removeBanForMember(PerunSession sess, Member member) throws PrivilegeException, BanNotExistsException, MemberNotExistsException;
+
+	/**
+	 * Get vo ban with given id.
+	 *
+	 * @param sess session
+	 * @param banId ban id
+	 * @return found ban
+	 * @throws BanNotExistsException if there is no such ban
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	BanOnVo getBanById(PerunSession sess, int banId) throws BanNotExistsException, PrivilegeException;
+
+	/**
+	 * Get ban for given member, or null if he is not banned.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @return found ban or null if the member is not banned
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws MemberNotExistsException if there is no such member
+	 */
+	BanOnVo getBanForMember(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException;
+
+	/**
+	 * Get list of all bans for vo with given id.
+	 *
+	 * @param sess session
+	 * @param voId vo id
+	 * @return vo bans for given vo
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws VoNotExistsException if there is no vo with given id
+	 */
+	List<BanOnVo> getBansForVo(PerunSession sess, int voId) throws PrivilegeException, VoNotExistsException;
 }

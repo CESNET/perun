@@ -402,11 +402,6 @@ public class AuditParser {
 		member.setStatus(BeansUtils.eraseEscaping(beanAttr.get("status")));
 		member.setMembershipType(BeansUtils.eraseEscaping(beanAttr.get("type")));
 		member.setSourceGroupId(beanAttr.get("sourceGroupId").equals("\\0") ? null : Integer.valueOf(beanAttr.get("sourceGroupId")));
-		try {
-			member.setSuspendedTo(beanAttr.get("suspendedTo").equals("\\0") ? null : BeansUtils.getDateFormatter().parse(BeansUtils.eraseEscaping(beanAttr.get("suspendedTo"))));
-		} catch (ParseException ex) {
-			throw new InternalErrorException("Can't parse date for member suspendedTo from the string representation!" , ex);
-		}
 		member.setSponsored(Boolean.valueOf(beanAttr.get("sponsored")));
 		return member;
 	}

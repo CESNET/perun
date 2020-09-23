@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -593,5 +595,109 @@ public enum VosManagerMethod implements ManagerMethod {
 					ac.getVoById(parms.readInt("vo")),
 					parms.readList("specificAttributes", String.class));
 		}
-	};
+	},
+
+	/*#
+	 * Set ban for member on his vo. The member id is required,
+	 * validityTo and description are optional. voId is ignored.
+	 *
+	 * @param banOnVo BanOnVo JSON object
+	 * @return BanOnVo Created banOnVo
+	 */
+	setBan {
+		@Override
+		public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			return ac.getVosManager().setBan(ac.getSession(),
+					parms.read("banOnVo", BanOnVo.class));
+		}
+	},
+
+	/*#
+	 * Remove vo ban with given id.
+	 *
+	 * @param banId int of vo ban
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw BanNotExistsException if there is no ban with specified id
+	 */
+	removeBan {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getVosManager().removeBan(ac.getSession(),
+					parms.readInt("banId"));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove vo ban for member with given id.
+	 *
+	 * @param member int member id
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw BanNotExistsException if there is no ban for member with given id
+	 */
+	removeBanForMember {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getVosManager().removeBanForMember(ac.getSession(),
+					ac.getMemberById(parms.readInt("member")));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Get vo ban with given id.
+	 *
+	 * @param banId int id
+	 * @return BanOnVo found ban
+	 * @throw BanNotExistsException if there is no such ban
+	 * @throw PrivilegeException insufficient permissions
+	 */
+	getBanById {
+		@Override
+		public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getBanById(ac.getSession(),
+					parms.readInt("banId"));
+		}
+	},
+
+	/*#
+	 * Get ban for given member, or null if he is not banned.
+	 *
+	 * @param member int member id
+	 * @return BanOnVo found ban or null if the member is not banned
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw MemberNotExistsException if there is no member with given id
+	 */
+	getBanForMember {
+		@Override
+		public BanOnVo call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getBanForMember(ac.getSession(),
+					ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/*#
+	 * Get list of all bans for vo with given id.
+	 *
+	 * @param vo int vo id
+	 * @return List<BanOnVo> vo bans for given vo
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw VoNotExistsException if there is no vo with given id
+	 */
+	getBansForVo {
+		@Override
+		public List<BanOnVo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getBansForVo(ac.getSession(),
+					parms.readInt("vo"));
+		}
+	}
 }

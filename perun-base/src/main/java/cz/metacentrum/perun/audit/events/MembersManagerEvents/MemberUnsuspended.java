@@ -4,18 +4,21 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.EngineForceEvent;
 import cz.metacentrum.perun.core.api.Member;
 
-public class MemberSuspended extends AuditEvent implements EngineForceEvent {
+
+/**
+ * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
+ */
+public class MemberUnsuspended extends AuditEvent implements EngineForceEvent {
 
 	private Member member;
 	private String message;
 
 	@SuppressWarnings("unused") // used by jackson mapper
-	public MemberSuspended() {
-	}
+	public MemberUnsuspended() { }
 
-	public MemberSuspended(Member member) {
+	public MemberUnsuspended(Member member) {
 		this.member = member;
-		this.message = formatMessage("%s suspended.", member);
+		this.message = formatMessage("%s unsuspended.", member);
 	}
 
 	@Override

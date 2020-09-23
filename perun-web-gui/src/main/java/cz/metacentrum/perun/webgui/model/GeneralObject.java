@@ -57,7 +57,7 @@ public class GeneralObject extends JavaScriptObject {
 
 	/**
 	 * Returns the status of this item in Perun system as String
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+	 * VALID, INVALID, EXPIRED, DISABLED
 	 *
 	 * @return string which defines item status
 	 */
@@ -67,7 +67,7 @@ public class GeneralObject extends JavaScriptObject {
 
 	/**
 	 * Sets the status
-	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+	 * VALID, INVALID, EXPIRED, DISABLED
 	 *
 	 * @param status String which defines item status
 	 */

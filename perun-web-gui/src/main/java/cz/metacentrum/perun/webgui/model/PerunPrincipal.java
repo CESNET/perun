@@ -129,7 +129,7 @@ public class PerunPrincipal extends JavaScriptObject {
 
 		/**
 		 * Returns the status of this item in Perun system as String
-		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+		 * VALID, INVALID, EXPIRED, DISABLED
 		 *
 		 * @return string which defines item status
 		 */

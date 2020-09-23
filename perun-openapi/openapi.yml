@@ -124,8 +124,6 @@ components:
             membershipType: { type: string }
             sourceGroupId: { type: integer }
             sponsored: { type: boolean }
-            suspendedTo: { type: string }
-            suspended: { type: boolean }
             groupStatus:  { type: string }
             groupStatuses:
               type: object
@@ -481,7 +479,6 @@ components:
       enum:
         - VALID
         - INVALID
-        - SUSPENDED
         - EXPIRED
         - DISABLED
 
@@ -709,6 +706,15 @@ components:
         - properties:
             memberId: { type: integer }
             resourceId: { type: integer }
+      discriminator:
+        propertyName: beanName
+
+    BanOnVo:
+      allOf:
+        - $ref: '#/components/schemas/Ban'
+        - properties:
+            memberId: { type: integer }
+            voId: { type: integer }
       discriminator:
         propertyName: beanName
 
@@ -1531,6 +1537,22 @@ components:
                 type: string
                 enum: [DOT, TGF]
 
+    BanOnVoResponse:
+      description: "returns banOnVo"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BanOnVo"
+
+    ListOfBanOnVoResponse:
+      description: "return List<BanOnVo>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/BanOnVo"
+
     BanOnResourceResponse:
       description: "returns banOnResource"
       content:
@@ -1984,6 +2006,14 @@ components:
     voId:
       name: vo
       description: "id of Vo"
+      schema:
+        type: integer
+      in: query
+      required: true
+
+    banId:
+      name: banId
+      description: "id of a ban"
       schema:
         type: integer
       in: query
@@ -11715,6 +11745,103 @@ paths:
           $ref: '#/components/responses/ListOfRichUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/setBan:
+    post:
+      tags:
+        - VosManager
+      operationId: setVoBan
+      description: |
+        Set ban for member on his vo. The member id is required,
+        validityTo and description are optional. voId is ignored.
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetVoBan
+              description: "input to set vo ban"
+              type: object
+              required:
+                - banOnVo
+              properties:
+                banOnVo: { $ref: '#/components/schemas/BanOnVo' }
+
+  /urlinjsonout/vosManager/removeBan:
+    post:
+      tags:
+        - VosManager
+      operationId: removeVoBan
+      summary: Remove vo ban with given id.
+      parameters:
+        - $ref: '#/components/parameters/banId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/vosManager/removeBanForMember:
+    post:
+      tags:
+        - VosManager
+      operationId: removeVoBanForMember
+      summary: Remove vo ban for member with given id.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getBanById:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoBanById
+      summary: Get vo ban with given id.
+      parameters:
+        - $ref: '#/components/parameters/banId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getBanForMember:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoBanForMember
+      summary: Get ban for given member, or null if he is not banned.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+      responses:
+        '200':
+          $ref: '#/components/responses/BanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getBansForVo:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoBansForVo
+      summary: Get list of all bans for vo with given id.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfBanOnVoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   #################################################
   #                                               #

@@ -102,11 +102,10 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 		vosTable.setWidget(0, 1, new HTML("<strong>" + "Members" + "</strong>"));
 		vosTable.setWidget(0, 2, new HTML("<strong>" + "Valid members" + "</strong>"));
 		vosTable.setWidget(0, 3, new HTML("<strong>" + "Invalid members" + "</strong>"));
-		vosTable.setWidget(0, 4, new HTML("<strong>" + "Suspended members" + "</strong>"));
-		vosTable.setWidget(0, 5, new HTML("<strong>" + "Expired members" + "</strong>"));
-		vosTable.setWidget(0, 6, new HTML("<strong>" + "Disabled members" + "</strong>"));
-		vosTable.setWidget(0, 7, new HTML("<strong>" + "Groups" + "</strong>"));
-		vosTable.setWidget(0, 8, new HTML("<strong>" + "Resources" + "</strong>"));
+		vosTable.setWidget(0, 4, new HTML("<strong>" + "Expired members" + "</strong>"));
+		vosTable.setWidget(0, 5, new HTML("<strong>" + "Disabled members" + "</strong>"));
+		vosTable.setWidget(0, 6, new HTML("<strong>" + "Groups" + "</strong>"));
+		vosTable.setWidget(0, 7, new HTML("<strong>" + "Resources" + "</strong>"));
 
 		// vos events - adds the VOs to the table and calls how many members the VO has
 		JsonCallbackEvents vosEvents = new JsonCallbackEvents(){
@@ -129,9 +128,6 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 					GetMembersCount countInvalidMembers = new GetMembersCount(vo.getId(), PerunStatus.INVALID);
 					countInvalidMembers.retrieveData();
 
-					GetMembersCount countSuspendedMembers = new GetMembersCount(vo.getId(), PerunStatus.SUSPENDED);
-					countSuspendedMembers.retrieveData();
-
 					GetMembersCount countExpiredMembers = new GetMembersCount(vo.getId(), PerunStatus.EXPIRED);
 					countExpiredMembers.retrieveData();
 
@@ -150,11 +146,10 @@ public class StatisticsTabItem implements TabItem, TabItemWithUrl {
 					vosTable.setWidget(i + 1, 1, countMembers.getMembersCountHyperlink());
 					vosTable.setWidget(i + 1, 2, countValidMembers.getMembersCountHyperlink());
 					vosTable.setWidget(i + 1, 3, countInvalidMembers.getMembersCountHyperlink());
-					vosTable.setWidget(i + 1, 4, countSuspendedMembers.getMembersCountHyperlink());
-					vosTable.setWidget(i + 1, 5, countExpiredMembers.getMembersCountHyperlink());
-					vosTable.setWidget(i + 1, 6, countDisabledMembers.getMembersCountHyperlink());
-					vosTable.setWidget(i + 1, 7, countGroups.getGroupsCountHyperlink());
-					vosTable.setWidget(i + 1, 8, countResources.getResourcesCountHyperlink());
+					vosTable.setWidget(i + 1, 4, countExpiredMembers.getMembersCountHyperlink());
+					vosTable.setWidget(i + 1, 5, countDisabledMembers.getMembersCountHyperlink());
+					vosTable.setWidget(i + 1, 6, countGroups.getGroupsCountHyperlink());
+					vosTable.setWidget(i + 1, 7, countResources.getResourcesCountHyperlink());
 
 				}
 

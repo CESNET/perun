@@ -1,11 +1,12 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
@@ -13,9 +14,11 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -30,11 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.IllegalArgumentException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 /**
  * VosManager entry logic
@@ -593,6 +594,98 @@ public class VosManagerEntry implements VosManager {
 			throw new PrivilegeException(sess, "removeSponsorRole");
 		}
 		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.SPONSOR);
+	}
+
+	@Override
+	public BanOnVo setBan(PerunSession sess, BanOnVo ban) throws PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// We have to fetch the member object from DB because of authorization. The given ban object might contain
+		// invalid combination of voId and memberId
+		Member member = perunBl.getMembersManagerBl().getMemberById(sess, ban.getMemberId());
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "setBan_BanOnVo_policy", member)) {
+			throw new PrivilegeException("setBan");
+		}
+
+		return vosManagerBl.setBan(sess, ban);
+	}
+
+	@Override
+	public void removeBan(PerunSession sess, int banId) throws PrivilegeException, BanNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		BanOnVo banOnVo = perunBl.getVosManagerBl().getBanById(sess, banId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "vo-removeBan_int_policy", banOnVo)) {
+			throw new PrivilegeException("removeBan");
+		}
+
+		vosManagerBl.removeBan(sess, banId);
+	}
+
+	@Override
+	public void removeBanForMember(PerunSession sess, Member member) throws PrivilegeException, BanNotExistsException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "vo-removeBanForMember_member_policy", member)) {
+			throw new PrivilegeException("removeBanForMember");
+		}
+
+		Optional<BanOnVo> banOnVo = perunBl.getVosManagerBl().getBanForMember(sess, member.getId());
+
+		if (!banOnVo.isPresent()) {
+			throw new BanNotExistsException("Given member is not banned.");
+		}
+
+		vosManagerBl.removeBanForMember(sess, member.getId());
+	}
+
+	@Override
+	public BanOnVo getBanById(PerunSession sess, int banId) throws BanNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		BanOnVo ban = vosManagerBl.getBanById(sess, banId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "vo-getBanById_int_policy", ban)) {
+			throw new PrivilegeException("getBanById");
+		}
+
+		return ban;
+	}
+
+	@Override
+	public BanOnVo getBanForMember(PerunSession sess, Member member) throws PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		Optional<BanOnVo> ban = vosManagerBl.getBanForMember(sess, member.getId());
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "vo-getBanForMember_member_policy", member)) {
+			throw new PrivilegeException("getBanForMember");
+		}
+
+		return ban.orElse(null);
+	}
+
+	@Override
+	public List<BanOnVo> getBansForVo(PerunSession sess, int voId) throws PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo = vosManagerBl.getVoById(sess, voId);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getBansForVo_int_policy", vo)) {
+			throw new PrivilegeException("getBansForVo");
+		}
+
+		return vosManagerBl.getBansForVo(sess, voId);
 	}
 
 	/**

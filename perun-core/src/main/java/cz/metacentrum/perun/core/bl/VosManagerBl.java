@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.bl;
 
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -13,14 +14,18 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>VOs manager can create, delete, update and find VO.</p>
@@ -426,4 +431,77 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, String role);
+
+	/**
+	 * Set given ban.
+	 *
+	 * @param sess session
+	 * @param banOnVo ban information, memberId, voId, validity and description are needed
+	 * @return created ban object
+	 */
+	BanOnVo setBan(PerunSession sess, BanOnVo banOnVo) throws MemberNotExistsException;
+
+	/**
+	 * Get ban by its id.
+	 *
+	 * @param sess session
+	 * @param banId ban id
+	 * @return ban object
+	 * @throws BanNotExistsException if ban with given id is not found
+	 */
+	BanOnVo getBanById(PerunSession sess, int banId) throws BanNotExistsException;
+
+	/**
+	 * Get ban for given member, if it exists.
+	 *
+	 * @param sess session
+	 * @param memberId member id
+	 * @return ban object, or null if there is no ban for given member
+	 */
+	Optional<BanOnVo> getBanForMember(PerunSession sess, int memberId);
+
+	/**
+	 * Get list of all bans for vo with given id.
+	 *
+	 * @param sess session
+	 * @param voId vo id
+	 * @return list of bans for given vo
+	 */
+	List<BanOnVo> getBansForVo(PerunSession sess, int voId);
+
+	/**
+	 * Update ban information. Only description and validity are updated.
+	 *
+	 * @param sess session
+	 * @param banOnVo updated ban
+	 * @return updated ban object
+	 */
+	BanOnVo updateBan(PerunSession sess, BanOnVo banOnVo);
+
+	/**
+	 * Removes ban with given id.
+	 *
+	 * @param sess session
+	 * @param banId ban id
+	 * @throws BanNotExistsException if there is no ban with given id
+	 */
+	void removeBan(PerunSession sess, int banId) throws BanNotExistsException;
+
+	/**
+	 * Removes ban for member with given id.
+	 *
+	 * @param sess session
+	 * @param memberId member id
+	 * @throws BanNotExistsException if there is no ban for member with given id
+	 */
+	void removeBanForMember(PerunSession sess, int memberId) throws BanNotExistsException;
+
+	/**
+	 * Information if there is a ban for member with given id.
+	 *
+	 * @param sess session
+	 * @param memberId member id
+	 * @return true, if member with given id is banned, false otherwise
+	 */
+	boolean isMemberBanned(PerunSession sess, int memberId);
 }

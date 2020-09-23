@@ -72,7 +72,6 @@ public class AuditParserTest {
 	public void setUp() throws Exception {
 		member.setMembershipType(MembershipType.DIRECT);
 		member.setSourceGroupId(5);
-		member.setSuspendedTo(Date.from(Instant.now()));
 		facility.setDescription(textMismatch);
 		Map<String, String> attributesMap = new HashMap<String, String>();
 		attributesMap.put("test1", textMismatch);

@@ -90,7 +90,6 @@ public class ChangeStatusTabItem implements TabItem {
 		final ListBox lb = new ListBox(false);
 		lb.addItem("VALID", "VALID");
 		lb.addItem("INVALID", "INVALID");
-		lb.addItem("SUSPENDED", "SUSPENDED");
 		lb.addItem("EXPIRED", "EXPIRED");
 		lb.addItem("DISABLED", "DISABLED");
 
@@ -102,8 +101,6 @@ public class ChangeStatusTabItem implements TabItem {
 			layout.setHTML(1, 0, "Member is properly configured and have access on provided resources.");
 		} else if (member.getStatus().equalsIgnoreCase("INVALID")) {
 			layout.setHTML(1, 0, "Member have configuration error and DON'T have access on provided resources. You can check what is wrong by changing member's status to VALID. If possible, procedure will configure all necessary settings by itself.");
-		} else if (member.getStatus().equalsIgnoreCase("SUSPENDED")) {
-			layout.setHTML(1, 0, "Member violated some rules and DON'T have access on provided resources.");
 		} else if (member.getStatus().equalsIgnoreCase("EXPIRED")) {
 			layout.setHTML(1, 0, "Member didn't extend membership and DON'T have access on provided resources.");
 		} else if (member.getStatus().equalsIgnoreCase("DISABLED")) {
@@ -135,9 +132,6 @@ public class ChangeStatusTabItem implements TabItem {
 		description.setText("Reason for suspension:");
 		description.setVisible(false);
 
-		TextArea messageArea = new TextArea();
-		messageArea.setWidth("95%");
-		messageArea.setVisible(false);
 
 		final CustomButton changeButton = new CustomButton("Change status", SmallIcons.INSTANCE.diskIcon());
 		// by default false
@@ -179,7 +173,7 @@ public class ChangeStatusTabItem implements TabItem {
 							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 						}
 					}
-				})), messageArea.getText());
+				})));
 				request.setStatus(lb.getValue(lb.getSelectedIndex()));
 			}
 		});
@@ -209,7 +203,6 @@ public class ChangeStatusTabItem implements TabItem {
 				if (lb.getSelectedIndex() == 0) {
 					// VALIDATING NOTICE
 					if (!member.getStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to VALID <strong>will trigger automatic configuration</strong> for provided resources. <br/><strong>If successful</strong>, member will have access on provided resources. <br /><strong>If not</strong>, see displayed error message and do manual configuration on 'settings' tab on members detail.");
-					messageArea.setVisible(false);
 					description.setVisible(false);
 				} else {
 					// INVALIDATING NOTICE
@@ -219,23 +212,16 @@ public class ChangeStatusTabItem implements TabItem {
 				// SET INFO
 				if (lb.getSelectedIndex() == 1) {
 					text.setHTML(text.getHTML()+"INVALID status means there is configuration error, which prevents him from access on provided resources.");
-					messageArea.setVisible(false);
 					description.setVisible(false);
 				} else if (lb.getSelectedIndex() == 2) {
-					text.setHTML(text.getHTML()+"SUSPENDED status means, that member did something bad (against VO rules).");
-					messageArea.setVisible(true);
-					description.setVisible(true);
-				} else if (lb.getSelectedIndex() == 3) {
 					text.setHTML(text.getHTML()+"EXPIRED status means, that member didn't extend his membership in VO, but it's still possible for him to do so.");
-					messageArea.setVisible(false);
 					description.setVisible(false);
-				} else if (lb.getSelectedIndex() == 4) {
+				} else if (lb.getSelectedIndex() == 3) {
 					text.setHTML(text.getHTML()+"DISABLED status means, that member didn't extend his membership long ago or was manually disabled by administrator. Member can't enable/extend membership by himself.");
-					messageArea.setVisible(false);
 					description.setVisible(false);
 				}
 
-				if ((lb.getSelectedIndex() == 0 || lb.getSelectedIndex() == 3) && !lb.getValue(lb.getSelectedIndex()).equalsIgnoreCase(member.getStatus())) {
+				if ((lb.getSelectedIndex() == 0 || lb.getSelectedIndex() == 2) && !lb.getValue(lb.getSelectedIndex()).equalsIgnoreCase(member.getStatus())) {
 					changeButton.setText("Change status and set expiration");
 				} else {
 					changeButton.setText("Change status");
@@ -246,7 +232,6 @@ public class ChangeStatusTabItem implements TabItem {
 
 		vp.add(layout);
 		vp.add(description);
-		vp.add(messageArea);
 		vp.add(menu);
 		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 

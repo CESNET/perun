@@ -4698,6 +4698,53 @@ perun_policies:
     include_policies:
       - default_policy
 
+  setBan_BanOnVo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  vo-removeBan_int_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  vo-removeBanForMember_member_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  vo-getBanById_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - GROUPADMIN: Vo
+      - SELF: Member
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  vo-getBanForMember_member_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - GROUPADMIN: Vo
+      - SELF: Member
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
+  getBansForVo_int_policy:
+    policy_roles:
+      - PERUNOBSERVER:
+      - GROUPADMIN: Vo
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+    include_policies:
+      - default_policy
+
   #PerunNotifNotificationManagerImpl
   getPerunNotifReceiverById_int_policy:
     policy_roles:

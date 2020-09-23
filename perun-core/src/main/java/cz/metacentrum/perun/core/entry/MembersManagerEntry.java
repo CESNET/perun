@@ -986,20 +986,6 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Member setStatus(PerunSession sess, Member member, Status status, String message) throws PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
-		Utils.checkPerunSession(sess);
-
-		getMembersManagerBl().checkMemberExists(sess, member);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "setStatus_Member_Status_String_policy", member)) {
-			throw new PrivilegeException(sess, "setStatus");
-		}
-
-		return getMembersManagerBl().setStatus(sess, member, status, message);
-	}
-
-	@Override
 	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(suspendedTo, "suspendedTo");
@@ -1024,8 +1010,6 @@ public class MembersManagerEntry implements MembersManager {
 		if (!AuthzResolver.authorizedInternal(sess, "unsuspendMember_Member_policy", member)) {
 			throw new PrivilegeException(sess, "unsuspendMember");
 		}
-
-		if(member.getSuspendedTo() == null) throw new MemberNotSuspendedException(member);
 
 		membersManagerBl.unsuspendMember(sess, member);
 	}

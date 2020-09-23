@@ -52,8 +52,6 @@ public class Auditer {
 	@GuardedBy("Auditer.class")
 	private static volatile Auditer selfInstance;
 
-	public final static String engineForceKeyword = "forceit";
-
 	private final static Logger log = LoggerFactory.getLogger(Auditer.class);
 	private final static Logger transactionLogger = LoggerFactory.getLogger("transactionLogger");
 	private JdbcPerunTemplate jdbc;

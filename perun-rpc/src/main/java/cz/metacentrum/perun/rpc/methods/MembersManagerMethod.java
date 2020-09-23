@@ -517,7 +517,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Returns all members of a VO.
 	 *
 	 * @param vo int VO <code>id</code>
-	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @param status String VALID | INVALID | EXPIRED | DISABLED
 	 * @return List<Member> VO members
 	 */
 	getMembers {
@@ -541,7 +541,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Returns all members of a VO with additional information.
 	 *
 	 * @param vo int VO <code>id</code>
-	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @param status String VALID | INVALID | EXPIRED | DISABLED
 	 * @return List<RichMember> VO members
 	 */
 	getRichMembers {
@@ -566,7 +566,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 *
  	 * @param vo int Vo <code>id</code>
  	 * @param attrsNames List<String> Attribute names
- 	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+ 	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | EXPIRED | DISABLED)
  	 * @return List<RichMember> List of richMembers with specific attributes from Vo
  	 */
 	/*#
@@ -588,7 +588,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 *
  	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> Attribute names
- 	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+ 	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | EXPIRED | DISABLED)
  	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of richMembers with specific attributes from group
  	 */
@@ -614,7 +614,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @param attrsNames List<String> Attribute names
-	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | EXPIRED | DISABLED)
 	 * @return List<RichMember> List of richMembers with selected specific attributes
 	 */
 	getCompleteRichMembers {
@@ -726,7 +726,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * Get all RichMembers of VO with specified status. RichMember object contains user, member, userExtSources and member/user attributes.
  	 *
  	 * @param vo int Vo <code>id</code>
- 	 * @param status String Status (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+ 	 * @param status String Status (VALID | INVALID | EXPIRED | DISABLED)
  	 * @return List<RichMember> List of RichMembers with all member/user attributes, empty list if there are no members in VO with specified status
  	 */
 	/*#
@@ -812,7 +812,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Returns count of VO members with specified status.
 	 *
 	 * @param vo int VO <code>id</code>
-	 * @param status String Status (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+	 * @param status String Status (VALID | INVALID | EXPIRED | DISABLED)
 	 * @return int Members count
 	 */
 	/*#
@@ -1095,17 +1095,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Set membership status of a member.
 	 *
 	 * @param member int Member <code>id</code>
-	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
-	 * @exampleParam status "SUSPENDED"
-	 * @param message String reason for suspension
-	 * @return Member Member with status after change
-	 */
-	/*#
-	 * Set membership status of a member.
-	 *
-	 * @param member int Member <code>id</code>
-	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
-	 * @exampleParam status "SUSPENDED"
+	 * @param status String VALID | INVALID | EXPIRED | DISABLED
+	 * @exampleParam status "VALID"
 	 * @return Member Member with status after change
 	 */
 	setStatus {
@@ -1114,9 +1105,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 
 			Status status = Status.valueOf(parms.readString("status"));
-			if (parms.contains("message")){
-				return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status, parms.readString("message"));
-			}
 			return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status);
 		}
 	},
@@ -1126,6 +1114,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * For almost unlimited time please use time in the far future.
 	 *
+	 * @deprecated use vosManager setBan
 	 * @param member int Member <code>id</code>
 	 * @param suspendedTo String date in format yyyy-MM-dd to which member will be suspended
 	 */
@@ -1154,6 +1143,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * WARNING: this will remove the date even if it is in the past (so member is no longer considered as suspended)
 	 *
+	 * @deprecated use vosManager removeBan
 	 * @param member int Member <code>id</code>
 	 */
 	unsuspendMember {

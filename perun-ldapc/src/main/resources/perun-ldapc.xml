@@ -565,7 +565,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Member</value>
 						</list>
 					</property>
-					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended #"/>
+					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended.$"/>
 					<property name="handlerMethodName" value="processMemberRemoved"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -612,7 +612,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Member</value>
 						</list>
 					</property>
-					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended #"/>
+					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended.$"/>
 					<property name="handlerMethodName" value="processMemberInvalidated"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">

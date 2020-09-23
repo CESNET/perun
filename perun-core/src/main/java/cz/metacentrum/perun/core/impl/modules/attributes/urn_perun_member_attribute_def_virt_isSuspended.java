@@ -3,12 +3,17 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * Check if member is suspended in the Vo at this very moment.
@@ -21,7 +26,18 @@ public class urn_perun_member_attribute_def_virt_isSuspended extends MemberVirtu
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) {
 		Attribute attribute = new Attribute(attributeDefinition);
-		attribute.setValue(member.isSuspended());
+
+		Optional<BanOnVo> ban = sess.getPerunBl().getVosManagerBl().getBanForMember(sess, member.getId());
+
+		if (!ban.isPresent()) {
+			attribute.setValue(false);
+		} else {
+			Date startOfToday = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+			attribute.setValue(ban.get()
+					.getValidityTo()
+					.after(startOfToday));
+		}
+
 		return attribute;
 	}
 

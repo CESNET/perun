@@ -24,7 +24,6 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 		setMembershipType(member.getMembershipType());
 		setSponsored(member.isSponsored());
 		this.setGroupsStatuses(member.getGroupStatuses());
-		this.setSuspendedTo(member.getSuspendedTo());
 		this.user = user;
 		this.userExtSources = userExtSources;
 		this.userAttributes = null;
@@ -113,7 +112,6 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 			", type=<").append(getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
 			", sourceGroupId=<").append(getSourceGroupId()== null ? "\\0" : getSourceGroupId().toString()).append(">").append(
 			", sponsored=<").append(isSponsored()).append(">").append(
-			", suspendedTo=<").append(getSuspendedTo() == null ? "\\0" : BeansUtils.createEscaping(BeansUtils.getDateFormatter().format(getSuspendedTo()))).append(">").append(
 			", user=<").append(getUser() == null ? "\\0" : getUser().serializeToString()).append(">").append(
 			", userExtSources=<").append(sUserESNew).append(">").append(
 			", userAttributes=<").append(sUserAttrNew).append(">").append(
@@ -132,7 +130,6 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 			"', type='").append(getMembershipType()).append(
 			"', sourceGroupId='").append(getSourceGroupId()).append(
 			"', sponsored='").append(isSponsored()).append(
-			"', suspendedTo='").append(getSuspendedTo() == null ? "null" : BeansUtils.getDateFormatter().format(getSuspendedTo())).append(
 			"', user='").append(user).append(
 			"', userExtSources='").append(userExtSources).append(
 			"', userAttributes='").append(userAttributes).append(
