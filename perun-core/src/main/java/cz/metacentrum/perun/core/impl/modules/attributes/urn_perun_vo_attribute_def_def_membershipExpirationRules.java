@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
@@ -22,7 +23,9 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Ab
 				parameter.equals(membershipDoNotExtendLoaKeyName) ||
 				parameter.equals(membershipGracePeriodKeyName) ||
 				parameter.equals(membershipPeriodLoaKeyName)	||
-				parameter.equals(membershipDoNotAllowLoaKeyName);
+				parameter.equals(membershipDoNotAllowLoaKeyName) ||
+				parameter.equals(autoExtensionExtSources) ||
+				parameter.equals(autoExtensionLastLoginPeriod);
 	}
 
 	@Override
@@ -33,6 +36,11 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Ab
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) {
 		return new Attribute(attribute);
+	}
+
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo entity, Attribute attribute) throws WrongReferenceAttributeValueException {
+		super.checkAttributeSemantics(perunSession, entity, attribute);
 	}
 
 	@Override

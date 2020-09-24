@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -17,11 +18,24 @@ import cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.autoExtensionExtSources;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.autoExtensionLastLoginPeriod;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.membershipPeriodKeyName;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for Synchronizer component.
@@ -34,10 +48,15 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 	private final static String EXPIRATION_URN = "urn:perun:member:attribute-def:def:membershipExpiration";
 	private final static String GROUP_EXPIRATION_URN = "urn:perun:member_group:attribute-def:def:groupMembershipExpiration";
+	private final static String VO_MEMBERSHIP_RULES_URN = "urn:perun:vo:attribute-def:def:membershipExpirationRules";
+	private final static String MEMBER_EXPIRATION_URN = "urn:perun:member:attribute-def:def:membershipExpiration";
 	private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Vo vo = new Vo(0, "SynchronizerTestVo", "SyncTestVo");
 
 	private ExpirationNotifScheduler scheduler;
+	private ExpirationNotifScheduler spyScheduler;
+
+	private JdbcPerunTemplate jdbc;
 
 	public ExpirationNotifScheduler getScheduler() {
 		return scheduler;
@@ -46,11 +65,12 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	@Autowired
 	public void setScheduler(ExpirationNotifScheduler scheduler) {
 		this.scheduler = scheduler;
+		this.spyScheduler = spy(scheduler);
 	}
 
 	@Before
 	public void setUp() throws Exception {
-
+		jdbc = (JdbcPerunTemplate) ReflectionTestUtils.getField(scheduler, "jdbc");
 		setUpExtSource();
 		setUpVo();
 
@@ -307,6 +327,143 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member2, group);
 
 		assertEquals("Member should not be expired!", MemberGroupStatus.VALID, memberGroupStatus);
+	}
+
+	@Test
+	public void testAutoExtensionExtendsMemberWithLastAccess() throws Exception {
+		System.out.println(CLASS_NAME + "testAutoExtensionExtendsMemberWithLastAccess");
+
+		autoExpirationTest(
+				voRules -> {
+					voRules.put(membershipPeriodKeyName, "+3m");
+					voRules.put(autoExtensionLastLoginPeriod, "3m");
+				},
+				userExtSources -> {
+					for (UserExtSource userExtSource : userExtSources) {
+						jdbc.update("update user_ext_sources set last_access='1996-01-01 00:00:00.1' where id=?",
+								userExtSource.getId());
+					}
+				},
+				(oldExpiration, newExpiration) -> assertThat(newExpiration).isAfter(oldExpiration));
+	}
+
+	@Test
+	public void testAutoExtensionDoesNotExtendMemberWithoutLastAccess() throws Exception {
+		System.out.println(CLASS_NAME + "testAutoExtensionDoesNotExtendMemberWithoutLastAccess");
+
+		autoExpirationTest(
+				voRules -> {
+					voRules.put(membershipPeriodKeyName, "+3m");
+					voRules.put(autoExtensionLastLoginPeriod, "3m");
+				},
+				userExtSources -> {
+					for (UserExtSource userExtSource : userExtSources) {
+						jdbc.update("update user_ext_sources set last_access='1995-01-01 00:00:00.1' where id=?",
+								userExtSource.getId());
+					}
+				},
+				(oldExpiration, newExpiration) -> assertThat(newExpiration).isEqualTo(oldExpiration));
+	}
+
+	@Test
+	public void testAutoExtensionDoesNotExtendForUnspecifiedExtSource() throws Exception {
+		System.out.println(CLASS_NAME + "testAutoExtensionDoesNotExtendForUnspecifiedExtSource");
+
+		autoExpirationTest(
+				voRules -> {
+					voRules.put(autoExtensionExtSources, String.valueOf(extSource.getId()));
+					voRules.put(membershipPeriodKeyName, "+3m");
+					voRules.put(autoExtensionLastLoginPeriod, "3m");
+				},
+				userExtSources -> {
+					for (UserExtSource userExtSource : userExtSources) {
+						if (userExtSource.getExtSource().equals(extSource)) {
+							jdbc.update("update user_ext_sources set last_access='1995-01-01 00:00:00.1' where id=?",
+									userExtSource.getId());
+						} else {
+							jdbc.update("update user_ext_sources set last_access='1996-01-01 00:00:00.1' where id=?",
+									userExtSource.getId());
+						}
+					}
+				},
+				(oldExpiration, newExpiration) -> assertThat(newExpiration).isEqualTo(oldExpiration));
+	}
+
+	@Test
+	public void testAutoExtensionExtendForSpecifiedExtSource() throws Exception {
+		System.out.println(CLASS_NAME + "testAutoExtensionExtendForSpecifiedExtSource");
+
+		autoExpirationTest(
+				voRules -> {
+					voRules.put(autoExtensionExtSources, String.valueOf(extSource.getId()));
+					voRules.put(membershipPeriodKeyName, "+3m");
+					voRules.put(autoExtensionLastLoginPeriod, "3m");
+				},
+				userExtSources -> {
+					for (UserExtSource userExtSource : userExtSources) {
+						if (userExtSource.getExtSource().equals(extSource)) {
+							jdbc.update("update user_ext_sources set last_access='1996-01-01 00:00:00.1' where id=?",
+									userExtSource.getId());
+						} else {
+							jdbc.update("update user_ext_sources set last_access='1995-01-01 00:00:00.1' where id=?",
+									userExtSource.getId());
+						}
+					}
+				},
+				(oldExpiration, newExpiration) -> assertThat(newExpiration).isAfter(oldExpiration));
+	}
+
+	/**
+	 * Perform autoExpiration test.
+	 *
+	 * @param voExpirationRulesModifier takes vo's member expiration rules attribute value, can be used to modify the
+	 *                                  vo's expiration rules
+	 * @param uesModifier takes a list of userExtSources of the tested user, can be used to modify them
+	 * @param expirationVerifier takes the expirationDate before the auto extension, and after the extension.
+	 *                           Can be used to test how the expiration is changed.
+	 */
+	private void autoExpirationTest(Consumer<Map<String, String>> voExpirationRulesModifier,
+	                                Consumer<List<UserExtSource>> uesModifier,
+	                                BiConsumer<LocalDate, LocalDate> expirationVerifier) throws Exception {
+		System.out.println(CLASS_NAME + "testAutoExtensionDoesNotExtendsMemberWithoutLastAccess");
+
+		LocalDate today = LocalDate.of(1996, 2, 12);
+		when(spyScheduler.getCurrentLocalDate())
+				.thenReturn(today);
+
+		setUpVoExpirationRulesAttribute(voExpirationRulesModifier);
+
+		Member member = setUpMember();
+
+		LocalDate oldExpiration = today.plusDays(7);
+		Attribute memberExpiration =
+				new Attribute(perun.getAttributesManager().getAttributeDefinition(session, MEMBER_EXPIRATION_URN));
+		memberExpiration.setValue(oldExpiration.toString());
+		perun.getAttributesManager().setAttribute(session, member, memberExpiration);
+
+		User user = perun.getUsersManagerBl().getUserByMember(session, member);
+
+		List<UserExtSource> userExtSources = perun.getUsersManagerBl().getUserExtSources(session, user);
+
+		uesModifier.accept(userExtSources);
+
+		List<Vo> vos = perun.getVosManagerBl().getVos(session);
+		ReflectionTestUtils.invokeMethod(spyScheduler, "performAutoExtension", vos);
+
+		Attribute newMemberExpAttr = perun.getAttributesManager().getAttribute(session, member, MEMBER_EXPIRATION_URN);
+
+		LocalDate newExpirationDate = LocalDate.parse(newMemberExpAttr.valueAsString());
+		expirationVerifier.accept(oldExpiration, newExpirationDate);
+	}
+
+	private void setUpVoExpirationRulesAttribute(Consumer<Map<String, String>> voExpirationRulesModifier) throws Exception {
+		Attribute voRulesAttribute = new Attribute(
+				perun.getAttributesManagerBl().getAttributeDefinition(session, VO_MEMBERSHIP_RULES_URN));
+		Map<String, String> value = new LinkedHashMap<>();
+		voExpirationRulesModifier.accept(value);
+		voRulesAttribute.setValue(value);
+
+		perun.getAttributesManagerBl().setAttribute(session, vo, voRulesAttribute);
 	}
 
 	// ----------------- PRIVATE METHODS -------------------------------------------

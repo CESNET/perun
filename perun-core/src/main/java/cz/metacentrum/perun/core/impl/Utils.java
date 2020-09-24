@@ -1515,6 +1515,36 @@ public class Utils {
 	}
 
 	/**
+	 * Shortens the given date by the given period.
+	 *
+	 * @param localDate date to be shortened
+	 * @param period string of format ([0-9]+)([dmy])
+	 * @return shortened date
+	 */
+	public static LocalDate shortenDateByPeriod(LocalDate localDate, String period) {
+		Pattern p = Pattern.compile("([0-9]+)([dmy])");
+		Matcher m = p.matcher(period);
+		if (m.matches()) {
+			String countString = m.group(1);
+			int amount = Integer.parseInt(countString);
+
+			String dmyString = m.group(2);
+			switch (dmyString) {
+				case "d":
+					return localDate.minusDays(amount);
+				case "m":
+					return localDate.minusMonths(amount);
+				case "y":
+					return localDate.minusYears(amount);
+				default:
+					throw new InternalErrorException("Wrong format of period. Period: " + period);
+			}
+		} else {
+			throw new InternalErrorException("Wrong format of period. Period: " + period);
+		}
+	}
+
+	/**
 	 * Returns closest future LocalDate based on values given by matcher.
 	 * If returned value should fall to 29. 2. of non-leap year, the date is extended to 28. 2. instead.
 	 *
