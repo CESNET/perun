@@ -715,6 +715,15 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true);
 	}
 
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkQuotasErrorInPath() throws Exception {
+		System.out.println(CLASS_NAME + "WrongAttributeValueException");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/!new/path", "10:10");
+		modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true);
+	}
+
 	@Test(expected= QuotaNotInAllowedLimitException.class)
 	public void checkIfQuotasContainsDifferentPathThanMaxQuotas() throws Exception {
 		System.out.println(CLASS_NAME + "checkIfQuotasContainsDifferentPathThanMaxQuotas");
