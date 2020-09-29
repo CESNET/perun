@@ -3,6 +3,7 @@ package cz.metacentrum.perun.ldapc.model.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
@@ -136,6 +137,15 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	public void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr) {
 		DirContextOperations entry = findByDN(buildDN(bean));
 		mapToContext(bean, entry, attrDef, attr);
+		ldapTemplate.modifyAttributes(entry);
+	}
+
+	@Override
+	public void modifyEntry(T bean, Iterable<Pair<PerunAttribute<T>, AttributeDefinition>> attrs) {
+		DirContextOperations entry = findByDN(buildDN(bean));
+		for(Pair<PerunAttribute<T>, AttributeDefinition> pair : attrs) {
+			mapToContext(bean, entry, pair.getLeft(), pair.getRight());
+		}
 		ldapTemplate.modifyAttributes(entry);
 	}
 

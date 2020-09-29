@@ -676,6 +676,105 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			</list>
 		</property>
 	</bean>
+	
+	<!--  
+	  This bean processes events that would lead to change of virtual attribute and audit message
+	  "virtual attribute changed". It is here to off-load processing of the change from RPC to LDAPC.  
+	-->
+	<bean id="virtualAttributeEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.VirtualAttributeEventProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<!-- group membership events -->
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" added to Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processGroupMemberChange"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" validated.$"/>
+					<property name="handlerMethodName" value="processGroupMemberChange"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" was removed from Group:\[.*\] totally"/>
+					<property name="handlerMethodName" value="processGroupMemberChange"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value="expired.$|validated.$"/>
+					<property name="handlerMethodName" value="processGroupMemberChange"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" validated.$"/>
+					<property name="handlerMethodName" value="processMemberChange"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended.$"/>
+					<property name="handlerMethodName" value="processMemberChange"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+						</list>
+					</property>
+					<property name="pattern" value=" set for Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processGroupAttributeChange"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.AttributeDefinition</value>
+						</list>
+					</property>
+					<property name="pattern" value=" removed for Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processGroupAttributeRemoval"/>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value="All attributes removed for Group:\[.*\]"/>
+					<property name="handlerMethodName" value="processAllGroupAttributesRemoval"/>
+				</bean>
+			</list>
+		</property>		
+	</bean>
 
 	<bean id="perunUser" class="cz.metacentrum.perun.ldapc.model.impl.PerunUserImpl" scope="prototype">
 		<property name="attributeDescriptions">
@@ -1003,6 +1102,18 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="namespace" value="urn:perun:user:attribute-def:virt"/>
 						</bean>
 					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunVirtualAttributeDesc">
+					<property name="name" value="sponsoredMembershipInOrganizations"/>
+					<property name="required" value="false"/>
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:virt"/>
+							<property name="name" value="sponsoredMembershipInOrganizations"/>
+						</bean>
+					</property>
+					<property name="perunAttributeName" value="urn:perun:user:attribute-def:virt:sponsoredMembershipInOrganizations"/>
+					<property name="dependsOnPerunAttribute" value="urn:perun:group:attribute-def:def:sponsorOrganizationIdentifier"/>
 				</bean>
 			</list>
 		</property>

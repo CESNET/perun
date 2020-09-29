@@ -2,6 +2,7 @@ package cz.metacentrum.perun.ldapc.model;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.springframework.ldap.core.DirContextOperations;
@@ -65,7 +66,14 @@ public interface PerunEntry<T extends PerunBean> {
 	 * @throws InternalErrorException
 	 */
 	void modifyEntry(T bean, PerunAttribute<T> attrDef, AttributeDefinition attr);
-
+	
+	/**
+	 * 
+	 * @param bean
+	 * @param attrs
+	 */
+	void modifyEntry(T bean, Iterable<Pair<PerunAttribute<T>, AttributeDefinition>> attrs);
+	
 	/**
 	 * @param bean
 	 * @throws InternalErrorException
