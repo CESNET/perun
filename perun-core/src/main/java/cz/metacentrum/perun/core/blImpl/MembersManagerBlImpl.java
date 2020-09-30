@@ -2273,6 +2273,31 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return sponsoredMember;
 	}
 
+	@Override
+	public Map<String, String> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+		Map<String, String> result = new HashMap<>();
+		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
+
+		for (String name : names) {
+			// generate random password
+			String password = module.generateRandomPassword(sess, null);
+			Map<String, String> mapName = new HashMap<>();
+			mapName.put("guestName", name);
+			// create sponsored member
+			RichMember richMember;
+			try {
+				richMember = getRichMember(sess, createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, asyncValidation));
+			} catch (Exception e) {
+				throw new InternalErrorException("These accounts had been created before exception was thrown: " + result, e);
+			}
+			// get login to return
+			String login = perunBl.getAttributesManagerBl().getAttribute(sess, richMember.getUser(), PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
+			result.put(login, password);
+		}
+
+		return result;
+	}
+
 	/**
 	 * Try to get attribute from attribute manager
 	 *

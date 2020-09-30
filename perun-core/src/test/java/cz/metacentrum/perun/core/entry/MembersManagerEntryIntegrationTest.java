@@ -1508,6 +1508,26 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void createSponsoredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMembers");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		//create guests
+		Map<String, String> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), sponsorUser, false);
+		assertEquals("there should be two members", 2, loginAndPassword.size());
+		for (String login : loginAndPassword.keySet()) {
+			assertNotNull("login should not be null", login);
+			assertNotNull("password should not be null", loginAndPassword.get(login));
+		}
+	}
+
+	@Test
 	public void setAndUnsetSponsorshipForMember() throws Exception {
 		System.out.println(CLASS_NAME + "setAndUnsetSponsorshipForMember");
 		Member sponsorMember = setUpSponsor(createdVo);

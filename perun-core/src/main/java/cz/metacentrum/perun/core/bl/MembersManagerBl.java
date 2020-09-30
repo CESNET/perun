@@ -39,6 +39,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -1446,6 +1447,21 @@ public interface MembersManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 */
 	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException;
+
+	/**
+	 * Creates a new sponsored members.
+	 *
+	 * @param session perun session
+	 * @param vo virtual organization to created sponsored members in
+	 * @param namespace used for selecting external system in which guest user account will be created
+	 * @param names full names of members to create
+	 * @param sponsor sponsoring user
+	 * @param asyncValidation switch for easier testing
+	 * @return map of logins and passwords of created members
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	Map<String, String> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation) throws AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Links sponsored member and sponsoring user.

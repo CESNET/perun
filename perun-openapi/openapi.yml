@@ -7867,6 +7867,36 @@ paths:
                 sponsor: { type: integer }
                 namespace: { type: string }
 
+  /json/membersManager/createSponsoredMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: createSponsoredMembers
+      summary: Creates new sponsored members in a given VO and namespace.
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateSponsoredMember
+              description: "input for createSponsoredMember"
+              type: object
+              required:
+                - guestNames
+                - vo
+                - sponsor
+                - namespace
+              properties:
+                guestNames : { type: array, items: { type: string } }
+                vo: { type: integer }
+                sponsor: { type: integer }
+                namespace: { type: string }
+
   /json/membersManager/createSpecificMember:
     post:
       tags:

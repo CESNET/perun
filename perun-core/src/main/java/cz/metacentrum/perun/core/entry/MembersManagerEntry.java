@@ -1216,6 +1216,27 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public Map<String, String> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor) throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(session);
+		Utils.notNull(vo, "vo");
+		Utils.notNull(namespace, "namespace");
+		Utils.notNull(names, "names");
+
+		if (sponsor == null) {
+			//sponsor is the caller
+			sponsor = session.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(session, "createSponsoredMembers_Vo_String_List<String>_User_policy", Arrays.asList(vo, sponsor))) {
+				throw new PrivilegeException(session, "createSponsoredMember");
+			}
+		}
+
+		// create sponsored members
+		return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, sponsor, true);
+	}
+
+	@Override
 	public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException {
 		Utils.checkPerunSession(session);
 		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);

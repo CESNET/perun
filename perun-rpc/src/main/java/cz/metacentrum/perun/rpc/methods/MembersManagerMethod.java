@@ -203,6 +203,39 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Creates a new sponsored member in a given VO and namespace.
+	 *
+	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
+	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
+	 *
+	 * @param guestNames List<String> identification of sponsored accounts, e.g. "John Doe" or "conference member 1"
+	 * @param vo int VO ID
+	 * @param namespace String namespace selecting remote system for storing the password
+	 * @param sponsor int sponsor's ID
+	 * @return Map<RichMember, String> newly created sponsored member and their password
+	 */
+	createSponsoredMembers {
+		@Override
+		public Map<String, String> call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+			String password = params.readString("password");
+			Vo vo =  ac.getVoById(params.readInt("vo"));
+			String namespace = params.readString("namespace");
+			User sponsor = null;
+			if(params.contains("sponsor")) {
+				sponsor = ac.getUserById(params.readInt("sponsor"));
+			}
+			List<String> names;
+			if (params.contains("guestNames")) {
+				names = new ArrayList<>(params.readList("guestNames", String.class));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
+			}
+			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, sponsor);
+		}
+	},
+
+	/*#
 	 * Transform non-sponsored member to sponsored one with defined sponsor
 	 *
 	 * @param sponsoredMember int member's ID
