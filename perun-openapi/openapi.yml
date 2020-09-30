@@ -7800,6 +7800,38 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getSponsors/member:
+    get:
+      tags:
+        - MembersManager
+      operationId: getSponsorsByMember
+      summary: Gets sponsors for given member with optional attribute names.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getSponsors/vo:
+    get:
+      tags:
+        - MembersManager
+      operationId: getSponsorsByVo
+      summary: Gets sponsors for given VO, extSourceName and extLogin with optional attribute names.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/extSourceName'
+        - $ref: '#/components/parameters/extLogin'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/createSponsoredMember/withFullName:
     post:
       tags:
