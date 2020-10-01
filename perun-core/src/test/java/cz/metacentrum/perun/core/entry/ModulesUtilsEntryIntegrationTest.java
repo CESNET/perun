@@ -708,7 +708,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test(expected=WrongAttributeValueException.class)
 	public void checkQuotasErrorInValue() throws Exception {
-		System.out.println(CLASS_NAME + "WrongAttributeValueException");
+		System.out.println(CLASS_NAME + "checkQuotasErrorInValue");
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute dataQuotasAttribute = getDataQuotasAttribute();
 		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path", "b20:1");
@@ -717,7 +717,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test(expected=WrongAttributeValueException.class)
 	public void checkQuotasErrorInPath() throws Exception {
-		System.out.println(CLASS_NAME + "WrongAttributeValueException");
+		System.out.println(CLASS_NAME + "checkQuotasErrorInPath");
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute dataQuotasAttribute = getDataQuotasAttribute();
 		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/!new/path", "10:10");

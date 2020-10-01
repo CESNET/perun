@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -77,10 +75,11 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	//Often used patterns
 	public static final Pattern quotaWithMetricsPattern = Pattern.compile("^([0-9]+([.][0-9]+)?[KMGTPE]?):([0-9]+([.][0-9]+)?[KMGTPE]?)$");
 	public static final Pattern quotaWithoutMetricsPattern = Pattern.compile("^([0-9]+)(:)([0-9]+)$");
+	public static final Pattern quotaPathPattern = Pattern.compile("^[-a-zA-Z.0-9_/:=,]+$");
 	public static final Pattern numberPattern = Pattern.compile("[0-9]+([.][0-9]+)?");
 	public static final Pattern letterPattern = Pattern.compile("[A-Z]");
 	public static final Pattern fqdnPattern = Pattern.compile("^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}\\.?$");
-
+	
 	//previous regex ^/[-a-zA-Z0-9_/]*$"
 	public static final Pattern shellPattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
 
@@ -784,11 +783,10 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			if(path == null || path.isEmpty()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "The path of some volume where quota should be set is null.");
 
 			//testing if path is unique
-			String canonicalPath;
-			canonicalPath = Paths.get(path).normalize().toString();
+			String canonicalPath = Paths.get(path).normalize().toString();
 			//path should not end on '/' (problem with some systems as GPFS)
 			if(!canonicalPath.equals("/") && canonicalPath.endsWith("/")) canonicalPath = canonicalPath.substring(0, canonicalPath.length() - 1);
-			if(!canonicalPath.matches("^[-a-zA-Z.0-9_/:=,]+$")) {
+			if(!quotaPathPattern.matcher(canonicalPath).matches()) {
 				throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Path '" + path + "' is not correct form.");
 			}
 
