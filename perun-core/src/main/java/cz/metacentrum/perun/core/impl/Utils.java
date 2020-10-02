@@ -1787,7 +1787,7 @@ public class Utils {
 	public static MapSqlParameterSource getMapSqlParameterSourceToSearchUsersOrMembers(String searchString, Map<String, List<String>> attributesToSearchBy) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("searchString", searchString);
-		namedParams.addValue("nameString", Utils.utftoasci(searchString.toLowerCase()));
+		namedParams.addValue("nameString", Utils.utftoasci(searchString.toLowerCase().replaceAll(" ", "")));
 		namedParams.addValue("memberAttributes", attributesToSearchBy.get("memberAttributes"));
 		namedParams.addValue("userAttributes", attributesToSearchBy.get("userAttributes"));
 		namedParams.addValue("uesAttributes", attributesToSearchBy.get("uesAttributes"));
