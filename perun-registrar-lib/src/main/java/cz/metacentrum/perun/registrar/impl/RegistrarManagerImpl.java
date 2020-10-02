@@ -2233,6 +2233,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					String firstName = parsedName.get("firstName");
 					if (firstName != null && !firstName.trim().isEmpty())
 						itemW.setPrefilledValue(firstName);
+				} else if (URN_USER_MIDDLE_NAME.equals(sourceAttribute)) {
+					String middleName = parsedName.get("middleName");
+					if (middleName != null && !middleName.trim().isEmpty()) {
+						itemW.setPrefilledValue(middleName);
+					} else {
+						itemW.setPrefilledValue("");
+					}
 				} else if (URN_USER_LAST_NAME.equals(sourceAttribute)) {
 					String lastName = parsedName.get("lastName");
 					if (lastName != null && !lastName.trim().isEmpty())
@@ -2867,16 +2874,40 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} else {
 			parsedName = new HashMap<>();
 		}
-		// try to fill if initial parsing failed -> returned null
-		if (parsedName.get("firstName") == null) {
-			parsedName.put("firstName", federValues.get(shibFirstNameVar));
+		// if the idp provided first name or last name, always use it
+		String fedFirstName = federValues.get(shibFirstNameVar);
+		String fedLastName = federValues.get(shibLastNameVar);
+
+		setIfNotEmpty(parsedName, fedFirstName, "firstName");
+		setIfNotEmpty(parsedName, fedLastName, "lastName");
+
+		// do new parsing heuristic
+		Candidate candidate = new Candidate();
+		if (displayName != null && !displayName.isEmpty() &&
+				fedFirstName != null && !fedFirstName.isEmpty() &&
+				fedLastName != null && !fedLastName.isEmpty()) {
+			parseTitlesAndMiddleName(candidate, displayName, fedFirstName, fedLastName);
 		}
-		if (parsedName.get("lastName") == null) {
-			parsedName.put("lastName", federValues.get(shibLastNameVar));
-		}
+
+		setIfNotEmpty(parsedName, candidate.getMiddleName(), "middleName");
+		setIfNotEmpty(parsedName, candidate.getTitleBefore(), "titleBefore");
+		setIfNotEmpty(parsedName, candidate.getTitleAfter(), "titleAfter");
 
 		return parsedName;
 
+	}
+
+	/**
+	 * If the given value is not null and not empty, put it in the given map with the given key.
+	 *
+	 * @param map map
+	 * @param value value which is checked
+	 * @param key key
+	 */
+	private void setIfNotEmpty(Map<String, String> map, String value, String key) {
+		if (value != null && !value.isEmpty()) {
+			map.put(key, value);
+		}
 	}
 
 	/**
@@ -3393,12 +3424,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	                                           String lastName) {
 		if (containsNonEmptyValue(attributes, URN_USER_DISPLAY_NAME)) {
 			String displayName = attributes.get(URN_USER_DISPLAY_NAME);
+			parseTitlesAndMiddleName(candidate, displayName, firstName, lastName);
+		}
+	}
 
-			Pattern pattern = getNamesPattern(firstName, lastName);
-			if (!tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, pattern)) {
-				Pattern reversePattern = getNamesPattern(lastName, firstName);
-				tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, reversePattern);
-			}
+	private void parseTitlesAndMiddleName(Candidate candidate, String displayName, String firstName, String lastName) {
+		Pattern pattern = getNamesPattern(firstName, lastName);
+		if (!tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, pattern)) {
+			Pattern reversePattern = getNamesPattern(lastName, firstName);
+			tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, reversePattern);
 		}
 	}
 
