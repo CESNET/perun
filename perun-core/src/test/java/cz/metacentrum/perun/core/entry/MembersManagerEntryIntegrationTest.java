@@ -1492,6 +1492,22 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void setSponsoredMember() throws Exception {
+		System.out.println(CLASS_NAME + "setSponsoredMember");
+		Candidate candidate = new Candidate();
+		candidate.setFirstName("Jan");
+		candidate.setLastName("Novák");
+		User sponsoredUser = perun.getUsersManagerBl().createUser(sess, candidate);
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsor = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsor, createdVo, Role.SPONSOR);
+		Member sponsoredMember = perun.getMembersManagerBl().setSponsoredMember(sess, createdVo, sponsoredUser, "dummy", "password", sponsor, true);
+
+		Member memberFromDb = perun.getMembersManagerBl().getMemberByUser(sess, createdVo, sponsoredUser);
+		assertTrue(memberFromDb.isSponsored());
+	}
+
+	@Test
 	public void setAndUnsetSponsorshipForMember() throws Exception {
 		System.out.println(CLASS_NAME + "setAndUnsetSponsorshipForMember");
 		Member sponsorMember = setUpSponsor(createdVo);

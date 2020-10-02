@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -56,14 +55,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -1181,7 +1177,7 @@ public class MembersManagerEntry implements MembersManager {
 		log.info("createSponsoredMember(vo={},namespace='{}',guestName='{}',sponsor={}", vo.getShortName(), namespace, nameForLog, sponsor == null ? "null" : sponsor.getId());
 
 		if (sponsor == null) {
-			//sponsor is the caller
+			//sponsor is the caller, authorization is checked in Bl
 			sponsor = session.getPerunPrincipal().getUser();
 		} else {
 			//Authorization
@@ -1191,6 +1187,32 @@ public class MembersManagerEntry implements MembersManager {
 		}
 		//create the sponsored member
 		return membersManagerBl.getRichMember(session, membersManagerBl.createSponsoredMember(session, vo, namespace, name, password, sponsor, true));
+	}
+
+	@Override
+	public RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor)
+		throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
+		ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
+		UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
+		Utils.checkPerunSession(session);
+		Utils.notNull(vo, "vo");
+		Utils.notNull(userToBeSponsored, "userToBeSponsored");
+		Utils.notNull(namespace, "namespace");
+		Utils.notNull(password, "password");
+
+		log.debug("setSponsoredMember(vo={},namespace='{}',displayName='{}',sponsor={}", vo.getShortName(), namespace, userToBeSponsored.getFirstName() + " " + userToBeSponsored.getLastName(), sponsor == null ? "null" : sponsor.getId());
+
+		if (sponsor == null) {
+			//sponsor is the caller, authorization is checked in Bl
+			sponsor = session.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(session, "setSponsoredMember_Vo_User_String_String_User_policy", vo, sponsor)) {
+				throw new PrivilegeException(session, "setSponsoredMember");
+			}
+		}
+		//create the sponsored member
+		return membersManagerBl.getRichMember(session, membersManagerBl.setSponsoredMember(session, vo, userToBeSponsored, namespace, password, sponsor, true));
 	}
 
 	@Override

@@ -7836,6 +7836,37 @@ paths:
                 sponsor: { type: integer }
                 namespace: { type: string }
 
+  /json/membersManager/setSponsoredMember:
+    post:
+      tags:
+        - MembersManager
+      operationId: setSponsoredMember
+      summary: Creates a sponsored membership for the given user.
+      responses:
+        '200':
+          $ref: '#/components/responses/RichMemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputSetSponsoredMember
+              description: "input for setSponsoredMember"
+              type: object
+              required:
+                - userToBeSponsored
+                - password
+                - vo
+                - namespace
+              properties:
+                userToBeSponsored: { type: integer }
+                password: { type: string }
+                vo: { type: integer }
+                sponsor: { type: integer }
+                namespace: { type: string }
+
   /json/membersManager/createSpecificMember:
     post:
       tags:

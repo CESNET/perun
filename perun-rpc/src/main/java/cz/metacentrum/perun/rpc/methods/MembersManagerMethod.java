@@ -157,6 +157,52 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Creates a sponsored membership for the given user.
+	 *
+	 * Can be called with specific sponsor. If the parameter sponsor is null, then the user
+	 * which called this method will be set as a sponsor.
+	 *
+	 * @param vo int id of virtual organization
+	 * @param userToBeSponsored int id of user, that will be sponsored by sponsor
+	 * @param namespace String used for selecting external system in which guest user account will be created
+	 * @param password String password
+	 * @param sponsor int id of sponsoring user
+	 * @return RichMember sponsored member
+	 */
+	/*#
+	 * Creates a sponsored membership for the given user.
+	 *
+	 * Can be called with specific sponsor. If the parameter sponsor is null, then the user
+	 * which called this method will be set as a sponsor.
+	 *
+	 * @param vo int id of virtual organization
+	 * @param userToBeSponsored int id of user, that will be sponsored by sponsor
+	 * @param namespace String used for selecting external system in which guest user account will be created
+	 * @param password String password
+	 * @return RichMember sponsored member
+	 */
+	setSponsoredMember {
+		@Override
+		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+			String password = params.readString("password");
+			Vo vo =  ac.getVoById(params.readInt("vo"));
+			String namespace = params.readString("namespace");
+			User sponsor = null;
+			if(params.contains("sponsor")) {
+				sponsor = ac.getUserById(params.readInt("sponsor"));
+			}
+			User userToBeSponsored;
+			if(params.contains("userToBeSponsored")) {
+				userToBeSponsored = ac.getUserById(params.readInt("userToBeSponsored"));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. The 'userToBeSponsored' must be sent.");
+			}
+			return ac.getMembersManager().setSponsoredMember(ac.getSession(), vo, userToBeSponsored, namespace, password, sponsor);
+		}
+	},
+
+	/*#
 	 * Transform non-sponsored member to sponsored one with defined sponsor
 	 *
 	 * @param sponsoredMember int member's ID

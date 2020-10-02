@@ -1424,6 +1424,30 @@ public interface MembersManagerBl {
 	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
 
 	/**
+	 * Creates a sponsored membership for the given user.
+	 *
+	 * @param session perun session
+	 * @param vo virtual organization
+	 * @param userToBeSponsored user, that will be sponsored by sponsor
+	 * @param namespace used for selecting external system in which guest user account will be created
+	 * @param password password
+	 * @param sponsor sponsoring user
+	 * @param asyncValidation
+	 * @return sponsored member
+	 * @throws AlreadyMemberException
+	 * @throws ExtendMembershipException
+	 * @throws UserNotInRoleException
+	 * @throws PasswordStrengthException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordCreationFailedException
+	 * @throws InvalidLoginException
+	 * @throws ExtSourceNotExistsException
+	 */
+	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException;
+
+	/**
 	 * Links sponsored member and sponsoring user.
 	 * @param session perun session
 	 * @param sponsoredMember member which is sponsored

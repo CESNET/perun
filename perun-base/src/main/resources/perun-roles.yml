@@ -2262,6 +2262,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  setSponsoredMember_Vo_User_String_String_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   setSponsorshipForMember_Member_User_policy:
     policy_roles: []
     include_policies:

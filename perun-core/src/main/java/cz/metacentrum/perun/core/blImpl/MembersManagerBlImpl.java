@@ -2229,13 +2229,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
-		//check that sponsoring user has role SPONSOR for the VO
-		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
-			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
-		}
-		String loginAttributeName = PasswordManagerModule.LOGIN_PREFIX + namespace;
-
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
 		//create new user
 		User user;
 		if (name.containsKey("guestName")) {
@@ -2245,32 +2239,56 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 		User sponsoredUser = getPerunBl().getUsersManagerBl().createUser(session, user);
 
-		//create the user account in external system
-		Map<String, String> p = new HashMap<>();
-		p.put(PasswordManagerModule.TITLE_BEFORE_KEY,sponsoredUser.getTitleBefore());
-		p.put(PasswordManagerModule.FIRST_NAME_KEY,sponsoredUser.getFirstName());
-		p.put(PasswordManagerModule.LAST_NAME_KEY,sponsoredUser.getLastName());
-		p.put(PasswordManagerModule.TITLE_AFTER_KEY,sponsoredUser.getTitleAfter());
-		p.put(PasswordManagerModule.PASSWORD_KEY,password);
-		Map<String, String> r = getPerunBl().getUsersManagerBl().generateAccount(session, namespace, p);
-		String login = r.get(loginAttributeName);
-		setLoginToSponsoredUser(session,sponsoredUser,loginAttributeName,login);
+		return setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, asyncValidation);
+	}
+
+	@Override
+	public Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException {
+		//check that sponsoring user has role SPONSOR for the VO
+		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
+			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+		}
+		String loginAttributeName = PasswordManagerModule.LOGIN_PREFIX + namespace;
+		String attributeValue = getAttributeValueAsString (session, userToBeSponsored, loginAttributeName);
+
+		//create the user account in external system if does not exist yet
+		String login = createUserAccountInExternalSystem (session, userToBeSponsored, namespace, attributeValue, loginAttributeName, password);
 
 		//create the member in Perun
-		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, sponsoredUser, sponsor);
+		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, userToBeSponsored, sponsor);
 		getPerunBl().getAuditer().log(session, new MemberCreated(sponsoredMember));
 		getPerunBl().getAuditer().log(session, new SponsoredMemberSet(sponsoredMember));
 		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor));
 		extendMembership(session, sponsoredMember);
 		insertToMemberGroup(session, sponsoredMember, vo);
-		if(asyncValidation) {
+
+		if (asyncValidation) {
 			validateMemberAsync(session, sponsoredMember);
 		} else {
 			//for unit tests
 			validateMember(session, sponsoredMember);
 		}
-		getPerunBl().getUsersManagerBl().validatePasswordAndSetExtSources(session, sponsoredUser, login, namespace);
+		getPerunBl().getUsersManagerBl().validatePasswordAndSetExtSources(session, userToBeSponsored, login, namespace);
+
 		return sponsoredMember;
+	}
+
+	/**
+	 * Try to get attribute from attribute manager
+	 *
+	 * @param session perun session
+	 * @param userToBeSponsored user, that will be sponsored by sponsor
+	 * @param loginAttributeName login attribute name
+	 * @return attributeValue
+	 */
+	private String getAttributeValueAsString (PerunSession session, User userToBeSponsored, String loginAttributeName) {
+		String attributeValue;
+		try {
+			attributeValue = perunBl.getAttributesManagerBl().getAttribute(session, userToBeSponsored, loginAttributeName).valueAsString();
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+		return attributeValue;
 	}
 
 	private void setLoginToSponsoredUser(PerunSession sess, User sponsoredUser, String loginAttributeName, String login) {
@@ -2459,5 +2477,38 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		this.perunBl = perunBl;
 	}
 
+	/**
+	 * Creates a user account in external system if does not exist yet
+	 *
+	 * @param session perun session
+	 * @param userToBeSponsored user, that will be sponsored by sponsor
+	 * @param namespace namespace
+	 * @param attributeValue attribute value
+	 * @param loginAttributeName login attribute name
+	 * @param password password
+	 * @return login for given user
+	 */
+	private String createUserAccountInExternalSystem (PerunSession session, User userToBeSponsored, String namespace, String attributeValue, String loginAttributeName, String password) {
+		String login;
+		if (attributeValue == null || attributeValue.isEmpty()) {
+			Map<String, String> p = new HashMap<>();
+			p.put(PasswordManagerModule.TITLE_BEFORE_KEY, userToBeSponsored.getTitleBefore());
+			p.put(PasswordManagerModule.FIRST_NAME_KEY, userToBeSponsored.getFirstName());
+			p.put(PasswordManagerModule.LAST_NAME_KEY, userToBeSponsored.getLastName());
+			p.put(PasswordManagerModule.TITLE_AFTER_KEY, userToBeSponsored.getTitleAfter());
+			p.put(PasswordManagerModule.PASSWORD_KEY, password);
+			Map<String, String> r;
+			try {
+				r = getPerunBl().getUsersManagerBl().generateAccount(session, namespace, p);
+			} catch (PasswordStrengthException e) {
+				throw new InternalErrorException("The password fails strength check required by the namespace.");
+			}
+			login = r.get(loginAttributeName);
+			setLoginToSponsoredUser(session, userToBeSponsored, loginAttributeName, login);
+		} else {
+			login = attributeValue;
+		}
+		return login;
+	}
 
 }
