@@ -1449,7 +1449,16 @@ public interface MembersManagerBl {
 	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException;
 
 	/**
-	 * Creates a new sponsored members.
+	 * Creates new sponsored members.
+	 *
+	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and start over,
+	 * exceptions during member creation are not thrown and the returned map has this structure:
+	 *
+	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 *
+	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
 	 *
 	 * @param session perun session
 	 * @param vo virtual organization to created sponsored members in
@@ -1457,11 +1466,9 @@ public interface MembersManagerBl {
 	 * @param names full names of members to create
 	 * @param sponsor sponsoring user
 	 * @param asyncValidation switch for easier testing
-	 * @return map of logins and passwords of created members
-	 * @throws AttributeNotExistsException
-	 * @throws WrongAttributeAssignmentException
+	 * @return map of names to map of status, login and password
 	 */
-	Map<String, String> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation) throws AttributeNotExistsException, WrongAttributeAssignmentException;
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation);
 
 	/**
 	 * Links sponsored member and sponsoring user.

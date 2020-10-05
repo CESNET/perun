@@ -1216,7 +1216,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Map<String, String> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor) throws PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor) throws PrivilegeException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");
@@ -1228,7 +1228,7 @@ public class MembersManagerEntry implements MembersManager {
 		} else {
 			//Authorization
 			if (!AuthzResolver.authorizedInternal(session, "createSponsoredMembers_Vo_String_List<String>_User_policy", Arrays.asList(vo, sponsor))) {
-				throw new PrivilegeException(session, "createSponsoredMember");
+				throw new PrivilegeException(session, "createSponsoredMembers");
 			}
 		}
 

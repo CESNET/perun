@@ -53,6 +53,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1519,12 +1520,41 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		//create guests
-		Map<String, String> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), sponsorUser, false);
+		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), sponsorUser, false);
 		assertEquals("there should be two members", 2, loginAndPassword.size());
-		for (String login : loginAndPassword.keySet()) {
-			assertNotNull("login should not be null", login);
-			assertNotNull("password should not be null", loginAndPassword.get(login));
+		for (String name : loginAndPassword.keySet()) {
+			assertEquals("status should be OK", "OK", loginAndPassword.get(name).get("status"));
+			assertNotNull("login should not be null", loginAndPassword.get(name).get("login"));
+			assertNotNull("password should not be null", loginAndPassword.get(name).get("password"));
 		}
+	}
+
+	@Test
+	public void createSponsoredMembersWithErrorDuringCreation() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMembersWithErrorDuringCreation");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		//create guests
+		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Novák", "Jan Novák"), sponsorUser, false);
+		assertEquals("there should be two members", 3, loginAndPassword.size());
+
+		assertEquals("status should be OK", "OK", loginAndPassword.get("Ing. Jiří Novák, CSc.").get("status"));
+		assertNotNull("login should not be null", loginAndPassword.get("Ing. Jiří Novák, CSc.").get("login"));
+		assertNotNull("password should not be null", loginAndPassword.get("Ing. Jiří Novák, CSc.").get("password"));
+
+		assertEquals("status should be OK", "OK", loginAndPassword.get("Jan Novák").get("status"));
+		assertNotNull("login should not be null", loginAndPassword.get("Jan Novák").get("login"));
+		assertNotNull("password should not be null", loginAndPassword.get("Jan Novák").get("password"));
+
+		assertNotNull("status should be some kind of error", loginAndPassword.get("Novák").get("status"));
+		assertNull("login should not be null", loginAndPassword.get("Novák").get("login"));
+		assertNull("password should not be null", loginAndPassword.get("Novák").get("password"));
 	}
 
 	@Test

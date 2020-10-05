@@ -2274,8 +2274,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Map<String, String> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation) throws AttributeNotExistsException, WrongAttributeAssignmentException {
-		Map<String, String> result = new HashMap<>();
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation) {
+		Map<String, Map<String, String>> result = new HashMap<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
 		for (String name : names) {
@@ -2284,15 +2284,21 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			Map<String, String> mapName = new HashMap<>();
 			mapName.put("guestName", name);
 			// create sponsored member
-			RichMember richMember;
+			User user;
 			try {
-				richMember = getRichMember(sess, createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, asyncValidation));
+				user = perunBl.getUsersManagerBl().getUserByMember(sess, createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, asyncValidation));
+				// get login to return
+				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
+				Map<String, String> statusWithLogin = new HashMap<>();
+				statusWithLogin.put("status", "OK");
+				statusWithLogin.put("login", login);
+				statusWithLogin.put("password", password);
+				result.put(name, statusWithLogin);
 			} catch (Exception e) {
-				throw new InternalErrorException("These accounts had been created before exception was thrown: " + result, e);
+				Map<String, String> status = new HashMap<>();
+				status.put("status", e.getMessage());
+				result.put(name, status);
 			}
-			// get login to return
-			String login = perunBl.getAttributesManagerBl().getAttribute(sess, richMember.getUser(), PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
-			result.put(login, password);
 		}
 
 		return result;
