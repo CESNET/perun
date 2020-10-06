@@ -1223,7 +1223,7 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.notNull(names, "names");
 
 		if (sponsor == null) {
-			//sponsor is the caller
+			//sponsor is the caller, authorization is checked in Bl
 			sponsor = session.getPerunPrincipal().getUser();
 		} else {
 			//Authorization
