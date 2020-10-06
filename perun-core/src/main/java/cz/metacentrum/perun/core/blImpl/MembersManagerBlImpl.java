@@ -180,9 +180,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		removeAllMemberBans(sess, member);
 
-		if(member.isSponsored()) {
-			membersManagerImpl.deleteSponsorLinks(sess, member);
-		}
+		//Remove possible links to member's sponsors
+		membersManagerImpl.deleteSponsorLinks(sess, member);
+
 		// Remove member from the DB
 		getMembersManagerImpl().deleteMember(sess, member);
 		getPerunBl().getAuditer().log(sess, new MemberDeleted(member));
@@ -2363,19 +2363,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 		if(!hasSponsor) {
-			//removed the last sponsor, set member's expiration to today and set status to expired
-			try {
-				Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
-				expiration.setValue(BeansUtils.getDateFormatterWithoutTime().format(new Date()));
-				getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-				throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
-			}
-			try {
-				expireMember(sess, sponsoredMember);
-			} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
-				throw new InternalErrorException("cannot expire member "+sponsoredMember.getId(),ex);
-			}
+			processMemberAfterRemovingLastSponsor(sess, sponsoredMember);
 		}
 	}
 
@@ -2511,4 +2499,34 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return login;
 	}
 
+	/**
+	 * Execute process which expires member and removes his sponsorship
+	 *
+	 * @param sess perun session
+	 * @param sponsoredMember who will be processed
+	 */
+	private void processMemberAfterRemovingLastSponsor(PerunSession sess, Member sponsoredMember) {
+
+		//Set member's expiration to today and set status to expired.
+		try {
+			Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
+			expiration.setValue(BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+			getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
+		}
+		try {
+			expireMember(sess, sponsoredMember);
+		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+			throw new InternalErrorException("cannot expire member "+sponsoredMember.getId(),ex);
+		}
+
+		//Remove member's sponsorship.
+		try {
+			unsetSponsorshipForMember(sess, sponsoredMember);
+		} catch (MemberNotSponsoredException e) {
+			//Should not happen
+			throw new InternalErrorException(e);
+		}
+	}
 }
