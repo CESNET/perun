@@ -385,7 +385,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int member id
 	 * @param attrNames List<String> names of attributes to return, empty to return all attributes
-	 * @return List<RichMember> sponsors
+	 * @return List<RichUser> sponsors
 	 */
 	/*#
 	 * Gets users sponsoring a given user in a VO.
@@ -396,7 +396,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param extSourceName String external source name, usually SAML IdP entityID
 	 * @param extLogin String external source login, usually eduPersonPrincipalName
 	 * @param attrNames List<String> names of attributes to return, empty to return all attributes
-	 * @return List<RichMember> sponsors
+	 * @return List<RichUser> sponsors
 	 */
 	getSponsors {
 		@Override
