@@ -2445,7 +2445,6 @@ perun_policies:
   createResource_Resource_Vo_Facility_policy:
     policy_roles:
       - FACILITYADMIN: Facility
-      - VOADMIN: Vo
     include_policies:
       - default_policy
 
