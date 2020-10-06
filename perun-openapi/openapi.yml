@@ -24,9 +24,9 @@ servers:
           - fed
 
 security:
-  - BasicAuth: []
-  - BearerAuth: []
-  - ApiKeyAuth: []
+  - BasicAuth: [ ]
+  - BearerAuth: [ ]
+  - ApiKeyAuth: [ ]
 
 components:
   #############################################
@@ -98,7 +98,7 @@ components:
             serviceUser: { type: boolean }
             sponsoredUser: { type: boolean }
             specificUser: { type: boolean }
-            majorSpecificType:  { type: string }
+            majorSpecificType: { type: string }
       discriminator:
         propertyName: beanName
 
@@ -139,7 +139,7 @@ components:
             membershipType: { type: string }
             sourceGroupId: { type: integer }
             sponsored: { type: boolean }
-            groupStatus:  { type: string }
+            groupStatus: { type: string }
             groupStatuses:
               type: object
               additionalProperties:
@@ -226,7 +226,7 @@ components:
     AuditMessage:
       type: object
       properties:
-        event: { $ref: '#/components/schemas/AuditEvent'}
+        event: { $ref: '#/components/schemas/AuditEvent' }
         id: { type: integer }
         actor: { type: string }
         createdAt: { type: string }
@@ -527,7 +527,7 @@ components:
     DestinationPropagationType:
       type: string
       description: 'type of propagation of service settings to a destination'
-      enum: ['PARALLEL', 'SERIAL', 'DUMMY' ]
+      enum: [ 'PARALLEL', 'SERIAL', 'DUMMY' ]
 
     Destination:
       allOf:
@@ -556,7 +556,7 @@ components:
         group: { $ref: '#/components/schemas/Group' }
         automaticApproval: { type: boolean }
         automaticApprovalExtension: { type: boolean }
-        moduleClassName: {type: string }
+        moduleClassName: { type: string }
 
     Type:
       type: string
@@ -1585,7 +1585,7 @@ components:
                 type: string
               format:
                 type: string
-                enum: [DOT, TGF]
+                enum: [ DOT, TGF ]
 
     BanOnVoResponse:
       description: "returns banOnVo"
@@ -1912,7 +1912,7 @@ components:
           type: string
 
     attrsNames:
-      name: "attrsNames"
+      name: "attrsNames[]"
       description: "list of attribute names List<String>"
       in: query
       required: true
@@ -2196,6 +2196,16 @@ components:
         type: array
         items:
           type: integer
+
+    listOfAllowedStatuses:
+      name: "allowedStatuses[]"
+      description: "list of allowed statuses List<String>"
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
 
     destinationId:
       name: destination
@@ -2496,6 +2506,17 @@ components:
         type: boolean
       in: query
       required: true
+
+    lookingInParentGroup:
+      name: lookingInParentGroup
+      description: If true, look up in a parent group
+      schema:
+        type: boolean
+      in: query
+      required: true
+
+
+
 #################################################
 #                                               #
 # TAGS - documentation for groups of operations #
@@ -2779,14 +2800,14 @@ paths:
                 - users
                 - complementaryObject
               properties:
-                role: {type: string, nullable: false}
+                role: { type: string, nullable: false }
                 users:
                   type: array
                   description: "List of user ids"
                   nullable: false
                   items:
                     type: integer
-                complementaryObject: { $ref: "#/components/schemas/PerunBean"}
+                complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
   /json/authzResolver/unsetRole/u-co:
     post:
@@ -2812,14 +2833,14 @@ paths:
                 - users
                 - complementaryObject
               properties:
-                role: {type: string, nullable: false}
+                role: { type: string, nullable: false }
                 users:
                   type: array
                   description: "List of user ids"
                   nullable: false
                   items:
                     type: integer
-                complementaryObject: {$ref: "#/components/schemas/PerunBean"}
+                complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
 
   /json/authzResolver/setRole/g-co:
@@ -2846,14 +2867,14 @@ paths:
                 - authorizedGroups
                 - complementaryObject
               properties:
-                role: {type: string, nullable: false}
+                role: { type: string, nullable: false }
                 authorizedGroups:
                   type: array
                   description: "List of authorizedGroups ids"
                   nullable: false
                   items:
                     type: integer
-                complementaryObject: {$ref: "#/components/schemas/PerunBean"}
+                complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
   /json/authzResolver/unsetRole/g-co:
     post:
@@ -2879,14 +2900,14 @@ paths:
                 - authorizedGroups
                 - complementaryObject
               properties:
-                role: {type: string, nullable: false}
+                role: { type: string, nullable: false }
                 authorizedGroups:
                   type: array
                   description: "List of authorizedGroups ids"
                   nullable: false
                   items:
                     type: integer
-                complementaryObject: {$ref: "#/components/schemas/PerunBean"}
+                complementaryObject: { $ref: "#/components/schemas/PerunBean" }
 
   /json/authzResolver/getUserRoles:
     get:
@@ -4732,7 +4753,7 @@ paths:
          (member,group), (member,resource), (group,resource),(userExtSource), (host), (key)
         Use the specialized methods getFacilityAttributeByName(), getMemberResourceAttributeById() etc.
       externalDocs:
-        url:  https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html
+        url: https://perun-aai.org/documentation/technical-documentation/rpc-api/rpc-javadoc-AttributesManager.html
       parameters:
         - { name: attributeName, description: "full name of attribute (namespace + ':' + friendlyName)", schema: { type: string },  in: query }
         - { name: attributeId, description: "id of attribute", schema: { type: integer },  in: query }
@@ -4771,7 +4792,7 @@ paths:
         - AttributesManager
       operationId: getAllAttributeDefinitions
       summary: Returns all AttributeDefinitions.
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
@@ -4798,7 +4819,7 @@ paths:
         - AttributesManager
       operationId: getAttributeDefinitionsByNamespace
       summary: Returns all AttributeDefinitions in a namespace.
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           $ref: '#/components/responses/ListOfAttributeDefinitionsResponse'
@@ -4912,7 +4933,7 @@ paths:
               properties:
                 user: { type: integer, description: "user id" }
                 facility: { type: integer, description: "facility id" }
-                attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
+                attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
 
   /json/attributesManager/setAttribute/facility-user:
     post:
@@ -5128,7 +5149,7 @@ paths:
               properties:
                 group: { type: integer, description: "group id" }
                 resource: { type: integer, description: "resource id" }
-                attributes: { type: array, items: {$ref: '#/components/schemas/Attribute'} }
+                attributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
 
   /json/attributesManager/setAttribute/group-resource:
     post:
@@ -6187,7 +6208,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [DOT, TGF]
+            enum: [ DOT, TGF ]
           description: Currently supported formats are DOT and TGF.
           required: true
       responses:
@@ -6210,7 +6231,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [DOT, TGF]
+            enum: [ DOT, TGF ]
           description: Currently supported formats are DOT and TGF.
           required: true
         - name: attrName
@@ -6928,7 +6949,7 @@ paths:
           in: query
           schema:
             type: string
-          description:    (MU or ZCU)
+          description: (MU or ZCU)
           required: true
       responses:
         '200':
@@ -7472,9 +7493,9 @@ paths:
       summary: Creates alternative password in external system.
       parameters:
         - $ref: '#/components/parameters/userId'
-        - {name: description, schema: { type: string }, in: query, required: true}
-        - {name: loginNamespace, schema: { type: string }, in: query, required: true}
-        - {name: password, schema: { type: string }, in: query, required: true}
+        - { name: description, schema: { type: string }, in: query, required: true }
+        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
+        - { name: password, schema: { type: string }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7489,8 +7510,8 @@ paths:
       summary: Deletes alternative password in external system.
       parameters:
         - $ref: '#/components/parameters/userId'
-        - {name: loginNamespace, schema: { type: string }, in: query, required: true}
-        - {name: passwordId, schema: { type: string }, in: query, required: true}
+        - { name: loginNamespace, schema: { type: string }, in: query, required: true }
+        - { name: passwordId, schema: { type: string }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7521,9 +7542,9 @@ paths:
       summary: Request to change preferred email address of user. Validation mail is sent on new address. Change is not saved until user validate new email address by calling validatePreferredEmailChange() method with proper set of parameters (sent in validation mail).
       parameters:
         - $ref: '#/components/parameters/userId'
-        - {name: email, description: "new email address to set", schema: {type: string}, in: query, required: true}
-        - {name: lang, description: "language to get confirmation mail in (optional)", schema: {type: string}, in: query, required: false}
-        - {name: linkPath, description: "path that is appended to the url of the verification link (optional)", schema: {type: string}, in: query, required: false}
+        - { name: email, description: "new email address to set", schema: { type: string }, in: query, required: true }
+        - { name: lang, description: "language to get confirmation mail in (optional)", schema: { type: string }, in: query, required: false }
+        - { name: linkPath, description: "path that is appended to the url of the verification link (optional)", schema: { type: string }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -7553,7 +7574,7 @@ paths:
                 - user
                 - userExtSource
               properties:
-                user: { type: integer}
+                user: { type: integer }
                 userExtSource: { $ref: '#/components/schemas/UserExtSource' }
 
   /urlinjsonout/usersManager/validatePreferredEmailChange:
@@ -7563,9 +7584,9 @@ paths:
       operationId: validatePreferredEmailChange
       summary: Validate new preferred email address. Request to validate is determined based on encrypted parameters sent in email notice by requestPreferredEmailChange() method.
       parameters:
-        - {name: i, description: "encrypted request parameter", schema: {type: string}, in: query, required: true}
-        - {name: m, description: "encrypted request parameter", schema: {type: string}, in: query, required: true}
-        - {name: u, description: "id of user you want to validate preferred email request", schema: {type: integer}, in: query, required: true}
+        - { name: i, description: "encrypted request parameter", schema: { type: string }, in: query, required: true }
+        - { name: m, description: "encrypted request parameter", schema: { type: string }, in: query, required: true }
+        - { name: u, description: "id of user you want to validate preferred email request", schema: { type: integer }, in: query, required: true }
       responses:
         '200':
           $ref: '#/components/responses/StringResponse'
@@ -7816,7 +7837,7 @@ paths:
       summary: Returns members of a VO.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: status, in: query, required: false, schema: { $ref: '#/components/schemas/VoMemberStatuses'}, description: 'optional status'}
+        - { name: status, in: query, required: false, schema: { $ref: '#/components/schemas/VoMemberStatuses' }, description: 'optional status' }
       responses:
         200:
           $ref: '#/components/responses/ListOfMembersResponse'
@@ -7975,7 +7996,7 @@ paths:
               properties:
                 firstName: { type: string }
                 lastName: { type: string }
-                titleBefore: { type: string}
+                titleBefore: { type: string }
                 titleAfter: { type: string }
                 password: { type: string }
                 vo: { type: integer }
@@ -8040,7 +8061,7 @@ paths:
                 - sponsor
                 - namespace
               properties:
-                guestNames : { type: array, items: { type: string } }
+                guestNames: { type: array, items: { type: string } }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
@@ -8122,11 +8143,46 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/deleteMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: deleteMembers
+      summary: Delete members with given ids. It is possible to delete members from multiple vos.
+      parameters:
+        - $ref: '#/components/parameters/memberIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/findCompleteRichMembers/v:
+    get:
+      tags:
+        - MembersManager
+      operationId: FindCompleteRichMembersForVo
+      summary: Return list of richMembers for specific vo by the searchString with attributes specific for list of attrsNames
+        and who have only status which is contain in list of statuses. If attrsNames is empty or null
+        return all attributes for specific richMembers. If listOfStatuses is empty or null, return all possible statuses.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrsNames'
+        - $ref: '#/components/parameters/listOfAllowedStatuses'
+        - $ref: '#/components/parameters/searchString'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+
+
   /json/membersManager/findCompleteRichMembers/v-sponsored:
     get:
       tags:
         - MembersManager
-      operationId: findCompleteRichMembers
+      operationId: findSponsoredCompleteRichMembersForVo
       summary: Returns list of RichMembers for vo, with reqested attributes, filterd by search string
         and option to return only sponosred members.
       parameters:
@@ -8139,6 +8195,241 @@ paths:
           $ref: '#/components/responses/ListOfRichMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/findCompleteRichMembers/g:
+    get:
+      tags:
+        - MembersManager
+      operationId: FindCompleteRichMembersForGroup
+      summary: Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames
+        and who have only status which is contain in list of statuses. If attrsNames is empty or null
+        return all attributes for specific richMembers. If listOfStatuses is empty or null, return all possible statuses.
+        If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
+        If this group is top level group, so find richMembers from members group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/attrsNames'
+        - $ref: '#/components/parameters/listOfAllowedStatuses'
+        - $ref: '#/components/parameters/searchString'
+        - $ref: '#/components/parameters/lookingInParentGroup'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/findCompleteRichMembers/attrs:
+    get:
+      tags:
+        - MembersManager
+      operationId: FindCompleteRichMembersByAttributes
+      summary: Return list of richMembers from perun by the searchString with attributes specific for list of attrsNames
+        and who have only status which is contain in list of statuses. If attrsNames is empty or null
+        return all attributes for specific richMembers. If listOfStatuses is empty or null, return all possible statuses.
+      parameters:
+        - $ref: '#/components/parameters/attrsNames'
+        - $ref: '#/components/parameters/searchString'
+        - $ref: '#/components/parameters/listOfAllowedStatuses'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/createMember/extSource:
+    post:
+      tags:
+        - MembersManager
+      operationId: createMemberFromExtSource
+      summary: Creates a new member and sets all member's attributes from the candidate.
+        Also stores the associated user if doesn't exist. This method is used by the registrar.
+        This method also add user to all groups in list.
+        Empty list of groups is ok, the behavior is then same like in the method without list of groups.
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateMemberFromExtSource
+              description: "input to create member from extSource"
+              type: object
+              required:
+                - vo
+                - extSourceName
+                - extSourceType
+                - login
+                - candidate
+              properties:
+                vo: { type: integer }
+                extSourceName: { type: string }
+                extSourceType: { type: string }
+                login: { type: string }
+                candidate: { $ref: '#/components/schemas/Candidate' }
+                groups: { type: array, items: { $ref: '#/components/schemas/Group' } }
+
+
+  /json/membersManager/createMember/u:
+    post:
+      tags:
+        - MembersManager
+      operationId: CreateMemberForUser
+      summary: Creates a new member from user. This method also add user to all groups in list.
+        Empty list of groups is ok, the behavior is then same like in the method without list of groups.
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateMemberForUser
+              description: "input to create member for user"
+              type: object
+              required:
+                - vo
+                - user
+              properties:
+                vo: { type: integer }
+                user: { type: integer }
+                groups: { type: array, items: { $ref: '#/components/schemas/Group' } }
+
+  /json/membersManager/createMember/c:
+    post:
+      tags:
+        - MembersManager
+      operationId: createMemberForCandidate
+      summary: Creates a new member from candidate returned by the method VosManager.findCandidates
+        which fills Candidate.userExtSource. This method also add user to all groups in list. Empty list of groups is ok,
+        the behavior is then same like in the method without list of groups. This method runs asynchronously
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateMemberForCandidate
+              description: "input to create member for candidate"
+              type: object
+              required:
+                - vo
+                - candidate
+              properties:
+                vo: { type: integer }
+                candidate: { $ref: '#/components/schemas/Candidate' }
+                groups: { type: array, items: { $ref: '#/components/schemas/Group' } }
+
+  /json/membersManager/getCompleteRichMembers/v:
+    get:
+      tags:
+        - MembersManager
+      operationId: getCompleteRichMembersForVo
+      summary: Get all RichMembers with attributes specific for list of attrsNames from the vo and have only status
+        which is contain in list of statuses. If attrsNames is empty or null return all attributes for specific richMembers.
+        If listOfStatuses is empty or null, return all possible statuses.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/listOfAllowedStatuses'
+        - name: "attrsNames[]"
+          description: "list of attributes names List<String>"
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getCompleteRichMembers/g:
+    get:
+      tags:
+        - MembersManager
+      operationId: getCompleteRichMembersForGroup
+      summary: Get all RichMembers with attributes specific for list of attrsNames from the group and have only status
+        which is contain in list of statuses. If attrsNames is empty or null return all attributes for specific richMembers.
+        If listOfStatuses is empty or null, return all possible statuses. If lookingInParentGroup is true,
+        get all these richMembers only for parentGroup of this group. If this group is top level group,
+        so get richMembers from members group.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/listOfAllowedStatuses'
+        - $ref: '#/components/parameters/lookingInParentGroup'
+        - name: "attrsNames[]"
+          description: "list of attributes names List<String>"
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getCompleteRichMembers/g-r:
+    get:
+      tags:
+        - MembersManager
+      operationId: getCompleteRichMembersForGroupResource
+      summary: Get all RichMembers with attributes specific for list of attrsNames.
+        Attributes are defined by member (user) and resource (facility) objects.
+        It returns also user-facility (in userAttributes of RichMember) and member-resource (in memberAttributes of RichMember) attributes.
+        Members are defined by group and are filtered by list of allowed statuses.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/resourceId'
+        - $ref: '#/components/parameters/attrsNames'
+        - name: "allowedStatuses[]"
+          description: "list of allowed statuses List<String>"
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/membersManager/setStatus:
+    post:
+      tags:
+        - MembersManager
+      operationId: setStatus
+      summary: Set membership status of a member.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - name: status
+          description: status (VALID | INVALID | EXPIRED | DISABLED)
+          schema:
+            type: string
+          in: query
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
 
   #################################################
@@ -8221,7 +8512,7 @@ paths:
         - FacilitiesManager
       operationId: getRichFacilities
       summary: Gets all possible rich facilities with all their owners.
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichFacilitiesResponse'
@@ -8265,7 +8556,7 @@ paths:
         - FacilitiesManager
       operationId: getAllFacilities
       summary: Get all facilities.
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           $ref: '#/components/responses/ListOfFacilitiesResponse'
@@ -8278,7 +8569,7 @@ paths:
         - FacilitiesManager
       operationId: getFacilitiesCount
       summary: Gets count of all facilities.
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
@@ -8888,7 +9179,7 @@ paths:
       operationId: removeHostByHostname
       summary: Remove host from the Facility based on hostname. If there is ambiguity, method throws exception and no host is removed.
       parameters:
-        - { name: hostname, schema: { type: string }, in: query, required: true, description: "specific hostname"}
+        - { name: hostname, schema: { type: string }, in: query, required: true, description: "specific hostname" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9083,7 +9374,7 @@ paths:
         Supported roles: FacilityAdmin
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)"}
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
@@ -9101,7 +9392,7 @@ paths:
         Supported roles: FacilityAdmin
       parameters:
         - $ref: '#/components/parameters/facilityName'
-        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)"}
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "if true, get only direct facility administrators (if false, get both direct and indirect)" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
@@ -9157,7 +9448,7 @@ paths:
       operationId: getFacilitiesByHostName
       summary: Return all facilities where exists host with the specific hostname
       parameters:
-        - { name: hostname, schema: { type: string }, in: query, required: true, description: "specific hostname"}
+        - { name: hostname, schema: { type: string }, in: query, required: true, description: "specific hostname" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfFacilitiesResponse'
@@ -9172,8 +9463,8 @@ paths:
       summary: Return all users which can use this facility
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO"}
-        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility"}
+        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO" }
+        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
@@ -9188,8 +9479,8 @@ paths:
       summary: Return all users which can use this facility
       parameters:
         - $ref: '#/components/parameters/facilityName'
-        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO"}
-        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility"}
+        - { name: vo, schema: { type: integer }, in: query, description: "VO id, if provided, filter out users who aren't in specific VO" }
+        - { name: service, schema: { type: integer }, in: query, description: "Service id, if provided, filter out users who aren't allowed to use the service on the facility" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
@@ -9205,8 +9496,8 @@ paths:
       operationId: copyOwners
       summary: Copy owners from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
-        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9220,8 +9511,8 @@ paths:
       operationId: copyOwnersBySourceDestinationNames
       summary: Copy owners from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
-        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name" }
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9235,8 +9526,8 @@ paths:
       operationId: copyOwnersBySourceName
       summary: Copy owners from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
-        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name" }
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9250,8 +9541,8 @@ paths:
       operationId: copyOwnersByDestinationName
       summary: Copy owners from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
-        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9265,8 +9556,8 @@ paths:
       operationId: copyManagers
       summary: Copy managers from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
-        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9280,8 +9571,8 @@ paths:
       operationId: copyManagersBySourceDestinationNames
       summary: Copy managers from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
-        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name" }
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9295,8 +9586,8 @@ paths:
       operationId: copyManagersBySourceName
       summary: Copy managers from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
-        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name" }
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9310,8 +9601,8 @@ paths:
       operationId: copyManagersByDestinationName
       summary: Copy managers from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
-        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9325,8 +9616,8 @@ paths:
       operationId: copyAttributes
       summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
-        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9340,8 +9631,8 @@ paths:
       operationId: copyAttributesBySourceDestinationNames
       summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
-        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name" }
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9355,8 +9646,8 @@ paths:
       operationId: copyAttributesBySourceName
       summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name"}
-        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id"}
+        - { name: srcFacilityName, schema: { type: string }, in: query, required: true, description: "source facility name" }
+        - { name: destFacility, schema: { type: integer }, in: query, required: true, description: "destination facility id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9370,8 +9661,8 @@ paths:
       operationId: copyAttributesByDestinationName
       summary: Copy attributes (settings) from source facility to destination facility. You must be facility manager of both.
       parameters:
-        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id"}
-        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name"}
+        - { name: srcFacility, schema: { type: integer }, in: query, required: true, description: "source facility id" }
+        - { name: destFacilityName, schema: { type: string }, in: query, required: true, description: "destination facility name" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9456,7 +9747,7 @@ paths:
       summary: Get contact group for the facility and the name.
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group"}
+        - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group" }
       responses:
         '200':
           $ref: '#/components/responses/ContactGroupResponse'
@@ -9471,7 +9762,7 @@ paths:
       summary: Get contact group for the facility and the name.
       parameters:
         - $ref: '#/components/parameters/facilityName'
-        - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group"}
+        - { name: name, schema: { type: string }, in: query, required: true, description: "name of the contact group" }
       responses:
         '200':
           $ref: '#/components/responses/ContactGroupResponse'
@@ -9628,7 +9919,7 @@ paths:
       summary: Assign given security team to given facility (means the facility trusts the security team)
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9643,7 +9934,7 @@ paths:
       summary: Assign given security team to given facility (means the facility trusts the security team)
       parameters:
         - $ref: '#/components/parameters/facilityName'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9658,7 +9949,7 @@ paths:
       summary: Remove (Unassign) given security team from given facility
       parameters:
         - $ref: '#/components/parameters/facilityId'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9673,7 +9964,7 @@ paths:
       summary: Remove (Unassign) given security team from given facility
       parameters:
         - $ref: '#/components/parameters/facilityName'
-        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id"}
+        - { name: securityTeam, schema: { type: integer }, in: query, required: true, description: "SecurityTeam id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9711,7 +10002,7 @@ paths:
       operationId: getFacilityBanById
       summary: Get Ban for user on facility by it's id.
       parameters:
-        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
+        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id" }
       responses:
         '200':
           $ref: '#/components/responses/BanOnFacilityResponse'
@@ -9797,7 +10088,7 @@ paths:
       operationId: removeFacilityBanById
       summary: Remove specific ban by it's id.
       parameters:
-        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id"}
+        - { name: banId, schema: { type: integer }, in: query, required: true, description: "BanOnFacility id" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9849,11 +10140,11 @@ paths:
                 - contact
                 - ownerType
               properties:
-                name: { type: string, description: "name of contact, e.g. John Doe or NSA"}
-                contact: { type: string, description: "email address"}
+                name: { type: string, description: "name of contact, e.g. John Doe or NSA" }
+                contact: { type: string, description: "email address" }
                 ownerType:
                   type: integer
-                  enum: [0, 1]
+                  enum: [ 0, 1 ]
                   description: "0 - technical, 1 - administrative"
 
   /urlinjsonout/ownersManager/deleteOwner:
@@ -9904,7 +10195,7 @@ paths:
         - OwnersManager
       operationId: getAllOwners
       summary: Returns all owners.
-      parameters: []
+      parameters: [ ]
       responses:
         '200':
           $ref: '#/components/responses/ListOfOwnersResponse'
@@ -10321,7 +10612,7 @@ paths:
               required:
                 - group
               properties:
-                group: {$ref: '#/components/schemas/Group'}
+                group: { $ref: '#/components/schemas/Group' }
 
   /json/groupsManager/getGroupMembersCount:
     get:
@@ -10658,7 +10949,7 @@ paths:
       summary: List all groups associated with the resource and optionally a member.
       parameters:
         - $ref: '#/components/parameters/resourceId'
-        - { name: member, required: false, schema: { type: integer}, in: query, description: 'optional member id' }
+        - { name: member, required: false, schema: { type: integer }, in: query, description: 'optional member id' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
@@ -10833,7 +11124,7 @@ paths:
       description: If onlyDirectAdmins is == true, return only direct admins of the group for supported role. Supported roles are ResourceAdmin, VOAdmin.
       parameters:
         - $ref: '#/components/parameters/resourceId'
-        - { name: onlyDirectAdmins, required: true, schema: { type: boolean}, in: query, description: 'boolean if true, get only direct resource administrators (if false, get both direct and indirect)' }
+        - { name: onlyDirectAdmins, required: true, schema: { type: boolean }, in: query, description: 'boolean if true, get only direct resource administrators (if false, get both direct and indirect)' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
@@ -10875,8 +11166,8 @@ paths:
               type: string
           in: query
           required: true
-        - { name: allUserAttributes, required: true, schema: { type: boolean}, in: query, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)' }
-        - { name: onlyDirectAdmins, required: true, schema: { type: boolean}, in: query, description: 'if == true, get only direct resource administrators (if false, get both direct and indirect)' }
+        - { name: allUserAttributes, required: true, schema: { type: boolean }, in: query, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)' }
+        - { name: onlyDirectAdmins, required: true, schema: { type: boolean }, in: query, description: 'if == true, get only direct resource administrators (if false, get both direct and indirect)' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichUsersResponse'
@@ -11732,7 +12023,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/id'
         - $ref: '#/components/parameters/searchString'
-        - { name: maxNumOfResults, schema: { type: integer}, in: query, required: false, description: 'Number of maximum results' }
+        - { name: maxNumOfResults, schema: { type: integer }, in: query, required: false, description: 'Number of maximum results' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfCandidatesResponse'
@@ -11940,8 +12231,8 @@ paths:
         Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name'}
-        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "get only direct administrators (if false, get both direct and indirect)"}
+        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name' }
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: "get only direct administrators (if false, get both direct and indirect)" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfUsersResponse'
@@ -11958,7 +12249,7 @@ paths:
         Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name'}
+        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'supported role name' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfGroupsResponse'
@@ -11977,10 +12268,10 @@ paths:
         If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'role name'}
+        - { name: role, schema: { $ref: '#/components/schemas/VoAdminRoles' }, in: query, required: true, description: 'role name' }
         - $ref: '#/components/parameters/specificAttributes'
-        - { name: allUserAttributes, schema: { type: boolean }, in: query, required: true, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)'}
-        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: 'if == true, get only direct vo administrators (if false, get both direct and indirect)'}
+        - { name: allUserAttributes, schema: { type: boolean }, in: query, required: true, description: 'if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)' }
+        - { name: onlyDirectAdmins, schema: { type: boolean }, in: query, required: true, description: 'if == true, get only direct vo administrators (if false, get both direct and indirect)' }
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichUsersResponse'
@@ -12111,10 +12402,10 @@ paths:
       operationId: sendInvitation
       summary: Sends invitation email to user which is not member of VO
       parameters:
-        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
-        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
-        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
-        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into" }
+        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)" }
+        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to" }
+        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -12130,11 +12421,11 @@ paths:
       description: |
         Invitation link targets VO application form fist, after submission, Group application form is displayed.
       parameters:
-        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
-        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into"}
-        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)"}
-        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to"}
-        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use"}
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into" }
+        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into" }
+        - { name: name, schema: { type: string }, in: query, description: "name of person used in invitation email (optional)" }
+        - { name: email, schema: { type: string }, in: query, required: true, description: "email address to send invitation to" }
+        - { name: language, schema: { type: string }, in: query, required: true, description: "preferred language to use" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -12148,8 +12439,8 @@ paths:
       operationId: sendInvitationToExistingUser
       summary: Sends invitation email to user which is not member of VO
       parameters:
-        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to"}
-        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
+        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to" }
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -12163,9 +12454,9 @@ paths:
       operationId: sendInvitationGroupToExistingUser
       summary: Sends invitation email to user which is not member of Group
       parameters:
-        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to"}
-        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into"}
-        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into"}
+        - { name: userId, schema: { type: number }, in: query, description: "id of user to send invitation to" }
+        - { name: voId, schema: { type: number }, in: query, description: "id of VO to send invitation into" }
+        - { name: groupId, schema: { type: number }, in: query, description: "id of Group to send invitation into" }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -12568,7 +12859,7 @@ paths:
       tags:
         - RegistrarManager
       operationId: getApplicationMailsForVo
-      summary:  Returns all mail notifications related to specific app form.
+      summary: Returns all mail notifications related to specific app form.
       parameters:
         - $ref: '#/components/parameters/voId'
       responses:
@@ -12582,7 +12873,7 @@ paths:
       tags:
         - RegistrarManager
       operationId: getApplicationMailsForGroup
-      summary:  Returns all mail notifications related to specific app form.
+      summary: Returns all mail notifications related to specific app form.
       parameters:
         - $ref: '#/components/parameters/groupId'
       responses:
@@ -14043,7 +14334,7 @@ paths:
       tags:
         - TasksManager
       operationId: getTaskResultsByTask
-      summary:  Return list of TaskResults by a Task.
+      summary: Return list of TaskResults by a Task.
       parameters:
         - $ref: '#/components/parameters/taskId'
       responses:
@@ -14057,7 +14348,7 @@ paths:
       tags:
         - TasksManager
       operationId: getTaskResultsForGUIByTaskOnlyNewest
-      summary:  Return list of only newest TaskResults by a Task for GUI.
+      summary: Return list of only newest TaskResults by a Task for GUI.
       parameters:
         - $ref: '#/components/parameters/taskId'
       responses:
@@ -14071,7 +14362,7 @@ paths:
       tags:
         - TasksManager
       operationId: getTaskResultsForGUIByTaskAndDestination
-      summary:  Return list of TaskResults by a Task and destination for GUI.
+      summary: Return list of TaskResults by a Task and destination for GUI.
       parameters:
         - $ref: '#/components/parameters/taskId'
         - $ref: '#/components/parameters/destinationId'
@@ -14086,7 +14377,7 @@ paths:
       tags:
         - TasksManager
       operationId: getTaskResultsForGUIByTask
-      summary:  Return list of TaskResults by a Task for GUI.
+      summary: Return list of TaskResults by a Task for GUI.
       parameters:
         - $ref: '#/components/parameters/taskId'
       responses:
@@ -14100,7 +14391,7 @@ paths:
       tags:
         - TasksManager
       operationId: getTaskResultById
-      summary:  Returns TaskResult by its id.
+      summary: Returns TaskResult by its id.
       parameters:
         - $ref: '#/components/parameters/taskResultId'
       responses:
@@ -14114,7 +14405,7 @@ paths:
       tags:
         - TasksManager
       operationId: getTaskById
-      summary:  Returns Task by its id
+      summary: Returns Task by its id
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
@@ -14128,7 +14419,7 @@ paths:
       tags:
         - TasksManager
       operationId: getFacilityState
-      summary:   Return propagation status of facility.
+      summary: Return propagation status of facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
       responses:
@@ -14205,7 +14496,7 @@ paths:
       tags:
         - TasksManager
       operationId: deleteTask
-      summary:  Delete Task and TaskResults.
+      summary: Delete Task and TaskResults.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14222,14 +14513,14 @@ paths:
               required:
                 - task
               properties:
-                task:  { type: integer, description: "task id", nullable: false }
+                task: { type: integer, description: "task id", nullable: false }
 
   /json/tasksManager/deleteTaskResultById:
     post:
       tags:
         - TasksManager
       operationId: deleteTaskResultById
-      summary:  Delete TaskResult by its ID.
+      summary: Delete TaskResult by its ID.
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14246,7 +14537,7 @@ paths:
               required:
                 - taskResultId
               properties:
-                taskResultId:  { type: integer, description: "task result id", nullable: false }
+                taskResultId: { type: integer, description: "task result id", nullable: false }
 
   /json/tasksManager/deleteTaskResults/id:
     post:
@@ -14271,8 +14562,8 @@ paths:
                 - taskId
                 - destinationId
               properties:
-                taskId:  { type: integer, description: "task id", nullable: false }
-                destinationId:  { type: integer, description: "destination id", nullable: false }
+                taskId: { type: integer, description: "task id", nullable: false }
+                destinationId: { type: integer, description: "destination id", nullable: false }
 
   /json/tasksManager/deleteTaskResults/name:
     post:
@@ -14298,9 +14589,9 @@ paths:
                 - destinationName
                 - destinationType
               properties:
-                taskId:  { type: integer, description: "task id", nullable: false }
-                destinationName:  { type: string, description: "destination name", nullable: false }
-                destinationType:  { type: string, description: "destination type", nullable: false }
+                taskId: { type: integer, description: "task id", nullable: false }
+                destinationName: { type: string, description: "destination name", nullable: false }
+                destinationType: { type: string, description: "destination type", nullable: false }
 
   #################################################
   #                                               #
@@ -14313,7 +14604,7 @@ paths:
       tags:
         - RTMessagesManager
       operationId: sentMessageToRTWithQueue
-      summary:  Sends a message to RT. Only text information is sent.
+      summary: Sends a message to RT. Only text information is sent.
       parameters:
         - { name: queue, description: "RT queue", schema: { type: string },  in: query, required: true }
         - { name: subject, description: "Message subject", schema: { type: string },  in: query, required: true }
@@ -14329,7 +14620,7 @@ paths:
       tags:
         - RTMessagesManager
       operationId: sentMessageToRTWithMemberQueue
-      summary:  Sends a message to RT. Member id is sent.
+      summary: Sends a message to RT. Member id is sent.
       parameters:
         - { name: memberId, description: "Member whose e-mail address will be user", schema: { type: integer },  in: query, required: true }
         - { name: queue, description: "RT queue", schema: { type: string },  in: query, required: true }
@@ -14346,7 +14637,7 @@ paths:
       tags:
         - RTMessagesManager
       operationId: sentMessageToRTWithVoQueue
-      summary:  Sends a message to RT. VO id is sent.
+      summary: Sends a message to RT. VO id is sent.
       parameters:
         - { name: voId, description: "VO id", schema: { type: integer },  in: query, required: true }
         - { name: queue, description: "RT queue", schema: { type: string },  in: query, required: true }
@@ -14363,7 +14654,7 @@ paths:
       tags:
         - RTMessagesManager
       operationId: sentMessageToRTWithVo
-      summary:  Sends a message to RT. VO id is sent. Queue is not sent.
+      summary: Sends a message to RT. VO id is sent. Queue is not sent.
       parameters:
         - { name: voId, description: "VO id", schema: { type: integer },  in: query, required: true }
         - { name: subject, description: "Message subject", schema: { type: string },  in: query, required: true }
