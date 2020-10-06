@@ -112,6 +112,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
+
 public class MembersManagerBlImpl implements MembersManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(MembersManagerBlImpl.class);
@@ -2438,7 +2441,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 		if(!hasSponsor) {
-			processMemberAfterRemovingLastSponsor(sess, sponsoredMember);
+			processMemberAfterRemovingLastSponsor(sess, sponsoredMember, vo);
 		}
 	}
 
@@ -2582,25 +2585,38 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	/**
-	 * Execute process which expires member and removes his sponsorship
+	 * Execute process which expires member and removes his sponsorship.
 	 *
 	 * @param sess perun session
 	 * @param sponsoredMember who will be processed
+	 * @param vo of sponsored member
 	 */
-	private void processMemberAfterRemovingLastSponsor(PerunSession sess, Member sponsoredMember) {
+	private void processMemberAfterRemovingLastSponsor(PerunSession sess, Member sponsoredMember, Vo vo) {
 
-		//Set member's expiration to today and set status to expired.
+		//Check whether the member should be expired according to vo's expiration rules.
+		boolean shouldBeExpired = true;
 		try {
-			Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
-			expiration.setValue(BeansUtils.getDateFormatterWithoutTime().format(new Date()));
-			getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-			throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
+			Attribute expirationRules = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, VO_EXPIRATION_RULES_ATTR);
+			Map<String, String> rulesMap = expirationRules.valueAsMap();
+			if (rulesMap != null && rulesMap.get(expireSponsoredMembers) != null)
+				shouldBeExpired = Boolean.parseBoolean(rulesMap.get(expireSponsoredMembers));
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+			//When some error occurs we use default value, which means that the member should be expired.
 		}
-		try {
-			expireMember(sess, sponsoredMember);
-		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
-			throw new InternalErrorException("cannot expire member "+sponsoredMember.getId(),ex);
+		if (shouldBeExpired) {
+			//Set member's expiration to today and set status to expired.
+			try {
+				Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
+				expiration.setValue(BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+				getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+				throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
+			}
+			try {
+				expireMember(sess, sponsoredMember);
+			} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+				throw new InternalErrorException("cannot expire member "+sponsoredMember.getId(),ex);
+			}
 		}
 
 		//Remove member's sponsorship.

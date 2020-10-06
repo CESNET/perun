@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.autoExtensionExtSources;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.autoExtensionLastLoginPeriod;
+import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.expireSponsoredMembers;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -79,6 +80,23 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRulesTest {
 		attributeToCheck.setValue(value);
 		assertThatExceptionOfType(WrongAttributeValueException.class)
 				.isThrownBy(() -> classInstance.checkAttributeSyntax(session, vo, attributeToCheck));
+	}
+
+	@Test
+	public void expireSponsoredMembersCorrectSyntax() throws Exception {
+		Map<String, String> value = new LinkedHashMap<>();
+		value.put(expireSponsoredMembers, "false");
+		attributeToCheck.setValue(value);
+		classInstance.checkAttributeSyntax(session, vo, attributeToCheck);
+	}
+
+	@Test
+	public void expireSponsoredMembersInCorrectSyntax() throws Exception {
+		Map<String, String> value = new LinkedHashMap<>();
+		value.put(expireSponsoredMembers, "wrong value");
+		attributeToCheck.setValue(value);
+		assertThatExceptionOfType(WrongAttributeValueException.class)
+			.isThrownBy(() -> classInstance.checkAttributeSyntax(session, vo, attributeToCheck));
 	}
 
 	// ------------- Semantics ------------- //
