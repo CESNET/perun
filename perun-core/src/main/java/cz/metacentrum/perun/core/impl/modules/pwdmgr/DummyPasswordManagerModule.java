@@ -83,7 +83,7 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
 	@Override
 	public String generateRandomPassword(PerunSession sess, String login) {
 		log.debug("generateRandomPassword(userLogin={})", login);
-		return null;
+		return "randomPassword" + RANDOM.nextInt(10);
 	}
 
 }

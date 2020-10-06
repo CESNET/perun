@@ -1006,6 +1006,17 @@ components:
             additionalProperties:
               type: string
 
+    MapStringMapStringStringResponse:
+      description: "returns Map<String,Map<String,String>>"
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: object
+              additionalProperties:
+                type: string
+
     UserResponse:
       description: returns User
       content:
@@ -7863,6 +7874,36 @@ paths:
               properties:
                 userToBeSponsored: { type: integer }
                 password: { type: string }
+                vo: { type: integer }
+                sponsor: { type: integer }
+                namespace: { type: string }
+
+  /json/membersManager/createSponsoredMembers:
+    post:
+      tags:
+        - MembersManager
+      operationId: createSponsoredMembers
+      summary: Creates new sponsored members in a given VO and namespace.
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringMapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateSponsoredMember
+              description: "input for createSponsoredMember"
+              type: object
+              required:
+                - guestNames
+                - vo
+                - sponsor
+                - namespace
+              properties:
+                guestNames : { type: array, items: { type: string } }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }

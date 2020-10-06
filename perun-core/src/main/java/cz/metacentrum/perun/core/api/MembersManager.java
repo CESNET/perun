@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -1163,6 +1164,28 @@ public interface MembersManager {
 	 * @throws InvalidLoginException
 	 */
 	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+
+	/**
+	 * Creates new sponsored Members (with random generated passwords).
+	 *
+	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and start over,
+	 * exceptions during member creation are not thrown and the returned map has this structure:
+	 *
+	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 *
+	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
+	 *
+	 * @param session perun session
+	 * @param vo vo for members
+	 * @param namespace namespace for selecting password module
+	 * @param names a list of names
+	 * @param sponsor sponsoring user or null for the caller
+	 * @return map of names to map of status, login and password
+	 * @throws PrivilegeException
+	 */
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor) throws PrivilegeException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor

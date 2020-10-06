@@ -2273,6 +2273,37 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return sponsoredMember;
 	}
 
+	@Override
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation) {
+		Map<String, Map<String, String>> result = new HashMap<>();
+		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
+
+		for (String name : names) {
+			// generate random password
+			String password = module.generateRandomPassword(sess, null);
+			Map<String, String> mapName = new HashMap<>();
+			mapName.put("guestName", name);
+			// create sponsored member
+			User user;
+			try {
+				user = perunBl.getUsersManagerBl().getUserByMember(sess, createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, asyncValidation));
+				// get login to return
+				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
+				Map<String, String> statusWithLogin = new HashMap<>();
+				statusWithLogin.put("status", "OK");
+				statusWithLogin.put("login", login);
+				statusWithLogin.put("password", password);
+				result.put(name, statusWithLogin);
+			} catch (Exception e) {
+				Map<String, String> status = new HashMap<>();
+				status.put("status", e.getMessage());
+				result.put(name, status);
+			}
+		}
+
+		return result;
+	}
+
 	/**
 	 * Try to get attribute from attribute manager
 	 *

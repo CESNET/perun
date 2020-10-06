@@ -2259,12 +2259,21 @@ perun_policies:
   createSponsoredMember_Vo_String_Map<String_String>_String_User_policy:
     policy_roles:
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
   setSponsoredMember_Vo_User_String_String_User_policy:
     policy_roles:
       - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  createSponsoredMembers_Vo_String_List<String>_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
