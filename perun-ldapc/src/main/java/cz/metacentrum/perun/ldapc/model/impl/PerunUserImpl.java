@@ -135,10 +135,9 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	public void addPrincipal(User user, String login) {
 		DirContextOperations entry = findByDN(buildDN(user));
 
-		// FIXME - this will be uncommented in the next release
-//		if (isEppnEpuidLogin(login)) {
+		if (isEppnEpuidLogin(login)) {
 			entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
-//		}
+		}
 
 		entry.addAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities, login);
 		ldapTemplate.modifyAttributes(entry);
@@ -148,10 +147,9 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	public void removePrincipal(User user, String login) {
 		DirContextOperations entry = findByDN(buildDN(user));
 
-		// FIXME - this will be uncommented in the next release
-//		if (isEppnEpuidLogin(login)) {
+		if (isEppnEpuidLogin(login)) {
 			entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, login);
-//		}
+		}
 
 		entry.removeAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities, login);
 		ldapTemplate.modifyAttributes(entry);
@@ -219,8 +217,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 				extSources.stream()
 						.filter(this::isIdpUes)
 						.map(UserExtSource::getLogin)
-						// FIXME - this will be uncommented in the next release
-//						.filter(this::isEppnEpuidLogin)
+						.filter(this::isEppnEpuidLogin)
 						.toArray(String[]::new)
 		);
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrUserIdentities,
