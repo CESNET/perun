@@ -1441,7 +1441,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().removeMember(sess,sponsors,sponsorMember);
 		//refresh from DB
 		sponsoredMember = perun.getMembersManagerBl().getMemberById(sess,sponsoredMember.getId());
-		assertTrue("sponsored member without sponsors should still have flag sponsored",sponsoredMember.isSponsored());
+		assertFalse("Member's sponsorship should have been removed.",sponsoredMember.isSponsored());
 		assertTrue("sponsored member without sponsors must be expired",sponsoredMember.getStatus()==Status.EXPIRED);
 	}
 
