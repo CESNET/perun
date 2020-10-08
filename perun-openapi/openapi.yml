@@ -924,6 +924,12 @@ components:
           items:
             type: integer
 
+    MemberWithSponsors:
+      type: object
+      properties:
+        member: { $ref: '#/components/schemas/RichMember' }
+        sponsors: { type: array, items: { $ref: '#/components/schemas/User' }}
+
     RTMessage:
       type: object
       properties:
@@ -996,6 +1002,15 @@ components:
             type: array
             items:
               type: string
+
+    ListOfMemberWithSponsorsResponse:
+      description: "returns List<MemberWithSponsors>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/MemberWithSponsors"
 
     MapStringStringResponse:
       description: "returns Map<String,String>"
@@ -7842,6 +7857,22 @@ paths:
           $ref: '#/components/responses/ListOfRichUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getSponsoredMembersAndTheirSponsors:
+    get:
+      tags:
+        - MembersManager
+      operationId: getSponsoredMembersAndTheirSponsors
+      summary: Gets list of members with sponsors.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMemberWithSponsorsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   /json/membersManager/createSponsoredMember/withFullName:
     post:

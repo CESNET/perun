@@ -11,10 +11,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
@@ -169,6 +171,31 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue(sponsoredMembers.size() == 2);
 		assertTrue(sponsoredMembers.contains(sponsoredMember1));
 		assertTrue(sponsoredMembers.contains(sponsoredMember2));
+	}
+
+	@Test
+	public void getSponsoredMembersAndTheirSponsors() throws Exception {
+		System.out.println(CLASS_NAME + "getSponsoredMembersAndTheirSponsors");
+
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+
+		Map<String, String> userName = new HashMap<>();
+		userName.put("guestName", "Ing. Jan Novák");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", userName, "secret", sponsorUser, false);
+
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
+
+		List<MemberWithSponsors> memberWithSponsors = perun.getMembersManager().getSponsoredMembersAndTheirSponsors(sess, createdVo, attrNames);
+
+		assertEquals(memberWithSponsors.get(0).getMember(), sponsoredMember);
+		assertEquals(memberWithSponsors.get(0).getSponsors().get(0), sponsorUser);
+		assertTrue(memberWithSponsors.get(0).getSponsors().size() == 1);
 	}
 
 	@Test

@@ -2323,6 +2323,24 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getSponsoredMembersAndTheirSponsors_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  filter-getSponsoredMembersAndTheirSponsors_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - SPONSOR: Member
+    include_policies:
+      - default_policy
+
   extendExpirationForSponsoredMember_Member_User_policy:
     policy_roles:
       - REGISTRAR:

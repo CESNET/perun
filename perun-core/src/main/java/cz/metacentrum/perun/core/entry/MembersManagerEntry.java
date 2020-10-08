@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -35,9 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -53,6 +52,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1342,6 +1342,32 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public List<MemberWithSponsors> getSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(vo, "vo");
+
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getSponsoredMembersAndTheirSponsors");
+		}
+
+		List<AttributeDefinition> attrsDef = new ArrayList<>();
+		for (String attrName : attrNames) {
+			attrsDef.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+		}
+
+		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, getSponsoredMembers(sess, vo), attrsDef);
+		richMembers = membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers, null, true);
+
+		return richMembers.stream()
+			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembersAndTheirSponsors_Vo_policy", member, vo))
+			.map(member -> convertMemberToMemberWithSponsors(sess, member))
+			.collect(Collectors.toList());
+	}
+
+	@Override
 	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws PrivilegeException, MemberNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sponsoredMember, "sponsoredMember");
@@ -1379,6 +1405,20 @@ public class MembersManagerEntry implements MembersManager {
 		}
 		//remove sponsor
 		membersManagerBl.removeSponsor(sess,sponsoredMember, sponsorToRemove);
+	}
+
+	/**
+	 * Converts member to member with sponsors and sets all his sponsors.
+	 *
+	 * @param sess perun session
+	 * @param member sponsored member
+	 * @return member with sponsors
+	 */
+	private MemberWithSponsors convertMemberToMemberWithSponsors(PerunSession sess, RichMember member) {
+		MemberWithSponsors memberWithSponsors = new MemberWithSponsors(member);
+		List<User> sponsors = getPerunBl().getUsersManagerBl().getSponsors(sess, member);
+		memberWithSponsors.setSponsors(sponsors);
+		return memberWithSponsors;
 	}
 
 	/**
