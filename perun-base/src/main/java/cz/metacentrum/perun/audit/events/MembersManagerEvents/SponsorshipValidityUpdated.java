@@ -6,7 +6,10 @@ import cz.metacentrum.perun.core.api.User;
 
 import java.time.LocalDate;
 
-public class SponsorshipEstablished extends AuditEvent {
+/**
+ * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
+ */
+public class SponsorshipValidityUpdated extends AuditEvent {
 
 	private Member sponsoredMember;
 	private User sponsor;
@@ -14,14 +17,14 @@ public class SponsorshipEstablished extends AuditEvent {
 	private LocalDate validity;
 
 	@SuppressWarnings("unused") // used by jackson mapper
-	public SponsorshipEstablished() {
+	public SponsorshipValidityUpdated() {
 	}
 
-	public SponsorshipEstablished(Member sponsoredMember, User sponsor, LocalDate validityTo) {
+	public SponsorshipValidityUpdated(Member sponsoredMember, User sponsor, LocalDate validityTo) {
 		this.sponsoredMember = sponsoredMember;
 		this.sponsor = sponsor;
 		this.validity = validityTo;
-		this.message = formatMessage("Sponsorship of %s by %s established with validity to %s.",
+		this.message = formatMessage("Validity of sponsorship of %s by %s changed to %s.",
 				sponsoredMember, sponsor, validityTo == null ? "FOREVER" : validityTo.toString());
 	}
 
@@ -40,10 +43,5 @@ public class SponsorshipEstablished extends AuditEvent {
 
 	public LocalDate getValidity() {
 		return validity;
-	}
-
-	@Override
-	public String toString() {
-		return message;
 	}
 }

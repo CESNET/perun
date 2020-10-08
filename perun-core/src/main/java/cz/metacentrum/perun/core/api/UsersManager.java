@@ -1151,6 +1151,7 @@ public interface UsersManager {
 	/**
 	 * Gets list of users that sponsor the member, with attributes.
 	 *
+	 * @deprecated - use getSponsorsForMember
 	 * @param sess Perun session
 	 * @param member member which is sponsored
 	 * @param attrNames list of attributes. if null or empty, returns all attributes
@@ -1159,7 +1160,19 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @return list of users which sponsor the member
 	 */
+	@Deprecated
 	List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws PrivilegeException, UserNotExistsException;
+
+	/**
+	 * Gets list of users that sponsor the member, with attributes.
+	 *
+	 * @param sess Perun session
+	 * @param member member which is sponsored
+	 * @param attrNames list of attributes. if null or empty, returns all attributes
+	 * @throws PrivilegeException insufficient permissions
+	 * @return list of users which sponsor the member
+	 */
+	List<Sponsor> getSponsorsForMember(PerunSession sess, Member member, List<String> attrNames) throws PrivilegeException;
 
 	/**
 	 * Generates new random password for given user and returns String representing HTML

@@ -7,11 +7,11 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.MemberWithSponsors;
+import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -34,17 +34,16 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -318,6 +317,22 @@ public interface MembersManagerBl {
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createSpecificMember(PerunSession, Vo, Candidate, List<User>)
 	 */
 	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+
+	/**
+	 * Transform non-sponsored member to sponsored one with defined sponsor
+	 *
+	 * @param session perun session
+	 * @param sponsoredMember member who will be set as sponsored one
+	 * @param sponsor new sponsor of this member
+	 * @param validityTo the last day when the sponsorship is active
+	 *
+	 * @return sponsored member
+	 *
+	 * @throws AlreadySponsoredMemberException if member was already flagged as sponsored
+	 * @throws UserNotInRoleException if sponsor has not right role in the member's VO
+	 * @throws InternalErrorException if something unexpected happened
+	 */
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsoredMemberException, UserNotInRoleException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
@@ -920,6 +935,18 @@ public interface MembersManagerBl {
 	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef);
 
 	/**
+	 * Convert given User to the Sponsor object. For the sponsor object, there is loaded information
+	 * about the sponsorship. Also, if the given user is a RichUser, all of its attributes and userExtSources
+	 * are also set to the sponsor object.
+	 *
+	 * @param sess session
+	 * @param user a User or a RichUser object
+	 * @param sponsoredMember member, to which the sponsorship information is loaded
+	 * @return Sponsor object created from given user object with addition info about sponsorship for the given member.
+	 */
+	Sponsor convertUserToSponsor(PerunSession sess, User user, Member sponsoredMember);
+
+	/**
 	 * Fill the RichMember object with data from Member and corresponding User, user/member, user-facility and member-resource attributes defined by list of attribute definition.
 	 *
 	 * @param sess
@@ -1427,6 +1454,54 @@ public interface MembersManagerBl {
 	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
 
 	/**
+	 * Creates a new sponsored member.
+	 *
+	 * @param session perun session
+	 * @param vo virtual organization
+	 * @param namespace used for selecting external system in which guest user account will be created
+	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
+	 * @param password password
+	 * @param sponsor sponsoring user
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
+	 * @param asyncValidation
+	 * @return created member
+	 * @throws InternalErrorException
+	 * @throws AlreadyMemberException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordCreationFailedException
+	 * @throws ExtendMembershipException
+	 * @throws WrongAttributeValueException
+	 * @throws ExtSourceNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws UserNotInRoleException if the member is not in required role
+	 */
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+
+	/**
+	 * Creates a sponsored membership for the given user.
+	 *
+	 * @param session perun session
+	 * @param vo virtual organization
+	 * @param userToBeSponsored user, that will be sponsored by sponsor
+	 * @param namespace used for selecting external system in which guest user account will be created
+	 * @param password password
+	 * @param sponsor sponsoring user
+	 * @param asyncValidation
+	 * @return sponsored member
+	 * @throws AlreadyMemberException
+	 * @throws ExtendMembershipException
+	 * @throws UserNotInRoleException
+	 * @throws PasswordStrengthException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordCreationFailedException
+	 * @throws InvalidLoginException
+	 * @throws ExtSourceNotExistsException
+	 */
+	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException;
+
+	/**
 	 * Creates a sponsored membership for the given user.
 	 *
 	 * @param session perun session
@@ -1470,7 +1545,7 @@ public interface MembersManagerBl {
 	 * @param asyncValidation switch for easier testing
 	 * @return map of names to map of status, login and password
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation);
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo, boolean asyncValidation);
 
 	/**
 	 * Links sponsored member and sponsoring user.
@@ -1485,6 +1560,34 @@ public interface MembersManagerBl {
 	 */
 	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
+	/**
+	 * Links sponsored member and sponsoring user.
+	 *
+	 * @param session perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @param sponsor sponsoring user
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
+	 *
+	 * @return member
+	 *
+	 * @throws InternalErrorException
+	 * @throws MemberNotSponsoredException
+	 * @throws AlreadySponsorException
+	 * @throws UserNotInRoleException
+	 */
+	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
+
+	/**
+	 * For the given member and user returns their sponsorship relation object. If there is no
+	 * such relation, the SponsorshipDoesNotExistException is thrown.
+	 *
+	 * @param sess session
+	 * @param sponsoredMember sponsored member
+	 * @param sponsor sponsor
+	 * @return Sponsorship object
+	 * @throws SponsorshipDoesNotExistException if there is no sponsorship relation between the given member and user
+	 */
+	Sponsorship getSponsorship(PerunSession sess, Member sponsoredMember, User sponsor) throws SponsorshipDoesNotExistException;
 	/**
 	 * Gets list of members that are sponsored by the user in the vo.
 	 *
@@ -1572,4 +1675,15 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
+
+	/**
+	 * Update the sponsorship of given member for given sponsor.
+	 *
+	 * @param sess session
+	 * @param sponsoredMember sponsored member
+	 * @param sponsor sponsor
+	 * @param newValidity new validity, can be set to null never expire
+	 * @throws SponsorshipDoesNotExistException if the given user is not sponsor of the given member
+	 */
+	void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor, LocalDate newValidity) throws SponsorshipDoesNotExistException;
 }

@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class MemberWithSponsors {
 	private RichMember member;
-	private List<User> sponsors;
+	private List<Sponsor> sponsors;
 
 	/**
 	 * Constructor
@@ -33,11 +33,11 @@ public class MemberWithSponsors {
 		this.member = member;
 	}
 
-	public List<User> getSponsors() {
+	public List<Sponsor> getSponsors() {
 		return sponsors;
 	}
 
-	public void setSponsors(List<User> sponsors) {
+	public void setSponsors(List<Sponsor> sponsors) {
 		this.sponsors = sponsors;
 	}
 

@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -53,6 +54,16 @@ public abstract class Deserializer {
 	 * @throws RpcException if the specified value cannot be parsed as {@code int} or if it is not supplied
 	 */
 	public abstract int readInt(String name);
+
+	/**
+	 * Reads LocalDate value with the specified name. Expected ISO-8601 format. (yyyy-MM-dd)
+	 *
+	 * @param name name of the localDate value
+	 * @return parsed local date
+	 */
+	public LocalDate readLocalDate(String name) {
+		return LocalDate.parse(readString(name));
+	}
 
 	public int[] readArrayOfInts(String name) {
 		throw new UnsupportedOperationException("readArrayOfInts(String name)");
