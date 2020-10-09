@@ -1680,6 +1680,31 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getLastName(), false);
 		assertTrue(members.size() == 1);
 		assertEquals(member, members.get(0));
+		members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getLastName() + " " + user.getFirstName(), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member, members.get(0));
+
+		// New member to test searching with space in first name
+		Candidate candidate2 = new Candidate();
+		// Different first name from the default candidate in the test, contains a space
+		candidate2.setFirstName(new StringBuilder(candidate.getFirstName()).append('2').insert(candidate.getFirstName().length() / 2, ' ').toString());
+		candidate2.setId(0);
+		candidate2.setMiddleName("");
+		candidate2.setLastName(candidate.getLastName());
+		candidate2.setTitleBefore("");
+		candidate2.setTitleAfter("");
+		// Different ext login from the default candidate in the test
+		UserExtSource ues2 = new UserExtSource(extSource, candidate.getUserExtSource().getLogin() + "2");
+		candidate2.setUserExtSource(ues2);
+		candidate2.setAttributes(new HashMap<>());
+
+		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate2);
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member2));
+		assertNotNull("No member created", member2);
+
+		members = perun.getMembersManagerBl().findMembers(sess, createdVo, candidate2.getFirstName(), false);
+		assertTrue(members.size() == 1);
+		assertEquals(member2, members.get(0));
 	}
 
 	@Test
