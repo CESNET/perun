@@ -135,7 +135,7 @@ public class PropagationMaintainer extends AbstractRunner {
 
 
 	/**
-	 * Reschedule Tasks in DONE/WARNING if their
+	 * Reschedule Tasks in DONE/WARNING/WAITING state if their
 	 * - source was updated
 	 * - OR haven't run for X hours
 	 * - or have no end time set
@@ -143,9 +143,9 @@ public class PropagationMaintainer extends AbstractRunner {
 	private void rescheduleDoneTasks() {
 
 		// Reschedule tasks in DONE that haven't been running for quite a while
-		log.info("Checking DONE/WARNING tasks...");
+		log.info("Checking DONE/WARNING/WAITING tasks...");
 
-		for (Task task : schedulingPool.getTasksWithStatus(TaskStatus.DONE, TaskStatus.WARNING)) {
+		for (Task task : schedulingPool.getTasksWithStatus(TaskStatus.DONE, TaskStatus.WARNING, TaskStatus.WAITING)) {
 
 			LocalDateTime tooManyHoursAgo = LocalDateTime.now().minusHours(oldRescheduleHours);
 
