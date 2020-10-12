@@ -173,6 +173,22 @@ $objectExamples{"BanOnResource"} = "{ \"id\" : 4 , \"validityTo\" : 1533638919 ,
 $objectExamples{"List&lt;BanOnResource&gt;"} = $listPrepend . $objectExamples{"BanOnResource"} . $listAppend;
 $objectExamples{"List<BanOnResource>"} = $objectExamples{"List&lt;BanOnResource&gt;"};
 
+$objectExamples{"BanOnVo"} = "{ \"id\" : 2 , \"validityTo\" : 1533638919 , \"description\" : \"banned\" , \"memberId\" : 13541 , \"voId\" : 12 , \"beanName\" : \"BanOnVo\" }";
+$objectExamples{"List&lt;BanOnVo&gt;"} = $listPrepend . $objectExamples{"BanOnVo"} . $listAppend;
+$objectExamples{"List<BanOnVo>"} = $objectExamples{"List&lt;BanOnVo&gt;"};
+
+$objectExamples{"EnrichedHost"} = "{ \"host\" : " . $objectExamples{"Host"} . " , \"hostAttributes\" : " . $objectExamples{"List&lt;Attribute&gt;"} . " }";
+$objectExamples{"List&lt;EnrichedHost&gt;"} = $listPrepend . $objectExamples{"EnrichedHost"} . $listAppend;
+$objectExamples{"List<EnrichedHost>"} = $objectExamples{"List&lt;MemberWithSponsors&gt;"};
+
+$objectExamples{"EnrichedResource"} = "{ \"resource\" : " . $objectExamples{"Resource"} . " , \"attributes\" : " . $objectExamples{"List&lt;Attribute&gt;"} . " }";
+$objectExamples{"List&lt;EnrichedResource&gt;"} = $listPrepend . $objectExamples{"EnrichedResource"} . $listAppend;
+$objectExamples{"List<EnrichedResource>"} = $objectExamples{"List&lt;EnrichedResource&gt;"};
+
+$objectExamples{"MemberWithSponsors"} = "{ \"member\" : " . $objectExamples{"RichMember"} . " , \"sponsors\" : " . $objectExamples{"List&lt;RichUser&gt;"} . " }";
+$objectExamples{"List&lt;MemberWithSponsors&gt;"} = $listPrepend . $objectExamples{"MemberWithSponsors"} . $listAppend;
+$objectExamples{"List<MemberWithSponsors>"} = $objectExamples{"List&lt;MemberWithSponsors&gt;"};
+
 # SUB HELP
 # help info
 sub help {
