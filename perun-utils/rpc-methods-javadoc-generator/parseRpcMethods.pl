@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Switch;
 use Getopt::Long qw(:config no_ignore_case);
+use Sort::Versions;
 
 #constants
 our $OUTPUT_DIR="./web-template";
@@ -978,7 +979,7 @@ unless (-d $SOURCE_DIR) {
 # determine all possible versions
 @allVersions = `git -C ./perun/ tag --list`;
 chomp @allVersions;
-@allVersions = reverse @allVersions;
+@allVersions = reverse sort versioncmp @allVersions;
 if ($buildAll) {
 
 	if (defined($commit)) {
