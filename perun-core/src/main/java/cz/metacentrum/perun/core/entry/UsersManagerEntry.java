@@ -362,7 +362,7 @@ public class UsersManagerEntry implements UsersManager {
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "setSpecificUser_User_SpecificUserType_User_policy", specificUser) &&
 			!AuthzResolver.authorizedInternal(sess, "owner-setSpecificUser_User_SpecificUserType_User_policy", owner)) {
-			throw new PrivilegeException(sess, "Only PerunAdmin should have rights to call this method.");
+			throw new PrivilegeException(sess, "setSpecificUser");
 		}
 
 		//set specific user
@@ -377,7 +377,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "unsetSpecificUser_User_SpecificUserType_policy", specificUser)) {
-			throw new PrivilegeException(sess, "Only PerunAdmin should have rights to call this method.");
+			throw new PrivilegeException(sess, "unsetSpecificUser");
 		}
 
 		//set specific user

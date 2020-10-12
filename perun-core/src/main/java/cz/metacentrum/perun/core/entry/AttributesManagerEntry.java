@@ -710,7 +710,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Authorization - will be later replaced by the new attributes authorization
 		if(!AuthzResolver.authorizedInternal(sess, "getAttributes_String_policy")) {
-			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
+			throw new PrivilegeException("getAttributes");
 		}
 
 		return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getAttributes(sess, key));
@@ -739,7 +739,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Authorization - will be later replaced by the new attributes authorization
 		if(!AuthzResolver.authorizedInternal(sess, "getEntitylessAttributes_String_policy")) {
-			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
+			throw new PrivilegeException("getEntitylessAttributes");
 		}
 
 		return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getEntitylessAttributes(sess, attrName));
@@ -795,7 +795,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Authorization - will be later replaced by the new attributes authorization
 		if(!AuthzResolver.authorizedInternal(sess, "getEntitylessKeys_AttributeDefinition_policy")) {
-			throw new PrivilegeException("For getting entityless attributes principal need to be PerunAdmin or PerunObserver.");
+			throw new PrivilegeException("getEntitylessKeys");
 		}
 
 		return getAttributesManagerBl().getEntitylessKeys(sess, attributeDefinition);
@@ -808,7 +808,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "getAttributesByAttributeDefinition_AttributeDefinition_policy", attributeDefinition)) {
-			throw new PrivilegeException("For getting the attributes, you need to be PerunAdmin or PerunObserver.");
+			throw new PrivilegeException("getAttributesByAttributeDefinition");
 		}
 
 		return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attributeDefinition));
@@ -1579,7 +1579,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Authorization - will be later replaced by the new attributes authorization
 		if(!AuthzResolver.authorizedInternal(sess, "setAttribute_String_Attribute_policy")) {
-			throw new PrivilegeException("Only perunAdmin can set entityless attributes.");
+			throw new PrivilegeException("setAttribute");
 		}
 
 		getAttributesManagerBl().setAttribute(sess, key, attribute);
@@ -1602,7 +1602,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "createAttribute_AttributeDefinition_policy")) {
-			throw new PrivilegeException("Only perunAdmin can create new Attribute.");
+			throw new PrivilegeException("createAttribute");
 		}
 
 		if (!attribute.getFriendlyName().matches(AttributesManager.ATTRIBUTES_REGEXP)) {
@@ -1618,7 +1618,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		//Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_policy", attribute)) {
-			throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
+			throw new PrivilegeException("deleteAttribute");
 		}
 
 		getAttributesManagerBl().deleteAttribute(sess, attribute);
@@ -1631,7 +1631,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "deleteAttribute_AttributeDefinition_boolean", attributeDefinition)) {
-			throw new PrivilegeException("Only perunAdmin can delete existing Attribute.");
+			throw new PrivilegeException("deleteAttribute");
 		}
 
 		getAttributesManagerBl().deleteAttribute(sess, attributeDefinition, force);
@@ -4446,7 +4446,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(perunSession, "updateAttributeDefinition_AttributeDefinition_policy", attributeDefinition)) {
-			throw new PrivilegeException("Only PerunAdmin can update AttributeDefinition");
+			throw new PrivilegeException("updateAttributeDefinition");
 		}
 
 		return getAttributesManagerBl().updateAttributeDefinition(perunSession, attributeDefinition);
@@ -4459,7 +4459,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_policy", member)) {
-			throw new PrivilegeException("This operation can do only PerunAdmin.");
+			throw new PrivilegeException("doTheMagic");
 		}
 
 		getAttributesManagerBl().doTheMagic(sess, member);
@@ -4472,7 +4472,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "doTheMagic_Member_boolean_policy", member)) {
-			throw new PrivilegeException("This operation can do only PerunAdmin.");
+			throw new PrivilegeException("doTheMagic");
 		}
 
 		getAttributesManagerBl().doTheMagic(sess, member, trueMagic);
@@ -4486,7 +4486,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "getAttributeRights_int_policy")) {
-			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
+			throw new PrivilegeException("getAttributeRights");
 		}
 
 		return getAttributesManagerBl().getAttributeRights(sess, attributeId);
@@ -4505,7 +4505,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "setAttributeRights_List<AttributeRights>_policy")) {
-			throw new PrivilegeException("This operation can do only PerunAdmin.");
+			throw new PrivilegeException("setAttributeRights");
 		}
 
 		getAttributesManagerBl().setAttributeRights(sess, rights);
@@ -4540,7 +4540,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(session, "getModulesDependenciesGraph_GraphTextFormat_policy")) {
-			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
+			throw new PrivilegeException("getModulesDependenciesGraph");
 		}
 
 		return new GraphDTO(attributesManagerBl.getAttributeModulesDependenciesGraphAsString(session, format), format.name());
@@ -4551,7 +4551,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(session, "getModulesDependenciesGraph_GraphTextFormat_String_policy")) {
-			throw new PrivilegeException("This operation can be done only by PerunAdmin or PerunObserver.");
+			throw new PrivilegeException("getModulesDependenciesGraph");
 		}
 
 		AttributeDefinition definition = attributesManagerBl.getAttributeDefinition(session, attributeName);

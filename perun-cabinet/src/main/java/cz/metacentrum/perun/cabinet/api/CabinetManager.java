@@ -331,9 +331,10 @@ public interface CabinetManager {
 	 *
 	 * @param session PerunSession
 	 * @return List of all Authors of Publications. Empty list of none found.
+	 * @throws PrivilegeException 
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAllAuthors(PerunSession session) throws CabinetException;
+	List<Author> getAllAuthors(PerunSession session) throws PrivilegeException;
 
 	/**
 	 * Return all Authors of Publication specified by its ID. Empty list of none found.
@@ -363,10 +364,11 @@ public interface CabinetManager {
 	 * @param sess  PerunSession for authz
 	 * @param searchString String to search users by
 	 * @return List of new possible authors
-	 * @throws CabinetException
+	 * @throws PrivilegeException 
+	 * @throws CabinetException 
 	 * @throws InternalErrorException
 	 */
-	List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException;
+	List<Author> findNewAuthors(PerunSession sess, String searchString) throws PrivilegeException, CabinetException;
 
 
 	// Publications ----------------------------------
