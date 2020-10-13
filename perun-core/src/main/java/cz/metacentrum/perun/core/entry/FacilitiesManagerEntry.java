@@ -625,7 +625,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				if(hasRight) continue;
 			}
 
-			throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
+			throw new PrivilegeException(sess, "addHosts(" + host + ")");
 		}
 
 		return getFacilitiesManagerBl().addHosts(sess, hosts, facility);
@@ -677,7 +677,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				if(hasRight) continue;
 			}
 
-			throw new PrivilegeException(sess, "You can't add host " + hostname + ", because you don't have privileges to use this hostName");
+			throw new PrivilegeException(sess, "addHosts(" + hostname + ")");
 		}
 
 		return getFacilitiesManagerBl().addHosts(sess, facility, hosts);
@@ -974,7 +974,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			if(hasRight) return getFacilitiesManagerBl().addHost(sess, host, facility);
 		}
 
-		throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
+		throw new PrivilegeException(sess, "addHost(" + host + ")");
 	}
 
 	@Override

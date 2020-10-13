@@ -297,7 +297,7 @@ public class CabinetManagerImpl implements CabinetManager {
 				!authorship.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				!authorship.getUserId().equals(sess.getPerunPrincipal().getUser().getId()) &&
 				authorship.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
-			throw new PrivilegeException("You are not allowed to delete authorships you didn't created or which doesn't concern you.");
+			throw new PrivilegeException("deleteAuthorship.");
 		}
 
 		getAuthorshipManagerBl().deleteAuthorship(sess, authorship);
@@ -334,11 +334,11 @@ public class CabinetManagerImpl implements CabinetManager {
 	}
 
 	@Override
-	public List<Author> getAllAuthors(PerunSession sess) throws CabinetException {
+	public List<Author> getAllAuthors(PerunSession sess) throws PrivilegeException {
 
 		//Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getAllAuthors_policy")) {
-			throw new CabinetException("You are not authorized to list all authors.", NOT_AUTHORIZED);
+			throw new PrivilegeException("getAllAuthors");
 		}
 
 		return getAuthorshipManagerBl().getAllAuthors();
@@ -366,7 +366,7 @@ public class CabinetManagerImpl implements CabinetManager {
 			Publication publication = getPublicationManagerBl().getPublicationById(id);
 			if ((publication.getCreatedByUid() != session.getPerunPrincipal().getUserId()) &&
 					!(Objects.equals(publication.getCreatedBy(), session.getPerunPrincipal().getActor()))) {
-				throw new PrivilegeException("You are not allowed to see authors of publications you didn't created.");
+				throw new PrivilegeException("getAuthorsByPublicationId");
 			}
 		}
 
@@ -380,11 +380,11 @@ public class CabinetManagerImpl implements CabinetManager {
 	}
 
 	@Override
-	public List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException {
+	public List<Author> findNewAuthors(PerunSession sess, String searchString) throws PrivilegeException, CabinetException {
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "findNewAuthors_String_policy")) {
-			throw new CabinetException("You are not authorized to search for new authors.", NOT_AUTHORIZED);
+			throw new PrivilegeException("findNewAuthors");
 		}
 
 		return getAuthorshipManagerBl().findNewAuthors(sess, searchString);
@@ -415,7 +415,7 @@ public class CabinetManagerImpl implements CabinetManager {
 			try {
 				getAuthorsByPublicationId(sess, publication.getId());
 			} catch (PrivilegeException ex) {
-				throw new PrivilegeException("You are not allowed to update publications you didn't created.");
+				throw new PrivilegeException("updatePublication");
 			}
 		}
 
@@ -431,7 +431,7 @@ public class CabinetManagerImpl implements CabinetManager {
 				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
 			// not perun admin or author of record
-			throw new PrivilegeException("You are not allowed to delete publications you didn't created. If you wish, you can remove yourself from authors instead.");
+			throw new PrivilegeException("deletePublication");
 		}
 
 		getPublicationManagerBl().deletePublication(sess, publication);
