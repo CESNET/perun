@@ -1320,7 +1320,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.notNull(member, "member");
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getSponsors_Member_List<String>_policy", member)) {
-			throw new PrivilegeException(sess, "getSponsors can be called only by REGISTRAR");
+			throw new PrivilegeException(sess, "getSponsors");
 		}
 		List<User> sponsors = usersManagerBl.getSponsors(sess, member);
 		if (attrNames == null || attrNames.isEmpty()) {

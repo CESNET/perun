@@ -924,7 +924,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getSubGroupsCount_Group_policy", parentGroup)) {
-			throw new PrivilegeException(sess, "getSubGroupsCount for " + parentGroup.getName());
+			throw new PrivilegeException(sess, "getSubGroupsCount");
 				}
 
 		return getGroupsManagerBl().getSubGroupsCount(sess, parentGroup);
@@ -952,7 +952,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getParentGroupMembers_Group_policy", group)) {
-			throw new PrivilegeException(sess, "getParentGroupMembers for " + group.getName());
+			throw new PrivilegeException(sess, "getParentGroupMembers");
 		}
 
 		return getGroupsManagerBl().getParentGroupMembers(sess, group);
@@ -965,7 +965,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getParentGroupRichMembers_Group_policy", group)) {
-			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
+			throw new PrivilegeException(sess, "getParentGroupRichMembers");
 		}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group), group, true);
@@ -978,7 +978,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getParentGroupMembersWithAttributes_Group_policy", group)) {
-			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
+			throw new PrivilegeException(sess, "getParentGroupRichMembers");
 				}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group), group, true);

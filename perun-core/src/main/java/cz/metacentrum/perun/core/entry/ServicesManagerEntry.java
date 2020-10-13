@@ -696,7 +696,7 @@ public class ServicesManagerEntry implements ServicesManager {
 						break;
 					}
 				}
-				if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+				if(!hasRight) throw new PrivilegeException("addDestination");
 			}
 
 			if(!facilitiesByDestination.isEmpty()) {
@@ -707,7 +707,7 @@ public class ServicesManagerEntry implements ServicesManager {
 						break;
 					}
 				}
-				if(!hasRight) throw new PrivilegeException("You have no right to add this destination.");
+				if(!hasRight) throw new PrivilegeException("addDestination");
 			}
 				}
 
