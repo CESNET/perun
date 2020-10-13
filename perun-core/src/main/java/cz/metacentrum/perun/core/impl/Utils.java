@@ -1651,9 +1651,9 @@ public class Utils {
 	 */
 	public static String prepareUserSearchQueryExactMatch() {
 		if (Compatibility.isPostgreSql()) {
-			return " lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=:nameString";
+			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(:nameString), ' ', '')";
 		} else if (Compatibility.isHSQLDB()) {
-			return " lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=:nameString";
+			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(:nameString), ' ', '')";
 		} else {
 			throw new InternalErrorException("Unsupported db type");
 		}
@@ -1666,9 +1666,11 @@ public class Utils {
 	 */
 	public static String prepareUserSearchQuerySimilarMatch() {
 		if (Compatibility.isPostgreSql()) {
-			return " strpos(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "),:nameString) > 0 ";
+			return " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', ''),replace(lower(:nameString), ' ', '')) > 0 or " +
+				   " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.first_name,'')") + "), ' ', ''),replace(lower(:nameString), ' ', '')) > 0 ";
 		} else if (Compatibility.isHSQLDB()) {
-			return " lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ") like '%' || :nameString || '%' ";
+			return " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', '') like '%' || replace(lower(:nameString), ' ', '') || '%' or " +
+				   " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.first_name,'')") + "), ' ', '') like '%' || replace(lower(:nameString), ' ', '') || '%' ";
 		} else {
 			throw new InternalErrorException("Unsupported db type");
 		}

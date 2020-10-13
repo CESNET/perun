@@ -975,9 +975,10 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		// Create second user
 		User user2 = new User();
-		user2.setFirstName(userFirstName+"2");
+		// Different first name from the default user in the test, contains a space
+		user2.setFirstName(new StringBuilder(userFirstName).append('2').insert(userFirstName.length() / 2, ' ').toString());
 		user2.setMiddleName("");
-		user2.setLastName(userLastName); // Different last name from the default user in the test
+		user2.setLastName(userLastName);
 		user2.setTitleBefore("");
 		user2.setTitleAfter("");
 		assertNotNull(perun.getUsersManagerBl().createUser(sess, user2));
@@ -985,7 +986,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersForDeletion.add(user2);
 		// save user for deletion after testing
 
-		List<User> users = usersManager.findUsers(sess, userFirstName+""+userLastName);
+		List<User> users = usersManager.findUsers(sess, userFirstName + " " + userLastName);
 		// This search must contain at least one result
 		assertTrue("results must contain at least one user", users.size() >= 1);
 		// And must contain the user
@@ -995,6 +996,17 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// This search must contain at least two results
 		assertTrue("results must contain at least two users", users.size() >= 2);
 		assertTrue("results must contain user and user2", users.contains(user) && users.contains(user2));
+
+		users = usersManager.findUsers(sess, userLastName + " " + userFirstName);
+		// This search must contain at least one result
+		assertTrue("results must contain at least one user", users.size() >= 1);
+		assertTrue("results must contain user", users.contains(user));
+
+		// Search with a space in first name
+		users = usersManager.findUsers(sess, user2.getFirstName());
+		// This search must contain at least one result
+		assertTrue("results must contain at least one user", users.size() >= 1);
+		assertTrue("results must contain user2", users.contains(user2));
 	}
 
 	@Test
@@ -1102,13 +1114,30 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void findRichUsersWithAttributesByExactMatch() throws Exception {
 		System.out.println(CLASS_NAME + "findRichUsersWithAttributesByExactMatch");
 
+		// Create second user
+		User user2 = new User();
+		// Different first name from the default user in the test, contains a space
+		user2.setFirstName(new StringBuilder(userFirstName).append('2').insert(userFirstName.length() / 2, ' ').toString());
+		user2.setMiddleName("");
+		user2.setLastName(userLastName);
+		user2.setTitleBefore("");
+		user2.setTitleAfter("");
+		assertNotNull(perun.getUsersManagerBl().createUser(sess, user2));
+		// create new user in database
+		usersForDeletion.add(user2);
+		// save user for deletion after testing
+
 		ArrayList<String> attrNames = new ArrayList<>();
 		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
 
-		String searchString = user.getFirstName()+user.getLastName();
+		String searchString = user.getFirstName() + " " + user.getLastName();
 		List<RichUser> users = perun.getUsersManager().findRichUsersWithAttributesByExactMatch(sess, searchString, attrNames);
 		assertTrue("No users found for exact match!", !users.isEmpty());
 
+		searchString = user2.getFirstName() + " " + user2.getLastName();
+		users = perun.getUsersManager().findRichUsersWithAttributesByExactMatch(sess, searchString, attrNames);
+		assertTrue("Results must contain user2!", users.contains(user2));
+		assertTrue("Results can't contain user!", !users.contains(user));
 	}
 
 	@Test
