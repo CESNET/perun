@@ -1773,7 +1773,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				roles = new AuthzRoles();
 			} else {
 				// Load all user's roles with all possible subgroups
-				roles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(user));
+				roles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(user), Role.GROUPADMIN);
+				roles = addAllSubgroupsToAuthzRoles(sess, roles, Role.GROUPOBSERVER);
 				// Add self role for the user
 				roles.putAuthzRole(Role.SELF, user);
 				// Add service user role
@@ -1829,36 +1830,37 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * For role GroupAdmin with association to "Group" add also all subgroups to authzRoles.
+	 * For the given role with association to "Group" add also all subgroups to authzRoles.
 	 * If authzRoles is null, return empty AuthzRoles.
-	 * If there is no GroupAdmin role or Group object for this role, return not changed authzRoles.
+	 * If there is no role (given in parameter) or Group object for this role, return not changed authzRoles.
 	 *
 	 * @param sess       perun session
 	 * @param authzRoles authzRoles for some user
-	 * @return authzRoles also with subgroups of groups
+	 * @return the same object authzRoles, which is given in parameter, but also with subgroups of groups for given role
 	 */
-	public static AuthzRoles addAllSubgroupsToAuthzRoles(PerunSession sess, AuthzRoles authzRoles) {
+	public static AuthzRoles addAllSubgroupsToAuthzRoles(PerunSession sess, AuthzRoles authzRoles, String role) {
 		if (authzRoles == null) return new AuthzRoles();
-		if (authzRoles.hasRole(Role.GROUPADMIN)) {
-			Map<String, Set<Integer>> groupAdminRoles = authzRoles.get(Role.GROUPADMIN);
-			Set<Integer> groupsIds = groupAdminRoles.get("Group");
-			Set<Integer> newGroupsIds = new HashSet<>(groupsIds);
-			for (Integer id : groupsIds) {
-				Group parentGroup;
-				try {
-					parentGroup = getPerunBl().getGroupsManagerBl().getGroupById(sess, id);
-				} catch (GroupNotExistsException ex) {
-					log.debug("Group with id=" + id + " not exists when initializing rights for user: " + sess.getPerunPrincipal().getUser());
-					continue;
-				}
-				List<Group> subGroups = getPerunBl().getGroupsManagerBl().getAllSubGroups(sess, parentGroup);
-				for (Group g : subGroups) {
-					newGroupsIds.add(g.getId());
-				}
+		if (role == null || !authzRoles.hasRole(role)) return authzRoles;
+
+		Map<String, Set<Integer>> groupRoles = authzRoles.get(role);
+		Set<Integer> groupsIds = groupRoles.get("Group");
+		Set<Integer> newGroupsIds = new HashSet<>(groupsIds);
+		for (Integer id : groupsIds) {
+			Group parentGroup;
+			try {
+				parentGroup = getPerunBl().getGroupsManagerBl().getGroupById(sess, id);
+			} catch (GroupNotExistsException ex) {
+				log.debug("Group with id=" + id + " not exists when initializing rights for user: " + sess.getPerunPrincipal().getUser());
+				continue;
 			}
-			groupAdminRoles.put("Group", newGroupsIds);
-			authzRoles.put(Role.GROUPADMIN, groupAdminRoles);
+			List<Group> subGroups = getPerunBl().getGroupsManagerBl().getAllSubGroups(sess, parentGroup);
+			for (Group g : subGroups) {
+				newGroupsIds.add(g.getId());
+			}
 		}
+		groupRoles.put("Group", newGroupsIds);
+		authzRoles.put(role, groupRoles);
+
 		return authzRoles;
 	}
 
