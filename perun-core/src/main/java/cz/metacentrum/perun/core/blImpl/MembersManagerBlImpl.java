@@ -2487,6 +2487,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		perunBl.getAuditer().log(sess, new SponsorshipValidityUpdated(sponsoredMember, sponsor, newValidity));
 	}
 
+	@Override
+	public List<Sponsorship> getSponsorshipsExpiringInRange(PerunSession sess, LocalDate from, LocalDate to) {
+		Utils.notNull(from, "from");
+		Utils.notNull(to, "to");
+		return membersManagerImpl.getSponsorshipsExpiringInRange(sess, from, to);
+	}
+
 	/**
 	 * For given member, remove all of his bans on all entities.
 	 *
