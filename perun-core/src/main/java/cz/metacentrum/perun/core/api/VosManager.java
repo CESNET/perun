@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -213,7 +214,7 @@ public interface VosManager {
 	 * @throws AlreadyAdminException
 	 * @throws VoNotExistsException
 	 */
-	void addAdmin(PerunSession perunSession, Vo vo, User user) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException;
+	void addAdmin(PerunSession perunSession, Vo vo, User user) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException, RoleCannotBeManagedException;
 
 	/**
 	 * Add a group administrator to the VO.
@@ -227,7 +228,7 @@ public interface VosManager {
 	 * @throws VoNotExistsException
 	 * @throws GroupNotExistsException
 	 */
-	void addAdmin(PerunSession perunSession, Vo vo, Group group) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException;
+	void addAdmin(PerunSession perunSession, Vo vo, Group group) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException, RoleCannotBeManagedException;
 
 
 	/**
@@ -241,7 +242,7 @@ public interface VosManager {
 	 * @throws VoNotExistsException
 	 * @throws UserNotAdminException
 	 */
-	void removeAdmin(PerunSession perunSession, Vo vo, User user) throws PrivilegeException, VoNotExistsException, UserNotAdminException, UserNotExistsException;
+	void removeAdmin(PerunSession perunSession, Vo vo, User user) throws PrivilegeException, VoNotExistsException, UserNotAdminException, UserNotExistsException, RoleCannotBeManagedException;
 
 	/**
 	 * Removes a group administrator from the VO.
@@ -255,7 +256,7 @@ public interface VosManager {
 	 * @throws GroupNotAdminException
 	 * @throws GroupNotExistsException
 	 */
-	void removeAdmin(PerunSession perunSession, Vo vo, Group group) throws PrivilegeException, VoNotExistsException, GroupNotAdminException, GroupNotExistsException;
+	void removeAdmin(PerunSession perunSession, Vo vo, Group group) throws PrivilegeException, VoNotExistsException, GroupNotAdminException, GroupNotExistsException, RoleCannotBeManagedException;
 
 	/**
 	 * Get list of all user administrators for supported role and specific vo.
@@ -442,7 +443,7 @@ public interface VosManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void addSponsorRole(PerunSession sess, Vo vo, User user) throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException;
+	void addSponsorRole(PerunSession sess, Vo vo, User user) throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException, RoleCannotBeManagedException;
 
 	/**
 	 * Adds role SPONSOR for group in a VO.
@@ -456,7 +457,7 @@ public interface VosManager {
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void addSponsorRole(PerunSession sess, Vo vo, Group group) throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException;
+	void addSponsorRole(PerunSession sess, Vo vo, Group group) throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException, RoleCannotBeManagedException;
 
 	/**
 	 * Removes role SPONSOR from user in a VO.
@@ -469,7 +470,7 @@ public interface VosManager {
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void removeSponsorRole(PerunSession sess, Vo vo, User user) throws UserNotAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException;
+	void removeSponsorRole(PerunSession sess, Vo vo, User user) throws UserNotAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException, RoleCannotBeManagedException;
 
 	/**
 	 * Removes role SPONSOR from group in a VO.
@@ -482,7 +483,7 @@ public interface VosManager {
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws GroupNotAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException;
+	void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws GroupNotAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException, RoleCannotBeManagedException;
 
 	/**
 	 * Set ban for member on his vo.

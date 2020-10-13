@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -153,7 +154,7 @@ public interface SecurityTeamsManager {
 	 * @throws UserNotExistsException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException;
+	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Create group as security admins group of given security team (all users in group will have security admin rights)
@@ -167,7 +168,7 @@ public interface SecurityTeamsManager {
 	 * @throws GroupNotExistsException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException;
+	void addAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, AlreadyAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Remove security admin role for given security team from user
@@ -181,7 +182,7 @@ public interface SecurityTeamsManager {
 	 * @throws UserNotExistsException
 	 * @throws UserNotAdminException
 	 */
-	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException;
+	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, User user) throws PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserNotAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Remove security admin role for given security team from group
@@ -195,7 +196,7 @@ public interface SecurityTeamsManager {
 	 * @throws GroupNotExistsException
 	 * @throws GroupNotAdminException
 	 */
-	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException;
+	void removeAdmin(PerunSession perunSession, SecurityTeam securityTeam, Group group) throws PrivilegeException, SecurityTeamNotExistsException, GroupNotExistsException, GroupNotAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Add User to black list of security team to filter him out.

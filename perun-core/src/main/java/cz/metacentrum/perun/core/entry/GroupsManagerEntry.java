@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -607,60 +608,39 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Group group, User user) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
+	public void addAdmin(PerunSession sess, Group group, User user) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Group_User_policy", Arrays.asList(group, user))) {
-			throw new PrivilegeException(sess, "addAdmin");
-				}
-
-		AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
+		AuthzResolver.setRole(sess, user, group, Role.GROUPADMIN);
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException {
+	public void addAdmin(PerunSession sess, Group group, Group authorizedGroup) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getGroupsManagerBl().checkGroupExists(sess, authorizedGroup);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Group_Group_policy", group)) {
-
-			throw new PrivilegeException(sess, "addAdmin");
-				}
-
-		AuthzResolverBlImpl.setRole(sess, authorizedGroup, group, Role.GROUPADMIN);
+		AuthzResolver.setRole(sess, authorizedGroup, group, Role.GROUPADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Group group, User user) throws PrivilegeException, GroupNotExistsException, UserNotAdminException, UserNotExistsException {
+	public void removeAdmin(PerunSession sess, Group group, User user) throws PrivilegeException, GroupNotExistsException, UserNotAdminException, UserNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Group_User_policy", Arrays.asList(group, user))) {
-			throw new PrivilegeException(sess, "removeAdmin");
-				}
-
-		AuthzResolverBlImpl.unsetRole(sess, user, group, Role.GROUPADMIN);
+		AuthzResolver.unsetRole(sess, user, group, Role.GROUPADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws PrivilegeException, GroupNotExistsException, GroupNotAdminException {
+	public void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws PrivilegeException, GroupNotExistsException, GroupNotAdminException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getGroupsManagerBl().checkGroupExists(sess, authorizedGroup);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Group_Group_policy", group)) {
-			throw new PrivilegeException(sess, "removeAdmin");
-				}
-
-		AuthzResolverBlImpl.unsetRole(sess, authorizedGroup, group, Role.GROUPADMIN);
+		AuthzResolver.unsetRole(sess, authorizedGroup, group, Role.GROUPADMIN);
 	}
 
 	@Override

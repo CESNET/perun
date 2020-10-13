@@ -18,7 +18,7 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * PerunPoliciesContainer stores a list of perun policies.
+ * PerunPoliciesContainer stores a list of perun policies and map of role management rules..
  */
 public class PerunPoliciesContainer {
 
@@ -35,6 +35,13 @@ public class PerunPoliciesContainer {
 		this.rolesManagementRules = rolesManagementRules;
 	}
 
+	/**
+	 * Get PerunPolicy for the policy name from the PerunPoliciesContainer
+	 *
+	 * @param policyName for which will be the policy fetched
+	 * @return PerunPolicy for the role name
+	 * @throws PolicyNotExistsException of there is no policy for the policy name
+	 */
 	public PerunPolicy getPerunPolicy(String policyName) throws PolicyNotExistsException {
 		for (PerunPolicy policy : perunPolicies) {
 			if (policy.getPolicyName().equals(policyName)) return policy;
@@ -42,6 +49,13 @@ public class PerunPoliciesContainer {
 		throw new PolicyNotExistsException("Policy with name "+ policyName + "does not exists in the PerunPoliciesContainer.");
 	}
 
+	/**
+	 * Get RoleManagementRules for the role name from the PerunPoliciesContainer
+	 *
+	 * @param roleName for which will be the rules fetched
+	 * @return RoleManagementRules for the role name
+	 * @throws RoleManagementRulesNotExistsException of there are no rules for the role name
+	 */
 	public RoleManagementRules getRoleManagementRules(String roleName) throws RoleManagementRulesNotExistsException {
 		if (rolesManagementRules.containsKey(roleName))
 			return rolesManagementRules.get(roleName);

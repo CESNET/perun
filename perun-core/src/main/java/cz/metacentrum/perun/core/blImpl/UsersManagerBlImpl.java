@@ -187,7 +187,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		try {
 			// refresh authz for sponsors
-			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.unsetRole(sess, user, specificUser, Role.SPONSOR);
+			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.removeSpecificUserOwner(sess, specificUser, user);
 			// refresh authz for service user owners
 			if(specificUser.isServiceUser() && sess.getPerunPrincipal() != null) {
 				if(user.getId() == sess.getPerunPrincipal().getUserId()) {
@@ -226,7 +226,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		try {
 			// refresh authz for sponsors
-			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.setRole(sess, user, specificUser, Role.SPONSOR);
+			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.addSpecificUserOwner(sess, specificUser, user);
 			// refresh authz for service user owners
 			if(specificUser.isServiceUser() && sess.getPerunPrincipal() != null) {
 				if(user.getId() == sess.getPerunPrincipal().getUserId()) {

@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -279,60 +280,40 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public void addAdmin(PerunSession sess, Vo vo, User user) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException {
+	public void addAdmin(PerunSession sess, Vo vo, User user) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException, RoleCannotBeManagedException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Vo_User_policy", vo)) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, user, vo, Role.VOADMIN);
+		AuthzResolver.setRole(sess, user, vo, Role.VOADMIN);
 	}
 
 
 	@Override
-	public void addAdmin(PerunSession sess, Vo vo, Group group) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException {
+	public void addAdmin(PerunSession sess, Vo vo, Group group) throws PrivilegeException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException, RoleCannotBeManagedException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addAdmin_Vo_Group_policy", vo)) {
-			throw new PrivilegeException(sess, "addAdmin");
-		}
-
-		AuthzResolverBlImpl.setRole(sess, group, vo, Role.VOADMIN);
+		AuthzResolver.setRole(sess, group, vo, Role.VOADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Vo vo, User user) throws PrivilegeException, VoNotExistsException, UserNotAdminException, UserNotExistsException {
+	public void removeAdmin(PerunSession sess, Vo vo, User user) throws PrivilegeException, VoNotExistsException, UserNotAdminException, UserNotExistsException, RoleCannotBeManagedException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Vo_User_policy", vo)) {
-			throw new PrivilegeException(sess, "deleteAdmin");
-		}
-
-		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.VOADMIN);
+		AuthzResolver.unsetRole(sess, user, vo, Role.VOADMIN);
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Vo vo, Group group) throws PrivilegeException, VoNotExistsException, GroupNotAdminException, GroupNotExistsException {
+	public void removeAdmin(PerunSession sess, Vo vo, Group group) throws PrivilegeException, VoNotExistsException, GroupNotAdminException, GroupNotExistsException, RoleCannotBeManagedException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeAdmin_Vo_Group_policy", vo)) {
-			throw new PrivilegeException(sess, "deleteAdmin");
-		}
-
-		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.VOADMIN);
+		AuthzResolver.unsetRole(sess, group, vo, Role.VOADMIN);
 	}
 
 	@Override
@@ -535,65 +516,50 @@ public class VosManagerEntry implements VosManager {
 	 * Adds role SPONSOR for user in a VO.
 	 */
 	@Override
-	public void addSponsorRole(PerunSession sess, Vo vo, User user) throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException {
+	public void addSponsorRole(PerunSession sess, Vo vo, User user) throws AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addSponsorRole_Vo_User_policy", vo)) {
-			throw new PrivilegeException(sess, "addSponsorRole");
-		}
 		log.debug("addSponsorRole({},{})",vo.getShortName(),user.getId());
-		AuthzResolverBlImpl.setRole(sess, user, vo, Role.SPONSOR);
+
+		AuthzResolver.setRole(sess, user, vo, Role.SPONSOR);
 	}
 
 	/**
 	 * Adds role SPONSOR for group in a VO.
 	 */
 	@Override
-	public void addSponsorRole(PerunSession sess, Vo vo, Group group) throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException {
+	public void addSponsorRole(PerunSession sess, Vo vo, Group group) throws AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "addSponsorRole_Vo_Group_policy", vo)) {
-			throw new PrivilegeException(sess, "addSponsorRole");
-		}
-		AuthzResolverBlImpl.setRole(sess, group, vo, Role.SPONSOR);
+		AuthzResolver.setRole(sess, group, vo, Role.SPONSOR);
 	}
 
 	/**
 	 * Removes role SPONSOR from user in a VO.
 	 */
 	@Override
-	public void removeSponsorRole(PerunSession sess, Vo vo, User user) throws UserNotAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException {
+	public void removeSponsorRole(PerunSession sess, Vo vo, User user) throws UserNotAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeSponsorRole_Vo_User_policy", vo)) {
-			throw new PrivilegeException(sess, "removeSponsorRole");
-		}
-		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.SPONSOR);
+		AuthzResolver.unsetRole(sess, user, vo, Role.SPONSOR);
 	}
 
 	/**
 	 * Removes role SPONSOR from group in a VO.
 	 */
 	@Override
-	public void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws GroupNotAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException {
+	public void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws GroupNotAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeSponsorRole_Vo_Group_policy", vo)) {
-			throw new PrivilegeException(sess, "removeSponsorRole");
-		}
-		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.SPONSOR);
+		AuthzResolver.unsetRole(sess, group, vo, Role.SPONSOR);
 	}
 
 	@Override

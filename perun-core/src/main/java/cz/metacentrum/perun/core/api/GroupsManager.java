@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -635,7 +636,7 @@ public interface GroupsManager {
 	 * @throws AlreadyAdminException
 	 * @throws UserNotExistsException
 	 */
-	void addAdmin(PerunSession perunSession, Group group,  User user) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
+	void addAdmin(PerunSession perunSession, Group group,  User user) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException, RoleCannotBeManagedException;
 
 	/**
 	 * Adds a group administrator to the group.
@@ -649,7 +650,7 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws AlreadyAdminException
 	 */
-	void addAdmin(PerunSession perunSession, Group group,  Group authorizedGroup) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException;
+	void addAdmin(PerunSession perunSession, Group group,  Group authorizedGroup) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, RoleCannotBeManagedException;
 
 
 	/**
@@ -665,7 +666,7 @@ public interface GroupsManager {
 	 * @throws UserNotAdminException
 	 * @throws UserNotExistsException
 	 */
-	void removeAdmin(PerunSession perunSession, Group group, User user) throws PrivilegeException, GroupNotExistsException, UserNotAdminException, UserNotExistsException;
+	void removeAdmin(PerunSession perunSession, Group group, User user) throws PrivilegeException, GroupNotExistsException, UserNotAdminException, UserNotExistsException, RoleCannotBeManagedException;
 
 	/**
 	 * Removes a group administrator of the group.
@@ -679,7 +680,7 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws GroupNotAdminException
 	 */
-	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws PrivilegeException, GroupNotExistsException, GroupNotAdminException;
+	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws PrivilegeException, GroupNotExistsException, GroupNotAdminException, RoleCannotBeManagedException;
 
 	/**
 	 * Get list of all user administrators for supported role and specific group.

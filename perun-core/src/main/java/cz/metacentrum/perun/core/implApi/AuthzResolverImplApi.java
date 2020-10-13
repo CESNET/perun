@@ -11,10 +11,13 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
+import cz.metacentrum.perun.core.api.exceptions.RoleNotSetException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface represents AuthzResolver methods.
@@ -515,4 +518,33 @@ public interface AuthzResolverImplApi {
 	 * Roles are loaded to the database and policies are loaded to the PerunPoliciesContainer.
 	 */
 	void loadAuthorizationComponents();
+
+	/**
+	 * Fetch the identification of the role from the table roles in the database;
+	 *
+	 * @return identification of the role
+	 */
+	Integer getRoleId(String role);
+
+	/**
+	 * Set a role according the mapping of values
+	 *
+	 * @param sess
+	 * @param mappingOfValues from which will be the query created (keys are column names and values are their ids)
+	 * @param role which will be set (just information for exception)
+	 * @throws InternalErrorException
+	 * @throws RoleAlreadySetException
+	 */
+	void setRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleAlreadySetException;
+
+	/**
+	 * Unset a role according the mapping of values
+	 *
+	 * @param sess
+	 * @param mappingOfValues from which will be the query created (keys are column names and values are their ids)
+	 * @param role which will be unset (just information for exception)
+	 * @throws InternalErrorException
+	 * @throws RoleNotSetException
+	 */
+	void unsetRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleNotSetException;
 }
