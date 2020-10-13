@@ -12,6 +12,8 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
+import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
@@ -31,6 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
+import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -51,6 +54,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -194,7 +198,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		List<MemberWithSponsors> memberWithSponsors = perun.getMembersManager().getSponsoredMembersAndTheirSponsors(sess, createdVo, attrNames);
 
 		assertEquals(memberWithSponsors.get(0).getMember(), sponsoredMember);
-		assertEquals(memberWithSponsors.get(0).getSponsors().get(0), sponsorUser);
+		assertEquals(memberWithSponsors.get(0).getSponsors().get(0).getUser(), sponsorUser);
 		assertTrue(memberWithSponsors.get(0).getSponsors().size() == 1);
 	}
 
@@ -1547,7 +1551,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		//create guests
-		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), sponsorUser, false);
+		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Jan Novák"), sponsorUser, null, false);
 		assertEquals("there should be two members", 2, loginAndPassword.size());
 		for (String name : loginAndPassword.keySet()) {
 			assertEquals("status should be OK", "OK", loginAndPassword.get(name).get("status"));
@@ -1568,7 +1572,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		//create guests
-		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Novák", "Jan Novák"), sponsorUser, false);
+		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess, createdVo, "dummy", Arrays.asList("Ing. Jiří Novák, CSc.", "Novák", "Jan Novák"), sponsorUser, null, false);
 		assertEquals("there should be two members", 3, loginAndPassword.size());
 
 		assertEquals("status should be OK", "OK", loginAndPassword.get("Ing. Jiří Novák, CSc.").get("status"));
@@ -1597,7 +1601,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		Member memberToBeSponsored = setUpMember(createdVo);
 		assertTrue("member shouldn't be created as sponsored one", !memberToBeSponsored.isSponsored());
 
-		perun.getMembersManager().setSponsorshipForMember(sess, memberToBeSponsored, sponsorUser);
+		perun.getMembersManager().setSponsorshipForMember(sess, memberToBeSponsored, sponsorUser, null);
 
 		Member newSponsoredMember = perun.getMembersManagerBl().getMemberById(sess, memberToBeSponsored.getId());
 		assertTrue("member should be sponsored now", newSponsoredMember.isSponsored());
@@ -1632,20 +1636,20 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue("sponsored member should have status VALID", sponsoredMember.getStatus() == Status.VALID);
 		//try add user that cannot sponsor, should fail
 		try {
-			perun.getMembersManager().sponsorMember(sess, sponsoredMember, notsponsorUser);
+			perun.getMembersManager().sponsorMember(sess, sponsoredMember, notsponsorUser, null);
 			fail("user cannot sponsor but was added as sponsor");
 		} catch (UserNotInRoleException ex) {
 			//expected
 		}
 		//try to add user that already is sponsor, should fail
 		try {
-			perun.getMembersManager().sponsorMember(sess, sponsoredMember, sponsorUser);
+			perun.getMembersManager().sponsorMember(sess, sponsoredMember, sponsorUser, null);
 			fail("user cannot sponsor twice a single member");
 		} catch (AlreadySponsorException ex) {
 			//expected
 		}
 		//try to add sponsor, should succeed
-		perun.getMembersManager().sponsorMember(sess, sponsoredMember, sponsorUser2);
+		perun.getMembersManager().sponsorMember(sess, sponsoredMember, sponsorUser2, null);
 		List<User> sponsors = perun.getUsersManagerBl().getSponsors(sess, sponsoredMember);
 		assertTrue("sponsor 1 is not reported as sponsor", sponsors.contains(sponsorUser));
 		assertTrue("sponsor 2 is not reported as sponsor", sponsors.contains(sponsorUser2));
@@ -1655,6 +1659,94 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue("member is not in list of sponsored members for sponsor 1", sponsoredMembers1.stream().map(PerunBean::getId).anyMatch(id -> id == sponsoredMember.getId()));
 		List<RichMember> sponsoredMembers2 = perun.getMembersManager().getSponsoredMembers(sess, createdVo, sponsorUser2);
 		assertTrue("member is not in list of sponsored members for sponsor 2", sponsoredMembers2.stream().map(PerunBean::getId).anyMatch(id -> id == sponsoredMember.getId()));
+	}
+
+	@Test
+	public void sponsorMemberWithValidityTo() throws Exception {
+		System.out.println(CLASS_NAME + "sponsorMemberWithValidityTo");
+
+		Member member = setUpMember(createdVo);
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		User sponsor2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+		AuthzResolverBlImpl.setRole(sess, sponsor2, createdVo, Role.SPONSOR);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor1, null);
+
+		LocalDate validity = LocalDate.now().plusMonths(1);
+		membersManagerEntry.sponsorMember(sess, member, sponsor2, validity);
+
+		List<MemberWithSponsors> memberWithSponsors = perun.getMembersManager()
+				.getSponsoredMembersAndTheirSponsors(sess, createdVo, Collections.emptyList());
+
+		assertThat(memberWithSponsors).hasSize(1);
+		assertThat(memberWithSponsors.get(0).getSponsors()).hasSize(2);
+
+		Sponsor sponsor1FromDb = memberWithSponsors.get(0).getSponsors().get(0);
+		assertThat(sponsor1FromDb.getUser()).isEqualTo(sponsor1);
+		assertThat(sponsor1FromDb.getValidityTo()).isNull();
+
+		Sponsor sponsor2FromDb = memberWithSponsors.get(0).getSponsors().get(1);
+		assertThat(sponsor2FromDb.getUser()).isEqualTo(sponsor2);
+		assertThat(sponsor2FromDb.getValidityTo()).isEqualTo(validity);
+	}
+
+	@Test
+	public void updateSponsorshipValidity() throws Exception {
+		System.out.println(CLASS_NAME + "updateSponsorshipValidity");
+
+		Member member = setUpMember(createdVo);
+		User sponsor = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor, createdVo, Role.SPONSOR);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor, null);
+
+		LocalDate validity = LocalDate.now().plusMonths(1);
+
+		membersManagerEntry.updateSponsorshipValidity(sess, member, sponsor, validity);
+
+		Sponsorship sponsorship = perun.getMembersManagerBl().getSponsorship(sess, member, sponsor);
+
+		assertThat(sponsorship.getValidityTo()).isEqualTo(validity);
+	}
+
+	@Test
+	public void updateSponsorshipValidityToNull() throws Exception {
+		System.out.println(CLASS_NAME + "updateSponsorshipValidityToNull");
+
+		Member member = setUpMember(createdVo);
+		User sponsor = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor, createdVo, Role.SPONSOR);
+
+		LocalDate validity = LocalDate.now().plusMonths(1);
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor, validity);
+
+		membersManagerEntry.updateSponsorshipValidity(sess, member, sponsor, null);
+
+		Sponsorship sponsorship = perun.getMembersManagerBl().getSponsorship(sess, member, sponsor);
+
+		assertThat(sponsorship.getValidityTo()).isNull();
+	}
+
+	@Test
+	public void updateSponsorshipValidityFailsForInvalidSponsor() throws Exception {
+		System.out.println(CLASS_NAME + "updateSponsorshipValidityFailsForInvalidSponsor");
+
+		Member member = setUpMember(createdVo);
+		User sponsor = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		User otherSponsor = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor, createdVo, Role.SPONSOR);
+		AuthzResolverBlImpl.setRole(sess, otherSponsor, createdVo, Role.SPONSOR);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor, null);
+
+		LocalDate validity = LocalDate.now().plusMonths(1);
+		assertThatExceptionOfType(SponsorshipDoesNotExistException.class)
+				.isThrownBy(() -> membersManagerEntry.updateSponsorshipValidity(sess, member, otherSponsor, validity));
 	}
 
 	@Test

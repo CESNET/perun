@@ -18,19 +18,18 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -1125,6 +1124,7 @@ public interface MembersManager {
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password  password
 	 * @param sponsor sponsoring user or null for the caller
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @return new Member in the Vo
 	 * @throws InternalErrorException if given parameters are invalid
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
@@ -1137,7 +1137,7 @@ public interface MembersManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException
 	 */
-	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1148,6 +1148,7 @@ public interface MembersManager {
 	 * @param namespace namespace for selecting password module
 	 * @param password password
 	 * @param sponsor sponsoring user or null for the caller
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 *
 	 * @return sponsored member
 	 *
@@ -1163,7 +1164,7 @@ public interface MembersManager {
 	 * @throws PasswordStrengthException
 	 * @throws InvalidLoginException
 	 */
-	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
 
 	/**
 	 * Creates new sponsored Members (with random generated passwords).
@@ -1182,10 +1183,11 @@ public interface MembersManager {
 	 * @param namespace namespace for selecting password module
 	 * @param names a list of names
 	 * @param sponsor sponsoring user or null for the caller
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @return map of names to map of status, login and password
 	 * @throws PrivilegeException
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor) throws PrivilegeException;
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo) throws PrivilegeException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
@@ -1193,6 +1195,7 @@ public interface MembersManager {
 	 * @param session perun session
 	 * @param sponsoredMember member who will be set as sponsored one
 	 * @param sponsor new sponsor of this member
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 *
 	 * @return sponsored member
 	 *
@@ -1202,7 +1205,7 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException if sponsor hasn't right role in the same vo
 	 * @throws PrivilegeException if not PerunAdmin
 	 */
-	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException;
+	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException;
 
 	/**
 	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
@@ -1224,6 +1227,7 @@ public interface MembersManager {
 	 * @param session actor
 	 * @param sponsored existing member that needs sponsoring
 	 * @param sponsor sponsoring user or null for the caller
+	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @return existing Member
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -1231,7 +1235,7 @@ public interface MembersManager {
 	 * @throws AlreadySponsorException
 	 * @throws UserNotInRoleException
 	 */
-	RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
+	RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor, LocalDate validityTo) throws PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
 	 * Get all sponsored RichMembers with attributes by list of attribute names for specific User and Vo.
@@ -1305,4 +1309,17 @@ public interface MembersManager {
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws PrivilegeException;
 
+	/**
+	 * Update the sponsorship of given member for given sponsor.
+	 *
+	 * @param sess session
+	 * @param sponsoredMember sponsored member
+	 * @param sponsor sponsor
+	 * @param newValidity new validity, can be set to null never expire
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws SponsorshipDoesNotExistException if the given user is not sponsor of the given member
+	 * @throws MemberNotExistsException if there is no such member
+	 * @throws UserNotExistsException if there is no such user
+	 */
+	void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor, LocalDate newValidity) throws PrivilegeException, SponsorshipDoesNotExistException, MemberNotExistsException, UserNotExistsException;
 }

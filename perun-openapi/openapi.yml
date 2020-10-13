@@ -114,6 +114,21 @@ components:
       discriminator:
         propertyName: beanName
 
+    Sponsor:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        userExtSources: { type: array, items: { $ref: '#/components/schemas/UserExtSource' } }
+        userAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
+        validityTo: { type: string, description: 'Date in format yyyy-MM-dd}' }
+        active: { type: boolean }
+      required:
+        - user
+        - userExtSources
+        - userAttributes
+        - validityTo
+        - active
+
     Member:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -928,7 +943,7 @@ components:
       type: object
       properties:
         member: { $ref: '#/components/schemas/RichMember' }
-        sponsors: { type: array, items: { $ref: '#/components/schemas/User' }}
+        sponsors: { type: array, items: { $ref: '#/components/schemas/Sponsor' }}
 
     RTMessage:
       type: object
@@ -1063,6 +1078,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RichUser"
+
+    ListOfSponsorsResponse:
+      description: 'returns List<Sponsor>'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Sponsor"
 
     MemberResponse:
       description: returns Member
@@ -2448,6 +2472,22 @@ components:
         type: integer
       in: query
       required: true
+
+    validityTo:
+      name: validityTo
+      description: date in format yyyy-mm-dd
+      schema:
+        type: string
+      in: query
+      required: true
+
+    optionalValidityTo:
+      name: validityTo
+      description: date in format yyyy-mm-dd
+      schema:
+        type: string
+      in: query
+      required: false
 
     onlySponsored:
       name: onlySponsored
@@ -7192,6 +7232,38 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getSponsorsForMember/member:
+    get:
+      tags:
+        - UsersManager
+      operationId: getSponsorsForMember
+      summary: Gets sponsors for given member with optional attribute names.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfSponsorsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getSponsorsForMember/vo:
+    get:
+      tags:
+        - UsersManager
+      operationId: getSponsorsForMemberByVoAndLogin
+      summary: Gets sponsors for member specified by VO, extSourceName and extLogin with optional attribute names.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/extSourceName'
+        - $ref: '#/components/parameters/extLogin'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfSponsorsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getUserByExtSourceNameAndExtLogin:
     get:
       tags:
@@ -7909,6 +7981,7 @@ paths:
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
+                validityTo: { type: string }
 
   /json/membersManager/setSponsoredMember:
     post:
@@ -7940,6 +8013,7 @@ paths:
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
+                validityTo: { type: string }
 
   /json/membersManager/createSponsoredMembers:
     post:
@@ -7970,6 +8044,7 @@ paths:
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
+                validityTo: { type: string }
 
   /json/membersManager/createSpecificMember:
     post:
@@ -8011,6 +8086,22 @@ paths:
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/sponsorId'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/membersManager/updateSponsorshipValidity:
+    post:
+      tags:
+        - MembersManager
+      operationId: updateSponsorshipValidity
+      summary: Updates sponsorship validity. To change it to FOREVER, pass null in validityTo.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/sponsorId'
+        - $ref: '#/components/parameters/validityTo'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

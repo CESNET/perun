@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Status;
@@ -13,11 +14,13 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * MembersManager can find members.
@@ -208,7 +211,7 @@ public interface MembersManagerImplApi {
 	/**
 	 * Creates a new member in given Vo with flag "sponsored", and linked to its sponsoring user.
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException;
+	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor, LocalDate validityTo) throws AlreadyMemberException;
 
 	/**
 	 * Set member to be sponsored by sponsor. Set flag and sponsorship.
@@ -219,7 +222,7 @@ public interface MembersManagerImplApi {
 	 * @return sponsored member
 	 * @throws InternalErrorException
 	 */
-	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor);
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo);
 
 	/**
 	 * Unset member to not be sponsored by anybody from now. Unset flag and remove all sponsorships.
@@ -241,6 +244,16 @@ public interface MembersManagerImplApi {
 	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor);
 
 	/**
+	 * Adds another sponsoring user for a sponsored member.
+	 * @param session perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @param sponsor sponsoring user
+	 * @param validity_to time, when the sponsorship will expire
+	 * @throws InternalErrorException
+	 */
+	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validity_to);
+
+	/**
 	 * Removes a sponsoring user. In fact marks the link as inactive.
 	 * @param sess perun session
 	 * @param sponsoredMember member which is sponsored
@@ -257,6 +270,18 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void deleteAllSponsors(PerunSession session, Member sponsoredMember);
+
+	/**
+	 * For the given member and user returns their sponsorship relation object. If there is no
+	 * such relation, the SponsorshipDoesNotExistException is thrown.
+	 *
+	 * @param sess session
+	 * @param sponsoredMember sponsored member
+	 * @param sponsor sponsor
+	 * @return Sponsorship object
+	 * @throws SponsorshipDoesNotExistException if there is no sponsorship relation between the given member and user
+	 */
+	Sponsorship getSponsorship(PerunSession sess, Member sponsoredMember, User sponsor) throws SponsorshipDoesNotExistException;
 
 	/**
 	 * Gets members sponsored by the given user.
@@ -331,4 +356,15 @@ public interface MembersManagerImplApi {
 	 * @return all members from specific VO by specific string
 	 */
 	List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
+
+	/**
+	 * Update the sponsorship of given member for given sponsor.
+	 *
+	 * @param sess session
+	 * @param sponsoredMember sponsored member
+	 * @param sponsor sponsor
+	 * @param newValidity new validity, can be set to null never expire
+	 * @throws SponsorshipDoesNotExistException if the given user is not sponsor of the given member
+	 */
+	void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor, LocalDate newValidity) throws SponsorshipDoesNotExistException;
 }

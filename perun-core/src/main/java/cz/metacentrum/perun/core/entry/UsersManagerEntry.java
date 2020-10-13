@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -64,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * UsersManager entry logic
@@ -1315,6 +1317,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	@Deprecated
 	public List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(member, "member");
@@ -1330,6 +1333,34 @@ public class UsersManagerEntry implements UsersManager {
 			//adds only selected atributes (if the list would be empty, it will return no attributes)
 			return usersManagerBl.convertUsersToRichUsersWithAttributesByNames(sess, sponsors, attrNames);
 		}
+	}
+
+	@Override
+	public List<Sponsor> getSponsorsForMember(PerunSession sess, Member member, List<String> attrNames) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(member, "member");
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getSponsorsForMember_Member_List<String>_policy", member)) {
+			throw new PrivilegeException(sess, "getSponsorsForMember");
+		}
+		List<User> sponsors = usersManagerBl.getSponsors(sess, member);
+		List<RichUser> richUsers;
+		if (attrNames == null || attrNames.isEmpty()) {
+			//adds all existing atributes
+			try {
+				richUsers = usersManagerBl.convertRichUsersToRichUsersWithAttributes(sess,
+						usersManagerBl.convertUsersToRichUsers(sess, sponsors));
+			} catch (UserNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		} else {
+			//adds only selected atributes (if the list would be empty, it will return no attributes)
+			richUsers = usersManagerBl.convertUsersToRichUsersWithAttributesByNames(sess, sponsors, attrNames);
+		}
+
+		return richUsers.stream()
+				.map(richUser -> perunBl.getMembersManagerBl().convertUserToSponsor(sess, richUser, member))
+				.collect(Collectors.toList());
 	}
 
 	@Override

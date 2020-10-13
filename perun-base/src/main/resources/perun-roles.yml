@@ -2256,14 +2256,14 @@ perun_policies:
     include_policies:
       - default_policy
 
-  createSponsoredMember_Vo_String_Map<String_String>_String_User_policy:
+  createSponsoredMember_Vo_String_Map<String_String>_String_User_LocalDate_policy:
     policy_roles:
       - VOADMIN: Vo
       - SPONSOR: Vo
     include_policies:
       - default_policy
 
-  setSponsoredMember_Vo_User_String_String_User_policy:
+  setSponsoredMember_Vo_User_String_String_User_LocalDate_policy:
     policy_roles:
       - VOADMIN: Vo
       - SPONSOR: Vo
@@ -2277,7 +2277,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  setSponsorshipForMember_Member_User_policy:
+  setSponsorshipForMember_Member_User_LocalDate_policy:
     policy_roles: []
     include_policies:
       - default_policy
@@ -2287,7 +2287,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  sponsorMember_Member_User_policy:
+  sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
       - VOADMIN:
     include_policies:
@@ -2351,6 +2351,13 @@ perun_policies:
   removeSponsor_Member_User_policy:
     policy_roles:
       - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  updateSponsorshipValidity_Member_User_LocalDate:
+    policy_roles:
+      - VOADMIN: Vo
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -4469,6 +4476,16 @@ perun_policies:
 
   getSponsors_Member_List<String>_policy:
     policy_roles:
+      - PERUNOBSERVER:
+      - REGISTRAR:
+    include_policies:
+      - default_policy
+
+  getSponsorsForMember_Member_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - SPONSOR: Vo
       - PERUNOBSERVER:
       - REGISTRAR:
     include_policies:

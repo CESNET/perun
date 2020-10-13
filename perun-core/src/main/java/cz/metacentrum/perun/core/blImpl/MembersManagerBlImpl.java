@@ -11,6 +11,7 @@ import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsoredMemberSet
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsoredMemberUnset;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipEstablished;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipRemoved;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsorshipValidityUpdated;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -25,6 +26,9 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -67,6 +71,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -1073,6 +1078,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembers;
 	}
 
+	@Override
+	public Sponsor convertUserToSponsor(PerunSession sess, User user, Member sponsoredMember) {
+		Sponsor sponsor = new Sponsor(user);
+		Sponsorship sponsorship;
+		try {
+			sponsorship = perunBl.getMembersManagerBl().getSponsorship(sess, sponsoredMember, user);
+		} catch (SponsorshipDoesNotExistException e) {
+			throw new InternalErrorException(e);
+		}
+		sponsor.setActive(sponsorship.isActive());
+		sponsor.setValidityTo(sponsorship.getValidityTo());
+		if (user instanceof RichUser) {
+			sponsor.setUserAttributes(((RichUser) user).getUserAttributes());
+			sponsor.setUserExtSources(((RichUser) user).getUserExtSources());
+		}
+		return sponsor;
+	}
 
 	/**
 	 * Adds userAttributes and memberAttributes to rich members.
@@ -2180,6 +2202,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsoredMemberException, UserNotInRoleException {
+		return setSponsorshipForMember(session, sponsoredMember, sponsor, null);
+	}
+
+	@Override
+	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsoredMemberException, UserNotInRoleException {
 		if(sponsoredMember.isSponsored()) {
 			throw new AlreadySponsoredMemberException(sponsoredMember + " is already sponsored member!");
 		}
@@ -2196,9 +2223,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		//set member to be sponsored
-		sponsoredMember = getMembersManagerImpl().setSponsorshipForMember(session, sponsoredMember, sponsor);
+		sponsoredMember = getMembersManagerImpl().setSponsorshipForMember(session, sponsoredMember, sponsor, validityTo);
 		getPerunBl().getAuditer().log(session, new SponsoredMemberSet(sponsoredMember));
-		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor));
+		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor, validityTo));
 
 		return sponsoredMember;
 	}
@@ -2220,8 +2247,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return sponsoredMember;
 	}
 
+
 	@Override
 	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
+		return createSponsoredMember(session, vo, namespace, name, password, sponsor, null, asyncValidation);
+	}
+
+	@Override
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
+		String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
+
 		//create new user
 		User user;
 		if (name.containsKey("guestName")) {
@@ -2231,11 +2266,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 		User sponsoredUser = getPerunBl().getUsersManagerBl().createUser(session, user);
 
-		return setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, asyncValidation);
+		return setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, validityTo, asyncValidation);
 	}
 
 	@Override
 	public Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException {
+		return setSponsoredMember(session, vo, userToBeSponsored, namespace, password, sponsor, null, asyncValidation);
+	}
+
+	@Override
+	public Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace,
+	                                 String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException {
 		//check that sponsoring user has role SPONSOR for the VO
 		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
 			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
@@ -2247,10 +2288,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		String login = createUserAccountInExternalSystem (session, userToBeSponsored, namespace, attributeValue, loginAttributeName, password);
 
 		//create the member in Perun
-		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, userToBeSponsored, sponsor);
+		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, userToBeSponsored, sponsor, validityTo);
 		getPerunBl().getAuditer().log(session, new MemberCreated(sponsoredMember));
 		getPerunBl().getAuditer().log(session, new SponsoredMemberSet(sponsoredMember));
-		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor));
+		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor, validityTo));
 		extendMembership(session, sponsoredMember);
 		insertToMemberGroup(session, sponsoredMember, vo);
 
@@ -2266,7 +2307,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, boolean asyncValidation) {
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo, boolean asyncValidation) {
 		Map<String, Map<String, String>> result = new HashMap<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
@@ -2278,7 +2319,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			// create sponsored member
 			User user;
 			try {
-				user = perunBl.getUsersManagerBl().getUserByMember(sess, createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, asyncValidation));
+				user = perunBl.getUsersManagerBl().getUserByMember(sess,
+						createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, validityTo, asyncValidation));
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
 				Map<String, String> statusWithLogin = new HashMap<>();
@@ -2326,6 +2368,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
+		return sponsorMember(session, sponsoredMember, sponsor, null);
+	}
+
+	@Override
+	public Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
 		//check that sponsoring user has role SPONSOR for the VO
 		Vo vo = getMemberVo(session, sponsoredMember);
 		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
@@ -2342,7 +2389,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		// add the sponsor
-		getMembersManagerImpl().addSponsor(session, sponsoredMember, sponsor);
+		getMembersManagerImpl().addSponsor(session, sponsoredMember, sponsor, validityTo);
 
 		//remove expiration and validate member
 		try {
@@ -2357,9 +2404,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException("cannot validate sponsored member " + sponsoredMember.getId(), ex);
 		}
 
-		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor));
+		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor, validityTo));
 
 		return sponsoredMember;
+	}
+
+	@Override
+	public Sponsorship getSponsorship(PerunSession sess, Member sponsoredMember, User sponsor) throws SponsorshipDoesNotExistException {
+		return getMembersManagerImpl().getSponsorship(sess, sponsoredMember, sponsor);
 	}
 
 	@Override
@@ -2426,6 +2478,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored) {
 		return getMembersManagerImpl().findMembers(sess, vo, searchString, onlySponsored);
+	}
+
+	@Override
+	public void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor,
+	                                      LocalDate newValidity) throws SponsorshipDoesNotExistException {
+		membersManagerImpl.updateSponsorshipValidity(sess, sponsoredMember, sponsor, newValidity);
+		perunBl.getAuditer().log(sess, new SponsorshipValidityUpdated(sponsoredMember, sponsor, newValidity));
 	}
 
 	/**

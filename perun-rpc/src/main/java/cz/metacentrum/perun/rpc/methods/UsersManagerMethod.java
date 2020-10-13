@@ -93,6 +93,38 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets users sponsoring a given user in a VO.
+	 *
+	 * @param member int member id
+	 * @param attrNames List<String> names of attributes to return, empty to return all attributes
+	 * @return List<Sponsor> sponsors
+	 */
+	/*#
+	 * Gets users sponsoring a given user in a VO.
+	 *
+	 * @param vo int VO ID
+	 * @param extSourceName String external source name, usually SAML IdP entityID
+	 * @param extLogin String external source login, usually eduPersonPrincipalName
+	 * @param attrNames List<String> names of attributes to return, empty to return all attributes
+	 * @return List<Sponsor> sponsors
+	 */
+	getSponsorsForMember {
+		@Override
+		public List<Sponsor> call(ApiCaller ac, Deserializer params) throws PerunException {
+			Member member = null;
+			if (params.contains("member")) {
+				member = ac.getMemberById(params.readInt("member"));
+			} else if (params.contains("vo") && params.contains("extSourceName") && params.contains("extLogin")) {
+				Vo vo = ac.getVoById(params.readInt("vo"));
+				User user = ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), params.readString("extSourceName"), params.readString("extLogin"));
+				member = ac.getMembersManager().getMemberByUser(ac.getSession(), vo, user);
+			}
+			List<String> attrNames = params.contains("attrNames") ? params.readList("attrNames",String.class) : null;
+			return ac.getUsersManager().getSponsorsForMember(ac.getSession(), member, attrNames);
+		}
+	},
+
+	/*#
 	 * Return all specific users who are owned by the user.
 	 *
 	 * @param user int User <code>id</code>

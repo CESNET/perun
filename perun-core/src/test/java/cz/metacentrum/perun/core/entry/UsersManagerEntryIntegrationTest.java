@@ -14,12 +14,15 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -34,11 +37,13 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1487,6 +1492,49 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 				.isThrownBy(() -> usersManager.createServiceUser(sess, candidate, Collections.emptyList()));
 	}
 
+	@Test
+	public void getSponsors() throws Exception {
+		System.out.println(CLASS_NAME + "getSponsors");
+
+		setUpNamespaceAttribute();
+
+		String email = "email@sdf.sd";
+
+		AttributeDefinition emailAD = perun.getAttributesManagerBl()
+				.getAttributeDefinition(sess, URN_ATTR_USER_PREFERRED_MAIL);
+		Attribute emailAttribute = new Attribute(emailAD);
+		emailAttribute.setValue(email);
+
+		perun.getAttributesManagerBl().setAttribute(sess, user, emailAttribute);
+
+		AuthzResolverBlImpl.setRole(sess, user, vo, Role.SPONSOR);
+		Member member = perun.getMembersManagerBl().getMemberByUser(sess, vo, sponsoredUser);
+
+		LocalDate validity = LocalDate.now();
+		perun.getMembersManagerBl().setSponsorshipForMember(sess, member, user, validity);
+		Member sponsoredMember = perun.getMembersManagerBl().getMemberByUser(sess, vo, sponsoredUser);
+		List<Sponsor> sponsors = usersManager
+				.getSponsorsForMember(sess, sponsoredMember, Collections.singletonList(URN_ATTR_USER_PREFERRED_MAIL));
+
+		assertThat(sponsors)
+				.hasSize(1);
+
+		assertThat(sponsors.get(0).getUser())
+				.isEqualTo(user);
+
+		assertThat(sponsors.get(0).getValidityTo())
+				.isEqualTo(validity);
+
+		assertThat(sponsors.get(0).getUserAttributes())
+				.hasSize(1);
+
+		assertThat(sponsors.get(0).getUserAttributes().get(0).getName())
+				.isEqualTo(URN_ATTR_USER_PREFERRED_MAIL);
+
+		assertThat(sponsors.get(0).getUserAttributes().get(0).valueAsString())
+				.isEqualTo(email);
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	/**
@@ -1729,5 +1777,13 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute attribute = new Attribute(attrDef);
 		attribute.setValue(value);
 		return attribute;
+	}
+
+	private void setUpNamespaceAttribute() throws Exception {
+		Attribute attrLogin = new Attribute();
+		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin.setFriendlyName("login-namespace:dummy");
+		attrLogin.setType(String.class.getName());
+		perun.getAttributesManager().createAttribute(sess, attrLogin);
 	}
 }

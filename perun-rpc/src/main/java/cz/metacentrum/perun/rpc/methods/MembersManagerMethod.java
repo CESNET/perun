@@ -8,7 +8,9 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -128,6 +130,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember newly created sponsored member
 	 */
 	createSponsoredMember {
@@ -138,6 +141,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
 			User sponsor = null;
+			LocalDate validityTo = null;
+			if (params.contains("validityTo")) {
+				validityTo = params.readLocalDate("validityTo");
+			}
 			if(params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
 			}
@@ -152,7 +159,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, sponsor);
+			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, sponsor, validityTo);
 		}
 	},
 
@@ -167,6 +174,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param namespace String used for selecting external system in which guest user account will be created
 	 * @param password String password
 	 * @param sponsor int id of sponsoring user
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member
 	 */
 	/*#
@@ -179,6 +187,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param userToBeSponsored int id of user, that will be sponsored by sponsor
 	 * @param namespace String used for selecting external system in which guest user account will be created
 	 * @param password String password
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member
 	 */
 	setSponsoredMember {
@@ -188,6 +197,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			LocalDate validityTo = null;
+			if (params.contains("validityTo")) {
+				validityTo = params.readLocalDate("validityTo");
+			}
 			User sponsor = null;
 			if(params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
@@ -198,7 +211,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. The 'userToBeSponsored' must be sent.");
 			}
-			return ac.getMembersManager().setSponsoredMember(ac.getSession(), vo, userToBeSponsored, namespace, password, sponsor);
+			return ac.getMembersManager().setSponsoredMember(ac.getSession(), vo, userToBeSponsored, namespace, password, sponsor, validityTo);
 		}
 	},
 
@@ -221,6 +234,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
 	 */
 	createSponsoredMembers {
@@ -230,6 +244,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			LocalDate validityTo = null;
+			if (params.contains("validityTo")) {
+				validityTo = params.readLocalDate("validityTo");
+			}
 			User sponsor = null;
 			if(params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
@@ -240,7 +258,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value: 'guestNames' must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, sponsor);
+			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, sponsor, validityTo);
 		}
 	},
 
@@ -249,6 +267,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @param sponsoredMember int member's ID
 	 * @param sponsor int sponsor's ID
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member which was newly set
 	 */
 	setSponsorshipForMember {
@@ -257,10 +276,14 @@ public enum MembersManagerMethod implements ManagerMethod {
 			params.stateChangingCheck();
 			Member sponsoredMember = ac.getMemberById(params.readInt("sponsoredMember"));
 			User sponsor = null;
+			LocalDate validityTo = null;
+			if (params.contains("validityTo")) {
+				validityTo = params.readLocalDate("validityTo");
+			}
 			if (params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
 			}
-			return ac.getMembersManager().setSponsorshipForMember(ac.getSession(), sponsoredMember, sponsor);
+			return ac.getMembersManager().setSponsorshipForMember(ac.getSession(), sponsoredMember, sponsor, validityTo);
 		}
 	},
 
@@ -287,6 +310,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int id of sponsored member, optional
 	 * @param sponsor int id of sponsoring user, optional
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member
 	 */
 	sponsorMember {
@@ -295,7 +319,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 			params.stateChangingCheck();
 			Member sponsored = ac.getMemberById(params.readInt("member"));
 			User sponsor = ac.getUserById(params.readInt("sponsor"));
-			return ac.getMembersManager().sponsorMember(ac.getSession(), sponsored, sponsor);
+			LocalDate validityTo = null;
+			if (params.contains("validityTo")) {
+				validityTo = params.readLocalDate("validityTo");
+			}
+			return ac.getMembersManager().sponsorMember(ac.getSession(), sponsored, sponsor, validityTo);
 		}
 	},
 
@@ -314,6 +342,32 @@ public enum MembersManagerMethod implements ManagerMethod {
 			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
 			User sponsorToRemove = ac.getUserById(params.readInt("sponsor"));
 			ac.getMembersManager().removeSponsor(ac.getSession(), sponsoredMember, sponsorToRemove);
+			return null;
+		}
+	},
+
+	/*#
+	 * Update the sponsorship of given member for given sponsor.
+	 *
+	 * @param member int id of sponsored member, optional
+	 * @param sponsor int id of sponsoring user that is to be removed
+	 * @param validityTo String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 *                          can be set to null never expire
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw SponsorshipDoesNotExistException if the given user is not sponsor of the given member
+	 * @throw MemberNotExistsException if there is no such member
+	 * @throw UserNotExistsException if there is no such user
+	 */
+	updateSponsorshipValidity {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+
+			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
+			User sponsor = ac.getUserById(params.readInt("sponsor"));
+			LocalDate newValidity = params.readLocalDate("validityTo");
+
+			ac.getMembersManager().updateSponsorshipValidity(ac.getSession(), sponsoredMember, sponsor, newValidity);
 			return null;
 		}
 	},
@@ -390,13 +444,15 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@Override
 		public List<MemberWithSponsors> call(ApiCaller ac, Deserializer params) throws PerunException {
 			Vo vo = ac.getVoById(params.readInt("vo"));
-			List<String> attrNames = params.contains("attrNames") ? params.readList("attrNames",String.class) : null;
+			List<String> attrNames = params.contains("attrNames") ? params.readList("attrNames",String.class) : Collections.emptyList();
 			return ac.getMembersManager().getSponsoredMembersAndTheirSponsors(ac.getSession(), vo, attrNames);
 		}
 	},
 
 	/*#
 	 * Gets users sponsoring a given user in a VO.
+	 *
+	 * @deprecated - use usersManager/getSponsorsForMember
 	 *
 	 * Can be called by user in role REGISTRAR.
 	 *
@@ -406,6 +462,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Gets users sponsoring a given user in a VO.
+	 *
+	 * @deprecated - use usersManager/getSponsorsForMember
 	 *
 	 * Can be called by user in role REGISTRAR.
 	 *
