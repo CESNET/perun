@@ -10337,6 +10337,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getMemberRichGroupsWithAttributesByNames:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getMemberRichGroupsWithAttributesByNames
+      summary: "Returns full list of member's RichGroups containing selected attributes. 'members' group is not included! Supported are attributes from these namespaces: - group - member-group"
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #
