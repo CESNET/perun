@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Assigns service B to the facility's resources with assigned service A. Service A, service B and facility are required fields.
+	--------------------------------------
+	Available options:
+	--facilityId   | -f facility id
+	--serviceAId   | -A service A id
+	--serviceBId   | -B service B id
+	--batch        | -b batch
+	--help         | -h prints this help
+	};
+}
+
+my ($facilityId, $oldServiceId, $newServiceId, $batch);
+
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"serviceAId|A=i"   => \$oldServiceId,
+	"serviceBId|B=i"   => \$newServiceId
+) || die help();
+
+# Check options
+unless (defined($facilityId) and defined($oldServiceId) and defined($newServiceId)) { 
+	die "ERROR: facilityId, serviceAId and serviceBId are required\n";
+}
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $servicesAgent = $agent->getServicesAgent;
+my $resourcesAgent = $agent->getResourcesAgent;
+
+my $newService = $servicesAgent->getServiceById(id => $newServiceId);
+my $oldService = $servicesAgent->getServiceById(id => $oldServiceId);
+
+my @resources = $facilitiesAgent->getAssignedResources(facility => $facilityId);
+
+for (@resources) {
+	# get services assigned to the resource
+	my %services = map { $_ => 1 } $resourcesAgent->getAssignedServices(resource => $_->getId);
+	# assign newService to the resource if oldService is assigned and newService isn't already assigned
+	if (exists($services{$oldService}) and !exists($services{$newService})) {
+		$resourcesAgent->assignService(resource => $_->getId, service => $newServiceId);
+		printMessage("Service Id: $newServiceId successfully assigned to resource Id: ".$_->getId, $batch);
+	}
+}
