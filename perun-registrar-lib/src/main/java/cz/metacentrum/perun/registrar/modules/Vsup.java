@@ -3,6 +3,7 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
@@ -59,7 +60,8 @@ public class Vsup extends DefaultRegistrarModule {
 
 						try {
 							User user = ((PerunBl) session.getPerun()).getUsersManagerBl().getUserByExtSourceNameAndExtLogin(session, "RC", rc);
-							throw new CantBeApprovedException("Application has the same birth number " + rc + " as user " + user + " already in Perun and thus would be merged with him.", null, null, null, true);
+							throw new CantBeApprovedException("Application has the same birth number " + rc + " as user " + user.getDisplayName() + " with id " + user.getId() +
+								" that is already in Perun and thus would be merged with him.", null, null, null, true);
 						} catch (CantBeApprovedException ex) {
 							throw ex;
 						} catch (Exception ex) {
@@ -207,8 +209,8 @@ public class Vsup extends DefaultRegistrarModule {
 
 				String rc = item.getValue();
 				if (rc != null && !rc.isEmpty()) {
-					ExtSource es = perun.getExtSourcesManager().checkOrCreateExtSource(session, "RC", rc);
-					UserExtSource ues = new UserExtSource(es, app.getExtSourceLoa(), app.getCreatedBy());
+					ExtSource es = perun.getExtSourcesManager().checkOrCreateExtSource(session, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, rc);
+					UserExtSource ues = new UserExtSource(es, 0, rc);
 					try {
 						perun.getUsersManagerBl().addUserExtSource(session, app.getUser(), ues);
 					} catch (UserExtSourceExistsException e) {
