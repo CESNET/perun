@@ -10,11 +10,13 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -62,9 +64,7 @@ public class Vsup extends DefaultRegistrarModule {
 							User user = ((PerunBl) session.getPerun()).getUsersManagerBl().getUserByExtSourceNameAndExtLogin(session, "RC", rc);
 							throw new CantBeApprovedException("Application has the same birth number " + rc + " as user " + user.getDisplayName() + " with id " + user.getId() +
 								" that is already in Perun and thus would be merged with him.", null, null, null, true);
-						} catch (CantBeApprovedException ex) {
-							throw ex;
-						} catch (Exception ex) {
+						} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException ex) {
 							log.warn("Couldn't find or set user to application {} by RC: {}", app, ex);
 						}
 					}
@@ -109,6 +109,18 @@ public class Vsup extends DefaultRegistrarModule {
 							} catch (UserExtSourceExistsException ex) {
 								// we can ignore, user will be paired with application
 								log.warn("{} already had identity associated from application {}", app.getUser(), app);
+							}
+						} else {
+							try {
+								Member member = ((PerunBl) session.getPerun()).getMembersManagerBl().getMemberByUser(session, app.getVo(), app.getUser());
+								// user is already a member, switch application type
+								if (Application.AppType.INITIAL.equals(app.getType())) {
+									app.setType(Application.AppType.EXTENSION);
+									registrar.updateApplicationType(session, app);
+									log.debug("Updating application type to EXTENSION since we matched user which is VO member!");
+								}
+							} catch (MemberNotExistsException e) {
+								// OK state
 							}
 						}
 
@@ -209,7 +221,7 @@ public class Vsup extends DefaultRegistrarModule {
 
 				String rc = item.getValue();
 				if (rc != null && !rc.isEmpty()) {
-					ExtSource es = perun.getExtSourcesManager().checkOrCreateExtSource(session, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, rc);
+					ExtSource es = perun.getExtSourcesManager().checkOrCreateExtSource(session, "RC", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL);
 					UserExtSource ues = new UserExtSource(es, 0, rc);
 					try {
 						perun.getUsersManagerBl().addUserExtSource(session, app.getUser(), ues);

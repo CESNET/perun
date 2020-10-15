@@ -3643,6 +3643,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	@Override
+	public void updateApplicationType(PerunSession session, Application application) {
+
+		// TODO - add authorization (and add to rpc)
+
+		if (jdbc.update("update application set apptype=? where id=?", application.getType(), application.getId()) > 0) {
+			log.debug("Application type changed to + " + application.getType());
+		}
+	}
+
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 
 	// FIXME - we are retrieving GROUP name using only "short_name" so it's not same as getGroupById()
