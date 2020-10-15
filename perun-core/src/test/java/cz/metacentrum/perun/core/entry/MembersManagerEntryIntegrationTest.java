@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
@@ -53,12 +54,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1973,6 +1977,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getMembersManagerBl().unsetSponsorshipForMember(sess, sponsoredMember);
 		members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getFirstName(), true);
 		assertTrue(members.size() == 0);
+	}
+
+	@Test
+	public void removeLastSponsorWithoutExpiration() throws Exception {
+		System.out.println(CLASS_NAME + "removeLastSponsorWithoutExpiration");
+
+		//Set up sponsor
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+		//Set up expiration rule
+		Map<String, String> rulesMap = new LinkedHashMap<>();
+		rulesMap.put(expireSponsoredMembers, "false");
+		Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, createdVo, VO_EXPIRATION_RULES_ATTR);
+		attribute.setValue(rulesMap);
+		perun.getAttributesManagerBl().setAttribute(sess, createdVo, attribute);
+		//create sponsored member
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Jiří Novák, CSc.");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		//Remove sponsor
+		perun.getMembersManagerBl().removeSponsor(sess, sponsoredMember, sponsorUser);
+		//refresh from DB
+		sponsoredMember = perun.getMembersManagerBl().getMemberById(sess, sponsoredMember.getId());
+
+		assertNotSame("Sponsored member without sponsor cannot expire when expireSponsoredMembers rule is set to false", sponsoredMember.getStatus(), Status.EXPIRED);
 	}
 
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {

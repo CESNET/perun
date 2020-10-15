@@ -16,6 +16,8 @@ import java.util.LinkedHashMap;
  */
 public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends AbstractMembershipExpirationRulesModule<Vo> implements VoAttributesModuleImplApi {
 
+	public static final String VO_EXPIRATION_RULES_ATTR = AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules";
+
 	@Override
 	protected boolean isAllowedParameter(String parameter) {
 		if(parameter == null) return false;
@@ -25,7 +27,8 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Ab
 				parameter.equals(membershipPeriodLoaKeyName)	||
 				parameter.equals(membershipDoNotAllowLoaKeyName) ||
 				parameter.equals(autoExtensionExtSources) ||
-				parameter.equals(autoExtensionLastLoginPeriod);
+				parameter.equals(autoExtensionLastLoginPeriod) ||
+				parameter.equals(expireSponsoredMembers);
 	}
 
 	@Override
