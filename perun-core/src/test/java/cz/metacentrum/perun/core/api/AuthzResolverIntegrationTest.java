@@ -703,10 +703,13 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		mapWithRights.put("Group", listWithIds);
 
 		AuthzRoles authzRoles = new AuthzRoles(Role.GROUPADMIN, mapWithRights);
-		authzRoles = AuthzResolverBlImpl.addAllSubgroupsToAuthzRoles(sess, authzRoles);
+		authzRoles.put(Role.GROUPOBSERVER, mapWithRights);
+		authzRoles = AuthzResolverBlImpl.addAllSubgroupsToAuthzRoles(sess, authzRoles, Role.GROUPADMIN);
+		authzRoles = AuthzResolverBlImpl.addAllSubgroupsToAuthzRoles(sess, authzRoles, Role.GROUPOBSERVER);
 
 		assertTrue(authzRoles.hasRole(Role.GROUPADMIN));
 		assertTrue(!authzRoles.hasRole(Role.VOADMIN));
+		assertTrue(authzRoles.hasRole(Role.GROUPOBSERVER));
 		assertTrue(authzRoles.get(Role.GROUPADMIN).containsKey("Group"));
 		assertTrue(authzRoles.get(Role.GROUPADMIN).containsKey("Vo"));
 		assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").contains(testGroupA.getId()));
