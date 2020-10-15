@@ -622,4 +622,11 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			throw new SponsorshipDoesNotExistException(sponsoredMember, sponsor);
 		}
 	}
+
+	@Override
+	public List<Sponsorship> getSponsorshipsExpiringInRange(PerunSession sess, LocalDate from, LocalDate to) {
+		return jdbc.query("SELECT " + memberSponsorshipSelectQuery + " FROM members_sponsored WHERE active=? AND " +
+						"validity_to >= ? AND validity_to < ?",
+				MEMBER_SPONSORSHIP_MAPPER, true, from, to);
+	}
 }

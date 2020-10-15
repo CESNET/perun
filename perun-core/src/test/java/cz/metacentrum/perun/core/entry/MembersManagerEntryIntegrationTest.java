@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
@@ -1659,6 +1658,151 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue("member is not in list of sponsored members for sponsor 1", sponsoredMembers1.stream().map(PerunBean::getId).anyMatch(id -> id == sponsoredMember.getId()));
 		List<RichMember> sponsoredMembers2 = perun.getMembersManager().getSponsoredMembers(sess, createdVo, sponsorUser2);
 		assertTrue("member is not in list of sponsored members for sponsor 2", sponsoredMembers2.stream().map(PerunBean::getId).anyMatch(id -> id == sponsoredMember.getId()));
+	}
+
+	@Test
+	public void getSoonExpiringSponsorshipsReturnsLowerBound() throws Exception {
+		System.out.println(CLASS_NAME + "getSoonExpiringSponsorshipsReturnsLowerBound");
+
+		Member member = setUpMember(createdVo);
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor1, today);
+
+		LocalDate nextYear = today.plusYears(1);
+		List<Sponsorship> sponsorships =
+				perun.getMembersManagerBl().getSponsorshipsExpiringInRange(sess, today, nextYear);
+
+		assertThat(sponsorships).hasSize(1);
+		assertThat(sponsorships.get(0).getValidityTo()).isEqualTo(today);
+	}
+
+	@Test
+	public void getSoonExpiringSponsorshipsDoesNotReturnUpperBound() throws Exception {
+		System.out.println(CLASS_NAME + "getSoonExpiringSponsorshipsDoesNotReturnUpperBound");
+
+		Member member = setUpMember(createdVo);
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		LocalDate nextYear = today.plusYears(1);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor1, nextYear);
+
+		List<Sponsorship> sponsorships =
+				perun.getMembersManagerBl().getSponsorshipsExpiringInRange(sess, today, nextYear);
+
+		assertThat(sponsorships).isEmpty();
+	}
+
+	@Test
+	public void getSoonExpiringSponsorshipsReturnsMultipleSponsorships() throws Exception {
+		System.out.println(CLASS_NAME + "getSoonExpiringSponsorshipsReturnsMultipleSponsorships");
+
+		Member member = setUpMember(createdVo);
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		User sponsor2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+		AuthzResolverBlImpl.setRole(sess, sponsor2, createdVo, Role.SPONSOR);
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		LocalDate nextDay = today.plusDays(1);
+		LocalDate nextMonth = today.plusMonths(1);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor1, nextDay);
+		membersManagerEntry.sponsorMember(sess, member, sponsor2, nextMonth);
+
+		LocalDate nextYear = today.plusYears(1);
+		List<Sponsorship> sponsorships =
+				perun.getMembersManagerBl().getSponsorshipsExpiringInRange(sess, today, nextYear);
+
+		assertThat(sponsorships).hasSize(2);
+	}
+
+	@Test
+	public void getSponsorshipsExpiringInRangeDoesntReturnInActiveSponsorships() throws Exception {
+		System.out.println(CLASS_NAME + "getSponsorshipsExpiringInRangeDoesntReturnInActiveSponsorships");
+
+		Member member = setUpMember(createdVo);
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		User sponsor2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+		AuthzResolverBlImpl.setRole(sess, sponsor2, createdVo, Role.SPONSOR);
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		LocalDate nextDay = today.plusDays(1);
+		LocalDate nextMonth = today.plusMonths(1);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor1, nextDay);
+		membersManagerEntry.sponsorMember(sess, member, sponsor2, nextMonth);
+
+		membersManagerEntry.removeSponsor(sess, member, sponsor2);
+
+		LocalDate nextYear = today.plusYears(1);
+		List<Sponsorship> sponsorships =
+				perun.getMembersManagerBl().getSponsorshipsExpiringInRange(sess, today, nextYear);
+
+		assertThat(sponsorships).hasSize(1);
+		assertThat(sponsorships.get(0).getValidityTo()).isEqualTo(nextDay);
+	}
+
+	@Test
+	public void getSponsorshipsExpiringInRangeDoesntReturnExpiringAfterRange() throws Exception {
+		System.out.println(CLASS_NAME + "getSponsorshipsExpiringInRangeDoesntReturnExpiringAfterRange");
+
+		Member member = setUpMember(createdVo);
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		User sponsor2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+		AuthzResolverBlImpl.setRole(sess, sponsor2, createdVo, Role.SPONSOR);
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		LocalDate nextDay = today.plusDays(1);
+		LocalDate nextMonth = today.plusMonths(1);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor1, nextDay);
+		membersManagerEntry.sponsorMember(sess, member, sponsor2, nextMonth);
+
+		LocalDate nextWeek = today.plusDays(7);
+		List<Sponsorship> sponsorships =
+				perun.getMembersManagerBl().getSponsorshipsExpiringInRange(sess, today, nextWeek);
+
+		assertThat(sponsorships).hasSize(1);
+		assertThat(sponsorships.get(0).getValidityTo()).isEqualTo(nextDay);
+	}
+
+	@Test
+	public void getSponsorshipsExpiringInRangeDoesntReturnExpiringBeforeRange() throws Exception {
+		System.out.println(CLASS_NAME + "getSponsorshipsExpiringInRangeDoesntReturnExpiringBeforeRange");
+		Member member = setUpMember(createdVo);
+		User sponsor1 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor(createdVo));
+		User sponsor2 = perun.getUsersManagerBl().getUserByMember(sess, setUpSponsor2(createdVo));
+
+		AuthzResolverBlImpl.setRole(sess, sponsor1, createdVo, Role.SPONSOR);
+		AuthzResolverBlImpl.setRole(sess, sponsor2, createdVo, Role.SPONSOR);
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		LocalDate nextDay = today.plusDays(1);
+		LocalDate lastWeek = today.minusWeeks(1);
+
+		membersManagerEntry.setSponsorshipForMember(sess, member, sponsor1, nextDay);
+		membersManagerEntry.sponsorMember(sess, member, sponsor2, lastWeek);
+
+		LocalDate nextWeek = today.plusDays(7);
+		List<Sponsorship> sponsorships =
+				perun.getMembersManagerBl().getSponsorshipsExpiringInRange(sess, today, nextWeek);
+
+		assertThat(sponsorships).hasSize(1);
+		assertThat(sponsorships.get(0).getValidityTo()).isEqualTo(nextDay);
 	}
 
 	@Test

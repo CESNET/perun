@@ -1686,4 +1686,15 @@ public interface MembersManagerBl {
 	 * @throws SponsorshipDoesNotExistException if the given user is not sponsor of the given member
 	 */
 	void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor, LocalDate newValidity) throws SponsorshipDoesNotExistException;
+
+	/**
+	 * Returns sponsorship, which have validityTo in range [from, to).
+	 * (from is inclusive, to is exclusive).
+	 *
+	 * @param sess session
+	 * @param from lower validityTo bound (inclusive), use LocalDate.MIN if you don't want to specify the lower bound
+	 * @param to upper validityTo bound (exclusive), use LocalDate.MAX, if you don't want to specify the upper bound
+	 * @return list of sponsorships which have validityTo set in the given range
+	 */
+	List<Sponsorship> getSponsorshipsExpiringInRange(PerunSession sess, LocalDate from, LocalDate to);
 }

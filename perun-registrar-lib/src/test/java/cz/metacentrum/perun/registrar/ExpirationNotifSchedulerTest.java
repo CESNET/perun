@@ -1,22 +1,33 @@
 package cz.metacentrum.perun.registrar;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.SponsorshipExpirationInAMonth;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.SponsorshipExpirationInDays;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.EnrichedSponsorship;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -33,8 +44,14 @@ import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembe
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.autoExtensionLastLoginPeriod;
 import static cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule.membershipPeriodKeyName;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.validateMockitoUsage;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -55,6 +72,8 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 	private ExpirationNotifScheduler scheduler;
 	private ExpirationNotifScheduler spyScheduler;
+
+	private Auditer auditerMock = mock(Auditer.class);
 
 	private JdbcPerunTemplate jdbc;
 
@@ -89,6 +108,13 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 			setUpGroupMembershipExpirationAttribute();
 		}
 
+		ReflectionTestUtils.setField(spyScheduler.getPerun(), "auditer", auditerMock);
+	}
+
+	@After
+	public void tearDown() {
+		Mockito.reset(auditerMock, spyScheduler);
+		validateMockitoUsage();
 	}
 
 	@Test
@@ -330,6 +356,114 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	}
 
 	@Test
+	public void testSponsorshipExpirationIsAudited1DayBefore() throws Exception {
+		System.out.println(CLASS_NAME + "testSponsorshipExpirationIsAudited1DayBefore");
+		testSponsorshipExpirationIsAuditedInDays(1);
+	}
+
+	@Test
+	public void testSponsorshipExpirationIsAudited7DaysBefore() throws Exception {
+		System.out.println(CLASS_NAME + "testSponsorshipExpirationIsAudited7DaysBefore");
+		testSponsorshipExpirationIsAuditedInDays(7);
+	}
+
+	@Test
+	public void testSponsorshipExpirationIsAudited14DaysBefore() throws Exception {
+		System.out.println(CLASS_NAME + "testSponsorshipExpirationIsAudited14DaysBefore");
+		testSponsorshipExpirationIsAuditedInDays(14);
+	}
+
+	@Test
+	public void testSponsorshipExpirationIsAuditedAMonthBefore() throws Exception {
+		System.out.println(CLASS_NAME + "testSponsorshipExpirationIsAuditedAMonthBefore");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		when(spyScheduler.getCurrentLocalDate())
+				.thenReturn(today);
+
+		Member member = setUpMember();
+		User sponsor = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
+
+		LocalDate nextDay = today.plusDays(28);
+		perun.getMembersManagerBl().setSponsorshipForMember(session, member, sponsor, nextDay);
+
+		ReflectionTestUtils.invokeMethod(spyScheduler, "auditSponsorshipExpirations");
+
+		EnrichedSponsorship es = new EnrichedSponsorship();
+		es.setSponsoredMember(perun.getMembersManagerBl().getMemberById(session, member.getId()));
+		es.setSponsor(perun.getUsersManagerBl().getUserById(session, sponsor.getId()));
+		AuditEvent expectedEvent = new SponsorshipExpirationInAMonth(es);
+
+		verify(auditerMock).log(any(), eq(expectedEvent));
+	}
+
+	@Test
+	public void testSponsorshipExpires() throws Exception {
+		System.out.println(CLASS_NAME + "testSponsorshipExpires");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		when(spyScheduler.getCurrentLocalDate())
+				.thenReturn(today);
+
+		Member member = setUpMember();
+		User sponsor = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
+
+		LocalDate lastMonth = today.minusMonths(1);
+		perun.getMembersManagerBl().setSponsorshipForMember(session, member, sponsor, lastMonth);
+
+		Sponsorship sponsorshipBefore = perun.getMembersManagerBl().getSponsorship(session, member, sponsor);
+		assertThat(sponsorshipBefore.isActive());
+
+		ReflectionTestUtils.invokeMethod(spyScheduler, "expireSponsorships");
+
+		assertThatExceptionOfType(SponsorshipDoesNotExistException.class)
+				.isThrownBy(() -> perun.getMembersManagerBl().getSponsorship(session, member, sponsor));
+	}
+
+	@Test
+	public void testSponsorshipDoesntExpireToday() throws Exception {
+		System.out.println(CLASS_NAME + "testSponsorshipDoesntExpireToday");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		when(spyScheduler.getCurrentLocalDate())
+				.thenReturn(today);
+
+		Member member = setUpMember();
+		User sponsor = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
+
+		perun.getMembersManagerBl().setSponsorshipForMember(session, member, sponsor, today);
+
+		ReflectionTestUtils.invokeMethod(spyScheduler, "expireSponsorships");
+
+		Sponsorship sponsorship = perun.getMembersManagerBl().getSponsorship(session, member, sponsor);
+		assertThat(sponsorship.isActive());
+	}
+
+	@Test
+	public void testSponsorshipDoesntExpireInFuture() throws Exception {
+		System.out.println(CLASS_NAME + "testSponsorshipDoesntExpireInFuture");
+
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		when(spyScheduler.getCurrentLocalDate())
+				.thenReturn(today);
+
+		Member member = setUpMember();
+		User sponsor = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
+
+		LocalDate nextYear = today.plusYears(1);
+		perun.getMembersManagerBl().setSponsorshipForMember(session, member, sponsor, nextYear);
+
+		ReflectionTestUtils.invokeMethod(spyScheduler, "expireSponsorships");
+
+		Sponsorship sponsorship = perun.getMembersManagerBl().getSponsorship(session, member, sponsor);
+		assertThat(sponsorship.isActive());
+	}
+
+	@Test
 	public void testAutoExtensionExtendsMemberWithLastAccess() throws Exception {
 		System.out.println(CLASS_NAME + "testAutoExtensionExtendsMemberWithLastAccess");
 
@@ -411,6 +545,34 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 					}
 				},
 				(oldExpiration, newExpiration) -> assertThat(newExpiration).isAfter(oldExpiration));
+	}
+
+
+	/**
+	 * Performs test of sponsorship expiration being audited n days before its expiration.
+	 *
+	 * @param days number of days before the expiration
+	 */
+	private void testSponsorshipExpirationIsAuditedInDays(int days) throws Exception {
+		LocalDate today = LocalDate.of(2020, 2, 2);
+		when(spyScheduler.getCurrentLocalDate())
+				.thenReturn(today);
+
+		Member member = setUpMember();
+		User sponsor = perun.getUsersManagerBl().getUserByMember(session, setUpMember());
+		AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
+
+		LocalDate nextDay = today.plusDays(days);
+		perun.getMembersManagerBl().setSponsorshipForMember(session, member, sponsor, nextDay);
+
+		ReflectionTestUtils.invokeMethod(spyScheduler, "auditSponsorshipExpirations");
+
+		EnrichedSponsorship es = new EnrichedSponsorship();
+		es.setSponsoredMember(perun.getMembersManagerBl().getMemberById(session, member.getId()));
+		es.setSponsor(perun.getUsersManagerBl().getUserById(session, sponsor.getId()));
+		AuditEvent expectedEvent = new SponsorshipExpirationInDays(es, days);
+
+		verify(auditerMock).log(any(), eq(expectedEvent));
 	}
 
 	/**
