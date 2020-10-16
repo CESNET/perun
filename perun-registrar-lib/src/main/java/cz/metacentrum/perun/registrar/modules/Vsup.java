@@ -110,7 +110,6 @@ public class Vsup extends DefaultRegistrarModule {
 								// we can ignore, user will be paired with application
 								log.warn("{} already had identity associated from application {}", app.getUser(), app);
 							}
-						} else {
 							try {
 								Member member = ((PerunBl) session.getPerun()).getMembersManagerBl().getMemberByUser(session, app.getVo(), app.getUser());
 								// user is already a member, switch application type
