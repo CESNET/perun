@@ -3648,7 +3648,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// TODO - add authorization (and add to rpc)
 
-		if (jdbc.update("update application set apptype=? where id=?", application.getType(), application.getId()) > 0) {
+		if (jdbc.update("update application set apptype=? where id=?", application.getType().toString(), application.getId()) > 0) {
 			log.debug("Application type changed to + " + application.getType());
 		}
 	}
