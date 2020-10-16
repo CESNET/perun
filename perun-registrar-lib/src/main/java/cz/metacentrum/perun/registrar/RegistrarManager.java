@@ -518,4 +518,12 @@ public interface RegistrarManager {
 	 * @return list of applications which belongs to the user
 	 */
 	List<Application> filterUserApplications(PerunSession sess, User user, List<Application> applications);
+
+	/**
+	 * Updates application type in db.
+	 *
+	 * @param session perun session
+	 * @param application updated application
+	 */
+	void updateApplicationType(PerunSession session, Application application);
 }
