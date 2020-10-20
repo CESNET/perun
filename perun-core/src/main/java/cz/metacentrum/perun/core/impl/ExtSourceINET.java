@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  */
 public class ExtSourceINET extends ExtSourceSqlComplex {
 
-	Pattern queryParametersPattern = Pattern.compile("^([1-9][0-9]+)[:]([-A-Za-z0-9]+)$");
+	Pattern queryParametersPattern = Pattern.compile("^([1-9][0-9]+)[:]([A-Za-z0-9_-]+)$");
 
 	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) {
@@ -27,9 +27,9 @@ public class ExtSourceINET extends ExtSourceSqlComplex {
 		String nameOfTheGroup = sqlParametersMatcher.group(2);
 
 		String queryTemplate = getAttributes().get("queryTemplate");
-		if(!queryTemplate.contains("?")) throw new InternalErrorException("There is missing first occurence of '?' character to replace workplace number for!");
+		if(!queryTemplate.contains("?")) throw new InternalErrorException("There is missing first occurrence of '?' character to replace workplace number for!");
 		String query = queryTemplate.replaceFirst("[?]", numberOfWorkplace);
-		if(!query.contains("?")) throw new InternalErrorException("There is missing second occurence of '?' character to replace group name for!");
+		if(!query.contains("?")) throw new InternalErrorException("There is missing second occurrence of '?' character to replace group name for!");
 		query = query.replaceFirst("[?]", "'" + nameOfTheGroup + "'");
 
 		return this.querySource(query, null, 0);
