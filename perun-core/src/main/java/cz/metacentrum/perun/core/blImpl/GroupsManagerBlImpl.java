@@ -170,7 +170,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private static final String A_G_D_EXPIRATION_RULES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules";
 	private static final String A_G_D_GROUP_STRUCTURE_RESOURCES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureResources";
 	private static final String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
-	private static final String A_M_V_LOA = AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa";
+	private static final String A_U_V_LOA = AttributesManager.NS_USER_ATTR_VIRT + ":loa";
 	private static final List<Status> statusesAffectedBySynchronization = Arrays.asList(Status.DISABLED, Status.EXPIRED, Status.INVALID);
 
 	private final Integer maxConcurrentGroupsStructuresToSynchronize;
@@ -5209,8 +5209,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 */
 	private String getMemberLoa(PerunSession sess, Member member) {
 		try {
-			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, A_M_V_LOA);
-			return (String) loa.getValue();
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_V_LOA);
+			return Integer.toString((Integer) loa.getValue());
 		} catch (AttributeNotExistsException e) {
 			// Ignore, will be probably set further
 		} catch (WrongAttributeAssignmentException e) {
