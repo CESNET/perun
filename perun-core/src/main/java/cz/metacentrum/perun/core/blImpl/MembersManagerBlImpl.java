@@ -224,8 +224,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Get user LOA
 		String memberLoa = null;
 		try {
-			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
-			memberLoa = (String) loa.getValue();
+			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_VIRT + ":loa");
+			memberLoa = Integer.toString((Integer) loa.getValue());;
 		} catch (AttributeNotExistsException e) {
 			// User has no loa defined - if required by VO, it will be stopped in checking method later
 		} catch (WrongAttributeAssignmentException e) {
@@ -478,8 +478,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Get user LOA
 		String memberLoa = null;
 		try {
-			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
-			memberLoa = (String) loa.getValue();
+			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_VIRT + ":loa");
+			memberLoa = Integer.toString((Integer) loa.getValue());
 		} catch (AttributeNotExistsException e) {
 			// user has no loa defined - if required by VO, it will be stopped in checking method later
 		} catch (WrongAttributeAssignmentException e) {
@@ -1912,8 +1912,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Get user LOA
 		String memberLoa = null;
 		try {
-			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
-			memberLoa = (String) loa.getValue();
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_VIRT + ":loa");
+			memberLoa = Integer.toString((Integer) loa.getValue());
 		} catch (AttributeNotExistsException e) {
 			// Ignore, will be probably set further
 		} catch (WrongAttributeAssignmentException e) {

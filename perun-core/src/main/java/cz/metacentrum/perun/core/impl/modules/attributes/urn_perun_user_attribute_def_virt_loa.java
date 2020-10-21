@@ -68,7 +68,7 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("loa");
 		attr.setDisplayName("Level of assurance");
-		attr.setType(String.class.getName());
+		attr.setType(Integer.class.getName());
 		attr.setDescription("The highest value of LoA from all user's userExtSources.");
 		return attr;
 	}
