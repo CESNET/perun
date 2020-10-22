@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,18 +12,18 @@ import java.util.Objects;
  */
 public class HashedGenData {
 	private final Map<String, Map<String, Object>> attributes;
-	private final GenDataNode hierarchy;
+	private final Map<Integer, GenDataNode> hierarchy = new HashMap<>();
 
-	public HashedGenData(Map<String, Map<String, Object>> attributes, GenDataNode hierarchy) {
+	public HashedGenData(Map<String, Map<String, Object>> attributes, GenDataNode hierarchy, Integer facilityId) {
 		this.attributes = attributes;
-		this.hierarchy = hierarchy;
+		this.hierarchy.put(facilityId, hierarchy);
 	}
 
 	public Map<String, Map<String, Object>> getAttributes() {
 		return attributes;
 	}
 
-	public GenDataNode getHierarchy() {
+	public Map<Integer, GenDataNode> getHierarchy() {
 		return hierarchy;
 	}
 

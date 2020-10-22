@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.provisioning;
 
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
 import cz.metacentrum.perun.core.api.GenMemberDataNode;
@@ -9,54 +8,47 @@ import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Generates data in format:
  *
  * attributes: {...hashes...}
  * hierarchy: {
- *    ** facility **
- *    hashes: [...hashes...]
- *    members: []
- *    children: [
- *      {
- *        ** resource1 **
- *        hashes: [...hashes...]
- *        children: [
- *          {
- *            ** group A **
- *            hashes: [...hashes...]
- *            members: [...group members...]
- *            children: []
- *          },
- *          {
- *            ** group B **
- *            ...
- *          }
- *        ]
- *        members: [
- *          {
- *            ** member 1 **
- *            hashes: [...hashes...]
- *          },
- *          {
- *            ** member 2 **
- *            ...
- *          }
- *        ]
- *      },
- *      {
- *        ** resource2 **
- *        ...
- *      }
- *    ]
+ *   "1": {    ** facility id **
+ *     members: {    ** all members on the facility **
+ *        "4" : 5,    ** member id : user id **
+ *        "6" : 7,    ** member id : user id **
+ *       ...
+ *     }
+ *     children: [
+ *       "2": {    ** resource id **
+ *         children: [
+ *           "89": {    ** group id **
+ *              "children": {},
+ *              "members": {
+ *                  "91328": 57986,
+ *                  "91330": 60838
+ *              }
+ *           }
+ *         ],
+ *         "members": {    ** all members on the resource with id 2 **
+ *             "91328": 57986,
+ *             "91330": 60838
+ *         }
+ *       },
+ *       "3": {
+ *         ...
+ *       }
+ *     ]
+ *   }
  * }
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
@@ -68,6 +60,7 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 	private final Facility facility;
 	private final GenDataProvider dataProvider;
 	private final boolean filterExpiredMembers;
+	private final Set<Member> allMembers = new HashSet<>();
 
 	private GroupsHashedDataGenerator(PerunSessionImpl sess, Service service, Facility facility,
 	                                 boolean filterExpiredMembers) {
@@ -84,19 +77,21 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 
 		List<Resource> resources = sess.getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
 
-		List<GenDataNode> childNodes = resources.stream()
-				.map(this::getDataForResource)
-				.collect(Collectors.toList());
+		Map<Integer, GenDataNode> childNodes = resources.stream()
+				.collect(toMap(Resource::getId, this::getDataForResource));
 
-		List<String> facilityAttrHashes = dataProvider.getFacilityAttributesHashes();
+		dataProvider.getFacilityAttributesHashes();
 		Map<String, Map<String, Object>> attributes = dataProvider.getAllFetchedAttributes();
 
+		Map<Integer, Integer> memberIdsToUserIds = allMembers.stream()
+				.collect(toMap(Member::getId, Member::getUserId));
+
 		GenDataNode root = new GenDataNode.Builder()
-				.hashes(facilityAttrHashes)
 				.children(childNodes)
+				.members(memberIdsToUserIds)
 				.build();
 
-		return new HashedGenData(attributes, root);
+		return new HashedGenData(attributes, root, facility.getId());
 	}
 
 	private GenDataNode getDataForResource(Resource resource) {
@@ -106,31 +101,32 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 		} else {
 			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
+		allMembers.addAll(members);
 
 		dataProvider.loadResourceAttributes(resource, members, true);
 
-		List<String> resourceAttrHashes = dataProvider.getResourceAttributesHashes(resource, true);
+		dataProvider.getResourceAttributesHashes(resource, true);
 
-		List<GenMemberDataNode> memberNodes = members.stream()
-				.map(member -> getDataForMember(resource, member))
-				.collect(Collectors.toList());
+		// This must be called so the hashes are added!!
+		members.forEach(member -> getDataForMember(resource, member));
+
+		Map<Integer, Integer> memberIdsToUserIds = members.stream()
+				.collect(toMap(Member::getId, Member::getUserId));
 
 		List<Group> assignedGroups = sess.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		dataProvider.loadGroupsAttributes(resource, assignedGroups);
 
-		List<GenDataNode> groupNodes = assignedGroups.stream()
-				.map(group -> getDataForGroup(resource, group))
-				.collect(Collectors.toList());
+		Map<Integer, GenDataNode> groupNodes = assignedGroups.stream()
+				.collect(toMap(Group::getId, group -> getDataForGroup(resource, group)));
 
 		return new GenDataNode.Builder()
-				.hashes(resourceAttrHashes)
 				.children(groupNodes)
-				.members(memberNodes)
+				.members(memberIdsToUserIds)
 				.build();
 	}
 
 	private GenDataNode getDataForGroup(Resource resource, Group group) {
-		List<String> groupAttrHashes = dataProvider.getGroupAttributesHashes(resource, group);
+		dataProvider.getGroupAttributesHashes(resource, group);
 
 		// This used to be the old way but we dont actually need it
 /*		List<GenDataNode> subGroupNodes;
@@ -153,14 +149,15 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 
 		dataProvider.loadMemberGroupAttributes(group, members);
 
-		List<GenMemberDataNode> memberNodes = members.stream()
-				.map(member -> getDataForMember(resource, member, group))
-				.collect(Collectors.toList());
+		// This has to be called so the hashes are loaded!!!
+		members.forEach(member -> getDataForMember(resource, member, group));
+
+		Map<Integer, Integer> memberIdsToUserIds = members.stream()
+				.collect(toMap(Member::getId, Member::getUserId));
 
 		return new GenDataNode.Builder()
-				.hashes(groupAttrHashes)
 //				.children(subGroupNodes)
-				.members(memberNodes)
+				.members(memberIdsToUserIds)
 				.build();
 	}
 

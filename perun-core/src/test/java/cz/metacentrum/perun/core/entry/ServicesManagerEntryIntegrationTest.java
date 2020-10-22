@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
-import cz.metacentrum.perun.core.api.GenMemberDataNode;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Host;
@@ -1905,36 +1904,29 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertThat(resource2Attributes.get(A_R_C_NAME)).isEqualTo(resource2.getName());
 
 		// verify hierarchy
-		GenDataNode facilityNode = data.getHierarchy();
-		assertThat(facilityNode.getHashes()).containsExactly(facilityAttrsHash);
-		assertThat(facilityNode.getMembers()).hasSize(0);
+		GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+		assertThat(facilityNode.getMembers()).hasSize(1);
 		assertThat(facilityNode.getChildren()).hasSize(2);
 
-		GenDataNode res1Node = facilityNode.getChildren().get(0);
-		assertThat(res1Node.getHashes()).containsExactly(resource1AttrsHash);
+		GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
 		assertThat(res1Node.getMembers()).hasSize(1);
 		assertThat(res1Node.getChildren()).hasSize(1);
-		GenMemberDataNode res1MemNode = res1Node.getMembers().get(0);
-		assertThat(res1MemNode.getH()).containsExactly(memberAttrsHash);
+		assertThat(res1Node.getMembers()).containsKey(member.getId());
 
-		GenDataNode res2Node = facilityNode.getChildren().get(1);
-		assertThat(res2Node.getHashes()).containsExactly(resource2AttrsHash);
+		GenDataNode res2Node = facilityNode.getChildren().get(resource2.getId());
 		assertThat(res2Node.getMembers()).hasSize(1);
 		assertThat(res2Node.getChildren()).hasSize(1);
-		GenMemberDataNode res2MemNode = res2Node.getMembers().get(0);
-		assertThat(res2MemNode.getH()).containsExactly(memberAttrsHash);
+		assertThat(res2Node.getMembers()).containsKey(member.getId());
 
-		GenDataNode res1GroupNode = res1Node.getChildren().get(0);
-		assertThat(res1GroupNode.getHashes()).containsExactly(groupAttrsHash);
+		GenDataNode res1GroupNode = res1Node.getChildren().get(group.getId());
 		assertThat(res1GroupNode.getChildren()).isEmpty();
 		assertThat(res1GroupNode.getMembers()).hasSize(1);
-		assertThat(res1GroupNode.getMembers().get(0).getH()).containsExactly(memberAttrsHash);
+		assertThat(res1GroupNode.getMembers()).containsKey(member.getId());
 
-		GenDataNode res2GroupNode = res2Node.getChildren().get(0);
-		assertThat(res2GroupNode.getHashes()).containsExactly(groupAttrsHash);
+		GenDataNode res2GroupNode = res2Node.getChildren().get(group.getId());
 		assertThat(res2GroupNode.getChildren()).isEmpty();
 		assertThat(res2GroupNode.getMembers()).hasSize(1);
-		assertThat(res2GroupNode.getMembers().get(0).getH()).containsExactly(memberAttrsHash);
+		assertThat(res2GroupNode.getMembers()).containsKey(member.getId());
 	}
 
 	@Test
@@ -2013,24 +2005,19 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertThat(resource2Attributes.get(A_R_C_NAME)).isEqualTo(resource2.getName());
 
 		// verify hierarchy
-		GenDataNode facilityNode = data.getHierarchy();
-		assertThat(facilityNode.getHashes()).containsExactly(facilityAttrsHash);
-		assertThat(facilityNode.getMembers()).hasSize(0);
+		GenDataNode facilityNode = data.getHierarchy().get(facility.getId());
+		assertThat(facilityNode.getMembers()).hasSize(1);
 		assertThat(facilityNode.getChildren()).hasSize(2);
 
-		GenDataNode res1Node = facilityNode.getChildren().get(0);
-		assertThat(res1Node.getHashes()).containsExactly(resource1AttrsHash);
-		assertThat(res1Node.getMembers()).hasSize(1);
+		GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
+		assertThat(res1Node.getMembers().keySet()).hasSize(1);
 		assertThat(res1Node.getChildren()).isEmpty();
-		GenMemberDataNode res1MemNode = res1Node.getMembers().get(0);
-		assertThat(res1MemNode.getH()).containsExactly(memberAttrsHash);
+		assertThat(res1Node.getMembers()).containsKey(member.getId());
 
-		GenDataNode res2Node = facilityNode.getChildren().get(1);
-		assertThat(res2Node.getHashes()).containsExactly(resource2AttrsHash);
+		GenDataNode res2Node = facilityNode.getChildren().get(resource2.getId());
 		assertThat(res2Node.getMembers()).hasSize(1);
 		assertThat(res2Node.getChildren()).isEmpty();
-		GenMemberDataNode res2MemNode = res2Node.getMembers().get(0);
-		assertThat(res2MemNode.getH()).containsExactly(memberAttrsHash);
+		assertThat(res2Node.getMembers()).containsKey(member.getId());
 	}
 
 	// PRIVATE METHODS ----------------------------------------------------
