@@ -465,7 +465,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Get list of administrator groups of the given VO.
 	 *
-	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN, SPONSOR
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param role String Role name
