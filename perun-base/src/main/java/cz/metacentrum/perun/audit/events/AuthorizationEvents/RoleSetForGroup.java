@@ -19,8 +19,8 @@ public class RoleSetForGroup extends AuditEvent implements EngineIgnoreEvent {
 	public RoleSetForGroup(PerunBean object, Group group, String role) {
 		this.object = object;
 		this.group = group;
-		this.role = role;
-		this.message = formatMessage("Role %s was set for group %s on object %s.", role, group, object);
+		this.role = role.toUpperCase();
+		this.message = formatMessage("Role %s was set for %s on %s.", role.toUpperCase(), group, object);
 	}
 
 	public PerunBean getObject() {
