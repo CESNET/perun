@@ -973,7 +973,7 @@ public class AuthzResolver {
 	 * @param sess perun session
 	 * @param complementaryObjectId id of object for which we will get richUser administrators
 	 * @param complementaryObjectName name of object for which we will get richUser administrators
-	 * @param role expected role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
+	 * @param role expected role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SPONSOR | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
 	 *
 	 * @return list of authorizedGroups for complementary object and role
 	 */
