@@ -227,7 +227,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@Override
 		public Map<String, Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
 			params.stateChangingCheck();
-			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
 			User sponsor = null;
