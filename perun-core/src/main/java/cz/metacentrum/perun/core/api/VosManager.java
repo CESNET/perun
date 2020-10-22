@@ -306,7 +306,7 @@ public interface VosManager {
 	/**
 	 * Get list of group administrators of the given VO.
 	 *
-	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN
+	 * Supported roles: VOOBSERVER, TOPGROUPCREATOR, VOADMIN, SPONSOR
 	 *
 	 * @param perunSession
 	 * @param vo
