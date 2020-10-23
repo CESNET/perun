@@ -19,8 +19,8 @@ public class RoleUnsetForGroup extends AuditEvent implements EngineIgnoreEvent {
 	public RoleUnsetForGroup(PerunBean object, Group group, String role) {
 		this.object = object;
 		this.group = group;
-		this.role = role;
-		this.message = formatMessage("Role %s was unset for group %s on object %s.", role, group, object);
+		this.role = role.toUpperCase();
+		this.message = formatMessage("Role %s was unset for %s on %s.", role.toUpperCase(), group, object);
 	}
 
 	public PerunBean getObject() {

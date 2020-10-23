@@ -280,7 +280,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Vo</value>
 						</list>
 					</property>
-					<property name="pattern" value="User:\[.*\] was added as admin of Vo:\[.*\]"/>
+					<property name="pattern" value="Role VOADMIN was set for User:\[.*\] on Vo:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminAdded"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -290,7 +290,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Group</value>
 						</list>
 					</property>
-					<property name="pattern" value="User:\[.*\] was added as admin of Group:\[.*\]"/>
+					<property name="pattern" value="Role GROUPADMIN was set for User:\[.*\] on Group:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminAdded"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -300,7 +300,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Facility</value>
 						</list>
 					</property>
-					<property name="pattern" value="User:\[.*\] was added as admin of Facility:\[.*\]"/>
+					<property name="pattern" value="Role FACILITYADMIN was set for User:\[.*\] on Facility:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminAdded"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -310,7 +310,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Vo</value>
 						</list>
 					</property>
-					<property name="pattern" value="User:\[.*\] was removed from admins of Vo:\[.*\]"/>
+					<property name="pattern" value="Role VOADMIN was unset for User:\[.*\] on Vo:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminRemoved"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -320,7 +320,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Group</value>
 						</list>
 					</property>
-					<property name="pattern" value="User:\[.*\] was removed from admins of Group:\[.*\]"/>
+					<property name="pattern" value="Role GROUPADMIN was unset for User:\[.*\] on Group:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminRemoved"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -330,7 +330,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Facility</value>
 						</list>
 					</property>
-					<property name="pattern" value="User:\[.*\] was removed from admins of Facility:\[.*\]"/>
+					<property name="pattern" value="Role FACILITYADMIN was unset for User:\[.*\] on Facility:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminRemoved"/>
 				</bean>
 			</list>
@@ -622,7 +622,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Vo</value>
 						</list>
 					</property>
-					<property name="pattern" value="Group:\[.*\] was added as admin of Vo:\[.*\]"/>
+					<property name="pattern" value="Role VOADMIN was set for Group:\[.*\] on Vo:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminAdded"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -631,7 +631,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Group</value>
 						</list>
 					</property>
-					<property name="pattern" value="Group:\[.*\] was added as admin of Group:\[.*\]"/>
+					<property name="pattern" value="Role GROUPADMIN was set for Group:\[.*\] on Group:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminAdded"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -641,7 +641,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Facility</value>
 						</list>
 					</property>
-					<property name="pattern" value="Group:\[.*\] was added as admin of Facility:\[.*\]"/>
+					<property name="pattern" value="Role FACILITYADMIN was set for Group:\[.*\] on Facility:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminAdded"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -651,7 +651,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Vo</value>
 						</list>
 					</property>
-					<property name="pattern" value="Group:\[.*\] was removed from admins of Vo:\[.*\]"/>
+					<property name="pattern" value="Role VOADMIN was unset for Group:\[.*\] on Vo:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminRemoved"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -660,7 +660,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Group</value>
 						</list>
 					</property>
-					<property name="pattern" value="Group:\[.*\] was removed from admins of Group:\[.*\]"/>
+					<property name="pattern" value="Role GROUPADMIN was unset for Group:\[.*\] on Group:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminRemoved"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -670,7 +670,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Facility</value>
 						</list>
 					</property>
-					<property name="pattern" value="Group:\[.*\] was removed from admins of Facility:\[.*\]"/>
+					<property name="pattern" value="Role FACILITYADMIN was unset for Group:\[.*\] on Facility:\[.*\]"/>
 					<property name="handlerMethodName" value="processAdminRemoved"/>
 				</bean>
 			</list>
