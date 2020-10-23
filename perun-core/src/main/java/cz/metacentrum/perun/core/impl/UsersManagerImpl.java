@@ -880,24 +880,24 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return new ArrayList<>();
 		}
 
-		// Convert to lowercase ASCII
-		searchString = Utils.utftoasci(searchString.toLowerCase());
-		log.trace("Search string '{}' converted into lower-cased ASCII", searchString);
+		// Convert to lowercase
+		searchString = searchString.toLowerCase();
+		log.trace("Search string '{}' converted into lower-cased", searchString);
 
 		// remove spaces from the search string
 		searchString = searchString.replaceAll(" ", "");
 
 		log.debug("Searching users by name using searchString '{}'", searchString);
 
-		// the searchString is already lower cased and converted into the ASCII
+		// the searchString is already lower cased
 		try {
 			if (Compatibility.isPostgreSql()) {
 				return jdbc.query("select " + userMappingSelectQuery + "  from users " +
-						"where strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"),?) > 0",
+						"where strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")," + Compatibility.convertToAscii("?") + ") > 0",
 						USER_MAPPER, searchString);
 			} else if (Compatibility.isHSQLDB()) {
 				return jdbc.query("select " + userMappingSelectQuery + "  from users " +
-								"where lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+") like '%' || ? || '%'",
+								"where lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+") like " + Compatibility.convertToAscii("'%' || ? || '%'"),
 						USER_MAPPER, searchString);
 			} else {
 				throw new InternalErrorException("Unsupported db type");
@@ -931,8 +931,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		// the searchString is already lower cased
 		try {
 			return jdbc.query("select " + userMappingSelectQuery + " from users " +
-					" where coalesce(lower("+Compatibility.convertToAscii("users.title_before")+"), '%') like ? and lower("+Compatibility.convertToAscii("users.first_name")+") like ? and coalesce(lower("+Compatibility.convertToAscii("users.middle_name")+"),'%') like ? and " +
-					"lower("+Compatibility.convertToAscii("users.last_name")+") like ? and coalesce(lower("+Compatibility.convertToAscii("users.title_after")+"), '%') like ?",
+					" where coalesce(lower("+Compatibility.convertToAscii("users.title_before")+"), '%') like "+Compatibility.convertToAscii("?")+" and lower("+Compatibility.convertToAscii("users.first_name")+") like "+Compatibility.convertToAscii("?")+
+					" and coalesce(lower("+Compatibility.convertToAscii("users.middle_name")+"),'%') like "+Compatibility.convertToAscii("?")+" and lower("+Compatibility.convertToAscii("users.last_name")+") like "+Compatibility.convertToAscii("?")+
+					" and coalesce(lower("+Compatibility.convertToAscii("users.title_after")+"), '%') like "+Compatibility.convertToAscii("?"),
 					USER_MAPPER, titleBefore, firstName, middleName, lastName, titleAfter);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -951,24 +952,16 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		searchString = searchString.toLowerCase();
 		log.debug("Search string '{}' converted into the lowercase", searchString);
 
-		// Convert to ASCII
-		searchString = Utils.utftoasci(searchString);
-		log.debug("Search string '{}' converted into the ASCII", searchString);
-
 		// remove spaces from the search string
 		searchString = searchString.replaceAll(" ", "");
 
 		log.debug("Searching users by name using searchString '{}'", searchString);
 
-		// the searchString is already lower cased and converted into the ASCII
+		// the searchString is already lower cased
 		try {
-			if (Compatibility.isPostgreSql()) {
+			if (Compatibility.isPostgreSql() || Compatibility.isHSQLDB()) {
 				return jdbc.query("select " + userMappingSelectQuery + " from users "
-								+ "where lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=?",
-						USER_MAPPER, searchString);
-			} else if (Compatibility.isHSQLDB()) {
-				return jdbc.query("select " + userMappingSelectQuery + "  from users " +
-								"where lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+")=?",
+								+ "where lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=" + Compatibility.convertToAscii("?"),
 						USER_MAPPER, searchString);
 			} else {
 				throw new InternalErrorException("Unsupported db type");

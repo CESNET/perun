@@ -1378,81 +1378,6 @@ public class Utils {
 	}
 
 	/**
-	 * IMPORTANT: this method not convert utf to ascii, just try to convert some problematic
-	 * chars to UTF and others change to '?'!!!
-	 *
-	 * @param s
-	 * @return converted string from ascii to something near utf
-	 */
-	public synchronized static String utftoasci(String s){
-		final StringBuilder sb = new StringBuilder( s.length() * 2 );
-
-		final StringCharacterIterator iterator = new StringCharacterIterator( s );
-
-		char ch = iterator.current();
-
-		while( ch != StringCharacterIterator.DONE ){
-			if(Character.getNumericValue(ch)>=0){
-				sb.append( ch );
-			}else{
-				boolean f=false;
-				if(Character.toString(ch).equals("Ê")){sb.append("E");f=true;}
-				if(Character.toString(ch).equals("È")){sb.append("E");f=true;}
-				if(Character.toString(ch).equals("ë")){sb.append("e");f=true;}
-				if(Character.toString(ch).equals("é")){sb.append("e");f=true;}
-				if(Character.toString(ch).equals("è")){sb.append("e");f=true;}
-				if(Character.toString(ch).equals("Â")){sb.append("A");f=true;}
-				if(Character.toString(ch).equals("ä")){sb.append("a");f=true;}
-				if(Character.toString(ch).equals("ß")){sb.append("ss");f=true;}
-				if(Character.toString(ch).equals("Ç")){sb.append("C");f=true;}
-				if(Character.toString(ch).equals("Ö")){sb.append("O");f=true;}
-				if(Character.toString(ch).equals("º")){sb.append("");f=true;}
-				if(Character.toString(ch).equals("ª")){sb.append("");f=true;}
-				if(Character.toString(ch).equals("º")){sb.append("");f=true;}
-				if(Character.toString(ch).equals("Ñ")){sb.append("N");f=true;}
-				if(Character.toString(ch).equals("É")){sb.append("E");f=true;}
-				if(Character.toString(ch).equals("Ä")){sb.append("A");f=true;}
-				if(Character.toString(ch).equals("Å")){sb.append("A");f=true;}
-				if(Character.toString(ch).equals("Ü")){sb.append("U");f=true;}
-				if(Character.toString(ch).equals("ö")){sb.append("o");f=true;}
-				if(Character.toString(ch).equals("ü")){sb.append("u");f=true;}
-				if(Character.toString(ch).equals("á")){sb.append("a");f=true;}
-				if(Character.toString(ch).equals("Ó")){sb.append("O");f=true;}
-				if(Character.toString(ch).equals("ě")){sb.append("e");f=true;}
-				if(Character.toString(ch).equals("Ě")){sb.append("E");f=true;}
-				if(Character.toString(ch).equals("š")){sb.append("s");f=true;}
-				if(Character.toString(ch).equals("Š")){sb.append("S");f=true;}
-				if(Character.toString(ch).equals("č")){sb.append("c");f=true;}
-				if(Character.toString(ch).equals("Č")){sb.append("C");f=true;}
-				if(Character.toString(ch).equals("ř")){sb.append("r");f=true;}
-				if(Character.toString(ch).equals("Ř")){sb.append("R");f=true;}
-				if(Character.toString(ch).equals("ž")){sb.append("z");f=true;}
-				if(Character.toString(ch).equals("Ž")){sb.append("Z");f=true;}
-				if(Character.toString(ch).equals("ý")){sb.append("y");f=true;}
-				if(Character.toString(ch).equals("Ý")){sb.append("Y");f=true;}
-				if(Character.toString(ch).equals("í")){sb.append("i");f=true;}
-				if(Character.toString(ch).equals("Í")){sb.append("I");f=true;}
-				if(Character.toString(ch).equals("ó")){sb.append("o");f=true;}
-				if(Character.toString(ch).equals("ú")){sb.append("u");f=true;}
-				if(Character.toString(ch).equals("Ú")){sb.append("u");f=true;}
-				if(Character.toString(ch).equals("ů")){sb.append("u");f=true;}
-				if(Character.toString(ch).equals("Ů")){sb.append("U");f=true;}
-				if(Character.toString(ch).equals("Ň")){sb.append("N");f=true;}
-				if(Character.toString(ch).equals("ň")){sb.append("n");f=true;}
-				if(Character.toString(ch).equals("Ť")){sb.append("T");f=true;}
-				if(Character.toString(ch).equals("ť")){sb.append("t");f=true;}
-				if(Character.toString(ch).equals(" ")){sb.append(" ");f=true;}
-
-				if(!f){
-					sb.append("?");
-				}
-			}
-			ch = iterator.next();
-		}
-		return sb.toString();
-	}
-
-	/**
 	 * Convert input string (expected UTF-8) to ASCII if possible.
 	 * Any non-ASCII character is replaced by replacement parameter.
 	 *
@@ -1682,9 +1607,9 @@ public class Utils {
 	 */
 	public static String prepareUserSearchQueryExactMatch() {
 		if (Compatibility.isPostgreSql()) {
-			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(:nameString), ' ', '')";
+			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
 		} else if (Compatibility.isHSQLDB()) {
-			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(:nameString), ' ', '')";
+			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
 		} else {
 			throw new InternalErrorException("Unsupported db type");
 		}
@@ -1697,11 +1622,11 @@ public class Utils {
 	 */
 	public static String prepareUserSearchQuerySimilarMatch() {
 		if (Compatibility.isPostgreSql()) {
-			return " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', ''),replace(lower(:nameString), ' ', '')) > 0 or " +
-				   " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.first_name,'')") + "), ' ', ''),replace(lower(:nameString), ' ', '')) > 0 ";
+			return " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 or " +
+				   " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 ";
 		} else if (Compatibility.isHSQLDB()) {
-			return " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', '') like '%' || replace(lower(:nameString), ' ', '') || '%' or " +
-				   " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.first_name,'')") + "), ' ', '') like '%' || replace(lower(:nameString), ' ', '') || '%' ";
+			return " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', '') like '%' || replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '') || '%' or " +
+				   " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") + "), ' ', '') like '%' || replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '') || '%' ";
 		} else {
 			throw new InternalErrorException("Unsupported db type");
 		}
@@ -1789,7 +1714,7 @@ public class Utils {
 	public static MapSqlParameterSource getMapSqlParameterSourceToSearchUsersOrMembers(String searchString, Map<String, List<String>> attributesToSearchBy) {
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("searchString", searchString);
-		namedParams.addValue("nameString", Utils.utftoasci(searchString.toLowerCase().replaceAll(" ", "")));
+		namedParams.addValue("nameString", searchString);
 		namedParams.addValue("memberAttributes", attributesToSearchBy.get("memberAttributes"));
 		namedParams.addValue("userAttributes", attributesToSearchBy.get("userAttributes"));
 		namedParams.addValue("uesAttributes", attributesToSearchBy.get("uesAttributes"));
