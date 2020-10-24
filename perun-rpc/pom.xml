@@ -47,6 +47,9 @@
 							<!-- Force running against real DB -->
 							<spring.profiles.active>production</spring.profiles.active>
 						</systemProperties>
+						<!-- uncomment in case that dispatcher init takes too long
+						<timeout>600000</timeout>
+						 -->
 					</container>
 					<configuration>
 						<home>${basedir}/target/cargo/tomcat8x</home>
