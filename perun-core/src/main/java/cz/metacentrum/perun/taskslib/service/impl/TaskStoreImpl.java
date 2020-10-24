@@ -28,7 +28,7 @@ public class TaskStoreImpl implements TaskStore {
 
 	private final static Logger log = LoggerFactory.getLogger(TaskStoreImpl.class);
 	private final Map<Integer, Task> tasksById = new HashMap<>();
-	private final Map<Pair<Facility, Service>, Task> tasksByFacilityAndService = new HashMap<>();
+	private final Map<Pair<Integer, Integer>, Task> tasksByFacilityAndService = new HashMap<>();
 
 	public TaskStoreImpl() {
 	}
@@ -40,7 +40,7 @@ public class TaskStoreImpl implements TaskStore {
 
 	@Override
 	public Task getTask(Facility facility, Service service) {
-		return tasksByFacilityAndService.get(new Pair<>(facility, service));
+		return tasksByFacilityAndService.get(new Pair<>(facility.getId(), service.getId()));
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class TaskStoreImpl implements TaskStore {
 		synchronized (this) {
 			idAdded = tasksById.put(task.getId(), task);
 			otherAdded = tasksByFacilityAndService.put(
-					new Pair<>(task.getFacility(), task.getService()), task);
+					new Pair<>(task.getFacility().getId(), task.getService().getId()), task);
 		}
 		if (idAdded != otherAdded) {
 			log.error("Task returned from both Maps after insert differ. taskById {}, taskByFacilityAndService {}", idAdded, otherAdded);
@@ -96,7 +96,7 @@ public class TaskStoreImpl implements TaskStore {
 		Task otherRemoved;
 		synchronized (this) {
 			idRemoved = tasksById.remove(task.getId());
-			otherRemoved = tasksByFacilityAndService.remove(new Pair<>(task.getFacility(), task.getService()));
+			otherRemoved = tasksByFacilityAndService.remove(new Pair<>(task.getFacility().getId(), task.getService().getId()));
 		}
 		if (idRemoved != otherRemoved) {
 			log.error("Inconsistent state occurred after removing Task {} from TaskStore", task);
