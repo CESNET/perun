@@ -257,13 +257,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> owners) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createServiceMember(sess, vo, candidate, owners, null);
 	}
 
 	@Override
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		if(specificUserType.equals(SpecificUserType.SERVICE)) candidate.setFirstName("(Service)");
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		candidate.setFirstName("(Service)");
 
 		//Set organization only if user in sessione exists (in tests there is no user in session)
 		if(sess.getPerunPrincipal().getUser() != null) {
@@ -291,7 +291,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		//create member for service user from candidate
-		Member member = createMember(sess, vo, specificUserType, candidate, groups, null);
+		Member member = createMember(sess, vo, SpecificUserType.SERVICE, candidate, groups, null);
 
 		//set specific user owners or sponsors
 		User specificUser = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -327,26 +327,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createMemberSync(sess, vo, candidate, groups, null);
-	}
-
-	@Override
-	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return this.createSpecificMemberSync(sess, vo, candidate, specificUserOwners, specificUserType, null);
-	}
-
-	@Override
-	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-
-		Member member = createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
-
-		//Validate synchronously
-		try {
-			member = validateMember(sess, member);
-		} catch (AttributeValueException ex) {
-			log.info("Specific Member can't be validated. He stays in invalid state. Cause: " + ex);
-		}
-
-		return member;
 	}
 
 	@Override
