@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
@@ -175,7 +174,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<User> users = usersManager.getSpecificUsers(sess);
 		assertTrue(users.contains(serviceUser1));
 		assertTrue(users.contains(serviceUser2));
-		assertTrue(users.contains(sponsoredUser));
 	}
 
 	@Test
@@ -193,15 +191,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue("User should be service user again", user2.isServiceUser());
 		List<User> owners = usersManager.getUsersBySpecificUser(sess, user2);
 		assertTrue("There should be just our owner", owners.size() == 1 && owners.contains(owner));
-	}
-
-	@Test
-	public void getUsersBySponsoredUser() throws Exception {
-		System.out.println(CLASS_NAME + "getUsersBySponsoredUser");
-
-		List<User> users = usersManager.getUsersBySpecificUser(sess, sponsoredUser);
-		assertTrue(users.contains(user));
-		assertTrue(users.size() == 1);
 	}
 
 	@Test
@@ -229,8 +218,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<User> users = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(users.contains(serviceUser1));
 		assertTrue(users.contains(serviceUser2));
-		assertTrue(users.contains(sponsoredUser));
-		assertTrue(users.size() == 3);
+		assertTrue(users.size() == 2);
 	}
 
 	@Test
@@ -238,7 +226,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "modifyOwnership");
 
 		usersManager.removeSpecificUserOwner(sess, user, serviceUser1);
-		usersManager.removeSpecificUserOwner(sess, user, sponsoredUser);
 
 		List<User> users = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(users.contains(serviceUser2));
@@ -258,13 +245,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(users.contains(serviceUser1));
 		assertTrue(users.contains(serviceUser2));
 		assertTrue(users.size() == 2);
-
-		usersManager.addSpecificUserOwner(sess, user, sponsoredUser);
-		users = usersManager.getSpecificUsersByUser(sess, user);
-		assertTrue(users.contains(serviceUser1));
-		assertTrue(users.contains(serviceUser2));
-		assertTrue(users.contains(sponsoredUser));
-		assertTrue(users.size() == 3);
 	}
 
 	@Test (expected= RelationNotExistsException.class)
@@ -312,7 +292,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
 		assertTrue(!perun.getUsersManagerBl().specificUserOwnershipExists(sess, userOfMember, serviceUser1));
 		assertTrue(!perun.getUsersManagerBl().specificUserOwnershipExists(sess, userOfMember, serviceUser2));
-		assertTrue(!perun.getUsersManagerBl().specificUserOwnershipExists(sess, userOfMember, sponsoredUser));
 
 		usersManager.addSpecificUserOwner(sess, userOfMember, serviceUser1);
 		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, userOfMember, serviceUser1));
@@ -320,20 +299,14 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersManager.addSpecificUserOwner(sess, userOfMember, serviceUser2);
 		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, userOfMember, serviceUser2));
 
-		usersManager.addSpecificUserOwner(sess, userOfMember, sponsoredUser);
-		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, userOfMember, sponsoredUser));
-
 		List<User> specificUsers = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(specificUsers.contains(serviceUser1));
 		assertTrue(specificUsers.contains(serviceUser2));
-		assertTrue(specificUsers.contains(sponsoredUser));
-		assertTrue(specificUsers.size() == 3);
+		assertTrue(specificUsers.size() == 2);
 
 		usersManager.removeSpecificUserOwner(sess, user, serviceUser1);
-		usersManager.removeSpecificUserOwner(sess, user, sponsoredUser);
 		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, user, serviceUser1));
 		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, user, serviceUser2));
-		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, user, sponsoredUser));
 		specificUsers = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(specificUsers.contains(serviceUser2));
 		assertTrue(specificUsers.size() == 1);
@@ -1536,11 +1509,10 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		perun.getAttributesManagerBl().setAttribute(sess, user, emailAttribute);
 
-		AuthzResolverBlImpl.setRole(sess, user, vo, Role.SPONSOR);
 		Member member = perun.getMembersManagerBl().getMemberByUser(sess, vo, sponsoredUser);
 
 		LocalDate validity = LocalDate.now();
-		perun.getMembersManagerBl().setSponsorshipForMember(sess, member, user, validity);
+		perun.getMembersManagerBl().updateSponsorshipValidity(sess, member, user, validity);
 		Member sponsoredMember = perun.getMembersManagerBl().getMemberByUser(sess, vo, sponsoredUser);
 		List<Sponsor> sponsors = usersManager
 				.getSponsorsForMember(sess, sponsoredMember, Collections.singletonList(URN_ATTR_USER_PREFERRED_MAIL));
@@ -1637,7 +1609,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<User> owners = new ArrayList<>();
 		owners.add(user);
 
-		Member serviceMember = perun.getMembersManagerBl().createSpecificMemberSync(sess, vo, candidate, owners, SpecificUserType.SERVICE);
+		Member serviceMember = perun.getMembersManagerBl().createServiceMember(sess, vo, candidate, owners);
+		perun.getMembersManagerBl().validateMember(sess, serviceMember);
 		// set first candidate as member of test VO
 		assertNotNull("No member created", serviceMember);
 		serviceUser1 = usersManager.getUserByMember(sess, serviceMember);
@@ -1650,7 +1623,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<User> owners = new ArrayList<>();
 		owners.add(user);
 
-		Member serviceMember = perun.getMembersManagerBl().createSpecificMemberSync(sess, vo, candidate, owners, SpecificUserType.SERVICE);
+		Member serviceMember = perun.getMembersManagerBl().createServiceMember(sess, vo, candidate, owners);
+		perun.getMembersManagerBl().validateMember(sess, serviceMember);
 		// set first candidate as member of test VO
 		assertNotNull("No member created", serviceMember);
 		serviceUser2 = usersManager.getUserByMember(sess, serviceMember);
@@ -1660,10 +1634,10 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private void setUpSponsoredUserForVo(Vo vo) throws Exception {
 		Candidate candidate = setUpCandidateForSponsoredUser();
 
-		List<User> sponsors = new ArrayList<>();
-		sponsors.add(user);
-
-		Member sponsoredMember = perun.getMembersManagerBl().createSpecificMemberSync(sess, vo, candidate, sponsors, SpecificUserType.SPONSORED);
+		AuthzResolverBlImpl.setRole(sess, user, vo, Role.SPONSOR);
+		Member sponsoredMember = perun.getMembersManagerBl().createMember(sess, vo, candidate);
+		perun.getMembersManagerBl().setSponsorshipForMember(sess, sponsoredMember, user);
+		perun.getMembersManagerBl().validateMember(sess, sponsoredMember);
 		// set first candidate as member of test VO
 		assertNotNull("No member created", sponsoredMember);
 		sponsoredUser = usersManager.getUserByMember(sess, sponsoredMember);
@@ -1707,7 +1681,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// assertTrue(candidates.size() > 0);
 
 		Candidate candidate = setUpCandidate();
-		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate); // candidates.get(0)
+		Member member = perun.getMembersManagerBl().createMember(sess, vo, candidate); // candidates.get(0)
+		perun.getMembersManagerBl().validateMember(sess, member);
 		// set first candidate as member of test VO
 		assertNotNull("No member created", member);
 		usersForDeletion.add(usersManager.getUserByMember(sess, member));
