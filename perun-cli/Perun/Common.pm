@@ -25,6 +25,7 @@ use Perun::beans::Resource;
 use Perun::beans::Service;
 use Perun::beans::ServicesPackage;
 use Perun::beans::ServiceAttributes;
+use Perun::beans::HashedGenData;
 use Perun::beans::Candidate;
 use Perun::beans::RichMember;
 use Perun::beans::Destination;
