@@ -132,6 +132,18 @@ sub getFlatData
 	return Perun::Common::callManagerMethod('getFlatData', 'ServiceAttributes', @_);
 }
 
+#(service => $serviceId, facility => $facilityId, filterExpiredMembers => true|false)
+sub getHashedHierarchicalData
+{
+	return Perun::Common::callManagerMethod('getHashedHierarchicalData', 'HashedGenData', @_);
+}
+
+#(service => $serviceId, facility => $facilityId, filterExpiredMembers => true|false)
+sub getHashedDataWithGroups
+{
+	return Perun::Common::callManagerMethod('getHashedDataWithGroups', 'HashedGenData', @_);
+}
+
 #(service => $serviceId, facility => $facilityId)
 sub getDataWithGroups
 {
