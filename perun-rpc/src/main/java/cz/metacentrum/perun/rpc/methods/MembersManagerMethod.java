@@ -144,7 +144,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
 			String email = null;
-			if (params.contains("mail")) {
+			if (params.contains("email")) {
 				email = params.readString("email");
 			}
 			if (email != null && !Utils.emailPattern.matcher(email).matches()) {
