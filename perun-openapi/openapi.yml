@@ -7978,6 +7978,7 @@ paths:
                 titleBefore: { type: string}
                 titleAfter: { type: string }
                 password: { type: string }
+                email: { type: string }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }

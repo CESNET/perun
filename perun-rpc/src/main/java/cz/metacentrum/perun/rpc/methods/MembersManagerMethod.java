@@ -3,6 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -114,6 +115,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param email String email that will be set to the created user
 	 * @return RichMember newly created sponsored member
 	 */
 	/*#
@@ -130,6 +132,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param email String email that will be set to the created user
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember newly created sponsored member
 	 */
@@ -140,6 +143,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			String email = null;
+			if (params.contains("mail")) {
+				email = params.readString("email");
+			}
+			if (email != null && !Utils.emailPattern.matcher(email).matches()) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
+			}
 			User sponsor = null;
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {
@@ -159,7 +169,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, sponsor, validityTo);
+			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, email, sponsor, validityTo);
 		}
 	},
 
