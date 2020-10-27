@@ -75,6 +75,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	private static final String CLASS_NAME = "MembersManager.";
 	private static final String EXT_SOURCE_NAME = "MembersManagerEntryExtSource";
+	private static final String A_U_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 	private Vo createdVo = null;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Group createdGroup;
@@ -141,7 +142,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
 		Map<String, String> nameOfUser1 = new HashMap<>();
 		nameOfUser1.put("guestName", "Abraka 123");
-		perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", null, sponsorUser, false);
 	}
 
 	@Test
@@ -160,7 +161,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Map<String, String> nameOfUser1 = new HashMap<>();
 		nameOfUser1.put("guestName", "Ing. Petr Draxler");
-		Member sponsoredMember1 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		Member sponsoredMember1 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", null, sponsorUser, false);
 
 		//should contain one sponsored member
 		List<Member> sponsoredMembers = perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo);
@@ -170,7 +171,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Map<String, String> nameOfUser2 = new HashMap<>();
 		nameOfUser2.put("guestName", "Miloš Zeman");
-		Member sponsoredMember2 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser2, "password", sponsorUser, false);
+		Member sponsoredMember2 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser2, "password", null, sponsorUser, false);
 
 		sponsoredMembers = perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo);
 
@@ -193,7 +194,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Map<String, String> userName = new HashMap<>();
 		userName.put("guestName", "Ing. Jan Novák");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", userName, "secret", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", userName, "secret", null, sponsorUser, false);
 
 		ArrayList<String> attrNames = new ArrayList<>();
 		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
@@ -1440,7 +1441,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		Map<String, String> nameOfUser1 = new HashMap<>();
 		nameOfUser1.put("guestName", "Ing. Jiří Novák, CSc.");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", null, sponsorUser, false);
 		assertNotNull("sponsored member must not be null",sponsoredMember);
 		assertTrue("sponsored memer must have flag 'sponsored' set",sponsoredMember.isSponsored());
 		assertTrue("sponsored member should have status VALID",sponsoredMember.getStatus()==Status.VALID);
@@ -1450,6 +1451,26 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		sponsoredMember = perun.getMembersManagerBl().getMemberById(sess,sponsoredMember.getId());
 		assertFalse("Member's sponsorship should have been removed.",sponsoredMember.isSponsored());
 		assertTrue("sponsored member without sponsors must be expired",sponsoredMember.getStatus()==Status.EXPIRED);
+	}
+
+	@Test
+	public void createSponsoredMemberSetsEmailToCreatedUser() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMemberSetsEmailToCreatedUser");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+
+		//create guest
+		Map<String, String> nameOfUser1 = new HashMap<>();
+		nameOfUser1.put("guestName", "Ing. Jiří Novák, CSc.");
+		String email = "test@email.cz";
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", email, sponsorUser, false);
+
+		User createdUser = perun.getUsersManagerBl().getUserByMember(sess, sponsoredMember);
+		Attribute emailAttribute = perun.getAttributesManager().getAttribute(sess, createdUser, A_U_PREFERRED_MAIL);
+
+		assertThat(emailAttribute.valueAsString()).isEqualTo(email);
 	}
 
 	@Test
@@ -1469,7 +1490,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		nameOfUser1.put("lastName", "Morgan");
 		nameOfUser1.put("titleBefore", "prof. RNDr.");
 		nameOfUser1.put("titleAfter", "Ph.D.");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", null, sponsorUser, false);
 		assertNotNull("sponsored member must not be null",sponsoredMember);
 		assertTrue("sponsored member must have flag 'sponsored' set",sponsoredMember.isSponsored());
 		assertTrue("sponsored member should have status VALID",sponsoredMember.getStatus()==Status.VALID);
@@ -1495,7 +1516,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		Map<String, String> nameOfUser1 = new HashMap<>();
 		nameOfUser1.put("firstName", "Arthur");
 		nameOfUser1.put("lastName", "Morgan");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", null, sponsorUser, false);
 		assertNotNull("sponsored member must not be null",sponsoredMember);
 		assertTrue("sponsored member must have flag 'sponsored' set",sponsoredMember.isSponsored());
 		assertTrue("sponsored member should have status VALID",sponsoredMember.getStatus()==Status.VALID);
@@ -1523,7 +1544,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		nameOfUser1.put("lastName", "Morgan");
 		nameOfUser1.put("titleBefore", "prof. RNDr.");
 		nameOfUser1.put("titleAfter", "Ph.D.");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", null, sponsorUser, false);
 	}
 
 	@Test
@@ -1633,7 +1654,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		//create sponsored member
 		Map<String, String> nameOfUser1 = new HashMap<>();
 		nameOfUser1.put("guestName", "Ing. Jiří Novák, CSc.");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", null, sponsorUser, false);
 		assertNotNull("sponsored member must not be null", sponsoredMember);
 		assertTrue("sponsored memer must have flag 'sponsored' set", sponsoredMember.isSponsored());
 		assertTrue("sponsored member should have status VALID", sponsoredMember.getStatus() == Status.VALID);
@@ -1968,7 +1989,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
 		Map<String, String> nameOfUser1 = new HashMap<>();
 		nameOfUser1.put("guestName", "Ing. Petr Novák, CSc.");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", null, sponsorUser, false);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, sponsoredMember);
 		System.out.println(user);
 		List<Member> members = perun.getMembersManagerBl().findMembers(sess, createdVo, user.getFirstName(), true);
@@ -1996,7 +2017,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		//create sponsored member
 		Map<String, String> nameOfUser1 = new HashMap<>();
 		nameOfUser1.put("guestName", "Ing. Jiří Novák, CSc.");
-		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", sponsorUser, false);
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "secret", null, sponsorUser, false);
 		//Remove sponsor
 		perun.getMembersManagerBl().removeSponsor(sess, sponsoredMember, sponsorUser);
 		//refresh from DB
