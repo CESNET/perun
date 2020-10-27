@@ -1364,7 +1364,9 @@ public class MembersManagerEntry implements MembersManager {
 			attrsDef.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
 		}
 
-		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, getSponsoredMembers(sess, vo), attrsDef);
+		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess,
+			membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo)),
+			attrsDef);
 		richMembers = membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers, null, true);
 
 		return richMembers.stream()
