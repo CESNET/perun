@@ -120,6 +120,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	final static Logger log = LoggerFactory.getLogger(MembersManagerBlImpl.class);
 
 	private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+	private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 
 	private final MembersManagerImplApi membersManagerImpl;
 	private PerunBl perunBl;
@@ -2253,14 +2254,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
-		return createSponsoredMember(session, vo, namespace, name, password, sponsor, null, asyncValidation);
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
+		return createSponsoredMember(session, vo, namespace, name, password, email, sponsor, null, asyncValidation);
 	}
 
 	@Override
 	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
-		String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
+		String password, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
 
+		if (email != null && !Utils.emailPattern.matcher(email).matches()) {
+			throw new InternalErrorException("Email has an invalid format: " + email);
+		}
 		//create new user
 		User user;
 		if (name.containsKey("guestName")) {
@@ -2268,7 +2272,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		} else {
 			user = Utils.createUserFromNameMap(name);
 		}
+
 		User sponsoredUser = getPerunBl().getUsersManagerBl().createUser(session, user);
+
+		if (email != null) {
+			try {
+				Attribute mailAttr = getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_PREF_MAIL);
+
+				mailAttr.setValue(email);
+
+				getPerunBl().getAttributesManagerBl().setAttribute(session, user, mailAttr);
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		}
 
 		return setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, validityTo, asyncValidation);
 	}
@@ -2324,7 +2341,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			User user;
 			try {
 				user = perunBl.getUsersManagerBl().getUserByMember(sess,
-						createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, validityTo, asyncValidation));
+						createSponsoredMember(sess, vo, namespace, mapName, password, null, sponsor, validityTo, asyncValidation));
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
 				Map<String, String> statusWithLogin = new HashMap<>();

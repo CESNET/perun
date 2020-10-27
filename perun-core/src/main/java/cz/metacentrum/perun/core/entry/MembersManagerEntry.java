@@ -1165,7 +1165,7 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
-	                                        String password, User sponsor, LocalDate validityTo)
+	                                        String password, String email, User sponsor, LocalDate validityTo)
 			throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
 			ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
 			UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
@@ -1191,7 +1191,7 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 		//create the sponsored member
-		return membersManagerBl.getRichMember(session, membersManagerBl.createSponsoredMember(session, vo, namespace, name, password, sponsor, validityTo, true));
+		return membersManagerBl.getRichMember(session, membersManagerBl.createSponsoredMember(session, vo, namespace, name, password, email, sponsor, validityTo, true));
 	}
 
 	@Override

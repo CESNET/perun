@@ -1123,6 +1123,7 @@ public interface MembersManager {
 	 * @param namespace namespace for selecting password module
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password  password
+	 * @param email (optional) preferred email that will be set to the created user
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @return new Member in the Vo
@@ -1137,7 +1138,7 @@ public interface MembersManager {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException
 	 */
-	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
