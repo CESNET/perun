@@ -2471,9 +2471,15 @@ perun_policies:
     include_policies:
       - default_policy
 
-  sponsorMember_Member_User_LocalDate_policy:
+  sponsored-sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
-      - VOADMIN:
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  sponsor-sponsorMember_Member_User_LocalDate_policy:
+    policy_roles:
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -2535,9 +2541,15 @@ perun_policies:
     include_policies:
       - default_policy
 
-  removeSponsor_Member_User_policy:
+  sponsored-removeSponsor_Member_User_policy:
     policy_roles:
-      - VOADMIN: Vo
+      - SPONSORSHIP: Member
+    include_policies:
+      - default_policy
+
+  sponsor-removeSponsor_Member_User_policy:
+    policy_roles:
+      - SELF: User
     include_policies:
       - default_policy
 
