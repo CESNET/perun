@@ -1585,6 +1585,16 @@ public interface MembersManagerBl {
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user);
 
 	/**
+	 * Gets list of members that are sponsored by the user in all vos.
+	 *
+	 * @param sess perun session
+	 * @param user user sponsoring members
+	 * @return list of members sponsored by the user in VO
+	 * @throws InternalErrorException if given parameters are invalid
+	 */
+	List<Member> getSponsoredMembers(PerunSession sess, User user);
+
+	/**
 	 * Gets list of sponsored members of a VO.
 	 * @param sess session
 	 * @param vo virtual organization from which are the sponsored members chosen

@@ -92,6 +92,9 @@
 # Cabinet administrators and Perun administrators are able to delegate this role to other users,
 # but the role cannot be set to groups.
 #
+# SPONSORSHIP role that is set for all members who are sponsored by the principal. This role is not
+# explicitly saved in DB!!
+#
 # UNKNOWN exists, but it is not used in Perun.
 #
 
@@ -118,6 +121,7 @@ perun_roles:
   - TOPGROUPCREATOR
   - SECURITYADMIN
   - CABINETADMIN
+  - SPONSORSHIP
   - UNKNOWN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
@@ -2440,6 +2444,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 
@@ -2447,6 +2452,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 
@@ -2454,6 +2460,7 @@ perun_policies:
     policy_roles:
       - VOADMIN: Vo
       - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 
@@ -2520,7 +2527,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
-      - SPONSOR: Member
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 

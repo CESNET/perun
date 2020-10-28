@@ -473,6 +473,16 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getSponsoredMembers(PerunSession sess, User sponsor) {
+		try {
+			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
+					"WHERE ms.active=? AND ms.sponsor_id=?", MEMBER_MAPPER, true, sponsor.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo) {
 		try {
 			return jdbc.query("SELECT DISTINCT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
