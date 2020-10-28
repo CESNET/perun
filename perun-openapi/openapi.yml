@@ -8041,7 +8041,7 @@ paths:
                 - sponsor
                 - namespace
               properties:
-                guestNames : { type: array, items: { type: string } }
+                guestNames : { type: array, items: { type: string }, description: "names of members to create, single name should have the format {firstName};{lastName} to be parsed well" }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }

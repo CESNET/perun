@@ -491,16 +491,25 @@ public class Utils {
 		return s.length() > limit ? s.substring(0, limit) : s;
 	}
 
-	public static User createUserFromNameMap(Map<String, String> name) {
+	public static User createUserFromNameMap(Map<String, String> name, boolean allowEmptyFirstName) {
 		User user = new User();
-		if (name.get(FIRST_NAME) == null || name.get(LAST_NAME) == null || name.get(FIRST_NAME).isEmpty() || name.get(LAST_NAME).isEmpty()) {
-			throw new InternalErrorException("First name/last name is either empty or null when creating user");
+		if (name.get(LAST_NAME) == null || name.get(LAST_NAME).isEmpty()) {
+			throw new InternalErrorException("Last name is either empty or null when creating user");
+		}
+		if (!allowEmptyFirstName && (name.get(FIRST_NAME) == null || name.get(FIRST_NAME).isEmpty())) {
+			throw new InternalErrorException("First name is either empty or null when creating user");
 		}
 		user.setTitleBefore(limit(name.get(TITLE_BEFORE),40));
-		user.setFirstName(limit(name.get(FIRST_NAME),64));
+		if (name.get(FIRST_NAME) != null) {
+			user.setFirstName(limit(name.get(FIRST_NAME),64));
+		}
 		user.setLastName(limit(name.get(LAST_NAME),64));
 		user.setTitleAfter(limit(name.get(TITLE_AFTER),40));
 		return user;
+	}
+
+	public static User createUserFromNameMap(Map<String, String> name) {
+		return createUserFromNameMap(name, false);
 	}
 
 	/**
