@@ -2442,7 +2442,6 @@ perun_policies:
 
   createSponsoredMember_Vo_String_Map<String_String>_String_User_LocalDate_policy:
     policy_roles:
-      - VOADMIN: Vo
       - SPONSOR: Vo
         SELF: User
     include_policies:
@@ -2450,7 +2449,6 @@ perun_policies:
 
   setSponsoredMember_Vo_User_String_String_User_LocalDate_policy:
     policy_roles:
-      - VOADMIN: Vo
       - SPONSOR: Vo
         SELF: User
     include_policies:
@@ -2458,7 +2456,6 @@ perun_policies:
 
   createSponsoredMembers_Vo_String_List<String>_User_policy:
     policy_roles:
-      - VOADMIN: Vo
       - SPONSOR: Vo
         SELF: User
     include_policies:
