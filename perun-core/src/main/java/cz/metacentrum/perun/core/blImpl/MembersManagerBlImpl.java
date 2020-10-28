@@ -43,6 +43,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
@@ -70,7 +71,10 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -2300,8 +2304,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	                                 String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException {
 		//check that sponsoring user has role SPONSOR for the VO
 		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
-			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+			try {
+				if (!AuthzResolver.authorizedToManageRole(session, vo, Role.SPONSOR)) {
+					throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+				}
+				// if the principal is Authorized to set the Sponsor role, set it
+				AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
+			} catch (AlreadyAdminException | RoleCannotBeManagedException | RoleManagementRulesNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
 		}
+
 		String loginAttributeName = PasswordManagerModule.LOGIN_PREFIX + namespace;
 		String attributeValue = getAttributeValueAsString (session, userToBeSponsored, loginAttributeName);
 
@@ -2445,6 +2458,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user) {
 		return getMembersManagerImpl().getSponsoredMembers(sess, vo, user);
+	}
+
+	@Override
+	public List<Member> getSponsoredMembers(PerunSession sess, User user) {
+		return getMembersManagerImpl().getSponsoredMembers(sess, user);
 	}
 
 	@Override
