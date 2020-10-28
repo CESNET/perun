@@ -573,10 +573,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			if (extSource instanceof ExtSourceApi) {
 				//get first subject, then create candidate
 				Map<String, String> subject = ((ExtSourceSimpleApi) extSource).getSubjectByLogin(login);
-				candidate = (getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, extSource, login));
+				candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, extSource, login));
 			} else if (extSource instanceof ExtSourceSimpleApi) {
 				// get candidates from external source by login
-				candidate = (getPerunBl().getExtSourcesManagerBl().getCandidate(sess, extSource, login));
+				candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, extSource, login));
 			}
 		} catch (CandidateNotExistsException | SubjectNotExistsException ex) {
 			throw new InternalErrorException("Can't find candidate for login " + login + " in extSource " + extSource, ex);

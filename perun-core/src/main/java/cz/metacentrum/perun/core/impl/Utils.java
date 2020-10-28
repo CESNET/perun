@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -30,9 +31,12 @@ import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import org.apache.commons.codec.binary.Base64;
@@ -158,8 +162,8 @@ public class Utils {
 	 * @return List<UserExtSource> all additional ExtSources from the subject, returned list will never contain null value
 	 * @throws InternalErrorException
 	 */
-	public static List<UserExtSource> extractAdditionalUserExtSources(PerunSession sess, Map<String, String> subjectFromExtSource) {
-		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
+	public static List<RichUserExtSource> extractAdditionalUserExtSources(PerunSession sess, Map<String, String> subjectFromExtSource) {
+		List<RichUserExtSource> additionalUserExtSources = new ArrayList<>();
 		for (String attrName : subjectFromExtSource.keySet()) {
 			if(attrName != null &&
 				subjectFromExtSource.get(attrName) != null &&
@@ -176,7 +180,9 @@ public class Utils {
 
 				String additionalExtSourceName = userExtSourceRaw[0];
 				String additionalExtSourceType = userExtSourceRaw[1];
-				String additionalExtLogin = userExtSourceRaw[2];
+				String[] additionalExtLoginAndAttribute = userExtSourceRaw[2].split(",");
+				String additionalExtLogin = additionalExtLoginAndAttribute[0];
+
 				int additionalExtLoa = 0;
 				// Loa is not mandatory argument
 				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
@@ -206,8 +212,25 @@ public class Utils {
 							throw new ConsistencyErrorException("Creating existing extSource: " + additionalExtSourceName);
 						}
 					}
+					UserExtSource userExtSource = new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin);
+
+					List<Attribute> attributes = new ArrayList<>();
+					// Set ues attribute
+					if (additionalExtLoginAndAttribute.length == 2) {
+						String[] uesAttribute = additionalExtLoginAndAttribute[1].split("=");
+						try {
+							Attribute attribute = new Attribute(sess.getPerun().getAttributesManager().getAttributeDefinition(sess, uesAttribute[0]), uesAttribute[1]);
+							attributes.add(attribute);
+						} catch (AttributeNotExistsException e) {
+							log.error("User with login {} has invalid attribute for userExtSource defined as {} with value {}.", login, uesAttribute[0], uesAttribute[1]);
+						}
+					} else if (additionalExtLoginAndAttribute.length > 2) {
+						log.error("User with login {} has invalid attributes for userExtSource defined as {}.", login, additionalExtLoginAndAttribute);
+					}
+
+					RichUserExtSource richUserExtSource = new RichUserExtSource(userExtSource, attributes);
 					// Add additional user extSource
-					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
+					additionalUserExtSources.add(richUserExtSource);
 				}
 			}
 		}

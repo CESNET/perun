@@ -9,10 +9,12 @@ import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceRemove
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
+import cz.metacentrum.perun.core.api.CandidateSync;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -38,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -208,7 +211,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws CandidateNotExistsException, ExtSourceUnsupportedOperationException {
+	public CandidateSync getCandidate(PerunSession sess, ExtSource source, String login) throws CandidateNotExistsException, ExtSourceUnsupportedOperationException {
 		// Get the subject from the extSource
 		Map<String, String> subject;
 		try {
@@ -225,51 +228,48 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) {
+	public CandidateSync getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) {
 		if(login == null || login.isEmpty()) throw new InternalErrorException("Login can't be empty or null.");
 		if(subjectData == null || subjectData.isEmpty()) throw new InternalErrorException("Subject data can't be null or empty, at least login there must exists.");
 
 		// New Canddate
-		Candidate candidate = new Candidate();
+		CandidateSync candidateSync = new CandidateSync();
 
 		// Prepare userExtSource object
 		UserExtSource userExtSource = new UserExtSource();
 		userExtSource.setExtSource(source);
 		userExtSource.setLogin(login);
 
-		// Set the userExtSource
-		candidate.setUserExtSource(userExtSource);
-
 		//If first name of candidate is not in format of name, set null instead
-		candidate.setFirstName(subjectData.get("firstName"));
-		if(candidate.getFirstName() != null) {
-			Matcher name = namePattern.matcher(candidate.getFirstName());
-			if(!name.matches()) candidate.setFirstName(null);
+		candidateSync.setFirstName(subjectData.get("firstName"));
+		if(candidateSync.getFirstName() != null) {
+			Matcher name = namePattern.matcher(candidateSync.getFirstName());
+			if(!name.matches()) candidateSync.setFirstName(null);
 		}
 		//If last name of candidate is not in format of name, set null instead
-		candidate.setLastName(subjectData.get("lastName"));
-		if(candidate.getLastName()!= null) {
-			Matcher name = namePattern.matcher(candidate.getLastName());
-			if(!name.matches()) candidate.setLastName(null);
+		candidateSync.setLastName(subjectData.get("lastName"));
+		if(candidateSync.getLastName()!= null) {
+			Matcher name = namePattern.matcher(candidateSync.getLastName());
+			if(!name.matches()) candidateSync.setLastName(null);
 		}
-		candidate.setMiddleName(subjectData.get("middleName"));
-		candidate.setTitleAfter(subjectData.get("titleAfter"));
-		candidate.setTitleBefore(subjectData.get("titleBefore"));
+		candidateSync.setMiddleName(subjectData.get("middleName"));
+		candidateSync.setTitleAfter(subjectData.get("titleAfter"));
+		candidateSync.setTitleBefore(subjectData.get("titleBefore"));
 
 		// Set service user
 		if(subjectData.get("isServiceUser") == null) {
-			candidate.setServiceUser(false);
+			candidateSync.setServiceUser(false);
 		} else {
 			String isServiceUser = subjectData.get("isServiceUser");
-			candidate.setServiceUser(isServiceUser.equals("true"));
+			candidateSync.setServiceUser(isServiceUser.equals("true"));
 		}
 
 		//Set sponsored user
 		if(subjectData.get("isSponsoredUser") == null) {
-			candidate.setSponsoredUser(false);
+			candidateSync.setSponsoredUser(false);
 		} else {
 			String isSponsoredUser = subjectData.get("isSponsoredUser");
-			candidate.setSponsoredUser(isSponsoredUser.equals("true"));
+			candidateSync.setSponsoredUser(isSponsoredUser.equals("true"));
 		}
 
 		// Filter attributes
@@ -281,11 +281,13 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				attributes.put(attrName, subjectData.get(attrName));
 			}
 		}
-		List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(perunSession, subjectData);
-		candidate.setAdditionalUserExtSources(additionalUserExtSources);
-		candidate.setAttributes(attributes);
 
-		return candidate;
+		List<RichUserExtSource> additionalUserExtSources = Arrays.asList(new RichUserExtSource(userExtSource, new ArrayList<>()));
+		additionalUserExtSources.addAll(Utils.extractAdditionalUserExtSources(perunSession, subjectData));
+		candidateSync.setRichUserExtSources(additionalUserExtSources);
+		candidateSync.setAttributes(attributes);
+
+		return candidateSync;
 	}
 
 	@Override

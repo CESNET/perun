@@ -278,7 +278,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		if (!AuthzResolver.authorizedInternal(sess, "getCandidate_ExtSource_String_policy", source))
 			throw new PrivilegeException(sess, "getCandidate");
 
-		return getExtSourcesManagerBl().getCandidate(sess, source, login);
+		return new Candidate(getExtSourcesManagerBl().getCandidate(sess, source, login));
 	}
 
 	@Override
@@ -293,7 +293,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		if (!AuthzResolver.authorizedInternal(perunSession, "getCandidate_Map<String_String>_ExtSource_policy", source))
 			throw new PrivilegeException(perunSession, "getCandidate");
 
-		return getExtSourcesManagerBl().getCandidate(perunSession, subjectData, source, subjectData.get("login"));
+		return new Candidate(getExtSourcesManagerBl().getCandidate(perunSession, subjectData, source, subjectData.get("login")));
 	}
 
 	@Override

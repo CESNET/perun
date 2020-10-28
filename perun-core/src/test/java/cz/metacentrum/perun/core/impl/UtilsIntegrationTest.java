@@ -1,9 +1,12 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -15,6 +18,8 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -227,10 +232,32 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin);
 		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2);
 
-		List<UserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
 		assertEquals(list.size(), 2);
-		assertTrue(list.contains(userExtSource2));
-		assertTrue(list.contains(userExtSource));
+		assertTrue(list.contains(new RichUserExtSource(userExtSource2, new ArrayList<>())));
+		assertTrue(list.contains(new RichUserExtSource(userExtSource, new ArrayList<>())));
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesWithAttributeTest() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSources");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin + ",urn:perun:ues:attribute-def:def:eppn=" + extLogin);
+		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2 + ",urn:perun:ues:attribute-def:def:eppn=" + extLogin2);
+
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition.setFriendlyName("eppn");
+		attributeDefinition.setDescription("login value");
+		attributeDefinition.setType(String.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		System.out.println(list);
+		assertEquals(list.size(), 2);
+		assertTrue(list.contains(new RichUserExtSource(userExtSource2, Arrays.asList(new Attribute(attributeDefinition, extLogin2)))));
+		assertTrue(list.contains(new RichUserExtSource(userExtSource, Arrays.asList(new Attribute(attributeDefinition, extLogin)))));
 	}
 
 	@Test
