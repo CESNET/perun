@@ -1182,7 +1182,8 @@ public interface MembersManager {
 	 * @param session perun session
 	 * @param vo vo for members
 	 * @param namespace namespace for selecting password module
-	 * @param names a list of names
+	 * @param names names of members to create, single name should have the format {firstName};{lastName} to be
+	 *              parsed well
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @return map of names to map of status, login and password

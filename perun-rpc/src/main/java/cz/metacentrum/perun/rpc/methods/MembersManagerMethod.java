@@ -240,7 +240,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
 	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
 	 *
-	 * @param guestNames List<String> identification of sponsored accounts, e.g. "John Doe" or "conference member 1"
+	 * @param guestNames List<String> names of members to create, single name should have the format
+	 *                                {firstName};{lastName} to be parsed well
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID

@@ -1542,7 +1542,8 @@ public interface MembersManagerBl {
 	 * @param session perun session
 	 * @param vo virtual organization to created sponsored members in
 	 * @param namespace used for selecting external system in which guest user account will be created
-	 * @param names full names of members to create
+	 * @param names names of members to create, single name should have the format {firstName};{lastName} to be
+	 *              parsed well
 	 * @param sponsor sponsoring user
 	 * @param asyncValidation switch for easier testing
 	 * @return map of names to map of status, login and password

@@ -1529,8 +1529,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 
 	@Test(expected=InternalErrorException.class)
-	public void createSponsoredMemberUsingSeparatedNameMissingFirstNameFail() throws Exception {
-		System.out.println(CLASS_NAME + "createSponsoredMemberUsingSeparatedName");
+	public void createSponsoredMemberUsingSeparatedNameMissingLastNameFail() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMemberUsingSeparatedNameMissingLastNameFail");
 		//create user in group sponsors with role SPONSOR
 		Member sponsorMember = setUpSponsor(createdVo);
 		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
@@ -1541,7 +1541,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		//create guest
 		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
 		Map<String, String> nameOfUser1 = new HashMap<>();
-		nameOfUser1.put("lastName", "Morgan");
+		nameOfUser1.put("firstName", "Morgan");
 		nameOfUser1.put("titleBefore", "prof. RNDr.");
 		nameOfUser1.put("titleAfter", "Ph.D.");
 		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", nameOfUser1, "TB", null, sponsorUser, false);
@@ -1582,6 +1582,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 			assertNotNull("login should not be null", loginAndPassword.get(name).get("login"));
 			assertNotNull("password should not be null", loginAndPassword.get(name).get("password"));
 		}
+	}
+
+	@Test
+	public void createSponsoredMembersParseSemicolon() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMembersParseSemicolon");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+
+		String firstName = "John";
+		String lastName = "Doe1";
+
+		//create guests
+		Map<String, Map<String, String>> loginAndPassword = perun.getMembersManagerBl().createSponsoredMembers(sess,
+				createdVo, "dummy", Collections.singletonList(firstName + ";" + lastName), sponsorUser, null, false);
+
+		assertThat(loginAndPassword).hasSize(1);
+
+		extSource = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
+		UserExtSource ues = new UserExtSource(extSource,
+				loginAndPassword.values().iterator().next().get("login") + "@dummy");
+
+		User createdUser = perun.getUsersManagerBl().getUserByUserExtSource(sess, ues);
+		assertThat(createdUser.getFirstName()).isEqualTo(firstName);
+		assertThat(createdUser.getLastName()).isEqualTo(lastName);
 	}
 
 	@Test

@@ -2270,7 +2270,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if (name.containsKey("guestName")) {
 			user = Utils.parseUserFromCommonName(name.get("guestName"), true);
 		} else {
-			user = Utils.createUserFromNameMap(name);
+			user = Utils.createUserFromNameMap(name, true);
 		}
 
 		User sponsoredUser = getPerunBl().getUsersManagerBl().createUser(session, user);
@@ -2333,10 +2333,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
 		for (String name : names) {
-			// generate random password
-			String password = module.generateRandomPassword(sess, null);
 			Map<String, String> mapName = new HashMap<>();
-			mapName.put("guestName", name);
+			if (name.contains(";")) {
+				String[] split = name.split(";", 2);
+				mapName.put("firstName", split[0]);
+				mapName.put("lastName", split[1]);
+			} else {
+				mapName.put("guestName", name);
+			}
+
+			String password = module.generateRandomPassword(sess, null);
+
 			// create sponsored member
 			User user;
 			try {
