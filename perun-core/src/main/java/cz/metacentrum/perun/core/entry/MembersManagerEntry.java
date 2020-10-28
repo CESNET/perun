@@ -1284,7 +1284,8 @@ public class MembersManagerEntry implements MembersManager {
 		log.debug("sponsorMember(sponsored={},sponsor={}", sponsored.getId(), sponsor.getId());
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "sponsorMember_Member_User_LocalDate_policy", sponsored)) {
+		if (!AuthzResolver.authorizedInternal(session, "sponsored-sponsorMember_Member_User_LocalDate_policy", sponsored) ||
+		    !AuthzResolver.authorizedInternal(session, "sponsor-sponsorMember_Member_User_LocalDate_policy", sponsor)) {
 			throw new PrivilegeException(session, "sponsorMember");
 		}
 		//create the link between sponsored and sponsoring users
@@ -1404,7 +1405,8 @@ public class MembersManagerEntry implements MembersManager {
 		Vo vo = membersManagerBl.getMemberVo(sess, sponsoredMember);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "removeSponsor_Member_User_policy", sponsoredMember)) {
+		if (!AuthzResolver.authorizedInternal(sess, "sponsored-removeSponsor_Member_User_policy", sponsoredMember) ||
+		    !AuthzResolver.authorizedInternal(sess, "sponsor-removeSponsor_Member_User_policy", sponsorToRemove)) {
 			throw new PrivilegeException(sess, "removeSponsor");
 		}
 
