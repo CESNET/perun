@@ -294,6 +294,15 @@ public interface MembersManagerImplApi {
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor);
 
 	/**
+	 * Gets members sponsored by the given user in all vos.
+	 *
+	 * @param sess perun session
+	 * @param sponsor sponsoring user
+	 * @return list of members sponsored by the given user
+	 */
+	List<Member> getSponsoredMembers(PerunSession sess, User sponsor);
+
+	/**
 	 * Gets list of sponsored members of a VO.
 	 * @param sess session
 	 * @param vo virtual organization from which are the sponsored members chosen

@@ -1511,6 +1511,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					roles.putAuthzRole(Role.SERVICEUSER);
 				}
 			}
+
+			setAdditionalRoles(sess, roles);
+
 			sess.getPerunPrincipal().setRoles(roles);
 		}
 
@@ -1528,8 +1531,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				sess.getPerunPrincipal().getRoles().clear();
 			}
 		}
+
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
+	}
+
+	/**
+	 * Set additional roles that are not explicitly saved in DB. If the principal
+	 * user is null, nothing is set.
+	 *
+	 * @param sess session
+	 * @param roles roles, where the roles are added
+	 */
+	private static void setAdditionalRoles(PerunSession sess, AuthzRoles roles) {
+		User principalUser = sess.getPerunPrincipal().getUser();
+		if (principalUser == null) {
+			return;
+		}
+
+		List<Member> sponsoredMembers = perunBl.getMembersManagerBl().getSponsoredMembers(sess, principalUser);
+		for (Member sponsoredMember : sponsoredMembers) {
+			roles.putAuthzRole(Role.SPONSORSHIP, sponsoredMember);
+		}
 	}
 
 	/**
