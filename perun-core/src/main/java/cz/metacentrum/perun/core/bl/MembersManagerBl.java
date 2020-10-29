@@ -1438,7 +1438,8 @@ public interface MembersManagerBl {
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password password
-	 * @param email (optional) preferred email that will be set to the created user
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user
 	 * @param asyncValidation
 	 * @return created member
@@ -1462,7 +1463,8 @@ public interface MembersManagerBl {
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password password
-	 * @param email (optional) preferred email that will be set to the created user
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @param asyncValidation
@@ -1544,11 +1546,13 @@ public interface MembersManagerBl {
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param names names of members to create, single name should have the format {firstName};{lastName} to be
 	 *              parsed well
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user
 	 * @param asyncValidation switch for easier testing
 	 * @return map of names to map of status, login and password
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo, boolean asyncValidation);
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean asyncValidation);
 
 	/**
 	 * Links sponsored member and sponsoring user.

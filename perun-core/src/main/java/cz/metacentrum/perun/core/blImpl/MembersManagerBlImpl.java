@@ -126,6 +126,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
 	private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 
+	private static final String NO_REPLY_EMAIL = "no-reply@muni.cz";
+
 	private final MembersManagerImplApi membersManagerImpl;
 	private PerunBl perunBl;
 
@@ -2266,7 +2268,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
 		String password, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
 
-		if (email != null && !Utils.emailPattern.matcher(email).matches()) {
+		if (email == null) {
+			email = NO_REPLY_EMAIL;
+		}
+		if (!Utils.emailPattern.matcher(email).matches()) {
 			throw new InternalErrorException("Email has an invalid format: " + email);
 		}
 		//create new user
@@ -2341,7 +2346,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo, boolean asyncValidation) {
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) {
 		Map<String, Map<String, String>> result = new HashMap<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
@@ -2361,7 +2366,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			User user;
 			try {
 				user = perunBl.getUsersManagerBl().getUserByMember(sess,
-						createSponsoredMember(sess, vo, namespace, mapName, password, null, sponsor, validityTo, asyncValidation));
+						createSponsoredMember(sess, vo, namespace, mapName, password, email, sponsor, validityTo, asyncValidation));
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
 				Map<String, String> statusWithLogin = new HashMap<>();

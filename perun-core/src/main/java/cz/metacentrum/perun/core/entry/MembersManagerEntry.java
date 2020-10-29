@@ -1223,7 +1223,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo) throws PrivilegeException {
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo) throws PrivilegeException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");
@@ -1240,7 +1240,7 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// create sponsored members
-		return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, sponsor, validityTo, true);
+		return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, email, sponsor, validityTo, true);
 	}
 
 	@Override

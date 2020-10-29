@@ -115,7 +115,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
-	 * @param email String email that will be set to the created user
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @return RichMember newly created sponsored member
 	 */
 	/*#
@@ -132,7 +133,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
-	 * @param email String email that will be set to the created user
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember newly created sponsored member
 	 */
@@ -245,6 +247,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
 	 */
@@ -258,6 +262,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			if (params.contains("validityTo")) {
 				validityTo = params.readLocalDate("validityTo");
 			}
+			String email = null;
+			if (params.contains("email")) {
+				email = params.readString("email");
+			}
 			User sponsor = null;
 			if(params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
@@ -268,7 +276,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value: 'guestNames' must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, sponsor, validityTo);
+			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo);
 		}
 	},
 

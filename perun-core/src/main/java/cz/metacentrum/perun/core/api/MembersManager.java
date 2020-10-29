@@ -1123,7 +1123,8 @@ public interface MembersManager {
 	 * @param namespace namespace for selecting password module
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password  password
-	 * @param email (optional) preferred email that will be set to the created user
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @return new Member in the Vo
@@ -1184,12 +1185,14 @@ public interface MembersManager {
 	 * @param namespace namespace for selecting password module
 	 * @param names names of members to create, single name should have the format {firstName};{lastName} to be
 	 *              parsed well
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @return map of names to map of status, login and password
 	 * @throws PrivilegeException
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo) throws PrivilegeException;
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo) throws PrivilegeException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
