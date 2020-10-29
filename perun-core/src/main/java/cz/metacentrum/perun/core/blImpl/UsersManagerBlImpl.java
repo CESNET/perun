@@ -58,6 +58,8 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -1918,14 +1920,17 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
+	public void checkPasswordResetRequestIsValid(PerunSession sess, User user, String m) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		int requestId = Integer.parseInt(Utils.cipherInput(m, true));
+
+		getUsersManagerImpl().checkPasswordResetRequestIsValid(sess, user, requestId);
+	}
+
+	@Override
+	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 
 		String requestId = Utils.cipherInput(m, true);
-		Pair<String,String> resetRequest = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
-
-		if (resetRequest == null) {
-			throw new InternalErrorException("Password reset request is not valid anymore or doesn't existed at all for User: "+user);
-		}
+		Pair<String,String> resetRequest = getUsersManagerImpl().loadPasswordResetRequest(sess, user, Integer.parseInt(requestId));
 
 		String namespace = resetRequest.getLeft();
 		String mail = resetRequest.getRight();

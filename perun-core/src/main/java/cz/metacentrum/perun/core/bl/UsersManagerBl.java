@@ -31,6 +31,8 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -1301,6 +1303,18 @@ public interface UsersManagerBl {
 	User convertUserEmptyStringsInObjectAttributesIntoNull(User user);
 
 	/**
+	 * Checks if the password reset request link is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param sess PerunSession
+	 * @param user user to check request for
+	 * @param m encrypted request id
+	 * @throws PasswordResetLinkExpiredException when the reset link expired
+	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
+	 */
+	void checkPasswordResetRequestIsValid(PerunSession sess, User user, String m) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
 	 * Changes user password in defined login-namespace using encrypted parameters.
 	 *
 	 * @param sess     PerunSession
@@ -1313,9 +1327,11 @@ public interface UsersManagerBl {
 	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
 	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
 	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throws PasswordResetLinkExpiredException when the password reset request expired
+	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
 	 */
 	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang)
-			throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
+		throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
 	/**
 	 * Get count of all users.
