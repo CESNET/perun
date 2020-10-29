@@ -46,13 +46,13 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName", "writable"})
 	private interface AttributeDefinitionMixIn {}
 
-	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType"})
+	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType", "uuid"})
 	private interface UserMixIn {}
 
-	@JsonIgnoreProperties({"beanName"})
+	@JsonIgnoreProperties({"beanName", "uuid"})
 	private interface PerunBeanMixIn {}
 
-	@JsonIgnoreProperties({"userExtSources"})
+	@JsonIgnoreProperties({"userExtSources", "uuid"})
 	private interface CandidateMixIn {}
 
 	@JsonIgnoreProperties({"name"})
@@ -61,8 +61,11 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
 	private interface DestinationMixIn {}
 
-	@JsonIgnoreProperties({"shortName", "beanName"})
+	@JsonIgnoreProperties({"shortName", "beanName", "uuid"})
 	private interface GroupMixIn {}
+
+	@JsonIgnoreProperties({"beanName", "uuid"})
+	private interface ResourceMixIn {}
 
 	@JsonIgnoreProperties({"persistent","beanName"})
 	private interface UserExtSourceMixIn {}
@@ -107,6 +110,7 @@ public class JsonDeserializer extends Deserializer {
 		mixinMap.put(PerunException.class, PerunExceptionMixIn.class);
 		mixinMap.put(Destination.class, DestinationMixIn.class);
 		mixinMap.put(Group.class, GroupMixIn.class);
+		mixinMap.put(Resource.class, ResourceMixIn.class);
 		mixinMap.put(UserExtSource.class, UserExtSourceMixIn.class);
 
 		mixinMap.put(Application.class, PerunBeanMixIn.class);
