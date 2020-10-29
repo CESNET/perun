@@ -4880,6 +4880,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
+      - SPONSOR:
     include_policies:
       - default_policy
 
@@ -4895,6 +4896,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -4912,6 +4914,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
+      - SPONSOR:
     include_policies:
       - default_policy
 
@@ -4950,6 +4953,7 @@ perun_policies:
       - VOADMIN: Vo
       - PERUNOBSERVER:
       - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -4968,6 +4972,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
