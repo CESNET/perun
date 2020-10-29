@@ -8046,6 +8046,7 @@ paths:
                 sponsor: { type: integer }
                 namespace: { type: string }
                 validityTo: { type: string }
+                email: { type: string }
 
   /json/membersManager/createSpecificMember:
     post:
