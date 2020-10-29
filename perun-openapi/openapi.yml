@@ -8141,6 +8141,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/sendPasswordResetLinkEmail:
+    post:
+      tags:
+        - MembersManager
+      operationId: sendPasswordResetLinkEmail
+      summary: Send mail to user's preferred email address with link for non-authz password reset. Correct authz information is stored in link's URL.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/namespace'
+        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail"}
+        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
