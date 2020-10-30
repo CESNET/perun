@@ -7,12 +7,10 @@ import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceDelete
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceRemovedFromGroup;
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceRemovedFromVo;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
 import cz.metacentrum.perun.core.api.CandidateSync;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
@@ -282,9 +280,8 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			}
 		}
 
-		List<RichUserExtSource> additionalUserExtSources = Arrays.asList(new RichUserExtSource(userExtSource, new ArrayList<>()));
-		additionalUserExtSources.addAll(Utils.extractAdditionalUserExtSources(perunSession, subjectData));
-		candidateSync.setRichUserExtSources(additionalUserExtSources);
+		candidateSync.setRichUserExtSource(new RichUserExtSource(userExtSource, new ArrayList<>()));
+		candidateSync.setAdditionalRichUserExtSources(Utils.extractAdditionalUserExtSources(perunSession, subjectData));
 		candidateSync.setAttributes(attributes);
 
 		return candidateSync;

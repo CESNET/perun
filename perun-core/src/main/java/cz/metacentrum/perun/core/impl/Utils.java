@@ -82,6 +82,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -216,16 +217,19 @@ public class Utils {
 
 					List<Attribute> attributes = new ArrayList<>();
 					// Set ues attribute
-					if (additionalExtLoginAndAttribute.length == 2) {
-						String[] uesAttribute = additionalExtLoginAndAttribute[1].split("=");
-						try {
-							Attribute attribute = new Attribute(sess.getPerun().getAttributesManager().getAttributeDefinition(sess, uesAttribute[0]), uesAttribute[1]);
-							attributes.add(attribute);
-						} catch (AttributeNotExistsException e) {
-							log.error("User with login {} has invalid attribute for userExtSource defined as {} with value {}.", login, uesAttribute[0], uesAttribute[1]);
+					if (additionalExtLoginAndAttribute.length > 1) {
+						List<String> uesAttributesWithValues =  new LinkedList<>();
+						uesAttributesWithValues.addAll(Arrays.asList(additionalExtLoginAndAttribute));
+						uesAttributesWithValues.remove(0);
+						for (String uesAttributeWithValue : uesAttributesWithValues) {
+							String[] uesAttribute = uesAttributeWithValue.split("=");
+							try {
+								Attribute attribute = new Attribute(sess.getPerun().getAttributesManager().getAttributeDefinition(sess, uesAttribute[0]), uesAttribute[1]);
+								attributes.add(attribute);
+							} catch (AttributeNotExistsException e) {
+								log.error("User with login {} has invalid attribute for userExtSource defined as {} with value {}.", login, uesAttribute[0], uesAttribute[1]);
+							}
 						}
-					} else if (additionalExtLoginAndAttribute.length > 2) {
-						log.error("User with login {} has invalid attributes for userExtSource defined as {}.", login, additionalExtLoginAndAttribute);
 					}
 
 					RichUserExtSource richUserExtSource = new RichUserExtSource(userExtSource, attributes);

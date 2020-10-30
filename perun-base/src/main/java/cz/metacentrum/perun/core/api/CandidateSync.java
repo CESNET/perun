@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,7 +12,8 @@ import java.util.stream.Collectors;
  */
 public class CandidateSync extends User {
 
-	private List<RichUserExtSource> richUserExtSources;
+	private RichUserExtSource richUserExtSource;
+	private List<RichUserExtSource> additionalRichUserExtSources;
 	private Map<String, String> attributes;
 
 	public CandidateSync() {
@@ -26,8 +28,19 @@ public class CandidateSync extends User {
 		this.setServiceUser(candidate.isServiceUser());
 		this.setSponsoredUser(candidate.isSponsoredUser());
 		setAttributes(candidate.getAttributes());
-		setRichUserExtSources(candidate.getUserExtSources().stream().map(extSource ->
-			new RichUserExtSource(extSource, new ArrayList<>())).collect(Collectors.toList()));
+		setRichUserExtSource(new RichUserExtSource(candidate.getUserExtSource(), new ArrayList<>()));
+		if (candidate.getAdditionalUserExtSources() != null) {
+			setAdditionalRichUserExtSources(candidate.getAdditionalUserExtSources().stream().map(extSource ->
+				new RichUserExtSource(extSource, new ArrayList<>())).collect(Collectors.toList()));
+		}
+	}
+
+	public RichUserExtSource getRichUserExtSource() {
+		return richUserExtSource;
+	}
+
+	public void setRichUserExtSource(RichUserExtSource richUserExtSource) {
+		this.richUserExtSource = richUserExtSource;
 	}
 
 	public Map<String, String> getAttributes() {
@@ -38,12 +51,23 @@ public class CandidateSync extends User {
 		this.attributes = attributes;
 	}
 
-	public List<RichUserExtSource> getRichUserExtSources() {
-		return richUserExtSources;
+	public List<RichUserExtSource> getAdditionalRichUserExtSources() {
+		return additionalRichUserExtSources;
 	}
 
-	public void setRichUserExtSources(List<RichUserExtSource> richUserExtSources) {
-		this.richUserExtSources = richUserExtSources;
+	public void setAdditionalRichUserExtSources(List<RichUserExtSource> additionalRichUserExtSources) {
+		this.additionalRichUserExtSources = additionalRichUserExtSources;
+	}
+
+	public List<RichUserExtSource> getUserExtSources() {
+		List<RichUserExtSource> userExtSources = new ArrayList<>();
+		if (this.richUserExtSource != null) {
+			userExtSources.add(this.richUserExtSource);
+		}
+		if (this.additionalRichUserExtSources != null) {
+			userExtSources.addAll(this.additionalRichUserExtSources);
+		}
+		return Collections.unmodifiableList(userExtSources);
 	}
 
 	@Override
@@ -53,7 +77,7 @@ public class CandidateSync extends User {
 		result = prime * result
 			+ ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result
-			+ ((richUserExtSources == null) ? 0 : richUserExtSources.hashCode());
+			+ ((additionalRichUserExtSources == null) ? 0 : additionalRichUserExtSources.hashCode());
 		return result;
 	}
 
@@ -76,8 +100,8 @@ public class CandidateSync extends User {
 		} else if (!attributes.equals(other.attributes)) {
 			return false;
 		}
-		if (richUserExtSources == null) {
-			return other.richUserExtSources == null;
-		} else return richUserExtSources.equals(other.richUserExtSources);
+		if (additionalRichUserExtSources == null) {
+			return other.additionalRichUserExtSources == null;
+		} else return additionalRichUserExtSources.equals(other.additionalRichUserExtSources);
 	}
 }

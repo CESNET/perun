@@ -62,9 +62,12 @@ public class Candidate extends User {
 		this.setSponsoredUser(candidateSync.isSponsoredUser());
 
 		attributes = candidateSync.getAttributes();
-		List<UserExtSource> listOfUes = new ArrayList<>();
-		candidateSync.getRichUserExtSources().forEach(richUserExtSource -> listOfUes.add(richUserExtSource.asUserExtSource()));
-		additionalUserExtSources = listOfUes;
+		userExtSource = candidateSync.getRichUserExtSource().asUserExtSource();
+		if (candidateSync.getAdditionalRichUserExtSources() != null) {
+			List<UserExtSource> listOfUes = new ArrayList<>();
+			candidateSync.getAdditionalRichUserExtSources().forEach(richUserExtSource -> listOfUes.add(richUserExtSource.asUserExtSource()));
+			additionalUserExtSources = listOfUes;
+		}
 	}
 
 	public UserExtSource getUserExtSource() {
