@@ -21,6 +21,8 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
@@ -1246,30 +1248,49 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public Pair<String,String> loadPasswordResetRequest(User user, int requestId) {
+	public void checkPasswordResetRequestIsValid(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		this.checkAndGetPasswordResetRequest(user, requestId);
+	}
 
-		int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
-
+	private Pair<String, String> checkAndGetPasswordResetRequest(User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 		try {
+			int numberOfRequests = jdbc.queryForInt("select count(1) from pwdreset where user_id=? and id=?", user.getId(), requestId);
+			if (numberOfRequests == 0) {
+				throw new PasswordResetLinkNotValidException("Password request " + requestId + " doesn't exist.");
+			} else if (numberOfRequests > 1) {
+				throw new ConsistencyErrorException("Password reset request " + requestId + " exists more than once.");
+			}
+
+			int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
+
 			Pair<String,String> result;
 			if (Compatibility.isPostgreSql()) {
-
 				result = jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
 					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
-
 			} else {
-
 				result =  jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
 					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
 			}
 
-			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);
 			return result;
-
 		} catch (EmptyResultDataAccessException ex) {
-			return null;
+			throw new PasswordResetLinkExpiredException("Password reset request " + requestId + " has already expired.");
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Pair<String,String> loadPasswordResetRequest(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		Pair<String,String> result = this.checkAndGetPasswordResetRequest(user, requestId);
+
+		try {
+			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 
+		return result;
 	}
 
 	@Override

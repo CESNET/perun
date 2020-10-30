@@ -1028,6 +1028,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
+	 * Checks if the password reset request link is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param i String first encrypted parameter
+	 * @param m String second encrypted parameter
+	 * @throw PasswordResetLinkExpiredException When the password reset request expired
+	 * @throw PasswordResetLinkNotValidException When the password reset request was already used or has never existed
+	 */
+	checkPasswordResetRequestIsValid {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("i"), parms.readString("m"));
+
+			return null;
+		}
+	},
+	/*#
 	 * Changes user's password in namespace based on encrypted input parameters.
 	 *
 	 * @param i String first encrypted parameter
@@ -1037,6 +1054,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
 	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throw PasswordResetLinkExpiredException When the password reset request expired
+	 * @throw PasswordResetLinkNotValidException When the password reset request was already used or has never existed
 	 */
 	changeNonAuthzPassword {
 		@Override
