@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -14,29 +16,22 @@ import java.util.Objects;
  */
 public class GenDataNode {
 
-	private final List<String> hashes;
-	private final List<GenDataNode> children;
-	private final List<GenMemberDataNode> members;
+	private final Map<Integer, GenDataNode> children;
+	private final Map<Integer, Integer> members;
 
-	private GenDataNode(List<String> hashes, List<GenDataNode> children, List<GenMemberDataNode> members) {
-		this.hashes = hashes;
+	private GenDataNode(Map<Integer, GenDataNode> children, Map<Integer, Integer> members) {
 		this.children = children;
 		this.members = members;
 	}
 
-	@JsonProperty("h")
-	public List<String> getHashes() {
-		return Collections.unmodifiableList(hashes);
-	}
-
 	@JsonProperty("c")
-	public List<GenDataNode> getChildren() {
-		return Collections.unmodifiableList(children);
+	public Map<Integer, GenDataNode> getChildren() {
+		return Collections.unmodifiableMap(children);
 	}
 
 	@JsonProperty("m")
-	public List<GenMemberDataNode> getMembers() {
-		return Collections.unmodifiableList(members);
+	public Map<Integer, Integer> getMembers() {
+		return Collections.unmodifiableMap(members);
 	}
 
 	@Override
@@ -44,39 +39,36 @@ public class GenDataNode {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		GenDataNode that = (GenDataNode) o;
-		return Objects.equals(hashes, that.hashes) &&
-				Objects.equals(children, that.children) &&
+		return Objects.equals(children, that.children) &&
 				Objects.equals(members, that.members);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(hashes, children, members);
+		return Objects.hash(children, members);
 	}
 
 	public static class Builder {
 
-		private List<String> hashes = new ArrayList<>();
-		private List<GenDataNode> children = new ArrayList<>();
-		private List<GenMemberDataNode> members = new ArrayList<>();
+		private Map<Integer, GenDataNode> children = new HashMap<>();
+		private Map<Integer, Integer> members = new HashMap<>();
 
-		public Builder hashes(List<String> hashes) {
-			this.hashes = hashes;
+		public Builder hashes() {
 			return this;
 		}
 
-		public Builder children(List<GenDataNode> children) {
+		public Builder children(Map<Integer, GenDataNode> children) {
 			this.children = children;
 			return this;
 		}
 
-		public Builder members(List<GenMemberDataNode> members) {
+		public Builder members(Map<Integer, Integer> members) {
 			this.members = members;
 			return this;
 		}
 
 		public GenDataNode build() {
-			return new GenDataNode(hashes, children, members);
+			return new GenDataNode(children, members);
 		}
 	}
 }
