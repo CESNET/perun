@@ -7229,6 +7229,31 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		attributes.put(attr, rights);
 
+		//urn:perun:vo:attribute-def:def:applicationExpirationRules
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Application expiration rules");
+		attr.setFriendlyName("applicationExpirationRules");
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setDescription("Set of rules to determine date of application (to vo) expiration. If not set, application will not be auto rejected.");
+		attr.setType(LinkedHashMap.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:applicationExpirationRules
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Application expiration rules");
+		attr.setFriendlyName("applicationExpirationRules");
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setDescription("Set of rules to determine date of application (to group) expiration. If not set, application will not be auto rejected.");
+		attr.setType(LinkedHashMap.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
 		//urn:perun:member:group:attribute-def:def:groupMembershipExpiration
 		attr = new AttributeDefinition();
 		attr.setDisplayName("Group membership expiration");

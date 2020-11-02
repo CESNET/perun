@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -39,6 +40,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Synchronizer;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,9 +82,13 @@ public class ExpirationNotifScheduler {
 	private PerunBl perun;
 	private JdbcPerunTemplate jdbc;
 
+	private RegistrarManager registrarManager;
+
 	private final DateTimeFormatter lastAccessFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private static final String A_VO_MEMBERSHIP_EXP_RULES = "urn:perun:vo:attribute-def:def:membershipExpirationRules";
+	private static final String A_VO_APP_EXP_RULES = "urn:perun:vo:attribute-def:def:applicationExpirationRules";
+	private static final String A_GROUP_APP_EXP_RULES = "urn:perun:group:attribute-def:def:applicationExpirationRules";
 
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
@@ -101,6 +107,11 @@ public class ExpirationNotifScheduler {
 
 	public ExpirationNotifScheduler() {
 	}
+
+	public RegistrarManager getRegistrarManager() { return registrarManager; }
+
+	@Autowired
+	public void setRegistrarManager(RegistrarManager registrarManager) { this.registrarManager = registrarManager; }
 
 	/**
 	 * Constructor for unit tests
@@ -321,6 +332,20 @@ public class ExpirationNotifScheduler {
 			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace.", e);
 		}
 
+		// check applications expiration in vos
+		try {
+			voApplicationsAutoRejection(vos);
+		} catch(InternalErrorException | PerunException e){
+			log.error("Synchronizer: voApplicationsAutoRejection", e);
+		}
+
+		// check applications expiration in groups
+		try {
+			groupApplicationsAutoRejection(vos);
+		} catch (InternalErrorException | PerunException e){
+			log.error("Synchronizer: groupApplicationsAutoRejection", e);
+		}
+
 		log.debug("Processing checkMemberState() on (to be) expired members DONE!");
 
 	}
@@ -355,6 +380,101 @@ public class ExpirationNotifScheduler {
 		expireMembers(today);
 		validateMembers(today);
 		expireSponsorships();
+	}
+
+	/**
+	 * Checks all applications for given vos and if some application is expired (according to expiration rules set by
+	 * VO Manager), then rejects this application.
+	 *
+	 * @param vos virtual organizations
+	 * @throws PerunException
+	 */
+	private void voApplicationsAutoRejection(List<Vo> vos) throws PerunException {
+		List<String> states = new ArrayList<>();
+		states.add("NEW");
+		states.add("VERIFIED");
+
+		for (Vo vo : vos) {
+			Attribute expiration = perun.getAttributesManagerBl().getAttribute(sess, vo, A_VO_APP_EXP_RULES);
+			if (expiration.getValue() != null) {
+				List<Application> applications = registrarManager.getApplicationsForVo(sess, vo, states);
+				rejectExpiredApplications(applications, expiration);
+			}
+		}
+	}
+
+	/**
+	 * Gets all existing groups and then checks all applications for this groups and if some application is expired
+	 * (according to expiration rules set by VO Manager), then rejects this application.
+	 *
+	 * @param vos virtual organizations
+	 * @throws PerunException
+	 */
+	private void groupApplicationsAutoRejection(List<Vo> vos) throws PerunException {
+		List<String> states = new ArrayList<>();
+		states.add("NEW");
+		states.add("VERIFIED");
+
+		List<Group> groups = new ArrayList<>();
+		for (Vo vo : vos) {
+			groups.addAll(perun.getGroupsManagerBl().getGroups(sess, vo));
+		}
+
+		for (Group group : groups) {
+			Attribute expiration = perun.getAttributesManagerBl().getAttribute(sess, group, A_GROUP_APP_EXP_RULES);
+			if (expiration.getValue() != null) {
+				List<Application> applications = registrarManager.getApplicationsForGroup(sess, group, states);
+				rejectExpiredApplications(applications, expiration);
+			}
+		}
+	}
+
+	/**
+	 * Compares date of last modification of application to values in expiration attribute and if finds expired application, then
+	 * rejects it.
+	 *
+	 * @param applications applications
+	 * @param expiration attribute with number of days to application expiration
+	 */
+	private void rejectExpiredApplications (List<Application> applications, Attribute expiration) {
+		Map<String, String> attrValue = expiration.valueAsMap();
+		for(Application application : applications) {
+			String date = application.getModifiedAt();
+			LocalDate modifiedAt = LocalDate.parse(date.substring(0, 10));
+			LocalDate now = getCurrentLocalDate();
+			if (application.getState() == Application.AppState.NEW) {
+				int expirationAppWaitingForEmail = Integer.parseInt(attrValue.get("emailVerification"));
+				if (now.minusDays(expirationAppWaitingForEmail).isAfter(modifiedAt)) {
+					try {
+						if (application.getGroup() == null) {
+							registrarManager.rejectApplication(sess, application.getId(), "Your application to VO " +
+								application.getVo().getName() + " was auto rejected, because you didn't verify your email address.");
+						} else {
+							registrarManager.rejectApplication(sess, application.getId(), "Your application to group " +
+								application.getGroup().getName() + " was auto rejected, because you didn't verify your email address.");
+						}
+					} catch (PerunException e) {
+						log.error("Failed to reject expired application: {}", application, e);
+					}
+					continue;
+				}
+			}
+			int expirationAppIgnoredByAdmin = Integer.parseInt(attrValue.get("ignoredByAdmin"));
+			if (now.minusDays(expirationAppIgnoredByAdmin).isAfter(modifiedAt)) {
+				try {
+					if (application.getGroup() == null) {
+						registrarManager.rejectApplication(sess, application.getId(), "Your application to VO " +
+							application.getVo().getName() + " was auto rejected, because admin didn't approve your application in a timely manner." +
+							"in ");
+					} else {
+						registrarManager.rejectApplication(sess, application.getId(), "Your application to group " +
+							application.getGroup().getName() + " was auto rejected, because admin didn't approve your application in a timely manner.");
+					}
+				} catch (PerunException e) {
+					log.error("Failed to reject expired application: {}", application, e);
+				}
+			}
+		}
 	}
 
 	/**
