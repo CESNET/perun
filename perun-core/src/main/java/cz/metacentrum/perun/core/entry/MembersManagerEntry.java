@@ -1297,6 +1297,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 
+		//Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_User_List<String>_policy", Arrays.asList(vo, user))) {
 			throw new PrivilegeException(sess, "getSponsoredMembers");
 		}
@@ -1306,8 +1307,12 @@ public class MembersManagerEntry implements MembersManager {
 			attributeDefinitions.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
 		}
 
+		//Filter members based on authorization
+		List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo, user).stream()
+			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_User_List<String>_policy", member, vo))
+			.collect(Collectors.toList());
 		//Basic rich Members without attributes
-		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo, user));
+		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
 		//Enriched rich members with attributes by list of attributes
 		richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, richMembers, attributeDefinitions);
 		//RichMembers with filtered attributes by rights from session
@@ -1330,7 +1335,12 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getSponsoredMembers");
 		}
 
-		return membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo, user));
+		//Filter members based on authorization
+		List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo, user).stream()
+			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_User_policy", member, vo))
+			.collect(Collectors.toList());
+
+		return membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
 	}
 
 	@Override
@@ -1345,7 +1355,12 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getSponsoredMembers");
 		}
 
-		return membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo));
+		//Filter members based on authorization
+		List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo).stream()
+			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_policy", member, vo))
+			.collect(Collectors.toList());
+
+		return membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
 	}
 
 	@Override

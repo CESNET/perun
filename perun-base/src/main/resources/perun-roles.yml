@@ -2491,6 +2491,19 @@ perun_policies:
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  filter-getSponsoredMembers_Vo_User_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
@@ -2502,6 +2515,19 @@ perun_policies:
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  filter-getSponsoredMembers_Vo_User_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
@@ -2513,6 +2539,19 @@ perun_policies:
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  filter-getSponsoredMembers_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
