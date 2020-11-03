@@ -655,6 +655,24 @@ public class VosManagerEntry implements VosManager {
 		return vosManagerBl.getBansForVo(sess, voId);
 	}
 
+	@Override
+	public void convertSponsoredUsers(PerunSession sess, Vo vo) throws PrivilegeException {
+		if (!AuthzResolver.authorizedInternal(sess, "default_policy")) {
+			throw new PrivilegeException("convertSponsoredUsers");
+		}
+
+		vosManagerBl.convertSponsoredUsers(sess, vo);
+	}
+
+	@Override
+	public void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor) throws PrivilegeException {
+		if (!AuthzResolver.authorizedInternal(sess, "default_policy")) {
+			throw new PrivilegeException("convertSponsoredUsersWithNewSponsor");
+		}
+
+		vosManagerBl.convertSponsoredUsersWithNewSponsor(sess, vo, newSponsor);
+	}
+
 	/**
 	 * Gets the perunBl for this instance.
 	 *

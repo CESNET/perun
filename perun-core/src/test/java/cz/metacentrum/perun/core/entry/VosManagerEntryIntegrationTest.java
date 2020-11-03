@@ -7,7 +7,10 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -20,6 +23,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -501,6 +505,70 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		List<BanOnVo> voBans = vosManagerEntry.getBansForVo(sess, createdVo.getId());
 
 		assertThat(voBans).containsOnly(ban);
+	}
+
+	@Test
+	public void convertSponsoredUsers() throws Exception {
+		System.out.println(CLASS_NAME + "convertSponsoredUsers");
+
+		myVo = vosManagerEntry.createVo(sess, myVo);
+
+		User user = new User(-1, "Sponsored", "User", "", "", "");
+		user.setSponsoredUser(true);
+		User sponsor1 = new User(-1, "Sponsor 1", "", "", "", "");
+		User sponsor2 = new User(-1, "Sponsor 2", "", "", "", "");
+
+		user = perun.getUsersManagerBl().createUser(sess, user);
+		sponsor1 = perun.getUsersManagerBl().createUser(sess, sponsor1);
+		sponsor2 = perun.getUsersManagerBl().createUser(sess, sponsor2);
+
+		perun.getUsersManagerBl().addSpecificUserOwner(sess, sponsor1, user);
+		perun.getUsersManagerBl().addSpecificUserOwner(sess, sponsor2, user);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, myVo, user);
+
+		perun.getVosManager().convertSponsoredUsers(sess, myVo);
+
+		List<MemberWithSponsors> sponsoredMembersAndTheirSponsors = perun.getMembersManager()
+				.getSponsoredMembersAndTheirSponsors(sess, myVo, Collections.emptyList());
+
+		assertThat(sponsoredMembersAndTheirSponsors).hasSize(1);
+		Member sponsoredMember = sponsoredMembersAndTheirSponsors.get(0).getMember();
+		List<Sponsor> sponsors = sponsoredMembersAndTheirSponsors.get(0).getSponsors();
+		assertThat(sponsoredMember).isEqualTo(member);
+		assertThat(sponsors).contains(new Sponsor(new RichUser(sponsor1, Collections.emptyList())));
+		assertThat(sponsors).contains(new Sponsor(new RichUser(sponsor2, Collections.emptyList())));
+	}
+
+	@Test
+	public void convertSponsoredUsersWithNewSponsor() throws Exception {
+		System.out.println(CLASS_NAME + "convertSponsoredUsersWithNewSponsor");
+
+		myVo = vosManagerEntry.createVo(sess, myVo);
+
+		User user = new User(-1, "Sponsored", "User", "", "", "");
+		user.setSponsoredUser(true);
+		User originalSponsor = new User(-1, "Sponsor 1", "", "", "", "");
+		User newSponsor = new User(-1, "Sponsor 2", "", "", "", "");
+
+		user = perun.getUsersManagerBl().createUser(sess, user);
+		originalSponsor = perun.getUsersManagerBl().createUser(sess, originalSponsor);
+		newSponsor = perun.getUsersManagerBl().createUser(sess, newSponsor);
+
+		perun.getUsersManagerBl().addSpecificUserOwner(sess, originalSponsor, user);
+
+		Member member = perun.getMembersManagerBl().createMember(sess, myVo, user);
+
+		perun.getVosManager().convertSponsoredUsersWithNewSponsor(sess, myVo, newSponsor);
+
+		List<MemberWithSponsors> sponsoredMembersAndTheirSponsors = perun.getMembersManager()
+				.getSponsoredMembersAndTheirSponsors(sess, myVo, Collections.emptyList());
+
+		assertThat(sponsoredMembersAndTheirSponsors).hasSize(1);
+		Member sponsoredMember = sponsoredMembersAndTheirSponsors.get(0).getMember();
+		List<Sponsor> sponsors = sponsoredMembersAndTheirSponsors.get(0).getSponsors();
+		assertThat(sponsoredMember).isEqualTo(member);
+		assertThat(sponsors).contains(new Sponsor(new RichUser(newSponsor, Collections.emptyList())));
 	}
 
 	// private methods ------------------------------------------------------------------
