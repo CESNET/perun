@@ -907,9 +907,7 @@ public class Utils {
 	 */
 	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content, String customUrlPath) {
 
-		// create mail sender
-		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		mailSender.setHost("localhost");
+		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
 
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
