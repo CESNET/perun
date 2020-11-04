@@ -71,7 +71,7 @@ public class JsonDeserializer extends Deserializer {
 	private interface UserExtSourceMixIn {}
 
 	@SuppressWarnings("unused")
-	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName", "suspended"})
+	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName", "suspended", "suspendedTo"})
 	private interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);
