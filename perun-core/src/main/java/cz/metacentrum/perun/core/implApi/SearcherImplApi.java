@@ -154,4 +154,18 @@ public interface SearcherImplApi {
 	 * @throws InternalErrorException internal error
 	 */
 	List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues, boolean allowPartialMatchForString);
+
+	/**
+	 * Gets VOs ids for potential application auto rejection.
+	 *
+	 * @return VOs ids
+	 */
+	List<Integer> getVosIdsForAppAutoRejection();
+
+	/**
+	 * Gets groups ids for potential application auto rejection.
+	 *
+	 * @return groups ids
+	 */
+	List<Integer> getGroupsIdsForAppAutoRejection();
 }

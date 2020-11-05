@@ -38,6 +38,11 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<bean id="expirationNotifScheduler" class="cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler" init-method="initialize">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="perun" ref="perun"/>
+	</bean>
+
+	<bean id="appAutoRejectionScheduler" class="cz.metacentrum.perun.registrar.impl.AppAutoRejectionScheduler" init-method="initialize">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="perun" ref="perun"/>
 		<property name="registrarManager" ref="registrarManager"/>
 	</bean>
 

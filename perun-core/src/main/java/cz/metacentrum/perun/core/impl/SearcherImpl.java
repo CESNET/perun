@@ -159,6 +159,24 @@ public class SearcherImpl implements SearcherImplApi {
 		}
 	}
 
+	@Override
+	public List<Integer> getVosIdsForAppAutoRejection() {
+		String sql = "select distinct vos.id from vos join application on vos.id=application.vo_id join vo_attr_values " +
+			"on vos.id=vo_attr_values.vo_id join attr_names on attr_names.id=vo_attr_values.attr_id " +
+			"where application.state in ('NEW', 'VERIFIED') and (attr_names.friendly_name= 'applicationExpirationRules' " +
+			"and attr_names.namespace= 'urn:perun:vo:attribute-def:def')";
+		return jdbcTemplate.queryForList(sql, Integer.class);
+	}
+
+	@Override
+	public List<Integer> getGroupsIdsForAppAutoRejection() {
+		String sql = "select distinct groups.id from groups join application on groups.id=application.group_id join group_attr_values " +
+			"on groups.id=group_attr_values.group_id join attr_names on attr_names.id=group_attr_values.attr_id " +
+			"where application.state in ('NEW', 'VERIFIED') and (attr_names.friendly_name= 'applicationExpirationRules' " +
+			"and attr_names.namespace= 'urn:perun:group:attribute-def:def')";
+		return jdbcTemplate.queryForList(sql, Integer.class);
+	}
+
 	/**
 	 * Generates into given query 'WHERE' clauses based on values from
 	 * given Map. Into given parameters adds objects needed in generated clauses.
