@@ -224,7 +224,7 @@ public class Utils {
 						for (String uesAttributeWithValue : uesAttributesWithValues) {
 							String[] uesAttribute = uesAttributeWithValue.split("=");
 							try {
-								Attribute attribute = new Attribute(sess.getPerun().getAttributesManager().getAttributeDefinition(sess, uesAttribute[0]), uesAttribute[1]);
+								Attribute attribute = new Attribute(sess.getPerun().getAttributesManager().getAttributeDefinition(sess, uesAttribute[0]), getAttributeValueFromString(uesAttribute[1]));
 								attributes.add(attribute);
 							} catch (AttributeNotExistsException e) {
 								log.error("User with login {} has invalid attribute for userExtSource defined as {} with value {}.", login, uesAttribute[0], uesAttribute[1]);
@@ -239,6 +239,21 @@ public class Utils {
 			}
 		}
 		return additionalUserExtSources;
+	}
+
+	/**
+	 * Splits attribute value by ";" and returns list of string values or single string if no ";" occurres.
+	 *
+	 * @param attributeValue unsplitted attribute value
+	 * @return splitted attribute value to list of string or single string
+	 */
+	private static Object getAttributeValueFromString(String attributeValue) {
+		String[] separatedValue = attributeValue.split(";");
+		if (separatedValue.length == 1) {
+			return attributeValue;
+		} else {
+			return Arrays.asList(separatedValue);
+		}
 	}
 
 	/**

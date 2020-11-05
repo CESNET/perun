@@ -243,7 +243,8 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		System.out.println("Utils.extractAdditionalUserExtSources");
 
 		Map<String, String> map = new HashMap<>();
-		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin + ",urn:perun:ues:attribute-def:def:eppn=" + extLogin);
+		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin + ",urn:perun:ues:attribute-def:def:eppn=" + extLogin
+			+ ",urn:perun:ues:attribute-def:def:eppnList=" + extLogin + ";" + extLogin2);
 		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2 + ",urn:perun:ues:attribute-def:def:eppn=" + extLogin2);
 
 		AttributeDefinition attributeDefinition = new AttributeDefinition();
@@ -253,11 +254,17 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		attributeDefinition.setType(String.class.getName());
 		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
 
+		AttributeDefinition attributeDefinition2 = new AttributeDefinition();
+		attributeDefinition2.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition2.setFriendlyName("eppnList");
+		attributeDefinition2.setDescription("login value as list");
+		attributeDefinition2.setType(ArrayList.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition2);
+
 		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
-		System.out.println(list);
 		assertEquals(list.size(), 2);
 		assertTrue(list.contains(new RichUserExtSource(userExtSource2, Arrays.asList(new Attribute(attributeDefinition, extLogin2)))));
-		assertTrue(list.contains(new RichUserExtSource(userExtSource, Arrays.asList(new Attribute(attributeDefinition, extLogin)))));
+		assertTrue(list.contains(new RichUserExtSource(userExtSource, Arrays.asList(new Attribute(attributeDefinition, extLogin), new Attribute(attributeDefinition2, Arrays.asList(extLogin, extLogin2))))));
 	}
 
 	@Test

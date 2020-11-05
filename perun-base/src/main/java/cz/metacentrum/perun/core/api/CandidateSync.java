@@ -77,7 +77,7 @@ public class CandidateSync extends User {
 		result = prime * result
 			+ ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result
-			+ ((additionalRichUserExtSources == null) ? 0 : additionalRichUserExtSources.hashCode());
+			+ ((getUserExtSources() == null) ? 0 : getUserExtSources().hashCode());
 		return result;
 	}
 
@@ -100,8 +100,8 @@ public class CandidateSync extends User {
 		} else if (!attributes.equals(other.attributes)) {
 			return false;
 		}
-		if (additionalRichUserExtSources == null) {
-			return other.additionalRichUserExtSources == null;
-		} else return additionalRichUserExtSources.equals(other.additionalRichUserExtSources);
+		if (getUserExtSources() == null) {
+			return other.getUserExtSources() == null;
+		} else return getUserExtSources().equals(other.getUserExtSources());
 	}
 }
