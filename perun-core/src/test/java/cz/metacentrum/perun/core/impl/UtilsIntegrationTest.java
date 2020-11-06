@@ -239,13 +239,53 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	public void extractAdditionalUserExtSourcesTestWithEmptyValue() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesTestWithEmptyValue");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_a", extSourceName + "||" + extLogin + "|2");
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 0);
+	}
+
+	@Test(expected = InternalErrorException.class)
+	public void extractAdditionalUserExtSourcesTestWithNotEnoughValues() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesTestWithNotEnoughValues");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_a", extSourceName);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 0);
+	}
+
+	@Test
 	public void extractAdditionalUserExtSourcesWithAttributeTest() throws Exception {
-		System.out.println("Utils.extractAdditionalUserExtSources");
+		System.out.println("Utils.extractAdditionalUserExtSourcesWithAttributeTest");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2 + ";urn:perun:ues:attribute-def:def:eppn=" + extLogin2 + "|2");
+
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition.setFriendlyName("eppn");
+		attributeDefinition.setDescription("login value");
+		attributeDefinition.setType(String.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 1);
+		assertTrue(list.contains(new RichUserExtSource(userExtSource2, Arrays.asList(new Attribute(attributeDefinition, extLogin2)))));
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesWithAttributeListTest() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesWithAttributeTest");
 
 		Map<String, String> map = new HashMap<>();
 		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin + ";urn:perun:ues:attribute-def:def:eppn=" + extLogin
 			+ ";urn:perun:ues:attribute-def:def:eppnList=" + extLogin + "," + extLogin2);
-		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2 + ";urn:perun:ues:attribute-def:def:eppn=" + extLogin2);
 
 		AttributeDefinition attributeDefinition = new AttributeDefinition();
 		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
@@ -262,9 +302,27 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition2);
 
 		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
-		assertEquals(list.size(), 2);
-		assertTrue(list.contains(new RichUserExtSource(userExtSource2, Arrays.asList(new Attribute(attributeDefinition, extLogin2)))));
+		assertEquals(list.size(), 1);
 		assertTrue(list.contains(new RichUserExtSource(userExtSource, Arrays.asList(new Attribute(attributeDefinition, extLogin), new Attribute(attributeDefinition2, Arrays.asList(extLogin, extLogin2))))));
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesWithAttributeWrongValueTest() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesWithAttributeWrongValueTest");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2 + ";urn:perun:ues:attribute-def:def:eppn");
+
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition.setFriendlyName("eppn");
+		attributeDefinition.setDescription("login value");
+		attributeDefinition.setType(String.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 1);
+		assertTrue(list.contains(new RichUserExtSource(userExtSource2, new ArrayList<>())));
 	}
 
 	@Test
