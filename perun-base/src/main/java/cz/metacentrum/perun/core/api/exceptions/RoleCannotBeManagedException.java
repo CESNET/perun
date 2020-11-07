@@ -16,6 +16,12 @@ public class RoleCannotBeManagedException extends PerunException {
 		this.entity = entity;
 	}
 
+	public RoleCannotBeManagedException(String role, Object complementaryObject) {
+		super("Combination of Role: "+ role +" and Object: "+ complementaryObject +" cannot be managed.");
+		this.role = role;
+		this.complementaryObject = complementaryObject;
+	}
+
 	public String getRole() {
 		return role;
 	}

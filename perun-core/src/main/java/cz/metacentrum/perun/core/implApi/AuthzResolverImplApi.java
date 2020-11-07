@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -547,4 +548,24 @@ public interface AuthzResolverImplApi {
 	 * @throws RoleNotSetException
 	 */
 	void unsetRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleNotSetException;
+
+	/**
+	 * Get all richUser administrators for complementary object and role with specified attributes.
+	 *
+	 * @param mappingOfValues from which will be the query created (keys are column names and values are their ids)
+	 * @param onlyDirectAdmins if we do not want to include also members of authorized groups.
+	 *
+	 * @return list of user administrators for complementary object and role with specified attributes.
+	 */
+	List<User> getAdmins(Map<String, Integer> mappingOfValues, boolean onlyDirectAdmins);
+
+
+	/**
+	 * Get all authorizedGroups for complementary object and role.
+	 *
+	 * @param mappingOfValues according to which will be the role selected
+	 *
+	 * @return list of authorizedGroups
+	 */
+	List<Group> getAdminGroups(Map<String, Integer> mappingOfValues);
 }

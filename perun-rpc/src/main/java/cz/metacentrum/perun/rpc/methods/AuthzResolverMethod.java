@@ -3,14 +3,17 @@ package cz.metacentrum.perun.rpc.methods;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Group;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.rpc.ApiCaller;
@@ -100,7 +103,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all managers for complementaryObject and role with specified attributes.
 	 *
-	 * @param role String Expected Role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
+	 * @param role String Expected Role to filter managers by
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
@@ -117,10 +120,21 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
 			}
 			roleName = roleName.toUpperCase();
+			int complementaryObjectId = parms.readInt("complementaryObjectId");
+			String complementaryObjectName = parms.readString("complementaryObjectName");
+
+			PerunBean bean = null;
+			try {
+				bean = (PerunBean) Class.forName("cz.metacentrum.perun.core.api." + complementaryObjectName).getConstructor().newInstance();
+				bean.setId(complementaryObjectId);
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+				throw new InternalErrorException(e);
+			} catch (ClassNotFoundException e) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Object with name " + complementaryObjectName + " does not exist.");
+			}
 
 			return cz.metacentrum.perun.core.api.AuthzResolver.getRichAdmins(ac.getSession(),
-							parms.readInt("complementaryObjectId"),
-							parms.readString("complementaryObjectName"),
+							bean,
 							parms.readList("specificAttributes", String.class),
 							roleName,
 							parms.readBoolean("onlyDirectAdmins"),
@@ -131,7 +145,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all groups of managers (authorizedGroups) for complementaryObject and role.
 	 *
-	 * @param role String Expected Role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
+	 * @param role String Expected Role to filter authorizedGroups by
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get groups of managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @return List<Group> List of authorizedGroups for complementaryObject and role
@@ -145,10 +159,21 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + roleName + " does not exist.");
 			}
 			roleName = roleName.toUpperCase();
+			int complementaryObjectId = parms.readInt("complementaryObjectId");
+			String complementaryObjectName = parms.readString("complementaryObjectName");
+
+			PerunBean bean = null;
+			try {
+				bean = (PerunBean) Class.forName("cz.metacentrum.perun.core.api." + complementaryObjectName).getConstructor().newInstance();
+				bean.setId(complementaryObjectId);
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+				throw new InternalErrorException(e);
+			} catch (ClassNotFoundException e) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Object with name " + complementaryObjectName + " does not exist.");
+			}
 
 			return cz.metacentrum.perun.core.api.AuthzResolver.getAdminGroups(ac.getSession(),
-							parms.readInt("complementaryObjectId"),
-							parms.readString("complementaryObjectName"),
+							bean,
 							roleName);
 		}
 	},

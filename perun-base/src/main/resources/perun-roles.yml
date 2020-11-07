@@ -5819,15 +5819,21 @@ perun_roles_management:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
 
   PERUNOBSERVER:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
 
   VOADMIN:
     assign_to_objects:
@@ -5835,9 +5841,14 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   GROUPADMIN:
     assign_to_objects:
@@ -5846,10 +5857,17 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
 
   GROUPOBSERVER:
     assign_to_objects:
@@ -5858,15 +5876,23 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
 
   SELF:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   FACILITYADMIN:
     assign_to_objects:
@@ -5874,9 +5900,14 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
 
   FACILITYOBSERVER:
     assign_to_objects:
@@ -5884,9 +5915,14 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
 
   TRUSTEDFACILITYADMIN:
     assign_to_objects:
@@ -5894,9 +5930,14 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   RESOURCEADMIN:
     assign_to_objects:
@@ -5906,12 +5947,23 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - RESOURCEOBSERVER: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+      - VOOBSERVER: Vo
 
   RESOURCEOBSERVER:
     assign_to_objects:
@@ -5921,12 +5973,23 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - RESOURCEOBSERVER: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+      - VOOBSERVER: Vo
 
   RESOURCESELFSERVICE:
     assign_to_objects:
@@ -5936,37 +5999,53 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - RESOURCEOBSERVER: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+      - VOOBSERVER: Vo
 
   REGISTRAR:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   ENGINE:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   RPC:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   NOTIFICATIONS:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   SERVICEUSER:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   SPONSOR:
     assign_to_objects:
@@ -5974,9 +6053,14 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   VOOBSERVER:
     assign_to_objects:
@@ -5984,9 +6068,14 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   TOPGROUPCREATOR:
     assign_to_objects:
@@ -5994,9 +6083,14 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   SECURITYADMIN:
     assign_to_objects:
@@ -6004,21 +6098,30 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+      - SECURITYADMIN: SecurityTeam
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
       - SECURITYADMIN: SecurityTeam
 
   CABINETADMIN:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+      - CABINETADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
       - CABINETADMIN:
 
   UNKNOWN:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
 ...

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -45,6 +46,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.GROUP_MAPPER;
+import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.groupMappingSelectQuery;
+import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPER;
+import static cz.metacentrum.perun.core.impl.UsersManagerImpl.userMappingSelectQuery;
 
 public class AuthzResolverImpl implements AuthzResolverImplApi {
 
@@ -854,6 +860,39 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	@Override
+	public List<User> getAdmins(Map<String, Integer> mappingOfValues, boolean onlyDirectAdmins) {
+		String query = prepareQueryToGetRichAdmins(mappingOfValues);
+
+		try {
+			Set<User> admins = new HashSet<>(jdbc.query(query, USER_MAPPER));
+
+			if (!onlyDirectAdmins) {
+				// Admins through a group
+				List<Group> listOfGroupAdmins = getAdminGroups(mappingOfValues);
+				for(Group authorizedGroup : listOfGroupAdmins) {
+					admins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
+						"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
+				}
+			}
+
+			return new ArrayList<>(admins);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getAdminGroups(Map<String, Integer> mappingOfValues) {
+		String query = prepareQueryToGetAdminGroups(mappingOfValues);
+
+		try {
+			return jdbc.query(query, GROUP_MAPPER);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	/**
 	 * Create query to set role according to the mapping of values
 	 *
@@ -869,12 +908,12 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		for (String columnName: mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
-				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to unset a role.");
+				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to manage role.");
 			}
 
 			Matcher matcher = columnNamesPattern.matcher(columnName);
 			if (!matcher.matches()) {
-				throw new InternalErrorException("Cannot create a query to set a role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
+				throw new InternalErrorException("Cannot create a query to manage role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
 			}
 			columnNames.add(columnName);
 			columnValues.add(mappingOfValues.get(columnName).toString());
@@ -893,25 +932,50 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	 * @return sql query
 	 */
 	private String prepareQueryToUnsetRole(Map<String, Integer> mappingOfValues) {
-		String mappingAsString;
+		String mappingAsString = prepareQueryString(mappingOfValues);
+
+		return "delete from authz where " + mappingAsString;
+	}
+
+	/**
+	 * Create query to read role according to the mapping of values
+	 *
+	 * @param mappingOfValues from which will be the query created
+	 * @return sql query
+	 */
+	private String prepareQueryToGetRichAdmins(Map<String, Integer> mappingOfValues) {
+		String mappingAsString = prepareQueryString(mappingOfValues);
+
+		return "select " + userMappingSelectQuery +
+			" from authz join users on authz.user_id=users.id" +
+			" where  " + mappingAsString;
+	}
+
+	private String prepareQueryToGetAdminGroups(Map<String, Integer> mappingOfValues) {
+		String mappingAsString = prepareQueryString(mappingOfValues);
+
+		return "select " + groupMappingSelectQuery +
+			" from authz join groups on authz.authorized_group_id=groups.id" +
+			" where  " + mappingAsString;
+	}
+
+	private String prepareQueryString(Map<String, Integer> mappingOfValues) {
 		List<String> listofConditions = new ArrayList<>();
 
 		for (String columnName: mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
-				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to set a role.");
+				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to manage role.");
 			}
 
 			Matcher matcher = columnNamesPattern.matcher(columnName);
 			if (!matcher.matches()) {
-				throw new InternalErrorException("Cannot create a query to unset a role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
+				throw new InternalErrorException("Cannot create a query to manage role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
 			}
 			String condition = columnName + "=" + mappingOfValues.get(columnName).toString();
 			listofConditions.add(condition);
 		}
 
-		mappingAsString = StringUtils.join(listofConditions, " and ");
-
-		return "delete from authz where " + mappingAsString;
+		return StringUtils.join(listofConditions, " and ");
 	}
 }
