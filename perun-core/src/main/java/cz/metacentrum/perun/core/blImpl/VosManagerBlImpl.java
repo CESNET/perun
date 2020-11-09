@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
@@ -33,11 +34,14 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
@@ -819,6 +823,94 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public boolean isMemberBanned(PerunSession sess, int memberId) {
 		return vosManagerImpl.isMemberBanned(sess, memberId);
+	}
+
+	@Override
+	public void convertSponsoredUsers(PerunSession sess, Vo vo) {
+		perunBl.getUsersManagerBl().getSpecificUsers(sess).stream()
+				.filter(User::isSponsoredUser)
+				.forEach(user -> convertToSponsoredMember(sess, user, vo));
+	}
+
+	@Override
+	public void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor) {
+		perunBl.getUsersManagerBl().getSpecificUsers(sess).stream()
+				.filter(User::isSponsoredUser)
+				.forEach(user -> convertToSponsoredMemberWithNewSponsor(sess, user, newSponsor, vo));
+	}
+
+	/**
+	 * Sponsor given user by the given newSponsor in the given vo. If the newSponsor doesn't have
+	 * the SPONSOR role, it will be set to him.
+	 *
+	 * @param sess session
+	 * @param user user to be sponsored
+	 * @param newSponsor new sponsor
+	 * @param vo vo where the given user will be sponsored
+	 */
+	private void convertToSponsoredMemberWithNewSponsor(PerunSession sess, User user, User newSponsor, Vo vo) {
+		try {
+			Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+
+			sponsorMemberByUser(sess, member, newSponsor, vo);
+		} catch (MemberNotExistsException e) {
+			// if the sponsored user is not member of the given vo, skip it
+		}
+	}
+
+	/**
+	 * Converts sponsored user to sponsored member in the given vo.
+	 * If the user is not member of the given vo, it is skipped.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param vo vo where the given user will be sponsored
+	 */
+	private void convertToSponsoredMember(PerunSession sess, User user, Vo vo) {
+		try {
+			Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+			List<User> owners = perunBl.getUsersManagerBl().getUsersBySpecificUser(sess, user);
+
+			for (User owner : owners) {
+				sponsorMemberByUser(sess, member, owner, vo);
+			}
+		} catch (MemberNotExistsException e) {
+			// if the sponsored user is not member of the given vo, skip it
+		}
+	}
+
+	/**
+	 * Sponsor the given member by the given sponsor in the given vo. If the
+	 * member is already sponsored, this method just adds the sponsor to the given member.
+	 * If the member is not sponsored at all, it will transform it into a sponsored one
+	 * with the given sponsor.
+	 *
+	 * @param sess session
+	 * @param member member to be sponsored
+	 * @param sponsor sponsor
+	 * @param vo vo where the member is sponsored
+	 */
+	private void sponsorMemberByUser(PerunSession sess, Member member, User sponsor, Vo vo) {
+		try {
+			if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsor, Role.SPONSOR, vo, true)) {
+				AuthzResolverBlImpl.setRole(sess, sponsor, vo, Role.SPONSOR);
+			}
+
+			// we need to refresh information and check if the member is already sponsored
+			member = perunBl.getMembersManagerBl().getMemberById(sess, member.getId());
+
+			if (member.isSponsored()) {
+				// if the member is already sponsored, just add another sponsor
+				perunBl.getMembersManagerBl().sponsorMember(sess, member, sponsor);
+			} else {
+				// if the member is not sponsored, transform him into a sponsored one
+				perunBl.getMembersManagerBl().setSponsorshipForMember(sess, member, sponsor);
+			}
+		} catch(AlreadySponsorException e) {
+			// if the user is already sponsoring the given member, just silently skip
+		} catch(PerunException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	private void removeSponsorFromSponsoredMembers(PerunSession sess, Vo vo, User user) {

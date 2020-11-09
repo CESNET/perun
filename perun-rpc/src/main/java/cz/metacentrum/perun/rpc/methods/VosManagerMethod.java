@@ -699,5 +699,37 @@ public enum VosManagerMethod implements ManagerMethod {
 			return ac.getVosManager().getBansForVo(ac.getSession(),
 					parms.readInt("vo"));
 		}
+	},
+
+	/*#
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. Original sponsors of the users will be set to the sponsored members.
+	 *
+	 * @param vo int vo id
+	 */
+	convertSponsoredUsers {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getVosManager().convertSponsoredUsers(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. The sponsored members will be sponsored by the given user, not by its
+	 * original sponsors.
+	 *
+	 * @param vo int vo where members will be converted
+	 * @param newSponsor int user, who will be set as a sponsor to the sponsored members
+	 */
+	convertSponsoredUsersWithNewSponsor {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getVosManager().convertSponsoredUsersWithNewSponsor(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
+			return null;
+		}
 	}
 }
