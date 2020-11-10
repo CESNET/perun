@@ -1,4 +1,4 @@
--- database version 3.1.69 (don't forget to update insert statement at the end of file)
+-- database version 3.1.70 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1401,7 +1401,8 @@ CREATE TABLE members_sponsored (
 	modified_by varchar default user not null,
 	modified_by_uid integer,
 	constraint memspons_mem_fk foreign key (sponsored_id) references members(id),
-  constraint memspons_usr_fk foreign key (sponsor_id) references users(id)
+  constraint memspons_usr_fk foreign key (sponsor_id) references users(id),
+  constraint memspons_mem_usr_u unique (sponsored_id, sponsor_id)
 );
 
 -- AUTHZ - assigned roles to users/groups/VOs/other entities...
@@ -1737,7 +1738,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.69');
+insert into configurations values ('DATABASE VERSION','3.1.70');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
