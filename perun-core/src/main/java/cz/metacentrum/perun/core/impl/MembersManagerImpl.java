@@ -365,13 +365,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor, LocalDate validityTo) throws AlreadyMemberException {
+	public Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor, LocalDate validityTo) throws AlreadyMemberException, AlreadySponsorException {
 		Member sponsoredMember = this.createMember(session, vo, sponsored);
 		return setSponsorshipForMember(session, sponsoredMember, sponsor, validityTo);
 	}
 
 	@Override
-	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) {
+	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsorException {
 		sponsoredMember.setSponsored(true);
 		try {
 			jdbc.update("UPDATE members SET sponsored="+Compatibility.getTrue()+" WHERE id=?", sponsoredMember.getId());
@@ -395,12 +395,12 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) {
+	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsorException {
 		addSponsor(session, sponsoredMember, sponsor, null);
 	}
 
 	@Override
-	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) {
+	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsorException {
 		try {
 			PerunPrincipal pp = session.getPerunPrincipal();
 
@@ -415,8 +415,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 						true, validityTo != null ? Timestamp.valueOf(validityTo.atStartOfDay()) : null, pp.getActor(),
 						pp.getUserId(), sponsoredMember.getId(), sponsor.getId());
 				} else { // if it exists and is active -> throw exception
-					throw new InternalErrorException(new AlreadySponsorException("member " + sponsoredMember.getId() +
-						" is already sponsored by user " + sponsor.getId()));
+					new AlreadySponsorException("member " + sponsoredMember.getId() + " is already sponsored by user " + sponsor.getId());
 				}
 			} catch (SponsorshipDoesNotExistException ex) {
 				// if sponsorship doesn't exist -> insert it

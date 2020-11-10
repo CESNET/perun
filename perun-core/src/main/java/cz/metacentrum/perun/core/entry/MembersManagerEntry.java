@@ -1167,7 +1167,7 @@ public class MembersManagerEntry implements MembersManager {
 	                                        String password, String email, User sponsor, LocalDate validityTo)
 			throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
 			ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
-			UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
+			UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");
@@ -1198,7 +1198,7 @@ public class MembersManagerEntry implements MembersManager {
 	                                     String password, User sponsor, LocalDate validityTo)
 		throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
 		ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
-		UserNotInRoleException, PasswordStrengthException, InvalidLoginException {
+		UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException {
 
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
@@ -1243,7 +1243,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException {
+	public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException, AlreadySponsorException {
 		Utils.checkPerunSession(session);
 		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
 
