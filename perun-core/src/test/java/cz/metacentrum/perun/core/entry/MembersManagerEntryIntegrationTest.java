@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -1672,6 +1673,13 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		perun.getMembersManager().setSponsorshipForMember(sess, memberToBeSponsored, sponsorUser, null);
 
+		try {
+			perun.getMembersManager().setSponsorshipForMember(sess, memberToBeSponsored, sponsorUser, null);
+			fail("member should be already sponsored");
+		} catch (AlreadySponsoredMemberException ex) {
+			//expected
+		}
+
 		Member newSponsoredMember = perun.getMembersManagerBl().getMemberById(sess, memberToBeSponsored.getId());
 		assertTrue("member should be sponsored now", newSponsoredMember.isSponsored());
 		assertEquals("there should be exactly 1 sponsor at this moment",1, perun.getUsersManagerBl().getSponsors(sess, newSponsoredMember).size());
@@ -1680,6 +1688,10 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		newSponsoredMember = perun.getMembersManagerBl().getMemberById(sess, memberToBeSponsored.getId());
 		assertTrue("member shouldn't be sponsored any more",!newSponsoredMember.isSponsored());
+
+		perun.getMembersManager().setSponsorshipForMember(sess, memberToBeSponsored, sponsorUser, null);
+		newSponsoredMember = perun.getMembersManagerBl().getMemberById(sess, memberToBeSponsored.getId());
+		assertTrue("member should be sponsored again", newSponsoredMember.isSponsored());
 	}
 
 	@Test
@@ -1728,6 +1740,15 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue("member is not in list of sponsored members for sponsor 1", sponsoredMembers1.stream().map(PerunBean::getId).anyMatch(id -> id == sponsoredMember.getId()));
 		List<RichMember> sponsoredMembers2 = perun.getMembersManager().getSponsoredMembers(sess, createdVo, sponsorUser2);
 		assertTrue("member is not in list of sponsored members for sponsor 2", sponsoredMembers2.stream().map(PerunBean::getId).anyMatch(id -> id == sponsoredMember.getId()));
+		//remove sponsor and add him again, sponsorship should reactivate
+		Sponsorship sponsorship = perun.getMembersManagerBl().getSponsorship(sess, sponsoredMember, sponsorUser);
+		assertTrue(sponsorship.isActive());
+		perun.getMembersManager().removeSponsor(sess, sponsoredMember, sponsorUser);
+		sponsorship = perun.getMembersManagerBl().getSponsorship(sess, sponsoredMember, sponsorUser);
+		assertFalse(sponsorship.isActive());
+		perun.getMembersManager().sponsorMember(sess, sponsoredMember, sponsorUser, null);
+		sponsorship = perun.getMembersManagerBl().getSponsorship(sess, sponsoredMember, sponsorUser);
+		assertTrue(sponsorship.isActive());
 	}
 
 	@Test

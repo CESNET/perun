@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
@@ -395,34 +396,45 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	@Override
 	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) {
-		try {
-			PerunPrincipal pp = session.getPerunPrincipal();
-			jdbc.update("INSERT INTO members_sponsored (active,sponsored_id,sponsor_id,created_by,created_at,created_by_uid,modified_by,modified_at,modified_by_uid) " +
-					"VALUES (?,?,?,?," + Compatibility.getSysdate() + ",?,?,"+ Compatibility.getSysdate() + ",?)" ,
-					true, sponsoredMember.getId(), sponsor.getId(), pp.getActor(), pp.getUserId(),pp.getActor(), pp.getUserId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
+		addSponsor(session, sponsoredMember, sponsor, null);
 	}
 
 	@Override
 	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) {
 		try {
 			PerunPrincipal pp = session.getPerunPrincipal();
-			jdbc.update("INSERT INTO members_sponsored (" +
-							"active," +
-							"sponsored_id," +
-							"sponsor_id," +
-							"created_by," +
-							"created_at," +
-							"created_by_uid," +
-							"modified_by," +
-							"modified_at," +
-							"modified_by_uid," +
-							"validity_to) " +
-					"VALUES (?,?,?,?," + Compatibility.getSysdate() + ",?,?,"+ Compatibility.getSysdate() + ",?,?)" ,
+
+			try {
+				// check if there exists sponsorship between sponsoredMember and sponsor
+				Sponsorship sponsorship = getSponsorship(session, sponsoredMember, sponsor);
+
+				// if it exists and is inactive -> update (reactivate) it
+				if (!sponsorship.isActive()) {
+					jdbc.update("UPDATE members_sponsored SET active=?, validity_to=?, modified_by=?, " +
+							"modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? WHERE sponsored_id=? AND sponsor_id=?",
+						true, validityTo != null ? Timestamp.valueOf(validityTo.atStartOfDay()) : null, pp.getActor(),
+						pp.getUserId(), sponsoredMember.getId(), sponsor.getId());
+				} else { // if it exists and is active -> throw exception
+					throw new InternalErrorException(new AlreadySponsorException("member " + sponsoredMember.getId() +
+						" is already sponsored by user " + sponsor.getId()));
+				}
+			} catch (SponsorshipDoesNotExistException ex) {
+				// if sponsorship doesn't exist -> insert it
+				jdbc.update("INSERT INTO members_sponsored (" +
+						"active," +
+						"sponsored_id," +
+						"sponsor_id," +
+						"created_by," +
+						"created_at," +
+						"created_by_uid," +
+						"modified_by," +
+						"modified_at," +
+						"modified_by_uid," +
+						"validity_to) " +
+						"VALUES (?,?,?,?," + Compatibility.getSysdate() + ",?,?," + Compatibility.getSysdate() + ",?,?)",
 					true, sponsoredMember.getId(), sponsor.getId(), pp.getActor(), pp.getUserId(), pp.getActor(),
 					pp.getUserId(), validityTo != null ? Timestamp.valueOf(validityTo.atStartOfDay()) : null);
+			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
