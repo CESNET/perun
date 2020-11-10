@@ -7,12 +7,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.Sponsor;
-import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -35,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -313,8 +312,9 @@ public interface MembersManagerBl {
 	 * @throws AlreadySponsoredMemberException if member was already flagged as sponsored
 	 * @throws UserNotInRoleException if sponsor has not right role in the member's VO
 	 * @throws InternalErrorException if something unexpected happened
+	 * @throws AlreadySponsorException sponsoredMember is already sponsored by User and his sponsorship is still active
 	 */
-	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsoredMemberException, UserNotInRoleException;
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsoredMemberException, UserNotInRoleException, AlreadySponsorException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
@@ -328,8 +328,9 @@ public interface MembersManagerBl {
 	 * @throws AlreadySponsoredMemberException if member was already flagged as sponsored
 	 * @throws UserNotInRoleException if sponsor has not right role in the member's VO
 	 * @throws InternalErrorException if something unexpected happened
+	 * @throws AlreadySponsorException sponsoredMember is already sponsored by User and his sponsorship is still active
 	 */
-	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsoredMemberException, UserNotInRoleException;
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsoredMemberException, UserNotInRoleException, AlreadySponsorException;
 
 	/**
 	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
@@ -1434,8 +1435,9 @@ public interface MembersManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException if the member is not in required role
+	 * @throws AlreadySponsorException
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates a new sponsored member.
@@ -1460,8 +1462,9 @@ public interface MembersManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException if the member is not in required role
+	 * @throws AlreadySponsorException
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1484,8 +1487,9 @@ public interface MembersManagerBl {
 	 * @throws PasswordCreationFailedException
 	 * @throws InvalidLoginException
 	 * @throws ExtSourceNotExistsException
+	 * @throws AlreadySponsorException
 	 */
-	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException;
+	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1508,8 +1512,9 @@ public interface MembersManagerBl {
 	 * @throws PasswordCreationFailedException
 	 * @throws InvalidLoginException
 	 * @throws ExtSourceNotExistsException
+	 * @throws AlreadySponsorException
 	 */
-	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException;
+	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
 
 	/**
 	 * Creates new sponsored members.

@@ -1138,8 +1138,9 @@ public interface MembersManager {
 	 * @throws ExtSourceNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException
+	 * @throws AlreadySponsorException
 	 */
-	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1165,8 +1166,9 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException
 	 * @throws PasswordStrengthException
 	 * @throws InvalidLoginException
+	 * @throws AlreadySponsorException
 	 */
-	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates new sponsored Members (with random generated passwords).
@@ -1208,9 +1210,10 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException if member with defined id not exists in system Perun
 	 * @throws AlreadySponsoredMemberException if member is already sponsored
 	 * @throws UserNotInRoleException if sponsor hasn't right role in the same vo
+	 * @throws AlreadySponsorException sponsoredMember is already sponsored by User and his sponsorship is still active
 	 * @throws PrivilegeException if not PerunAdmin
 	 */
-	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException;
+	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, AlreadySponsorException, PrivilegeException;
 
 	/**
 	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
