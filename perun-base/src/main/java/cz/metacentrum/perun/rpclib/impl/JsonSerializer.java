@@ -51,7 +51,7 @@ public final class JsonSerializer implements Serializer {
 	private static final JsonFactory jsonFactory = new JsonFactory();
 
 	static {
-		//FIXME odstraneno disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
+		//FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
 		//jsonFactory.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
 		jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT).setCodec(mapper);
 	}
@@ -67,7 +67,7 @@ public final class JsonSerializer implements Serializer {
 
 	@Override
 	public void write(Object object) throws IOException {
-		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 
 		if (object instanceof Throwable) {
 			throw new IllegalArgumentException("Tried to serialize a throwable object using write()", (Throwable) object);

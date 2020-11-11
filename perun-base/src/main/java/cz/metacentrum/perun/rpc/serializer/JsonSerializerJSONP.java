@@ -166,7 +166,7 @@ public final class JsonSerializerJSONP implements Serializer {
 	private static final JsonFactory jsonFactory = new JsonFactory();
 
 	static {
-		// FIXME odstraneno disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
+		// FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
 		jsonFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT).setCodec(mapper);
 	}
 
@@ -189,7 +189,7 @@ public final class JsonSerializerJSONP implements Serializer {
 
 	@Override
 	public void write(Object object) throws IOException {
-		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 
 		if (object instanceof Throwable) {
 			throw new IllegalArgumentException("Tried to serialize a throwable object using write()", (Throwable) object);
@@ -207,7 +207,7 @@ public final class JsonSerializerJSONP implements Serializer {
 
 	@Override
 	public void writePerunException(PerunException pex) throws IOException {
-		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 
 		if (pex == null) {
 			throw new IllegalArgumentException("pex is null");
@@ -222,7 +222,7 @@ public final class JsonSerializerJSONP implements Serializer {
 
 	@Override
 	public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
-		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 
 		if (prex == null) {
 			throw new IllegalArgumentException("prex is null");
