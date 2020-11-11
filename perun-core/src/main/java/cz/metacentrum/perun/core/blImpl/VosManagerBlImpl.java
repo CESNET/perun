@@ -335,10 +335,10 @@ public class VosManagerBlImpl implements VosManagerBl {
 						try {
 							if (simpleExtSource) {
 								// retrieve data about subjects from ext source based on ext. login
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin));
 							} else {
 								// retrieve data about subjects from subjects we already have locally
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin));
 							}
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
@@ -454,10 +454,10 @@ public class VosManagerBlImpl implements VosManagerBl {
 						try {
 							if (simpleExtSource) {
 								// retrieve data about subjects from ext source based on ext. login
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin));
 							} else {
 								// retrieve data about subjects from subjects we already have locally
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin));
 							}
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);

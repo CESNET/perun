@@ -9,7 +9,9 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -65,7 +67,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
-import java.text.StringCharacterIterator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -77,7 +78,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -152,66 +153,168 @@ public class Utils {
 
 	/**
 	 * Returns additionalUserExtSources from the subject. It's used for synchronization from different ExtSources. subjectFromExtSource was obtained from the ExtSource.
+	 * This additional userExtSource has 3 required parts: name of extSource, type of extSource, login of extsource with optional ues attributes and their values.
+	 * And 1 optional part: LoA.
+	 * Expected format of additional userExtSource is: extSourceName|extSourceType|extLogin;uesAttribute1=value1,value2;uesAttribute2=value1|LoA
 	 *
 	 * @param sess perun session
 	 * @param subjectFromExtSource map with the subject
-	 * @return List<UserExtSource> all additional ExtSources from the subject, returned list will never contain null value
-	 * @throws InternalErrorException
+	 * @return List<RichUserExtSource> all additional ExtSources (and possibly their attributes) from the subject, returned list will never contain null value
 	 */
-	public static List<UserExtSource> extractAdditionalUserExtSources(PerunSession sess, Map<String, String> subjectFromExtSource) {
-		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
+	public static List<RichUserExtSource> extractAdditionalUserExtSources(PerunSession sess, Map<String, String> subjectFromExtSource) {
+		List<RichUserExtSource> additionalUserExtSources = new ArrayList<>();
 		for (String attrName : subjectFromExtSource.keySet()) {
 			if(attrName != null &&
 				subjectFromExtSource.get(attrName) != null &&
 				attrName.startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
 				String login = subjectFromExtSource.get("login");
 
-				String[] userExtSourceRaw =  subjectFromExtSource.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
+				// Entry contains extSourceName|extSourceType|extLogin;uesAttribute=value1,value2[|LoA]
+				String[] userExtSourceRaw =  subjectFromExtSource.get(attrName).split("\\|");
 				log.debug("Processing additionalUserExtSource {}",  subjectFromExtSource.get(attrName));
 
-				//Check if the array has at least 3 parts, this is protection against outOfBoundException
+				// Check if the array has at least 3 parts, this is protection against outOfBoundException
 				if(userExtSourceRaw.length < 3) {
 					throw new InternalErrorException("There is a missing mandatory part of additional user extSource value when processing it - '" + attrName + "'");
 				}
 
-				String additionalExtSourceName = userExtSourceRaw[0];
-				String additionalExtSourceType = userExtSourceRaw[1];
-				String additionalExtLogin = userExtSourceRaw[2];
-				int additionalExtLoa = 0;
-				// Loa is not mandatory argument
-				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
-					try {
-						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
-					} catch (NumberFormatException e) {
-						throw new ParserException("Subject with login [" + login + "] has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
-					}
-				}
+				try {
+					// Get additional ues
+					UserExtSource additionalUserExtSource = parseAdditionalUserExtSource(sess, userExtSourceRaw);
 
-				ExtSource additionalExtSource;
+					// Get ues attributes
+					List<Attribute> uesAttributes = parseUESAttributes(sess, login, userExtSourceRaw[2]);
 
-				if (additionalExtSourceName == null || additionalExtSourceName.isEmpty() ||
-					additionalExtSourceType == null || additionalExtSourceType.isEmpty() ||
-					additionalExtLogin == null || additionalExtLogin.isEmpty()) {
+					// Create richUserExtSource from ues and its attributes
+					RichUserExtSource richUserExtSource = new RichUserExtSource(additionalUserExtSource, uesAttributes);
+
+					// Add additional rich user extSource
+					additionalUserExtSources.add(richUserExtSource);
+				} catch (ParserException e) {
 					log.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw);
-				} else {
-					try {
-						// Try to get extSource, with full extSource object (containg ID)
-						additionalExtSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, additionalExtSourceName);
-					} catch (ExtSourceNotExistsException e) {
-						try {
-							// Create new one if not exists
-							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
-							additionalExtSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().createExtSource(sess, additionalExtSource, null);
-						} catch (ExtSourceExistsException e1) {
-							throw new ConsistencyErrorException("Creating existing extSource: " + additionalExtSourceName);
-						}
-					}
-					// Add additional user extSource
-					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
 				}
 			}
 		}
 		return additionalUserExtSources;
+	}
+
+	/**
+	 * Returns loa of addtional ues, if not stated, returns 0. If integer cannot be parsed from input, ParserException is thrown.
+	 * Used in extractAdditionalUserExtSources to get ues LoA.
+	 *
+	 * @param login login of subject
+	 * @param userExtSourceRaw array containing LoA
+	 * @return int LoA
+	 */
+	private static int parseAdditionalUESLoa(String[] userExtSourceRaw) {
+		int additionalExtLoa = 0;
+		// Loa is not mandatory argument
+		if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
+			try {
+				additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
+			} catch (NumberFormatException e) {
+				throw new ParserException("Subject has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
+			}
+		}
+		return additionalExtLoa;
+	}
+
+	/**
+	 * Returns additional user ext source either found in Perun or creates new. Parameter userExtSourceRaw is array of
+	 * Strings containing name, type and extLogin. If any of the required parts is empty, ParserException is thrown.
+	 * Used in extractAdditionalUserExtSources to get ues.
+	 *
+	 * @param sess perun session
+	 * @param userExtSourceRaw array of strings containing all parts of ues
+	 * @return UserExtSource additional ues
+	 */
+	private static UserExtSource parseAdditionalUserExtSource(PerunSession sess, String[] userExtSourceRaw) {
+		// Get extLogin from 3rd part of userExtSourceRaw as well as ues attributes, so it needs to be parsed from it
+		String extLogin = userExtSourceRaw[2].split(";")[0];
+
+		// Check whether any of the required parts of ues are not empty
+		if (userExtSourceRaw[0].isEmpty() || userExtSourceRaw[1].isEmpty() || extLogin.isEmpty()) {
+			throw new ParserException("Some of the required parts of userExtSource are empty.");
+		}
+
+		ExtSource additionalExtSource;
+		try {
+			// Try to get extSource, with full extSource object (containg ID)
+			additionalExtSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, userExtSourceRaw[0]);
+		} catch (ExtSourceNotExistsException e) {
+			try {
+				// Create new one if not exists
+				additionalExtSource = new ExtSource(userExtSourceRaw[0], userExtSourceRaw[1]);
+				additionalExtSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().createExtSource(sess, additionalExtSource, null);
+			} catch (ExtSourceExistsException e1) {
+				throw new ConsistencyErrorException("Creating existing extSource: " + userExtSourceRaw[0]);
+			}
+		}
+
+		// Get optional LoA (0 if not stated)
+		int loa = parseAdditionalUESLoa(userExtSourceRaw);
+
+		return new UserExtSource(additionalExtSource, loa, extLogin);
+	}
+
+	/**
+	 * Parses attributes of additional ues from String which is in format: extLogin;uesAttributeName1=value1,value2;uesAttributeName2=value3.
+	 * These attributes are returned with their values. If value is missing or attribute is not found, that part is skipped and
+	 * message is logged.
+	 * Used in extractAdditionalUserExtSources to get ues attributes.
+	 *
+	 * @param sess perun session
+	 * @param login login of subject
+	 * @param additionalExtLoginAndAttribute array containing extLogin and uesAttributes
+	 * @return List<Attribute> attributes of additional ues
+	 */
+	private static List<Attribute> parseUESAttributes(PerunSession sess, String login, String additionalExtLoginAndAttribute) {
+		List<Attribute> attributes = new ArrayList<>();
+
+		String[] loginAndAttributes = additionalExtLoginAndAttribute.split(";");
+
+		// Check wheter there are any ues attributes
+		if (loginAndAttributes.length > 1) {
+			List<String> uesAttributesWithValues =  new LinkedList<>();
+			// Get all attributes without extLogin into a list
+			uesAttributesWithValues.addAll(Arrays.asList(loginAndAttributes));
+			uesAttributesWithValues.remove(0);
+
+			for (String uesAttributeWithValue : uesAttributesWithValues) {
+				String[] uesAttribute = uesAttributeWithValue.split("=");
+
+				// Check that the attribute has both required parts (name and value)
+				if (uesAttribute.length != 2) {
+					log.error("User with login {} has invalid attribute for userExtSource defined as {}.", login, uesAttribute);
+					continue;
+				}
+
+				try {
+					// Create new attribute and add it to be returned
+					Attribute attribute = new Attribute(sess.getPerun().getAttributesManager().getAttributeDefinition(sess, uesAttribute[0]), parseAttributeValuesDuringUESExtraction(uesAttribute[1]));
+					attributes.add(attribute);
+				} catch (AttributeNotExistsException e) {
+					log.error("User with login {} has invalid attribute for userExtSource defined as {}.", login, uesAttribute);
+				}
+			}
+		}
+		return attributes;
+	}
+
+	/**
+	 * Splits attribute value by "," and returns list of string values or single string if no "," occurres.
+	 * Used in extractAdditionalUserExtSources to get ues attribute values.
+	 *
+	 * @param attributeValue unsplitted attribute value
+	 * @return splitted attribute value to list of string or single string
+	 */
+	private static Object parseAttributeValuesDuringUESExtraction(String attributeValue) {
+		String[] separatedValue = attributeValue.split(",");
+		if (separatedValue.length == 1) {
+			return attributeValue;
+		} else {
+			return Arrays.asList(separatedValue);
+		}
 	}
 
 	/**

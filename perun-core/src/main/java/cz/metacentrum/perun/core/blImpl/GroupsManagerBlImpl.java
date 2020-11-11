@@ -45,6 +45,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
@@ -2971,7 +2972,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				//skipping, this extSource does not exist and thus won't be in the list
 			}
 			Vo groupVo = getVo(sess, group);
-			List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subjectFromLoginSource);
+			List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subjectFromLoginSource).stream().map(RichUserExtSource::asUserExtSource).collect(toList());
 			userExtSources.addAll(additionalUserExtSources);
 			for (UserExtSource source : userExtSources) {
 				try {
@@ -3336,15 +3337,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// 1] sources of login and other attributes are not same
 				if(!membersSource.equals(source)) {
 					//need to read attributes from the new memberSource, we can't use locally data there (there are from other extSource)
-					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
 				// 2] sources are same and we work with source which is instance of ExtSourceApi
 				} else if (membersSource instanceof ExtSourceApi) {
 					// we can use the data from this source without reading them again (all exists in the map of subject attributes)
-					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
+					candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
 				// 3] sources are same and we work with source which is instace of ExtSourceSimpleApi
 				} else if (membersSource instanceof ExtSourceSimpleApi) {
 					// we can't use the data from this source, we need to read them again (they are not in the map of subject attributes)
-					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
 				} else {
 					// this could not happen without change in extSource API code
 					throw new InternalErrorException("ExtSource is other instance than SimpleApi or Api and this is not supported!");

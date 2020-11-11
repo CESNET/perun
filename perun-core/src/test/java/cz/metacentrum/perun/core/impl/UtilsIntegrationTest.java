@@ -1,9 +1,12 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -15,6 +18,8 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -227,10 +232,97 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin);
 		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2);
 
-		List<UserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
 		assertEquals(list.size(), 2);
-		assertTrue(list.contains(userExtSource2));
-		assertTrue(list.contains(userExtSource));
+		assertTrue(list.contains(new RichUserExtSource(userExtSource2, new ArrayList<>())));
+		assertTrue(list.contains(new RichUserExtSource(userExtSource, new ArrayList<>())));
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesTestWithEmptyValue() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesTestWithEmptyValue");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_a", extSourceName + "||" + extLogin + "|2");
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 0);
+	}
+
+	@Test(expected = InternalErrorException.class)
+	public void extractAdditionalUserExtSourcesTestWithNotEnoughValues() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesTestWithNotEnoughValues");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_a", extSourceName);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 0);
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesWithAttributeTest() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesWithAttributeTest");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2 + ";urn:perun:ues:attribute-def:def:eppn=" + extLogin2 + "|2");
+
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition.setFriendlyName("eppn");
+		attributeDefinition.setDescription("login value");
+		attributeDefinition.setType(String.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 1);
+		assertTrue(list.contains(new RichUserExtSource(userExtSource2, Arrays.asList(new Attribute(attributeDefinition, extLogin2)))));
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesWithAttributeListTest() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesWithAttributeTest");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_a", extSourceName + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin + ";urn:perun:ues:attribute-def:def:eppn=" + extLogin
+			+ ";urn:perun:ues:attribute-def:def:eppnList=" + extLogin + "," + extLogin2);
+
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition.setFriendlyName("eppn");
+		attributeDefinition.setDescription("login value");
+		attributeDefinition.setType(String.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
+
+		AttributeDefinition attributeDefinition2 = new AttributeDefinition();
+		attributeDefinition2.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition2.setFriendlyName("eppnList");
+		attributeDefinition2.setDescription("login value as list");
+		attributeDefinition2.setType(ArrayList.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition2);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 1);
+		assertTrue(list.contains(new RichUserExtSource(userExtSource, Arrays.asList(new Attribute(attributeDefinition, extLogin), new Attribute(attributeDefinition2, Arrays.asList(extLogin, extLogin2))))));
+	}
+
+	@Test
+	public void extractAdditionalUserExtSourcesWithAttributeWrongValueTest() throws Exception {
+		System.out.println("Utils.extractAdditionalUserExtSourcesWithAttributeWrongValueTest");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("additionalues_b", extSourceName2 + "|cz.metacentrum.perun.core.impl.ExtSourceInternal|" + extLogin2 + ";urn:perun:ues:attribute-def:def:eppn");
+
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition.setFriendlyName("eppn");
+		attributeDefinition.setDescription("login value");
+		attributeDefinition.setType(String.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
+
+		List<RichUserExtSource> list = Utils.extractAdditionalUserExtSources(sess, map);
+		assertEquals(list.size(), 1);
+		assertTrue(list.contains(new RichUserExtSource(userExtSource2, new ArrayList<>())));
 	}
 
 	@Test
