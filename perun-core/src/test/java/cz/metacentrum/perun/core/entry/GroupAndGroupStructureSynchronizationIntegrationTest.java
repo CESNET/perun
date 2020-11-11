@@ -119,6 +119,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		setUpResources();
 		setUpGroup(vo);
 		setUpMember(vo);
+		setUpEppnAttribute();
 
 		MockitoAnnotations.initMocks(this);
 
@@ -1302,5 +1303,14 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<>());
 		return candidate;
+	}
+
+	private void setUpEppnAttribute() throws Exception {
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:ues:attribute-def:def");
+		attributeDefinition.setFriendlyName("eppn");
+		attributeDefinition.setDescription("login value");
+		attributeDefinition.setType(String.class.getName());
+		sess.getPerun().getAttributesManager().createAttribute(sess, attributeDefinition);
 	}
 }

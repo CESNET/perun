@@ -35,6 +35,24 @@ public class CandidateSync extends User {
 		}
 	}
 
+	public CandidateSync(User user, UserExtSource userExtSource, Map<String, String> attributes, List<UserExtSource> additionalUserExtSources) {
+		if(user != null) {
+			this.setFirstName(user.getFirstName());
+			this.setLastName(user.getLastName());
+			this.setMiddleName(user.getMiddleName());
+			this.setTitleAfter(user.getTitleAfter());
+			this.setTitleBefore(user.getTitleBefore());
+			this.setServiceUser(user.isServiceUser());
+			this.setSponsoredUser(user.isSponsoredUser());
+		}
+		this.richUserExtSource = new RichUserExtSource(userExtSource, new ArrayList<>());
+		this.attributes = attributes;
+		if (additionalUserExtSources != null) {
+			setAdditionalRichUserExtSources(additionalUserExtSources.stream().map(extSource ->
+				new RichUserExtSource(extSource, new ArrayList<>())).collect(Collectors.toList()));
+		}
+	}
+
 	public RichUserExtSource getRichUserExtSource() {
 		return richUserExtSource;
 	}
@@ -59,7 +77,7 @@ public class CandidateSync extends User {
 		this.additionalRichUserExtSources = additionalRichUserExtSources;
 	}
 
-	public List<RichUserExtSource> getUserExtSources() {
+	public List<RichUserExtSource> getRichUserExtSources() {
 		List<RichUserExtSource> userExtSources = new ArrayList<>();
 		if (this.richUserExtSource != null) {
 			userExtSources.add(this.richUserExtSource);
@@ -77,7 +95,7 @@ public class CandidateSync extends User {
 		result = prime * result
 			+ ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result
-			+ ((getUserExtSources() == null) ? 0 : getUserExtSources().hashCode());
+			+ ((getRichUserExtSources() == null) ? 0 : getRichUserExtSources().hashCode());
 		return result;
 	}
 
@@ -100,8 +118,8 @@ public class CandidateSync extends User {
 		} else if (!attributes.equals(other.attributes)) {
 			return false;
 		}
-		if (getUserExtSources() == null) {
-			return other.getUserExtSources() == null;
-		} else return getUserExtSources().equals(other.getUserExtSources());
+		if (getRichUserExtSources() == null) {
+			return other.getRichUserExtSources() == null;
+		} else return getRichUserExtSources().equals(other.getRichUserExtSources());
 	}
 }

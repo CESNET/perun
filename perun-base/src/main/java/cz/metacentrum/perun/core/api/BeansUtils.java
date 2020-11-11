@@ -847,7 +847,7 @@ public class BeansUtils {
 	 *
 	 * @return converted object candidate from richMember
 	 */
-	public static Candidate convertRichMemberToCandidate(RichMember richMember, UserExtSource primaryUserExtSource) {
+	public static CandidateSync convertRichMemberToCandidateSync(RichMember richMember, UserExtSource primaryUserExtSource) {
 		if(richMember == null) throw new InternalErrorException("RichMember can't be null when converting to Candidate.");
 		if(primaryUserExtSource == null) throw new InternalErrorException("PrimaryUserExtSource can't be null when converting to Candidate.");
 
@@ -866,11 +866,7 @@ public class BeansUtils {
 			candidateAttributes.put(attribute.getName(), attributeValueToString(attribute));
 		}
 
-		Candidate candidate = new Candidate(richMember.getUser(), primaryUserExtSource);
-		candidate.setAdditionalUserExtSources(additionalUserExtSources);
-		candidate.setAttributes(candidateAttributes);
-
-		return candidate;
+		return new CandidateSync(richMember.getUser(), primaryUserExtSource, candidateAttributes, additionalUserExtSources);
 	}
 
 	/**
