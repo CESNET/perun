@@ -196,7 +196,7 @@ public final class JsonSerializerJSONLITE implements Serializer {
 
 	@Override
 	public void write(Object object) throws IOException {
-		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 
 		try {
 			gen.writeObject(object);
@@ -210,7 +210,7 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	@Override
 	public void writePerunException(PerunException pex) throws IOException {
 
-		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 		if (pex == null) {
 			throw new IllegalArgumentException("pex is null");
 		} else {
@@ -224,7 +224,7 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	@Override
 	public void writePerunRuntimeException(PerunRuntimeException prex) throws IOException {
 
-		JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+		JsonGenerator gen = jsonFactory.createGenerator(out, JsonEncoding.UTF8);
 		if (prex == null) {
 			throw new IllegalArgumentException("prex is null");
 		} else {
