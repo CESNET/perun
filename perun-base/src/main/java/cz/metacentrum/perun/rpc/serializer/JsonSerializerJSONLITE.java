@@ -35,6 +35,7 @@ import java.util.Map;
 public final class JsonSerializerJSONLITE implements Serializer {
 
 	@JsonIgnoreProperties({
+		"name",
 		"createdAt", "createdBy", "modifiedAt", "modifiedBy", 
 		"createdByUid",	"modifiedByUid", 
 		"valueCreatedAt", "valueCreatedBy", "valueModifiedAt", "valueModifiedBy", 
@@ -44,6 +45,7 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	}
 
 	@JsonIgnoreProperties({
+		"name",
 		"createdAt", "createdBy", "modifiedAt", "modifiedBy", 
 		"createdByUid",	"modifiedByUid", 
 		"beanName" 
@@ -52,6 +54,7 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	}
 
 	@JsonIgnoreProperties({
+		"commonName", "displayName",
 		"createdAt", "createdBy", "modifiedAt", "modifiedBy",
 		"createdByUid", "modifiedByUid", 
 		"beanName"
@@ -59,11 +62,11 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	private interface UserMixIn {
 	}
 
-	@JsonIgnoreProperties({"beanName"})
+	@JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace", "beanName"})
 	private interface ExceptionMixIn {
 	}
 
-	@JsonIgnoreProperties({"beanName"})
+	@JsonIgnoreProperties({"userExtSources", "beanName"})
 	private interface CandidateMixIn {
 	}
 
@@ -169,7 +172,7 @@ public final class JsonSerializerJSONLITE implements Serializer {
 	private static final JsonFactory jsonFactory = new JsonFactory();
 
 	static {
-		//FIXME odstraneno disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
+		//FIXME removed disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
 		jsonFactory
 			.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET)
 			.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)
