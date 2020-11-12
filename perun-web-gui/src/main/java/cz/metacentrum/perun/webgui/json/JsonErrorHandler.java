@@ -762,6 +762,10 @@ public class JsonErrorHandler {
 
 			return "Can't set new password. Old password doesn't match.";
 
+		} else if ("PasswordResetMailNotExistsException".equalsIgnoreCase(errorName)) {
+
+			return "User doesn't have the chosen email attribute set. Choose different attribute.";
+
 		} else if ("PasswordStrengthFailedException".equalsIgnoreCase(errorName)) {
 
 			return "Used password doesn't match required strength constraints.";

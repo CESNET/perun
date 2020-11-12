@@ -37,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -1126,7 +1127,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException {
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException {
 
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -1157,9 +1158,12 @@ public class MembersManagerEntry implements MembersManager {
 			throw new InternalErrorException("MailAttribute should not be null.");
 		}
 		String mailAddress = mailAttribute.valueAsString();
+		if (mailAddress == null) {
+			throw new PasswordResetMailNotExistsException("Member " + member.getId() + " doesn't have the attribute " +
+				mailAttributeUrn + " set.");
+		}
 
 		getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
-
 	}
 
 	@Override
