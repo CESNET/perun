@@ -1395,7 +1395,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			base="${ldap.base}"
 			username="${ldap.userDn}"
 			password="${ldap.password}">
-		<ldap:pooling/>
+		<ldap:pooling2 test-on-borrow="true" />
 	</ldap:context-source>
 
 	<ldap:ldap-template/>
