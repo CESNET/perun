@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunBeanNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleAlreadySetException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
@@ -27,6 +28,7 @@ import cz.metacentrum.perun.registrar.model.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class AuthzResolver {
@@ -609,6 +611,22 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Check whether the principal is authorized to read the role on the object.
+	 *
+	 * @param sess principal's perun session
+	 * @param complementaryObject bounded with the role
+	 * @param role which will be read
+	 * @return
+	 * @throws RoleManagementRulesNotExistsException when the role does not have the management rules.
+	 */
+	public static boolean authorizedToReadRole(PerunSession sess, PerunBean complementaryObject, String role) throws RoleManagementRulesNotExistsException {
+		if (!roleExists(role)) {
+			throw new InternalErrorException("Role: "+ role +" does not exists.");
+		}
+		return AuthzResolverBlImpl.authorizedToReadRole(sess, complementaryObject, role);
+	}
+
+	/**
 	 * Set role for user and <b>all</b> complementary objects.
 	 *
 	 * If some complementary object is wrong for the role, throw an exception.
@@ -915,108 +933,63 @@ public class AuthzResolver {
 	 * If <b>allUserAttributes</b> is <b>true</b>, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
 	 * @param sess perun session
-	 * @param complementaryObjectId id of object for which we will get richUser administrators
-	 * @param complementaryObjectName name of object for which we will get richUser administrators
+	 * @param complementaryObject for which we will get administrator
 	 * @param specificAttributes list of specified attributes which are needed in object richUser
-	 * @param role expected role to filter managers by (PERUNADMIN | VOADMIN | GROUPADMIN | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
+	 * @param role expected role to filter managers by
 	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
 	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
 	 *
 	 * @return list of richUser administrators for complementary object and role with specified attributes.
 	 */
-	public static List<RichUser> getRichAdmins(PerunSession sess, int complementaryObjectId, String complementaryObjectName, List<String> specificAttributes, String role, boolean onlyDirectAdmins, boolean allUserAttributes) throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FacilityNotExistsException, RoleNotSupportedException, PerunBeanNotSupportedException, UserNotExistsException, ResourceNotExistsException {
+	public static List<RichUser> getRichAdmins(PerunSession sess, PerunBean complementaryObject, List<String> specificAttributes, String role, boolean onlyDirectAdmins, boolean allUserAttributes) throws PrivilegeException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(role, "role");
-		Utils.notNull(complementaryObjectName, "complementaryObjectName");
-		if(!allUserAttributes) Utils.notNull(specificAttributes, "specificAttributes");
+		Utils.notNull(complementaryObject, "complementaryObject");
 
 		if (!roleExists(role)) {
-			throw new InternalErrorException("Role: "+ role +" does not exists.");
+			throw new InternalErrorException("Role: " + role + " does not exists.");
 		}
 
-		List<RichUser> richUsers;
-		//Try to get complementary Object
-		switch (complementaryObjectName) {
-			case "Group":
-				if (!role.equals(Role.GROUPADMIN))
-					throw new RoleNotSupportedException("Not supported other role than group manager for object Group.");
-				Group group = ((PerunBl) sess.getPerun()).getGroupsManagerBl().getGroupById(sess, complementaryObjectId);
-				richUsers = sess.getPerun().getGroupsManager().getRichAdmins(sess, group, specificAttributes, allUserAttributes, onlyDirectAdmins);
-				break;
-			case "Vo":
-				Vo vo = ((PerunBl) sess.getPerun()).getVosManagerBl().getVoById(sess, complementaryObjectId);
-				richUsers = sess.getPerun().getVosManager().getRichAdmins(sess, vo, role, specificAttributes, allUserAttributes, onlyDirectAdmins);
-				break;
-			case "Facility":
-				if (!role.equals(Role.FACILITYADMIN))
-					throw new RoleNotSupportedException("Not supported other role than facility manager for object Facility.");
-				Facility facility = ((PerunBl) sess.getPerun()).getFacilitiesManagerBl().getFacilityById(sess, complementaryObjectId);
-				richUsers = sess.getPerun().getFacilitiesManager().getRichAdmins(sess, facility, specificAttributes, allUserAttributes, onlyDirectAdmins);
-				break;
-			case "Resource":
-				Resource resource = ((PerunBl) sess.getPerun()).getResourcesManagerBl().getResourceById(sess, complementaryObjectId);
-				if (!Role.RESOURCEADMIN.equals(role)) {
-					throw new RoleNotSupportedException("Not supported other role than resource manager for object Resource.");
-				}
-				richUsers = sess.getPerun().getResourcesManager().getRichAdmins(sess, resource, specificAttributes, allUserAttributes, onlyDirectAdmins);
-				break;
-			default:
-				throw new PerunBeanNotSupportedException("Only Vo, Group and Facility are supported complementary names.");
+		// Authorization
+		try {
+			if(!authorizedToReadRole(sess, complementaryObject, role)) {
+				throw new PrivilegeException("You are not privileged to use the method getRichAdmins.");
+			}
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Management rules not exist for the role " + role, e);
 		}
 
-		return richUsers;
+		return AuthzResolverBlImpl.getRichAdmins(sess, complementaryObject, specificAttributes, role, onlyDirectAdmins, allUserAttributes);
 	}
 
 	/**
 	 * Get all authorizedGroups for complementary object and role.
 	 *
 	 * @param sess perun session
-	 * @param complementaryObjectId id of object for which we will get richUser administrators
-	 * @param complementaryObjectName name of object for which we will get richUser administrators
-	 * @param role expected role to filter authorizedGroups by (PERUNADMIN | VOADMIN | GROUPADMIN | SPONSOR | SELF | FACILITYADMIN | VOOBSERVER | TOPGROUPCREATOR | RESOURCEADMIN)
+	 * @param complementaryObject for which we will get administrator groups
+	 * @param role expected role to filter authorizedGroups by
 	 *
 	 * @return list of authorizedGroups for complementary object and role
 	 */
-	public static List<Group> getAdminGroups(PerunSession sess, int complementaryObjectId, String complementaryObjectName, String role) throws PrivilegeException, GroupNotExistsException, VoNotExistsException, FacilityNotExistsException, RoleNotSupportedException, PerunBeanNotSupportedException, ResourceNotExistsException {
+	public static List<Group> getAdminGroups(PerunSession sess, PerunBean complementaryObject, String role) throws PrivilegeException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(role, "role");
-		Utils.notNull(complementaryObjectName, "complementaryObjectName");
+		Utils.notNull(complementaryObject, "complementaryObject");
 
 		if (!roleExists(role)) {
-			throw new InternalErrorException("Role: "+ role +" does not exists.");
+			throw new InternalErrorException("Role: " + role + " does not exists.");
 		}
 
-		List<Group> authorizedGroups;
-		//Try to get complementary Object
-		switch (complementaryObjectName) {
-			case "Group":
-				if (!role.equals(Role.GROUPADMIN))
-					throw new RoleNotSupportedException("Not supported other role than group manager for object Group.");
-				Group group = ((PerunBl) sess.getPerun()).getGroupsManagerBl().getGroupById(sess, complementaryObjectId);
-				authorizedGroups = sess.getPerun().getGroupsManager().getAdminGroups(sess, group);
-				break;
-			case "Vo":
-				Vo vo = ((PerunBl) sess.getPerun()).getVosManagerBl().getVoById(sess, complementaryObjectId);
-				authorizedGroups = sess.getPerun().getVosManager().getAdminGroups(sess, vo, role);
-				break;
-			case "Facility":
-				if (!role.equals(Role.FACILITYADMIN))
-					throw new RoleNotSupportedException("Not supported other role than facility manager for object Facility.");
-				Facility facility = ((PerunBl) sess.getPerun()).getFacilitiesManagerBl().getFacilityById(sess, complementaryObjectId);
-				authorizedGroups = sess.getPerun().getFacilitiesManager().getAdminGroups(sess, facility);
-				break;
-			case "Resource":
-				Resource resource = ((PerunBl) sess.getPerun()).getResourcesManagerBl().getResourceById(sess, complementaryObjectId);
-				if (!Role.RESOURCEADMIN.equals(role)) {
-					throw new RoleNotSupportedException("Not supported other role than resource manager for object Resource.");
-				}
-				authorizedGroups = sess.getPerun().getResourcesManager().getAdminGroups(sess, resource);
-				break;
-			default:
-				throw new PerunBeanNotSupportedException("Only Vo, Group and Facility are supported complementary names.");
+		// Authorization
+		try {
+			if(!authorizedToReadRole(sess, complementaryObject, role)) {
+				throw new PrivilegeException("You are not privileged to use the method getAdminGroups.");
+			}
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Management rules not exist for the role " + role, e);
 		}
 
-		return authorizedGroups;
+		return AuthzResolverBlImpl.getAdminGroups(complementaryObject, role);
 	}
 
 	/**
