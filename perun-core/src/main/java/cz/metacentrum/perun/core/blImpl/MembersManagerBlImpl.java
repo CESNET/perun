@@ -2216,6 +2216,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getPerunBl().getAuditer().log(session, new SponsoredMemberSet(sponsoredMember));
 		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor, validityTo));
 
+		//remove expiration and validate member
+		try {
+			AttributeDefinition expiration = getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, EXPIRATION);
+			getPerunBl().getAttributesManagerBl().removeAttribute(session, sponsoredMember, expiration);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException("cannot remove expiration date for sponsored member " + sponsoredMember.getId(), ex);
+		}
+		try {
+			validateMember(session, sponsoredMember);
+		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+			throw new InternalErrorException("cannot validate sponsored member " + sponsoredMember.getId(), ex);
+		}
+
 		return sponsoredMember;
 	}
 
