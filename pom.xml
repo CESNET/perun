@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.5.RELEASE</version>
+		<version>2.4.0</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -62,15 +62,14 @@
 
 		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
 		<tomcat.version>8.5.57</tomcat.version>
-		<oracle-database.version>19.6.0.0</oracle-database.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.4</commons-cli.version>
-		<commons-text.version>1.6</commons-text.version>
+		<commons-text.version>1.9</commons-text.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.9</expiringmap.version>
 		<flying-saucer-pdf.version>9.1.18</flying-saucer-pdf.version>
-		<google-api-services-admin-directory.version>directory_v1-rev110-1.25.0</google-api-services-admin-directory.version>
+		<google-api-services-admin-directory.version>directory_v1-rev118-1.25.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.1.Final</netty3.version><!-- needed for HornetQ -->
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
