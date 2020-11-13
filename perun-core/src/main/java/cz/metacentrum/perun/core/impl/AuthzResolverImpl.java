@@ -908,12 +908,12 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		for (String columnName: mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
-				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to manage role.");
+				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to set role.");
 			}
 
 			Matcher matcher = columnNamesPattern.matcher(columnName);
 			if (!matcher.matches()) {
-				throw new InternalErrorException("Cannot create a query to manage role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
+				throw new InternalErrorException("Cannot create a query to set role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
 			}
 			columnNames.add(columnName);
 			columnValues.add(mappingOfValues.get(columnName).toString());
@@ -932,50 +932,78 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	 * @return sql query
 	 */
 	private String prepareQueryToUnsetRole(Map<String, Integer> mappingOfValues) {
-		String mappingAsString = prepareQueryString(mappingOfValues);
+		List<String> listOfConditions = new ArrayList<>();
+
+		for (String columnName: mappingOfValues.keySet()) {
+
+			if (columnName == null || mappingOfValues.get(columnName) == null) {
+				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to unset role.");
+			}
+
+			Matcher matcher = columnNamesPattern.matcher(columnName);
+			if (!matcher.matches()) {
+				throw new InternalErrorException("Cannot create a query to unset role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
+			}
+			String condition = columnName + "=" + mappingOfValues.get(columnName).toString();
+			listOfConditions.add(condition);
+		}
+
+		String mappingAsString = StringUtils.join(listOfConditions, " and ");
 
 		return "delete from authz where " + mappingAsString;
 	}
 
 	/**
-	 * Create query to read role according to the mapping of values
+	 * Create query to select rich admins according to the mapping of values
 	 *
 	 * @param mappingOfValues from which will be the query created
 	 * @return sql query
 	 */
 	private String prepareQueryToGetRichAdmins(Map<String, Integer> mappingOfValues) {
-		String mappingAsString = prepareQueryString(mappingOfValues);
+		String mappingAsString = prepareSelectQueryString(mappingOfValues);
 
 		return "select " + userMappingSelectQuery +
 			" from authz join users on authz.user_id=users.id" +
 			" where  " + mappingAsString;
 	}
 
+	/**
+	 * Create query to select admin groups according to the mapping of values
+	 *
+	 * @param mappingOfValues from which will be the query created
+	 * @return sql query
+	 */
 	private String prepareQueryToGetAdminGroups(Map<String, Integer> mappingOfValues) {
-		String mappingAsString = prepareQueryString(mappingOfValues);
+		String mappingAsString = prepareSelectQueryString(mappingOfValues);
 
 		return "select " + groupMappingSelectQuery +
 			" from authz join groups on authz.authorized_group_id=groups.id" +
 			" where  " + mappingAsString;
 	}
 
-	private String prepareQueryString(Map<String, Integer> mappingOfValues) {
-		List<String> listofConditions = new ArrayList<>();
+	/**
+	 * Create part of the query which will be used in the final query as a where clause.
+	 *
+	 * @param mappingOfValues from which will be the query created
+	 * @return sql conditions as string
+	 */
+	private String prepareSelectQueryString(Map<String, Integer> mappingOfValues) {
+		List<String> listOfConditions = new ArrayList<>();
 
 		for (String columnName: mappingOfValues.keySet()) {
 
 			if (columnName == null || mappingOfValues.get(columnName) == null) {
-				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to manage role.");
+				throw new InternalErrorException("Column name and its value cannot be null in the mapping of values, while trying to read role.");
 			}
 
 			Matcher matcher = columnNamesPattern.matcher(columnName);
 			if (!matcher.matches()) {
-				throw new InternalErrorException("Cannot create a query to manage role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
+				throw new InternalErrorException("Cannot create a query to read role, because column name: " + columnName + " contains forbidden characters. Allowed are only [1-9a-zA-Z_].");
 			}
-			String condition = columnName + "=" + mappingOfValues.get(columnName).toString();
-			listofConditions.add(condition);
+			String condition = "authz." + columnName + "=" + mappingOfValues.get(columnName).toString();
+			listOfConditions.add(condition);
 		}
 
-		return StringUtils.join(listofConditions, " and ");
+		return StringUtils.join(listOfConditions, " and ");
 	}
 }
