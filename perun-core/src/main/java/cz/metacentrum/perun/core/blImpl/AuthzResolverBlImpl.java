@@ -2129,11 +2129,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new InternalErrorException("Management rules not exist for the role " + role, e);
 		}
 
-		return createMappingOfValues(complementaryObject, role, rules);
+		//For reading a role it is enough to know role and the primary object.
+		//No need to fetch all related objects
+		Map<String, Integer> mapping = new HashMap<>();
+		Integer roleId = authzResolverImpl.getRoleId(role);
+		mapping.put("role_id", roleId);
+		String objectColumnName = rules.getAssignedObjects().get(complementaryObject.getBeanName());
+		mapping.put(objectColumnName, complementaryObject.getId());
+
+		return mapping;
 	}
 
 	/**
-	 * Create a mapping of column names and ids which will be used to read or manage the role.
+	 * Create a mapping of column names and ids which will be used to manage the role.
 	 *
 	 * @param complementaryObject which will be bounded with the role
 	 * @param role which will be managed
