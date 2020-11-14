@@ -6,12 +6,14 @@ import cz.metacentrum.perun.core.api.Group;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -649,6 +651,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public List<PerunPolicy> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return AuthzResolver.getAllPolicies();
+		}
+	},
+
+	/*#
+	 * Return all loaded roles management rules.
+	 *
+	 * @return List<RoleManagementRules> all roles management rules
+	 */
+	getAllRolesManagementRules {
+		@Override
+		public List<RoleManagementRules> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return AuthzResolver.getAllRolesManagementRules();
 		}
 	},
 

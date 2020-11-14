@@ -96,4 +96,13 @@ public class PerunPoliciesContainer {
 	public Set<PerunPolicy> getAllPolicies() {
 		return Collections.unmodifiableSet(perunPolicies);
 	}
+
+	/**
+	 * Return all loaded roles management rules.
+	 *
+	 * @return all roles management rules
+	 */
+	public List<RoleManagementRules> getAllRolesManagementRules() {
+		return Collections.unmodifiableList(new ArrayList<>(rolesManagementRules.values()));
+	}
 }

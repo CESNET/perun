@@ -1102,4 +1102,13 @@ public class AuthzResolver {
 	public static List<PerunPolicy> getAllPolicies() {
 		return AuthzResolverBlImpl.getAllPolicies();
 	}
+
+	/**
+	 * Return all loaded roles management rules.
+	 *
+	 * @return all roles management rules
+	 */
+	public static List<RoleManagementRules> getAllRolesManagementRules() {
+		return AuthzResolverBlImpl.getAllRolesManagementRules();
+	}
 }

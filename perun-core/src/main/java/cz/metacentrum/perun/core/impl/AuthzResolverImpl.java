@@ -815,6 +815,15 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	/**
+	 * Return all loaded roles management rules.
+	 *
+	 * @return all roles management rules
+	 */
+	public static List<RoleManagementRules> getAllRolesManagementRules() {
+		return perunPoliciesContainer.getAllRolesManagementRules();
+	}
+
+	/**
 	 * Get RoleManagementRules for the role name from the PerunPoliciesContainer
 	 *
 	 * @param roleName for which will be the rules fetched
