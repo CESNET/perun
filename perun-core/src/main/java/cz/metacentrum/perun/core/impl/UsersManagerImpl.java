@@ -767,7 +767,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attributeValue) {
 		String value = "";
 		String operator = "=";
-		if (attributeDefinition.getType().equals(String.class.getName())) {
+		if (attributeDefinition.getType().equals(String.class.getName()) ||
+				attributeDefinition.getType().equals(BeansUtils.largeStringClassName)) {
 			value = attributeValue.trim();
 			operator = "=";
 		} else if (attributeDefinition.getType().equals(Integer.class.getName())) {
@@ -776,16 +777,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}  else if (attributeDefinition.getType().equals(Boolean.class.getName())) {
 			value = attributeValue.trim();
 			operator = "=";
-		} else if (attributeDefinition.getType().equals(ArrayList.class.getName())) {
+		} else if (attributeDefinition.getType().equals(ArrayList.class.getName()) ||
+				attributeDefinition.getType().equals(BeansUtils.largeArrayListClassName)) {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
 		} else if (attributeDefinition.getType().equals(LinkedHashMap.class.getName())) {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
 		}
-
-		// FIXME - this doesn't work for map attributes, since they are not in attr_value column
-		// if fixed, we could add LargeString and LargeArrayList
 
 		String query = "select " + userMappingSelectQuery + " from users, user_attr_values where " +
 			" user_attr_values.attr_value " + operator + " :value and users.id=user_attr_values.user_id and user_attr_values.attr_id=:attr_id";
