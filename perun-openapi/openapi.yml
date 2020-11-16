@@ -421,6 +421,37 @@ components:
         - includePolicies
         - perunRoles
 
+    RoleManagementRules:
+      type: object
+      properties:
+        roleName: { type: string }
+        privilegedRolesToManage:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+        privilegedRolesToRead:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+        entitiesToManage:
+          type: object
+          additionalProperties:
+            type: string
+        assignedObjects:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - roleName
+        - privilegedRolesToManage
+        - privilegedRolesToRead
+        - entitiesToManage
+        - assignedObjects
+
     Group:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1343,6 +1374,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/PerunPolicy"
+
+    ListOfRolesManagementRulesResponse:
+      description: "returns List<RoleManagementRules>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RoleManagementRules"
 
     ListOfRichGroupsResponse:
       description: "returns List<RichGroup>"
@@ -3045,6 +3085,18 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfPerunPoliciesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getAllRolesManagementRules:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getAllRolesManagementRules
+      summary: Return all loaded roles management rules.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRolesManagementRulesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

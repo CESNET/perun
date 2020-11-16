@@ -1230,6 +1230,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Return all loaded roles management rules.
+	 *
+	 * @return all roles management rules
+	 */
+	public static List<RoleManagementRules> getAllRolesManagementRules() {
+		return AuthzResolverImpl.getAllRolesManagementRules();
+	}
+
+	/**
 	 * Get all authorizedGroups for complementary object and role.
 	 *
 	 * @param complementaryObject for which we will get administrator groups
