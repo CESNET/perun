@@ -14,6 +14,8 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -1031,6 +1033,138 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
 		groupsManagerBl.synchronizeGroup(sess, group);
 		assertEquals(Status.VALID, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());
+	}
+
+	@Test
+	public void synchronizeGroupUpdateMemberFoundByUesAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMemberFoundByUesAttribute");
+
+		// create ues attribute to be used in matching candidate to member
+		Attribute uesAttribute = new Attribute();
+		uesAttribute.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		uesAttribute.setFriendlyName("user-test-unique-attribute:specialNamespace");
+		uesAttribute.setType(String.class.getName());
+		uesAttribute.setValue("login");
+		assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, uesAttribute));
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		attributes.put("additionalues_1", "https://idp2.ics.muni.cz/idp/shibboleth|cz.metacentrum.perun.core.impl.ExtSourceIdp|123456@muni.cz;urn:perun:ues:attribute-def:def:user-test-unique-attribute:specialNamespace=login|2");
+		subjects.add(attributes);
+		CandidateSync candidate = new CandidateSync(setUpCandidate());
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		// create member out of candidate in group
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, new Candidate(candidate));
+		groupsManagerBl.addMember(sess, group, member);
+
+		// change ues login so the candidate is not matched by it
+		candidate.getRichUserExtSource().asUserExtSource().setLogin("metodej");
+
+		// set attribute member's ues
+		RichMember richMember = perun.getMembersManagerBl().getRichMember(sess, member);
+		attributesManagerBl.setAttribute(sess, richMember.getUserExtSources().get(0), uesAttribute);
+
+		// set attribute to candidate's ues
+		candidate.setRichUserExtSource(new RichUserExtSource(candidate.getRichUserExtSource().asUserExtSource(), Arrays.asList(uesAttribute)));
+
+		// create new ues for candidate which will be added to member during synchronization
+		ExtSource additionalExtSource = new ExtSource(1, "testAdditionalExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
+		UserExtSource ues = new UserExtSource(additionalExtSource, "metodej");
+		RichUserExtSource rues = new RichUserExtSource(ues, Arrays.asList(uesAttribute));
+		candidate.setAdditionalRichUserExtSources(Arrays.asList(rues));
+
+		assertEquals("There is only one member in group.",1, groupsManagerBl.getGroupMembers(sess, group).size());
+		assertFalse(richMember.getUserExtSources().contains(rues.asUserExtSource()));
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals("No new member should be added",1, groupsManagerBl.getGroupMembers(sess, group).size());
+		assertFalse(richMember.getUserExtSources().contains(rues.asUserExtSource()));
+	}
+
+	@Test
+	public void synchronizeGroupUpdateUserExtSourceAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupUpdateMemberFoundByUesAttribute");
+
+		// create ues attribute to be added during synchronization
+		Attribute uesAttribute = new Attribute();
+		String namespace = "user-test-unique-attribute:specialNamespace";
+		uesAttribute.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		uesAttribute.setFriendlyName(namespace + "1");
+		uesAttribute.setType(String.class.getName());
+		uesAttribute.setValue("login");
+		assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, uesAttribute));
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		CandidateSync candidate = new CandidateSync(setUpCandidate());
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		// create member out of candidate in group
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, new Candidate(candidate));
+		groupsManagerBl.addMember(sess, group, member);
+
+		UserExtSource ues = candidate.getRichUserExtSource().asUserExtSource();
+
+		// set attribute to candidate's ues
+		candidate.setRichUserExtSource(new RichUserExtSource(ues, Arrays.asList(uesAttribute)));
+
+		assertNotEquals(uesAttribute, attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()));
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(uesAttribute, attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()));
+	}
+
+	@Test
+	public void synchronizeGroupAddMissingMemberWithItsUesAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMemberWithItsUesAttributes");
+
+		// create ues attribute to be added during synchronization
+		Attribute uesAttribute = new Attribute();
+		String namespace = "user-test-unique-attribute:specialNamespace";
+		uesAttribute.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		uesAttribute.setFriendlyName(namespace + "1");
+		uesAttribute.setType(String.class.getName());
+		uesAttribute.setValue("login");
+		assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, uesAttribute));
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		CandidateSync candidate = new CandidateSync(setUpCandidate());
+
+		candidate.setRichUserExtSource(new RichUserExtSource(candidate.getRichUserExtSource().asUserExtSource(), Arrays.asList(uesAttribute)));
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
+		RichMember richMember = groupsManagerBl.getGroupRichMembers(sess, group).get(0);
+		assertEquals(uesAttribute, attributesManagerBl.getAttribute(sess, richMember.getUserExtSources().get(1), uesAttribute.getName()));
 	}
 
 	// PRIVATE METHODS

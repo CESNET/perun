@@ -2,8 +2,11 @@ package cz.metacentrum.perun.core.api;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +38,24 @@ public class CandidateSync extends User {
 		}
 	}
 
+	public CandidateSync(User user, UserExtSource userExtSource, Map<String, String> attributes, List<UserExtSource> additionalUserExtSources) {
+		if(user != null) {
+			this.setFirstName(user.getFirstName());
+			this.setLastName(user.getLastName());
+			this.setMiddleName(user.getMiddleName());
+			this.setTitleAfter(user.getTitleAfter());
+			this.setTitleBefore(user.getTitleBefore());
+			this.setServiceUser(user.isServiceUser());
+			this.setSponsoredUser(user.isSponsoredUser());
+		}
+		this.richUserExtSource = new RichUserExtSource(userExtSource, new ArrayList<>());
+		this.attributes = attributes;
+		if (additionalUserExtSources != null) {
+			setAdditionalRichUserExtSources(additionalUserExtSources.stream().map(extSource ->
+				new RichUserExtSource(extSource, new ArrayList<>())).collect(Collectors.toList()));
+		}
+	}
+
 	public RichUserExtSource getRichUserExtSource() {
 		return richUserExtSource;
 	}
@@ -59,7 +80,7 @@ public class CandidateSync extends User {
 		this.additionalRichUserExtSources = additionalRichUserExtSources;
 	}
 
-	public List<RichUserExtSource> getUserExtSources() {
+	public List<RichUserExtSource> getRichUserExtSources() {
 		List<RichUserExtSource> userExtSources = new ArrayList<>();
 		if (this.richUserExtSource != null) {
 			userExtSources.add(this.richUserExtSource);
@@ -71,13 +92,30 @@ public class CandidateSync extends User {
 	}
 
 	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+
+		Map<String, String> attrNew = null;
+		if(attributes != null) attrNew = new HashMap<String, String>(attributes);
+		if(attrNew != null) {
+			Set<String> keys = new HashSet<String>(attrNew.keySet());
+			for(String s: keys) {
+				attrNew.put('\'' + s + '\'', '\'' + attrNew.get(s) + '\'');
+				attrNew.remove(s);
+			}
+		}
+		return str.append(getClass().getSimpleName()+":[userExtSource='").append(richUserExtSource).append("', attributes='"
+			+ attrNew).append("', additionalUserExtSources='").append(additionalRichUserExtSources).append("']").toString();
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
 			+ ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result
-			+ ((getUserExtSources() == null) ? 0 : getUserExtSources().hashCode());
+			+ ((getRichUserExtSources() == null) ? 0 : getRichUserExtSources().hashCode());
 		return result;
 	}
 
@@ -100,8 +138,8 @@ public class CandidateSync extends User {
 		} else if (!attributes.equals(other.attributes)) {
 			return false;
 		}
-		if (getUserExtSources() == null) {
-			return other.getUserExtSources() == null;
-		} else return getUserExtSources().equals(other.getUserExtSources());
+		if (getRichUserExtSources() == null) {
+			return other.getRichUserExtSources() == null;
+		} else return getRichUserExtSources().equals(other.getRichUserExtSources());
 	}
 }
