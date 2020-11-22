@@ -1,4 +1,4 @@
--- database version 3.1.70 (don't forget to update insert statement at the end of file)
+-- database version 3.1.71 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -205,7 +205,6 @@ create table groups (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grp_pk primary key (id),
-  constraint grp_nam_vo_parentg_u unique (name,vo_id,parent_group_id),
   constraint grp_vos_fk foreign key (vo_id) references vos(id),
   constraint grp_grp_fk foreign key (parent_group_id) references groups(id)
 );
@@ -1484,6 +1483,7 @@ create sequence "resources_bans_id_seq";
 create sequence "facilities_bans_id_seq";
 create sequence "vos_bans_id_seq";
 
+create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(parent_group_id,'0'));
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
 create index idx_authz_authz_group_role_id on authz (authorized_group_id,role_id);
@@ -1738,7 +1738,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.70');
+insert into configurations values ('DATABASE VERSION','3.1.71');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
@@ -1753,11 +1753,11 @@ insert into action_types (id, action_type, description) values (nextval('action_
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_public', 'Anyone can write, rewrite and remove value.');
 
 -- init default auditer consumers
-insert into perun.auditer_consumers (id, name, last_processed_id) values (nextval('auditer_consumers_id_seq'), 'dispatcher', 0);
-insert into perun.auditer_consumers (id, name, last_processed_id) values (nextval('auditer_consumers_id_seq'), 'notifications', 0);
+insert into auditer_consumers (id, name, last_processed_id) values (nextval('auditer_consumers_id_seq'), 'dispatcher', 0);
+insert into auditer_consumers (id, name, last_processed_id) values (nextval('auditer_consumers_id_seq'), 'notifications', 0);
 
 -- initial user, user_ext_source and internal ext_source
-insert into perun.ext_sources (id,name,type) values (nextval('ext_sources_id_seq'),'INTERNAL','cz.metacentrum.perun.core.impl.ExtSourceInternal');
-insert into perun.users (id, first_name, last_name) values (nextval('users_id_seq'),'Master','Perun');
-insert into perun.user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (nextval('user_ext_sources_id_seq'), currval('users_id_seq'), 'perun', currval('ext_sources_id_seq'), 0);
+insert into ext_sources (id,name,type) values (nextval('ext_sources_id_seq'),'INTERNAL','cz.metacentrum.perun.core.impl.ExtSourceInternal');
+insert into users (id, first_name, last_name) values (nextval('users_id_seq'),'Master','Perun');
+insert into user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (nextval('user_ext_sources_id_seq'), currval('users_id_seq'), 'perun', currval('ext_sources_id_seq'), 0);
 
