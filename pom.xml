@@ -36,6 +36,7 @@
 		<module>perun-scim</module>
 		<module>perun-openapi</module>
 		<module>perun-cli-java</module>
+		<module>perun-auditlogger</module>
 	</modules>
 
 	<!-- common environmental and version properties-->

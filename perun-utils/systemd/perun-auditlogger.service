@@ -1,0 +1,18 @@
+# Systemd unit file for perun-auditlogger
+#
+#
+
+[Unit]
+Description=Perun-auditlogger
+After=perun.service
+
+[Service]
+Type=forking
+ExecStart=/bin/bash /home/perun/perun-auditlogger/start_auditlogger.sh
+ExecStop=/bin/bash /home/perun/perun-engine/stop_auditlogger.sh
+#SuccessExitStatus=143
+User=perun
+Group=perun
+
+[Install]
+WantedBy=multi-user.target
