@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
@@ -53,6 +54,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -1131,6 +1133,94 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 	}
 
 	@Test
+	public void synchronizeGroupMergeUserExtSourceAttributeValues() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupMergeUserExtSourceAttributeValues");
+
+		// create ues attribute to be added during synchronization
+		Attribute uesAttribute = new Attribute();
+		String namespace = "user-test-unique-attribute:specialNamespace";
+		uesAttribute.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		uesAttribute.setFriendlyName(namespace + "1");
+		uesAttribute.setType(ArrayList.class.getName());
+		uesAttribute.setValue(new ArrayList<>(Arrays.asList("login", "differentLogin")));
+		assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, uesAttribute));
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		CandidateSync candidate = new CandidateSync(setUpCandidate());
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		// create member out of candidate in group
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, new Candidate(candidate));
+		groupsManagerBl.addMember(sess, group, member);
+
+		UserExtSource ues = candidate.getRichUserExtSource().asUserExtSource();
+
+		// set attribute to candidate's ues
+		candidate.setRichUserExtSource(new RichUserExtSource(ues, Arrays.asList(uesAttribute)));
+
+		// set attribute with different value to
+		Attribute attribute = new Attribute(uesAttribute, new ArrayList<>(Arrays.asList("differentLogin")));
+		attributesManagerBl.setAttribute(sess, ues, attribute);
+
+		assertFalse(attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()).valueAsList().contains("login"));
+		assertEquals(1, attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()).valueAsList().size());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertTrue(attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()).valueAsList().contains("login"));
+		assertEquals(2, attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()).valueAsList().size());
+	}
+
+	@Test
+	public void synchronizeGroupCreateNewUserExtSourceAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupCreateNewUserExtSourceAttribute");
+
+		// create ues attribute to be added during synchronization
+		Attribute uesAttribute = new Attribute();
+		String namespace = "user-test-unique-attribute:specialNamespace";
+		uesAttribute.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		uesAttribute.setFriendlyName(namespace + "1");
+		uesAttribute.setType(ArrayList.class.getName());
+		uesAttribute.setValue(new ArrayList<>(Arrays.asList("login")));
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		CandidateSync candidate = new CandidateSync(setUpCandidate());
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		// create member out of candidate in group
+		member = perun.getMembersManagerBl().createMemberSync(sess, vo, new Candidate(candidate));
+		groupsManagerBl.addMember(sess, group, member);
+
+		UserExtSource ues = candidate.getRichUserExtSource().asUserExtSource();
+
+		// set attribute to candidate's ues
+		candidate.setRichUserExtSource(new RichUserExtSource(ues, Arrays.asList(uesAttribute)));
+
+		AttributeNotExistsException e = assertThrows(AttributeNotExistsException.class, () -> attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()));
+		assertTrue(e.getMessage().contains("Attribute name: \"" + uesAttribute.getName() + "\""));
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(uesAttribute, attributesManagerBl.getAttribute(sess, ues, uesAttribute.getName()));
+	}
+
+	@Test
 	public void synchronizeGroupAddMissingMemberWithItsUesAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMemberWithItsUesAttributes");
 
@@ -1163,6 +1253,46 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
 		groupsManagerBl.synchronizeGroup(sess, group);
 		assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
+		RichMember richMember = groupsManagerBl.getGroupRichMembers(sess, group).get(0);
+		assertEquals(uesAttribute, attributesManagerBl.getAttribute(sess, richMember.getUserExtSources().get(2), uesAttribute.getName()));
+	}
+
+	@Test
+	public void synchronizeGroupAddMissingMemberWithItsUesAttributeNotInVo() throws Exception {
+		System.out.println(CLASS_NAME + "synchronizeGroupAddMissingMemberWithItsUesAttributeNotInVo");
+
+		// create ues attribute to be added during synchronization
+		Attribute uesAttribute = new Attribute();
+		String namespace = "user-test-unique-attribute:specialNamespace";
+		uesAttribute.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		uesAttribute.setFriendlyName(namespace + "1");
+		uesAttribute.setType(String.class.getName());
+		uesAttribute.setValue("login");
+		assertNotNull("unable to create user attribute", attributesManagerBl.createAttribute(sess, uesAttribute));
+
+		when(extSourceManagerBl.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN)).thenReturn(extSourceForUserCreation);
+
+		Attribute attr = attributesManagerBl.getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		attr.setValue(extSource.getName());
+		attributesManagerBl.setAttribute(sess, group, attr);
+
+		List<Map<String, String>> subjects = new ArrayList<>();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put("login", "metodej");
+		subjects.add(attributes);
+		CandidateSync candidate = new CandidateSync(setUpCandidate());
+
+		ExtSource extSource = new ExtSource(1, "testExtSource2", ExtSourcesManager.EXTSOURCE_INTERNAL);
+		candidate.setRichUserExtSource(new RichUserExtSource(new UserExtSource(extSource, "extLogin"), Arrays.asList(uesAttribute)));
+
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
+
+		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
+		assertEquals(1, perun.getMembersManagerBl().getRichMembers(sess, vo).size());
+		groupsManagerBl.synchronizeGroup(sess, group);
+		assertEquals(1, groupsManagerBl.getGroupMembers(sess, group).size());
+		assertEquals(2, perun.getMembersManagerBl().getRichMembers(sess, vo).size());
 		RichMember richMember = groupsManagerBl.getGroupRichMembers(sess, group).get(0);
 		assertEquals(uesAttribute, attributesManagerBl.getAttribute(sess, richMember.getUserExtSources().get(1), uesAttribute.getName()));
 	}

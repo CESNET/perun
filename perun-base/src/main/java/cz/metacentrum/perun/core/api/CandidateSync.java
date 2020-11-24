@@ -96,16 +96,17 @@ public class CandidateSync extends User {
 		StringBuilder str = new StringBuilder();
 
 		Map<String, String> attrNew = null;
-		if(attributes != null) attrNew = new HashMap<String, String>(attributes);
+		if(attributes != null) attrNew = new HashMap<>(attributes);
 		if(attrNew != null) {
-			Set<String> keys = new HashSet<String>(attrNew.keySet());
-			for(String s: keys) {
-				attrNew.put('\'' + s + '\'', '\'' + attrNew.get(s) + '\'');
-				attrNew.remove(s);
+			Set<String> keys = new HashSet<>(attrNew.keySet());
+			for(String attrName : keys) {
+				attrNew.put('\'' + attrName + '\'', '\'' + attrNew.get(attrName) + '\'');
+				attrNew.remove(attrName);
 			}
 		}
-		return str.append(getClass().getSimpleName()+":[userExtSource='").append(richUserExtSource).append("', attributes='"
-			+ attrNew).append("', additionalUserExtSources='").append(additionalRichUserExtSources).append("']").toString();
+		return str.append(getClass().getSimpleName()).append(":[userExtSource='").append(richUserExtSource)
+			.append("', attributes='").append(attrNew).append("', additionalUserExtSources='").append(additionalRichUserExtSources)
+			.append("']").toString();
 	}
 
 	@Override
