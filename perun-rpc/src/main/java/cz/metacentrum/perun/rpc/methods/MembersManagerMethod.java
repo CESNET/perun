@@ -370,7 +370,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param member int id of sponsored member, optional
 	 * @param sponsor int id of sponsoring user that is to be removed
 	 * @param validityTo String the last day, when the sponsorship is active, yyyy-mm-dd format.
-	 *                          can be set to null never expire
+	 *                          if it is not passed, or null, it can be set to never expire
 	 * @throw PrivilegeException insufficient permissions
 	 * @throw SponsorshipDoesNotExistException if the given user is not sponsor of the given member
 	 * @throw MemberNotExistsException if there is no such member
@@ -383,7 +383,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
 			User sponsor = ac.getUserById(params.readInt("sponsor"));
-			LocalDate newValidity = params.readLocalDate("validityTo");
+			LocalDate newValidity = null;
+			if (params.contains("validityTo") && params.readString("validityTo") != null) {
+				newValidity = params.readLocalDate("validityTo");
+			}
 
 			ac.getMembersManager().updateSponsorshipValidity(ac.getSession(), sponsoredMember, sponsor, newValidity);
 			return null;

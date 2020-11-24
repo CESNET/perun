@@ -2513,19 +2513,12 @@ components:
       in: query
       required: true
 
-    validityTo:
-      name: validityTo
-      description: date in format yyyy-mm-dd
-      schema:
-        type: string
-      in: query
-      required: true
-
     optionalValidityTo:
       name: validityTo
       description: date in format yyyy-mm-dd
       schema:
         type: string
+        nullable: true
       in: query
       required: false
 
@@ -8191,11 +8184,11 @@ paths:
       tags:
         - MembersManager
       operationId: updateSponsorshipValidity
-      summary: Updates sponsorship validity. To change it to FOREVER, pass null in validityTo.
+      summary: Updates sponsorship validity. To change it to FOREVER, don't pass the validityTo param, or pass it as null.
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/sponsorId'
-        - $ref: '#/components/parameters/validityTo'
+        - $ref: '#/components/parameters/optionalValidityTo'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
