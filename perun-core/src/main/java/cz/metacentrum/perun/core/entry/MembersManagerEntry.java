@@ -1226,6 +1226,30 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+			List<String> data, String header, User sponsor, LocalDate validityTo) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(vo, "vo");
+		Utils.notNull(namespace, "namespace");
+		Utils.notNull(data, "names");
+		Utils.notNull(header, "header");
+
+		if (sponsor == null) {
+			//sponsor is the caller, authorization is checked in Bl
+			sponsor = sess.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!AuthzResolver.authorizedInternal(sess,
+					"createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy", Arrays.asList(vo, sponsor))) {
+				throw new PrivilegeException(sess, "createSponsoredMembers");
+			}
+		}
+
+		return membersManagerBl
+				.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, true);
+	}
+
+	@Override
 	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo) throws PrivilegeException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberCreated;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDeleted;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
@@ -96,6 +99,9 @@ import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -103,6 +109,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -113,6 +120,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
@@ -125,6 +133,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
 
 	private static final String NO_REPLY_EMAIL = "no-reply@muni.cz";
+
+	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
+			"firstname",
+			"lastname",
+			A_U_PREF_MAIL
+	);
+
+	public static final List<String> SPONSORED_MEMBER_ADDITIONAL_FIELDS = Arrays.asList(
+			AttributesManager.NS_USER_ATTR_DEF + ":note"
+	);
 
 	private final MembersManagerImplApi membersManagerImpl;
 	private PerunBl perunBl;
@@ -2337,6 +2355,40 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+			List<String> data, String header, User sponsor, LocalDate validityTo, boolean asyncValidation) {
+
+		Map<String, Map<String, String>> totalResult = new HashMap<>();
+
+		List<String> dataWithHeader = new ArrayList<>();
+		dataWithHeader.add(header);
+		dataWithHeader.addAll(data);
+
+		MappingIterator<Map<String, String>> dataIterator;
+		try {
+			byte[] bytes = String.join("\n", dataWithHeader)
+					.getBytes(StandardCharsets.UTF_8);
+			dataIterator = new CsvMapper()
+					.readerFor(Map.class)
+					.with(CsvSchema.emptySchema().withHeader().withColumnSeparator(';'))
+					.readValues(bytes);
+		} catch (IOException e) {
+			log.error("Failed to parse received CSV data.", e);
+			throw new InternalErrorException("Failed to parse received CSV data.", e);
+		}
+
+		int processedCounter = 0;
+		while(dataIterator.hasNext()) {
+			Map<String, String> singleRow = dataIterator.next();
+			Map<String, String> singleResult = createSingleSponsoredMemberFromCSV(sess, vo, namespace, singleRow,
+					sponsor, validityTo, asyncValidation);
+			totalResult.put(data.get(processedCounter++), singleResult);
+		}
+
+		return totalResult;
+	}
+
+	@Override
 	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) {
 		Map<String, Map<String, String>> result = new HashMap<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
@@ -2671,6 +2723,117 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		} catch (MemberNotSponsoredException e) {
 			//Should not happen
 			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Creates a new user from given data and sponsors him in the given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo, where the new user will be sponsored
+	 * @param namespace namespace used to define an external system where
+	 *                  the user will have a new login generated (currently, only 'mu' namespace is supported)
+	 * @param data values used to create the new user.
+	 *             Required values are - firstname, lastname, urn:perun:user:attribute-def:def:preferredMail
+	 *             Optional values are - urn:perun:user:attribute-def:def:note
+	 * @param sponsor user, who will be set as a sponsor to the newly created user
+	 * @param validityTo validity of the sponsorship. If null, the sponsorship will not be automatically canceled.
+	 * @param asyncValidation switch for easier testing
+	 * @return result of the procedure
+	 */
+	private Map<String, String> createSingleSponsoredMemberFromCSV(PerunSession sess, Vo vo, String namespace,
+	                                                               Map<String, String> data, User sponsor,
+	                                                               LocalDate validityTo, boolean asyncValidation) {
+		for (String requiredField : SPONSORED_MEMBER_REQUIRED_FIELDS) {
+			if (!data.containsKey(requiredField)) {
+				log.error("Invalid data passed, missing required value: {}", requiredField);
+				throw new InternalErrorException("Invalid data passed, missing required value: " + requiredField);
+			}
+		}
+
+		Set<String> additionalValues = new HashSet<>(data.keySet());
+		additionalValues.removeAll(SPONSORED_MEMBER_REQUIRED_FIELDS);
+
+		for (String valueName : additionalValues) {
+			if (!SPONSORED_MEMBER_ADDITIONAL_FIELDS.contains(valueName)) {
+				log.error("Not allowed additional value passed, value: {}", valueName);
+				throw new InternalErrorException("Not allowed additional value passed, value: " + valueName);
+			}
+		}
+
+		Map<String, String> mapName = new HashMap<>();
+		mapName.put("firstName", data.get("firstname"));
+		mapName.put("lastName", data.get("lastname"));
+
+		String email = data.get(A_U_PREF_MAIL);
+
+		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
+		String password = module.generateRandomPassword(sess, null);
+
+		// create sponsored member
+		Map<String, String> status = new HashMap<>();
+		try {
+			Member member = createSponsoredMember(sess, vo, namespace, mapName, password, email, sponsor, validityTo,
+					asyncValidation);
+			User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+			// get login to return
+			String login = perunBl.getAttributesManagerBl().getAttribute(sess, user,
+					PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
+			status.put("login", login);
+			status.put("password", password);
+
+			setAdditionalValues(sess, additionalValues, data, user, member);
+
+			status.put("status", "OK");
+		} catch (Exception e) {
+			status.put("status", e.getMessage());
+		}
+		return status;
+	}
+
+	/**
+	 * Set member or user attributes defined in the given data to the given member or user, depending
+	 * on the attribute entity.
+	 *
+	 * Only user and member attributes are supported.
+	 * Only Integer and String value attributes are supported.
+	 *
+	 * @param sess session
+	 * @param additionalValues attribute names which should be set from the given data
+	 * @param data values mapped by attribute names.
+	 * @param user user to whom the user attributes will be set
+	 * @param member member to whom the member attributes will be set
+	 */
+	private void setAdditionalValues(PerunSession sess, Set<String> additionalValues, Map<String, String> data,
+			User user, Member member) throws WrongAttributeAssignmentException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException {
+
+		for (String additionalValue : additionalValues) {
+			Attribute attrToSet;
+			try {
+				attrToSet = new Attribute(perunBl.getAttributesManager().getAttributeDefinition(sess, additionalValue));
+			} catch (AttributeNotExistsException e) {
+				log.error("Not existing attribute passed: {}", additionalValue);
+				throw new InternalErrorException("Not existing attribute passed: " + additionalValue);
+			}
+
+			if (String.class.getName().equals(attrToSet.getType())) {
+				attrToSet.setValue(data.get(additionalValue));
+			} else if (Integer.class.getName().equals(attrToSet.getType())) {
+				attrToSet.setValue(Integer.parseInt(data.get(additionalValue)));
+			} else {
+				log.error("Unsupported attribute value type: {}", attrToSet.getType());
+				throw new InternalErrorException("Unsupported attribute value type: " + attrToSet.getType());
+			}
+
+			if (additionalValue.startsWith(AttributesManager.NS_USER_ATTR_DEF)) {
+				perunBl.getAttributesManagerBl().setAttribute(sess, user, attrToSet);
+			} else if (additionalValue.startsWith(AttributesManager.NS_MEMBER_ATTR_DEF)) {
+				perunBl.getAttributesManagerBl().setAttribute(sess, member, attrToSet);
+			} else {
+				log.error("Unsupported attribute passed: {}", additionalValue);
+				throw new InternalErrorException("Unsupported attribute passed: " + additionalValue);
+			}
 		}
 	}
 }

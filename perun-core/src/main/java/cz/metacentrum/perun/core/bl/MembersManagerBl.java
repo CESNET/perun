@@ -1519,6 +1519,34 @@ public interface MembersManagerBl {
 	/**
 	 * Creates new sponsored members.
 	 *
+	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and
+	 * start over, exceptions during member creation are not thrown and the returned map has this structure:
+	 *
+	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 *
+	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
+	 *
+	 * @param sess perun session
+	 * @param vo virtual organization to created sponsored members in
+	 * @param namespace used for selecting external system in which guest user account will be created
+	 * @param data csv file values separated by semicolon ';' characters
+	 * @param header header to the given csv data, it should represent columns for the given data.
+	 *               Required values are - firstname, lastname, urn:perun:user:attribute-def:def:preferredMail
+	 *               Optional values are - urn:perun:user:attribute-def:def:note
+	 *               The order of the items doesn't matter.
+	 * @param sponsor sponsoring user
+	 * @param asyncValidation switch for easier testing
+	 * @return map of names to map of status, login and password
+	 */
+	Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+	                                                               List<String> data, String header, User sponsor,
+	                                                               LocalDate validityTo, boolean asyncValidation);
+
+	/**
+	 * Creates new sponsored members.
+	 *
 	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and start over,
 	 * exceptions during member creation are not thrown and the returned map has this structure:
 	 *
