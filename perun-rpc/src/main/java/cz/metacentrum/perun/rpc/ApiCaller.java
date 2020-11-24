@@ -11,6 +11,7 @@ import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.TasksManager;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -494,5 +495,61 @@ public class ApiCaller {
 
 		return listOfObjects.subList(fromIndex, toIndex);
 
+	}
+
+	/**
+	 * Fetch PerunBean from the Perun database
+	 *
+	 * IMPORTANT: Actually are supported only objects, that can be connected with some user/authorizedGroup role!!!
+	 *
+	 * @param object according to which will be the real object retrieved
+	 * @return real PerunBean object from the database
+	 * @throws PerunException
+	 */
+	public PerunBean fetchPerunBean(PerunBean object) throws PerunException {
+		if (object == null) throw new InternalErrorException("PerunBean cannot be null while fetching the real object from the database.");
+		return getBeanFromDatabase(object);
+	}
+
+	/**
+	 * Fetch PerunBeans from the Perun database
+	 *
+	 * IMPORTANT: Actually are supported only objects, that can be connected with some user/authorizedGroup role!!!
+	 *
+	 * @param objects according to which will be real objects retrieved
+	 * @return list of real PerunBean objects from the database
+	 * @throws PerunException
+	 */
+	public List<PerunBean> fetchPerunBeans(List<PerunBean> objects) throws PerunException {
+		if (objects == null) throw new InternalErrorException("PerunBeans cannot be null while fetching the real objects from the database.");
+		List<PerunBean> result = new ArrayList<>();
+		for (PerunBean object: objects) {
+			result.add(fetchPerunBean(object));
+		}
+		return result;
+	}
+
+	/**
+	 * Method which fetch the object from the database according to object name and its id
+	 *
+	 * @param object according to which will be real object retrieved
+	 * @return real PerunBean object from the database
+	 * @throws PerunException
+	 */
+	private PerunBean getBeanFromDatabase(PerunBean object) throws PerunException {
+		switch(object.getBeanName()) {
+			case "Group":
+				return getGroupById(object.getId());
+			case "Vo":
+				return getVoById(object.getId());
+			case "Resource":
+				return getResourceById(object.getId());
+			case "Facility":
+				return getFacilityById(object.getId());
+			case "SecurityTeam":
+				return getSecurityTeamById(object.getId());
+			default:
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Object " + object.getBeanName() + " is not supported.");
+		}
 	}
 }

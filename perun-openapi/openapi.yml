@@ -2817,7 +2817,6 @@ paths:
               required:
                 - role
                 - users
-                - complementaryObject
               properties:
                 role: {type: string, nullable: false}
                 users:
@@ -2850,7 +2849,6 @@ paths:
               required:
                 - role
                 - users
-                - complementaryObject
               properties:
                 role: {type: string, nullable: false}
                 users:
@@ -2884,7 +2882,6 @@ paths:
               required:
                 - role
                 - authorizedGroups
-                - complementaryObject
               properties:
                 role: {type: string, nullable: false}
                 authorizedGroups:
@@ -2917,7 +2914,6 @@ paths:
               required:
                 - role
                 - authorizedGroups
-                - complementaryObject
               properties:
                 role: {type: string, nullable: false}
                 authorizedGroups:
