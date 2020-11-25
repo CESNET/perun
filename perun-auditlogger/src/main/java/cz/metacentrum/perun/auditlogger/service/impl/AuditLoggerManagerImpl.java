@@ -19,7 +19,7 @@ public class AuditLoggerManagerImpl implements AuditLoggerManager {
 	private final static Logger log = LoggerFactory.getLogger(AuditLoggerManagerImpl.class);
 
 	private final static String DEFAULT_CONSUMER_NAME = "auditlogger";
-	private final static String DEFAULT_STATE_FILE = "/tmp/auditlogger.state";
+	private final static String DEFAULT_STATE_FILE = "./auditlogger.state";
 	
 	private Thread eventProcessorThread;
 	@Autowired
