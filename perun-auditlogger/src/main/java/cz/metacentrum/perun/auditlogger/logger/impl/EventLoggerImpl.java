@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 				while(messages == null) {
 					try {
 						//IMPORTANT STEP1: Get new bulk of messages
-						messages = perun.getAuditMessagesManager().pollConsumerMessages(perunSession, auditLoggerManager.getConsumerName(), lastProcessedIdNumber);
+						messages = ((PerunBl)perun).getAuditMessagesManagerBl().pollConsumerMessages(perunSession, auditLoggerManager.getConsumerName(), lastProcessedIdNumber);
 						log.debug("Read {} new audit messages starting from {}", messages.size(), lastProcessedIdNumber);
 					} catch (InternalErrorException ex) {
 						log.error("Consumer failed due to {}. Sleeping for {} ms.", ex, sleepTime);
