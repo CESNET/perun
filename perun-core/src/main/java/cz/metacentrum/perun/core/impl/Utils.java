@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
@@ -46,7 +45,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -1009,84 +1007,106 @@ public class Utils {
 	 * @throws InternalErrorException
 	 */
 	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content, String customUrlPath) {
-
-		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
-
-		// create message
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(email);
-		message.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
-
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		if (subject == null ||subject.isEmpty()) {
-			message.setSubject("["+instanceName+"] New email address verification");
-		} else {
-			subject = subject.replace("{instanceName}", instanceName);
-			message.setSubject(subject);
-		}
-
-		// get validation link params
-		String i = Integer.toString(changeId, Character.MAX_RADIX);
-		String m = Utils.getMessageAuthenticationCode(i);
-
+		// use default if unknown rpc path
+		String linkLocation = "/gui/";
 		try {
-
-			// !! There is a hard-requirement for Perun instance
-			// to host GUI on same server as RPC like: "serverUrl/gui/"
-
 			URL urlObject = new URL(url);
-
-			// use default if unknown rpc path
-			String path = "/gui/";
-
-			if (customUrlPath != null) {
-				path = customUrlPath;
+			//if there is custom path, use it, if not, try to use specific path
+			if (customUrlPath != null && !customUrlPath.isEmpty()) {
+				linkLocation = customUrlPath;
 			} else if (urlObject.getPath().contains("/krb/")) {
-				path = "/krb/gui/";
+				linkLocation = "/krb/gui/";
 			} else if (urlObject.getPath().contains("/fed/")) {
-				path = "/fed/gui/";
+				linkLocation = "/fed/gui/";
 			} else if (urlObject.getPath().contains("/ceitec/")) {
 				// to support ceitec proxy, since it gets more fed attributes than IDM SP.
-				path = "/ceitec/gui/";
+				linkLocation = "/ceitec/gui/";
 			} else if (urlObject.getPath().contains("/cert/")) {
-				path = "/cert/gui/";
+				linkLocation = "/cert/gui/";
 			}
-
-			StringBuilder link = new StringBuilder();
-
-			link.append(urlObject.getProtocol());
-			link.append("://");
-			link.append(urlObject.getHost());
-			link.append(path);
-			link.append("?i=");
-			link.append(URLEncoder.encode(i, "UTF-8"));
-			link.append("&m=");
-			link.append(URLEncoder.encode(m, "UTF-8"));
-			link.append("&u=" + user.getId());
-
-			// Build message
-			String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+"."+
-					"\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
-					"Message is automatically generated." +
-					"\n----------------------------------------------------------------" +
-					"\nPerun - Identity & Access Management System";
-
-			if (content == null || content.isEmpty()) {
-				message.setText(text);
-			} else {
-				content = content.replace("{link}",link);
-				message.setText(content);
-			}
-
-			mailSender.send(message);
-
-		} catch (UnsupportedEncodingException ex) {
-			throw new InternalErrorException("Unable to encode validation URL for mail change.", ex);
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
 		}
+		String validationLink = prepareValidationLinkForEmailChange(url, linkLocation, changeId, user);
 
+		String defaultSubject = "["+instanceName+"] New email address verification";
+		String defaultBody = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+"."+
+			"\n\nTo confirm this change please use link below:\n\n"+validationLink+"\n\n" +
+			"Message is automatically generated." +
+			"\n----------------------------------------------------------------" +
+			"\nPerun - Identity & Access Management System";
+
+		Map<String, String> subjectParametersToReplace = new HashMap<>();
+		subjectParametersToReplace.put("{instanceName}", instanceName);
+		subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+		Map<String, String> bodyParametersToReplace = new HashMap<>();
+		bodyParametersToReplace.put("{link}", validationLink);
+		content = prepareBodyOfEmail(content, defaultBody, bodyParametersToReplace);
+
+		sendEmail(subject, content, email);
+	}
+
+	/**
+	 * Sends email with link to non-authz account activation where user can activate his account by setting a password.
+	 *
+	 * @param user user to send notification for
+	 * @param email user's email to send notification to
+	 * @param namespace namespace to reset password in
+	 * @param url base URL of Perun instance
+	 * @param id ID of account activation request
+	 * @param messageTemplate message of the email (use default if null)
+	 * @param subject subject of the email (use default if null)
+	 */
+	public static void sendAccountActivationEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) {
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", id, user, namespace, true);
+		String validityTo = prepareValidityTo();
+
+		String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
+		String defaultBody = "Dear " + user.getDisplayName() + ",\n\nWe've received request to activate your account in namespace \"" + namespace + "\"." +
+			"\n\nPlease visit the link below, where you can activate your account:\n\n" + validationLink + "\n\n" +
+			"Link is valid till " + validityTo + "\n\n" +
+			"Message is automatically generated." +
+			"\n----------------------------------------------------------------" +
+			"\nPerun - Identity & Access Management System";
+
+		Map<String, String> subjectParametersToReplace = new HashMap<>();
+		subjectParametersToReplace.put("{instanceName}", instanceName);
+		subjectParametersToReplace.put("{namespace}", namespace);
+		subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+		Map<String, String> bodyParametersToReplace = new HashMap<>();
+		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+		bodyParametersToReplace.put("{namespace}", namespace);
+		bodyParametersToReplace.put("{validity}", validityTo);
+		// allow enforcing per-language links
+		if (messageTemplate != null && messageTemplate.contains("{link-")) {
+			Pattern pattern = Pattern.compile("\\{link-[^}]+}");
+			Matcher matcher = pattern.matcher(messageTemplate);
+			while (matcher.find()) {
+				// whole "{link-something}"
+				String toSubstitute = matcher.group(0);
+				String langLink = validationLink;
+
+				Pattern namespacePattern = Pattern.compile("-(.*?)}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				if (m2.find()) {
+					// only language "cs", "en",...
+					String lang = m2.group(1);
+					langLink = langLink + "&locale=" + lang;
+				}
+				bodyParametersToReplace.put(toSubstitute, langLink);
+			}
+		} else {
+			bodyParametersToReplace.put("{link}", validationLink);
+		}
+		messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
+
+		sendEmail(subject, messageTemplate, email);
 	}
 
 	/**
@@ -1103,105 +1123,88 @@ public class Utils {
 	 * @throws InternalErrorException
 	 */
 	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) {
-
-		// create mail sender
-		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
-
-		// create message
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(email);
-		message.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
-
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		if (subject == null) {
-			message.setSubject("[" + instanceName + "] Password reset in namespace: " + namespace);
-		} else {
-			subject = subject.replace("{namespace}", namespace);
-			subject = subject.replace("{instanceName}", instanceName);
-			message.setSubject(subject);
-		}
+		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", id, user, namespace, false);
+		String validityTo = prepareValidityTo();
 
-		// get validation link params
-		String i = cipherInput(String.valueOf(user.getId()), false);
-		String m = cipherInput(String.valueOf(id), false);
+		String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
+		String defaultBody = "Dear " + user.getDisplayName() + ",\n\nWe've received request to reset your password in namespace \"" + namespace + "\"." +
+			"\n\nPlease visit the link below, where you can set new password:\n\n" + validationLink + "\n\n" +
+			"Link is valid till " + validityTo + "\n\n" +
+			"Message is automatically generated." +
+			"\n----------------------------------------------------------------" +
+			"\nPerun - Identity & Access Management System";
 
-		try {
+		Map<String, String> subjectParametersToReplace = new HashMap<>();
+		subjectParametersToReplace.put("{instanceName}", instanceName);
+		subjectParametersToReplace.put("{namespace}", namespace);
+		subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
 
-			URL urlObject = new URL(url);
+		Map<String, String> bodyParametersToReplace = new HashMap<>();
+		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+		bodyParametersToReplace.put("{namespace}", namespace);
+		bodyParametersToReplace.put("{validity}", validityTo);
+		// allow enforcing per-language links
+		if (messageTemplate != null && messageTemplate.contains("{link-")) {
+			Pattern pattern = Pattern.compile("\\{link-[^}]+}");
+			Matcher matcher = pattern.matcher(messageTemplate);
+			while (matcher.find()) {
+				// whole "{link-something}"
+				String toSubstitute = matcher.group(0);
+				String langLink = validationLink;
 
-			StringBuilder link = new StringBuilder();
-
-			link.append(urlObject.getProtocol());
-			link.append("://");
-			link.append(urlObject.getHost());
-			// reset link uses non-authz
-			link.append("/non/pwd-reset/");
-			link.append("?i=");
-			link.append(URLEncoder.encode(i, "UTF-8"));
-			link.append("&m=");
-			link.append(URLEncoder.encode(m, "UTF-8"));
-			// append login-namespace so GUI is themes and password checked by namespace rules
-			link.append("&login-namespace=");
-			link.append(URLEncoder.encode(namespace, "UTF-8"));
-
-			//validity formatting
-			String validity = Integer.toString(BeansUtils.getCoreConfig().getPwdresetValidationWindow());
-			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-			LocalDateTime localDateTime = LocalDateTime.now().plusHours(Integer.parseInt(validity));
-			String validityFormatted = dtf.format(localDateTime);
-
-			// Build message en
-			String textEn = "Dear " + user.getDisplayName() + ",\n\nWe've received request to reset your password in namespace \"" + namespace + "\"." +
-					"\n\nPlease visit the link below, where you can set new password:\n\n" + link + "\n\n" +
-					"Link is valid till " + validityFormatted + "\n\n" +
-					"Message is automatically generated." +
-					"\n----------------------------------------------------------------" +
-					"\nPerun - Identity & Access Management System";
-
-
-			if (messageTemplate == null) {
-				message.setText(textEn);
-			} else {
-
-				// allow enforcing per-language links
-				if (messageTemplate.contains("{link-")) {
-					Pattern pattern = Pattern.compile("\\{link-[^}]+}");
-					Matcher matcher = pattern.matcher(messageTemplate);
-					while (matcher.find()) {
-
-						// whole "{link-something}"
-						String toSubstitute = matcher.group(0);
-						String langLink = link.toString();
-
-						Pattern namespacePattern = Pattern.compile("-(.*?)}");
-						Matcher m2 = namespacePattern.matcher(toSubstitute);
-						if (m2.find()) {
-							// only language "cs", "en",...
-							String lang = m2.group(1);
-							langLink = langLink + "&locale=" + lang;
-						}
-						messageTemplate = messageTemplate.replace(toSubstitute, langLink);
-					}
-				} else {
-					messageTemplate = messageTemplate.replace("{link}", link);
+				Pattern namespacePattern = Pattern.compile("-(.*?)}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				if (m2.find()) {
+					// only language "cs", "en",...
+					String lang = m2.group(1);
+					langLink = langLink + "&locale=" + lang;
 				}
-				messageTemplate = messageTemplate.replace("{displayName}", user.getDisplayName());
-				messageTemplate = messageTemplate.replace("{namespace}", namespace);
-				messageTemplate = messageTemplate.replace("{validity}", validityFormatted);
-				message.setText(messageTemplate);
+				bodyParametersToReplace.put(toSubstitute, langLink);
 			}
-
-			mailSender.send(message);
-
-		} catch (MailException ex) {
-			throw new InternalErrorException("Unable to send mail for password reset.", ex);
-		} catch (UnsupportedEncodingException ex) {
-			throw new InternalErrorException("Unable to encode URL for password reset.", ex);
-		} catch (MalformedURLException ex) {
-			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
+		} else {
+			bodyParametersToReplace.put("{link}", validationLink);
 		}
+		messageTemplate = prepareBodyOfEmail(messageTemplate, defaultBody, bodyParametersToReplace);
 
+		sendEmail(subject, messageTemplate, email);
+	}
+
+	/**
+	 * Sends email to user confirming his password was set and the account was activated.
+	 *
+	 * @param user user to send notification for
+	 * @param email user's email to send notification to
+	 * @param namespace namespace where the account was activated
+	 * @param login login of user
+	 * @param subject Subject from template or null
+	 * @param content Message from template or null
+	 */
+	public static void sendAccountActivationConfirmationEmail(User user, String email, String namespace, String login, String subject, String content) {
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+		String defaultSubject = "["+instanceName+"] Account activation in namespace: "+namespace;
+		String defaultText = "Dear "+user.getDisplayName()+",\n\nyour account in namespace \""+namespace+"\" was successfully activated."+
+			"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious account activation without your knowledge.\n\n" +
+			"If you didn't request / perform account activation, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
+			"Message is automatically generated." +
+			"\n----------------------------------------------------------------" +
+			"\nPerun - Identity & Access Management System";
+
+		Map<String, String> subjectParametersToReplace = new HashMap<>();
+		subjectParametersToReplace.put("{instanceName}", instanceName);
+		subjectParametersToReplace.put("{namespace}", namespace);
+		subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+		Map<String, String> bodyParametersToReplace = new HashMap<>();
+		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+		bodyParametersToReplace.put("{namespace}", namespace);
+		bodyParametersToReplace.put("{login}", login);
+		bodyParametersToReplace.put("{instanceName}", instanceName);
+		content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
+
+		sendEmail(subject, content, email);
 	}
 
 	/**
@@ -1215,6 +1218,101 @@ public class Utils {
 	 * @param content Message from template or null
 	 */
 	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String login, String subject, String content) {
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+		String defaultSubject = "["+instanceName+"] Password reset in namespace: "+namespace;
+		String defaultText = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
+			"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
+			"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
+			"Message is automatically generated." +
+			"\n----------------------------------------------------------------" +
+			"\nPerun - Identity & Access Management System";
+
+		Map<String, String> subjectParametersToReplace = new HashMap<>();
+		subjectParametersToReplace.put("{instanceName}", instanceName);
+		subjectParametersToReplace.put("{namespace}", namespace);
+		subject = prepareSubjectOfEmail(subject, defaultSubject, subjectParametersToReplace);
+
+		Map<String, String> bodyParametersToReplace = new HashMap<>();
+		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
+		bodyParametersToReplace.put("{namespace}", namespace);
+		bodyParametersToReplace.put("{login}", login);
+		bodyParametersToReplace.put("{instanceName}", instanceName);
+		content = prepareBodyOfEmail(content, defaultText, bodyParametersToReplace);
+
+		sendEmail(subject, content, email);
+	}
+
+	/**
+	 * Prepare subject of email for password reset or account activation.
+	 *
+	 * If optionalSubject is defined, replace some variables in it and use it as is. If not, use the default
+	 * subject instead.
+	 *
+	 * @param optionalSubject optional subject, can be null, if so use default subject instead
+	 * @param defaultSubject default subject, need to be not null
+	 * @param parametersToReplace keys are name of parameters and values are replacements for the parameter
+	 *
+	 * @return subject to be used for sending an email to user
+	 */
+	private static String prepareSubjectOfEmail(String optionalSubject, String defaultSubject, Map<String, String> parametersToReplace) {
+		notNull(defaultSubject, "defaultSubject");
+
+		//use optional subject if not empty
+		if(optionalSubject != null && !optionalSubject.isEmpty()) {
+			//replace all optional parameters
+			if(parametersToReplace != null) {
+				for(String parameterToReplace : parametersToReplace.keySet()) {
+					optionalSubject.replace(parameterToReplace, parametersToReplace.get(parameterToReplace));
+				}
+			}
+			return optionalSubject;
+		}
+
+		return defaultSubject;
+	}
+
+	/**
+	 * Prepare text of email for password reset or account activation.
+	 *
+	 * If optionalBody is defined, replace some variables in it and use it as is. If not, use the default
+	 * subject instead.
+	 *
+	 * @param optionalBody optional body, can be null, if so use default subject instead
+	 * @param defaultBody default body, need to be not null
+	 * @param parametersToReplace keys are name of parameters and values are replacements for the parameter
+	 *
+	 * @return body to be used for sending an email to user
+	 */
+	private static String prepareBodyOfEmail(String optionalBody, String defaultBody, Map<String, String> parametersToReplace) {
+		notNull(defaultBody, "defaultBody");
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+
+		//use optional body if not empty
+		if(optionalBody != null && !optionalBody.isEmpty()) {
+			//replace all optional parameters
+			if(parametersToReplace != null) {
+				for(String parameterToReplace : parametersToReplace.keySet()) {
+					optionalBody.replace(parameterToReplace, parametersToReplace.get(parameterToReplace));
+				}
+			}
+			return optionalBody;
+		}
+
+		return defaultBody;
+	}
+
+	/**
+	 * Send message with specific body and subject to the email.
+	 *
+	 * @param subjectOfEmail specific subject of mail (need to be not null)
+	 * @param bodyOfEmail specific text of body of mail (need to be not null)
+	 * @param email email to send message to (need to be not null)
+	 */
+	private static void sendEmail(String subjectOfEmail, String bodyOfEmail, String email) {
+		notNull(subjectOfEmail, "subject");
+		notNull(bodyOfEmail, "body");
+		notNull(email, "email");
 
 		// create mail sender
 		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
@@ -1224,36 +1322,120 @@ public class Utils {
 		message.setTo(email);
 		message.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
 
-		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
+		// set subject and body
+		message.setSubject(subjectOfEmail);
+		message.setText(bodyOfEmail);
 
-		if (subject == null || subject.isEmpty()) {
-			message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
-		} else {
-			subject = subject.replace("{namespace}", namespace);
-			subject = subject.replace("{instanceName}", instanceName);
-			message.setSubject(subject);
+		// send email
+		try {
+			mailSender.send(message);
+		} catch (MailException ex) {
+			log.error("Unable to send email to '" + email + "'.", ex);
+			throw new InternalErrorException("Unable to send email.", ex);
+		}
+	}
+
+	/**
+	 * Prepare validity time of validation link.
+	 *
+	 * @return validity as formatted string
+	 */
+	private static String prepareValidityTo() {
+		//TODO: at this moment validity window is used the same for password reset as for account activation
+		String validity = Integer.toString(BeansUtils.getCoreConfig().getPwdresetValidationWindow());
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime localDateTime = LocalDateTime.now().plusHours(Integer.parseInt(validity));
+		return dtf.format(localDateTime);
+	}
+
+	/**
+	 * Prepare validation link for password reset or account activation.
+	 *
+	 * @param url base URL of Perun instance
+	 * @param linkLocation location of validation link under specific Perun instance (for example '/non/pwd-reset/')
+	 * @param id ID of request
+	 * @param user user to who link will be send
+	 * @param namespace namespace to processing request for
+	 * @param activation if result link should work as activation
+	 *
+	 * @return link of validation as String
+	 */
+	private static String prepareValidationLinkForPasswordResetAndAccountActivation(String url, String linkLocation, int id, User user, String namespace, boolean activation) {
+		notNull(user, "user");
+		notNull(url, "url");
+		notNull(linkLocation, "linkLocation");
+
+		// prepare arguments
+		String i = cipherInput(String.valueOf(user.getId()), false);
+		String m = cipherInput(String.valueOf(id), false);
+
+		StringBuilder link = new StringBuilder();
+
+		try {
+			URL urlObject = new URL(url);
+
+			link.append(urlObject.getProtocol());
+			link.append("://");
+			link.append(urlObject.getHost());
+			link.append(linkLocation);
+			link.append("?i=");
+			link.append(URLEncoder.encode(i, "UTF-8"));
+			link.append("&m=");
+			link.append(URLEncoder.encode(m, "UTF-8"));
+			link.append("&login-namespace=");
+			link.append(URLEncoder.encode(namespace, "UTF-8"));
+			if(activation) {
+				link.append("&activation=true");
+			}
+		} catch (MalformedURLException ex) {
+			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
+		} catch (UnsupportedEncodingException ex) {
+			throw new InternalErrorException("Unable to encode URL for password reset.", ex);
 		}
 
-		// Build message
-		String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
-				"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
-				"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
-				"Message is automatically generated." +
-				"\n----------------------------------------------------------------" +
-				"\nPerun - Identity & Access Management System";
+		return link.toString();
+	}
 
-		if (content == null || content.isEmpty()) {
-			message.setText(text);
-		} else {
-			content = content.replace("{displayName}", user.getDisplayName());
-			content = content.replace("{namespace}", namespace);
-			content = content.replace("{login}", login);
-			content = content.replace("{instanceName}", instanceName);
-			message.setText(content);
+	/**
+	 * Prepare validation link for email change
+	 *
+	 * @param url base URL of Perun instance
+	 * @param linkLocation location of validation link under specific Perun instance (for example '/non/pwd-reset/')
+	 * @param changedId ID of request
+	 * @param user user to who link will be send
+	 *
+	 * @return link of validation as String
+	 */
+	private static String prepareValidationLinkForEmailChange(String url, String linkLocation, int changeId, User user) {
+		notNull(user, "user");
+		notNull(url, "url");
+		notNull(linkLocation, "linkLocation");
+
+		// prepare arguments
+		String i = Integer.toString(changeId, Character.MAX_RADIX);
+		String m = Utils.getMessageAuthenticationCode(i);
+
+		StringBuilder link = new StringBuilder();
+
+		try {
+			URL urlObject = new URL(url);
+
+			link.append(urlObject.getProtocol());
+			link.append("://");
+			link.append(urlObject.getHost());
+			link.append(linkLocation);
+			link.append("?i=");
+			link.append(URLEncoder.encode(i, "UTF-8"));
+			link.append("&m=");
+			link.append(URLEncoder.encode(m, "UTF-8"));
+			link.append("&u=" + user.getId());
+		} catch (MalformedURLException ex) {
+			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
+		} catch (UnsupportedEncodingException ex) {
+			throw new InternalErrorException("Unable to encode URL for password reset.", ex);
 		}
 
-		mailSender.send(message);
-
+		return link.toString();
 	}
 
 	/**
