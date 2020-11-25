@@ -5816,6 +5816,7 @@ perun_policies:
 perun_roles_management:
 
   PERUNADMIN:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
@@ -5826,6 +5827,7 @@ perun_roles_management:
       - PERUNOBSERVER:
 
   PERUNOBSERVER:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
@@ -5836,6 +5838,7 @@ perun_roles_management:
       - PERUNOBSERVER:
 
   VOADMIN:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
@@ -5851,6 +5854,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   GROUPADMIN:
+    primary_object: Group
     assign_to_objects:
       Group: group_id
       Vo: vo_id
@@ -5870,6 +5874,7 @@ perun_roles_management:
       - GROUPOBSERVER: Group
 
   GROUPOBSERVER:
+    primary_object: Group
     assign_to_objects:
       Group: group_id
       Vo: vo_id
@@ -5889,12 +5894,14 @@ perun_roles_management:
       - GROUPOBSERVER: Group
 
   SELF:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
 
   FACILITYADMIN:
+    primary_object: Facility
     assign_to_objects:
       Facility: facility_id
     entities_to_manage:
@@ -5910,6 +5917,7 @@ perun_roles_management:
       - FACILITYOBSERVER: Facility
 
   FACILITYOBSERVER:
+    primary_object: Facility
     assign_to_objects:
       Facility: facility_id
     entities_to_manage:
@@ -5925,6 +5933,7 @@ perun_roles_management:
       - FACILITYOBSERVER: Facility
 
   TRUSTEDFACILITYADMIN:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
@@ -5940,6 +5949,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   RESOURCEADMIN:
+    primary_object: Resource
     assign_to_objects:
       Resource: resource_id
       Vo: vo_id
@@ -5966,6 +5976,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   RESOURCEOBSERVER:
+    primary_object: Resource
     assign_to_objects:
       Resource: resource_id
       Vo: vo_id
@@ -5992,6 +6003,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   RESOURCESELFSERVICE:
+    primary_object: Resource
     assign_to_objects:
       Resource: resource_id
       Vo: vo_id
@@ -6018,36 +6030,42 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   REGISTRAR:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
 
   ENGINE:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
 
   RPC:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
 
   NOTIFICATIONS:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
 
   SERVICEUSER:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles_to_manage: []
     privileged_roles_to_read: []
 
   SPONSOR:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
@@ -6063,6 +6081,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   VOOBSERVER:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
@@ -6078,6 +6097,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   TOPGROUPCREATOR:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
@@ -6093,6 +6113,7 @@ perun_roles_management:
       - VOOBSERVER: Vo
 
   SECURITYADMIN:
+    primary_object: SecurityTeam
     assign_to_objects:
       SecurityTeam: security_team_id
     entities_to_manage:
@@ -6107,6 +6128,7 @@ perun_roles_management:
       - SECURITYADMIN: SecurityTeam
 
   CABINETADMIN:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
@@ -6119,6 +6141,7 @@ perun_roles_management:
       - CABINETADMIN:
 
   UNKNOWN:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
     privileged_roles_to_manage: []

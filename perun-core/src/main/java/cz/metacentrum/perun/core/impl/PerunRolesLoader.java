@@ -141,12 +141,14 @@ public class PerunRolesLoader {
 		while (roleNames.hasNext()) {
 			String roleName = roleNames.next();
 			JsonNode roleNode = rolesNodes.get(roleName);
+			JsonNode primaryObjectNode = roleNode.get("primary_object");
+			String primaryObject = primaryObjectNode.isNull() ? null : primaryObjectNode.textValue();
 			List<Map<String, String>> privilegedRolesToManage = createMapFromPrivilegedRoles(roleNode.get("privileged_roles_to_manage"));
 			List<Map<String, String>> privilegedRolesToRead = createMapFromPrivilegedRoles(roleNode.get("privileged_roles_to_read"));
 			Map<String, String> entitiesToManage = createMapFromJsonNode(roleNode.get("entities_to_manage"));
 			Map<String, String> objectsToAssign = createMapFromJsonNode(roleNode.get("assign_to_objects"));
 
-			rules.add(new RoleManagementRules(roleName, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign));
 		}
 
 		return rules;
