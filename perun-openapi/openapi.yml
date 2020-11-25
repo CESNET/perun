@@ -425,6 +425,7 @@ components:
       type: object
       properties:
         roleName: { type: string }
+        primaryObject: { type: string, nullable: true}
         privilegedRolesToManage:
           type: array
           items:
@@ -447,6 +448,7 @@ components:
             type: string
       required:
         - roleName
+        - primaryObject
         - privilegedRolesToManage
         - privilegedRolesToRead
         - entitiesToManage
