@@ -9,16 +9,8 @@
 # Description:          Starts Perun AuditLogger component.
 ### END INIT INFO
 #
-# Written by Michal Prochazka <michalp@ics.muni.cz>
-# Modified by Pavel Zlamal <zlamal@cesnet.cz>
-# Modified by Michal Vocu <michal.vocu@gmail.com>
+# Written by Michal Vocu <michal.vocu@gmail.com>
 #
-# 22.06.2017 Use /etc/perun/logback-auditlogger.xml and /var/log/perun/
-# 24.03.2016 Create /var/run/perun if not exists, will work when started on system boot
-# 04.05.2015 Create, chown and delete pidfile in order to allow user "perun" to start/stop the service
-# 14.04.2015 Modified path to perun.conf.custom and log4j to /etc/perun
-# 04.04.2015 Log stdout/stderr to perun-auditlogger-out.log
-# 14.10.2019 Do not chown PID file to "perun" since it won't start on Deb 10
 #
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun AuditLogger"

@@ -24,7 +24,7 @@ public class AuditLoggerStarter {
 	private Perun perunBl;
 
 	public AuditLoggerStarter() {
-		this.perunPrincipal = new PerunPrincipal("perunLdapc", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		this.perunPrincipal = new PerunPrincipal("perunAuditlogger", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		springCtx = new ClassPathXmlApplicationContext("/perun-auditlogger.xml");
 		this.auditLoggerManager = springCtx.getBean("auditLoggerManager", AuditLoggerManager.class);
 		this.perunBl = springCtx.getBean("perun", PerunBl.class);
@@ -58,8 +58,6 @@ public class AuditLoggerStarter {
 			// Just for the Spring IoC to exit gracefully...
 			auditLoggerStarter.springCtx.registerShutdownHook();
 
-			// Sets RPC Caller and Perun
-			// ldapcStarter.ldapcManager.setRpcCaller(rpcCaller);
 			auditLoggerStarter.auditLoggerManager.setPerunPrincipal(auditLoggerStarter.perunPrincipal);
 			auditLoggerStarter.auditLoggerManager.setPerunBl(auditLoggerStarter.perunBl);
 
@@ -68,7 +66,7 @@ public class AuditLoggerStarter {
 				auditLoggerStarter.auditLoggerManager.setLastProcessedId(lastProcessedIdToSet);
 			}
 
-			// Start processing events (run method in EventProcessorImpl)
+			// Start processing events (run method in EventLoggerImpl)
 			auditLoggerStarter.auditLoggerManager.startProcessingEvents();
 		} catch (Exception e) {
 			log.error(e.toString(), e);

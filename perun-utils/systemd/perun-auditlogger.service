@@ -9,7 +9,7 @@ After=perun.service
 [Service]
 Type=forking
 ExecStart=/bin/bash /home/perun/perun-auditlogger/start_auditlogger.sh
-ExecStop=/bin/bash /home/perun/perun-engine/stop_auditlogger.sh
+ExecStop=/bin/bash /home/perun/perun-auditlogger/stop_auditlogger.sh
 #SuccessExitStatus=143
 User=perun
 Group=perun
