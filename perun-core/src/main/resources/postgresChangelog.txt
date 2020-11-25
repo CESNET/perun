@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.72
+alter table attr_names drop constraint attnam_attnam_fk;
+drop index idx_fk_attnam_attnam;
+alter table attr_names drop column default_attr_id;
+UPDATE configurations SET value='3.1.72' WHERE property='DATABASE VERSION';
+
 3.1.71
 alter table groups drop constraint grp_nam_vo_parentg_u;
 create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,coalesce(parent_group_id,'0'));

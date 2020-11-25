@@ -1,4 +1,4 @@
--- database version 3.1.71 (don't forget to update insert statement at the end of file)
+-- database version 3.1.72 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -276,7 +276,6 @@ create table membership_types (
 -- ATTR_NAMES - list of possible attributes
 create table attr_names (
 	id integer not null,
-	default_attr_id integer,  --identifier of attribute which can be substituted by this (by default)
 	attr_name varchar not null,  --full name of attribute
 	friendly_name varchar not null, --short name of attribute
 	namespace varchar not null,  --access of attribute to the entity
@@ -292,8 +291,7 @@ create table attr_names (
 	is_unique boolean DEFAULT FALSE NOT NULL,
 	constraint attnam_pk primary key(id),
   constraint attnam_u unique (attr_name),
-  constraint attfullnam_u unique (friendly_name,namespace),
-  constraint attnam_attnam_fk foreign key (default_attr_id) references attr_names(id)
+  constraint attfullnam_u unique (friendly_name,namespace)
 );
 
 -- ATTRIBUTES_AUTHZ - controles permissions for access to attributes
@@ -1501,7 +1499,6 @@ create index idx_fk_vousrsrc_vos on vo_ext_sources(vo_id);
 create index idx_fk_groupsrc_src on group_ext_sources(ext_source_id);
 create index idx_fk_groupsrc_group on group_ext_sources(group_id);
 create index idx_fk_usrcatt_usrc on ext_sources_attributes(ext_sources_id);
-create index idx_fk_attnam_attnam on attr_names(default_attr_id);
 create index idx_fk_rsrc_fac on resources(facility_id);
 create index idx_fk_rsrc_vo on resources(vo_id);
 create index idx_fk_faccont_fac on facility_contacts(facility_id);
@@ -1738,7 +1735,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.71');
+insert into configurations values ('DATABASE VERSION','3.1.72');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
