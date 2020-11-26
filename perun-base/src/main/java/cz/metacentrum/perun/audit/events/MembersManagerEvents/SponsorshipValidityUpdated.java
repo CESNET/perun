@@ -44,4 +44,10 @@ public class SponsorshipValidityUpdated extends AuditEvent {
 	public String getValidity() {
 		return validity;
 	}
+
+	@Override
+	public String toString() {
+		return message;
+	}
+
 }
