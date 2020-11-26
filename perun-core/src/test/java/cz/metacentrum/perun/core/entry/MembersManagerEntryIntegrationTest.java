@@ -77,6 +77,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	private static final String CLASS_NAME = "MembersManager.";
 	private static final String EXT_SOURCE_NAME = "MembersManagerEntryExtSource";
 	private static final String A_U_PREFERRED_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+	private static final String A_U_NOTE = AttributesManager.NS_USER_ATTR_DEF + ":note";
+	private static final String A_U_ADDRESS = AttributesManager.NS_USER_ATTR_DEF + ":address";
+
 	private Vo createdVo = null;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Group createdGroup;
@@ -1584,6 +1587,62 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void createSponsoredMembersFromCSV() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMembersFromCSV");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+
+		//create guests
+		String header = "firstname;lastname;" + A_U_PREFERRED_MAIL + ";" + A_U_NOTE;
+		List<String> data = Arrays.asList(
+				"Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"",
+				"Obi-wan;Kenobi;obi@ics.muni.cz;\"He has the high ground\""
+		);
+		Map<String, Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
+				sess, createdVo, "dummy", data, header, sponsorUser, null, false);
+		assertThat(allResults).hasSize(2);
+
+		Map<String, String> user1Data = allResults.get("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"");
+		Map<String, String> user2Data = allResults.get("Obi-wan;Kenobi;obi@ics.muni.cz;\"He has the high ground\"");
+
+
+		User createdUser1 = getUserByDummyLogin(user1Data.get("login"));
+		User createdUser2 = getUserByDummyLogin(user2Data.get("login"));
+		
+		assertThat(createdUser1.getFirstName()).isEqualTo("Darth");
+		assertThat(createdUser1.getLastName()).isEqualTo("Vader");
+		assertThat(createdUser2.getFirstName()).isEqualTo("Obi-wan");
+		assertThat(createdUser2.getLastName()).isEqualTo("Kenobi");
+
+		checkUserAttribute(createdUser1, A_U_PREFERRED_MAIL, "vader@ics.muni.cz");
+		checkUserAttribute(createdUser2, A_U_PREFERRED_MAIL, "obi@ics.muni.cz");
+
+		checkUserAttribute(createdUser1, A_U_NOTE, "Best dad ever");
+		checkUserAttribute(createdUser2, A_U_NOTE, "He has the high ground");
+	}
+
+	@Test
+	public void createSponsoredMembersFromCSVNotAllowedAttrFails() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMembersFromCSVNotAllowedAttrFails");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+
+		//create guests
+		String header = "firstname;lastname;" + A_U_PREFERRED_MAIL + ";" + A_U_ADDRESS;
+		List<String> data = Collections.singletonList(
+				"Darth;Vader;vader@ics.muni.cz;\"Sumavska 415\""
+		);
+		assertThatExceptionOfType(InternalErrorException.class)
+				.isThrownBy(() -> perun.getMembersManagerBl().createSponsoredMembersFromCSV(sess, createdVo, "dummy",
+						data, header, sponsorUser, null, false))
+				.withMessageContaining("Not allowed additional value passed, value: ");
+	}
+
+	@Test
 	public void createSponsoredMembers() throws Exception {
 		System.out.println(CLASS_NAME + "createSponsoredMembers");
 		//create user in group sponsors with role SPONSOR
@@ -2289,5 +2348,17 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<>());
 		return candidate;
+	}
+
+	private User getUserByDummyLogin(String login) throws Exception {
+		extSource = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
+		UserExtSource ues = new UserExtSource(extSource,login + "@dummy");
+
+		return perun.getUsersManagerBl().getUserByUserExtSource(sess, ues);
+	}
+
+	private void checkUserAttribute(User user, String attrName, Object expectedValue) throws Exception {
+		Attribute user1MailAttr = perun.getAttributesManagerBl().getAttribute(sess, user, attrName);
+		assertThat(user1MailAttr.getValue()).isEqualTo(expectedValue);
 	}
 }

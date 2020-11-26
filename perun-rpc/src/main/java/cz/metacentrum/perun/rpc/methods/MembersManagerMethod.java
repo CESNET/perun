@@ -230,6 +230,55 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates new sponsored members in a given VO and namespace.
 	 *
+	 * If the sponsor is not specified, the current principal becomes the SPONSOR, if he has such privileges.
+	 *
+	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and
+	 * start over, exceptions during member creation are not thrown and the returned map has this structure:
+	 *
+	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 *
+	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
+	 *
+	 * @param data List<String> csv file values separated by semicolon ';' characters
+	 * @param header String header to the given csv data, it should represent columns for the given data, values are
+	 *               also separated by the semicolon ';' character.
+	 *               Required values are - firstname, lastname, urn:perun:user:attribute-def:def:preferredMail
+	 *               Optional values are - urn:perun:user:attribute-def:def:note
+	 *               The order of the items doesn't matter.
+	 * @param vo int VO ID
+	 * @param namespace String namespace selecting remote system for storing the password
+	 * @param sponsor int sponsor's ID
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
+	 */
+	createSponsoredMembersFromCSV {
+		@Override
+		public Map<String, Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+			Vo vo =  ac.getVoById(params.readInt("vo"));
+			String namespace = params.readString("namespace");
+			LocalDate validityTo = null;
+			if (params.contains("validityTo") && params.readString("validityTo") != null) {
+				validityTo = params.readLocalDate("validityTo");
+			}
+			User sponsor = null;
+			if(params.contains("sponsor")) {
+				sponsor = ac.getUserById(params.readInt("sponsor"));
+			}
+			String header = params.readString("header");
+
+			List<String> data = new ArrayList<>(params.readList("data", String.class));
+
+			return ac.getMembersManager()
+					.createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo);
+		}
+	},
+
+	/*#
+	 * Creates new sponsored members in a given VO and namespace.
+	 *
 	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
 	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
 	 *

@@ -8099,6 +8099,39 @@ paths:
                 namespace: { type: string }
                 validityTo: { type: string }
 
+  /json/membersManager/createSponsoredMembersFromCSV:
+    post:
+      tags:
+        - MembersManager
+      operationId: createSponsoredMembersFromCSV
+      summary: Creates new sponsored members in a given VO and namespace.
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringMapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateSponsoredMemberFromCSV
+              description: "input for createSponsoredMembersFromCSV"
+              type: object
+              required:
+                - vo
+                - sponsor
+                - namespace
+                - data
+                - header
+              properties:
+                data : { type: array, items: { type: string }, description: "values separated with semicolons" }
+                header: { type: string, description: "csv header for the given data, values are also split with semicolons"}
+                vo: { type: integer }
+                sponsor: { type: integer }
+                namespace: { type: string }
+                validityTo: { type: string }
+
   /json/membersManager/createSponsoredMembers:
     post:
       tags:

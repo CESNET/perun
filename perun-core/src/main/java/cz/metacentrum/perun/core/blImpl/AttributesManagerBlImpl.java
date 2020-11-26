@@ -7091,6 +7091,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:user:attribute-def:def:note
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("note");
+		attr.setDisplayName("Note");
+		attr.setDescription("Contains special information about the user. It is used to be displayed in GUI");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ_PUBLIC)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
 		//urn:perun:user:attribute-def:def:address
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
