@@ -1119,6 +1119,23 @@ public interface MembersManager {
 	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException;
 
 	/**
+	 * Send mail to user's preferred email address with link for non-authz account activation.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send link mail to
+	 * @param namespace namespace to activate account in (member must have login in it)
+	 * @param url base URL of Perun instance
+	 * @param mailAttributeUrn urn of the attribute with stored mail
+	 * @param language language of the message
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException If not VO admin of member
+	 * @throws MemberNotExistsException If member not exists
+	 * @throws PasswordResetMailNotExistsException If the attribute with stored mail is not filled.
+	 */
+	void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException;
+
+	/**
 	 * Creates a new sponsored Member and its User.
 	 * @param session actor
 	 * @param vo virtual organization  for the member

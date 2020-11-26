@@ -1167,6 +1167,44 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException {
+		Utils.checkPerunSession(sess);
+		getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "sendAccountActivationLinkEmail_Member_String_String_String_String_policy", member)) {
+			throw new PrivilegeException(sess, "sendAccountActivationLinkEmail");
+		}
+
+		//check if attribute exists, throws AttributeNotExistsException
+		Attribute mailAttribute = null;
+		AttributeDefinition attributeDefinition = getPerunBl().getAttributesManager().getAttributeDefinition(sess, mailAttributeUrn);
+
+		try {
+			if (attributeDefinition.getEntity().equals("user")) {
+				User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, user, mailAttributeUrn);
+			}
+			if (attributeDefinition.getEntity().equals("member")) {
+				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, member, mailAttributeUrn);
+			}
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		if (mailAttribute == null) {
+			throw new InternalErrorException("MailAttribute should not be null.");
+		}
+		String mailAddress = mailAttribute.valueAsString();
+		if (mailAddress == null) {
+			throw new PasswordResetMailNotExistsException("Member " + member.getId() + " doesn't have the attribute " +
+				mailAttributeUrn + " set.");
+		}
+
+		getMembersManagerBl().sendAccountActivationLinkEmail(sess, member, namespace, url, mailAddress, language);
+	}
+
+	@Override
 	public RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
 	                                        String password, String email, User sponsor, LocalDate validityTo)
 			throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
