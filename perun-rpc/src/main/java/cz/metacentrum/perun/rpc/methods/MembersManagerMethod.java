@@ -1511,6 +1511,29 @@ public enum MembersManagerMethod implements ManagerMethod {
 			return null;
 
 		}
+	},
+
+	/*#
+	 * Send mail to user's preferred email address with link for non-authz account activation.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param member int Member to get user to send link mail to
+	 * @param namespace String Namespace to activate account in (member must have login in it)
+	 * @param emailAttributeURN urn of the attribute with stored mail
+	 * @param language language of the message
+	 */
+	sendAccountActivationLinkEmail {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getMembersManager().sendAccountActivationLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+				parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString(),
+				parms.readString("emailAttributeURN"), parms.readString("language"));
+
+			return null;
+
+		}
 	}
 
 }

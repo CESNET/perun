@@ -2166,7 +2166,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailSubject:" + namespace);
 				subject = (String) subjectTemplateAttribute.getValue();
 			}
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for subject will be used
+			log.error("There is missing attribute with subject template for password reset in specific namespace.", ex);
+			subject = null;
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -2180,13 +2184,71 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailTemplate:" + namespace);
 				message = (String) messageTemplateAttribute.getValue();
 			}
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for message will be used
+			log.error("There is missing attribute with message template for password reset in specific namespace.", ex);
+			message = null;
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 
 		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress);
 		Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, id, message, subject);
 
+	}
+
+	@Override
+	public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url,
+										   String mailAddress, String language) {
+		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+
+		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
+		boolean found = false;
+		for (Attribute a : logins) {
+			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
+		}
+		if (!found)
+			throw new InternalErrorException(user.toString() + " doesn't have login in namespace: " + namespace);
+
+		String subject;
+		try {
+			Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
+				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailSubject:" + namespace);
+			subject = (String) subjectTemplateAttribute.getValue();
+			if (subject == null) {
+				subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailSubject:" + namespace);
+				subject = (String) subjectTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for subject will be used
+			log.error("There is missing attribute with subject template for account activation in specific namespace.", ex);
+			subject = null;
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		String message;
+		try {
+			Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
+				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailTemplate:" + namespace);
+			message = (String) messageTemplateAttribute.getValue();
+			if (message == null) {
+				messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailTemplate:" + namespace);
+				message = (String) messageTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for message will be used
+			log.error("There is missing attribute with message template for account activation in specific namespace.", ex);
+			message = null;
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		//IMPORTANT: we are using the same requests for password reset and account activation
+		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress);
+		Utils.sendAccountActivationEmail(user, mailAddress, namespace, url, id, message, subject);
 	}
 
 	@Override

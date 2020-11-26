@@ -1414,6 +1414,20 @@ public interface MembersManagerBl {
 	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAddress, String language);
 
 	/**
+	 * Send mail to user's preferred email address with link for non-authz account activation.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send link mail to
+	 * @param namespace Namespace to activate account in (member must have login in)
+	 * @param url base URL of Perun instance
+	 * @param mailAddress mail address where email will be sent
+	 * @param language language of the message
+	 * @throws InternalErrorException
+	 */
+	void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAddress, String language);
+
+	/**
 	 * Creates a new sponsored member.
 	 *
 	 * @param session perun session
