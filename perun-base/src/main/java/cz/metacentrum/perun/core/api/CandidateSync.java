@@ -141,6 +141,15 @@ public class CandidateSync extends User {
 		}
 		if (getRichUserExtSources() == null) {
 			return other.getRichUserExtSources() == null;
-		} else return getRichUserExtSources().equals(other.getRichUserExtSources());
+		} else {
+			if (getRichUserExtSources().size() == other.getRichUserExtSources().size()) {
+				for (RichUserExtSource ues : getRichUserExtSources()) {
+					if (!other.getRichUserExtSources().contains(ues)) {
+						return false;
+					}
+				}
+				return true;
+			} else return false;
+		}
 	}
 }
