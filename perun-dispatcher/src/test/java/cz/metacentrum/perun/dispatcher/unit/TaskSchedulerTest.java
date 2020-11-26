@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.dispatcher.unit;
 
-import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
@@ -19,10 +15,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.IfProfileValue;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.ExecutionException;
@@ -41,11 +34,10 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 
 	private final static Logger log = LoggerFactory.getLogger(TaskSchedulerTest.class);
 
-	Destination destination1 = new Destination(1, "par_dest1", "host", "PARALLEL");
 	SimpleTaskSchedulerSpy simpleSpy = new SimpleTaskSchedulerSpy(2);
 	SimpleTaskSchedulerSpy recurrenceSpy = new SimpleTaskSchedulerSpy(0);
-	FutureTask simpleFutureTask = new FutureTask<SimpleTaskSchedulerSpy>(simpleSpy, null);
-	FutureTask recurrenceFutureTask = new FutureTask<SimpleTaskSchedulerSpy>(recurrenceSpy, null);
+	FutureTask<SimpleTaskSchedulerSpy> simpleFutureTask = new FutureTask<SimpleTaskSchedulerSpy>(simpleSpy, null);
+	FutureTask<SimpleTaskSchedulerSpy> recurrenceFutureTask = new FutureTask<SimpleTaskSchedulerSpy>(recurrenceSpy, null);
 	@Autowired
 	SchedulingPool schedulingPool;
 	@Resource(name="dispatcherPropertiesBean")
@@ -56,29 +48,6 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 	DelayQueue<TaskSchedule>waitingForcedTasksQueue;
 	@Autowired
 	TasksManagerBl tasksManagerBl;
-
-	@IfProfileValue(name = "perun.test.groups", values = ("xxx"))
-	@Test
-	public void sendToEngineTest() {
-		System.out.println("TaskScheduler.sendToEngine()");
-
-		StringBuilder destinations_s = new StringBuilder("");
-		destinations_s.append(destination1.serializeToString());
-		destinations_s.append("");
-
-		log.debug("Destination list to parse: " + destinations_s.toString());
-		List<PerunBean> listOfBeans;
-		List<Destination> destinationList = new ArrayList<Destination>();
-		try {
-			listOfBeans = AuditParser.parseLog(destination1.serializeToString());
-			log.debug("Found list of destination beans: " + listOfBeans);
-			for (PerunBean bean : listOfBeans) {
-				destinationList.add((Destination) bean);
-			}
-		} catch (InternalErrorException e) {
-			log.error("Could not resolve destination from destination list");
-		}
-	}
 
 	@Before
 	public void setupTests() {
@@ -127,7 +96,7 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 	@Test
 	public void sourceUpdatedRecurrenceRunTest() throws InterruptedException, ExecutionException, TimeoutException {
 		//SchedulingPool schedulingPool = new SchedulingPoolRecurrenceSpy();
-		simpleSpy.setTask(recurrenceFutureTask);
+		recurrenceSpy.setTask(recurrenceFutureTask);
 		recurrenceSpy.setSchedulingPool(schedulingPool);
 		Long timeLimit = 100L;
 		Task[] tasks = simpleSetup(timeLimit, schedulingPool);
@@ -166,26 +135,17 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 		}
 	}
 
-	/* WHY????
-	private class SchedulingPoolRecurrenceSpy extends SchedulingPoolImpl {
-		@Override
-		public void scheduleTask(Task task, int delayCount) {
-			super.scheduleTask(task, delayCount);
-		}
-	}
-	*/
-
 	private class SimpleTaskSchedulerSpy extends AbstractTaskSchedulerSpy {
 		int scheduledCounter = 0;
 		int scheduleLimit;
 		boolean testFailed = true;
-		FutureTask task;
+		FutureTask<SimpleTaskSchedulerSpy> task;
 
 		public SimpleTaskSchedulerSpy(int scheduleLimit) {
 			this.scheduleLimit = scheduleLimit;
 		}
 
-		public void setTask(FutureTask task) {
+		public void setTask(FutureTask<SimpleTaskSchedulerSpy> task) {
 			this.task = task;
 		}
 
