@@ -466,8 +466,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<import resource="classpath:perun-core-trace-log.xml"/>
 	</beans>
 
-	<!-- merged from perun-core-jdbc.xml -->
-
+	<!-- Real Perun DB -->
 	<beans profile="production">
 		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
 
@@ -493,20 +492,39 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="configurationPath" value="classpath:perun-roles.yml"/>
 			<property name="secondaryConfigurationPath" value="file:@perun.conf@perun-roles.yml"/>
 		</bean>
+
 	</beans>
 
+	<!-- Containerized Perun for local testing -->
 	<beans profile="default">
-		<!--DataSource implementation-->
-		<jdbc:embedded-database id="dataSource" type="HSQL">
-			<jdbc:script location="classpath:test-schema.sql"/>
-			<jdbc:script location="classpath:test-data.sql"/>
-		</jdbc:embedded-database>
+
+		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="classpath:jdbc.properties"/>
+
+		<!-- DataSource implementation -->
+		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
+
+			<property name="driverClassName" value="${jdbc.driver}"/>
+			<property name="jdbcUrl" value="${jdbc.url}"/>
+			<property name="username" value="${jdbc.username}"/>
+			<property name="password" value="${jdbc.password}"/>
+
+			<property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
+			<property name="minimumIdle" value="${jdbc.minimumIdle}"/>
+			<property name="connectionTimeout" value="${jdbc.connectionTimeout}"/>
+			<property name="maxLifetime" value="${jdbc.maxLifetime}"/>
+			<property name="idleTimeout" value="${jdbc.idleTimeout}"/>
+			<property name="leakDetectionThreshold" value="${jdbc.leakDetectionThreshold}" />
+
+			<property name="auditer" ref="auditer"/>
+
+		</bean>
 
 		<!-- PerunRolesLoader implementation -->
 		<bean id="perunRolesLoader" class="cz.metacentrum.perun.core.impl.PerunRolesLoader">
 			<property name="configurationPath" value="classpath:perun-roles.yml"/>
 			<property name="secondaryConfigurationPath" value="classpath:test-roles.yml"/>
 		</bean>
+
 	</beans>
 
 </beans>

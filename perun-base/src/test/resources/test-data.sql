@@ -1,4 +1,4 @@
-insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,21,'perunadmin');
+/* insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,21,'perunadmin');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,22,'voadmin');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,23,'groupadmin');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,24,'self');
@@ -1940,10 +1940,6 @@ drop sequence attr_names_id_seq;
 create sequence attr_names_id_seq start with 3521;
 drop sequence application_form_id_seq;
 create sequence application_form_id_seq start with 3502;
-drop sequence action_types_seq;
-create sequence action_types_seq start with 3;
-drop sequence auditer_consumers_id_seq;
-create sequence auditer_consumers_id_seq start with 62;
 drop sequence resources_id_seq;
 create sequence resources_id_seq start with 8306;
 drop sequence cabinet_pub_sys_id_seq;
@@ -1965,8 +1961,9 @@ create sequence roles_id_seq start with 102;
 drop sequence cabinet_authorships_id_seq;
 create sequence cabinet_authorships_id_seq start with 5884;
 
-/* insert default perun admin user */
+-- insert default perun admin user
 insert into users (id, first_name, last_name) values (1, 'John', 'Doe');
 insert into ext_sources (id, name, type) values (1, 'BA', 'cz.metacentrum.perun.core.impl.ExtSourceKerberos');
 insert into user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (1, 1, 'perun@BA', 1, 2);
 insert into authz (user_id, role_id) values (1 , 21);
+*/

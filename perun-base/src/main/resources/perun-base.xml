@@ -90,7 +90,7 @@
 					perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc, perunLdapc,
 					perunLdapInitializer
 				</prop>
-				<prop key="perun.db.type">hsqldb</prop>
+				<prop key="perun.db.type">postgresql</prop>
 				<prop key="perun.group.synchronization.interval">1</prop>
 				<prop key="perun.group.synchronization.timeout">10</prop>
 				<prop key="perun.group.structure.synchronization.interval">1</prop>
