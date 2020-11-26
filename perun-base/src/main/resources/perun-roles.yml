@@ -2437,6 +2437,7 @@ perun_policies:
   sendPasswordResetLinkEmail_Member_String_String_String_String_policy:
     policy_roles:
       - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
