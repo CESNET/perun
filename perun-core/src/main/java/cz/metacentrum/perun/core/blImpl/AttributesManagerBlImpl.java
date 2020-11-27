@@ -7791,6 +7791,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			rights = new ArrayList<>();
 			attributes.put(attr, rights);
 
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("nonAuthzAccActivationMailSubject:"+namespace);
+			attr.setDisplayName("Non-Authz Acc Activation Mail Subject");
+			attr.setDescription("Non authz account activation mail subject for "+namespace+".");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
+
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("nonAuthzAccActivationMailTemplate:"+namespace);
+			attr.setDisplayName("Non-Authz Acc Activation Mail Template");
+			attr.setDescription("Non authz account activation mail template for "+namespace+".");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
 		}
 
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
