@@ -100,7 +100,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -120,7 +119,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
@@ -2331,13 +2329,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException {
-		return createSponsoredMember(session, vo, namespace, name, password, email, sponsor, null, asyncValidation);
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean sendActivationLink, String url, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException {
+		return createSponsoredMember(session, vo, namespace, name, password, email, sponsor, null, sendActivationLink, url, asyncValidation);
 	}
 
 	@Override
 	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
-		String password, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException {
+		String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException {
 
 		if (email == null) {
 			email = NO_REPLY_EMAIL;
@@ -2367,7 +2365,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 
-		return setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, validityTo, asyncValidation);
+		Member sponsoredMember = setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, validityTo, asyncValidation);
+
+		//try to send activation link
+		if (sendActivationLink) {
+			if (email != null) {
+				//TODO: at this moment there is missing way how to specify if email should be in different language than english
+				String defaultLanguage = "en";
+				sendAccountActivationLinkEmail(session, sponsoredMember, namespace, url, email, defaultLanguage);
+			} else {
+				log.error("Activation of account for sponsored member " + sponsoredMember + " was not send because email is missing!");
+			}
+		}
+
+		return sponsoredMember;
 	}
 
 	@Override
@@ -2418,7 +2429,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
-			List<String> data, String header, User sponsor, LocalDate validityTo, boolean asyncValidation) {
+			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation) {
 
 		Map<String, Map<String, String>> totalResult = new HashMap<>();
 
@@ -2443,7 +2454,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		while(dataIterator.hasNext()) {
 			Map<String, String> singleRow = dataIterator.next();
 			Map<String, String> singleResult = createSingleSponsoredMemberFromCSV(sess, vo, namespace, singleRow,
-					sponsor, validityTo, asyncValidation);
+					sponsor, validityTo, sendActivationLink, url, asyncValidation);
 			totalResult.put(data.get(processedCounter++), singleResult);
 		}
 
@@ -2451,7 +2462,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean asyncValidation) {
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation) {
 		Map<String, Map<String, String>> result = new HashMap<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
@@ -2471,7 +2482,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			User user;
 			try {
 				user = perunBl.getUsersManagerBl().getUserByMember(sess,
-						createSponsoredMember(sess, vo, namespace, mapName, password, email, sponsor, validityTo, asyncValidation));
+						createSponsoredMember(sess, vo, namespace, mapName, password, email, sponsor, validityTo, sendActivationLink, url, asyncValidation));
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
 				Map<String, String> statusWithLogin = new HashMap<>();
@@ -2800,12 +2811,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 *             Optional values are - urn:perun:user:attribute-def:def:note
 	 * @param sponsor user, who will be set as a sponsor to the newly created user
 	 * @param validityTo validity of the sponsorship. If null, the sponsorship will not be automatically canceled.
+	 * @param url base URL of Perun Instance
 	 * @param asyncValidation switch for easier testing
 	 * @return result of the procedure
 	 */
 	private Map<String, String> createSingleSponsoredMemberFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               Map<String, String> data, User sponsor,
-	                                                               LocalDate validityTo, boolean asyncValidation) {
+	                                                               LocalDate validityTo, boolean sendActivationLink,
+																   String url, boolean asyncValidation) {
 		for (String requiredField : SPONSORED_MEMBER_REQUIRED_FIELDS) {
 			if (!data.containsKey(requiredField)) {
 				log.error("Invalid data passed, missing required value: {}", requiredField);
@@ -2836,7 +2849,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Map<String, String> status = new HashMap<>();
 		try {
 			Member member = createSponsoredMember(sess, vo, namespace, mapName, password, email, sponsor, validityTo,
-					asyncValidation);
+					sendActivationLink, url, asyncValidation);
 			User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 			// get login to return
 			String login = perunBl.getAttributesManagerBl().getAttribute(sess, user,
