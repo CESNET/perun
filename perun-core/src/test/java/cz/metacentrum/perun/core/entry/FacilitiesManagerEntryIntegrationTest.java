@@ -168,6 +168,25 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getFacilitiesByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByIds");
+
+		List<Facility> facilities = facilitiesManagerEntry.getFacilitiesByIds(sess, Collections.singletonList(facility.getId()));
+		assertEquals(facilities.size(), 1);
+		assertTrue(facilities.contains(facility));
+
+		Facility anotherFacility = facilitiesManagerEntry.createFacility(sess, new Facility(0, facility.getName() + "2nd", facility.getDescription() + "2nd"));
+		facilities = facilitiesManagerEntry.getFacilitiesByIds(sess, Arrays.asList(facility.getId(), anotherFacility.getId()));
+		assertEquals(facilities.size(), 2);
+		assertTrue(facilities.contains(facility));
+		assertTrue(facilities.contains(anotherFacility));
+
+		facilities = facilitiesManagerEntry.getFacilitiesByIds(sess, Collections.singletonList(anotherFacility.getId()));
+		assertEquals(facilities.size(), 1);
+		assertTrue(facilities.contains(anotherFacility));
+	}
+
+	@Test
 	public void getFacilitiesByDestination() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilitiesByDestination");
 

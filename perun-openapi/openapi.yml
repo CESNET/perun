@@ -1885,6 +1885,16 @@ components:
       in: query
       required: true
 
+    ids:
+      name: "ids[]"
+      description: "list of ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+
     attributeId:
       name: attributeId
       description: "id of AttributeDefinition"
@@ -7556,6 +7566,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getUserExtSourceById:
+    get:
+      tags:
+        - UserManager
+      operationId: getUserExtSourceById
+      summary: Returns user ext source by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUserExtSourcesByIds:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserExtSourcesByIds
+      summary: Returns list of user ext sources by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/requestPreferredEmailChange:
     post:
       tags:
@@ -7640,6 +7678,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUsersByIds:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUsersByIds
+      summary: Returns list of Users by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -7829,6 +7881,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMembersByIds:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMembersByIds
+      summary: Returns list of Members by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -8323,6 +8389,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilitiesByIds:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByIds
+      summary: Returns list of Facilities by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -10119,6 +10199,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupsByIds:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupsByIds
+      summary: Returns list of groups by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/isGroupMember:
     get:
       tags:
@@ -10523,6 +10617,19 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/resourcesManager/getResourcesByIds:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourcesByIds
+      summary: Returns list of Resources by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/resourcesManager/getEnrichedResourceById:
     get:
@@ -10566,6 +10673,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RichResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getRichResourcesByIds:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getRichResourcesByIds
+      summary: Returns list of RichResources by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -11868,6 +11989,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/vosManager/getVosByIds:
+    get:
+      tags:
+        - VosManager
+      operationId: getVosByIds
+      summary: Return list of VOs by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

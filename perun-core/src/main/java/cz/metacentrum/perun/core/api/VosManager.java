@@ -135,6 +135,17 @@ public interface VosManager {
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException, PrivilegeException;
 
 	/**
+	 * Finds existing VOs by ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return VOs with requested ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Vo> getVosByIds(PerunSession perunSession, List<Integer> ids) throws PrivilegeException;
+
+	/**
 	 * Finds users, who can join the Vo.
 	 *
 	 * @param perunSession

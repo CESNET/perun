@@ -108,6 +108,28 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void getResourcesByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByIds");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		List<Resource> resources = resourcesManager.getResourcesByIds(sess, Collections.singletonList(resource.getId()));
+		assertEquals(resources.size(), 1);
+		assertTrue(resources.contains(resource));
+
+		Resource resource2 = setUpResource2();
+		resources = resourcesManager.getResourcesByIds(sess, Arrays.asList(resource.getId(), resource2.getId()));
+		assertEquals(resources.size(), 2);
+		assertTrue(resources.contains(resource));
+		assertTrue(resources.contains(resource2));
+
+		resources = resourcesManager.getResourcesByIds(sess, Collections.singletonList(resource2.getId()));
+		assertEquals(resources.size(), 1);
+		assertTrue(resources.contains(resource2));
+	}
+
+	@Test
 	public void createResource() throws Exception {
 		System.out.println(CLASS_NAME + "createResource");
 
@@ -1163,6 +1185,30 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.getRichResources(sess, new Vo());
 		// shouldn't find VO
 
+	}
+
+	@Test
+	public void getRichResourcesByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getRichResourcesByIds");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		RichResource richResource = perun.getResourcesManager().getRichResourceById(sess, resource.getId());
+		List<RichResource> resources = resourcesManager.getRichResourcesByIds(sess, Collections.singletonList(resource.getId()));
+		assertEquals(resources.size(), 1);
+		assertTrue(resources.contains(richResource));
+
+		Resource resource2 = setUpResource2();
+		RichResource richResource2 = perun.getResourcesManager().getRichResourceById(sess, resource2.getId());
+		resources = resourcesManager.getRichResourcesByIds(sess, Arrays.asList(resource.getId(), resource2.getId()));
+		assertEquals(resources.size(), 2);
+		assertTrue(resources.contains(richResource));
+		assertTrue(resources.contains(richResource2));
+
+		resources = resourcesManager.getRichResourcesByIds(sess, Collections.singletonList(resource2.getId()));
+		assertEquals(resources.size(), 1);
+		assertTrue(resources.contains(richResource2));
 	}
 
 	@Test

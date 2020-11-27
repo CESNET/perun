@@ -336,6 +336,16 @@ public interface UsersManagerImplApi {
 	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws UserExtSourceNotExistsException;
 
 	/**
+	 * Gets user ext sources by their ids. Silently skips non-existing user ext sources.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return List of UserExtSources with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids);
+
+	/**
 	 * Get List of user ext sources by user
 	 *
 	 * @param sess session
@@ -584,11 +594,11 @@ public interface UsersManagerImplApi {
 	List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefintion, String attributeValue);
 
 	/**
-	 * Batch method which returns users by theirs ids.
+	 * Gets users by their ids. Silently skips non-existing users.
 	 *
 	 * @param sess
 	 * @param usersIds
-	 * @return
+	 * @return List of users with specified ids
 	 * @throws InternalErrorException
 	 */
 	List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds);

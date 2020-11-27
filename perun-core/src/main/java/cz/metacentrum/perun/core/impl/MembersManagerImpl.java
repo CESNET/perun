@@ -22,19 +22,23 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Array;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -214,6 +218,25 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			throw new MemberNotExistsException("member id=" + id);
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public List<Member> getMembersByIds(PerunSession perunSession, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + memberMappingSelectQuery + " from members where id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<Member>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<Member> members = new ArrayList<>();
+					while (rs.next()) {
+						members.add(MEMBER_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return members;
+				});
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 

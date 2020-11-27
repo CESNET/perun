@@ -86,6 +86,16 @@ public interface MembersManagerImplApi {
 	Member getMemberById(PerunSession perunSession, int id) throws MemberNotExistsException;
 
 	/**
+	 * Gets members by their ids. Silently skips non-existing members.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return list of members with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Member> getMembersByIds(PerunSession perunSession, List<Integer> ids);
+
+	/**
 	 * Returns member by his user id and vo.
 	 *
 	 * @param perunSession

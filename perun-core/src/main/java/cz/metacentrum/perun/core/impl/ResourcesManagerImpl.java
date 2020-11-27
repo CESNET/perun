@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 import org.slf4j.Logger;
@@ -33,11 +34,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -76,8 +78,6 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources_bans.modified_by as res_bans_modified_by, resources_bans.created_by_uid as res_bans_created_by_uid, resources_bans.modified_by_uid as res_bans_modified_by_uid";
 
 	private final JdbcPerunTemplate jdbc;
-	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
 
 	protected static final RowMapper<Resource> RESOURCE_MAPPER = (resultSet, i) -> {
 		Resource resource = new Resource();
@@ -175,9 +175,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	public ResourcesManagerImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
-		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
-		this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 
 		// Initialize resources manager
 		this.initialize();
@@ -195,6 +193,25 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
+	public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + resourceMappingSelectQuery + " from resources where id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<Resource>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<Resource> resources = new ArrayList<>();
+					while (rs.next()) {
+						resources.add(RESOURCE_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return resources;
+				});
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public RichResource getRichResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
@@ -205,7 +222,24 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+	}
 
+	@Override
+	public List<RichResource> getRichResourcesByIds(PerunSession perunSession, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery + ", " +
+					resourceTagMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id join facilities on resources.facility_id=facilities.id " +
+					"left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id " +
+					"where resources.id "+ Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<RichResource>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					return RICH_RESOURCE_WITH_TAGS_EXTRACTOR.extractData(rs);
+				});
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@Override

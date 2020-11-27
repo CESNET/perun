@@ -550,6 +550,16 @@ public interface UsersManagerBl {
 	UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws UserExtSourceNotExistsException;
 
 	/**
+	 * Get user ext sources by their ids.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return list of user external sources with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids);
+
+	/**
 	 * Get all users userExtSources with last_access not older than (now - m),
 	 * where 'm' is number of months defined in CONSTANT in UsersManagerImpl.
 	 *

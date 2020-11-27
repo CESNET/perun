@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -106,10 +107,28 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertNotNull("returned vo should not be null", returnedVo);
 
 		assertEquals(createdVo.getId(), returnedVo.getId());
-		assertEquals("name is not the same", createdVo.getName(),
-				returnedVo.getName());
-		assertEquals("shortName is not the same", createdVo.getShortName(),
-				returnedVo.getShortName());
+		assertEquals("name is not the same", createdVo.getName(), returnedVo.getName());
+		assertEquals("shortName is not the same", createdVo.getShortName(), returnedVo.getShortName());
+	}
+
+	@Test
+	public void getVosByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getVosByIds");
+
+		Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		List<Vo> vos = vosManagerEntry.getVosByIds(sess, Collections.singletonList(createdVo.getId()));
+		assertEquals(vos.size(), 1);
+		assertTrue(vos.contains(createdVo));
+
+		Vo anotherVo = vosManagerEntry.createVo(sess, new Vo(0, myVo.getName() + "2nd", myVo.getShortName() + "2nd"));
+		vos = vosManagerEntry.getVosByIds(sess, Arrays.asList(createdVo.getId(), anotherVo.getId()));
+		assertEquals(vos.size(), 2);
+		assertTrue(vos.contains(createdVo));
+		assertTrue(vos.contains(anotherVo));
+
+		vos = vosManagerEntry.getVosByIds(sess, Collections.singletonList(anotherVo.getId()));
+		assertEquals(vos.size(), 1);
+		assertTrue(vos.contains(anotherVo));
 	}
 
 	@Test

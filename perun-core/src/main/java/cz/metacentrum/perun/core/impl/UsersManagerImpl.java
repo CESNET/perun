@@ -659,6 +659,26 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+					"  from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where user_ext_sources.id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<UserExtSource>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<UserExtSource> userExtSources = new ArrayList<>();
+					while (rs.next()) {
+						userExtSources.add(USEREXTSOURCE_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return userExtSources;
+				});
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) {
 		try {
 			return jdbc.query("SELECT " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +

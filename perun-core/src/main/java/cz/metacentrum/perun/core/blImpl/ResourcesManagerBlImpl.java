@@ -97,6 +97,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> ids) {
+		return getResourcesManagerImpl().getResourcesByIds(sess, ids);
+	}
+
+	@Override
 	public EnrichedResource getEnrichedResourceById(PerunSession sess, int id, List<String> attrNames) throws ResourceNotExistsException {
 		Resource resource = getResourceById(sess, id);
 		return convertToEnrichedResource(sess, resource, attrNames);
@@ -105,6 +110,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public RichResource getRichResourceById(PerunSession sess, int id) throws ResourceNotExistsException {
 		return getResourcesManagerImpl().getRichResourceById(sess, id);
+	}
+
+	@Override
+	public List<RichResource> getRichResourcesByIds(PerunSession sess, List<Integer> ids) {
+		return getResourcesManagerImpl().getRichResourcesByIds(sess, ids);
 	}
 
 	@Override

@@ -470,6 +470,16 @@ public interface MembersManagerBl {
 	Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException;
 
 	/**
+	 * Returns members by their ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return list of members with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Member> getMembersByIds(PerunSession perunSession, List<Integer> ids);
+
+	/**
 	 * Returns member by his user and vo.
 	 *
 	 * @param sess

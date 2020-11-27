@@ -365,6 +365,20 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns groups by their ids.
+	 *
+	 * @param ids List<Integer> list of groups IDs
+	 * @return List<Group> groups with specified IDs
+	 */
+	getGroupsByIds {
+
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupsByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Return all operand groups for specified result groups (all INCLUDED groups).
 	 * If "reverseDirection" is TRUE than return all result groups for specified operand group (where group is INCLUDED).
 	 *

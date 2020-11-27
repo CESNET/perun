@@ -193,6 +193,20 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
+	public List<Vo> getVosByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.notNull(sess, "sess");
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getVosByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getVosByIds");
+		}
+		List<Vo> vos = vosManagerBl.getVosByIds(sess, ids);
+		vos.removeIf(vo -> !AuthzResolver.authorizedInternal(sess, "filter-getVosByIds_List<Integer>_policy", vo));
+
+		return vos;
+	}
+
+	@Override
 	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) throws VoNotExistsException, PrivilegeException {
 		Utils.notNull(searchString, "searchString");
 		Utils.notNull(sess, "sess");

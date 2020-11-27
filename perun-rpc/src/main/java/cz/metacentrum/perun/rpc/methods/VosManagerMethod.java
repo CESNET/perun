@@ -157,6 +157,19 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns VOs by their IDs.
+	 *
+	 * @param ids List<Integer> list of VOs IDs
+	 * @return List<Vo> VOs with specified IDs
+	 */
+	getVosByIds {
+		@Override
+		public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getVosByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Find candidates for VO. Candidates can be used to create new members. Candidates are searched
 	 * in VOs external sources (if available). Candidates, which are already members of VO are never
 	 * returned even if they match searchString.

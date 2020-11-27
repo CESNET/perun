@@ -814,6 +814,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Group> getGroupsByIds(PerunSession sess, List<Integer> ids) {
+		return getGroupsManagerImpl().getGroupsByIds(sess, ids);
+	}
+
+	@Override
 	public void addMemberToMembersGroup(PerunSession sess, Group group, Member member) throws AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 		// Check if the group IS memebers or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {

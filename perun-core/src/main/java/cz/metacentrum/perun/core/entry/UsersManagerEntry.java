@@ -516,6 +516,18 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getUserExtSourcesByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getUserExtSourcesByIds");
+		}
+
+		return getUsersManagerBl().getUserExtSourcesByIds(sess, ids);
+	}
+
+	@Override
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserNotExistsException, PrivilegeException, UserExtSourceExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(userExtSource, "userExtSource");
@@ -828,6 +840,20 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 
 		return getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, attributeValue);
+	}
+
+	@Override
+	public List<User> getUsersByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getUsersByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getUsersByIds");
+		}
+		List<User> users = getUsersManagerBl().getUsersByIds(sess, ids);
+		users.removeIf(user -> !AuthzResolver.authorizedInternal(sess, "filter-getUsersByIds_List<Integer>_policy", user));
+
+		return users;
 	}
 
 	@Override

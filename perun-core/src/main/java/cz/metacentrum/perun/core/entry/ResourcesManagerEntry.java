@@ -95,6 +95,21 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
+	public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getResourcesByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getResourcesByIds");
+		}
+
+		List<Resource> resources = getResourcesManagerBl().getResourcesByIds(sess, ids);
+		resources.removeIf(resource -> !AuthzResolver.authorizedInternal(sess, "filter-getResourcesByIds_List<Integer>_policy", resource));
+
+		return resources;
+	}
+
+	@Override
 	public EnrichedResource getEnrichedResourceById(PerunSession sess, int id, List<String> attrNames) throws PrivilegeException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -122,6 +137,21 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 		return rr;
 
+	}
+
+	@Override
+	public List<RichResource> getRichResourcesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getRichResourcesByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getRichResourcesByIds");
+		}
+
+		List<RichResource> richResources = getResourcesManagerBl().getRichResourcesByIds(sess, ids);
+		richResources.removeIf(richResource -> !AuthzResolver.authorizedInternal(sess, "filter-getRichResourcesByIds_List<Integer>_policy", richResource));
+
+		return richResources;
 	}
 
 	@Override
