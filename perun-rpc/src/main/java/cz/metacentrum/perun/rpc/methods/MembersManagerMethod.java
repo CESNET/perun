@@ -117,6 +117,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param sponsor int sponsor's ID
 	 * @param email (optional) preferred email that will be set to the created user. If no email
 	 *              is provided, "no-reply@muni.cz" is used.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+	 *                            default is false, can't be used with empty email parameter
 	 * @return RichMember newly created sponsored member
 	 */
 	/*#
@@ -136,6 +138,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param email (optional) preferred email that will be set to the created user. If no email
 	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+	 *                            default is false, can't be used with empty email parameter
 	 * @return RichMember newly created sponsored member
 	 */
 	createSponsoredMember {
@@ -145,6 +149,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			boolean sendActivationLink = false;
+			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
+				sendActivationLink = params.readBoolean("sendActivationLinks");
+			}
 			String email = null;
 			if (params.contains("email")) {
 				email = params.readString("email");
@@ -152,6 +160,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			if (email != null && !Utils.emailPattern.matcher(email).matches()) {
 				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
 			}
+			if(email == null && sendActivationLink) throw new RpcException(RpcException.Type.MISSING_VALUE, "Can't send link for activation when email is missing!");
 			User sponsor = null;
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {
@@ -171,7 +180,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, email, sponsor, validityTo);
+			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, email, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
 		}
 	},
 
@@ -251,6 +260,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member
+	 *                           account will be send to the email (can't be used with empty email parameter), default is false
 	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
 	 */
 	createSponsoredMembersFromCSV {
@@ -259,6 +270,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			params.stateChangingCheck();
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			boolean sendActivationLink = false;
+			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
+				sendActivationLink = params.readBoolean("sendActivationLinks");
+			}
 			LocalDate validityTo = null;
 			if (params.contains("validityTo") && params.readString("validityTo") != null) {
 				validityTo = params.readLocalDate("validityTo");
@@ -272,7 +287,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			List<String> data = new ArrayList<>(params.readList("data", String.class));
 
 			return ac.getMembersManager()
-					.createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo);
+					.createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
 		}
 	},
 
@@ -298,6 +313,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param sponsor int sponsor's ID
 	 * @param email (optional) preferred email that will be set to the created user. If no email
 	 *              is provided, "no-reply@muni.cz" is used.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member account will be send
+	 *                           to the email, be careful when using with empty (no-reply) email, default is false
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
 	 */
@@ -307,6 +324,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			params.stateChangingCheck();
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			boolean sendActivationLink = false;
+			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
+				sendActivationLink = params.readBoolean("sendActivationLinks");
+			}
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {
 				validityTo = params.readLocalDate("validityTo");
@@ -315,6 +336,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			if (params.contains("email")) {
 				email = params.readString("email");
 			}
+			if(email == null && sendActivationLink) throw new RpcException(RpcException.Type.MISSING_VALUE, "Can't send link for activation when email is missing!");
 			User sponsor = null;
 			if(params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
@@ -325,7 +347,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value: 'guestNames' must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo);
+			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
 		}
 	},
 

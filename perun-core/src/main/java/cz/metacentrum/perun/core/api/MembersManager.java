@@ -1146,6 +1146,9 @@ public interface MembersManager {
 	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
+	 * @param sendActivationLink if true link for manual activation of account will be send to the email
+	 *                           be careful when using with empty (no-reply) email
+	 * @param url base URL of Perun Instance
 	 * @return new Member in the Vo
 	 * @throws InternalErrorException if given parameters are invalid
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
@@ -1159,7 +1162,7 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException
 	 * @throws AlreadySponsorException
 	 */
-	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
+	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1210,12 +1213,16 @@ public interface MembersManager {
 	 *               Optional values are - urn:perun:user:attribute-def:def:note
 	 *               The order of the items doesn't matter.
 	 * @param sponsor sponsoring user
+	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
+	 *                           to email which was set for him, be careful when using no-reply emails
+	 * @param url base URL of Perun Instance
 	 * @return map of names to map of status, login and password
 	 * @throws PrivilegeException insufficient permissions
 	 */
 	Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               List<String> data, String header, User sponsor,
-	                                                               LocalDate validityTo) throws PrivilegeException;
+	                                                               LocalDate validityTo, boolean sendActivationLink,
+																   String url) throws PrivilegeException;
 
 	/**
 	 * Creates new sponsored Members (with random generated passwords).
@@ -1238,10 +1245,13 @@ public interface MembersManager {
 	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
+	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
+	 *                           to the email, be careful when using with empty (no-reply) email
+	 * @param url base URL of Perun Instance
 	 * @return map of names to map of status, login and password
 	 * @throws PrivilegeException
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo) throws PrivilegeException;
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor

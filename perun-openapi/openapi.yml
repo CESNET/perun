@@ -8066,6 +8066,7 @@ paths:
                 sponsor: { type: integer }
                 namespace: { type: string }
                 validityTo: { type: string }
+                sendActivationLink: { type: boolean }
 
   /json/membersManager/setSponsoredMember:
     post:
@@ -8131,6 +8132,7 @@ paths:
                 sponsor: { type: integer }
                 namespace: { type: string }
                 validityTo: { type: string }
+                sendActivationLink: { type: boolean }
 
   /json/membersManager/createSponsoredMembers:
     post:
@@ -8163,6 +8165,7 @@ paths:
                 namespace: { type: string }
                 validityTo: { type: string }
                 email: { type: string }
+                sendActivationLink: { type: boolean }
 
   /json/membersManager/createSpecificMember:
     post:
