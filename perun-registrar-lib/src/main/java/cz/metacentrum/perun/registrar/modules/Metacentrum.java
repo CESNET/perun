@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
+import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
@@ -29,12 +30,19 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * Module for VO Metacentrum
  *
- * @author Pavel Zlamal <256627@mail.muni.cz>
+ * Set different membership expiration to users, which are not eligible for CESNET services.
+ * Prevent them from extending the membership. Warn VO manager about it before application approval.
+ *
+ * On approval of initial application add all members to "storage" group.
+ * On approval of any application sort them in statistic groups.
+ *
+ * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
 public class Metacentrum extends DefaultRegistrarModule {
 
@@ -71,6 +79,30 @@ public class Metacentrum extends DefaultRegistrarModule {
 			}
 		}
 
+		// SET EXPIRATION BASED ON "isCesnetEligibleLastSeen"
+		boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, app.getUser()));
+		boolean eligibleApplication = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromApplication(session, app));
+
+		if (!eligibleUser && !eligibleApplication) {
+
+			Attribute expirationAttribute = perun.getAttributesManagerBl().getAttribute(session, mem, A_MEMBER_MEMBERSHIP_EXPIRATION);
+
+			// only if member already has some expiration set !!
+			if (expirationAttribute.getValue() != null) {
+				LocalDate date = null;
+				if (Application.AppType.INITIAL.equals(app.getType())) {
+					// set 3 months from now (since generic logic already set wrong expiration to the member)
+					date = LocalDate.now().plusMonths(3);
+				} else {
+					// set 3 months from current expiration
+					date = LocalDate.parse(expirationAttribute.valueAsString(), DateTimeFormatter.ISO_LOCAL_DATE).plusMonths(3);
+				}
+				expirationAttribute.setValue(date.toString());
+				perun.getAttributesManagerBl().setAttribute(session, mem, expirationAttribute);
+			}
+
+		}
+
 		// Support statistic groups
 		String statisticGroupName = "";
 
@@ -83,6 +115,7 @@ public class Metacentrum extends DefaultRegistrarModule {
 		}
 
 		if (statisticGroupName != null && !statisticGroupName.isEmpty()) {
+
 			Group group;
 			try {
 				group = perun.getGroupsManagerBl().getGroupByName(session, app.getVo(), statisticGroupName);
@@ -106,30 +139,6 @@ public class Metacentrum extends DefaultRegistrarModule {
 			}
 		}
 
-		// SET EXPIRATION BASED ON "isCesnetEligibleLastSeen"
-		boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, app));
-		boolean eligibleApplication = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromApplication(session, app));
-
-		if (!eligibleUser && !eligibleApplication) {
-
-			Attribute expirationAttribute = perun.getAttributesManagerBl().getAttribute(session, mem, A_MEMBER_MEMBERSHIP_EXPIRATION);
-
-			// only if member already has some expiration set !!
-			if (expirationAttribute.getValue() != null) {
-				LocalDate date = null;
-				if (Application.AppType.INITIAL.equals(app.getType())) {
-					// set 3 months from now (since generic logic already set wrong expiration to the member)
-					date = LocalDate.now().plusMonths(3);
-				} else {
-					// set 3 months from current expiration
-					date = LocalDate.parse(expirationAttribute.valueAsString(), DateTimeFormatter.ISO_LOCAL_DATE).plusMonths(3);
-				}
-				expirationAttribute.setValue(date.toString());
-				perun.getAttributesManagerBl().setAttribute(session, mem, expirationAttribute);
-			}
-
-		}
-
 		return app;
 
 	}
@@ -137,11 +146,31 @@ public class Metacentrum extends DefaultRegistrarModule {
 	@Override
 	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 
-		boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, app));
+		boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, app.getUser()));
 		boolean eligibleApplication = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromApplication(session, app));
 
 		if (!eligibleUser && !eligibleApplication) {
 			throw new CantBeApprovedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null, true);
+		}
+
+	}
+
+	@Override
+	public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params) throws PerunException {
+
+		if (Application.AppType.EXTENSION.equals(appType)) {
+
+			User user = session.getPerunPrincipal().getUser();
+			boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, user));
+			boolean eligibleFromFederation = isCesnetEligibleLastSeen(params.get("isCesnetEligibleLastSeen"));
+
+			if (!eligibleUser && !eligibleFromFederation) {
+				// TODO - We must have much better info in GUI!
+				throw new CantBeSubmittedException("Your membership in VO Metacentrum can't be extended right now. Your account is not verified." +
+						" Please visit your profile and add verified academic identity to your account (from identity federation eduID.cz) " +
+						" or verify your academia status by letter signed by the head of your institution.", "NOT_ELIGIBLE", null, null);
+			}
+
 		}
 
 	}
@@ -214,16 +243,15 @@ public class Metacentrum extends DefaultRegistrarModule {
 	 * If application has no associated user or we anyhow fail to get the value, empty string is returned.
 	 *
 	 * @param session PerunSession
-	 * @param app Application to get user from
+	 * @param user User to check it for
 	 * @return Timestamp (yyyy-MM-dd HH:mm:ss) value or empty string.
 	 */
-	private String getIsCesnetEligibleLastSeenFromUser(PerunSession session, Application app) {
+	private String getIsCesnetEligibleLastSeenFromUser(PerunSession session, User user) {
 
 		String eligibleString = "";
-		if (app.getUser() != null) {
+		if (user != null) {
 			try {
 				PerunBl perun = (PerunBl) session.getPerun();
-				User user = app.getUser();
 				Attribute attribute = perun.getAttributesManagerBl().getAttribute(session, user, A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN);
 				if (attribute.getValue() != null)  {
 					eligibleString = attribute.valueAsString();

@@ -97,9 +97,10 @@ public interface RegistrarModule {
 	 * Custom logic for checking method before application submission (retrieval of registration form) from GUI
 	 *
 	 * @param session who approves the application
+	 * @param appType INITIAL or EXTENSION application
 	 * @param params custom params
 	 */
-	void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException;
+	void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params) throws PerunException;
 
 	/**
 	 * Custom logic for processing pre-filled form item data before they are returned from Perun to GUI
