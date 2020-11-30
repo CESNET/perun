@@ -2117,6 +2117,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2127,6 +2128,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2139,6 +2141,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER:
       - VOADMIN:
+      - SPONSOR:
     include_policies:
       - default_policy
 
@@ -2151,6 +2154,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2161,6 +2165,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2171,6 +2176,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2477,7 +2483,9 @@ perun_policies:
       - default_policy
 
   setSponsorshipForMember_Member_User_LocalDate_policy:
-    policy_roles: []
+    policy_roles:
+      - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 

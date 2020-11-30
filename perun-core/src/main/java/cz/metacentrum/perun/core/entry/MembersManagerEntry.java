@@ -1319,8 +1319,15 @@ public class MembersManagerEntry implements MembersManager {
 			sponsor = session.getPerunPrincipal().getUser();
 		}
 
+		Vo memberVo;
+		try {
+			memberVo = perunBl.getVosManagerBl().getVoById(session, sponsoredMember.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_LocalDate_policy", sponsoredMember)) {
+		if (!AuthzResolver.authorizedInternal(session, "setSponsorshipForMember_Member_User_LocalDate_policy", memberVo, sponsor)) {
 			throw new PrivilegeException(session, "setSponsorshipForMember");
 		}
 
