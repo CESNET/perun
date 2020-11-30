@@ -1280,6 +1280,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param appId int ID of Application this data belongs to.
 	 * @param data ApplicationFormItemData Form item data to be updated by its ID.
+	 * @deprecated Only for old GUI, see updateFormItemsData(appId, data)
 	 */
 	updateFormItemData {
 
@@ -1287,6 +1288,29 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 			ac.getRegistrarManager().updateFormItemData(ac.getSession(), parms.readInt("appId"), parms.read("data", ApplicationFormItemData.class));
+			return null;
+		}
+
+	},
+
+	/*#
+	 * Update data of application form items, which were originally submitted by the user.
+	 * Only user who submitted the application can use this. Only applications in NEW or VERIFIED state can have form items updated.
+	 * Form items of types: FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT,
+	 * SUBMIT_BUTTON and AUTO_SUBMIT_BUTTON are not updatable by this method.
+	 *
+	 * If VALIDATED_EMAIL is changed to non-verified value, it will change application state from VERIFIED to NEW
+	 * and trigger new verification and auto approval (if possible).
+	 *
+	 * @param appId int ID of Application this data belongs to.
+	 * @param data List<ApplicationFormItemData> Form items data to be updated by their IDs.
+	 */
+	updateFormItemsData {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getRegistrarManager().updateFormItemsData(ac.getSession(), parms.readInt("appId"), parms.readList("data", ApplicationFormItemData.class));
 			return null;
 		}
 
