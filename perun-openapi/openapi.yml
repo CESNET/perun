@@ -13009,6 +13009,32 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/registrarManager/updateFormItemsData:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateFormItemsData
+      summary: Update application form items data, which was originally submitted by the User.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputFormItemData
+              description: "input to updateFormItemsData"
+              type: object
+              required:
+                - appId
+                - data
+              properties:
+                appId: { type: integer, description: "application id" }
+                data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/registrarManager/submitApplication:
     post:
       tags:
