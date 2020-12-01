@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
@@ -56,7 +57,8 @@ import java.util.Map;
 public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(AuditMessagesManagerImpl.class);
-	private final static ObjectMapper mapper = new ObjectMapper();
+	private final static ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 	private final static String auditMessageMappingSelectQuery = "id, msg, actor, created_at, created_by_uid";
 

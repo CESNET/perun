@@ -11,7 +11,7 @@ public class SponsorshipEstablished extends AuditEvent {
 	private Member sponsoredMember;
 	private User sponsor;
 	private String message;
-	private String validity;
+	private LocalDate validity;
 
 	@SuppressWarnings("unused") // used by jackson mapper
 	public SponsorshipEstablished() {
@@ -20,9 +20,9 @@ public class SponsorshipEstablished extends AuditEvent {
 	public SponsorshipEstablished(Member sponsoredMember, User sponsor, LocalDate validityTo) {
 		this.sponsoredMember = sponsoredMember;
 		this.sponsor = sponsor;
-		this.validity = (validityTo == null) ? "FOREVER" : validityTo.toString();
+		this.validity = validityTo;
 		this.message = formatMessage("Sponsorship of %s by %s established with validity to %s.",
-				sponsoredMember, sponsor, validity);
+				sponsoredMember, sponsor, (validityTo == null) ? "FOREVER" : validityTo.toString());
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class SponsorshipEstablished extends AuditEvent {
 		return sponsor;
 	}
 
-	public String getValidity() {
+	public LocalDate getValidity() {
 		return validity;
 	}
 
