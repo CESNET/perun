@@ -60,7 +60,7 @@ if ($role eq "PERUNADMIN") {
 		die "ERROR: no other object needed when setting role $role\n";
 	}
 	if (defined($userId)) {
-		$authzResolverAgent->setRole( user => $userId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->setRole( user => $userId, role => $role );
 		printMessage("PERUNADMIN role is successfully set for user $userId", $batch);
 	} else {
 		die "ERROR: PERUNADMIN role cannot be set for group \n";
@@ -70,10 +70,10 @@ if ($role eq "PERUNADMIN") {
 		die "ERROR: no other object needed when setting role $role\n";
 	}
 	if (defined($userId)) {
-		$authzResolverAgent->setRole( user => $userId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->setRole( user => $userId, role => $role );
 		printMessage("PERUNOBSERVER role is successfully set for user $userId", $batch);
 	} else {
-		$authzResolverAgent->setRole( authorizedGroup => $authorizedGroupId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->setRole( authorizedGroup => $authorizedGroupId, role => $role );
 		printMessage("PERUNOBSERVER role is successfully set for authorizedGroup $authorizedGroupId", $batch);
 	}
 } elsif ($role eq "CABINETADMIN") {
@@ -81,7 +81,7 @@ if ($role eq "PERUNADMIN") {
 		die "ERROR: no other object needed when setting role $role\n";
 	}
 	if (defined($userId)) {
-		$authzResolverAgent->setRole( user => $userId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->setRole( user => $userId, role => $role );
 		printMessage("CABINETADMIN role is successfully set for user $userId", $batch);
 	} else {
 		die "ERROR: CABINETADMIN role cannot be set for group \n";

@@ -31,6 +31,6 @@ my $role = "PERUNADMIN";
 my $agent = Perun::Agent->new();
 my $authzResolverAgent = $agent->getAuthzResolverAgent;
 
-$authzResolverAgent->setRole( user => $userId, complementaryObject => undef, role => $role );
+$authzResolverAgent->setRole( user => $userId, role => $role );
 
 printMessage("User Id: $userId became PERUNADMIN", $batch);
