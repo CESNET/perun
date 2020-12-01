@@ -1843,6 +1843,128 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return perunBl;
 	}
 
+	/**
+	 * Get all Vos where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Vos are retrieved
+	 * @param roles for which Vos are retrieved
+	 * @return List of Vos
+	 */
+	public static List<Vo> getVosWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getVosWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Facilities where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Facilities are retrieved
+	 * @param roles for which Facilities are retrieved
+	 * @return List of Facilities
+	 */
+	public static List<Facility> getFacilitiesWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getFacilitiesWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Resources where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Resources are retrieved
+	 * @param roles for which Resources are retrieved
+	 * @return List of Resources
+	 */
+	public static List<Resource> getResourcesWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getResourcesWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Groups where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * Method does not return subgroups of the fetched groups.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Groups are retrieved
+	 * @param roles for which Groups are retrieved
+	 * @return List of Groups
+	 */
+	public static List<Group> getGroupsWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getGroupsWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Members where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Members are retrieved
+	 * @param roles for which Members are retrieved
+	 * @return List of Members
+	 */
+	public static List<Member> getMembersWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		Set<Member> members = authzResolverImpl.getMembersWhereUserIsInRoles(user, roles);
+
+		if (roles.contains(Role.SPONSORSHIP)) {
+			members.addAll(perunBl.getMembersManagerBl().getSponsoredMembers(sess, user));
+		}
+
+		return new ArrayList<>(members);
+	}
+
+	/**
+	 * Get all SecurityTeams where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who SecurityTeams are retrieved
+	 * @param roles for which SecurityTeams are retrieved
+	 * @return List of SecurityTeams
+	 */
+	public static List<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getSecurityTeamsWhereUserIsInRoles(user, roles));
+	}
+
 	private static PerunBl getPerunBl() {
 		return perunBl;
 	}

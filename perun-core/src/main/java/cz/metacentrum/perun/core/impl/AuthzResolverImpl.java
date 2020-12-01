@@ -35,6 +35,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -47,10 +49,20 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.FACILITY_MAPPER;
+import static cz.metacentrum.perun.core.impl.FacilitiesManagerImpl.facilityMappingSelectQuery;
 import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.GROUP_MAPPER;
 import static cz.metacentrum.perun.core.impl.GroupsManagerImpl.groupMappingSelectQuery;
+import static cz.metacentrum.perun.core.impl.MembersManagerImpl.MEMBER_MAPPER;
+import static cz.metacentrum.perun.core.impl.MembersManagerImpl.memberMappingSelectQuery;
+import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.RESOURCE_MAPPER;
+import static cz.metacentrum.perun.core.impl.ResourcesManagerImpl.resourceMappingSelectQuery;
+import static cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER;
+import static cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl.securityTeamMappingSelectQuery;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.USER_MAPPER;
 import static cz.metacentrum.perun.core.impl.UsersManagerImpl.userMappingSelectQuery;
+import static cz.metacentrum.perun.core.impl.VosManagerImpl.VO_MAPPER;
+import static cz.metacentrum.perun.core.impl.VosManagerImpl.voMappingSelectQuery;
 
 public class AuthzResolverImpl implements AuthzResolverImplApi {
 
@@ -61,6 +73,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	//http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private static JdbcPerunTemplate jdbc;
+	private static NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	private final static Pattern patternForExtractingPerunBean = Pattern.compile("^pb_([a-z_]+)_id$");
 
@@ -125,6 +138,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public AuthzResolverImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
 		jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+		namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
+		namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	@Override
@@ -900,6 +915,120 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public Set<Vo> getVosWhereUserIsInRoles(User user, List<String> roles) {
+		MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
+
+		try {
+			return new HashSet<>(namedParameterJdbcTemplate.query("select " + voMappingSelectQuery + " from authz join vos on authz.vo_id=vos.id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
+					"(select id from roles where name in (:roles))",
+					parameters, VO_MAPPER));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Set<Facility> getFacilitiesWhereUserIsInRoles(User user, List<String> roles) {
+		MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
+
+		try {
+			return new HashSet<>(namedParameterJdbcTemplate.query("select " + facilityMappingSelectQuery + " from authz join facilities on authz.facility_id=facilities.id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
+					"(select id from roles where name in (:roles))",
+				parameters, FACILITY_MAPPER));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Set<Resource> getResourcesWhereUserIsInRoles(User user, List<String> roles) {
+		MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
+
+		try {
+			return new HashSet<>(namedParameterJdbcTemplate.query("select " + resourceMappingSelectQuery + " from authz join resources on authz.resource_id=resources.id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
+					"(select id from roles where name in (:roles))",
+				parameters, RESOURCE_MAPPER));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Set<Group> getGroupsWhereUserIsInRoles(User user, List<String> roles) {
+		MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
+
+		try {
+			return new HashSet<>(namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + " from authz join groups on authz.group_id=groups.id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
+					"(select id from roles where name in (:roles))",
+				parameters, GROUP_MAPPER));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Set<Member> getMembersWhereUserIsInRoles(User user, List<String> roles) {
+		MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
+
+		try {
+			return new HashSet<>(namedParameterJdbcTemplate.query("select " + memberMappingSelectQuery + " from authz join members on authz.member_id=members.id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
+					"(select id from roles where name in (:roles))",
+				parameters, MEMBER_MAPPER));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Set<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(User user, List<String> roles) {
+		MapSqlParameterSource parameters = prepareParametersToGetObjectsByUserRoles(user, roles);
+
+		try {
+			return new HashSet<>(namedParameterJdbcTemplate.query("select " + securityTeamMappingSelectQuery + " from authz join security_teams on authz.security_team_id=security_teams.id " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
+					"(select id from roles where name in (:roles))",
+				parameters, SECURITY_TEAM_MAPPER));
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Create parameters for obtaining objects according to user and list of roles.
+	 *
+	 * @param user for who will be fetched id
+	 * @param roles which will be lower cased
+	 * @return user and roles parameters
+	 */
+	private MapSqlParameterSource prepareParametersToGetObjectsByUserRoles(User user, List<String> roles) {
+		//Not converted in place because there my be used immutable list.
+		List<String> rolesLoweCase = new ArrayList<>();
+		roles.forEach(role -> rolesLoweCase.add(role.toLowerCase()));
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("uid", user.getId());
+		parameters.addValue("roles", rolesLoweCase);
+
+		return parameters;
 	}
 
 	/**

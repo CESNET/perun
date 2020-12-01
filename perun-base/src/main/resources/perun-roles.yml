@@ -346,6 +346,42 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getVosWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getFacilitiesWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getResourcesWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getGroupsWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getMembersWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getSecurityTeamsWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:

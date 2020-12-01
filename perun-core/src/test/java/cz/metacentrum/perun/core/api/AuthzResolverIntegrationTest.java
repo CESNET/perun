@@ -1080,6 +1080,247 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		AuthzResolver.getRichAdmins(sess, testUser, new ArrayList<>(), Role.VOADMIN, false, true);
 	}
 
+	@Test
+	public void getVosWhereUserIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getVosWhereUserIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Vo testVo2 = perun.getVosManager().createVo(sess, new Vo(1,"testvo2","testvo2"));
+		final Vo testVo3 = perun.getVosManager().createVo(sess, new Vo(2,"testvo3","testvo3"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testVo, Role.VOADMIN);
+		AuthzResolver.setRole(sess, testUser, testVo2, Role.SPONSOR);
+		AuthzResolver.setRole(sess, testGroup, testVo3, Role.VOOBSERVER);
+		List<Vo> result = AuthzResolver.getVosWhereUserIsInRoles(sess, testUser, Arrays.asList(Role.VOADMIN, Role.VOOBSERVER));
+
+		assertEquals(2, result.size());
+		assertTrue(result.containsAll(Arrays.asList(testVo, testVo3)));
+	}
+
+	@Test
+	public void getVosWherePrincipalIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getVosWherePrincipalIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Vo testVo2 = perun.getVosManager().createVo(sess, new Vo(1,"testvo2","testvo2"));
+		final Vo testVo3 = perun.getVosManager().createVo(sess, new Vo(2,"testvo3","testvo3"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		sess.getPerunPrincipal().setUser(testUser);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testVo, Role.VOADMIN);
+		AuthzResolver.setRole(sess, testUser, testVo2, Role.SPONSOR);
+		AuthzResolver.setRole(sess, testGroup, testVo3, Role.VOOBSERVER);
+		List<Vo> result = AuthzResolver.getVosWhereUserIsInRoles(sess, null, Arrays.asList(Role.VOADMIN, Role.VOOBSERVER));
+
+		assertEquals(2, result.size());
+		assertTrue(result.containsAll(Arrays.asList(testVo, testVo3)));
+	}
+
+	@Test
+	public void getFacilitiesWhereUserIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesWhereUserIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Facility testFacility = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0,"testfacility1","testfacility1"));
+		final Facility testFacility2 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(1,"testfacility2","testfacility2"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testFacility, Role.FACILITYADMIN);
+		AuthzResolver.setRole(sess, testGroup, testFacility2, Role.FACILITYOBSERVER);
+		List<Facility> result = AuthzResolver.getFacilitiesWhereUserIsInRoles(sess, testUser, Collections.singletonList(Role.FACILITYADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testFacility));
+	}
+
+	@Test
+	public void getFacilitiesWherePrincipalIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesWherePrincipalIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0, "testvo1", "testvo1"));
+		final Facility testFacility = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testfacility1", "testfacility1"));
+		final Facility testFacility2 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(1, "testfacility2", "testfacility2"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		sess.getPerunPrincipal().setUser(testUser);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testFacility, Role.FACILITYADMIN);
+		AuthzResolver.setRole(sess, testGroup, testFacility2, Role.FACILITYOBSERVER);
+		List<Facility> result = AuthzResolver.getFacilitiesWhereUserIsInRoles(sess, null, Collections.singletonList(Role.FACILITYADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testFacility));
+	}
+
+	@Test
+	public void getResourcesWhereUserIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesWhereUserIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Facility testFacility = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0,"testfacility1","testfacility1"));
+		final Resource testResource = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource", "testResource", 0, 0), testVo, testFacility);
+		final Resource testResource2 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource2", "testResource2", 0, 0), testVo, testFacility);
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testResource, Role.RESOURCEADMIN);
+		AuthzResolver.setRole(sess, testGroup, testResource2, Role.RESOURCEOBSERVER);
+		List<Resource> result = AuthzResolver.getResourcesWhereUserIsInRoles(sess, testUser, Collections.singletonList(Role.RESOURCEADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testResource));
+	}
+
+	@Test
+	public void getResourcesWherePrincipalIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesWherePrincipalIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Facility testFacility = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0,"testfacility1","testfacility1"));
+		final Resource testResource = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource", "testResource", 0, 0), testVo, testFacility);
+		final Resource testResource2 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource2", "testResource2", 0, 0), testVo, testFacility);
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		sess.getPerunPrincipal().setUser(testUser);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testResource, Role.RESOURCEADMIN);
+		AuthzResolver.setRole(sess, testGroup, testResource2, Role.RESOURCEOBSERVER);
+		List<Resource> result = AuthzResolver.getResourcesWhereUserIsInRoles(sess, null, Collections.singletonList(Role.RESOURCEADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testResource));
+	}
+
+	@Test
+	public void getGroupsWhereUserIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereUserIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Group testGroup2 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup2", "testg2"));
+		final Group testGroup4 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup4", "testg4"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testGroup2, Role.GROUPADMIN);
+		AuthzResolver.setRole(sess, testGroup, testGroup4, Role.GROUPOBSERVER);
+		List<Group> result = AuthzResolver.getGroupsWhereUserIsInRoles(sess, testUser, Collections.singletonList(Role.GROUPADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testGroup2));
+	}
+
+	@Test
+	public void getGroupsWherePrincipalIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWherePrincipalIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Group testGroup2 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup2", "testg2"));
+		final Group testGroup3 = perun.getGroupsManager().createGroup(sess, testGroup2, new Group("testGroup3", "testg3"));
+		final Group testGroup4 = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup4", "testg4"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		sess.getPerunPrincipal().setUser(testUser);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testUser, testGroup2, Role.GROUPADMIN);
+		AuthzResolver.setRole(sess, testGroup, testGroup4, Role.GROUPOBSERVER);
+		List<Group> result = AuthzResolver.getGroupsWhereUserIsInRoles(sess, null, Collections.singletonList(Role.GROUPADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testGroup2));
+	}
+
+	@Test
+	public void getMembersWhereUserIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersWhereUserIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Member testMember = createSomeMember(testVo);
+		final Member testMember2 = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		sess.getPerunPrincipal().setUser(testUser);
+
+		AuthzResolver.setRole(sess, testUser, testVo, Role.SPONSOR);
+		perun.getMembersManagerBl().setSponsorshipForMember(sess, testMember2, testUser);
+		List<Member> result = AuthzResolver.getMembersWhereUserIsInRoles(sess, testUser, Collections.singletonList(Role.SPONSORSHIP));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testMember2));
+	}
+
+	@Test
+	public void getMembersWherePrincipalIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersWherePrincipalIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Member testMember = createSomeMember(testVo);
+		final Member testMember2 = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		sess.getPerunPrincipal().setUser(testUser);
+
+		AuthzResolver.setRole(sess, testUser, testVo, Role.SPONSOR);
+		perun.getMembersManagerBl().setSponsorshipForMember(sess, testMember2, testUser);
+		List<Member> result = AuthzResolver.getMembersWhereUserIsInRoles(sess, null, Collections.singletonList(Role.SPONSORSHIP));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testMember2));
+	}
+
+	@Test
+	public void getSecurityTeamsWhereUserIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getSecurityTeamsWhereUserIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final SecurityTeam testSecurityTeam = perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, new SecurityTeam(0, "testSecurityTeam", "testSecurityTeam"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		sess.getPerunPrincipal().setUser(testUser);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testGroup, testSecurityTeam, Role.SECURITYADMIN);
+		List<SecurityTeam> result = AuthzResolver.getSecurityTeamsWhereUserIsInRoles(sess, null, Collections.singletonList(Role.SECURITYADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testSecurityTeam));
+	}
+
+	@Test
+	public void getSecurityTeamsWherePrincipalIsInRoles() throws Exception {
+		System.out.println(CLASS_NAME + "getSecurityTeamsWherePrincipalIsInRoles");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final SecurityTeam testSecurityTeam = perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, new SecurityTeam(0, "testSecurityTeam", "testSecurityTeam"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+		perun.getGroupsManager().addMember(sess, testGroup, testMember);
+
+		AuthzResolver.setRole(sess, testGroup, testSecurityTeam, Role.SECURITYADMIN);
+		List<SecurityTeam> result = AuthzResolver.getSecurityTeamsWhereUserIsInRoles(sess, testUser, Collections.singletonList(Role.SECURITYADMIN));
+
+		assertEquals(1, result.size());
+		assertTrue(result.contains(testSecurityTeam));
+	}
 	// private methods ==============================================================
 
 	private Facility setUpFacility() throws Exception {
