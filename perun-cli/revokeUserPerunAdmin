@@ -31,6 +31,6 @@ my $role = "PERUNADMIN";
 my $agent = Perun::Agent->new();
 my $authzResolverAgent = $agent->getAuthzResolverAgent;
 
-$authzResolverAgent->unsetRole( user => $userId, complementaryObject => undef, role => $role );
+$authzResolverAgent->unsetRole( user => $userId, role => $role );
 
 printMessage("User Id: $userId is not PERUNADMIN from now", $batch);
