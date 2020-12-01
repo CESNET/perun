@@ -164,13 +164,12 @@ public interface VosManagerBl {
 	 * users who belong to this Vo or who have ues in any of given extSources.
 	 *
 	 * @param sess session
-	 * @param vo vo if is null, users are searched in whole perun, otherwise members of this vo are used and users with ues in given extSources.
+	 * @param vo vo if vo is null, users are searched in whole perun, otherwise users are searched in members of given vo and in users with ues in any of given extSources
 	 * @param group group to be used
 	 * @param attrNames name of attributes to be searched
 	 * @param searchString depends on the extSource of the Vo, could by part of the name, email or something like that.
 	 * @param extSources extSources used to find candidates and possibly users
 	 * @return list of memberCandidates who match the searchString
-	 * @throws InternalErrorException internal error
 	 */
 	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources);
 

@@ -542,7 +542,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @param vo virtual organization, users are searched inside this vo; if is null, then in the whole Perun
 	 * @param attrNames names of attributes that will be returned
 	 * @param searchString string used to find users
-	 * @param extSources list of extSources to possibly filter RichUsers by
+	 * @param extSources list of extSources to possibly search users with ues in these extSources
 	 * @return List of RichUsers inside given Vo, or in whole perun, who matches the given String
 	 * @throws InternalErrorException internal error
 	 */
