@@ -997,31 +997,13 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, InvalidLoginException, WrongReferenceAttributeValueException, WrongAttributeValueException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "validatePasswordAndSetExtSources_User_String_String_policy", user)
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-validatePasswordAndSetExtSources_User_String_String_policy", user)) && user.isServiceUser())) {
-			throw new PrivilegeException(sess, "validatePasswordAndSetExtSources");
-		}
-
-		// Check if the login is already occupied == reserved, if not throw an exception.
-		// We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
-		if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-			getUsersManagerBl().validatePasswordAndSetExtSources(sess, user, userLogin, loginNamespace);
-		} else {
-			throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
-		}
-	}
-
-	@Override
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws
 			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", user)) {
+		if(!AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", user)
+			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-validatePassword_User_String_policy", user)) && user.isServiceUser())) {
 			throw new PrivilegeException(sess, "validatePassword");
 		}
 

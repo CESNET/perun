@@ -2406,7 +2406,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		String attributeValue = getAttributeValueAsString (session, userToBeSponsored, loginAttributeName);
 
 		//create the user account in external system if does not exist yet
-		String login = createUserAccountInExternalSystem (session, userToBeSponsored, namespace, attributeValue, loginAttributeName, password);
+		createUserAccountInExternalSystem(session, userToBeSponsored, namespace, attributeValue, loginAttributeName, password);
 
 		//create the member in Perun
 		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, userToBeSponsored, sponsor, validityTo);
@@ -2422,7 +2422,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			//for unit tests
 			validateMember(session, sponsoredMember);
 		}
-		getPerunBl().getUsersManagerBl().validatePasswordAndSetExtSources(session, userToBeSponsored, login, namespace);
+		getPerunBl().getUsersManagerBl().validatePassword(session, userToBeSponsored, namespace);
 
 		return sponsoredMember;
 	}

@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -523,4 +524,14 @@ public interface ModulesUtilsBl {
 	 * @throws WrongAttributeValueException if value of attribute in parameter does not contain valid ranges without overlaps
 	 */
 	Map<Integer, Integer> checkAndConvertIDRanges(Attribute idRangesAttribute) throws WrongAttributeValueException;
+
+	/**
+	 * Gets user by login in specified namespace.
+	 *
+	 * @param sess
+	 * @param login user's login
+	 * @param namespace login-namespace
+	 * @return found user or null if no user was found
+	 */
+	User getUserByLoginInNamespace(PerunSession sess, String login, String namespace);
 }

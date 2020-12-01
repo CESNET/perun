@@ -26,7 +26,6 @@ public class CreatePassword {
 	final String JSON_URL_RESERVE = "usersManager/reservePassword";
 	final String JSON_URL_RESERVE_RANDOM = "usersManager/reserveRandomPassword";
 	final String JSON_URL_VALIDATE = "usersManager/validatePassword";
-	final String JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE = "usersManager/validatePasswordAndSetExtSources";
 
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
@@ -94,7 +93,7 @@ public class CreatePassword {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				JsonPostClient jspc = new JsonPostClient(newEvents);
-				jspc.sendData(JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE, validateCallJSON());
+				jspc.sendData(JSON_URL_VALIDATE, validateCallJSON());
 			};
 			@Override
 			public void onLoadingStart() {
@@ -166,7 +165,7 @@ public class CreatePassword {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				JsonPostClient jspc = new JsonPostClient(newEvents);
-				jspc.sendData(JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE, validateCallJSON());
+				jspc.sendData(JSON_URL_VALIDATE, validateCallJSON());
 			};
 			@Override
 			public void onLoadingStart() {
@@ -253,7 +252,7 @@ public class CreatePassword {
 	 * @param login used for validation only
 	 * @param namespace defined login in namespace
 	 */
-	public void validateAndSetUserExtSources(int userId, String login, String namespace) {
+	public void validatePassword(int userId, String login, String namespace) {
 
 		this.userId = userId;
 		this.namespace = namespace;
@@ -281,7 +280,7 @@ public class CreatePassword {
 		}
 
 		JsonPostClient jspc = new JsonPostClient(events);
-		jspc.sendData(JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE, validateCallJSON());
+		jspc.sendData(JSON_URL_VALIDATE, validateCallJSON());
 
 	}
 

@@ -1246,7 +1246,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		// Validate the password
 		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 		try {
-			module.validatePassword(sess, userLogin);
+			module.validatePassword(sess, userLogin, null);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		}
@@ -1268,7 +1268,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			// Validate the password
 			PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
 			try {
-				module.validatePassword(sess, attr.valueAsString());
+				module.validatePassword(sess, attr.valueAsString(), user);
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
 			}
@@ -1277,271 +1277,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		}
-	}
-
-	@Override
-	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, InvalidLoginException {
-		/*
-		 * FIXME This method is very badly writen - it should be rewrited or refactored
-		 */
-
-		try {
-			switch (loginNamespace) {
-				case "einfra": {
-					List<String> kerberosLogins = new ArrayList<>();
-
-					// Set META and EINFRA userExtSources
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "META");
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@META");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA");
-					ues = new UserExtSource(extSource, userLogin + "@EINFRA");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.ics.muni.cz/idp/shibboleth");
-					ues = new UserExtSource(extSource, userLogin + "@meta.cesnet.cz");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					// Store also Kerberos logins
-					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-
-					boolean someChange = false;
-					if (!kerberosLogins.contains(userLogin + "@EINFRA")) {
-						kerberosLogins.add(userLogin + "@EINFRA");
-						someChange = true;
-					}
-					if (!kerberosLogins.contains(userLogin + "@META")) {
-						kerberosLogins.add(userLogin + "@META");
-						someChange = true;
-					}
-
-					if (someChange && kerberosLoginsAttr != null) {
-						kerberosLoginsAttr.setValue(kerberosLogins);
-						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-					}
-
-					break;
-				}
-				case "egi-ui": {
-
-					List<String> kerberosLogins = new ArrayList<>();
-
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EGI");
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@EGI");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					// Store also Kerberos logins
-					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-
-					if (!kerberosLogins.contains(userLogin + "@EGI") && kerberosLoginsAttr != null) {
-						kerberosLogins.add(userLogin + "@EGI");
-						kerberosLoginsAttr.setValue(kerberosLogins);
-						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-					}
-
-					break;
-				}
-				case "sitola": {
-
-					List<String> kerberosLogins = new ArrayList<>();
-
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "SITOLA.FI.MUNI.CZ");
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@SITOLA.FI.MUNI.CZ");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					// Store also Kerberos logins
-					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-
-					if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ") && kerberosLoginsAttr != null) {
-						kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
-						kerberosLoginsAttr.setValue(kerberosLogins);
-						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-					}
-
-					break;
-				}
-				case "ics-muni-cz": {
-
-					List<String> kerberosLogins = new ArrayList<>();
-
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ICS.MUNI.CZ");
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@ICS.MUNI.CZ");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					// Store also Kerberos logins
-					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-
-					if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ") && kerberosLoginsAttr != null) {
-						kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
-						kerberosLoginsAttr.setValue(kerberosLogins);
-						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-					}
-
-					break;
-				}
-				case "mu": {
-
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp2.ics.muni.cz/idp/shibboleth");
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@muni.cz");
-					ues.setLoa(2);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					break;
-				}
-				case "vsup": {
-
-					// Add UES in their ActiveDirectory to access Perun by it
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "AD");
-					UserExtSource ues = new UserExtSource(extSource, userLogin);
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-					break;
-				}
-				case "elixir": {
-
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ELIXIR-EUROPE.ORG");
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@ELIXIR-EUROPE.ORG");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					List<String> kerberosLogins = new ArrayList<>();
-
-					// Store also Kerberos logins
-					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-
-					if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG") && kerberosLoginsAttr != null) {
-						kerberosLogins.add(userLogin + "@ELIXIR-EUROPE.ORG");
-						kerberosLoginsAttr.setValue(kerberosLogins);
-						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-					}
-
-					break;
-				}
-				case "einfra-services": {
-
-					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA-SERVICES");
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@EINFRA-SERVICES");
-					ues.setLoa(0);
-
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					List<String> kerberosLogins = new ArrayList<>();
-
-					// Store also Kerberos logins
-					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-
-					if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES") && kerberosLoginsAttr != null) {
-						kerberosLogins.add(userLogin + "@EINFRA-SERVICES");
-						kerberosLoginsAttr.setValue(kerberosLogins);
-						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-					}
-
-					break;
-				}
-				case "dummy": {
-					//dummy namespace for testing, it has accompanying DummyPasswordModule that just generates random numbers
-					ExtSource extSource;
-					try {
-						extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
-					} catch (ExtSourceNotExistsException e) {
-						extSource = new ExtSource("https://dummy", ExtSourcesManager.EXTSOURCE_IDP);
-						try {
-							extSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, extSource, null);
-						} catch (ExtSourceExistsException e1) {
-							log.warn("impossible or race condition", e1);
-						}
-					}
-					UserExtSource ues = new UserExtSource(extSource, userLogin + "@dummy");
-					ues.setLoa(2);
-					try {
-						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					} catch (UserExtSourceExistsException ex) {
-						//this is OK
-					}
-
-					break;
-				}
-			}
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		validatePassword(sess, user, loginNamespace);
-
 	}
 
 	@Override
@@ -1616,11 +1351,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		//validate and set user ext sources
 		try {
-			this.validatePasswordAndSetExtSources(sess, user, (String) userLogin.getValue(), loginNamespace);
+			this.validatePassword(sess, user, loginNamespace);
 		} catch(PasswordCreationFailedException ex) {
 			throw new PasswordChangeFailedException(ex);
-		} catch(ExtSourceNotExistsException | AttributeValueException ex) {
-			throw new InternalErrorException(ex);
 		}
 	}
 

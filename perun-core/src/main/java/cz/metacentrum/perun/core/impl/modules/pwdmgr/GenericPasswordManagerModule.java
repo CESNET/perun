@@ -112,7 +112,7 @@ public class GenericPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin) throws InvalidLoginException {
+	public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
 		checkLoginFormat(sess, userLogin);
 		Process process = createPwdManagerProcess(PASSWORD_VALIDATE, actualLoginNamespace, userLogin);
 		handleExit(process, actualLoginNamespace, userLogin);
