@@ -2545,8 +2545,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Application app = getApplicationById(sess, appId);
 		if (AppState.APPROVED.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Form items of once approved or rejected applications can't be modified.");
 
-		ApplicationFormItemData existingData = getFormItemDataById(data.getId());
-		if (existingData == null) throw new RegistrarException("Form item data specified by ID: "+ data.getId() + " not found in the DB.");
+		ApplicationFormItemData existingData = getFormItemDataById(data.getId(), appId);
+		if (existingData == null) throw new RegistrarException("Form item data specified by ID: "+ data.getId() + " not found or doesn't belong to the application "+appId);
 
 		List<Type> notAllowed = Arrays.asList(FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
 
@@ -2574,9 +2574,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		for (ApplicationFormItemData dataItem : data) {
 
-			ApplicationFormItemData existingData = getFormItemDataById(dataItem.getId());
-			if (existingData == null)
-				throw new RegistrarException("Form item data specified by ID: " + dataItem.getId() + " not found in the DB.");
+			ApplicationFormItemData existingData = getFormItemDataById(dataItem.getId(), appId);
+			if (existingData == null) throw new RegistrarException("Form item data specified by ID: " + dataItem.getId() + " not found or doesn't belong to the application " + appId);
 
 			List<Type> notAllowed = Arrays.asList(FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
 
@@ -2712,15 +2711,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	/**
 	 * Retrieve form item data by its ID or NULL if not exists.
+	 * It also expect, that item belongs to the passed application ID, if not, NULL is returned.
 	 *
 	 * @param formItemDataId ID of form item data entry
+	 * @param applicationId ID of application this item belongs to
 	 * @return Form item with data submitted by the User.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	private ApplicationFormItemData getFormItemDataById(int formItemDataId) {
+	private ApplicationFormItemData getFormItemDataById(int formItemDataId, int applicationId) {
 
 		try {
-			return jdbc.queryForObject("select id,item_id,shortname,value,assurance_level from application_data where id=?",
+			return jdbc.queryForObject("select id,item_id,shortname,value,assurance_level from application_data where id=? and app_id=?",
 					(resultSet, rowNum) -> {
 						ApplicationFormItemData data = new ApplicationFormItemData();
 						data.setId(resultSet.getInt("id"));
@@ -2729,11 +2730,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						data.setValue(resultSet.getString("value"));
 						data.setAssuranceLevel(resultSet.getString("assurance_level"));
 						return data;
-					}, formItemDataId);
+					}, formItemDataId, applicationId);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		} catch (RuntimeException ex) {
-			throw new InternalErrorException("Unable to get form item data by its ID:" + formItemDataId, ex);
+			throw new InternalErrorException("Unable to get form item data by its ID:" + formItemDataId + " and application ID: " + applicationId, ex);
 		}
 
 	}
