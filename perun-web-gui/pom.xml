@@ -81,6 +81,7 @@
 				<!-- Plugin configuration. There are many available options, see
 				  gwt-maven-plugin documentation at codehaus.org -->
 				<configuration>
+					<sourceLevel>auto</sourceLevel>
 					<extraJvmArgs>-Xmx1024m</extraJvmArgs>
 					<modules>
 						<module>cz.metacentrum.perun.webgui.perun-web</module>
