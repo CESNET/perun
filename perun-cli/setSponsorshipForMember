@@ -13,18 +13,20 @@ sub help {
 	Available options:
 	--memberId       | -m member id
 	--sponsorId      | -s sponsor (user) id
+	--validityTo     | -v expiration of sponsorship (YYYY-MM-DD) optional
 	--batch          | -b batch
 	--help           | -h prints this help
 	};
 }
 
-my ($memberId, $sponsorId, $batch);
+my ($memberId, $sponsorId, $exp, $batch);
 GetOptions ("help|h"  => sub {
 		print help();
 		exit 0;
-	}, "batch|b"        => \$batch,
-	"memberId|m=i"        => \$memberId, 
-	"sponsorId|s=i"         => \$sponsorId ) || die help();
+	}, "batch|b"		=> \$batch,
+	"validityTo|v=s"	=> \$exp,
+	"memberId|m=i"		=> \$memberId, 
+	"sponsorId|s=i"		=> \$sponsorId ) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -32,7 +34,9 @@ unless (defined($sponsorId)) { die "ERROR: sponsorId is required \n";}
 
 my $agent = Perun::Agent->new();
 my $membersAgent = $agent->getMembersAgent;
-
-$membersAgent->setSponsorshipForMember( sponsoredMember => $memberId, sponsor => $sponsorId );
-
+if (defined $exp) {
+	$membersAgent->setSponsorshipForMember( sponsoredMember => $memberId, sponsor => $sponsorId, validityTo => $exp );
+} else {	
+	$membersAgent->setSponsorshipForMember( sponsoredMember => $memberId, sponsor => $sponsorId );
+}
 printMessage("Member Id:$memberId was successfully set as sponsored by user Id:$sponsorId.", $batch);

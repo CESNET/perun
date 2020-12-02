@@ -49,6 +49,7 @@ use Perun::beans::AttributeRights;
 use Perun::beans::ApplicationForm;
 use Perun::beans::ResourceTag;
 use Perun::beans::ApplicationFormItem;
+use Perun::beans::Sponsor;
 
 sub newEmptyBean
 {
