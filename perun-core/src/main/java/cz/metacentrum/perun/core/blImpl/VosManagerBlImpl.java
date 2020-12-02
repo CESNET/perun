@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -506,7 +507,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources) {
-		List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, vo, attrNames, searchString);
+		List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, vo, attrNames, searchString, extSources);
 		List<Candidate> candidates = findCandidates(sess, group, searchString, extSources, false);
 
 		if (vo == null) {
@@ -527,34 +528,51 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, List<String> attrNames, String searchString) {
-		return getRichUsersForMemberCandidates(sess, null, attrNames, searchString);
+		return getRichUsersForMemberCandidates(sess, null, attrNames, searchString, null);
 	}
 
 	/**
 	 * <p>Finds RichUsers who matches the given search string. If the given Vo is null,
 	 * they are searched in the whole Perun. If th Vo is not null, then are returned
-	 * only RichUsers who has a member inside this Vo.</p>
+	 * only RichUsers who has a member inside this Vo or who has ues in any of given ExtSources.</p>
 	 * <p>The RichUsers are returned with attributes of given names.</p>
 	 *
 	 *
 	 * @param sess session
-	 * @param vo virtual organization, users are searched only inside this vo; if is null, then in the whole Perun
+	 * @param vo virtual organization, users are searched inside this vo; if is null, then in the whole Perun
 	 * @param attrNames names of attributes that will be returned
 	 * @param searchString string used to find users
+	 * @param extSources list of extSources to possibly search users with ues in these extSources
 	 * @return List of RichUsers inside given Vo, or in whole perun, who matches the given String
 	 * @throws InternalErrorException internal error
 	 */
-	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) {
+	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString, List<ExtSource> extSources) {
 		List<RichUser> richUsers;
 
 		if (vo != null) {
-			List<Member> voMembers = getPerunBl().getMembersManagerBl().findMembersInVo(sess, vo, searchString);
-			List<User> voUsers = new ArrayList<>();
-			for (Member member : voMembers) {
-				voUsers.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, member));
-			}
+			try {
+				List<RichUser> allRichUsers = getPerunBl().getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames);
+				richUsers = new ArrayList<>();
 
-			richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributesByNames(sess, voUsers, attrNames);
+				// filter users who don't have ues in any of the extSources nor they are in given vo
+				for (RichUser richUser : allRichUsers) {
+					boolean extSourceMatch = getPerunBl().getUsersManagerBl().getUserExtSources(sess, richUser).stream()
+						.map(UserExtSource::getExtSource)
+						.anyMatch(extSources::contains);
+					if (extSourceMatch) {
+						richUsers.add(richUser);
+					} else {
+						try {
+							Member member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, richUser);
+							richUsers.add(richUser);
+						} catch (MemberNotExistsException e) {
+							// richUser is not in vo nor he has ues in any of given ExtSources, skip him
+						}
+					}
+				}
+			} catch (UserNotExistsException e) {
+				richUsers = new ArrayList<>();
+			}
 		} else {
 			try {
 				richUsers = getPerunBl().getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames);

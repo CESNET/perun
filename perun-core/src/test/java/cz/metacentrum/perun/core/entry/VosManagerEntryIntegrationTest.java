@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -23,9 +24,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -571,6 +574,89 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertThat(sponsors).contains(new Sponsor(new RichUser(newSponsor, Collections.emptyList())));
 	}
 
+	@Test
+	public void getCompleteCandidatesFromGroup() throws Exception {
+		System.out.println(CLASS_NAME + "getCompleteCandidatesFromGroup");
+
+		// create group and vo
+		myVo = perun.getVosManagerBl().createVo(sess, myVo);
+		Group group = new Group("testGroup","testingGroup");
+		Group returnedGroup = perun.getGroupsManager().createGroup(sess, myVo, group);
+
+		// prepare second extSource
+		ExtSource extSource = new ExtSource("testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
+		extSource = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// prepare users to be returned by getCompleteCandidates
+		Candidate candidate = prepareCandidateWithExtSource("Jan", es);
+		User userToContain1 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+		candidate = prepareCandidateWithExtSource("Jana", es);
+		User userToContain2 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+		candidate = prepareCandidateWithExtSource("Josef", es);
+		User userNotToContain1 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+		candidate = prepareCandidateWithExtSource("Jan", extSource);
+		RichUser userNotToContain2 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+		candidate = prepareCandidateWithExtSource("Jana", extSource);
+		RichUser userToContain3 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+		Member member = perun.getMembersManagerBl().createMember(sess, myVo, candidate);
+
+		List<MemberCandidate> completeCandidates = perun.getVosManagerBl()
+			.getCompleteCandidates(sess, myVo, returnedGroup, null, "jan", Arrays.asList(es));
+
+		List<RichUser> usersOfCompleteCandidates = completeCandidates.stream()
+			.map(MemberCandidate::getRichUser)
+			.collect(Collectors.toList());
+
+		assertEquals("Three users should have been returned.",3, usersOfCompleteCandidates.size());
+		assertTrue("User should've been returned.", usersOfCompleteCandidates.contains(userToContain1));
+		assertTrue("User should've been returned.", usersOfCompleteCandidates.contains(userToContain2));
+		assertTrue("User should've been returned.", usersOfCompleteCandidates.contains(userToContain3));
+		assertFalse("User shouldn't have been returned.", usersOfCompleteCandidates.contains(userNotToContain1));
+		assertFalse("User shouldn't have been returned.", usersOfCompleteCandidates.contains(userNotToContain2));
+	}
+
+	@Test
+	public void getCompleteCandidatesFromGroupWithNullVo() throws Exception {
+		System.out.println(CLASS_NAME + "getCompleteCandidatesFromGroupWithNullVo");
+
+		// create group and vo
+		myVo = perun.getVosManagerBl().createVo(sess, myVo);
+		Group group = new Group("testGroup","testingGroup");
+		Group returnedGroup = perun.getGroupsManager().createGroup(sess, myVo, group);
+
+		// prepare second extSource
+		ExtSource extSource = new ExtSource("testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
+		extSource = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// prepare users to be returned by getCompleteCandidates
+		Candidate candidate = prepareCandidateWithExtSource("Jan", es);
+		User userToContain1 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+		candidate = prepareCandidateWithExtSource("Josef", es);
+		User userNotToContain1 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+		candidate = prepareCandidateWithExtSource("Jana", extSource);
+		RichUser userToContain2 = perun.getUsersManagerBl()
+			.getRichUser(sess, perun.getUsersManagerBl().createUser(sess, candidate));
+
+		List<MemberCandidate> completeCandidates = perun.getVosManagerBl()
+			.getCompleteCandidates(sess, null, returnedGroup, null, "jan", Arrays.asList(es));
+
+		List<RichUser> usersOfCompleteCandidates = completeCandidates.stream()
+			.map(MemberCandidate::getRichUser)
+			.collect(Collectors.toList());
+
+		assertEquals("Three users should have been returned.",2, usersOfCompleteCandidates.size());
+		assertTrue("User should've been returned.", usersOfCompleteCandidates.contains(userToContain1));
+		assertTrue("User should've been returned.", usersOfCompleteCandidates.contains(userToContain2));
+		assertFalse("User shouldn't have been returned.", usersOfCompleteCandidates.contains(userNotToContain1));
+	}
+
 	// private methods ------------------------------------------------------------------
 
 	private Member createMemberFromExtSource(final Vo createdVo) throws Exception {
@@ -619,6 +705,23 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	private void removeExtSourceDelegate(Vo createdVo) throws Exception {
 		ExtSourcesManager esme = perun.getExtSourcesManager();
 		esme.removeExtSource(sess, createdVo, es);
+	}
+
+	private Candidate prepareCandidateWithExtSource(String name, ExtSource es) {
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+		final Candidate candidate = new Candidate();
+		candidate.setFirstName(name);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		final UserExtSource userExtSource = new UserExtSource(es, extLogin);
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<>());
+		return candidate;
 	}
 
 	@Test
