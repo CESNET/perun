@@ -10,7 +10,7 @@ public class Role {
 	public static final String PERUNOBSERVER = "PERUNOBSERVER";
 	public static final String VOADMIN = "VOADMIN";
 	public static final String GROUPADMIN = "GROUPADMIN";
-	public static final String GROUPOBSERVER = "GROUPOBSERER";
+	public static final String GROUPOBSERVER = "GROUPOBSERVER";
 	public static final String SELF = "SELF";
 	public static final String FACILITYADMIN = "FACILITYADMIN";
 	public static final String FACILITYOBSERVER = "FACILITYOBSERVER";

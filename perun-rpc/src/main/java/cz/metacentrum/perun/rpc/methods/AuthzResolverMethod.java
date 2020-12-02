@@ -11,12 +11,15 @@ import java.util.Map;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -780,6 +783,274 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			cz.metacentrum.perun.core.api.AuthzResolver.loadAuthorizationComponents(ac.getSession());
+			return null;
+		}
+	},
+
+	/*#
+	 * Get all Vos where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user int <code>id</code> of object User
+	 * @param roles List<String> list of role names for which Vos are retrieved
+	 * @return List<Vo> List of Vos
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	/*#
+	 * Get all Vos where the given principal has set one of the given roles
+	 * or the given principal is a member of an authorized group with such roles.
+	 *
+	 * @param roles List<String> list of role names for which Vos are retrieved
+	 * @return List<Vo> List of Vos
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	getVosWhereUserIsInRoles {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> roles = parms.readList("roles", String.class);
+			roles.replaceAll(String::toUpperCase);
+			for (String role: roles) {
+				if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(role)) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + role + " does not exist.");
+				}
+			}
+			if(parms.contains("user")) {
+				cz.metacentrum.perun.core.api.AuthzResolver.getVosWhereUserIsInRoles(
+					ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					roles);
+			} else {
+				cz.metacentrum.perun.core.api.AuthzResolver.getVosWhereUserIsInRoles(
+					ac.getSession(),
+					null,
+					roles);
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Get all Facilities where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user int <code>id</code> of object User
+	 * @param roles List<String> list of role names for which Facilities are retrieved
+	 * @return List<Facility> List of Facilities
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	/*#
+	 * Get all Facilities where the given principal has set one of the given roles
+	 * or the given principal is a member of an authorized group with such roles.
+	 *
+	 * @param roles List<String> list of role names for which Facilities are retrieved
+	 * @return List<Facility> List of Facilities
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	getFacilitiesWhereUserIsInRoles {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> roles = parms.readList("roles", String.class);
+			roles.replaceAll(String::toUpperCase);
+			for (String role: roles) {
+				if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(role)) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + role + " does not exist.");
+				}
+			}
+			if(parms.contains("user")) {
+				cz.metacentrum.perun.core.api.AuthzResolver.getFacilitiesWhereUserIsInRoles(
+					ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					roles);
+			} else {
+				cz.metacentrum.perun.core.api.AuthzResolver.getFacilitiesWhereUserIsInRoles(
+					ac.getSession(),
+					null,
+					roles);
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Get all Resources where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user int <code>id</code> of object User
+	 * @param roles List<String> list of role names for which Resources are retrieved
+	 * @return List<Resource> List of Resources
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	/*#
+	 * Get all Resources where the given principal has set one of the given roles
+	 * or the given principal is a member of an authorized group with such roles.
+	 *
+	 * @param roles List<String> list of role names for which Resources are retrieved
+	 * @return List<Resource> List of Resources
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	getResourcesWhereUserIsInRoles {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> roles = parms.readList("roles", String.class);
+			roles.replaceAll(String::toUpperCase);
+			for (String role: roles) {
+				if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(role)) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + role + " does not exist.");
+				}
+			}
+			if(parms.contains("user")) {
+				cz.metacentrum.perun.core.api.AuthzResolver.getResourcesWhereUserIsInRoles(
+					ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					roles);
+			} else {
+				cz.metacentrum.perun.core.api.AuthzResolver.getResourcesWhereUserIsInRoles(
+					ac.getSession(),
+					null,
+					roles);
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Get all Groups where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * Method does not return subgroups of the fetched groups.
+	 *
+	 * @param user int <code>id</code> of object User
+	 * @param roles List<String> list of role names for which Groups are retrieved
+	 * @return List<Group> List of Groups
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	/*#
+	 * Get all Groups where the given principal has set one of the given roles
+	 * or the given principal is a member of an authorized group with such roles.
+	 *
+	 * Method does not return subgroups of the fetched groups.
+	 *
+	 * @param roles List<String> list of role names for which Groups are retrieved
+	 * @return List<Group> List of Groups
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	getGroupsWhereUserIsInRoles {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> roles = parms.readList("roles", String.class);
+			roles.replaceAll(String::toUpperCase);
+			for (String role: roles) {
+				if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(role)) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + role + " does not exist.");
+				}
+			}
+			if(parms.contains("user")) {
+				cz.metacentrum.perun.core.api.AuthzResolver.getGroupsWhereUserIsInRoles(
+					ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					roles);
+			} else {
+				cz.metacentrum.perun.core.api.AuthzResolver.getGroupsWhereUserIsInRoles(
+					ac.getSession(),
+					null,
+					roles);
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Get all Members where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user int <code>id</code> of object User
+	 * @param roles List<String> list of role names for which Members are retrieved
+	 * @return List<Member> List of Members
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	/*#
+	 * Get all Members where the given principal has set one of the given roles
+	 * or the given principal is a member of an authorized group with such roles.
+	 *
+	 * @param roles List<String> list of role names for which Members are retrieved
+	 * @return List<Member> List of Members
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	getMembersWhereUserIsInRoles {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> roles = parms.readList("roles", String.class);
+			roles.replaceAll(String::toUpperCase);
+			for (String role: roles) {
+				if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(role)) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + role + " does not exist.");
+				}
+			}
+			if(parms.contains("user")) {
+				cz.metacentrum.perun.core.api.AuthzResolver.getMembersWhereUserIsInRoles(
+					ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					roles);
+			} else {
+				cz.metacentrum.perun.core.api.AuthzResolver.getMembersWhereUserIsInRoles(
+					ac.getSession(),
+					null,
+					roles);
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Get all SecurityTeams where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user int <code>id</code> of object User
+	 * @param roles List<String> list of role names for which SecurityTeams are retrieved
+	 * @return List<SecurityTeam> List of SecurityTeams
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	/*#
+	 * Get all SecurityTeams where the given principal has set one of the given roles
+	 * or the given principal is a member of an authorized group with such roles.
+	 *
+	 * @param roles List<String> list of role names for which SecurityTeams are retrieved
+	 * @return List<SecurityTeam> List of SecurityTeams
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	getSecurityTeamsWhereUserIsInRoles {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			List<String> roles = parms.readList("roles", String.class);
+			roles.replaceAll(String::toUpperCase);
+			for (String role: roles) {
+				if (!cz.metacentrum.perun.core.api.AuthzResolver.roleExists(role)) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Role with name " + role + " does not exist.");
+				}
+			}
+			if(parms.contains("user")) {
+				cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(
+					ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					roles);
+			} else {
+				cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(
+					ac.getSession(),
+					null,
+					roles);
+			}
 			return null;
 		}
 	};

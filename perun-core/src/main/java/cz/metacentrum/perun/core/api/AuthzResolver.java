@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.impl.Privileges;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -1110,5 +1111,175 @@ public class AuthzResolver {
 	 */
 	public static List<RoleManagementRules> getAllRolesManagementRules() {
 		return AuthzResolverBlImpl.getAllRolesManagementRules();
+	}
+
+	/**
+	 * Get all Vos where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 * If user parameter is null then Vos are retrieved for the given principal.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Vos are retrieved
+	 * @param roles for which Vos are retrieved
+	 * @return List of Vos
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	public static List<Vo> getVosWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(roles, "roles");
+
+		if (user == null) {
+			user = sess.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!authorizedInternal(sess, "getVosWhereUserIsInRoles_User_List<String>_policy", user)) {
+				throw new PrivilegeException(sess, "getVosWhereUserIsInRoles");
+			}
+		}
+
+		return AuthzResolverBlImpl.getVosWhereUserIsInRoles(sess, user, roles);
+	}
+
+	/**
+	 * Get all Facilities where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 * If user parameter is null then Facilities are retrieved for the given principal.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Facilities are retrieved
+	 * @param roles for which Facilities are retrieved
+	 * @return List of Facilities
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	public static List<Facility> getFacilitiesWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(roles, "roles");
+
+		if (user == null) {
+			user = sess.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!authorizedInternal(sess, "getFacilitiesWhereUserIsInRoles_User_List<String>_policy", user)) {
+				throw new PrivilegeException(sess, "getFacilitiesWhereUserIsInRoles");
+			}
+		}
+
+		return AuthzResolverBlImpl.getFacilitiesWhereUserIsInRoles(sess, user, roles);
+	}
+
+	/**
+	 * Get all Resources where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 * If user parameter is null then Resources are retrieved for the given principal.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Resources are retrieved
+	 * @param roles for which Resources are retrieved
+	 * @return List of Resources
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	public static List<Resource> getResourcesWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(roles, "roles");
+
+		if (user == null) {
+			user = sess.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!authorizedInternal(sess, "getResourcesWhereUserIsInRoles_User_List<String>_policy", user)) {
+				throw new PrivilegeException(sess, "getResourcesWhereUserIsInRoles");
+			}
+		}
+
+		return AuthzResolverBlImpl.getResourcesWhereUserIsInRoles(sess, user, roles);
+	}
+
+	/**
+	 * Get all Groups where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 * If user parameter is null then Groups are retrieved for the given principal.
+	 *
+	 * Method does not return subgroups of the fetched groups.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Groups are retrieved
+	 * @param roles for which Groups are retrieved
+	 * @return List of Groups
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	public static List<Group> getGroupsWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(roles, "roles");
+
+		if (user == null) {
+			user = sess.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!authorizedInternal(sess, "getGroupsWhereUserIsInRoles_User_List<String>_policy", user)) {
+				throw new PrivilegeException(sess, "getGroupsWhereUserIsInRoles");
+			}
+		}
+
+		return AuthzResolverBlImpl.getGroupsWhereUserIsInRoles(sess, user, roles);
+	}
+
+	/**
+	 * Get all Members where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 * If user parameter is null then Members are retrieved for the given principal.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Members are retrieved
+	 * @param roles for which Members are retrieved
+	 * @return List of Members
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	public static List<Member> getMembersWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(roles, "roles");
+
+		if (user == null) {
+			user = sess.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!authorizedInternal(sess, "getMembersWhereUserIsInRoles_User_List<String>_policy", user)) {
+				throw new PrivilegeException(sess, "getMembersWhereUserIsInRoles");
+			}
+		}
+
+		return AuthzResolverBlImpl.getMembersWhereUserIsInRoles(sess, user, roles);
+	}
+
+	/**
+	 * Get all SecurityTeams where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 * If user parameter is null then SecurityTeams are retrieved for the given principal.
+	 *
+	 * @param sess Perun session
+	 * @param user for who SecurityTeams are retrieved
+	 * @param roles for which SecurityTeams are retrieved
+	 * @return List of SecurityTeams
+	 *
+	 * @throws PrivilegeException when the principal is not authorized.
+	 */
+	public static List<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(roles, "roles");
+
+		if (user == null) {
+			user = sess.getPerunPrincipal().getUser();
+		} else {
+			//Authorization
+			if (!authorizedInternal(sess, "getSecurityTeamsWhereUserIsInRoles_User_List<String>_policy", user)) {
+				throw new PrivilegeException(sess, "getSecurityTeamsWhereUserIsInRoles");
+			}
+		}
+
+		return AuthzResolverBlImpl.getSecurityTeamsWhereUserIsInRoles(sess, user, roles);
 	}
 }
