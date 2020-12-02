@@ -262,6 +262,19 @@ public interface GroupsManager {
 	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException, PrivilegeException, VoNotExistsException, InvalidGroupNameException;
 
 	/**
+	 * Search for the groups with specified ids in all VOs.
+	 *
+	 * @param ids
+	 * @param perunSession
+	 *
+	 * @return groups with specified ids
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Group> getGroupsByIds(PerunSession perunSession, List<Integer> ids) throws PrivilegeException;
+
+	/**
 	 * Adds member of the VO to the group in the same VO.
 	 *
 	 * @param perunSession

@@ -44,12 +44,15 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -606,6 +609,28 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void getUserExtSourcesByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourcesByIds");
+
+		List<UserExtSource> userExtSources = usersManager.getUserExtSourcesByIds(sess, Collections.singletonList(userExtSource.getId()));
+		assertEquals(userExtSources.size(), 1);
+		assertTrue(userExtSources.contains(userExtSource));
+
+		// create another ues
+		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
+		UserExtSource anotherUes = perun.getUsersManager().addUserExtSource(sess, user, new UserExtSource(externalSource, extLogin2));
+		assertNotNull(anotherUes);
+		userExtSources = usersManager.getUserExtSourcesByIds(sess, Arrays.asList(userExtSource.getId(), anotherUes.getId()));
+		assertEquals(userExtSources.size(), 2);
+		assertTrue(userExtSources.contains(userExtSource));
+		assertTrue(userExtSources.contains(anotherUes));
+
+		userExtSources = usersManager.getUserExtSourcesByIds(sess, Collections.singletonList(anotherUes.getId()));
+		assertEquals(userExtSources.size(), 1);
+		assertTrue(userExtSources.contains(anotherUes));
+	}
+
+	@Test
 	public void getUserExtSourceByListValue() throws Exception {
 		System.out.println(CLASS_NAME + "getUserExtSourceByListValue");
 
@@ -1138,8 +1163,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getUsersByIds() throws Exception {
 		System.out.println(CLASS_NAME + "getUsersByIds");
 
-		List ids = new ArrayList();
-		List users = new ArrayList();
+		List<Integer> ids = new ArrayList<>();
+		Set<User> users = new HashSet<>();
 
 		for (int i = 1; i < 1002; i++) {
 			User user2 = new User();
@@ -1149,8 +1174,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			users.add(user2);
 		}
 
-		assertEquals(users, perun.getUsersManagerBl().getUsersByIds(sess, ids));
-
+		assertEquals(users, new HashSet<>(perun.getUsersManager().getUsersByIds(sess, ids)));
 	}
 
 	@Test

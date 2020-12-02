@@ -393,6 +393,17 @@ public interface MembersManager {
 	Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException, PrivilegeException;
 
 	/**
+	 * Returns members by their ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return list of members with specified ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Member> getMembersByIds(PerunSession perunSession, List<Integer> ids) throws PrivilegeException;
+
+	/**
 	 * Returns member by his user and vo.
 	 *
 	 * @param sess

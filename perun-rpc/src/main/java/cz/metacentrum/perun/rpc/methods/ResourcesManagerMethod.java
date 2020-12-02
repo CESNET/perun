@@ -29,6 +29,19 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns resources by their ids.
+	 *
+	 * @param ids List<Integer> list of resources IDs
+	 * @return List<Resource> resources with specified IDs
+	 */
+	getResourcesByIds {
+		@Override
+		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getResourcesByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Find resource for given id and returns it with given attributes.
 	 * If attrNames are null or empty, all resource attributes are returned.
 	 *
@@ -84,6 +97,19 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		@Override
 		public RichResource call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getResourcesManager().getRichResourceById(ac.getSession(), parms.readInt("id"));
+		}
+	},
+
+	/*#
+	 * Returns rich resources by their ids.
+	 *
+	 * @param ids List<Integer> list of rich resources IDs
+	 * @return List<RichResource> rich resources with specified IDs
+	 */
+	getRichResourcesByIds {
+		@Override
+		public List<RichResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getRichResourcesByIds(ac.getSession(), parms.readList("ids", Integer.class));
 		}
 	},
 

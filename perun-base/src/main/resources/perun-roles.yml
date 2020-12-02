@@ -533,6 +533,26 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getFacilitiesByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getFacilitiesByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getRichFacilities_policy:
     policy_roles:
       - FACILITYADMIN:
@@ -1198,6 +1218,38 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsByIds_List<Integer>_policy:
+    policy_roles:
+#      Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - TRUSTEDFACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  filter-getGroupsByIds_List<Integer>_policy:
+    policy_roles:
+#      Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -2009,6 +2061,30 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getMembersByIds_List<Integer>_policy:
+    policy_roles:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - SELF:
+      - RPC:
+      - PERUNOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  filter-getMembersByIds_List<Integer>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - SELF: User
+      - RPC:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   getMemberByUser_Vo_User_policy:
     policy_roles:
       - SELF: User
@@ -2740,6 +2816,34 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+    include_policies:
+      - default_policy
+
+  filter-getResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - RPC:
+    include_policies:
+      - default_policy
+
   getEnrichedResourceById_int_List<String>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -2764,6 +2868,34 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+    include_policies:
+      - default_policy
+
+  filter-getRichResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - RPC:
     include_policies:
       - default_policy
 
@@ -4573,6 +4705,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getUserExtSourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   addUserExtSource_User_UserExtSource_policy:
     policy_roles: []
     include_policies:
@@ -4710,6 +4853,32 @@ perun_policies:
   getUsersByAttributeValue_String_String_policy:
     policy_roles:
       - SERVICEUSER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getUsersByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getUsersByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
       - PERUNOBSERVER:
     include_policies:
       - default_policy
@@ -5056,6 +5225,44 @@ perun_policies:
       - default_policy
 
   getVoById_int_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Vo
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - SELF:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  getVosByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - SELF:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR:
+      - TRUSTEDFACILITYADMIN:
+      - SPONSOR:
+    include_policies:
+      - default_policy
+
+  filter-getVosByIds_List<Integer>_policy:
     policy_roles:
       - RESOURCESELFSERVICE: Vo
       - RESOURCEADMIN: Vo

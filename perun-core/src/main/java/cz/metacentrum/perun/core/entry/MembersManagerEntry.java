@@ -427,6 +427,21 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public List<Member> getMembersByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getMembersByIds");
+		}
+
+		List<Member> members = getMembersManagerBl().getMembersByIds(sess, ids);
+		members.removeIf(member -> !AuthzResolver.authorizedInternal(sess, "filter-getMembersByIds_List<Integer>_policy", member));
+
+		return members;
+	}
+
+	@Override
 	public Member getMemberByUser(PerunSession sess, Vo vo, User user) throws MemberNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 

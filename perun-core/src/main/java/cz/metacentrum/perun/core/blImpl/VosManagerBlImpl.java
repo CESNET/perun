@@ -270,6 +270,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
+	public List<Vo> getVosByIds(PerunSession sess, List<Integer> ids) {
+		return getVosManagerImpl().getVosByIds(sess, ids);
+	}
+
+	@Override
 	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) {
 		List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 		return this.findCandidates(sess, vo, searchString, maxNumOfResults, extSources, true);

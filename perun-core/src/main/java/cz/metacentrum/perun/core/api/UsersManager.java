@@ -439,6 +439,17 @@ public interface UsersManager {
 	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws UserExtSourceNotExistsException, PrivilegeException;
 
 	/**
+	 * Get the user ext sources by their ids.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return list of user external sources with specified ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException;
+
+	/**
 	 * Adds user's external sources.
 	 *
 	 * @param perunSession
@@ -740,6 +751,17 @@ public interface UsersManager {
 	 * @throws AttributeNotExistsException
 	 */
 	List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) throws PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Returns existing users by their ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return list of users with specified ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<User> getUsersByIds(PerunSession perunSession, List<Integer> ids) throws PrivilegeException;
 
 	/**
 	 * Returns all users who are not member of any VO.

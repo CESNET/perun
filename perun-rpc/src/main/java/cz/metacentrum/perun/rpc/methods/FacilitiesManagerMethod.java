@@ -43,6 +43,20 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns facilities by their IDs.
+	 *
+	 * @param ids List<Integer> list of facilities IDs
+	 * @return List<Facility> facilities with specified IDs
+	 */
+	getFacilitiesByIds {
+
+		@Override
+		public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getFacilitiesByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Lists all users assigned to facility containing resources where service is assigned.
 	 *
 	 * @param service int Service <code>id</code>

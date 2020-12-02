@@ -125,6 +125,20 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
+	public List<Facility> getFacilitiesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getFacilitiesByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getFacilitiesByIds");
+		}
+		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByIds(sess, ids);
+		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilitiesByIds_List<Integer>_policy", facility));
+
+		return facilities;
+	}
+
+	@Override
 	public List<RichFacility> getRichFacilities(PerunSession sess) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 

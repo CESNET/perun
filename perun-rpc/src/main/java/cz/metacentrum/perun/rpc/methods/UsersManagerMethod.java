@@ -677,6 +677,19 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns user ext sources by their IDs.
+	 *
+	 * @param ids List<Integer> list of user ext sources IDs
+	 * @return List<UserExtSource> user ext sources with specified IDs
+	 */
+	getUserExtSourcesByIds {
+		@Override
+		public List<UserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUserExtSourcesByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Returns user by VO member.
 	 *
 	 * @param member int Member <code>id</code>
@@ -965,6 +978,19 @@ public enum UsersManagerMethod implements ManagerMethod {
 				return 0;
 			}
 
+		}
+	},
+
+	/*#
+	 * Returns users by their IDs.
+	 *
+	 * @param ids List<Integer> list of users IDs
+	 * @return List<User> users with specified IDs
+	 */
+	getUserByIds {
+		@Override
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUsersByIds(ac.getSession(), parms.readList("ids", Integer.class));
 		}
 	},
 

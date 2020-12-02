@@ -93,6 +93,16 @@ public interface VosManagerImplApi {
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException;
 
 	/**
+	 * Gets VOs by their ids. Silently skips non-existing VOs.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return List of VOs with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosByIds(PerunSession perunSession, List<Integer> ids);
+
+	/**
 	 * Get list of user administrators of specific vo for specific role.
 	 * If some group is administrator of the VO, all members are included in the list.
 	 *

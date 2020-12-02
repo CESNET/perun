@@ -2567,6 +2567,28 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getGroupsByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByIds");
+
+		Vo vo = setUpVo();
+		setUpGroup(vo);
+
+		List<Group> groups = groupsManager.getGroupsByIds(sess, Collections.singletonList(group.getId()));
+		assertEquals(groups.size(), 1);
+		assertTrue(groups.contains(group));
+
+		assertNotNull(groupsManager.createGroup(sess, vo, group2));
+		groups = groupsManager.getGroupsByIds(sess, Arrays.asList(group.getId(), group2.getId()));
+		assertEquals(groups.size(), 2);
+		assertTrue(groups.contains(group));
+		assertTrue(groups.contains(group2));
+
+		groups = groupsManager.getGroupsByIds(sess, Collections.singletonList(group2.getId()));
+		assertEquals(groups.size(), 1);
+		assertTrue(groups.contains(group2));
+	}
+
+	@Test
 	public void getAssignedGroupsToResourceWithSubgroups() throws Exception {
 		System.out.println(CLASS_NAME + "getAssignedGroupsToResourceWithSubgroups");
 		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123", "testik123"));

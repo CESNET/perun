@@ -13,15 +13,19 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
+import java.sql.Array;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -120,6 +124,25 @@ public class VosManagerImpl implements VosManagerImplApi {
 			return jdbc.queryForObject("select " + voMappingSelectQuery + " from vos where id=?", VO_MAPPER, id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new VoNotExistsException(ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Vo> getVosByIds(PerunSession perunSession, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + voMappingSelectQuery + " from vos where id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<Vo>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<Vo> vos = new ArrayList<>();
+					while (rs.next()) {
+						vos.add(VO_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return vos;
+				});
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

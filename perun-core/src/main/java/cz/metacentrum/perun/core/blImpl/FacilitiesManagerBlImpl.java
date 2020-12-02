@@ -119,6 +119,11 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
+	public List<Facility> getFacilitiesByIds(PerunSession sess, List<Integer> ids) {
+		return getFacilitiesManagerImpl().getFacilitiesByIds(sess, ids);
+	}
+
+	@Override
 	public List<RichFacility> getRichFacilities(PerunSession perunSession) {
 		List<Facility> facilities = getFacilities(perunSession);
 		return this.getRichFacilities(perunSession, facilities);

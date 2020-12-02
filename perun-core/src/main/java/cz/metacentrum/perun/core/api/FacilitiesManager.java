@@ -60,6 +60,16 @@ public interface FacilitiesManager {
 	Facility getFacilityByName(PerunSession perunSession, String name) throws FacilityNotExistsException, PrivilegeException;
 
 	/**
+	 * Searches for the Facilities with specified ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return list of Facilities with specified ids
+	 * @throws PrivilegeException
+	 */
+	List<Facility> getFacilitiesByIds(PerunSession perunSession, List<Integer> ids) throws PrivilegeException;
+
+	/**
 	 * Get all possible rich Facilities with all their owners.
 	 * For PerunAdmin get All richFacilities.
 	 * For FacilityAdmin get only richFacilities under his administration.

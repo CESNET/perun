@@ -43,6 +43,17 @@ public interface ResourcesManagerImplApi {
 	Resource getResourceById(PerunSession perunSession, int id) throws ResourceNotExistsException;
 
 	/**
+	 * Gets resources by their ids. Silently skips non-existing resources.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return List of resources with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getResourcesByIds(PerunSession perunSession, List<Integer> ids);
+
+
+	/**
 	 * Searches for the Rich Resource with specified id.
 	 *
 	 * @param perunSession
@@ -52,6 +63,16 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	RichResource getRichResourceById(PerunSession perunSession, int id) throws ResourceNotExistsException;
+
+	/**
+	 * Gets rich resources by their ids. Silently skips non-existing rich resources.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return List of rich resources with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<RichResource> getRichResourcesByIds(PerunSession perunSession, List<Integer> ids);
 
 	/**
 	 * Return resource by its name.

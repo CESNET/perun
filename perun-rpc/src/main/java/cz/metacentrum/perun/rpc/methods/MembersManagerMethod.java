@@ -733,6 +733,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns members by their IDs.
+	 *
+	 * @param ids List<Integer> list of members IDs
+	 * @return List<Member> members with specified IDs
+	 */
+	getMembersByIds {
+		@Override
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getMembersByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Returns a member by VO and User.
 	 *
 	 * @param vo int VO <code>id</code>

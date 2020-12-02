@@ -557,6 +557,15 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getMembersByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersByIds");
+
+		List<Member> members = membersManagerEntry.getMembersByIds(sess, Collections.singletonList(createdMember.getId()));
+		assertEquals(members.size(), 1);
+		assertTrue(members.contains(createdMember));
+	}
+
+	@Test
 	public void getMemberByExtAuth() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberByExtAuth");
 

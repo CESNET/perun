@@ -236,6 +236,17 @@ public interface GroupsManagerBl {
 	 */
 	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException;
 
+	/**
+	 * Search for the groups with specified ids in all VOs.
+	 *
+	 * @param ids
+	 * @param perunSession
+	 *
+	 * @return groups with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsByIds(PerunSession perunSession, List<Integer> ids);
+
 
 	/**
 	 * Adds member of the VO to the group in the same VO. But not to administrators and members group.
