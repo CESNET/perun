@@ -3,9 +3,12 @@ package cz.metacentrum.perun.core.implApi.modules.pwdmgr;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
 import java.util.Map;
 
@@ -40,7 +43,7 @@ public interface PasswordManagerModule {
 
 	void changePassword(PerunSession sess, String userLogin, String newPassword) throws InvalidLoginException, PasswordStrengthException;
 
-	void validatePassword(PerunSession sess, String userLogin) throws InvalidLoginException;
+	void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException;
 
 	void deletePassword(PerunSession sess, String userLogin) throws InvalidLoginException;
 

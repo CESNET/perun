@@ -1631,7 +1631,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				for (Pair<String, String> pair : logins) {
 					// LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
 					// left = namespace, right = login
-					usersManager.validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+					usersManager.validatePassword(registrarSession, app.getUser(), pair.getLeft());
 				}
 
 				// update titles before/after users name if part of application !! USER MUST EXISTS !!
@@ -1720,7 +1720,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				for (Pair<String, String> pair : logins) {
 					// LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
 					// left = namespace, right = login
-					usersManager.validatePasswordAndSetExtSources(registrarSession, u, pair.getRight(), pair.getLeft());
+					usersManager.validatePassword(registrarSession, u, pair.getLeft());
 				}
 
 				// log
@@ -1770,7 +1770,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// validate purely new logins in KDC
 			for (Pair<String, String> pair : logins) {
 				// left = namespace, right = login
-				usersManager.validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+				usersManager.validatePassword(registrarSession, app.getUser(), pair.getLeft());
 			}
 
 			// update titles before/after users name if part of application !! USER MUST EXISTS !!

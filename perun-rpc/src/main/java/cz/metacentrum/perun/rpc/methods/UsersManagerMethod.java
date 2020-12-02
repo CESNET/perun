@@ -1149,7 +1149,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 	/*#
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
-	 * in external authz system using his credentials.
+	 * in external authz system using his credentials. It also creates UserExtSources and sets some required attributes.
 	 *
 	 * @param user int User <code>id</code>
 	 * @param namespace String Namespace
@@ -1158,7 +1158,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
-	 * in external authz system using his credentials.
+	 * in external authz system using his credentials. It also creates UserExtSources and sets some required attributes.
 	 *
 	 * @param login String Login
 	 * @param namespace String Namespace
@@ -1184,6 +1184,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
 	 * in external authz system using his credentials. It also creates UserExtSource and sets some required attributes.
 	 *
+	 * @deprecated use validatePassword
 	 * @param user int User <code>id</code>
 	 * @param login String Login
 	 * @param namespace String Namespace
@@ -1195,7 +1196,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			ac.getUsersManager().validatePasswordAndSetExtSources(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("login"), parms.readString("namespace"));
+			ac.getUsersManager().validatePassword(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
 
 			return null;
 

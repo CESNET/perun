@@ -1,9 +1,15 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +57,36 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin) {
+	public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
 		log.debug("validatePassword(userLogin={})",userLogin);
+
+		if (user == null) {
+			user = ((PerunBl) sess.getPerun()).getModulesUtilsBl().getUserByLoginInNamespace(sess, userLogin, "dummy");
+		}
+
+		if (user == null) {
+			log.warn("No user was found by login '{}' in {} namespace.", userLogin, "dummy");
+		} else {
+			// set extSources and extSource related attributes
+			ExtSource extSource;
+			try {
+				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
+			} catch (ExtSourceNotExistsException e) {
+				extSource = new ExtSource("https://dummy", ExtSourcesManager.EXTSOURCE_IDP);
+				try {
+					extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+				} catch (ExtSourceExistsException e1) {
+					log.warn("impossible or race condition", e1);
+				}
+			}
+			UserExtSource ues = new UserExtSource(extSource, userLogin + "@dummy");
+			ues.setLoa(2);
+			try {
+				((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+			} catch (UserExtSourceExistsException ex) {
+				//this is OK
+			}
+		}
 	}
 
 	@Override

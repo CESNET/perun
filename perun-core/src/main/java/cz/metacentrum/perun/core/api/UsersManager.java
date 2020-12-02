@@ -897,7 +897,8 @@ public interface UsersManager {
 			throws PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
-	 * Validates the password in external system. User must not exists.
+	 * Validates the password in external system and sets user extSources and extSource related attributes.
+	 * User must not exists.
 	 *
 	 * @param sess
 	 * @param userLogin string representation of the userLogin
@@ -910,27 +911,8 @@ public interface UsersManager {
 			throws PasswordCreationFailedException, PrivilegeException, InvalidLoginException;
 
 	/**
-	 * Validates the password in external system and set user extSources and extSource related attributes. User must exists.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param userLogin
-	 * @param loginNamespace
-	 *
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 * @throws PasswordCreationFailedException
-	 * @throws LoginNotExistsException
-	 * @throws ExtSourceNotExistsException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws InvalidLoginException
-	 */
-	void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, InvalidLoginException, WrongReferenceAttributeValueException, WrongAttributeValueException;
-
-
-	/**
-	 * Validates the password in external system. User must exists.
+	 * Validates the password in external system and sets user extSources and extSource related attributes.
+	 * User must exists.
 	 *
 	 * @param sess
 	 * @param user

@@ -13,8 +13,10 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
@@ -43,6 +45,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -790,6 +793,43 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		expectedResult.put("/tmp/test", "2:3");
 		expectedResult.put("/dev/zero", "0:0");
 		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	public void getUserByLoginInNamespace() throws Exception {
+		System.out.println(CLASS_NAME + "getUserByLoginInNamespace");
+
+		// create user
+		User user = new User();
+		user.setFirstName("Firstname");
+		user.setLastName("Lastname");
+		user = perun.getUsersManagerBl().createUser(sess, user);
+		assertNotNull(user);
+
+		// create "dummy" login namespace
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attributeDefinition.setFriendlyName(AttributesManager.LOGIN_NAMESPACE + ":dummy");
+		attributeDefinition.setDisplayName(AttributesManager.LOGIN_NAMESPACE + ":dummy");
+		attributeDefinition.setDescription(AttributesManager.LOGIN_NAMESPACE + ":dummy");
+		attributeDefinition.setType(String.class.getName());
+		try {
+			assertNotNull(perun.getAttributesManager().createAttribute(sess, attributeDefinition));
+		} catch (AttributeDefinitionExistsException ex) {
+			// this is OK
+		}
+
+		User userByLogin = perun.getModulesUtilsBl().getUserByLoginInNamespace(sess, "testlogin", "dummy");
+		assertNull("No user should be found.", userByLogin);
+
+		// create login in dummy namespace
+		Attribute attribute = perun.getAttributesManager().getAttribute(sess, user, attributeDefinition.getName());
+		assertNull(attribute.getValue());
+		attribute.setValue("testlogin");
+		perun.getAttributesManager().setAttribute(sess, user, attribute);
+
+		userByLogin = perun.getModulesUtilsBl().getUserByLoginInNamespace(sess, "testlogin", "dummy");
+		assertEquals(user, userByLogin);
 	}
 
 	// private methods ------------------------------------------------------------------

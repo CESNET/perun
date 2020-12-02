@@ -1,14 +1,17 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
@@ -113,8 +116,31 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin) {
-		// silently skip, since generic code calls this but MU doesn't validate it.
+	public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
+		if (user == null) {
+			user = ((PerunBl) sess.getPerun()).getModulesUtilsBl().getUserByLoginInNamespace(sess, userLogin, "mu");
+		}
+
+		if (user == null) {
+			log.warn("No user was found by login '{}' in {} namespace.", userLogin, "mu");
+		} else {
+			// set extSources and extSource related attributes
+			try {
+				ExtSource extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp2.ics.muni.cz/idp/shibboleth");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@muni.cz");
+				ues.setLoa(2);
+
+				try {
+					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch (UserExtSourceExistsException ex) {
+					//this is OK
+				}
+			} catch (ExtSourceNotExistsException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+
+		// MU doesn't validate password
 	}
 
 	@Override
