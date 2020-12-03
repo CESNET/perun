@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.cabinet.model.Author;
@@ -57,7 +58,7 @@ import java.util.Map;
 public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(AuditMessagesManagerImpl.class);
-	private final static ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+	private final static ObjectMapper mapper = new ObjectMapper();
 
 	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 	private final static String auditMessageMappingSelectQuery = "id, msg, actor, created_at, created_by_uid";
@@ -65,6 +66,11 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	private final JdbcPerunTemplate jdbc;
 
 	static {
+
+		JavaTimeModule module = new JavaTimeModule();
+		mapper.registerModule(module);
+		// make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		// configure JSON deserializer for auditer log
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -61,6 +63,12 @@ public class Auditer {
 	private static final ObjectMapper mapper = new ObjectMapper();
 
 	static {
+
+		JavaTimeModule module = new JavaTimeModule();
+		mapper.registerModule(module);
+		// make mapper to serialize dates and timestamps like "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss.SSSSSS"
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
 		mapper.enableDefaultTyping();
 		// TODO - skip any problematic properties using interfaces for mixins
 		mapper.setMixIns(mixinMap);
