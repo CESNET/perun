@@ -7091,6 +7091,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:user:attribute-def:def:note
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("note");
+		attr.setDisplayName("Note");
+		attr.setDescription("Contains special information about the user. It is used to be displayed in GUI");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ_PUBLIC)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
 		//urn:perun:user:attribute-def:def:address
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
@@ -7222,6 +7235,31 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("groupMembershipExpirationRules");
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setDescription("Set of rules to determine date of group membership expiration. If not set, membership is not limited.");
+		attr.setType(LinkedHashMap.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
+		//urn:perun:vo:attribute-def:def:applicationExpirationRules
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Application expiration rules");
+		attr.setFriendlyName("applicationExpirationRules");
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setDescription("Set of rules to determine date of application (to vo) expiration. If not set, application will not be auto rejected.");
+		attr.setType(LinkedHashMap.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:applicationExpirationRules
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Application expiration rules");
+		attr.setFriendlyName("applicationExpirationRules");
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setDescription("Set of rules to determine date of application (to group) expiration. If not set, application will not be auto rejected.");
 		attr.setType(LinkedHashMap.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
 		rights = new ArrayList<>();
@@ -7753,6 +7791,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			rights = new ArrayList<>();
 			attributes.put(attr, rights);
 
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("nonAuthzAccActivationMailSubject:"+namespace);
+			attr.setDisplayName("Non-Authz Acc Activation Mail Subject");
+			attr.setDescription("Non authz account activation mail subject for "+namespace+".");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
+
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("nonAuthzAccActivationMailTemplate:"+namespace);
+			attr.setDisplayName("Non-Authz Acc Activation Mail Template");
+			attr.setDescription("Non authz account activation mail template for "+namespace+".");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
 		}
 
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");

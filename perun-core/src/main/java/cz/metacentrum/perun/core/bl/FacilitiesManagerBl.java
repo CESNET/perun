@@ -75,6 +75,18 @@ public interface FacilitiesManagerBl {
 	Facility getFacilityByName(PerunSession perunSession, String name) throws FacilityNotExistsException;
 
 	/**
+	 * Searches for the Facilities with specified ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 *
+	 * @return list of Facilities with specified ids
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByIds(PerunSession perunSession, List<Integer> ids);
+
+	/**
 	 * Get all rich Facilities with all their owners.
 	 *
 	 * @param perunSession

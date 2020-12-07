@@ -380,30 +380,24 @@ public interface ServicesManager {
 	 *
 	 * attributes: {...hashes...}
 	 * hierarchy: {
-	 *    ** facility **
-	 *    hashes: [...hashes...]
-	 *    members: []
-	 *    children: [
-	 *      {
-	 *        ** resource1 **
-	 *        hashes: [...hashes...]
-	 *        children: []
-	 *        members: [
-	 *          {
-	 *            ** member 1 **
-	 *            hashes: [...hashes...]
-	 *          },
-	 *          {
-	 *            ** member 2 **
-	 *            ...
-	 *          }
-	 *        ]
-	 *      },
-	 *      {
-	 *        ** resource2 **
-	 *        ...
-	 *      }
-	 *    ]
+	 *   "1": {    ** facility id **
+	 *     members: {    ** all members on the facility **
+	 *        "4" : 5,    ** member id : user id **
+	 *        "6" : 7,    ** member id : user id **
+	 *       ...
+	 *     }
+	 *     children: [
+	 *       "2": {    ** resource id **
+	 *         children: []
+	 *         members: {    ** all members on the resource with id 2 **
+	 *           "4" : 5    ** member id : user id **
+	 *         }
+	 *       },
+	 *       "3": {
+	 *         ...
+	 *       }
+	 *     ]
+	 *   }
 	 * }
 	 *
 	 * @param perunSession perun session
@@ -424,41 +418,33 @@ public interface ServicesManager {
 	 *
 	 * attributes: {...hashes...}
 	 * hierarchy: {
-	 *    ** facility **
-	 *    hashes: [...hashes...]
-	 *    members: []
-	 *    children: [
-	 *      {
-	 *        ** resource1 **
-	 *        hashes: [...hashes...]
-	 *        children: [
-	 *          {
-	 *            ** group A **
-	 *            hashes: [...hashes...]
-	 *            members: [...group members...]
-	 *            children: []
-	 *          },
-	 *          {
-	 *            ** group B **
-	 *            ...
-	 *          }
-	 *        ]
-	 *        members: [
-	 *          {
-	 *            ** member 1 **
-	 *            hashes: [...hashes...]
-	 *          },
-	 *          {
-	 *            ** member 2 **
-	 *            ...
-	 *          }
-	 *        ]
-	 *      },
-	 *      {
-	 *        ** resource2 **
-	 *        ...
-	 *      }
-	 *    ]
+	 *   "1": {    ** facility id **
+	 *     members: {    ** all members on the facility **
+	 *        "4" : 5,    ** member id : user id **
+	 *        "6" : 7,    ** member id : user id **
+	 *       ...
+	 *     }
+	 *     children: [
+	 *       "2": {    ** resource id **
+	 *         children: [
+	 *           "89": {    ** group id **
+	 *              "children": {},
+	 *              "members": {
+	 *                  "91328": 57986,
+	 *                  "91330": 60838
+	 *              }
+	 *           }
+	 *         ],
+	 *         "members": {    ** all members on the resource with id 2 **
+	 *             "91328": 57986,
+	 *             "91330": 60838
+	 *         }
+	 *       },
+	 *       "3": {
+	 *         ...
+	 *       }
+	 *     ]
+	 *   }
 	 * }
 	 * @param perunSession perun session
 	 * @param service service

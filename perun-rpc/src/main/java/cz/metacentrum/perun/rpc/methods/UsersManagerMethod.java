@@ -677,6 +677,19 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns user ext sources by their IDs.
+	 *
+	 * @param ids List<Integer> list of user ext sources IDs
+	 * @return List<UserExtSource> user ext sources with specified IDs
+	 */
+	getUserExtSourcesByIds {
+		@Override
+		public List<UserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUserExtSourcesByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Returns user by VO member.
 	 *
 	 * @param member int Member <code>id</code>
@@ -969,6 +982,19 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns users by their IDs.
+	 *
+	 * @param ids List<Integer> list of users IDs
+	 * @return List<User> users with specified IDs
+	 */
+	getUserByIds {
+		@Override
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUsersByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Returns all users who are not member of any VO.
 	 *
 	 * @return List<User> Found users
@@ -1028,6 +1054,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
+	 * Checks if the password reset request link is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param i String first encrypted parameter
+	 * @param m String second encrypted parameter
+	 * @throw PasswordResetLinkExpiredException When the password reset request expired
+	 * @throw PasswordResetLinkNotValidException When the password reset request was already used or has never existed
+	 */
+	checkPasswordResetRequestIsValid {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("i"), parms.readString("m"));
+
+			return null;
+		}
+	},
+	/*#
 	 * Changes user's password in namespace based on encrypted input parameters.
 	 *
 	 * @param i String first encrypted parameter
@@ -1037,6 +1080,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
 	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
 	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throw PasswordResetLinkExpiredException When the password reset request expired
+	 * @throw PasswordResetLinkNotValidException When the password reset request was already used or has never existed
 	 */
 	changeNonAuthzPassword {
 		@Override
@@ -1104,7 +1149,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 	/*#
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
-	 * in external authz system using his credentials.
+	 * in external authz system using his credentials. It also creates UserExtSources and sets some required attributes.
 	 *
 	 * @param user int User <code>id</code>
 	 * @param namespace String Namespace
@@ -1113,7 +1158,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
-	 * in external authz system using his credentials.
+	 * in external authz system using his credentials. It also creates UserExtSources and sets some required attributes.
 	 *
 	 * @param login String Login
 	 * @param namespace String Namespace
@@ -1139,6 +1184,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
 	 * in external authz system using his credentials. It also creates UserExtSource and sets some required attributes.
 	 *
+	 * @deprecated use validatePassword
 	 * @param user int User <code>id</code>
 	 * @param login String Login
 	 * @param namespace String Namespace
@@ -1150,7 +1196,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			ac.getUsersManager().validatePasswordAndSetExtSources(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("login"), parms.readString("namespace"));
+			ac.getUsersManager().validatePassword(ac.getSession(), ac.getUserById(parms.readInt("user")), parms.readString("namespace"));
 
 			return null;
 

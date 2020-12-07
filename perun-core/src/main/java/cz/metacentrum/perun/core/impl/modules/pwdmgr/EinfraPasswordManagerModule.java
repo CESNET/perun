@@ -2,13 +2,19 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntimeException;
@@ -19,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -63,6 +71,79 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 	public void reserveRandomPassword(PerunSession sess, String userLogin) throws InvalidLoginException {
 		// FIXME - probably generate password for einfra here and perform standard reservation
 		super.reserveRandomPassword(sess, userLogin);
+	}
+
+	@Override
+	public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
+		if (user == null) {
+			user = ((PerunBl) sess.getPerun()).getModulesUtilsBl().getUserByLoginInNamespace(sess, userLogin, actualLoginNamespace);
+		}
+
+		if (user == null) {
+			log.warn("No user was found by login '{}' in {} namespace.", userLogin, actualLoginNamespace);
+		} else {
+			// set extSources and extSource related attributes
+			try {
+				List<String> kerberosLogins = new ArrayList<>();
+
+				// Set META and EINFRA userExtSources
+				ExtSource extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "META");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@META");
+				ues.setLoa(0);
+
+				try {
+					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch (UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA");
+				ues = new UserExtSource(extSource, userLogin + "@EINFRA");
+				ues.setLoa(0);
+
+				try {
+					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch (UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				extSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.ics.muni.cz/idp/shibboleth");
+				ues = new UserExtSource(extSource, userLogin + "@meta.cesnet.cz");
+				ues.setLoa(0);
+
+				try {
+					((PerunBl) sess.getPerun()).getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch (UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				// Store also Kerberos logins
+				Attribute kerberosLoginsAttr = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+				}
+
+				boolean someChange = false;
+				if (!kerberosLogins.contains(userLogin + "@EINFRA")) {
+					kerberosLogins.add(userLogin + "@EINFRA");
+					someChange = true;
+				}
+				if (!kerberosLogins.contains(userLogin + "@META")) {
+					kerberosLogins.add(userLogin + "@META");
+					someChange = true;
+				}
+
+				if (someChange && kerberosLoginsAttr != null) {
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException | ExtSourceNotExistsException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+
+		// validate password
+		super.validatePassword(sess, userLogin, user);
 	}
 
 	@Override

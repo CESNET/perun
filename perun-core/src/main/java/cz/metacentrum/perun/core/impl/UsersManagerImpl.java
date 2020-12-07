@@ -21,6 +21,8 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
@@ -657,6 +659,26 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+					"  from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where user_ext_sources.id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<UserExtSource>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<UserExtSource> userExtSources = new ArrayList<>();
+					while (rs.next()) {
+						userExtSources.add(USEREXTSOURCE_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return userExtSources;
+				});
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) {
 		try {
 			return jdbc.query("SELECT " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
@@ -765,7 +787,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attributeValue) {
 		String value = "";
 		String operator = "=";
-		if (attributeDefinition.getType().equals(String.class.getName())) {
+		if (attributeDefinition.getType().equals(String.class.getName()) ||
+				attributeDefinition.getType().equals(BeansUtils.largeStringClassName)) {
 			value = attributeValue.trim();
 			operator = "=";
 		} else if (attributeDefinition.getType().equals(Integer.class.getName())) {
@@ -774,16 +797,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}  else if (attributeDefinition.getType().equals(Boolean.class.getName())) {
 			value = attributeValue.trim();
 			operator = "=";
-		} else if (attributeDefinition.getType().equals(ArrayList.class.getName())) {
+		} else if (attributeDefinition.getType().equals(ArrayList.class.getName()) ||
+				attributeDefinition.getType().equals(BeansUtils.largeArrayListClassName)) {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
 		} else if (attributeDefinition.getType().equals(LinkedHashMap.class.getName())) {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
 		}
-
-		// FIXME - this doesn't work for map attributes, since they are not in attr_value column
-		// if fixed, we could add LargeString and LargeArrayList
 
 		String query = "select " + userMappingSelectQuery + " from users, user_attr_values where " +
 			" user_attr_values.attr_value " + operator + " :value and users.id=user_attr_values.user_id and user_attr_values.attr_id=:attr_id";
@@ -1246,30 +1267,49 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public Pair<String,String> loadPasswordResetRequest(User user, int requestId) {
+	public void checkPasswordResetRequestIsValid(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		this.checkAndGetPasswordResetRequest(user, requestId);
+	}
 
-		int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
-
+	private Pair<String, String> checkAndGetPasswordResetRequest(User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 		try {
+			int numberOfRequests = jdbc.queryForInt("select count(1) from pwdreset where user_id=? and id=?", user.getId(), requestId);
+			if (numberOfRequests == 0) {
+				throw new PasswordResetLinkNotValidException("Password request " + requestId + " doesn't exist.");
+			} else if (numberOfRequests > 1) {
+				throw new ConsistencyErrorException("Password reset request " + requestId + " exists more than once.");
+			}
+
+			int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
+
 			Pair<String,String> result;
 			if (Compatibility.isPostgreSql()) {
-
 				result = jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
 					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
-
 			} else {
-
 				result =  jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
 					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
 			}
 
-			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);
 			return result;
-
 		} catch (EmptyResultDataAccessException ex) {
-			return null;
+			throw new PasswordResetLinkExpiredException("Password reset request " + requestId + " has already expired.");
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Pair<String,String> loadPasswordResetRequest(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		Pair<String,String> result = this.checkAndGetPasswordResetRequest(user, requestId);
+
+		try {
+			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 
+		return result;
 	}
 
 	@Override

@@ -157,6 +157,19 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns VOs by their IDs.
+	 *
+	 * @param ids List<Integer> list of VOs IDs
+	 * @return List<Vo> VOs with specified IDs
+	 */
+	getVosByIds {
+		@Override
+		public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getVosByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * Find candidates for VO. Candidates can be used to create new members. Candidates are searched
 	 * in VOs external sources (if available). Candidates, which are already members of VO are never
 	 * returned even if they match searchString.
@@ -698,6 +711,38 @@ public enum VosManagerMethod implements ManagerMethod {
 		public List<BanOnVo> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getVosManager().getBansForVo(ac.getSession(),
 					parms.readInt("vo"));
+		}
+	},
+
+	/*#
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. Original sponsors of the users will be set to the sponsored members.
+	 *
+	 * @param vo int vo id
+	 */
+	convertSponsoredUsers {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getVosManager().convertSponsoredUsers(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. The sponsored members will be sponsored by the given user, not by its
+	 * original sponsors.
+	 *
+	 * @param vo int vo where members will be converted
+	 * @param newSponsor int user, who will be set as a sponsor to the sponsored members
+	 */
+	convertSponsoredUsersWithNewSponsor {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getVosManager().convertSponsoredUsersWithNewSponsor(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
+			return null;
 		}
 	}
 }

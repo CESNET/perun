@@ -5,6 +5,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
+import cz.metacentrum.perun.core.api.CandidateSync;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -204,7 +205,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws CandidateNotExistsException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws CandidateNotExistsException, ExtSourceUnsupportedOperationException;
+	CandidateSync getCandidate(PerunSession perunSession, ExtSource source, String login) throws CandidateNotExistsException, ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Get the candidate from subjectData where at least login must exists.
@@ -219,7 +220,7 @@ public interface ExtSourcesManagerBl {
 	 * @return a Candidate object
 	 * @throws InternalErrorException
 	 */
-	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login);
+	CandidateSync getCandidate(PerunSession perunSession, Map<String,String> subjectData , ExtSource source, String login);
 
 	void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws ExtSourceNotExistsException;
 

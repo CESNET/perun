@@ -200,8 +200,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		taskResult.setErrorMessage(stderr);
 		taskResult.setStandardMessage(stdout);
 		taskResult.setReturnCode(returnCode);
-		taskResult.setStatus(returnCode == 0 ? 
-				(stderr.isEmpty() ? TaskResult.TaskResultStatus.DONE : TaskResult.TaskResultStatus.WARNING) 
+		taskResult.setStatus(returnCode == 0 ?
+				((stderr == null || stderr.isEmpty()) ? TaskResult.TaskResultStatus.DONE : TaskResult.TaskResultStatus.WARNING)
 				: TaskResult.TaskResultStatus.ERROR);
 		taskResult.setTimestamp(new Date(System.currentTimeMillis()));
 		taskResult.setService(service);

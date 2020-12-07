@@ -3,24 +3,22 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * MembersManager can find members.
@@ -86,6 +84,16 @@ public interface MembersManagerImplApi {
 	 * @throws MemberNotExistsException
 	 */
 	Member getMemberById(PerunSession perunSession, int id) throws MemberNotExistsException;
+
+	/**
+	 * Gets members by their ids. Silently skips non-existing members.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return list of members with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Member> getMembersByIds(PerunSession perunSession, List<Integer> ids);
 
 	/**
 	 * Returns member by his user id and vo.
@@ -210,8 +218,17 @@ public interface MembersManagerImplApi {
 
 	/**
 	 * Creates a new member in given Vo with flag "sponsored", and linked to its sponsoring user.
+	 *
+	 * @param session PerunSession
+	 * @param vo vo where newly created member will be sponsored
+	 * @param sponsored user for which the new membership will be created (and also sponsored)
+	 * @param sponsor sponsor of new membership
+	 * @param validityTo time, when the sponsorship will expire
+	 * @return sponsored member
+	 * @throws AlreadyMemberException if user has already a membership in the vo
+	 * @throws AlreadySponsorException if member is already sponsored by the sponsor
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor, LocalDate validityTo) throws AlreadyMemberException;
+	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor, LocalDate validityTo) throws AlreadyMemberException, AlreadySponsorException;
 
 	/**
 	 * Set member to be sponsored by sponsor. Set flag and sponsorship.
@@ -221,8 +238,9 @@ public interface MembersManagerImplApi {
 	 * @param sponsor user which will be a sponsor for member
 	 * @return sponsored member
 	 * @throws InternalErrorException
+	 * @throws AlreadySponsorException if member was already sponsored before this call
 	 */
-	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo);
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsorException;
 
 	/**
 	 * Unset member to not be sponsored by anybody from now. Unset flag and remove all sponsorships.
@@ -240,8 +258,9 @@ public interface MembersManagerImplApi {
 	 * @param sponsoredMember member which is sponsored
 	 * @param sponsor sponsoring user
 	 * @throws InternalErrorException
+	 * @throws AlreadySponsorException if member was already sponsored before this call
 	 */
-	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor);
+	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsorException;
 
 	/**
 	 * Adds another sponsoring user for a sponsored member.
@@ -250,8 +269,9 @@ public interface MembersManagerImplApi {
 	 * @param sponsor sponsoring user
 	 * @param validity_to time, when the sponsorship will expire
 	 * @throws InternalErrorException
+	 * @throws AlreadySponsorException if member was already sponsored before this call
 	 */
-	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validity_to);
+	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validity_to) throws AlreadySponsorException;
 
 	/**
 	 * Removes a sponsoring user. In fact marks the link as inactive.
@@ -292,6 +312,15 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor);
+
+	/**
+	 * Gets members sponsored by the given user in all vos.
+	 *
+	 * @param sess perun session
+	 * @param sponsor sponsoring user
+	 * @return list of members sponsored by the given user
+	 */
+	List<Member> getSponsoredMembers(PerunSession sess, User sponsor);
 
 	/**
 	 * Gets list of sponsored members of a VO.

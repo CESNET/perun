@@ -16,6 +16,8 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
@@ -334,6 +336,16 @@ public interface UsersManagerImplApi {
 	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws UserExtSourceNotExistsException;
 
 	/**
+	 * Gets user ext sources by their ids. Silently skips non-existing user ext sources.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return List of UserExtSources with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids);
+
+	/**
 	 * Get List of user ext sources by user
 	 *
 	 * @param sess session
@@ -582,11 +594,11 @@ public interface UsersManagerImplApi {
 	List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefintion, String attributeValue);
 
 	/**
-	 * Batch method which returns users by theirs ids.
+	 * Gets users by their ids. Silently skips non-existing users.
 	 *
 	 * @param sess
 	 * @param usersIds
-	 * @return
+	 * @return List of users with specified ids
 	 * @throws InternalErrorException
 	 */
 	List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds);
@@ -692,16 +704,31 @@ public interface UsersManagerImplApi {
 	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user);
 
 	/**
+	 * Checks if the password reset request link is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param sess PerunSession
+	 * @param user user to check request for
+	 * @param requestId request id to check
+	 * @throws PasswordResetLinkExpiredException when the password reset request expired
+	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
+	 */
+	void checkPasswordResetRequestIsValid(PerunSession sess, User user, int requestId) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
 	 * Return only valid password reset requests for selected user and request ID.
 	 * Validity is determined by time since request creation and actual usage (only once).
 	 *
-	 * If no valid entry is found, then NULL is returned. Entry is invalidated once loaded.
+	 * If no valid entry is found, exception is thrown. Entry is invalidated once loaded.
 	 *
+	 * @param sess PerunSession
 	 * @param user user to get requests for
 	 * @param request request ID to get
 	 * @return Pair with "left" = namespace user wants to reset password, "right" = mail used for notification
+	 * @throws PasswordResetLinkExpiredException when the password reset request expired
+	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
 	 */
-	Pair<String,String> loadPasswordResetRequest(User user, int request);
+	Pair<String,String> loadPasswordResetRequest(PerunSession sess, User user, int request) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
 	/**
 	 * Removes all password reset requests associated with user.

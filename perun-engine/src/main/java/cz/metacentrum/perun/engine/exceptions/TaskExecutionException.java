@@ -82,7 +82,7 @@ public class TaskExecutionException extends EngineException {
 	}
 
 	public String getStdout() {
-		return stdout;
+		return (this.stdout == null) ? "" : this.stdout;
 	}
 
 	public void setStdout(String stdout) {
@@ -90,7 +90,7 @@ public class TaskExecutionException extends EngineException {
 	}
 
 	public String getStderr() {
-		return stderr;
+		return (this.stderr == null) ? "" : this.stderr;
 	}
 
 	public void setStderr(String stderr) {

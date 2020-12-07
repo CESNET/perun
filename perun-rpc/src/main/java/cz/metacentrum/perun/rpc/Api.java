@@ -26,6 +26,7 @@ import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
 import cz.metacentrum.perun.rpc.serializer.PdfSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
+import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONLITE;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
@@ -807,6 +808,9 @@ public class Api extends HttpServlet {
 			case jsonsimple:
 				serializer = new JsonSerializerJSONSIMPLE(out);
 				break;
+			case jsonlite:
+				serializer = new JsonSerializerJSONLITE(out);
+				break;
 			default:
 				throw new RpcException(RpcException.Type.UNKNOWN_SERIALIZER_FORMAT, format);
 		}
@@ -827,6 +831,7 @@ public class Api extends HttpServlet {
 			case json:
 			case jsonp:
 			case jsonsimple:
+			case jsonlite:
 				return new JsonDeserializer(req);
 			case urlinjsonout:
 			case voot:
@@ -846,7 +851,8 @@ public class Api extends HttpServlet {
 		json,
 		jsonp,
 		voot,
-		jsonsimple;
+		jsonsimple,
+		jsonlite;
 
 		/**
 		 * Matches a string with the enum's values.

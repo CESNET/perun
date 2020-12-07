@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>perun</artifactId>
 		<groupId>cz.metacentrum</groupId>
-		<version>3.12.0-SNAPSHOT</version>
+		<version>3.14.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
@@ -100,6 +100,11 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>${json.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
 		</dependency>
 
 	</dependencies>

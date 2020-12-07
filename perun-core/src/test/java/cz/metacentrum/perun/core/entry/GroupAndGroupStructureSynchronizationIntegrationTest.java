@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.CandidateSync;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -842,7 +843,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		subjects.add(attributes);
 		Candidate candidate = setUpCandidate();
 
-		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
 		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 
 		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
@@ -868,7 +869,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 
 		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 
-		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
 		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 
 		assertEquals(0, groupsManagerBl.getGroupMembers(sess, group).size());
@@ -910,7 +911,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		Map<String, String> map = new HashMap<>();
 		map.put("overwriteUserAttributes", attribute.getName());
 
-		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
 		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 		doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap)essa);
 
@@ -950,7 +951,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		Map<String, String> map = new HashMap<>();
 		map.put("overwriteUserAttributes", attribute.getName());
 
-		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
 		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 		doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap)essa);
 
@@ -995,7 +996,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		Map<String, String> map = new HashMap<>();
 		map.put("mergeMemberAttributes", attribute.getName());
 
-		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
 		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 		doReturn(map).when(extSourceManagerBl).getAttributes((ExtSourceLdap)essa);
 
@@ -1024,7 +1025,7 @@ public class GroupAndGroupStructureSynchronizationIntegrationTest extends Abstra
 		perun.getMembersManagerBl().setStatus(sess, member, Status.DISABLED);
 		groupsManagerBl.addMember(sess, group, member);
 
-		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(candidate);
+		when(extSourceManagerBl.getCandidate(sess, attributes, (ExtSourceLdap)essa, "metodej")).thenReturn(new CandidateSync(candidate));
 		when(essa.getGroupSubjects(anyMap())).thenReturn(subjects);
 
 		assertEquals(Status.DISABLED, groupsManagerBl.getGroupMembers(sess, group).get(0).getStatus());

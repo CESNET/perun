@@ -31,6 +31,8 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -548,6 +550,16 @@ public interface UsersManagerBl {
 	UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws UserExtSourceNotExistsException;
 
 	/**
+	 * Get user ext sources by their ids.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return list of user external sources with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids);
+
+	/**
 	 * Get all users userExtSources with last_access not older than (now - m),
 	 * where 'm' is number of months defined in CONSTANT in UsersManagerImpl.
 	 *
@@ -991,7 +1003,8 @@ public interface UsersManagerBl {
 			throws PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
-	 * Validates the password in external system. User must not exists.
+	 * Validates the password in external system and sets user extSources and extSource related attributes.
+	 * User must not exists.
 	 *
 	 * @param sess
 	 * @param userLogin      string representation of the userLogin
@@ -1004,7 +1017,8 @@ public interface UsersManagerBl {
 			throws PasswordCreationFailedException, InvalidLoginException;
 
 	/**
-	 * Validates the password in external system. User must exists.
+	 * Validates the password in external system and sets user extSources and extSource related attributes.
+	 * User must exists.
 	 *
 	 * @param sess
 	 * @param user
@@ -1016,23 +1030,6 @@ public interface UsersManagerBl {
 	 */
 	void validatePassword(PerunSession sess, User user, String loginNamespace)
 			throws PasswordCreationFailedException, LoginNotExistsException, InvalidLoginException;
-
-	/**
-	 * Validates the password in external system and set user extSources and extSource related attributes. User must exists.
-	 *
-	 * @param sess
-	 * @param user
-	 * @param userLogin
-	 * @param loginNamespace
-	 * @throws InternalErrorException
-	 * @throws PasswordCreationFailedException
-	 * @throws ExtSourceNotExistsException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
-	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
-	 */
-	void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, InvalidLoginException;
 
 	/**
 	 * Deletes password in external system. User must not exists.
@@ -1301,6 +1298,18 @@ public interface UsersManagerBl {
 	User convertUserEmptyStringsInObjectAttributesIntoNull(User user);
 
 	/**
+	 * Checks if the password reset request link is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param sess PerunSession
+	 * @param user user to check request for
+	 * @param m encrypted request id
+	 * @throws PasswordResetLinkExpiredException when the reset link expired
+	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
+	 */
+	void checkPasswordResetRequestIsValid(PerunSession sess, User user, String m) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
 	 * Changes user password in defined login-namespace using encrypted parameters.
 	 *
 	 * @param sess     PerunSession
@@ -1313,9 +1322,11 @@ public interface UsersManagerBl {
 	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
 	 * @throws InvalidLoginException When When login of user has invalid syntax (is not allowed)
 	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throws PasswordResetLinkExpiredException when the password reset request expired
+	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
 	 */
 	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang)
-			throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException;
+		throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
 	/**
 	 * Get count of all users.

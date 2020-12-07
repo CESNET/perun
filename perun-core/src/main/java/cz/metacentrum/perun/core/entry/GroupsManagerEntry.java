@@ -281,6 +281,20 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public List<Group> getGroupsByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getGroupsByIds");
+		}
+		List<Group> groups = getGroupsManagerBl().getGroupsByIds(sess, ids);
+		groups.removeIf(group -> !AuthzResolver.authorizedInternal(sess, "filter-getGroupsByIds_List<Integer>_policy", group));
+
+		return groups;
+	}
+
+	@Override
 	public void addMembers(PerunSession sess, Group group, List<Member> members) throws MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);

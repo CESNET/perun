@@ -25,7 +25,7 @@ public class SponsorshipValidityUpdated extends AuditEvent {
 		this.sponsor = sponsor;
 		this.validity = validityTo;
 		this.message = formatMessage("Validity of sponsorship of %s by %s changed to %s.",
-				sponsoredMember, sponsor, validityTo == null ? "FOREVER" : validityTo.toString());
+				sponsoredMember, sponsor, (validityTo == null) ? "FOREVER" : validityTo.toString());
 	}
 
 	@Override
@@ -44,4 +44,10 @@ public class SponsorshipValidityUpdated extends AuditEvent {
 	public LocalDate getValidity() {
 		return validity;
 	}
+
+	@Override
+	public String toString() {
+		return message;
+	}
+
 }

@@ -190,4 +190,18 @@ public interface SearcherBl {
 	 * @throws WrongAttributeAssignmentException wrong attribute assignment
 	 */
 	List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues, boolean allowPartialMatchForString) throws AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
+	 * Gets VOs ids for potential application auto rejection.
+	 *
+	 * @return VOs ids
+	 */
+	List<Integer> getVosIdsForAppAutoRejection();
+
+	/**
+	 * Gets groups ids for potential application auto rejection.
+	 *
+	 * @return groups ids
+	 */
+	List<Integer> getGroupsIdsForAppAutoRejection();
 }

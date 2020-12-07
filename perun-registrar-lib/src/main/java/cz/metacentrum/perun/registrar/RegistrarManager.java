@@ -484,7 +484,17 @@ public interface RegistrarManager {
 	 * @throws PrivilegeException
 	 * @throws RegistrarException
 	 */
+	@Deprecated
 	void updateFormItemData(PerunSession session, int applicationId, ApplicationFormItemData data) throws PrivilegeException, RegistrarException;
+
+	/**
+	 * Updated data stored for specific application and its form items
+	 *
+	 * @param session
+	 * @param applicationId ID of submitted application
+	 * @param data List of form items data to update
+	 */
+	void updateFormItemsData(PerunSession session, int applicationId, List<ApplicationFormItemData> data) throws PerunException;
 
 	/**
 	 * Getter for Mail manager used for notifications

@@ -193,4 +193,9 @@ sub validatePassword
 	return Perun::Common::callManagerMethod('validatePassword', 'null', @_);
 }
 
+sub getSponsorsForMember
+{
+	return Perun::Common::callManagerMethod('getSponsorsForMember', '[]Sponsor', @_);
+}
+
 1;

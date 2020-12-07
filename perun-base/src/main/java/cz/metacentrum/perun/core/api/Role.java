@@ -10,7 +10,7 @@ public class Role {
 	public static final String PERUNOBSERVER = "PERUNOBSERVER";
 	public static final String VOADMIN = "VOADMIN";
 	public static final String GROUPADMIN = "GROUPADMIN";
-	public static final String GROUPOBSERVER = "GROUPOBSERER";
+	public static final String GROUPOBSERVER = "GROUPOBSERVER";
 	public static final String SELF = "SELF";
 	public static final String FACILITYADMIN = "FACILITYADMIN";
 	public static final String FACILITYOBSERVER = "FACILITYOBSERVER";
@@ -28,12 +28,13 @@ public class Role {
 	public static final String TOPGROUPCREATOR = "TOPGROUPCREATOR";
 	public static final String SECURITYADMIN = "SECURITYADMIN";
 	public static final String CABINETADMIN = "CABINETADMIN";
+	public static final String SPONSORSHIP = "SPONSORSHIP";
 	public static final String UNKNOWNROLENAME = "UNKNOWN";
 
 	public static List<String> rolesAsList() {
 		return Arrays.asList(CABINETADMIN, ENGINE, FACILITYADMIN, FACILITYOBSERVER, TRUSTEDFACILITYADMIN, GROUPADMIN,
 			 GROUPOBSERVER, NOTIFICATIONS, PERUNADMIN, PERUNOBSERVER, REGISTRAR, RESOURCEADMIN, RESOURCEOBSERVER,
 			 RESOURCESELFSERVICE, RPC, SECURITYADMIN, SELF, SERVICEUSER, SPONSOR, TOPGROUPCREATOR, UNKNOWNROLENAME,
-			 VOADMIN, VOOBSERVER);
+			 VOADMIN, VOOBSERVER, SPONSORSHIP);
 	}
 }

@@ -16,24 +16,29 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Array;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -217,6 +222,25 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getMembersByIds(PerunSession perunSession, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + memberMappingSelectQuery + " from members where id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<Member>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<Member> members = new ArrayList<>();
+					while (rs.next()) {
+						members.add(MEMBER_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return members;
+				});
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public void deleteMember(final PerunSession sess, final Member member) throws MemberAlreadyRemovedException {
 		try {
 			int numAffected = jdbc.update("DELETE FROM members WHERE id=?", member.getId());
@@ -364,13 +388,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor, LocalDate validityTo) throws AlreadyMemberException {
+	public Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor, LocalDate validityTo) throws AlreadyMemberException, AlreadySponsorException {
 		Member sponsoredMember = this.createMember(session, vo, sponsored);
 		return setSponsorshipForMember(session, sponsoredMember, sponsor, validityTo);
 	}
 
 	@Override
-	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) {
+	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsorException {
 		sponsoredMember.setSponsored(true);
 		try {
 			jdbc.update("UPDATE members SET sponsored="+Compatibility.getTrue()+" WHERE id=?", sponsoredMember.getId());
@@ -394,35 +418,45 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) {
-		try {
-			PerunPrincipal pp = session.getPerunPrincipal();
-			jdbc.update("INSERT INTO members_sponsored (active,sponsored_id,sponsor_id,created_by,created_at,created_by_uid,modified_by,modified_at,modified_by_uid) " +
-					"VALUES (?,?,?,?," + Compatibility.getSysdate() + ",?,?,"+ Compatibility.getSysdate() + ",?)" ,
-					true, sponsoredMember.getId(), sponsor.getId(), pp.getActor(), pp.getUserId(),pp.getActor(), pp.getUserId());
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
+	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsorException {
+		addSponsor(session, sponsoredMember, sponsor, null);
 	}
 
 	@Override
-	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) {
+	public void addSponsor(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsorException {
 		try {
 			PerunPrincipal pp = session.getPerunPrincipal();
-			jdbc.update("INSERT INTO members_sponsored (" +
-							"active," +
-							"sponsored_id," +
-							"sponsor_id," +
-							"created_by," +
-							"created_at," +
-							"created_by_uid," +
-							"modified_by," +
-							"modified_at," +
-							"modified_by_uid," +
-							"validity_to) " +
-					"VALUES (?,?,?,?," + Compatibility.getSysdate() + ",?,?,"+ Compatibility.getSysdate() + ",?,?)" ,
+
+			try {
+				// check if there exists sponsorship between sponsoredMember and sponsor
+				Sponsorship sponsorship = getSponsorship(session, sponsoredMember, sponsor);
+
+				// if it exists and is inactive -> update (reactivate) it
+				if (!sponsorship.isActive()) {
+					jdbc.update("UPDATE members_sponsored SET active=?, validity_to=?, modified_by=?, " +
+							"modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? WHERE sponsored_id=? AND sponsor_id=?",
+						true, validityTo != null ? Timestamp.valueOf(validityTo.atStartOfDay()) : null, pp.getActor(),
+						pp.getUserId(), sponsoredMember.getId(), sponsor.getId());
+				} else { // if it exists and is active -> throw exception
+					new AlreadySponsorException("member " + sponsoredMember.getId() + " is already sponsored by user " + sponsor.getId());
+				}
+			} catch (SponsorshipDoesNotExistException ex) {
+				// if sponsorship doesn't exist -> insert it
+				jdbc.update("INSERT INTO members_sponsored (" +
+						"active," +
+						"sponsored_id," +
+						"sponsor_id," +
+						"created_by," +
+						"created_at," +
+						"created_by_uid," +
+						"modified_by," +
+						"modified_at," +
+						"modified_by_uid," +
+						"validity_to) " +
+						"VALUES (?,?,?,?," + Compatibility.getSysdate() + ",?,?," + Compatibility.getSysdate() + ",?,?)",
 					true, sponsoredMember.getId(), sponsor.getId(), pp.getActor(), pp.getUserId(), pp.getActor(),
 					pp.getUserId(), validityTo != null ? Timestamp.valueOf(validityTo.atStartOfDay()) : null);
+			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -467,6 +501,16 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		try {
 			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
 					"WHERE members.vo_id=? AND ms.active=? AND ms.sponsor_id=?", MEMBER_MAPPER, vo.getId(), true, sponsor.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Member> getSponsoredMembers(PerunSession sess, User sponsor) {
+		try {
+			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
+					"WHERE ms.active=? AND ms.sponsor_id=?", MEMBER_MAPPER, true, sponsor.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

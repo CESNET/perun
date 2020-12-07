@@ -22,7 +22,7 @@ public class SponsorshipEstablished extends AuditEvent {
 		this.sponsor = sponsor;
 		this.validity = validityTo;
 		this.message = formatMessage("Sponsorship of %s by %s established with validity to %s.",
-				sponsoredMember, sponsor, validityTo == null ? "FOREVER" : validityTo.toString());
+				sponsoredMember, sponsor, (validityTo == null) ? "FOREVER" : validityTo.toString());
 	}
 
 	@Override

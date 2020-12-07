@@ -2,8 +2,10 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -18,6 +20,7 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This interface represents AuthzResolver methods.
@@ -547,4 +550,87 @@ public interface AuthzResolverImplApi {
 	 * @throws RoleNotSetException
 	 */
 	void unsetRole(PerunSession sess, Map<String, Integer> mappingOfValues, String role) throws RoleNotSetException;
+
+	/**
+	 * Get all richUser administrators for complementary object and role with specified attributes.
+	 *
+	 * @param mappingOfValues from which will be the query created (keys are column names and values are their ids)
+	 * @param onlyDirectAdmins if we do not want to include also members of authorized groups.
+	 *
+	 * @return list of user administrators for complementary object and role with specified attributes.
+	 */
+	List<User> getAdmins(Map<String, Integer> mappingOfValues, boolean onlyDirectAdmins);
+
+
+	/**
+	 * Get all authorizedGroups for complementary object and role.
+	 *
+	 * @param mappingOfValues according to which will be the role selected
+	 *
+	 * @return list of authorizedGroups
+	 */
+	List<Group> getAdminGroups(Map<String, Integer> mappingOfValues);
+
+	/**
+	 * Get all Vos where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user for who Vos are retrieved
+	 * @param roles for which Vos are retrieved
+	 * @return Set of Vos
+	 */
+	Set<Vo> getVosWhereUserIsInRoles(User user, List<String> roles);
+
+	/**
+	 * Get all Facilities where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user for who Facilities are retrieved
+	 * @param roles for which Facilities are retrieved
+	 * @return Set of Facilities
+	 */
+
+	Set<Facility> getFacilitiesWhereUserIsInRoles(User user, List<String> roles);
+	/**
+	 * Get all Resources where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user for who Resources are retrieved
+	 * @param roles for which Resources are retrieved
+	 * @return Set of Resources
+	 */
+	Set<Resource> getResourcesWhereUserIsInRoles(User user, List<String> roles);
+
+	/**
+	 * Get all Groups where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * Method does not return subgroups of the fetched groups.
+	 *
+	 * @param user for who Groups are retrieved
+	 * @param roles for which Groups are retrieved
+	 * @return Set of Groups
+	 */
+	Set<Group> getGroupsWhereUserIsInRoles(User user, List<String> roles);
+
+	/**
+	 * Get all Members where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user for who Members are retrieved
+	 * @param roles for which Members are retrieved
+	 * @return Set of Members
+	 */
+	Set<Member> getMembersWhereUserIsInRoles(User user, List<String> roles);
+
+	/**
+	 * Get all SecurityTeams where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param user for who SecurityTeams are retrieved
+	 * @param roles for which SecurityTeams are retrieved
+	 * @return Set of SecurityTeams
+	 */
+	Set<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(User user, List<String> roles);
+
 }

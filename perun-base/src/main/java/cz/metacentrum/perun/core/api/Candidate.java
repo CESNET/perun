@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
 import org.json.JSONObject;
 
 /**
@@ -53,6 +50,24 @@ public class Candidate extends User {
 	public Candidate(UserExtSource userExtSource, Map<String, String> attributes, List<UserExtSource> additionalUserExtSources) {
 		this(userExtSource, attributes);
 		this.additionalUserExtSources = additionalUserExtSources;
+	}
+
+	public Candidate(CandidateSync candidateSync) {
+		this.setFirstName(candidateSync.getFirstName());
+		this.setLastName(candidateSync.getLastName());
+		this.setMiddleName(candidateSync.getMiddleName());
+		this.setTitleAfter(candidateSync.getTitleAfter());
+		this.setTitleBefore(candidateSync.getTitleBefore());
+		this.setServiceUser(candidateSync.isServiceUser());
+		this.setSponsoredUser(candidateSync.isSponsoredUser());
+
+		attributes = candidateSync.getAttributes();
+		userExtSource = candidateSync.getRichUserExtSource().asUserExtSource();
+		if (candidateSync.getAdditionalRichUserExtSources() != null) {
+			List<UserExtSource> listOfUes = new ArrayList<>();
+			candidateSync.getAdditionalRichUserExtSources().forEach(richUserExtSource -> listOfUes.add(richUserExtSource.asUserExtSource()));
+			additionalUserExtSources = listOfUes;
+		}
 	}
 
 	public UserExtSource getUserExtSource() {

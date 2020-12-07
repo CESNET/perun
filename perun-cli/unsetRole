@@ -60,7 +60,7 @@ if ($role eq "PERUNADMIN") {
 		die "ERROR: no other object needed when setting role $role\n";
 	}
 	if (defined($userId)) {
-		$authzResolverAgent->unsetRole( user => $userId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->unsetRole( user => $userId, role => $role );
 		printMessage("PERUNADMIN role was removed from user $userId", $batch);
 	} else {
 		die "ERROR: PERUNADMIN role cannot be unset from group \n";
@@ -70,10 +70,10 @@ if ($role eq "PERUNADMIN") {
 		die "ERROR: no other object needed when setting role $role\n";
 	}
 	if (defined($userId)) {
-		$authzResolverAgent->unsetRole( user => $userId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->unsetRole( user => $userId, role => $role );
 		printMessage("PERUNOBSERVER role was removed from user $userId", $batch);
 	} else {
-		$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, role => $role );
 		printMessage("PERUNOBSERVER role was removed from authorizedGroup $authorizedGroupId", $batch);
 	}
 	#if there is other role, only one complementary object is needed
@@ -82,7 +82,7 @@ if ($role eq "PERUNADMIN") {
 		die "ERROR: no other object needed when setting role $role\n";
 	}
 	if (defined($userId)) {
-		$authzResolverAgent->unsetRole( user => $userId, complementaryObject => undef, role => $role );
+		$authzResolverAgent->unsetRole( user => $userId, role => $role );
 		printMessage("CABINETADMIN role was removed from user $userId", $batch);
 	} else {
 		die "ERROR: CABINETADMIN role cannot be unset from group \n";

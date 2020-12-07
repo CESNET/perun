@@ -39,6 +39,8 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -514,6 +516,18 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public List<UserExtSource> getUserExtSourcesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getUserExtSourcesByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getUserExtSourcesByIds");
+		}
+
+		return getUsersManagerBl().getUserExtSourcesByIds(sess, ids);
+	}
+
+	@Override
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws UserNotExistsException, PrivilegeException, UserExtSourceExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(userExtSource, "userExtSource");
@@ -829,6 +843,20 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public List<User> getUsersByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getUsersByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getUsersByIds");
+		}
+		List<User> users = getUsersManagerBl().getUsersByIds(sess, ids);
+		users.removeIf(user -> !AuthzResolver.authorizedInternal(sess, "filter-getUsersByIds_List<Integer>_policy", user));
+
+		return users;
+	}
+
+	@Override
 	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
@@ -995,31 +1023,13 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, InvalidLoginException, WrongReferenceAttributeValueException, WrongAttributeValueException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "validatePasswordAndSetExtSources_User_String_String_policy", user)
-			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-validatePasswordAndSetExtSources_User_String_String_policy", user)) && user.isServiceUser())) {
-			throw new PrivilegeException(sess, "validatePasswordAndSetExtSources");
-		}
-
-		// Check if the login is already occupied == reserved, if not throw an exception.
-		// We cannot set password for the users who have not reserved login in perun DB and in registrar DB as well.
-		if (!getPerunBl().getUsersManagerBl().isLoginAvailable(sess, loginNamespace, userLogin)) {
-			getUsersManagerBl().validatePasswordAndSetExtSources(sess, user, userLogin, loginNamespace);
-		} else {
-			throw new PasswordCreationFailedException("Login " + userLogin + " in namespace " + loginNamespace + " is not reserved.");
-		}
-	}
-
-	@Override
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws
 			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, InvalidLoginException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", user)) {
+		if(!AuthzResolver.authorizedInternal(sess, "validatePassword_User_String_policy", user)
+			&& (!(AuthzResolver.authorizedInternal(sess, "service_user-validatePassword_User_String_policy", user)) && user.isServiceUser())) {
 			throw new PrivilegeException(sess, "validatePassword");
 		}
 
@@ -1269,7 +1279,18 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException {
+	public void checkPasswordResetRequestIsValid(PerunSession sess, String i, String m) throws UserNotExistsException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		Utils.checkPerunSession(sess);
+
+		int userId = Integer.parseInt(Utils.cipherInput(i,true));
+		// this will make also "if exists check"
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+
+		getPerunBl().getUsersManagerBl().checkPasswordResetRequestIsValid(sess, user, m);
+	}
+
+	@Override
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 
 		Utils.checkPerunSession(sess);
 

@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>perun</artifactId>
 		<groupId>cz.metacentrum</groupId>
-		<version>3.12.0-SNAPSHOT</version>
+		<version>3.14.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
@@ -34,7 +34,7 @@
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
 				<artifactId>cargo-maven2-plugin</artifactId>
-				<version>1.7.15</version>
+				<version>1.8.2</version>
 				<configuration>
 					<container>
 						<containerId>tomcat8x</containerId>
@@ -47,6 +47,9 @@
 							<!-- Force running against real DB -->
 							<spring.profiles.active>production</spring.profiles.active>
 						</systemProperties>
+						<!-- uncomment in case that dispatcher init takes too long
+						<timeout>600000</timeout>
+						 -->
 					</container>
 					<configuration>
 						<home>${basedir}/target/cargo/tomcat8x</home>

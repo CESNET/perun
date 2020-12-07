@@ -193,7 +193,6 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		scheduler.checkMembersState();
 
 		// check results
-
 		Member returnedMember1 = perun.getMembersManager().getMemberById(session, member1.getId());
 		assertEquals("Member1 should be expired now (from valid)!", returnedMember1.getStatus(), Status.EXPIRED);
 
@@ -686,4 +685,5 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 		return perun.getAttributesManager().createAttribute(session, attr);
 	}
+
 }

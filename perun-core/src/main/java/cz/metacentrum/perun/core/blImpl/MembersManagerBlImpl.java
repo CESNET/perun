@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberCreated;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDeleted;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
@@ -26,9 +29,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.Sponsor;
-import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -36,13 +36,17 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
@@ -71,6 +75,8 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
+import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -90,10 +96,11 @@ import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -101,6 +108,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -120,6 +128,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	final static Logger log = LoggerFactory.getLogger(MembersManagerBlImpl.class);
 
 	private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
+	private static final String A_U_PREF_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+
+	private static final String NO_REPLY_EMAIL = "no-reply@muni.cz";
+
+	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
+			"firstname",
+			"lastname",
+			A_U_PREF_MAIL
+	);
+
+	public static final List<String> SPONSORED_MEMBER_ADDITIONAL_FIELDS = Arrays.asList(
+			AttributesManager.NS_USER_ATTR_DEF + ":note"
+	);
 
 	private final MembersManagerImplApi membersManagerImpl;
 	private PerunBl perunBl;
@@ -257,13 +278,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> owners) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createServiceMember(sess, vo, candidate, owners, null);
 	}
 
 	@Override
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		if(specificUserType.equals(SpecificUserType.SERVICE)) candidate.setFirstName("(Service)");
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		candidate.setFirstName("(Service)");
 
 		//Set organization only if user in sessione exists (in tests there is no user in session)
 		if(sess.getPerunPrincipal().getUser() != null) {
@@ -291,7 +312,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		//create member for service user from candidate
-		Member member = createMember(sess, vo, specificUserType, candidate, groups, null);
+		Member member = createMember(sess, vo, SpecificUserType.SERVICE, candidate, groups, null);
 
 		//set specific user owners or sponsors
 		User specificUser = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -327,26 +348,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createMemberSync(sess, vo, candidate, groups, null);
-	}
-
-	@Override
-	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return this.createSpecificMemberSync(sess, vo, candidate, specificUserOwners, specificUserType, null);
-	}
-
-	@Override
-	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-
-		Member member = createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
-
-		//Validate synchronously
-		try {
-			member = validateMember(sess, member);
-		} catch (AttributeValueException ex) {
-			log.info("Specific Member can't be validated. He stays in invalid state. Cause: " + ex);
-		}
-
-		return member;
 	}
 
 	@Override
@@ -573,10 +574,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			if (extSource instanceof ExtSourceApi) {
 				//get first subject, then create candidate
 				Map<String, String> subject = ((ExtSourceSimpleApi) extSource).getSubjectByLogin(login);
-				candidate = (getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, extSource, login));
+				candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, extSource, login));
 			} else if (extSource instanceof ExtSourceSimpleApi) {
 				// get candidates from external source by login
-				candidate = (getPerunBl().getExtSourcesManagerBl().getCandidate(sess, extSource, login));
+				candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, extSource, login));
 			}
 		} catch (CandidateNotExistsException | SubjectNotExistsException ex) {
 			throw new InternalErrorException("Can't find candidate for login " + login + " in extSource " + extSource, ex);
@@ -645,6 +646,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException {
 		return getMembersManagerImpl().getMemberById(sess, id);
+	}
+
+	@Override
+	public List<Member> getMembersByIds(PerunSession sess, List<Integer> ids) {
+		return getMembersManagerImpl().getMembersByIds(sess, ids);
 	}
 
 	@Override
@@ -2181,7 +2187,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailSubject:" + namespace);
 				subject = (String) subjectTemplateAttribute.getValue();
 			}
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for subject will be used
+			log.error("There is missing attribute with subject template for password reset in specific namespace.", ex);
+			subject = null;
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -2195,7 +2205,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailTemplate:" + namespace);
 				message = (String) messageTemplateAttribute.getValue();
 			}
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for message will be used
+			log.error("There is missing attribute with message template for password reset in specific namespace.", ex);
+			message = null;
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -2205,12 +2219,66 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsoredMemberException, UserNotInRoleException {
+	public void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url,
+										   String mailAddress, String language) {
+		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+
+		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
+		boolean found = false;
+		for (Attribute a : logins) {
+			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
+		}
+		if (!found)
+			throw new InternalErrorException(user.toString() + " doesn't have login in namespace: " + namespace);
+
+		String subject;
+		try {
+			Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
+				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailSubject:" + namespace);
+			subject = (String) subjectTemplateAttribute.getValue();
+			if (subject == null) {
+				subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailSubject:" + namespace);
+				subject = (String) subjectTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for subject will be used
+			log.error("There is missing attribute with subject template for account activation in specific namespace.", ex);
+			subject = null;
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		String message;
+		try {
+			Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
+				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailTemplate:" + namespace);
+			message = (String) messageTemplateAttribute.getValue();
+			if (message == null) {
+				messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzAccActivationMailTemplate:" + namespace);
+				message = (String) messageTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException ex) {
+			//If attribute not exists, log it and use null instead - default template for message will be used
+			log.error("There is missing attribute with message template for account activation in specific namespace.", ex);
+			message = null;
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		//IMPORTANT: we are using the same requests for password reset and account activation
+		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress);
+		Utils.sendAccountActivationEmail(user, mailAddress, namespace, url, id, message, subject);
+	}
+
+	@Override
+	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws AlreadySponsoredMemberException, UserNotInRoleException, AlreadySponsorException {
 		return setSponsorshipForMember(session, sponsoredMember, sponsor, null);
 	}
 
 	@Override
-	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsoredMemberException, UserNotInRoleException {
+	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws AlreadySponsoredMemberException, UserNotInRoleException, AlreadySponsorException {
 		if(sponsoredMember.isSponsored()) {
 			throw new AlreadySponsoredMemberException(sponsoredMember + " is already sponsored member!");
 		}
@@ -2230,6 +2298,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		sponsoredMember = getMembersManagerImpl().setSponsorshipForMember(session, sponsoredMember, sponsor, validityTo);
 		getPerunBl().getAuditer().log(session, new SponsoredMemberSet(sponsoredMember));
 		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor, validityTo));
+
+		//remove expiration and validate member
+		try {
+			AttributeDefinition expiration = getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, EXPIRATION);
+			getPerunBl().getAttributesManagerBl().removeAttribute(session, sponsoredMember, expiration);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException("cannot remove expiration date for sponsored member " + sponsoredMember.getId(), ex);
+		}
+		try {
+			validateMember(session, sponsoredMember);
+		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+			throw new InternalErrorException("cannot validate sponsored member " + sponsoredMember.getId(), ex);
+		}
 
 		return sponsoredMember;
 	}
@@ -2253,43 +2334,84 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
-		return createSponsoredMember(session, vo, namespace, name, password, sponsor, null, asyncValidation);
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean sendActivationLink, String url, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException {
+		return createSponsoredMember(session, vo, namespace, name, password, email, sponsor, null, sendActivationLink, url, asyncValidation);
 	}
 
 	@Override
 	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
-		String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException {
+		String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, InvalidLoginException, AlreadySponsorException {
 
+		if (email == null) {
+			email = NO_REPLY_EMAIL;
+		}
+		if (!Utils.emailPattern.matcher(email).matches()) {
+			throw new InternalErrorException("Email has an invalid format: " + email);
+		}
 		//create new user
 		User user;
 		if (name.containsKey("guestName")) {
 			user = Utils.parseUserFromCommonName(name.get("guestName"), true);
 		} else {
-			user = Utils.createUserFromNameMap(name);
+			user = Utils.createUserFromNameMap(name, true);
 		}
+
 		User sponsoredUser = getPerunBl().getUsersManagerBl().createUser(session, user);
 
-		return setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, validityTo, asyncValidation);
+		if (email != null) {
+			try {
+				Attribute mailAttr = getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_PREF_MAIL);
+
+				mailAttr.setValue(email);
+
+				getPerunBl().getAttributesManagerBl().setAttribute(session, user, mailAttr);
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+
+		Member sponsoredMember = setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, validityTo, asyncValidation);
+
+		//try to send activation link
+		if (sendActivationLink) {
+			if (email != null) {
+				//TODO: at this moment there is missing way how to specify if email should be in different language than english
+				String defaultLanguage = "en";
+				sendAccountActivationLinkEmail(session, sponsoredMember, namespace, url, email, defaultLanguage);
+			} else {
+				log.error("Activation of account for sponsored member " + sponsoredMember + " was not send because email is missing!");
+			}
+		}
+
+		return sponsoredMember;
 	}
 
 	@Override
-	public Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException {
+	public Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException {
 		return setSponsoredMember(session, vo, userToBeSponsored, namespace, password, sponsor, null, asyncValidation);
 	}
 
 	@Override
 	public Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace,
-	                                 String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException {
+	                                 String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException {
 		//check that sponsoring user has role SPONSOR for the VO
 		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
-			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+			try {
+				if (!AuthzResolver.authorizedToManageRole(session, vo, Role.SPONSOR)) {
+					throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+				}
+				// if the principal is Authorized to set the Sponsor role, set it
+				AuthzResolverBlImpl.setRole(session, sponsor, vo, Role.SPONSOR);
+			} catch (AlreadyAdminException | RoleCannotBeManagedException | RoleManagementRulesNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
 		}
+
 		String loginAttributeName = PasswordManagerModule.LOGIN_PREFIX + namespace;
 		String attributeValue = getAttributeValueAsString (session, userToBeSponsored, loginAttributeName);
 
 		//create the user account in external system if does not exist yet
-		String login = createUserAccountInExternalSystem (session, userToBeSponsored, namespace, attributeValue, loginAttributeName, password);
+		createUserAccountInExternalSystem(session, userToBeSponsored, namespace, attributeValue, loginAttributeName, password);
 
 		//create the member in Perun
 		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, userToBeSponsored, sponsor, validityTo);
@@ -2305,26 +2427,67 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			//for unit tests
 			validateMember(session, sponsoredMember);
 		}
-		getPerunBl().getUsersManagerBl().validatePasswordAndSetExtSources(session, userToBeSponsored, login, namespace);
+		getPerunBl().getUsersManagerBl().validatePassword(session, userToBeSponsored, namespace);
 
 		return sponsoredMember;
 	}
 
 	@Override
-	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo, boolean asyncValidation) {
+	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation) {
+
+		Map<String, Map<String, String>> totalResult = new HashMap<>();
+
+		List<String> dataWithHeader = new ArrayList<>();
+		dataWithHeader.add(header);
+		dataWithHeader.addAll(data);
+
+		MappingIterator<Map<String, String>> dataIterator;
+		try {
+			byte[] bytes = String.join("\n", dataWithHeader)
+					.getBytes(StandardCharsets.UTF_8);
+			dataIterator = new CsvMapper()
+					.readerFor(Map.class)
+					.with(CsvSchema.emptySchema().withHeader().withColumnSeparator(';'))
+					.readValues(bytes);
+		} catch (IOException e) {
+			log.error("Failed to parse received CSV data.", e);
+			throw new InternalErrorException("Failed to parse received CSV data.", e);
+		}
+
+		int processedCounter = 0;
+		while(dataIterator.hasNext()) {
+			Map<String, String> singleRow = dataIterator.next();
+			Map<String, String> singleResult = createSingleSponsoredMemberFromCSV(sess, vo, namespace, singleRow,
+					sponsor, validityTo, sendActivationLink, url, asyncValidation);
+			totalResult.put(data.get(processedCounter++), singleResult);
+		}
+
+		return totalResult;
+	}
+
+	@Override
+	public Map<String, Map<String, String>> createSponsoredMembers(PerunSession sess, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation) {
 		Map<String, Map<String, String>> result = new HashMap<>();
 		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
 
 		for (String name : names) {
-			// generate random password
-			String password = module.generateRandomPassword(sess, null);
 			Map<String, String> mapName = new HashMap<>();
-			mapName.put("guestName", name);
+			if (name.contains(";")) {
+				String[] split = name.split(";", 2);
+				mapName.put("firstName", split[0]);
+				mapName.put("lastName", split[1]);
+			} else {
+				mapName.put("guestName", name);
+			}
+
+			String password = module.generateRandomPassword(sess, null);
+
 			// create sponsored member
 			User user;
 			try {
 				user = perunBl.getUsersManagerBl().getUserByMember(sess,
-						createSponsoredMember(sess, vo, namespace, mapName, password, sponsor, validityTo, asyncValidation));
+						createSponsoredMember(sess, vo, namespace, mapName, password, email, sponsor, validityTo, sendActivationLink, url, asyncValidation));
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
 				Map<String, String> statusWithLogin = new HashMap<>();
@@ -2421,6 +2584,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user) {
 		return getMembersManagerImpl().getSponsoredMembers(sess, vo, user);
+	}
+
+	@Override
+	public List<Member> getSponsoredMembers(PerunSession sess, User user) {
+		return getMembersManagerImpl().getSponsoredMembers(sess, user);
 	}
 
 	@Override
@@ -2633,6 +2801,119 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		} catch (MemberNotSponsoredException e) {
 			//Should not happen
 			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Creates a new user from given data and sponsors him in the given vo.
+	 *
+	 * @param sess session
+	 * @param vo vo, where the new user will be sponsored
+	 * @param namespace namespace used to define an external system where
+	 *                  the user will have a new login generated (currently, only 'mu' namespace is supported)
+	 * @param data values used to create the new user.
+	 *             Required values are - firstname, lastname, urn:perun:user:attribute-def:def:preferredMail
+	 *             Optional values are - urn:perun:user:attribute-def:def:note
+	 * @param sponsor user, who will be set as a sponsor to the newly created user
+	 * @param validityTo validity of the sponsorship. If null, the sponsorship will not be automatically canceled.
+	 * @param url base URL of Perun Instance
+	 * @param asyncValidation switch for easier testing
+	 * @return result of the procedure
+	 */
+	private Map<String, String> createSingleSponsoredMemberFromCSV(PerunSession sess, Vo vo, String namespace,
+	                                                               Map<String, String> data, User sponsor,
+	                                                               LocalDate validityTo, boolean sendActivationLink,
+																   String url, boolean asyncValidation) {
+		for (String requiredField : SPONSORED_MEMBER_REQUIRED_FIELDS) {
+			if (!data.containsKey(requiredField)) {
+				log.error("Invalid data passed, missing required value: {}", requiredField);
+				throw new InternalErrorException("Invalid data passed, missing required value: " + requiredField);
+			}
+		}
+
+		Set<String> additionalValues = new HashSet<>(data.keySet());
+		additionalValues.removeAll(SPONSORED_MEMBER_REQUIRED_FIELDS);
+
+		for (String valueName : additionalValues) {
+			if (!SPONSORED_MEMBER_ADDITIONAL_FIELDS.contains(valueName)) {
+				log.error("Not allowed additional value passed, value: {}", valueName);
+				throw new InternalErrorException("Not allowed additional value passed, value: " + valueName);
+			}
+		}
+
+		Map<String, String> mapName = new HashMap<>();
+		mapName.put("firstName", data.get("firstname"));
+		mapName.put("lastName", data.get("lastname"));
+
+		String email = data.get(A_U_PREF_MAIL);
+
+		PasswordManagerModule module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(sess, namespace);
+		String password = module.generateRandomPassword(sess, null);
+
+		// create sponsored member
+		Map<String, String> status = new HashMap<>();
+		try {
+			Member member = createSponsoredMember(sess, vo, namespace, mapName, password, email, sponsor, validityTo,
+					sendActivationLink, url, asyncValidation);
+			User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+			// get login to return
+			String login = perunBl.getAttributesManagerBl().getAttribute(sess, user,
+					PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
+			status.put("login", login);
+			status.put("password", password);
+
+			setAdditionalValues(sess, additionalValues, data, user, member);
+
+			status.put("status", "OK");
+		} catch (Exception e) {
+			status.put("status", e.getMessage());
+		}
+		return status;
+	}
+
+	/**
+	 * Set member or user attributes defined in the given data to the given member or user, depending
+	 * on the attribute entity.
+	 *
+	 * Only user and member attributes are supported.
+	 * Only Integer and String value attributes are supported.
+	 *
+	 * @param sess session
+	 * @param additionalValues attribute names which should be set from the given data
+	 * @param data values mapped by attribute names.
+	 * @param user user to whom the user attributes will be set
+	 * @param member member to whom the member attributes will be set
+	 */
+	private void setAdditionalValues(PerunSession sess, Set<String> additionalValues, Map<String, String> data,
+			User user, Member member) throws WrongAttributeAssignmentException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException {
+
+		for (String additionalValue : additionalValues) {
+			Attribute attrToSet;
+			try {
+				attrToSet = new Attribute(perunBl.getAttributesManager().getAttributeDefinition(sess, additionalValue));
+			} catch (AttributeNotExistsException e) {
+				log.error("Not existing attribute passed: {}", additionalValue);
+				throw new InternalErrorException("Not existing attribute passed: " + additionalValue);
+			}
+
+			if (String.class.getName().equals(attrToSet.getType())) {
+				attrToSet.setValue(data.get(additionalValue));
+			} else if (Integer.class.getName().equals(attrToSet.getType())) {
+				attrToSet.setValue(Integer.parseInt(data.get(additionalValue)));
+			} else {
+				log.error("Unsupported attribute value type: {}", attrToSet.getType());
+				throw new InternalErrorException("Unsupported attribute value type: " + attrToSet.getType());
+			}
+
+			if (additionalValue.startsWith(AttributesManager.NS_USER_ATTR_DEF)) {
+				perunBl.getAttributesManagerBl().setAttribute(sess, user, attrToSet);
+			} else if (additionalValue.startsWith(AttributesManager.NS_MEMBER_ATTR_DEF)) {
+				perunBl.getAttributesManagerBl().setAttribute(sess, member, attrToSet);
+			} else {
+				log.error("Unsupported attribute passed: {}", additionalValue);
+				throw new InternalErrorException("Unsupported attribute passed: " + additionalValue);
+			}
 		}
 	}
 }

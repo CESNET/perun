@@ -62,6 +62,18 @@ public interface ResourcesManagerBl {
 	Resource getResourceById(PerunSession perunSession, int id) throws ResourceNotExistsException;
 
 	/**
+	 * Searches for the Resources with specified ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 *
+	 * @return Resources with specified ids
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getResourcesByIds(PerunSession perunSession, List<Integer> ids);
+
+	/**
 	 * Find resource for given id and returns it with given attributes.
 	 * If attrNames are null or empty, all resource attributes are returned.
 	 *
@@ -84,6 +96,18 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	RichResource getRichResourceById(PerunSession perunSession, int id) throws ResourceNotExistsException;
+
+	/**
+	 * Searches for the RichResources with specified ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 *
+	 * @return RichResources with specified ids
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<RichResource> getRichResourcesByIds(PerunSession perunSession, List<Integer> ids);
 
 	/**
 	 * Return resource by its name.

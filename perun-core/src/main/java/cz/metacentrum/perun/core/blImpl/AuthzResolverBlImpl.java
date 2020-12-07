@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.ResourceTag;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -87,6 +88,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private static AuthzResolverImplApi authzResolverImpl;
 	private static PerunBl perunBl;
 	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+	private final static String groupObjectType = "Group";
+	private final static String userObjectType = "User";
 
 	/**
 	 * Prepare necessary structures and resolve access rights for the session's principal.
@@ -147,7 +150,38 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			mapOfBeans = fetchAllRelatedObjects(Collections.singletonList(object));
 		}
 
-		return resolveAuthorization(sess, rules.getPrivilegedRoles(), mapOfBeans);
+		return resolveAuthorization(sess, rules.getPrivilegedRolesToManage(), mapOfBeans);
+	}
+
+	/**
+	 * Check whether the principal is authorized to read the role on the object.
+	 *
+	 * @param sess principal's perun session
+	 * @param object bounded with the role
+	 * @param roleName which will be managed
+	 * @return true if principal is authorized. False otherwise.
+	 * @throws RoleManagementRulesNotExistsException when the role does not have the management rules.
+	 */
+	public static boolean authorizedToReadRole(PerunSession sess, PerunBean object, String roleName) throws RoleManagementRulesNotExistsException {
+		// We need to load additional information about the principal
+		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
+			refreshAuthz(sess);
+		}
+
+		// If the user has no roles, deny access
+		if (sess.getPerunPrincipal().getRoles() == null) {
+			return false;
+		}
+
+		RoleManagementRules rules = AuthzResolverImpl.getRoleManagementRules(roleName);
+
+		Map <String, Set<Integer>> mapOfBeans = new HashMap<>();
+		if (object != null) {
+			//Fetch super objects like Vo for group etc.
+			mapOfBeans = fetchAllRelatedObjects(Collections.singletonList(object));
+		}
+
+		return resolveAuthorization(sess, rules.getPrivilegedRolesToRead(), mapOfBeans);
 	}
 
 	public static boolean selfAuthorizedForApplication(PerunSession sess, Application app) {
@@ -1020,11 +1054,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, String role) throws AlreadyAdminException, RoleCannotBeManagedException {
-		if (!objectAndRoleManageableByEntity(user, complementaryObject, role)) {
+		if (!objectAndRoleManageableByEntity(user.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, user);
 		}
 
-		Map<String, Integer> mappingOfValues = createMappingOfValues(user, complementaryObject, role);
+		Map<String, Integer> mappingOfValues = createMappingToManageRole(user, complementaryObject, role);
 
 		try {
 			authzResolverImpl.setRole(sess, mappingOfValues, role);
@@ -1052,11 +1086,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, String role) throws AlreadyAdminException, RoleCannotBeManagedException {
-		if (!objectAndRoleManageableByEntity(authorizedGroup, complementaryObject, role)) {
+		if (!objectAndRoleManageableByEntity(authorizedGroup.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, authorizedGroup);
 		}
 
-		Map<String, Integer> mappingOfValues = createMappingOfValues(authorizedGroup, complementaryObject, role);
+		Map<String, Integer> mappingOfValues = createMappingToManageRole(authorizedGroup, complementaryObject, role);
 
 		try {
 			authzResolverImpl.setRole(sess, mappingOfValues, role);
@@ -1086,11 +1120,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param complementaryObject object for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, String role) throws UserNotAdminException, RoleCannotBeManagedException {
-		if (!objectAndRoleManageableByEntity(user, complementaryObject, role)) {
+		if (!objectAndRoleManageableByEntity(user.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, user);
 		}
 
-		Map<String, Integer> mappingOfValues = createMappingOfValues(user, complementaryObject, role);
+		Map<String, Integer> mappingOfValues = createMappingToManageRole(user, complementaryObject, role);
 
 		try {
 			authzResolverImpl.unsetRole(sess, mappingOfValues, role);
@@ -1122,11 +1156,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param complementaryObject object for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, String role) throws GroupNotAdminException, RoleCannotBeManagedException {
-		if (!objectAndRoleManageableByEntity(authorizedGroup, complementaryObject, role)) {
+		if (!objectAndRoleManageableByEntity(authorizedGroup.getBeanName(), complementaryObject, role)) {
 			throw new RoleCannotBeManagedException(role, complementaryObject, authorizedGroup);
 		}
 
-		Map<String, Integer> mappingOfValues = createMappingOfValues(authorizedGroup, complementaryObject, role);
+		Map<String, Integer> mappingOfValues = createMappingToManageRole(authorizedGroup, complementaryObject, role);
 
 		try {
 			authzResolverImpl.unsetRole(sess, mappingOfValues, role);
@@ -1193,6 +1227,79 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static List<PerunPolicy> getAllPolicies() {
 		return AuthzResolverImpl.getAllPolicies();
+	}
+
+	/**
+	 * Return all loaded roles management rules.
+	 *
+	 * @return all roles management rules
+	 */
+	public static List<RoleManagementRules> getAllRolesManagementRules() {
+		return AuthzResolverImpl.getAllRolesManagementRules();
+	}
+
+	/**
+	 * Get all authorizedGroups for complementary object and role.
+	 *
+	 * @param complementaryObject for which we will get administrator groups
+	 * @param role expected role to filter authorizedGroups by
+	 *
+	 * @return list of authorizedGroups for complementary object and role
+	 */
+	public static List<Group> getAdminGroups(PerunBean complementaryObject, String role) throws RoleCannotBeManagedException {
+
+		if (!objectAndRoleManageableByEntity(groupObjectType, complementaryObject, role)) {
+			throw new RoleCannotBeManagedException(role, complementaryObject);
+		}
+
+		Map<String, Integer> mappingOfValues = createMappingToReadRoleOnObject(complementaryObject, role);
+
+		return authzResolverImpl.getAdminGroups(mappingOfValues);
+	}
+
+	/**
+	 * Get all richUser administrators for complementary object and role with specified attributes.
+	 *
+	 * If <b>onlyDirectAdmins</b> is <b>true</b>, return only direct users of the complementary object for role with specific attributes.
+	 * If <b>allUserAttributes</b> is <b>true</b>, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param sess perun session
+	 * @param complementaryObject for which we will get administrator
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param role expected role to filter managers by
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 *
+	 * @return list of richUser administrators for complementary object and role with specified attributes.
+	 */
+	public static List<RichUser> getRichAdmins(PerunSession sess, PerunBean complementaryObject, List<String> specificAttributes, String role, boolean onlyDirectAdmins, boolean allUserAttributes) throws RoleCannotBeManagedException {
+
+		if (!objectAndRoleManageableByEntity(userObjectType, complementaryObject, role)) {
+			throw new RoleCannotBeManagedException(role, complementaryObject);
+		}
+
+		Map<String, Integer> mappingOfValues = createMappingToReadRoleOnObject(complementaryObject, role);
+
+		List<User> admins = authzResolverImpl.getAdmins(mappingOfValues, onlyDirectAdmins);
+		List<RichUser> richAdminsWithAttributes;
+
+		if(allUserAttributes) {
+			try {
+				richAdminsWithAttributes = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, admins);
+			} catch (UserNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		} else {
+			try {
+				List<AttributeDefinition> attrDefinitions = getPerunBl().getAttributesManagerBl().getAttributesDefinition(sess, specificAttributes);
+				List<RichUser> richAdmins = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(sess, admins);
+				richAdminsWithAttributes = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, richAdmins, attrDefinitions);
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("One of the given attributes doesn`t exist.", ex);
+			}
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, richAdminsWithAttributes);
 	}
 
 	public String toString() {
@@ -1511,6 +1618,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					roles.putAuthzRole(Role.SERVICEUSER);
 				}
 			}
+
+			setAdditionalRoles(sess, roles);
+
 			sess.getPerunPrincipal().setRoles(roles);
 		}
 
@@ -1528,8 +1638,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				sess.getPerunPrincipal().getRoles().clear();
 			}
 		}
+
 		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
+	}
+
+	/**
+	 * Set additional roles that are not explicitly saved in DB. If the principal
+	 * user is null, nothing is set.
+	 *
+	 * @param sess session
+	 * @param roles roles, where the roles are added
+	 */
+	private static void setAdditionalRoles(PerunSession sess, AuthzRoles roles) {
+		User principalUser = sess.getPerunPrincipal().getUser();
+		if (principalUser == null) {
+			return;
+		}
+
+		List<Member> sponsoredMembers = perunBl.getMembersManagerBl().getSponsoredMembers(sess, principalUser);
+		for (Member sponsoredMember : sponsoredMembers) {
+			roles.putAuthzRole(Role.SPONSORSHIP, sponsoredMember);
+		}
 	}
 
 	/**
@@ -1711,6 +1841,128 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static PerunBl setPerunBl(PerunBl perunBl) {
 		AuthzResolverBlImpl.perunBl = perunBl;
 		return perunBl;
+	}
+
+	/**
+	 * Get all Vos where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Vos are retrieved
+	 * @param roles for which Vos are retrieved
+	 * @return List of Vos
+	 */
+	public static List<Vo> getVosWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getVosWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Facilities where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Facilities are retrieved
+	 * @param roles for which Facilities are retrieved
+	 * @return List of Facilities
+	 */
+	public static List<Facility> getFacilitiesWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getFacilitiesWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Resources where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Resources are retrieved
+	 * @param roles for which Resources are retrieved
+	 * @return List of Resources
+	 */
+	public static List<Resource> getResourcesWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getResourcesWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Groups where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * Method does not return subgroups of the fetched groups.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Groups are retrieved
+	 * @param roles for which Groups are retrieved
+	 * @return List of Groups
+	 */
+	public static List<Group> getGroupsWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getGroupsWhereUserIsInRoles(user, roles));
+	}
+
+	/**
+	 * Get all Members where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who Members are retrieved
+	 * @param roles for which Members are retrieved
+	 * @return List of Members
+	 */
+	public static List<Member> getMembersWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		Set<Member> members = authzResolverImpl.getMembersWhereUserIsInRoles(user, roles);
+
+		if (roles.contains(Role.SPONSORSHIP)) {
+			members.addAll(perunBl.getMembersManagerBl().getSponsoredMembers(sess, user));
+		}
+
+		return new ArrayList<>(members);
+	}
+
+	/**
+	 * Get all SecurityTeams where the given user has set one of the given roles
+	 * or the given user is a member of an authorized group with such roles.
+	 *
+	 * @param sess Perun session
+	 * @param user for who SecurityTeams are retrieved
+	 * @param roles for which SecurityTeams are retrieved
+	 * @return List of SecurityTeams
+	 */
+	public static List<SecurityTeam> getSecurityTeamsWhereUserIsInRoles(PerunSession sess, User user, List<String> roles) {
+		for (String role: roles) {
+			if (!roleExists(role)) {
+				throw new InternalErrorException("Role: "+ role +" does not exists.");
+			}
+		}
+
+		return new ArrayList<>(authzResolverImpl.getSecurityTeamsWhereUserIsInRoles(user, roles));
 	}
 
 	private static PerunBl getPerunBl() {
@@ -1944,12 +2196,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	/**
 	 * Checks whether the given parameters satisfies the rules associated with the role.
 	 *
-	 * @param entityToManage to which will be the role set or unset
+	 * @param entityToManage to which will be the role set, unset or read
 	 * @param complementaryObject which will be bounded with the role
 	 * @param role which will be managed
 	 * @return true if all given parameters imply with the associated rule, false otherwise.
 	 */
-	private static boolean objectAndRoleManageableByEntity(PerunBean entityToManage, PerunBean complementaryObject, String role) {
+	private static boolean objectAndRoleManageableByEntity(String entityToManage, PerunBean complementaryObject, String role) {
 		RoleManagementRules rules;
 		try {
 			rules = AuthzResolverImpl.getRoleManagementRules(role);
@@ -1959,7 +2211,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		Set<String> necessaryObjects = rules.getAssignedObjects().keySet();
 
-		if (rules.getEntitiesToManage().containsKey(entityToManage.getBeanName())) {
+		if (rules.getEntitiesToManage().containsKey(entityToManage)) {
 			if (complementaryObject == null && necessaryObjects.isEmpty()) {
 				return true;
 			} else if (complementaryObject != null && !necessaryObjects.isEmpty()) {
@@ -1979,9 +2231,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param role which will be managed
 	 * @return final mapping of values
 	 */
-	private static Map<String, Integer> createMappingOfValues(PerunBean entityToManage, PerunBean complementaryObject, String role) {
-		Map<String, Integer> mapping = new HashMap<>();
-
+	private static Map<String, Integer> createMappingToManageRole(PerunBean entityToManage, PerunBean complementaryObject, String role) {
 		RoleManagementRules rules;
 		try {
 			rules = AuthzResolverImpl.getRoleManagementRules(role);
@@ -1989,9 +2239,42 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new InternalErrorException("Management rules not exist for the role " + role, e);
 		}
 
+		Map<String, Integer> mapping = createMappingOfValues(complementaryObject, role, rules);
+		mapping.put(rules.getEntitiesToManage().get(entityToManage.getBeanName()), entityToManage.getId());
+
+		return mapping;
+	}
+
+	/**
+	 * Create a mapping of column names and ids which will be used for reading the role.
+	 *
+	 * @param complementaryObject which will be bounded with the role
+	 * @param role which will be managed
+	 * @return final mapping of values
+	 */
+	private static Map<String, Integer> createMappingToReadRoleOnObject(PerunBean complementaryObject, String role) {
+		RoleManagementRules rules;
+		try {
+			rules = AuthzResolverImpl.getRoleManagementRules(role);
+		} catch (RoleManagementRulesNotExistsException e) {
+			throw new InternalErrorException("Management rules not exist for the role " + role, e);
+		}
+
+		return createMappingOfValues(complementaryObject, role, rules);
+	}
+
+	/**
+	 * Create a mapping of column names and ids which will be used to read or manage the role.
+	 *
+	 * @param complementaryObject which will be bounded with the role
+	 * @param role which will be managed
+	 * @return final mapping of values
+	 */
+	private static Map<String, Integer> createMappingOfValues(PerunBean complementaryObject, String role, RoleManagementRules rules) {
+		Map<String, Integer> mapping = new HashMap<>();
+
 		Integer role_id = authzResolverImpl.getRoleId(role);
 		mapping.put("role_id", role_id);
-		mapping.put(rules.getEntitiesToManage().get(entityToManage.getBeanName()), entityToManage.getId());
 
 		Map <String, Set<Integer>> mapOfBeans = new HashMap<>();
 		if (complementaryObject != null) {

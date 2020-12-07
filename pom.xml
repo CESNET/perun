@@ -7,7 +7,7 @@
 	<!-- PERUN -->
 	<groupId>cz.metacentrum</groupId>
 	<artifactId>perun</artifactId>
-	<version>3.12.0-SNAPSHOT</version>
+	<version>3.14.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<!-- Spring Boot Starter Parent as parent project - this project inherits versions of dependencies and plugins -->
@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.4.RELEASE</version>
+		<version>2.4.0</version>
 	</parent>
 
 	<!-- PERUN MODULES -->
@@ -36,13 +36,14 @@
 		<module>perun-scim</module>
 		<module>perun-openapi</module>
 		<module>perun-cli-java</module>
+		<module>perun-auditlogger</module>
 	</modules>
 
 	<!-- common environmental and version properties-->
 	<properties>
 		<!-- property used by spring-boot-starter-parent project to define maven.compiler.source and maven.compiler.target
 		     properties that in turn are used by maven-compiler-plugin to specify java source and target version -->
-		<java.version>8</java.version>
+		<java.version>15</java.version>
 
 		<!-- USE UTF-8 in whole project -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -62,15 +63,14 @@
 
 		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
 		<tomcat.version>8.5.57</tomcat.version>
-		<oracle-database.version>19.6.0.0</oracle-database.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<commons-cli.version>1.4</commons-cli.version>
-		<commons-text.version>1.6</commons-text.version>
+		<commons-text.version>1.9</commons-text.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.9</expiringmap.version>
 		<flying-saucer-pdf.version>9.1.18</flying-saucer-pdf.version>
-		<google-api-services-admin-directory.version>directory_v1-rev110-1.25.0</google-api-services-admin-directory.version>
+		<google-api-services-admin-directory.version>directory_v1-rev118-1.25.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<netty3.version>3.2.1.Final</netty3.version><!-- needed for HornetQ -->
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>

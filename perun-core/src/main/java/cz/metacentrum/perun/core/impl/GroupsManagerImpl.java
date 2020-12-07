@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import org.slf4j.Logger;
@@ -34,11 +35,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Array;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -507,6 +511,25 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new GroupNotExistsException("Group name=" + name + ", vo id=" + vo.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsByIds(PerunSession perunSession, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + groupMappingSelectQuery + " from groups where id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<Group>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<Group> groups = new ArrayList<>();
+					while (rs.next()) {
+						groups.add(GROUP_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return groups;
+				});
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 

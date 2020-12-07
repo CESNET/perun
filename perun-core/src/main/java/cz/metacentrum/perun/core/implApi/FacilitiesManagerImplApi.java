@@ -70,6 +70,16 @@ public interface FacilitiesManagerImplApi {
 	 */
 	Facility getFacilityByName(PerunSession perunSession, String name) throws FacilityNotExistsException;
 
+	/**
+	 * Gets facilities by their ids. Silently skips non-existing facilities.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 *
+	 * @return list of facilities with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByIds(PerunSession perunSession, List<Integer> ids);
 
 	/**
 	 * Searches for the Facilities by theirs destination.

@@ -92,6 +92,9 @@
 # Cabinet administrators and Perun administrators are able to delegate this role to other users,
 # but the role cannot be set to groups.
 #
+# SPONSORSHIP role that is set for all members who are sponsored by the principal. This role is not
+# explicitly saved in DB!!
+#
 # UNKNOWN exists, but it is not used in Perun.
 #
 
@@ -118,6 +121,7 @@ perun_roles:
   - TOPGROUPCREATOR
   - SECURITYADMIN
   - CABINETADMIN
+  - SPONSORSHIP
   - UNKNOWN
 
 # A list of Perun policies that are loaded to the PerunPoliciesContainer.
@@ -342,6 +346,42 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getVosWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getFacilitiesWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getResourcesWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getGroupsWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getMembersWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
+  getSecurityTeamsWhereUserIsInRoles_User_List<String>_policy:
+    policy_roles:
+      - SELF: User
+    include_policies:
+      - default_policy
+
   #DatabaseManagerEntry
   getCurrentDatabaseVersion_policy:
     policy_roles:
@@ -484,6 +524,26 @@ perun_policies:
       - default_policy
 
   getFacilityByName_String_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getFacilitiesByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getFacilitiesByIds_List<Integer>_policy:
     policy_roles:
       - RPC:
       - ENGINE:
@@ -1158,6 +1218,38 @@ perun_policies:
       - VOOBSERVER: Vo
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
+      - VOADMIN: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+    include_policies:
+      - default_policy
+
+  getGroupsByIds_List<Integer>_policy:
+    policy_roles:
+#      Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - TRUSTEDFACILITYADMIN:
+    include_policies:
+      - default_policy
+
+  filter-getGroupsByIds_List<Integer>_policy:
+    policy_roles:
+#      Temporary fix until a new MEMBERSHIP role is created
+      - SELF:
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - PERUNOBSERVER:
+      - RPC:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+      - VOOBSERVER: Vo
       - VOADMIN: Vo
       - TRUSTEDFACILITYADMIN: Vo
     include_policies:
@@ -1969,6 +2061,30 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getMembersByIds_List<Integer>_policy:
+    policy_roles:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - SELF:
+      - RPC:
+      - PERUNOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+    include_policies:
+      - default_policy
+
+  filter-getMembersByIds_List<Integer>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - SELF: User
+      - RPC:
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   getMemberByUser_Vo_User_policy:
     policy_roles:
       - SELF: User
@@ -2113,6 +2229,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2123,6 +2240,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2135,6 +2253,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER:
       - VOADMIN:
+      - SPONSOR:
     include_policies:
       - default_policy
 
@@ -2147,6 +2266,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2157,6 +2277,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2167,6 +2288,7 @@ perun_policies:
       - PERUNOBSERVER:
       - VOOBSERVER: Vo
       - VOADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -2433,32 +2555,49 @@ perun_policies:
   sendPasswordResetLinkEmail_Member_String_String_String_String_policy:
     policy_roles:
       - VOADMIN: Vo
+      - SPONSORSHIP: Member
+    include_policies:
+      - default_policy
+
+  sendAccountActivationLinkEmail_Member_String_String_String_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
   createSponsoredMember_Vo_String_Map<String_String>_String_User_LocalDate_policy:
     policy_roles:
-      - VOADMIN: Vo
       - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 
   setSponsoredMember_Vo_User_String_String_User_LocalDate_policy:
     policy_roles:
-      - VOADMIN: Vo
       - SPONSOR: Vo
+        SELF: User
+    include_policies:
+      - default_policy
+
+  createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy:
+    policy_roles:
+      - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 
   createSponsoredMembers_Vo_String_List<String>_User_policy:
     policy_roles:
-      - VOADMIN: Vo
       - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 
   setSponsorshipForMember_Member_User_LocalDate_policy:
-    policy_roles: []
+    policy_roles:
+      - SPONSOR: Vo
+        SELF: User
     include_policies:
       - default_policy
 
@@ -2467,9 +2606,15 @@ perun_policies:
     include_policies:
       - default_policy
 
-  sponsorMember_Member_User_LocalDate_policy:
+  sponsored-sponsorMember_Member_User_LocalDate_policy:
     policy_roles:
-      - VOADMIN:
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  sponsor-sponsorMember_Member_User_LocalDate_policy:
+    policy_roles:
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -2481,6 +2626,19 @@ perun_policies:
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  filter-getSponsoredMembers_Vo_User_List<String>_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
@@ -2492,6 +2650,19 @@ perun_policies:
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  filter-getSponsoredMembers_Vo_User_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
@@ -2503,6 +2674,19 @@ perun_policies:
       - PERUNOBSERVER:
       - REGISTRAR:
       - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  filter-getSponsoredMembers_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
@@ -2520,7 +2704,7 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
-      - SPONSOR: Member
+      - SPONSORSHIP: Member
     include_policies:
       - default_policy
 
@@ -2531,9 +2715,15 @@ perun_policies:
     include_policies:
       - default_policy
 
-  removeSponsor_Member_User_policy:
+  sponsored-removeSponsor_Member_User_policy:
     policy_roles:
-      - VOADMIN: Vo
+      - SPONSORSHIP: Member
+    include_policies:
+      - default_policy
+
+  sponsor-removeSponsor_Member_User_policy:
+    policy_roles:
+      - SELF: User
     include_policies:
       - default_policy
 
@@ -2626,6 +2816,34 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+    include_policies:
+      - default_policy
+
+  filter-getResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - RPC:
+    include_policies:
+      - default_policy
+
   getEnrichedResourceById_int_List<String>_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -2650,6 +2868,34 @@ perun_policies:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
       - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getRichResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - VOADMIN:
+      - VOOBSERVER:
+      - PERUNOBSERVER:
+      - RPC:
+    include_policies:
+      - default_policy
+
+  filter-getRichResourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Resource
+      - RESOURCEADMIN: Resource
+      - RESOURCEOBSERVER: Resource
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - RPC:
     include_policies:
       - default_policy
 
@@ -4459,6 +4705,17 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getUserExtSourcesByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   addUserExtSource_User_UserExtSource_policy:
     policy_roles: []
     include_policies:
@@ -4600,6 +4857,32 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getUsersByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getUsersByIds_List<Integer>_policy:
+    policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF: User
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getUsersWithoutVoAssigned_policy:
     policy_roles:
       - PERUNOBSERVER:
@@ -4668,22 +4951,16 @@ perun_policies:
     include_policies:
       - default_policy
 
-  validatePasswordAndSetExtSources_User_String_String_policy:
+  validatePassword_User_String_policy:
     policy_roles:
       - REGISTRAR:
       - SELF: User
     include_policies:
       - default_policy
 
-  service_user-validatePasswordAndSetExtSources_User_String_String_policy:
+  service_user-validatePassword_User_String_policy:
     policy_roles:
       - VOADMIN:
-    include_policies:
-      - default_policy
-
-  validatePassword_User_String_policy:
-    policy_roles:
-      - SELF: User
     include_policies:
       - default_policy
 
@@ -4864,6 +5141,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
+      - SPONSOR:
     include_policies:
       - default_policy
 
@@ -4879,6 +5157,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -4896,6 +5175,7 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR:
       - TRUSTEDFACILITYADMIN:
+      - SPONSOR:
     include_policies:
       - default_policy
 
@@ -4934,6 +5214,7 @@ perun_policies:
       - VOADMIN: Vo
       - PERUNOBSERVER:
       - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -4952,6 +5233,45 @@ perun_policies:
       - PERUNOBSERVER:
       - TOPGROUPCREATOR: Vo
       - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
+  getVosByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE:
+      - RESOURCEADMIN:
+      - RESOURCEOBSERVER:
+      - SELF:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR:
+      - TRUSTEDFACILITYADMIN:
+      - SPONSOR:
+    include_policies:
+      - default_policy
+
+  filter-getVosByIds_List<Integer>_policy:
+    policy_roles:
+      - RESOURCESELFSERVICE: Vo
+      - RESOURCEADMIN: Vo
+      - RESOURCEOBSERVER: Vo
+      - SELF:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+      - PERUNOBSERVER:
+      - TOPGROUPCREATOR: Vo
+      - TRUSTEDFACILITYADMIN: Vo
+      - SPONSOR: Vo
     include_policies:
       - default_policy
 
@@ -5756,89 +6076,140 @@ perun_policies:
 perun_roles_management:
 
   PERUNADMIN:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
 
   PERUNOBSERVER:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
 
   VOADMIN:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   GROUPADMIN:
+    primary_object: Group
     assign_to_objects:
       Group: group_id
       Vo: vo_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
 
   GROUPOBSERVER:
+    primary_object: Group
     assign_to_objects:
       Group: group_id
       Vo: vo_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - GROUPADMIN: Group
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
 
   SELF:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   FACILITYADMIN:
+    primary_object: Facility
     assign_to_objects:
       Facility: facility_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
 
   FACILITYOBSERVER:
+    primary_object: Facility
     assign_to_objects:
       Facility: facility_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
 
   TRUSTEDFACILITYADMIN:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   RESOURCEADMIN:
+    primary_object: Resource
     assign_to_objects:
       Resource: resource_id
       Vo: vo_id
@@ -5846,14 +6217,26 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - RESOURCEOBSERVER: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+      - VOOBSERVER: Vo
 
   RESOURCEOBSERVER:
+    primary_object: Resource
     assign_to_objects:
       Resource: resource_id
       Vo: vo_id
@@ -5861,14 +6244,26 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - RESOURCEOBSERVER: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+      - VOOBSERVER: Vo
 
   RESOURCESELFSERVICE:
+    primary_object: Resource
     assign_to_objects:
       Resource: resource_id
       Vo: vo_id
@@ -5876,89 +6271,140 @@ perun_roles_management:
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
       - RESOURCEADMIN: Resource
       - TRUSTEDFACILITYADMIN: Vo
         FACILITYADMIN: Facility
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - RESOURCEADMIN: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYADMIN: Facility
+      - RESOURCEOBSERVER: Resource
+      - TRUSTEDFACILITYADMIN: Vo
+        FACILITYOBSERVER: Facility
+      - VOOBSERVER: Vo
 
   REGISTRAR:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   ENGINE:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   RPC:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   NOTIFICATIONS:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   SERVICEUSER:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
   SPONSOR:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   VOOBSERVER:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   TOPGROUPCREATOR:
+    primary_object: Vo
     assign_to_objects:
       Vo: vo_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
       - VOADMIN: Vo
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
 
   SECURITYADMIN:
+    primary_object: SecurityTeam
     assign_to_objects:
       SecurityTeam: security_team_id
     entities_to_manage:
       User: user_id
       Group: authorized_group_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+      - SECURITYADMIN: SecurityTeam
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
       - SECURITYADMIN: SecurityTeam
 
   CABINETADMIN:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage:
       User: user_id
-    privileged_roles:
+    privileged_roles_to_manage:
       - PERUNADMIN:
+      - CABINETADMIN:
+    privileged_roles_to_read:
+      - PERUNADMIN:
+      - PERUNOBSERVER:
       - CABINETADMIN:
 
   UNKNOWN:
+    primary_object:
     assign_to_objects: {}
     entities_to_manage: {}
-    privileged_roles: []
+    privileged_roles_to_manage: []
+    privileged_roles_to_read: []
 
 ...

@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordResetMailNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -390,6 +391,17 @@ public interface MembersManager {
 	 * @throws PrivilegeException
 	 */
 	Member getMemberById(PerunSession sess, int id) throws MemberNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns members by their ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return list of members with specified ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Member> getMembersByIds(PerunSession perunSession, List<Integer> ids) throws PrivilegeException;
 
 	/**
 	 * Returns member by his user and vo.
@@ -1113,8 +1125,26 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException If not VO admin of member
 	 * @throws MemberNotExistsException If member not exists
+	 * @throws PasswordResetMailNotExistsException If the attribute with stored mail is not filled.
 	 */
-	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException;
+	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException;
+
+	/**
+	 * Send mail to user's preferred email address with link for non-authz account activation.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get user to send link mail to
+	 * @param namespace namespace to activate account in (member must have login in it)
+	 * @param url base URL of Perun instance
+	 * @param mailAttributeUrn urn of the attribute with stored mail
+	 * @param language language of the message
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException If not VO admin of member
+	 * @throws MemberNotExistsException If member not exists
+	 * @throws PasswordResetMailNotExistsException If the attribute with stored mail is not filled.
+	 */
+	void sendAccountActivationLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException, PasswordResetMailNotExistsException;
 
 	/**
 	 * Creates a new sponsored Member and its User.
@@ -1123,8 +1153,13 @@ public interface MembersManager {
 	 * @param namespace namespace for selecting password module
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
 	 * @param password  password
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
+	 * @param sendActivationLink if true link for manual activation of account will be send to the email
+	 *                           be careful when using with empty (no-reply) email
+	 * @param url base URL of Perun Instance
 	 * @return new Member in the Vo
 	 * @throws InternalErrorException if given parameters are invalid
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
@@ -1136,8 +1171,9 @@ public interface MembersManager {
 	 * @throws ExtSourceNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws UserNotInRoleException
+	 * @throws AlreadySponsorException
 	 */
-	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1163,8 +1199,41 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException
 	 * @throws PasswordStrengthException
 	 * @throws InvalidLoginException
+	 * @throws AlreadySponsorException
 	 */
-	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException;
+	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
+
+	/**
+	 * Creates new sponsored members using input from CSV file.
+	 *
+	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and
+	 * start over, exceptions during member creation are not thrown and the returned map has this structure:
+	 *
+	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 *
+	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
+	 *
+	 * @param sess perun session
+	 * @param vo virtual organization to created sponsored members in
+	 * @param namespace used for selecting external system in which guest user account will be created
+	 * @param data csv file values separated by semicolon ';' characters
+	 * @param header header to the given csv data, it should represent columns for the given data.
+	 *               Required values are - firstname, lastname, urn:perun:user:attribute-def:def:preferredMail
+	 *               Optional values are - urn:perun:user:attribute-def:def:note
+	 *               The order of the items doesn't matter.
+	 * @param sponsor sponsoring user
+	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
+	 *                           to email which was set for him, be careful when using no-reply emails
+	 * @param url base URL of Perun Instance
+	 * @return map of names to map of status, login and password
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
+	                                                               List<String> data, String header, User sponsor,
+	                                                               LocalDate validityTo, boolean sendActivationLink,
+																   String url) throws PrivilegeException;
 
 	/**
 	 * Creates new sponsored Members (with random generated passwords).
@@ -1181,13 +1250,19 @@ public interface MembersManager {
 	 * @param session perun session
 	 * @param vo vo for members
 	 * @param namespace namespace for selecting password module
-	 * @param names a list of names
+	 * @param names names of members to create, single name should have the format {firstName};{lastName} to be
+	 *              parsed well
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
+	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
+	 *                           to the email, be careful when using with empty (no-reply) email
+	 * @param url base URL of Perun Instance
 	 * @return map of names to map of status, login and password
 	 * @throws PrivilegeException
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, User sponsor, LocalDate validityTo) throws PrivilegeException;
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException;
 
 	/**
 	 * Transform non-sponsored member to sponsored one with defined sponsor
@@ -1203,9 +1278,10 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException if member with defined id not exists in system Perun
 	 * @throws AlreadySponsoredMemberException if member is already sponsored
 	 * @throws UserNotInRoleException if sponsor hasn't right role in the same vo
+	 * @throws AlreadySponsorException sponsoredMember is already sponsored by User and his sponsorship is still active
 	 * @throws PrivilegeException if not PerunAdmin
 	 */
-	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException;
+	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor, LocalDate validityTo) throws MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, AlreadySponsorException, PrivilegeException;
 
 	/**
 	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.

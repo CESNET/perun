@@ -1631,7 +1631,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				for (Pair<String, String> pair : logins) {
 					// LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
 					// left = namespace, right = login
-					usersManager.validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+					usersManager.validatePassword(registrarSession, app.getUser(), pair.getLeft());
 				}
 
 				// update titles before/after users name if part of application !! USER MUST EXISTS !!
@@ -1720,7 +1720,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				for (Pair<String, String> pair : logins) {
 					// LOGIN IN NAMESPACE IS PURELY NEW => VALIDATE ENTRY IN KDC
 					// left = namespace, right = login
-					usersManager.validatePasswordAndSetExtSources(registrarSession, u, pair.getRight(), pair.getLeft());
+					usersManager.validatePassword(registrarSession, u, pair.getLeft());
 				}
 
 				// log
@@ -1770,7 +1770,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// validate purely new logins in KDC
 			for (Pair<String, String> pair : logins) {
 				// left = namespace, right = login
-				usersManager.validatePasswordAndSetExtSources(registrarSession, app.getUser(), pair.getRight(), pair.getLeft());
+				usersManager.validatePassword(registrarSession, app.getUser(), pair.getLeft());
 			}
 
 			// update titles before/after users name if part of application !! USER MUST EXISTS !!
@@ -2539,29 +2539,83 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		//Authorization
 		if (!AuthzResolver.authorizedInternal(sess, "updateFormItemData_int_ApplicationFormItemData_policy")) {
-			throw new PrivilegeException(sess, "updateApplicationData");
+			throw new PrivilegeException(sess, "updateFormItemData");
 		}
 
 		Application app = getApplicationById(sess, appId);
 		if (AppState.APPROVED.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Form items of once approved or rejected applications can't be modified.");
 
-		ApplicationFormItemData existingData = getFormItemDataById(data.getId());
-		if (existingData == null) throw new RegistrarException("Form item data specified by ID: "+ data.getId() + " not found in the DB.");
+		ApplicationFormItemData existingData = getFormItemDataById(data.getId(), appId);
+		if (existingData == null) throw new RegistrarException("Form item data specified by ID: "+ data.getId() + " not found or doesn't belong to the application "+appId);
 
 		List<Type> notAllowed = Arrays.asList(FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
 
 		if (notAllowed.contains(existingData.getFormItem().getType())) throw new RegistrarException("You are not allowed to modify "+existingData.getFormItem().getType()+" type of form items.");
 
+		updateFormItemData(sess, data);
+
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public void updateFormItemsData(PerunSession sess, int appId, List<ApplicationFormItemData> data) throws PerunException {
+
+		Application app = getApplicationById(appId);
+
+		if (app == null) throw new InternalErrorException("Application with ID="+appId+" doesn't exist.");
+
+		if (!AuthzResolver.selfAuthorizedForApplication(sess, app)) {
+			throw new PrivilegeException(sess, "updateFormItemsData");
+		}
+
+		if (AppState.APPROVED.equals(app.getState()) || AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Form items of once approved or rejected applications can't be modified.");
+
+		// no data to change
+		if (data == null || data.isEmpty()) return;
+
+		for (ApplicationFormItemData dataItem : data) {
+
+			ApplicationFormItemData existingData = getFormItemDataById(dataItem.getId(), appId);
+			if (existingData == null) throw new RegistrarException("Form item data specified by ID: " + dataItem.getId() + " not found or doesn't belong to the application " + appId);
+
+			List<Type> notAllowed = Arrays.asList(FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
+
+			if (notAllowed.contains(existingData.getFormItem().getType()))
+				throw new RegistrarException("You are not allowed to modify " + existingData.getFormItem().getType() + " type of form items.");
+
+			updateFormItemData(sess, dataItem);
+
+		}
+
+		// forcefully mark application as NEW and perform verification
+		setApplicationState(sess, app.getId(), AppState.NEW);
+
+		// in case that user fixed own form, it should be possible to verify and approve it for auto-approval cases
+		boolean verified = tryToVerifyApplication(sess, app);
+		if (verified) {
+			// try to APPROVE if auto approve
+			tryToAutoApproveApplication(sess, app);
+		} else {
+			// send request validation notification
+			getMailManager().sendMessage(app, MailType.MAIL_VALIDATION, null, null);
+		}
+
+	}
+
+	private void updateFormItemData(PerunSession session, ApplicationFormItemData dataItem) {
 		try {
-			int result = jdbc.update("update application_data set value=? where id=?", data.getValue(), data.getId());
-			log.info("{} manually updated form item data {}", sess.getPerunPrincipal(), data);
+			if (VALIDATED_EMAIL.equals(dataItem.getFormItem().getType())) {
+				handleLoaForValidatedMail(session, dataItem);
+			}
+			int result = jdbc.update("update application_data set value=? , assurance_level=? where id=?",
+					dataItem.getValue(), ((StringUtils.isBlank(dataItem.getAssuranceLevel())) ? null : dataItem.getAssuranceLevel()),
+					dataItem.getId());
+			log.info("{} manually updated form item data {}", session.getPerunPrincipal(), dataItem);
 			if (result != 1) {
 				throw new InternalErrorException("Unable to update form item data");
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
-
 	}
 
 	@Override
@@ -2657,15 +2711,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	/**
 	 * Retrieve form item data by its ID or NULL if not exists.
+	 * It also expect, that item belongs to the passed application ID, if not, NULL is returned.
 	 *
 	 * @param formItemDataId ID of form item data entry
+	 * @param applicationId ID of application this item belongs to
 	 * @return Form item with data submitted by the User.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	private ApplicationFormItemData getFormItemDataById(int formItemDataId) {
+	private ApplicationFormItemData getFormItemDataById(int formItemDataId, int applicationId) {
 
 		try {
-			return jdbc.queryForObject("select id,item_id,shortname,value,assurance_level from application_data where id=?",
+			return jdbc.queryForObject("select id,item_id,shortname,value,assurance_level from application_data where id=? and app_id=?",
 					(resultSet, rowNum) -> {
 						ApplicationFormItemData data = new ApplicationFormItemData();
 						data.setId(resultSet.getInt("id"));
@@ -2674,11 +2730,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						data.setValue(resultSet.getString("value"));
 						data.setAssuranceLevel(resultSet.getString("assurance_level"));
 						return data;
-					}, formItemDataId);
+					}, formItemDataId, applicationId);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		} catch (RuntimeException ex) {
-			throw new InternalErrorException("Unable to get form item data by its ID:" + formItemDataId, ex);
+			throw new InternalErrorException("Unable to get form item data by its ID:" + formItemDataId + " and application ID: " + applicationId, ex);
 		}
 
 	}
@@ -2748,6 +2804,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			log.error("Application {} NOT marked as VERIFIED due to error {}", appId, ex);
 		}
 
+	}
+
+	/**
+	 * Forcefully set application its state (NEW/VERIFIED/...)
+	 *
+	 * @param sess PerunSession
+	 * @param appId ID of application
+	 * @param appState AppState to be set
+	 */
+	private void setApplicationState(PerunSession sess, int appId, AppState appState) {
+		try {
+			jdbc.update("update application set state=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=? where id=?",
+					appState.toString(), sess.getPerunPrincipal().getActor(), appId);
+		} catch (RuntimeException ex) {
+			log.error("Unable to set application state: {}, to application ID: {}", appState, appId, ex);
+			throw new InternalErrorException("Unable to set application state: "+appState+" to application: "+appId, ex);
+		}
 	}
 
 	/**

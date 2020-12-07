@@ -3,6 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -114,6 +115,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+	 *                            default is false, can't be used with empty email parameter
 	 * @return RichMember newly created sponsored member
 	 */
 	/*#
@@ -130,7 +135,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+	 *                            default is false, can't be used with empty email parameter
 	 * @return RichMember newly created sponsored member
 	 */
 	createSponsoredMember {
@@ -140,6 +149,18 @@ public enum MembersManagerMethod implements ManagerMethod {
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			boolean sendActivationLink = false;
+			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
+				sendActivationLink = params.readBoolean("sendActivationLinks");
+			}
+			String email = null;
+			if (params.contains("email")) {
+				email = params.readString("email");
+			}
+			if (email != null && !Utils.emailPattern.matcher(email).matches()) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
+			}
+			if(email == null && sendActivationLink) throw new RpcException(RpcException.Type.MISSING_VALUE, "Can't send link for activation when email is missing!");
 			User sponsor = null;
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {
@@ -159,7 +180,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, sponsor, validityTo);
+			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, email, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
 		}
 	},
 
@@ -218,6 +239,61 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates new sponsored members in a given VO and namespace.
 	 *
+	 * If the sponsor is not specified, the current principal becomes the SPONSOR, if he has such privileges.
+	 *
+	 * Since there may be error while creating some of the members and we cannot simply rollback the transaction and
+	 * start over, exceptions during member creation are not thrown and the returned map has this structure:
+	 *
+	 * name -> {"status" -> "OK" or "Error...", "login" -> login, "password" -> password}
+	 *
+	 * Keys are names given to this method and values are maps containing keys "status", "login" and "password".
+	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
+	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
+	 *
+	 * @param data List<String> csv file values separated by semicolon ';' characters
+	 * @param header String header to the given csv data, it should represent columns for the given data, values are
+	 *               also separated by the semicolon ';' character.
+	 *               Required values are - firstname, lastname, urn:perun:user:attribute-def:def:preferredMail
+	 *               Optional values are - urn:perun:user:attribute-def:def:note
+	 *               The order of the items doesn't matter.
+	 * @param vo int VO ID
+	 * @param namespace String namespace selecting remote system for storing the password
+	 * @param sponsor int sponsor's ID
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member
+	 *                           account will be send to the email (can't be used with empty email parameter), default is false
+	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
+	 */
+	createSponsoredMembersFromCSV {
+		@Override
+		public Map<String, Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
+			params.stateChangingCheck();
+			Vo vo =  ac.getVoById(params.readInt("vo"));
+			String namespace = params.readString("namespace");
+			boolean sendActivationLink = false;
+			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
+				sendActivationLink = params.readBoolean("sendActivationLinks");
+			}
+			LocalDate validityTo = null;
+			if (params.contains("validityTo") && params.readString("validityTo") != null) {
+				validityTo = params.readLocalDate("validityTo");
+			}
+			User sponsor = null;
+			if(params.contains("sponsor")) {
+				sponsor = ac.getUserById(params.readInt("sponsor"));
+			}
+			String header = params.readString("header");
+
+			List<String> data = new ArrayList<>(params.readList("data", String.class));
+
+			return ac.getMembersManager()
+					.createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
+		}
+	},
+
+	/*#
+	 * Creates new sponsored members in a given VO and namespace.
+	 *
 	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
 	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
 	 *
@@ -230,10 +306,15 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * "status" has as its value either "OK" or message of exception which was thrown during creation of the member.
 	 * "login" contains login (e.g. učo) if status is OK, "password" contains password if status is OK.
 	 *
-	 * @param guestNames List<String> identification of sponsored accounts, e.g. "John Doe" or "conference member 1"
+	 * @param guestNames List<String> names of members to create, single name should have the format
+	 *                                {firstName};{lastName} to be parsed well
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
+	 * @param email (optional) preferred email that will be set to the created user. If no email
+	 *              is provided, "no-reply@muni.cz" is used.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member account will be send
+	 *                           to the email, be careful when using with empty (no-reply) email, default is false
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
 	 */
@@ -243,10 +324,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 			params.stateChangingCheck();
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
+			boolean sendActivationLink = false;
+			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
+				sendActivationLink = params.readBoolean("sendActivationLinks");
+			}
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {
 				validityTo = params.readLocalDate("validityTo");
 			}
+			String email = null;
+			if (params.contains("email")) {
+				email = params.readString("email");
+			}
+			if(email == null && sendActivationLink) throw new RpcException(RpcException.Type.MISSING_VALUE, "Can't send link for activation when email is missing!");
 			User sponsor = null;
 			if(params.contains("sponsor")) {
 				sponsor = ac.getUserById(params.readInt("sponsor"));
@@ -257,7 +347,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value: 'guestNames' must be sent.");
 			}
-			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, sponsor, validityTo);
+			return ac.getMembersManager().createSponsoredMembers(ac.getSession(), vo, namespace, names, email, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
 		}
 	},
 
@@ -351,7 +441,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param member int id of sponsored member, optional
 	 * @param sponsor int id of sponsoring user that is to be removed
 	 * @param validityTo String the last day, when the sponsorship is active, yyyy-mm-dd format.
-	 *                          can be set to null never expire
+	 *                          if it is not passed, or null, it can be set to never expire
 	 * @throw PrivilegeException insufficient permissions
 	 * @throw SponsorshipDoesNotExistException if the given user is not sponsor of the given member
 	 * @throw MemberNotExistsException if there is no such member
@@ -364,7 +454,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
 			User sponsor = ac.getUserById(params.readInt("sponsor"));
-			LocalDate newValidity = params.readLocalDate("validityTo");
+			LocalDate newValidity = null;
+			if (params.contains("validityTo") && params.readString("validityTo") != null) {
+				newValidity = params.readLocalDate("validityTo");
+			}
 
 			ac.getMembersManager().updateSponsorshipValidity(ac.getSession(), sponsoredMember, sponsor, newValidity);
 			return null;
@@ -636,6 +729,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getMembersManager().getMemberById(ac.getSession(), parms.readInt("id"));
+		}
+	},
+
+	/*#
+	 * Returns members by their IDs.
+	 *
+	 * @param ids List<Integer> list of members IDs
+	 * @return List<Member> members with specified IDs
+	 */
+	getMembersByIds {
+		@Override
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getMembersByIds(ac.getSession(), parms.readList("ids", Integer.class));
 		}
 	},
 
@@ -1485,6 +1591,29 @@ public enum MembersManagerMethod implements ManagerMethod {
 			ac.getMembersManager().sendPasswordResetLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
 					parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString(),
 					parms.readString("emailAttributeURN"), parms.readString("language"));
+
+			return null;
+
+		}
+	},
+
+	/*#
+	 * Send mail to user's preferred email address with link for non-authz account activation.
+	 * Correct authz information is stored in link's URL.
+	 *
+	 * @param member int Member to get user to send link mail to
+	 * @param namespace String Namespace to activate account in (member must have login in it)
+	 * @param emailAttributeURN urn of the attribute with stored mail
+	 * @param language language of the message
+	 */
+	sendAccountActivationLinkEmail {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getMembersManager().sendAccountActivationLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
+				parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString(),
+				parms.readString("emailAttributeURN"), parms.readString("language"));
 
 			return null;
 

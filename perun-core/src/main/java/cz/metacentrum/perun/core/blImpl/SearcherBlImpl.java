@@ -205,6 +205,16 @@ public class SearcherBlImpl implements SearcherBl {
 		return resourcesFromCoreAttributes;
 	}
 
+	@Override
+	public List<Integer> getVosIdsForAppAutoRejection() {
+		return getSearcherImpl().getVosIdsForAppAutoRejection();
+	}
+
+	@Override
+	public List<Integer> getGroupsIdsForAppAutoRejection() {
+		return getSearcherImpl().getGroupsIdsForAppAutoRejection();
+	}
+
 	private List<Facility> getFacilitiesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {

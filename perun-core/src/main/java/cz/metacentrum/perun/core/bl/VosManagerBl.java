@@ -114,6 +114,16 @@ public interface VosManagerBl {
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException;
 
 	/**
+	 * Finds existing VOs by ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return VOs with requested ids
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosByIds(PerunSession perunSession, List<Integer> ids);
+
+	/**
 	 * Finds users, who can join the Vo.
 	 *
 	 * @param perunSession
@@ -161,16 +171,15 @@ public interface VosManagerBl {
 
 	/**
 	 * Finds MemberCandidates who can join the Group. If the given vo is not null, it searches only
-	 * users who belong to this Vo.
+	 * users who belong to this Vo or who have ues in any of given extSources.
 	 *
 	 * @param sess session
-	 * @param vo vo if is null, users are searched in whole perun, otherwise only members of this vo are used.
+	 * @param vo vo if vo is null, users are searched in whole perun, otherwise users are searched in members of given vo and in users with ues in any of given extSources
 	 * @param group group to be used
 	 * @param attrNames name of attributes to be searched
 	 * @param searchString depends on the extSource of the Vo, could by part of the name, email or something like that.
-	 * @param extSources extSources used to find candidates
+	 * @param extSources extSources used to find candidates and possibly users
 	 * @return list of memberCandidates who match the searchString
-	 * @throws InternalErrorException internal error
 	 */
 	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources);
 
@@ -504,4 +513,24 @@ public interface VosManagerBl {
 	 * @return true, if member with given id is banned, false otherwise
 	 */
 	boolean isMemberBanned(PerunSession sess, int memberId);
+
+	/**
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. Original sponsors of the users will be set to the sponsored members.
+	 *
+	 * @param sess session
+	 * @param vo vo where members will be converted
+	 */
+	void convertSponsoredUsers(PerunSession sess, Vo vo);
+
+	/**
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. The sponsored members will be sponsored by the given user, not by its
+	 * original sponsors.
+	 *
+	 * @param sess session
+	 * @param vo vo where members will be converted
+	 * @param newSponsor user, who will be set as a sponsor to the sponsored members
+	 */
+	void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor);
 }

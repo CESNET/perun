@@ -320,7 +320,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
 										// VALIDATE PASSWORD - SET EXT SOURCES
 										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
-										req.validateAndSetUserExtSources(user.getId(), login, namespace);
+										req.validatePassword(user.getId(), login, namespace);
 
 									}
 								}));
@@ -436,7 +436,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
 										// VALIDATE PASSWORD - SET EXT SOURCES
 										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab, true));
-										req.validateAndSetUserExtSources(user.getId(), login, namespace);
+										req.validatePassword(user.getId(), login, namespace);
 
 									}
 								}));

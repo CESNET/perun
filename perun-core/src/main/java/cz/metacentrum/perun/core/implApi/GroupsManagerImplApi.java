@@ -158,6 +158,16 @@ public interface GroupsManagerImplApi {
 	 */
 	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException;
 
+	/**
+	 * Gets groups by their ids. Silently skips non-existing groups.
+	 *
+	 * @param ids
+	 * @param perunSession
+	 *
+	 * @return list of groups with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsByIds(PerunSession perunSession, List<Integer> ids);
 
 	/**
 	 * Adds member of the VO to the group in the same VO.

@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -1181,6 +1182,20 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		}
 
 		return convertedRanges;
+	}
+
+	@Override
+	public User getUserByLoginInNamespace(PerunSession sess, String login, String namespace) {
+		String attrName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + namespace;
+		List<User> usersByLoginInNamespace = getPerunBl().getUsersManagerBl().getUsersByAttributeValue(sess, attrName, login);
+
+		if (usersByLoginInNamespace.isEmpty()) {
+			return null;
+		} else if (usersByLoginInNamespace.size() == 1) {
+			return usersByLoginInNamespace.get(0);
+		} else {
+			throw new ConsistencyErrorException("There is more than 1 login '" + login + "' in namespace " + namespace + ".");
+		}
 	}
 
 	/**

@@ -135,6 +135,17 @@ public interface VosManager {
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException, PrivilegeException;
 
 	/**
+	 * Finds existing VOs by ids.
+	 *
+	 * @param perunSession
+	 * @param ids
+	 * @return VOs with requested ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Vo> getVosByIds(PerunSession perunSession, List<Integer> ids) throws PrivilegeException;
+
+	/**
 	 * Finds users, who can join the Vo.
 	 *
 	 * @param perunSession
@@ -549,4 +560,25 @@ public interface VosManager {
 	 * @throws VoNotExistsException if there is no vo with given id
 	 */
 	List<BanOnVo> getBansForVo(PerunSession sess, int voId) throws PrivilegeException, VoNotExistsException;
+
+	/**
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. Original sponsors of the users will be set to the sponsored members.
+	 *
+	 * @param sess session
+	 * @param vo vo where members will be converted
+	 */
+	void convertSponsoredUsers(PerunSession sess, Vo vo) throws PrivilegeException;
+
+
+	/**
+	 * For the given vo, creates sponsored members for each sponsored user who is a member
+	 * of the given vo. The sponsored members will be sponsored by the given user, not by its
+	 * original sponsors.
+	 *
+	 * @param sess session
+	 * @param vo vo where members will be converted
+	 * @param newSponsor user, who will be set as a sponsor to the sponsored members
+	 */
+	void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor) throws PrivilegeException;
 }

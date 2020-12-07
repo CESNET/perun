@@ -141,25 +141,39 @@ public class PerunRolesLoader {
 		while (roleNames.hasNext()) {
 			String roleName = roleNames.next();
 			JsonNode roleNode = rolesNodes.get(roleName);
-			List<Map<String, String>> privilegedRoles = new ArrayList<>();
-			JsonNode privilegedRolesNode = roleNode.get("privileged_roles");
+			JsonNode primaryObjectNode = roleNode.get("primary_object");
+			String primaryObject = primaryObjectNode.isNull() ? null : primaryObjectNode.textValue();
+			List<Map<String, String>> privilegedRolesToManage = createMapFromPrivilegedRoles(roleNode.get("privileged_roles_to_manage"));
+			List<Map<String, String>> privilegedRolesToRead = createMapFromPrivilegedRoles(roleNode.get("privileged_roles_to_read"));
+			Map<String, String> entitiesToManage = createMapFromJsonNode(roleNode.get("entities_to_manage"));
+			Map<String, String> objectsToAssign = createMapFromJsonNode(roleNode.get("assign_to_objects"));
 
-			//Field privileged_roles is saved as List of maps in the for loop
-			for (JsonNode privilegedRoleNode : privilegedRolesNode) {
-				Map<String, String> innerRoleMap = createmapFromJsonNode(privilegedRoleNode);
-				privilegedRoles.add(innerRoleMap);
-			}
-
-			Map<String, String> entitiesToManage = createmapFromJsonNode(roleNode.get("entities_to_manage"));
-			Map<String, String> objectsToAssign = createmapFromJsonNode(roleNode.get("assign_to_objects"));
-
-			rules.add(new RoleManagementRules(roleName, privilegedRoles, entitiesToManage, objectsToAssign));
+			rules.add(new RoleManagementRules(roleName, primaryObject, privilegedRolesToManage, privilegedRolesToRead, entitiesToManage, objectsToAssign));
 		}
 
 		return rules;
 	}
 
-	private Map<String, String> createmapFromJsonNode(JsonNode node) {
+	/**
+	 * Gathers privileged roles from a JsonNnode and put them into a list of maps.
+	 * Role name is stored as a key and the object for the role is stored as a value.
+	 *
+	 * @param privilegedRolesNode is a JsonNode which contains role privileges
+	 * @return a list of maps representing the role privileges
+	 */
+	private List<Map<String, String>> createMapFromPrivilegedRoles(JsonNode privilegedRolesNode) {
+		List<Map<String, String>> privilegedRoles = new ArrayList<>();
+
+		//Field privileged_roles_to_manage is saved as List of maps in the for loop
+		for (JsonNode privilegedRoleNode : privilegedRolesNode) {
+			Map<String, String> innerRoleMap = createMapFromJsonNode(privilegedRoleNode);
+			privilegedRoles.add(innerRoleMap);
+		}
+
+		return privilegedRoles;
+	}
+
+	private Map<String, String> createMapFromJsonNode(JsonNode node) {
 		Map<String, String> resultMap = new HashMap<>();
 
 		Iterator<String> nodeArrayKeys = node.fieldNames();
@@ -211,7 +225,7 @@ public class PerunRolesLoader {
 
 			//Field policy_roles is saved as List of maps in the for loop
 			for (JsonNode perunRoleNode : perunRolesNode) {
-				Map<String, String> innerRoleMap = createmapFromJsonNode(perunRoleNode);
+				Map<String, String> innerRoleMap = createMapFromJsonNode(perunRoleNode);
 				perunRoles.add(innerRoleMap);
 			}
 

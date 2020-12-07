@@ -193,6 +193,20 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
+	public List<Vo> getVosByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.notNull(sess, "sess");
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getVosByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getVosByIds");
+		}
+		List<Vo> vos = vosManagerBl.getVosByIds(sess, ids);
+		vos.removeIf(vo -> !AuthzResolver.authorizedInternal(sess, "filter-getVosByIds_List<Integer>_policy", vo));
+
+		return vos;
+	}
+
+	@Override
 	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) throws VoNotExistsException, PrivilegeException {
 		Utils.notNull(searchString, "searchString");
 		Utils.notNull(sess, "sess");
@@ -653,6 +667,24 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		return vosManagerBl.getBansForVo(sess, voId);
+	}
+
+	@Override
+	public void convertSponsoredUsers(PerunSession sess, Vo vo) throws PrivilegeException {
+		if (!AuthzResolver.authorizedInternal(sess, "default_policy")) {
+			throw new PrivilegeException("convertSponsoredUsers");
+		}
+
+		vosManagerBl.convertSponsoredUsers(sess, vo);
+	}
+
+	@Override
+	public void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor) throws PrivilegeException {
+		if (!AuthzResolver.authorizedInternal(sess, "default_policy")) {
+			throw new PrivilegeException("convertSponsoredUsersWithNewSponsor");
+		}
+
+		vosManagerBl.convertSponsoredUsersWithNewSponsor(sess, vo, newSponsor);
 	}
 
 	/**

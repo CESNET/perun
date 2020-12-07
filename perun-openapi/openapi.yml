@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  version: 3.10.0
+  version: 3.14.0
   title: Perun RPC API
   description: Perun Remote Procedure Calls Application Programming Interface
   contact:
@@ -420,6 +420,39 @@ components:
         - policyName
         - includePolicies
         - perunRoles
+
+    RoleManagementRules:
+      type: object
+      properties:
+        roleName: { type: string }
+        primaryObject: { type: string, nullable: true}
+        privilegedRolesToManage:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+        privilegedRolesToRead:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+        entitiesToManage:
+          type: object
+          additionalProperties:
+            type: string
+        assignedObjects:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - roleName
+        - primaryObject
+        - privilegedRolesToManage
+        - privilegedRolesToRead
+        - entitiesToManage
+        - assignedObjects
 
     Group:
       allOf:
@@ -1344,6 +1377,15 @@ components:
             items:
               $ref: "#/components/schemas/PerunPolicy"
 
+    ListOfRolesManagementRulesResponse:
+      description: "returns List<RoleManagementRules>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/RoleManagementRules"
+
     ListOfRichGroupsResponse:
       description: "returns List<RichGroup>"
       content:
@@ -1842,6 +1884,16 @@ components:
         type: integer
       in: query
       required: true
+
+    ids:
+      name: "ids[]"
+      description: "list of ids List<Integer>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
 
     attributeId:
       name: attributeId
@@ -2360,6 +2412,16 @@ components:
       in: query
       required: true
 
+    ListOfRoles:
+      name: "roles[]"
+      description: "list of role names List<String>"
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+
     consumerName:
       name: consumerName
       schema:
@@ -2483,19 +2545,12 @@ components:
       in: query
       required: true
 
-    validityTo:
-      name: validityTo
-      description: date in format yyyy-mm-dd
-      schema:
-        type: string
-      in: query
-      required: true
-
     optionalValidityTo:
       name: validityTo
       description: date in format yyyy-mm-dd
       schema:
         type: string
+        nullable: true
       in: query
       required: false
 
@@ -2798,7 +2853,6 @@ paths:
               required:
                 - role
                 - users
-                - complementaryObject
               properties:
                 role: { type: string, nullable: false }
                 users:
@@ -2831,7 +2885,6 @@ paths:
               required:
                 - role
                 - users
-                - complementaryObject
               properties:
                 role: { type: string, nullable: false }
                 users:
@@ -2865,7 +2918,6 @@ paths:
               required:
                 - role
                 - authorizedGroups
-                - complementaryObject
               properties:
                 role: { type: string, nullable: false }
                 authorizedGroups:
@@ -2898,7 +2950,6 @@ paths:
               required:
                 - role
                 - authorizedGroups
-                - complementaryObject
               properties:
                 role: { type: string, nullable: false }
                 authorizedGroups:
@@ -3069,6 +3120,18 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/authzResolver/getAllRolesManagementRules:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getAllRolesManagementRules
+      summary: Return all loaded roles management rules.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRolesManagementRulesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/authzResolver/loadAuthorizationComponents:
     get:
       tags:
@@ -3079,6 +3142,102 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getVosWhereUserIsInRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getVosWhereUserIsInRoles
+      summary: Get all Vos where the given user (principal if user not sent) has set one of the given roles
+        or the given user is a member of an authorized group with such roles.
+      parameters:
+        - $ref: '#/components/parameters/optionalUserId'
+        - $ref: '#/components/parameters/ListOfRoles'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getFacilitiesWhereUserIsInRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getFacilitiesWhereUserIsInRoles
+      summary: Get all Facilities where the given user (principal if user not sent) has set one of the given roles
+        or the given user is a member of an authorized group with such roles.
+      parameters:
+        - $ref: '#/components/parameters/optionalUserId'
+        - $ref: '#/components/parameters/ListOfRoles'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getResourcesWhereUserIsInRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getResourcesWhereUserIsInRoles
+      summary: Get all Resources where the given user (principal if user not sent) has set one of the given roles
+        or the given user is a member of an authorized group with such roles.
+      parameters:
+        - $ref: '#/components/parameters/optionalUserId'
+        - $ref: '#/components/parameters/ListOfRoles'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getGroupsWhereUserIsInRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getGroupsWhereUserIsInRoles
+      summary: Get all Groups where the given user (principal if user not sent) has set one of the given roles
+        or the given user is a member of an authorized group with such roles.
+      parameters:
+        - $ref: '#/components/parameters/optionalUserId'
+        - $ref: '#/components/parameters/ListOfRoles'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getMembersWhereUserIsInRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getMembersWhereUserIsInRoles
+      summary: Get all Members where the given user (principal if user not sent) has set one of the given roles
+        or the given user is a member of an authorized group with such roles.
+      parameters:
+        - $ref: '#/components/parameters/optionalUserId'
+        - $ref: '#/components/parameters/ListOfRoles'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/authzResolver/getSecurityTeamsWhereUserIsInRoles:
+    get:
+      tags:
+        - AuthzResolver
+      operationId: getSecurityTeamsWhereUserIsInRoles
+      summary: Get all SecurityTeams where the given user (principal if user not sent) has set one of the given roles
+        or the given user is a member of an authorized group with such roles.
+      parameters:
+        - $ref: '#/components/parameters/optionalUserId'
+        - $ref: '#/components/parameters/ListOfRoles'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfSecurityTeamsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -7534,6 +7693,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getUserExtSourceById:
+    get:
+      tags:
+        - UserManager
+      operationId: getUserExtSourceById
+      summary: Returns user ext source by its id.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserExtSourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUserExtSourcesByIds:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUserExtSourcesByIds
+      summary: Returns list of user ext sources by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUserExtSourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/requestPreferredEmailChange:
     post:
       tags:
@@ -7618,6 +7805,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ListOfRichResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getUsersByIds:
+    get:
+      tags:
+        - UsersManager
+      operationId: getUsersByIds
+      summary: Returns list of Users by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfUsersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -7733,6 +7934,46 @@ paths:
                 candidate: { $ref: '#/components/schemas/Candidate' }
                 specificUserOwners: { type: array, items: { $ref: "#/components/schemas/User" } }
 
+  /json/usersManager/checkPasswordResetRequestIsValid:
+    get:
+      tags:
+        - UsersManager
+      operationId: checkPasswordResetRequestIsValid
+      summary: Checks if the password reset request based on encrypted input parameters is valid.
+      description: |
+        This method throws PasswordResetLinkExpiredException when the password reset request expired.
+        This method throws PasswordResetLinkNotValidException when the password reset request was already
+        used or has never existed.
+      parameters:
+        - { name: i, description: "encrypted user id", schema: { type: string }, in: query, required: true }
+        - { name: m, description: "encrypted password reset request id", schema: { type: string }, in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeNonAuthzPassword:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeNonAuthzPassword
+      summary: Changes user's password in namespace based on encrypted input parameters.
+      description: |
+        This method throws PasswordResetLinkExpiredException when the password reset request expired.
+        This method throws PasswordResetLinkNotValidException when the password reset request was already
+        used or has never existed.
+      parameters:
+        - { name: i, description: "encrypted user id", schema: { type: string }, in: query, required: true }
+        - { name: m, description: "encrypted password reset request id", schema: { type: string }, in: query, required: true }
+        - $ref: '#/components/parameters/password'
+        - { name: lang, description: "language to get notifications in (optional)", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/reservePassword:
     post:
       tags:
@@ -7767,6 +8008,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/MemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMembersByIds:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMembersByIds
+      summary: Returns list of Members by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMembersResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -7999,10 +8254,12 @@ paths:
                 titleBefore: { type: string }
                 titleAfter: { type: string }
                 password: { type: string }
+                email: { type: string }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
                 validityTo: { type: string }
+                sendActivationLink: { type: boolean }
 
   /json/membersManager/setSponsoredMember:
     post:
@@ -8036,6 +8293,40 @@ paths:
                 namespace: { type: string }
                 validityTo: { type: string }
 
+  /json/membersManager/createSponsoredMembersFromCSV:
+    post:
+      tags:
+        - MembersManager
+      operationId: createSponsoredMembersFromCSV
+      summary: Creates new sponsored members in a given VO and namespace.
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringMapStringStringResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputCreateSponsoredMemberFromCSV
+              description: "input for createSponsoredMembersFromCSV"
+              type: object
+              required:
+                - vo
+                - sponsor
+                - namespace
+                - data
+                - header
+              properties:
+                data : { type: array, items: { type: string }, description: "values separated with semicolons" }
+                header: { type: string, description: "csv header for the given data, values are also split with semicolons"}
+                vo: { type: integer }
+                sponsor: { type: integer }
+                namespace: { type: string }
+                validityTo: { type: string }
+                sendActivationLink: { type: boolean }
+
   /json/membersManager/createSponsoredMembers:
     post:
       tags:
@@ -8061,11 +8352,13 @@ paths:
                 - sponsor
                 - namespace
               properties:
-                guestNames: { type: array, items: { type: string } }
+                guestNames : { type: array, items: { type: string }, description: "names of members to create, single name should have the format {firstName};{lastName} to be parsed well" }
                 vo: { type: integer }
                 sponsor: { type: integer }
                 namespace: { type: string }
                 validityTo: { type: string }
+                email: { type: string }
+                sendActivationLink: { type: boolean }
 
   /json/membersManager/createSpecificMember:
     post:
@@ -8118,11 +8411,11 @@ paths:
       tags:
         - MembersManager
       operationId: updateSponsorshipValidity
-      summary: Updates sponsorship validity. To change it to FOREVER, pass null in validityTo.
+      summary: Updates sponsorship validity. To change it to FOREVER, don't pass the validityTo param, or pass it as null.
       parameters:
         - $ref: '#/components/parameters/memberId'
         - $ref: '#/components/parameters/sponsorId'
-        - $ref: '#/components/parameters/validityTo'
+        - $ref: '#/components/parameters/optionalValidityTo'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8429,8 +8722,40 @@ paths:
           $ref: '#/components/responses/MemberResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+          
+  /urlinjsonout/membersManager/sendPasswordResetLinkEmail:
+    post:
+      tags:
+        - MembersManager
+      operationId: sendPasswordResetLinkEmail
+      summary: Send mail to user's preferred email address with link for non-authz password reset. Correct authz information is stored in link's URL.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/namespace'
+        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail"}
+        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
-
+  /urlinjsonout/membersManager/sendAccountActivationLinkEmail:
+    post:
+      tags:
+        - MembersManager
+      operationId: sendAccountActivationLinkEmail
+      summary: Send mail to user's preferred email address with link for non-authz account activation. Correct authz information is stored in link's URL.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/namespace'
+        - { name: emailAttributeURN, schema: { type: string }, in: query, required: true, description: "urn of the attribute with stored mail"}
+        - { name: language, schema: { type: string }, in: query, required: true, description: "language of the message"}
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
@@ -8463,6 +8788,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/FacilityResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getFacilitiesByIds:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getFacilitiesByIds
+      summary: Returns list of Facilities by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -10259,6 +10598,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupsByIds:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupsByIds
+      summary: Returns list of groups by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/groupsManager/isGroupMember:
     get:
       tags:
@@ -10663,6 +11016,19 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/resourcesManager/getResourcesByIds:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getResourcesByIds
+      summary: Returns list of Resources by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/resourcesManager/getEnrichedResourceById:
     get:
@@ -10706,6 +11072,20 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RichResourceResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/resourcesManager/getRichResourcesByIds:
+    get:
+      tags:
+        - ResourcesManager
+      operationId: getRichResourcesByIds
+      summary: Returns list of RichResources by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichResourcesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -12011,6 +12391,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/vosManager/getVosByIds:
+    get:
+      tags:
+        - VosManager
+      operationId: getVosByIds
+      summary: Return list of VOs by their ids.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfVosResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/vosManager/findCandidates:
     get:
       tags:
@@ -13140,6 +13534,32 @@ paths:
               properties:
                 appId: { type: integer, description: "application id" }
                 data: { $ref: '#/components/schemas/ApplicationFormItemData' }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/registrarManager/updateFormItemsData:
+    post:
+      tags:
+        - RegistrarManager
+      operationId: updateFormItemsData
+      summary: Update application form items data, which was originally submitted by the User.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputFormItemData
+              description: "input to updateFormItemsData"
+              type: object
+              required:
+                - appId
+                - data
+              properties:
+                appId: { type: integer, description: "application id" }
+                data: { type: array, items: { $ref: '#/components/schemas/ApplicationFormItemData' } }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

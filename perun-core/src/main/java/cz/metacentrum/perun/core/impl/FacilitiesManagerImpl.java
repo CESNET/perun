@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import org.slf4j.Logger;
@@ -40,9 +41,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
+import java.sql.Array;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -331,6 +335,25 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			Facility fac = new Facility();
 			fac.setName(name);
 			throw new FacilityNotExistsException(fac);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Facility> getFacilitiesByIds(PerunSession perunSession, List<Integer> ids) {
+		try {
+			return jdbc.execute("select " + facilityMappingSelectQuery + " from facilities where id " + Compatibility.getStructureForInClause(),
+				(PreparedStatementCallback<List<Facility>>) preparedStatement -> {
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(ids, preparedStatement);
+					preparedStatement.setArray(1, sqlArray);
+					ResultSet rs = preparedStatement.executeQuery();
+					List<Facility> facilities = new ArrayList<>();
+					while (rs.next()) {
+						facilities.add(FACILITY_MAPPER.mapRow(rs, rs.getRow()));
+					}
+					return facilities;
+				});
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

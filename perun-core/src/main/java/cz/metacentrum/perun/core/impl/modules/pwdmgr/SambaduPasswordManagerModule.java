@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
@@ -78,7 +79,7 @@ public class SambaduPasswordManagerModule extends EinfraPasswordManagerModule {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin) {
+	public void validatePassword(PerunSession sess, String userLogin, User user) throws InvalidLoginException {
 		throw new InternalErrorException("Validating password in login namespace 'samba-du' is not supported.");
 	}
 

@@ -2,7 +2,7 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.69 (don't forget to update insert statement at the end of file)
+-- database version 3.1.72 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -209,7 +209,6 @@ create table groups (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint grp_pk primary key (id),
-	constraint grp_nam_vo_parentg_u unique (name,vo_id,parent_group_id),
 	constraint grp_vos_fk foreign key (vo_id) references vos(id),
 	constraint grp_grp_fk foreign key (parent_group_id) references groups(id)
 );
@@ -281,7 +280,6 @@ create table membership_types (
 -- ATTR_NAMES - list of possible attributes
 create table attr_names (
 	id integer not null,
-	default_attr_id integer,  --identifier of attribute which can be substituted by this (by default)
 	attr_name longvarchar not null,  --full name of attribute
 	friendly_name longvarchar not null, --short name of attribute
 	namespace longvarchar not null,  --access of attribute to the entity
@@ -297,8 +295,7 @@ create table attr_names (
 	is_unique boolean DEFAULT FALSE NOT NULL,
 	constraint attnam_pk primary key(id),
 	constraint attnam_u unique (attr_name),
-	constraint attfullnam_u unique (friendly_name,namespace),
-	constraint attnam_attnam_fk foreign key (default_attr_id) references attr_names(id)
+	constraint attfullnam_u unique (friendly_name,namespace)
 );
 
 -- ATTRIBUTES_AUTHZ - controles permissions for access to attributes
@@ -1406,7 +1403,8 @@ CREATE TABLE members_sponsored (
 	modified_by longvarchar default user not null,
 	modified_by_uid integer,
 	constraint memspons_mem_fk foreign key (sponsored_id) references members(id),
-	constraint memspons_usr_fk foreign key (sponsor_id) references users(id)
+	constraint memspons_usr_fk foreign key (sponsor_id) references users(id),
+	constraint memspons_mem_usr_u unique (sponsored_id, sponsor_id)
 );
 
 -- AUTHZ - assigned roles to users/groups/VOs/other entities...
@@ -1487,6 +1485,7 @@ create sequence resources_bans_id_seq start with 10 increment by 1;
 create sequence facilities_bans_id_seq start with 10 increment by 1;
 create sequence vos_bans_id_seq start with 10 increment by 1;
 
+create unique index idx_grp_nam_vo_parentg_u on groups (name,vo_id,parent_group_id);
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz(user_id,role_id);
 create index idx_authz_authz_group_role_id on authz(authorized_group_id,role_id);
@@ -1504,7 +1503,6 @@ create index idx_fk_vousrsrc_vos on vo_ext_sources(vo_id);
 create index idx_fk_groupsrc_src on group_ext_sources(ext_source_id);
 create index idx_fk_groupsrc_group on group_ext_sources(group_id);
 create index idx_fk_usrcatt_usrc on ext_sources_attributes(ext_sources_id);
-create index idx_fk_attnam_attnam on attr_names(default_attr_id);
 create index idx_fk_rsrc_fac on resources(facility_id);
 create index idx_fk_rsrc_vo on resources(vo_id);
 create index idx_fk_resatval_res on resource_attr_values(resource_id);
@@ -1643,7 +1641,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.69');
+insert into configurations values ('DATABASE VERSION','3.1.72');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');

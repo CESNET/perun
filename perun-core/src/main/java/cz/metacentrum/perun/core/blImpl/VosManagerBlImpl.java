@@ -20,9 +20,11 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
@@ -33,11 +35,14 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleCannotBeManagedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
@@ -265,6 +270,11 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
+	public List<Vo> getVosByIds(PerunSession sess, List<Integer> ids) {
+		return getVosManagerImpl().getVosByIds(sess, ids);
+	}
+
+	@Override
 	public List<Candidate> findCandidates(PerunSession sess, Vo vo, String searchString, int maxNumOfResults) {
 		List<ExtSource> extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
 		return this.findCandidates(sess, vo, searchString, maxNumOfResults, extSources, true);
@@ -331,10 +341,10 @@ public class VosManagerBlImpl implements VosManagerBl {
 						try {
 							if (simpleExtSource) {
 								// retrieve data about subjects from ext source based on ext. login
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin));
 							} else {
 								// retrieve data about subjects from subjects we already have locally
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin));
 							}
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
@@ -450,10 +460,10 @@ public class VosManagerBlImpl implements VosManagerBl {
 						try {
 							if (simpleExtSource) {
 								// retrieve data about subjects from ext source based on ext. login
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin));
 							} else {
 								// retrieve data about subjects from subjects we already have locally
-								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
+								candidate = new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin));
 							}
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
@@ -502,7 +512,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources) {
-		List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, vo, attrNames, searchString);
+		List<RichUser> richUsers = getRichUsersForMemberCandidates(sess, vo, attrNames, searchString, extSources);
 		List<Candidate> candidates = findCandidates(sess, group, searchString, extSources, false);
 
 		if (vo == null) {
@@ -523,34 +533,51 @@ public class VosManagerBlImpl implements VosManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, List<String> attrNames, String searchString) {
-		return getRichUsersForMemberCandidates(sess, null, attrNames, searchString);
+		return getRichUsersForMemberCandidates(sess, null, attrNames, searchString, null);
 	}
 
 	/**
 	 * <p>Finds RichUsers who matches the given search string. If the given Vo is null,
 	 * they are searched in the whole Perun. If th Vo is not null, then are returned
-	 * only RichUsers who has a member inside this Vo.</p>
+	 * only RichUsers who has a member inside this Vo or who has ues in any of given ExtSources.</p>
 	 * <p>The RichUsers are returned with attributes of given names.</p>
 	 *
 	 *
 	 * @param sess session
-	 * @param vo virtual organization, users are searched only inside this vo; if is null, then in the whole Perun
+	 * @param vo virtual organization, users are searched inside this vo; if is null, then in the whole Perun
 	 * @param attrNames names of attributes that will be returned
 	 * @param searchString string used to find users
+	 * @param extSources list of extSources to possibly search users with ues in these extSources
 	 * @return List of RichUsers inside given Vo, or in whole perun, who matches the given String
 	 * @throws InternalErrorException internal error
 	 */
-	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) {
+	private List<RichUser> getRichUsersForMemberCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString, List<ExtSource> extSources) {
 		List<RichUser> richUsers;
 
 		if (vo != null) {
-			List<Member> voMembers = getPerunBl().getMembersManagerBl().findMembersInVo(sess, vo, searchString);
-			List<User> voUsers = new ArrayList<>();
-			for (Member member : voMembers) {
-				voUsers.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, member));
-			}
+			try {
+				List<RichUser> allRichUsers = getPerunBl().getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames);
+				richUsers = new ArrayList<>();
 
-			richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributesByNames(sess, voUsers, attrNames);
+				// filter users who don't have ues in any of the extSources nor they are in given vo
+				for (RichUser richUser : allRichUsers) {
+					boolean extSourceMatch = getPerunBl().getUsersManagerBl().getUserExtSources(sess, richUser).stream()
+						.map(UserExtSource::getExtSource)
+						.anyMatch(extSources::contains);
+					if (extSourceMatch) {
+						richUsers.add(richUser);
+					} else {
+						try {
+							Member member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, richUser);
+							richUsers.add(richUser);
+						} catch (MemberNotExistsException e) {
+							// richUser is not in vo nor he has ues in any of given ExtSources, skip him
+						}
+					}
+				}
+			} catch (UserNotExistsException e) {
+				richUsers = new ArrayList<>();
+			}
 		} else {
 			try {
 				richUsers = getPerunBl().getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames);
@@ -819,6 +846,94 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public boolean isMemberBanned(PerunSession sess, int memberId) {
 		return vosManagerImpl.isMemberBanned(sess, memberId);
+	}
+
+	@Override
+	public void convertSponsoredUsers(PerunSession sess, Vo vo) {
+		perunBl.getUsersManagerBl().getSpecificUsers(sess).stream()
+				.filter(User::isSponsoredUser)
+				.forEach(user -> convertToSponsoredMember(sess, user, vo));
+	}
+
+	@Override
+	public void convertSponsoredUsersWithNewSponsor(PerunSession sess, Vo vo, User newSponsor) {
+		perunBl.getUsersManagerBl().getSpecificUsers(sess).stream()
+				.filter(User::isSponsoredUser)
+				.forEach(user -> convertToSponsoredMemberWithNewSponsor(sess, user, newSponsor, vo));
+	}
+
+	/**
+	 * Sponsor given user by the given newSponsor in the given vo. If the newSponsor doesn't have
+	 * the SPONSOR role, it will be set to him.
+	 *
+	 * @param sess session
+	 * @param user user to be sponsored
+	 * @param newSponsor new sponsor
+	 * @param vo vo where the given user will be sponsored
+	 */
+	private void convertToSponsoredMemberWithNewSponsor(PerunSession sess, User user, User newSponsor, Vo vo) {
+		try {
+			Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+
+			sponsorMemberByUser(sess, member, newSponsor, vo);
+		} catch (MemberNotExistsException e) {
+			// if the sponsored user is not member of the given vo, skip it
+		}
+	}
+
+	/**
+	 * Converts sponsored user to sponsored member in the given vo.
+	 * If the user is not member of the given vo, it is skipped.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param vo vo where the given user will be sponsored
+	 */
+	private void convertToSponsoredMember(PerunSession sess, User user, Vo vo) {
+		try {
+			Member member = perunBl.getMembersManagerBl().getMemberByUser(sess, vo, user);
+			List<User> owners = perunBl.getUsersManagerBl().getUsersBySpecificUser(sess, user);
+
+			for (User owner : owners) {
+				sponsorMemberByUser(sess, member, owner, vo);
+			}
+		} catch (MemberNotExistsException e) {
+			// if the sponsored user is not member of the given vo, skip it
+		}
+	}
+
+	/**
+	 * Sponsor the given member by the given sponsor in the given vo. If the
+	 * member is already sponsored, this method just adds the sponsor to the given member.
+	 * If the member is not sponsored at all, it will transform it into a sponsored one
+	 * with the given sponsor.
+	 *
+	 * @param sess session
+	 * @param member member to be sponsored
+	 * @param sponsor sponsor
+	 * @param vo vo where the member is sponsored
+	 */
+	private void sponsorMemberByUser(PerunSession sess, Member member, User sponsor, Vo vo) {
+		try {
+			if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsor, Role.SPONSOR, vo, true)) {
+				AuthzResolverBlImpl.setRole(sess, sponsor, vo, Role.SPONSOR);
+			}
+
+			// we need to refresh information and check if the member is already sponsored
+			member = perunBl.getMembersManagerBl().getMemberById(sess, member.getId());
+
+			if (member.isSponsored()) {
+				// if the member is already sponsored, just add another sponsor
+				perunBl.getMembersManagerBl().sponsorMember(sess, member, sponsor);
+			} else {
+				// if the member is not sponsored, transform him into a sponsored one
+				perunBl.getMembersManagerBl().setSponsorshipForMember(sess, member, sponsor);
+			}
+		} catch(AlreadySponsorException e) {
+			// if the user is already sponsoring the given member, just silently skip
+		} catch(PerunException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	private void removeSponsorFromSponsoredMembers(PerunSession sess, Vo vo, User user) {

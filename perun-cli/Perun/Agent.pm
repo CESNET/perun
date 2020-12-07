@@ -1,6 +1,6 @@
 package Perun::Agent;
 my $agentVersionMajor = '3';
-my $agentVersionMinor = '12';
+my $agentVersionMinor = '14';
 my $agentVersionPatch = '0';
 my $agentVersion = $agentVersionMajor . "." . $agentVersionMinor . "." . $agentVersionPatch;
 
@@ -26,7 +26,6 @@ use Perun::FacilitiesAgent;
 use Perun::AttributesAgent;
 use Perun::ResourcesAgent;
 use Perun::OwnersAgent;
-use Perun::ControlPanel;
 use Perun::AuthzResolverAgent;
 use Perun::HostsAgent;
 use Perun::AuditMessagesAgent;
@@ -43,7 +42,7 @@ use Sys::Hostname;
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _auditMessagesAgent _tasksAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _auditMessagesAgent _tasksAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -268,17 +267,6 @@ sub getResourcesAgent
 	}
 
 	return $self->{_resourcesAgent};
-}
-
-sub getControlPanel
-{
-	my $self = shift;
-
-	if (!$self->{_controlPanel}) {
-		$self->{_controlPanel} = Perun::ControlPanel->new( $self );
-	}
-
-	return $self->{_controlPanel};
 }
 
 sub getAttributesAgent

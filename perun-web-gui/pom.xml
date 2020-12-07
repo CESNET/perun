@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>perun</artifactId>
 		<groupId>cz.metacentrum</groupId>
-		<version>3.12.0-SNAPSHOT</version>
+		<version>3.14.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
@@ -17,6 +17,8 @@
 	<description>JS web application based on GWT framework which provides GUI for Perun.</description>
 
 	<properties>
+		<!-- used GWT version supports only java version up to 11 -->
+		<java.version>11</java.version>
 		<!-- Convenience property to set the GWT version -->
 		<gwtVersion>2.9.0</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.name}</webappDirectory>
@@ -81,6 +83,7 @@
 				<!-- Plugin configuration. There are many available options, see
 				  gwt-maven-plugin documentation at codehaus.org -->
 				<configuration>
+					<sourceLevel>1.11</sourceLevel>
 					<extraJvmArgs>-Xmx1024m</extraJvmArgs>
 					<modules>
 						<module>cz.metacentrum.perun.webgui.perun-web</module>
