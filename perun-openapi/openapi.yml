@@ -2570,6 +2570,14 @@ components:
       in: query
       required: true
 
+    sponsoredMemberId:
+      name: sponsoredMember
+      description: id of member to be sponsored
+      schema:
+        type: integer
+      in: query
+      required: true
+
 
 
 #################################################
@@ -8756,6 +8764,24 @@ paths:
           $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/membersManager/setSponsorshipForMember:
+    post:
+      tags:
+        - MembersManager
+      operationId: setSponsorshipForMember
+      summary: Transform non-sponsored member to sponsored one,
+        with defined sponsor and optional sponsorship validity expiration
+      parameters:
+        - $ref: '#/components/parameters/sponsoredMemberId'
+        - $ref: '#/components/parameters/sponsorId'
+        - $ref: '#/components/parameters/optionalValidityTo'
+      responses:
+        '200':
+          $ref: '#/components/responses/RichMemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
 
   #################################################
   #                                               #
