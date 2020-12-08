@@ -103,6 +103,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -2213,9 +2214,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress);
-		Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, id, message, subject);
+		int validationWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
+		LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
 
+		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
+		Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, id, message, subject, validityTo);
 	}
 
 	@Override
@@ -2267,9 +2270,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
+		int validationWindow = BeansUtils.getCoreConfig().getAccountActivationValidationWindow();
+		LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
+
 		//IMPORTANT: we are using the same requests for password reset and account activation
-		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress);
-		Utils.sendAccountActivationEmail(user, mailAddress, namespace, url, id, message, subject);
+		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
+		Utils.sendAccountActivationEmail(user, mailAddress, namespace, url, id, message, subject, validityTo);
 	}
 
 	@Override

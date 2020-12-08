@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -211,10 +212,11 @@ public interface MembersManagerImplApi {
 	 * @param user User to reset password for
 	 * @param namespace namespace to reset password in
 	 * @param mail mail address used to send request to
+	 * @param validityTo time till request is valid
 	 * @return ID of request to be used for validation
 	 * @throws InternalErrorException
 	 */
-	int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail);
+	int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail, LocalDateTime validityTo);
 
 	/**
 	 * Creates a new member in given Vo with flag "sponsored", and linked to its sponsoring user.

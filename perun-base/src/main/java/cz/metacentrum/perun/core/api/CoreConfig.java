@@ -39,6 +39,7 @@ public class CoreConfig {
 	private int groupMaxConcurrentGroupsStructuresToSynchronize;
 	private int mailchangeValidationWindow;
 	private int pwdresetValidationWindow;
+	private int accountActivationValidationWindow;
 	private int queryTimeout;
 	private List<String> admins;
 	private List<String> enginePrincipals;
@@ -164,6 +165,14 @@ public class CoreConfig {
 
 	public void setPwdresetValidationWindow(int pwdresetValidationWindow) {
 		this.pwdresetValidationWindow = pwdresetValidationWindow;
+	}
+
+	public int getAccountActivationValidationWindow() {
+		return accountActivationValidationWindow;
+	}
+
+	public void setAccountActivationValidationWindow(int accountActivationValidationWindow) {
+		this.accountActivationValidationWindow = accountActivationValidationWindow;
 	}
 
 	public List<String> getAdmins() {
