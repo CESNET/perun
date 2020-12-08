@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
+import cz.metacentrum.perun.core.api.GenResourceDataNode;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Host;
@@ -64,6 +65,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	private final static String A_R_C_NAME = "urn:perun:resource:attribute-def:core:name";
 	private final static String A_G_C_NAME = "urn:perun:group:attribute-def:core:name";
 	private final static String A_M_C_ID = "urn:perun:member:attribute-def:core:id";
+	private final static String A_V_C_ID = "urn:perun:vo:attribute-def:core:id";
 
 	// these are in DB only after setUp"Type"() method and must be set up in right order.
 	private Service service;
@@ -1850,6 +1852,9 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Attribute reqMemAttr;
 		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
 		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+		Attribute reqVoAttr;
+		reqVoAttr = perun.getAttributesManager().getAttribute(sess, vo, A_V_C_ID);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqVoAttr);
 
 		// finally assign service
 		perun.getResourcesManager().assignService(sess, resource, service);
@@ -1874,14 +1879,13 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		String facilityAttrsHash = "f-" + facility.getId();
 		String memberAttrsHash = "m-" + member.getId();
 		String groupAttrsHash = "g-" + group.getId();
+		String voAttrsHash = "v-" + vo.getId();
 		String resource1AttrsHash = "r-" + resource.getId();
 		String resource2AttrsHash = "r-" + resource2.getId();
-		String resource3AttrsHash = "r-" + resource3.getId();
 
 		// Verify that the list of all attributes contains correct attributes
-		assertThat(attributes).containsKeys(facilityAttrsHash, memberAttrsHash, resource1AttrsHash, groupAttrsHash,
-				resource2AttrsHash);
-		assertThat(attributes).doesNotContainKey(resource3AttrsHash);
+		assertThat(attributes).containsOnlyKeys(facilityAttrsHash, memberAttrsHash, resource1AttrsHash, groupAttrsHash,
+				resource2AttrsHash, voAttrsHash);
 
 		Map<String, Object> facilityAttributes = attributes.get(facilityAttrsHash);
 		assertThat(facilityAttributes).hasSize(1);
@@ -1899,6 +1903,10 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertThat(resource1Attributes).hasSize(1);
 		assertThat(resource1Attributes.get(A_R_C_NAME)).isEqualTo(resource.getName());
 
+		Map<String, Object> voAttributes = attributes.get(voAttrsHash);
+		assertThat(voAttributes).hasSize(1);
+		assertThat(voAttributes.get(A_V_C_ID)).isEqualTo(vo.getId());
+
 		Map<String, Object> resource2Attributes = attributes.get(resource2AttrsHash);
 		assertThat(resource2Attributes).hasSize(1);
 		assertThat(resource2Attributes.get(A_R_C_NAME)).isEqualTo(resource2.getName());
@@ -1911,11 +1919,13 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
 		assertThat(res1Node.getMembers()).hasSize(1);
 		assertThat(res1Node.getChildren()).hasSize(1);
+		assertThat(((GenResourceDataNode)res1Node).getVoId()).isEqualTo(vo.getId());
 		assertThat(res1Node.getMembers()).containsKey(member.getId());
 
 		GenDataNode res2Node = facilityNode.getChildren().get(resource2.getId());
 		assertThat(res2Node.getMembers()).hasSize(1);
 		assertThat(res2Node.getChildren()).hasSize(1);
+		assertThat(((GenResourceDataNode)res2Node).getVoId()).isEqualTo(vo.getId());
 		assertThat(res2Node.getMembers()).containsKey(member.getId());
 
 		GenDataNode res1GroupNode = res1Node.getChildren().get(group.getId());
@@ -1955,6 +1965,9 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Attribute reqMemAttr;
 		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, A_M_C_ID);
 		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+		Attribute reqVoAttr;
+		reqVoAttr = perun.getAttributesManager().getAttribute(sess, vo, A_V_C_ID);
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqVoAttr);
 
 		// finally assign service
 		perun.getResourcesManager().assignService(sess, resource, service);
@@ -1979,14 +1992,14 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		String facilityAttrsHash = "f-" + facility.getId();
 		String memberAttrsHash = "m-" + member.getId();
 		String groupAttrsHash = "g-" + group.getId();
+		String voAttrsHash = "v-" + vo.getId();
 		String resource1AttrsHash = "r-" + resource.getId();
 		String resource2AttrsHash = "r-" + resource2.getId();
 		String resource3AttrsHash = "r-" + resource3.getId();
 
 		// Verify that the list of all attributes contains correct attributes
-		assertThat(attributes).containsKeys(facilityAttrsHash, memberAttrsHash, resource1AttrsHash,
-				resource2AttrsHash);
-		assertThat(attributes).doesNotContainKeys(resource3AttrsHash, groupAttrsHash);
+		assertThat(attributes).containsOnlyKeys(facilityAttrsHash, memberAttrsHash, resource1AttrsHash,
+				resource2AttrsHash, voAttrsHash);
 
 		Map<String, Object> facilityAttributes = attributes.get(facilityAttrsHash);
 		assertThat(facilityAttributes).hasSize(1);
@@ -1995,6 +2008,10 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Map<String, Object> memberAttributes = attributes.get(memberAttrsHash);
 		assertThat(memberAttributes).hasSize(1);
 		assertThat(memberAttributes.get(A_M_C_ID)).isEqualTo(member.getId());
+
+		Map<String, Object> voAttributes = attributes.get(voAttrsHash);
+		assertThat(voAttributes).hasSize(1);
+		assertThat(voAttributes.get(A_V_C_ID)).isEqualTo(vo.getId());
 
 		Map<String, Object> resource1Attributes = attributes.get(resource1AttrsHash);
 		assertThat(resource1Attributes).hasSize(1);
@@ -2011,10 +2028,12 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		GenDataNode res1Node = facilityNode.getChildren().get(resource.getId());
 		assertThat(res1Node.getMembers().keySet()).hasSize(1);
+		assertThat(((GenResourceDataNode)res1Node).getVoId()).isEqualTo(vo.getId());
 		assertThat(res1Node.getChildren()).isEmpty();
 		assertThat(res1Node.getMembers()).containsKey(member.getId());
 
 		GenDataNode res2Node = facilityNode.getChildren().get(resource2.getId());
+		assertThat(((GenResourceDataNode)res2Node).getVoId()).isEqualTo(vo.getId());
 		assertThat(res2Node.getMembers()).hasSize(1);
 		assertThat(res2Node.getChildren()).isEmpty();
 		assertThat(res2Node.getMembers()).containsKey(member.getId());

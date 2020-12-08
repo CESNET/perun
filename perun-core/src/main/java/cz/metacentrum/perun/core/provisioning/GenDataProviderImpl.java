@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -154,6 +152,8 @@ public class GenDataProviderImpl implements GenDataProvider {
 	public List<String> getFacilityAttributesHashes() {
 		String hash = hasher.hashFacility(facility);
 
+		var hashes = new ArrayList<String>();
+
 		if (!attributesByHash.containsKey(hash)) {
 			if (facilityAttrs == null) {
 				throw new IllegalStateException("Facility attributes need to be loaded first.");
@@ -161,7 +161,11 @@ public class GenDataProviderImpl implements GenDataProvider {
 			attributesByHash.put(hash, facilityAttrs);
 		}
 
-		return attributesByHash.get(hash).isEmpty() ? emptyList() : singletonList(hash);
+		if (!attributesByHash.get(hash).isEmpty()) {
+			hashes.add(hash);
+		}
+
+		return hashes;
 	}
 
 	@Override
@@ -320,13 +324,17 @@ public class GenDataProviderImpl implements GenDataProvider {
 	 * @return List with the hash or empty list if the map doesn't contain any attributes for the given entity
 	 */
 	private <T> List<String> getAndStoreHash(String hash, T entity, Map<T, List<Attribute>> map) {
+		var hashes = new ArrayList<String>();
 		if (!attributesByHash.containsKey(hash)) {
 			if (!map.containsKey(entity)) {
-				return emptyList();
+				return hashes;
 			}
 			attributesByHash.put(hash, map.get(entity));
 		}
-		return attributesByHash.get(hash).isEmpty() ? emptyList() : singletonList(hash);
+		if (!attributesByHash.get(hash).isEmpty()) {
+			hashes.add(hash);
+		}
+		return hashes;
 	}
 
 	private void loadMemberSpecificAttributes(List<Member> members) {
