@@ -41,6 +41,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -371,14 +372,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail) {
+	public int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail, LocalDateTime validityTo) {
 
 		int newId = Utils.getNewId(jdbc, "pwdreset_id_seq");
 
 		try {
-			jdbc.update("insert into pwdreset (id, namespace, user_id, mail, created_by, created_by_uid, created_at) "
-							+ "values (?,?,?,?,?,?," + Compatibility.getSysdate() + ")",
-					newId, namespace, user.getId(), mail, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+			jdbc.update("insert into pwdreset (id, namespace, user_id, mail, validity_to, created_by, created_by_uid, created_at) "
+							+ "values (?,?,?,?,?,?,?," + Compatibility.getSysdate() + ")",
+					newId, namespace, user.getId(), mail, validityTo, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

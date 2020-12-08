@@ -1059,17 +1059,18 @@ public class Utils {
 	 * @param id ID of account activation request
 	 * @param messageTemplate message of the email (use default if null)
 	 * @param subject subject of the email (use default if null)
+	 * @param validityTo time till link is valid
 	 */
-	public static void sendAccountActivationEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) {
+	public static void sendAccountActivationEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject, LocalDateTime validityTo) {
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", id, user, namespace, true);
-		String validityTo = prepareValidityTo();
+		String validityToString = prepareValidityTo(validityTo);
 
 		String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
 		String defaultBody = "Dear " + user.getDisplayName() + ",\n\nWe've received request to activate your account in namespace \"" + namespace + "\"." +
 			"\n\nPlease visit the link below, where you can activate your account:\n\n" + validationLink + "\n\n" +
-			"Link is valid till " + validityTo + "\n\n" +
+			"Link is valid till " + validityToString + "\n\n" +
 			"Message is automatically generated." +
 			"\n----------------------------------------------------------------" +
 			"\nPerun - Identity & Access Management System";
@@ -1082,7 +1083,7 @@ public class Utils {
 		Map<String, String> bodyParametersToReplace = new HashMap<>();
 		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
 		bodyParametersToReplace.put("{namespace}", namespace);
-		bodyParametersToReplace.put("{validity}", validityTo);
+		bodyParametersToReplace.put("{validity}", validityToString);
 		// allow enforcing per-language links
 		if (messageTemplate != null && messageTemplate.contains("{link-")) {
 			Pattern pattern = Pattern.compile("\\{link-[^}]+}");
@@ -1120,18 +1121,19 @@ public class Utils {
 	 * @param id ID of pwd reset request
 	 * @param messageTemplate message of the email
 	 * @param subject subject of the email
+	 * @param validityTo time till link is valid
 	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) {
+	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject, LocalDateTime validityTo) {
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", id, user, namespace, false);
-		String validityTo = prepareValidityTo();
+		String validityToString = prepareValidityTo(validityTo);
 
 		String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
 		String defaultBody = "Dear " + user.getDisplayName() + ",\n\nWe've received request to reset your password in namespace \"" + namespace + "\"." +
 			"\n\nPlease visit the link below, where you can set new password:\n\n" + validationLink + "\n\n" +
-			"Link is valid till " + validityTo + "\n\n" +
+			"Link is valid till " + validityToString + "\n\n" +
 			"Message is automatically generated." +
 			"\n----------------------------------------------------------------" +
 			"\nPerun - Identity & Access Management System";
@@ -1144,7 +1146,7 @@ public class Utils {
 		Map<String, String> bodyParametersToReplace = new HashMap<>();
 		bodyParametersToReplace.put("{displayName}", user.getDisplayName());
 		bodyParametersToReplace.put("{namespace}", namespace);
-		bodyParametersToReplace.put("{validity}", validityTo);
+		bodyParametersToReplace.put("{validity}", validityToString);
 		// allow enforcing per-language links
 		if (messageTemplate != null && messageTemplate.contains("{link-")) {
 			Pattern pattern = Pattern.compile("\\{link-[^}]+}");
@@ -1338,14 +1340,12 @@ public class Utils {
 	/**
 	 * Prepare validity time of validation link.
 	 *
+	 * @param validityTo
 	 * @return validity as formatted string
 	 */
-	private static String prepareValidityTo() {
-		//TODO: at this moment validity window is used the same for password reset as for account activation
-		String validity = Integer.toString(BeansUtils.getCoreConfig().getPwdresetValidationWindow());
+	private static String prepareValidityTo(LocalDateTime validityTo) {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		LocalDateTime localDateTime = LocalDateTime.now().plusHours(Integer.parseInt(validity));
-		return dtf.format(localDateTime);
+		return dtf.format(validityTo);
 	}
 
 	/**

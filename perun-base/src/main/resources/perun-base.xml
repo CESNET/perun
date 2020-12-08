@@ -37,6 +37,7 @@
 		<property name="pwdresetInitVector" value="${perun.pwdreset.initVector}"/>
 		<property name="pwdresetSecretKey" value="${perun.pwdreset.secretKey}"/>
 		<property name="pwdresetValidationWindow" value="${perun.pwdreset.validationWindow}"/>
+		<property name="accountActivationValidationWindow" value="${perun.accountActivation.validationWindow}"/>
 		<property name="readOnlyPerun" value="${perun.readOnlyPerun}"/>
 		<property name="recaptchaPrivateKey" value="${perun.recaptcha.privatekey}"/>
 		<property name="registrarPrincipals" value="#{'${perun.registrar.principals}'.split('\s*,\s*')}"/>
@@ -114,6 +115,7 @@
 				<prop key="perun.pwdreset.secretKey">jda3ufK92DKs2335af</prop>
 				<prop key="perun.pwdreset.initVector">2Akd14k3o9s1d2G5</prop>
 				<prop key="perun.pwdreset.validationWindow">6</prop>
+				<prop key="perun.accountActivation.validationWindow">72</prop>
 				<prop key="perun.native.language">cs,Česky,Czech</prop>
 				<prop key="perun.loginNamespace.generated"/>
 				<prop key="perun.sms.program"/>

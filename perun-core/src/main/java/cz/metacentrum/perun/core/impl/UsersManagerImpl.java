@@ -1280,14 +1280,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				throw new ConsistencyErrorException("Password reset request " + requestId + " exists more than once.");
 			}
 
-			int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
-
 			Pair<String,String> result;
 			if (Compatibility.isPostgreSql()) {
-				result = jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
+				result = jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and validity_to >= now()",
 					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
 			} else {
-				result =  jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
+				result =  jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and validity_to >= SYSTIMESTAMP",
 					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
 			}
 

@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.73
+ALTER TABLE pwdreset ADD COLUMN validity_to timestamp;
+UPDATE pwdreset SET validity_to = created_at + interval '1 days';
+ALTER TABLE pwdreset ALTER COLUMN validity_to SET not null;
+UPDATE configurations SET value='3.1.73' WHERE property='DATABASE VERSION';
+
 3.1.72
 alter table attr_names drop constraint attnam_attnam_fk;
 drop index idx_fk_attnam_attnam;
