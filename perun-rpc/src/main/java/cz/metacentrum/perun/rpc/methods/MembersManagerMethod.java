@@ -525,6 +525,20 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets all sponsored members from VO.
+	 *
+	 * @param vo int VO ID
+	 * @return List<RichMember> sponsored members
+	 */
+	getAllSponsoredMembers {
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer params) throws PerunException {
+			Vo vo = ac.getVoById(params.readInt("vo"));
+			return ac.getMembersManager().getAllSponsoredMembers(ac.getSession(), vo);
+		}
+	},
+
+	/*#
 	 * Gets list of sponsored members with sponsors.
 	 *
 	 * @param vo int id of virtual organization from which are the sponsored members chosen

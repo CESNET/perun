@@ -1352,6 +1352,16 @@ public interface MembersManager {
 	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException;
 
 	/**
+	 * Gets list of all sponsored members of a VO.
+	 *
+	 * @param sess actor
+	 * @param vo virtual organization from which are the sponsored members chosen
+	 * @throws PrivilegeException insufficient permissions
+	 * @return list of members from given VO who are sponsored
+	 */
+	List<RichMember> getAllSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException;
+
+	/**
 	 * Gets list of sponsored members with sponsors.
 	 *
 	 * @param sess session

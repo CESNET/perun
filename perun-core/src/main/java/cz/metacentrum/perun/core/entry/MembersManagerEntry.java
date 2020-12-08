@@ -1434,20 +1434,25 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+		//Filter members based on authorization
+		return getAllSponsoredMembers(sess, vo).stream()
+			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_policy", member, vo))
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<RichMember> getAllSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", vo)) {
-			throw new PrivilegeException(sess, "getSponsoredMembers");
+		if(!AuthzResolver.authorizedInternal(sess, "getAllSponsoredMembers_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getAllSponsoredMembers");
 		}
 
-		//Filter members based on authorization
-		List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo).stream()
-			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_policy", member, vo))
-			.collect(Collectors.toList());
+		List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo);
 
 		return membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
 	}
