@@ -11,13 +11,19 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
 import cz.metacentrum.perun.registrar.model.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+import static cz.metacentrum.perun.registrar.modules.Metacentrum.METACENTRUM_IDP;
 
 /**
  * Module for "Social" group within the Metacentrum VO.
@@ -54,6 +60,17 @@ public class MetacentrumSocial extends DefaultRegistrarModule {
 			throw new ConsistencyErrorException("Member and group should be from the same VO.", e);
 		}
 		return app;
+
+	}
+
+	@Override
+	public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params) throws PerunException {
+
+		if (METACENTRUM_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
+			throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
+					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
+					"NOT_ELIGIBLE", null, null);
+		}
 
 	}
 
