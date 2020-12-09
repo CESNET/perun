@@ -19,7 +19,7 @@ public class GenDataNode {
 	private final Map<Integer, GenDataNode> children;
 	private final Map<Integer, Integer> members;
 
-	private GenDataNode(Map<Integer, GenDataNode> children, Map<Integer, Integer> members) {
+	protected GenDataNode(Map<Integer, GenDataNode> children, Map<Integer, Integer> members) {
 		this.children = children;
 		this.members = members;
 	}

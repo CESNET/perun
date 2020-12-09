@@ -388,7 +388,8 @@ public interface ServicesManager {
 	 *     }
 	 *     children: [
 	 *       "2": {    ** resource id **
-	 *         children: []
+	 *         children: [],
+	 *         voId: 99,
 	 *         members: {    ** all members on the resource with id 2 **
 	 *           "4" : 5    ** member id : user id **
 	 *         }
@@ -426,6 +427,7 @@ public interface ServicesManager {
 	 *     }
 	 *     children: [
 	 *       "2": {    ** resource id **
+	 *         voId: 99,
 	 *         children: [
 	 *           "89": {    ** group id **
 	 *              "children": {},

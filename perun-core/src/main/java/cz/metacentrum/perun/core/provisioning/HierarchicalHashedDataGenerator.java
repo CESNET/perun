@@ -4,6 +4,7 @@ package cz.metacentrum.perun.core.provisioning;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
 import cz.metacentrum.perun.core.api.GenMemberDataNode;
+import cz.metacentrum.perun.core.api.GenResourceDataNode;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
@@ -30,7 +31,8 @@ import static java.util.stream.Collectors.toMap;
  *     }
  *     children: [
  *       "2": {    ** resource id **
- *         children: []
+ *         children: [],
+ *         voId: 30,
  *         members: {    ** all members on the resource with id 2 **
  *           "4" : 5    ** member id : user id **
  *         }
@@ -86,7 +88,7 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		return new HashedGenData(attributes, root, facility.getId());
 	}
 
-	private GenDataNode getDataForResource(Resource resource) {
+	private GenResourceDataNode getDataForResource(Resource resource) {
 		List<Member> members;
 		if (filterExpiredMembers) {
 			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
@@ -95,17 +97,18 @@ public class HierarchicalHashedDataGenerator implements HashedDataGenerator {
 		}
 		allMembers.addAll(members);
 
-		dataProvider.loadResourceAttributes(resource, members, false);
+		dataProvider.loadResourceAttributes(resource, members, true);
 
-		dataProvider.getResourceAttributesHashes(resource, false);
+		dataProvider.getResourceAttributesHashes(resource, true);
 
 		members.forEach(member -> getDataForMember(resource, member));
 
 		Map<Integer, Integer> memberIdsToUserIds = members.stream()
 				.collect(toMap(Member::getId, Member::getUserId));
 
-		return new GenDataNode.Builder()
+		return new GenResourceDataNode.Builder()
 				.members(memberIdsToUserIds)
+				.voId(resource.getVoId())
 				.build();
 	}
 

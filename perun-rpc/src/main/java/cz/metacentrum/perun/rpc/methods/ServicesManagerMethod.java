@@ -453,6 +453,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each member associated with the resource.
 	 *
+	 * @deprecated use getHashedDataWithGroups
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources.
 	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
@@ -479,11 +480,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 |        +-------Attrs
 	 +...
 	 </pre>
-	 *
 	 */
 	/*#
 	 * Generates the list of attributes per each member associated with the resource.
 	 *
+	 * @deprecated use getHashedDataWithGroups
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources.
 	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
@@ -509,7 +510,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 |        +-------Attrs
 	 +...
 	 </pre>
-	 *
 	 */
 	getHierarchicalData {
 
@@ -542,7 +542,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *     }
 	 *     children: [
 	 *       "2": {    ** resource id **
-	 *         children: []
+	 *         children: [],
+	 *         voId: 99,
 	 *         members: {    ** all members on the resource with id 2 **
 	 *           "4" : 5    ** member id : user id **
 	 *         }
@@ -575,7 +576,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *     }
 	 *     children: [
 	 *       "2": {    ** resource id **
-	 *         children: []
+	 *         children: [],
+	 *         voId: 99,
 	 *         members: {    ** all members on the resource with id 2 **
 	 *           "4" : 5    ** member id : user id **
 	 *         }
@@ -626,6 +628,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *     }
 	 *     children: [
 	 *       "2": {    ** resource id **
+	 *         voId: 99,
 	 *         children: [
 	 *           "89": {    ** group id **
 	 *              "children": {},
@@ -670,6 +673,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *     }
 	 *     children: [
 	 *       "2": {    ** resource id **
+	 *         voId: 99,
 	 *         children: [
 	 *           "89": {    ** group id **
 	 *              "children": {},
@@ -718,6 +722,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
 	 *
+	 * @deprecated use getHashedHierarchicalData
 	 * @param service int Service <code>id</code>. You will get attributes required by this service
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
 	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
@@ -748,6 +753,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
 	 *
+	 * @deprecated use getHashedDataWithGroups
 	 * @param service int Service <code>id</code>. You will get attributes required by this service
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
 	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
@@ -771,8 +777,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 |        +-------Attrs (do NOT return member, member-resource attributes)
 	 +...
 	 </pre>
-
-	 *
 	 */
 	getFlatData {
 
@@ -795,6 +799,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
+	 * @deprecated use getHashedDataWithGroups
 	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
 	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
@@ -866,11 +871,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 .
 	 .
 	 </pre>
-	 *
 	 */
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
+	 * @deprecated use getHashedDataWithGroups
 	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
 	 * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
@@ -933,7 +938,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 .
 	 .
 	 </pre>
-	 *
 	 */
 	getDataWithGroups {
 
@@ -956,6 +960,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups in vos.
 	 *
+	 * @deprecated use getHashedDataWithGroups
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
 	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
@@ -1034,6 +1039,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups in vos.
 	 *
+	 * @deprecated use getHashedDataWithGroups
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
 	 * @return attributes in special structure.

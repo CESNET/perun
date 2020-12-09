@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.provisioning;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.GenDataNode;
 import cz.metacentrum.perun.core.api.GenMemberDataNode;
+import cz.metacentrum.perun.core.api.GenResourceDataNode;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.Member;
@@ -30,6 +31,7 @@ import static java.util.stream.Collectors.toMap;
  *     }
  *     children: [
  *       "2": {    ** resource id **
+ *         voId: 99,
  *         children: [
  *           "89": {    ** group id **
  *              "children": {},
@@ -94,7 +96,7 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 		return new HashedGenData(attributes, root, facility.getId());
 	}
 
-	private GenDataNode getDataForResource(Resource resource) {
+	private GenResourceDataNode getDataForResource(Resource resource) {
 		List<Member> members;
 		if (filterExpiredMembers) {
 			members = sess.getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpiredInGroups(sess, resource);
@@ -119,26 +121,15 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 		Map<Integer, GenDataNode> groupNodes = assignedGroups.stream()
 				.collect(toMap(Group::getId, group -> getDataForGroup(resource, group)));
 
-		return new GenDataNode.Builder()
+		return new GenResourceDataNode.Builder()
 				.children(groupNodes)
+				.voId(resource.getVoId())
 				.members(memberIdsToUserIds)
 				.build();
 	}
 
 	private GenDataNode getDataForGroup(Resource resource, Group group) {
 		dataProvider.getGroupAttributesHashes(resource, group);
-
-		// This used to be the old way but we dont actually need it
-/*		List<GenDataNode> subGroupNodes;
-		if (!group.getName().equals(VosManager.MEMBERS_GROUP)) {
-			List<Group> subGroups = sess.getPerunBl().getGroupsManagerBl().getSubGroups(sess, group);
-			dataProvider.loadGroupsAttributes(resource, subGroups);
-			subGroupNodes = subGroups.stream()
-					.map(subGroup -> getDataForGroup(resource, subGroup))
-					.collect(Collectors.toList());
-		} else {
-			subGroupNodes = new ArrayList<>();
-		}*/
 
 		List<Member> members;
 		if (filterExpiredMembers) {
@@ -156,7 +147,6 @@ public class GroupsHashedDataGenerator implements HashedDataGenerator {
 				.collect(toMap(Member::getId, Member::getUserId));
 
 		return new GenDataNode.Builder()
-//				.children(subGroupNodes)
 				.members(memberIdsToUserIds)
 				.build();
 	}
