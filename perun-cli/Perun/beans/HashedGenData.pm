@@ -96,10 +96,10 @@ sub getFacilityId ()
 	my @facilityIds = keys %{$self->{_hierarchy}};
 
 	if(@facilityIds == 1) {
-    return $facilityIds[0];
-  } else {
-    die "There are more than 1 facility inside of hashed data!\n";
-  }
+		return $facilityIds[0];
+	} else {
+		die "There are more than 1 facility inside of hashed data!\n";
+	}
 }
 
 sub getMemberIdsForFacility ()
@@ -124,11 +124,32 @@ sub getResourceIds ()
 	return @resourceIds;
 }
 
+sub getVoIds ()
+{
+	my $self = shift;
+	my @vosIds = ();
+	my $facilityId = $self->getFacilityId;
+	foreach my $resourceId ($self->getResourceIds()) {
+		push @vosIds, $self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{v};
+	}
+	return @vosIds;
+}
+
+sub getVoIdForResource ()
+{
+	my $self = shift;
+	my %args = @_;
+	my $resourceId = $args{resource};
+	unless($resourceId) { die "ResourceId is mandatory to get voId from hierarchy!\n"; }
+	my $facilityId = $self->getFacilityId;
+	return $self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{v};
+}
+
 sub getMemberIdsForResource ($)
 {
 	my $self = shift;
 	my %args = @_;
-  my $resourceId = $args{resource};
+	my $resourceId = $args{resource};
 	unless($resourceId) { die "ResourceId is mandatory to get members from hierarchy!\n"; }
 	my $facilityId = $self->getFacilityId;
 	my @memberIds = ();
@@ -156,11 +177,11 @@ sub getMemberIdsForResourceAndGroup ($$)
 {
 	my $self = shift;
 	my %args = @_;
-  my $resourceId = $args{resource};
+	my $resourceId = $args{resource};
 	my $groupId = $args{group};
 	unless($resourceId) { die "ResourceId is mandatory to get members for resource and group!\n"; }
 	unless($groupId) { die "GroupId is mandatory to get members for resource and group!\n"; }
-  my $facilityId = $self->getFacilityId;
+	my $facilityId = $self->getFacilityId;
 	my @memberIds = ();
 	foreach my $memberId (sort keys %{$self->{_hierarchy}->{$facilityId}->{c}->{$resourceId}->{c}->{$groupId}->{m}}) {
 		push @memberIds, $memberId;
@@ -168,7 +189,7 @@ sub getMemberIdsForResourceAndGroup ($$)
 	return @memberIds;
 }
 
-sub getUserIdForMember ($) 
+sub getUserIdForMember ($)
 {
 	my $self = shift;
 	my %args = @_;
@@ -182,7 +203,7 @@ sub getUserIdForMember ($)
 #----------GET ATTRIBUTES by IDs methods-----------
 #--------------------------------------------------
 
-sub getFacilityAttributeValue ($) 
+sub getFacilityAttributeValue ($)
 {
 	my $self = shift;
 	my %args = @_;
@@ -194,7 +215,7 @@ sub getFacilityAttributeValue ($)
 	return $self->{_attributes}->{$facilityHash}->{$attrName};
 }
 
-sub getResourceAttributeValue ($$) 
+sub getResourceAttributeValue ($$)
 {
 	my $self = shift;
 	my %args = @_;
@@ -207,7 +228,20 @@ sub getResourceAttributeValue ($$)
 	return $self->{_attributes}->{$resourceHash}->{$attrName}
 }
 
-sub getGroupAttributeValue ($$) 
+sub getVoAttributeValue ($$)
+{
+	my $self = shift;
+	my %args = @_;
+	my $voId = $args{vo};
+	my $attrName = $args{attrName};
+	unless($attrName) { die "AttrName is mandatory to get attribute for vo!\n"; }
+	unless($attrName =~ m/^urn:perun:vo:attribute-def:/) { die "AttrName '$attrName' is not legit for vo attribute!\n"; }
+	unless($voId) { die "VoId is mandatory to get attribute for vo!\n"; }
+	my $voHash = "v-" . $voId;
+	return $self->{_attributes}->{$voHash}->{$attrName}
+}
+
+sub getGroupAttributeValue ($$)
 {
 	my $self = shift;
 	my %args = @_;
@@ -220,7 +254,7 @@ sub getGroupAttributeValue ($$)
 	return $self->{_attributes}->{$groupHash}->{$attrName}
 }
 
-sub getUserAttributeValue ($$) 
+sub getUserAttributeValue ($$)
 {
 	my $self = shift;
 	my %args = @_;
@@ -235,7 +269,7 @@ sub getUserAttributeValue ($$)
 	return $self->{_attributes}->{$userHash}->{$attrName}
 }
 
-sub getMemberAttributeValue ($$) 
+sub getMemberAttributeValue ($$)
 {
 	my $self = shift;
 	my %args = @_;
@@ -248,7 +282,7 @@ sub getMemberAttributeValue ($$)
 	return $self->{_attributes}->{$memberHash}->{$attrName}
 }
 
-sub getUserFacilityAttributeValue ($$) 
+sub getUserFacilityAttributeValue ($$)
 {
 	my $self = shift;
 	my %args = @_;
@@ -267,46 +301,46 @@ sub getUserFacilityAttributeValue ($$)
 sub getMemberResourceAttributeValue ($$$)
 {
 	my $self = shift;
-  my %args = @_;
-  my $memberId = $args{member};
+	my %args = @_;
+	my $memberId = $args{member};
 	my $resourceId = $args{resource};
-  my $attrName = $args{attrName};
-  unless($attrName) { die "AttrName is mandatory to get attribute for member and resource!\n"; }
+	my $attrName = $args{attrName};
+	unless($attrName) { die "AttrName is mandatory to get attribute for member and resource!\n"; }
 	unless($attrName =~ m/^urn:perun:member_resource:attribute-def:/) { die "AttrName '$attrName' is not legit for member-resource attribute!\n"; }
-  unless($memberId) { die "MemberId is mandatory to get attribute for member and resource!\n"; }
-  unless($resourceId) { die "ResourceId is mandatory to get attribute for member and resource!\n"; }
-  my $memberResourceHash = "m-r-" . $memberId . "-" . $resourceId;
-  return $self->{_attributes}->{$memberResourceHash}->{$attrName};
+	unless($memberId) { die "MemberId is mandatory to get attribute for member and resource!\n"; }
+	unless($resourceId) { die "ResourceId is mandatory to get attribute for member and resource!\n"; }
+	my $memberResourceHash = "m-r-" . $memberId . "-" . $resourceId;
+	return $self->{_attributes}->{$memberResourceHash}->{$attrName};
 }
 
 sub getMemberGroupAttributeValue ($$$)
 {
-my $self = shift;
-  my %args = @_;
-  my $memberId = $args{member};
-  my $groupId = $args{group};
-  my $attrName = $args{attrName};
-  unless($attrName) { die "AttrName is mandatory to get attribute for member and group!\n"; }
+	my $self = shift;
+	my %args = @_;
+	my $memberId = $args{member};
+	my $groupId = $args{group};
+	my $attrName = $args{attrName};
+	unless($attrName) { die "AttrName is mandatory to get attribute for member and group!\n"; }
 	unless($attrName =~ m/^urn:perun:member_group:attribute-def:/) { die "AttrName '$attrName' is not legit for member-group attribute!\n"; }
-  unless($memberId) { die "MemberId is mandatory to get attribute for member and group!\n"; }
-  unless($groupId) { die "GroupId is mandatory to get attribute for member and group!\n"; }
-  my $memberGroupHash = "m-g-" . $memberId . "-" . $groupId;
-  return $self->{_attributes}->{$memberGroupHash}->{$attrName};
+	unless($memberId) { die "MemberId is mandatory to get attribute for member and group!\n"; }
+	unless($groupId) { die "GroupId is mandatory to get attribute for member and group!\n"; }
+	my $memberGroupHash = "m-g-" . $memberId . "-" . $groupId;
+	return $self->{_attributes}->{$memberGroupHash}->{$attrName};
 }
 
 sub getGroupResourceAttributeValue ($$$)
 {
 	my $self = shift;
-  my %args = @_;
-  my $groupId = $args{group};
-  my $resourceId = $args{resource};
-  my $attrName = $args{attrName};
-  unless($attrName) { die "AttrName is mandatory to get attribute for group and resource!\n"; }
+	my %args = @_;
+	my $groupId = $args{group};
+	my $resourceId = $args{resource};
+	my $attrName = $args{attrName};
+	unless($attrName) { die "AttrName is mandatory to get attribute for group and resource!\n"; }
 	unless($attrName =~ m/^urn:perun:group_resource:attribute-def:/) { die "AttrName '$attrName' is not legit for group-resource attribute!\n"; }
-  unless($groupId) { die "GroupId is mandatory to get attribute for group and resource!\n"; }
-  unless($resourceId) { die "ResourceId is mandatory to get attribute for group and resource!\n"; }
-  my $groupResourceHash = "g-r-" . $groupId . "-" . $resourceId;
-  return $self->{_attributes}->{$groupResourceHash}->{$attrName};
+	unless($groupId) { die "GroupId is mandatory to get attribute for group and resource!\n"; }
+	unless($resourceId) { die "ResourceId is mandatory to get attribute for group and resource!\n"; }
+	my $groupResourceHash = "g-r-" . $groupId . "-" . $resourceId;
+	return $self->{_attributes}->{$groupResourceHash}->{$attrName};
 }
 
 1;
