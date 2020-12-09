@@ -8221,6 +8221,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getAllSponsoredMembersAndTheirSponsors:
+    get:
+      tags:
+        - MembersManager
+      operationId: getAllSponsoredMembersAndTheirSponsors
+      summary: Gets list of VO's all sponsored members with sponsors.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - $ref: '#/components/parameters/attrNames'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfMemberWithSponsorsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   /json/membersManager/createSponsoredMember/withFullName:
     post:

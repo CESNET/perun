@@ -1456,12 +1456,27 @@ public class MembersManagerEntry implements MembersManager {
 	public List<MemberWithSponsors> getSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
+		
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getSponsoredMembersAndTheirSponsors");
+		}
+
+		return getAllSponsoredMembersAndTheirSponsors(sess, vo, attrNames).stream()
+			.filter(memberWithSponsors -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembersAndTheirSponsors_Vo_policy", memberWithSponsors.getMember(), vo))
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<MemberWithSponsors> getAllSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(vo, "vo");
 
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
-			throw new PrivilegeException(sess, "getSponsoredMembersAndTheirSponsors");
+		if(!AuthzResolver.authorizedInternal(sess, "getAllSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getAllSponsoredMembersAndTheirSponsors");
 		}
 
 		List<AttributeDefinition> attrsDef = new ArrayList<>();
@@ -1475,7 +1490,6 @@ public class MembersManagerEntry implements MembersManager {
 		richMembers = membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers, null, true);
 
 		return richMembers.stream()
-			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembersAndTheirSponsors_Vo_policy", member, vo))
 			.map(member -> convertMemberToMemberWithSponsors(sess, member))
 			.collect(Collectors.toList());
 	}
