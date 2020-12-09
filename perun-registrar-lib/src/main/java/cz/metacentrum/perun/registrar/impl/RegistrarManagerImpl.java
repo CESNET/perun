@@ -2122,7 +2122,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Map<String, String> federValues = sess.getPerunPrincipal().getAdditionalInformations();
 
 		RegistrarModule module = getRegistrarModule(form);
-		if (module != null) module.canBeSubmitted(sess, federValues);
+		if (module != null) module.canBeSubmitted(sess, appType, federValues);
 
 		// throws exception if user couldn't submit application - no reason to get form
 		checkDuplicateRegistrationAttempt(sess, appType, form);

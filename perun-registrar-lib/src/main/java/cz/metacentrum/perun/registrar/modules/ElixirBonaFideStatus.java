@@ -105,7 +105,7 @@ public class ElixirBonaFideStatus extends DefaultRegistrarModule {
 	 * Validate if the user meets criteria for applying to group.
 	 */
 	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
+	public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params) throws PerunException {
 		User user = session.getPerunPrincipal().getUser();
 		if (user == null) {
 			throw new CantBeSubmittedException("This module can be set only for registration to Group.");

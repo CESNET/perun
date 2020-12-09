@@ -74,7 +74,7 @@ public class DefaultRegistrarModule implements RegistrarModule {
 	}
 
 	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
+	public void canBeSubmitted(PerunSession session, Application.AppType appType, Map<String, String> params) throws PerunException {
 
 	}
 
