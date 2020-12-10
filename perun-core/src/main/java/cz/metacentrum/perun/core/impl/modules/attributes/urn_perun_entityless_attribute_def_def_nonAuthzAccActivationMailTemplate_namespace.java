@@ -8,11 +8,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
 import java.util.regex.Pattern;
 
 /**
- * non authorized password reset mail template attribute
+ * Module for non authorized account activation mail template attribute.
  *
- * @author Daniel Fecko dano9500@gmail.com
+ * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
-public class urn_perun_entityless_attribute_def_def_nonAuthzPwdResetMailTemplate_namespace extends EntitylessAttributesModuleAbstract {
+public class urn_perun_entityless_attribute_def_def_nonAuthzAccActivationMailTemplate_namespace extends EntitylessAttributesModuleAbstract {
 
 	// matches tag {link-*}
 	private static final Pattern languageLinkTagPattern = Pattern.compile("\\{link-[^}]+}");
@@ -26,5 +26,4 @@ public class urn_perun_entityless_attribute_def_def_nonAuthzPwdResetMailTemplate
 			throw new WrongAttributeValueException(attribute, key, "Value must contain tag {link} or {link-*} where * represents language, e.g. {link-en}.");
 		}
 	}
-
 }
