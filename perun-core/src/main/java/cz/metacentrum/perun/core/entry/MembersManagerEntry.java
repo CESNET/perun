@@ -1448,13 +1448,13 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getAllSponsoredMembers_Vo_policy", vo)) {
+		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getAllSponsoredMembers");
 		}
 
-		List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo);
+		List<Member> sponsoredMembers = membersManagerBl.getSponsoredMembers(sess, vo);
 
-		return membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
+		return membersManagerBl.convertMembersToRichMembers(sess, sponsoredMembers);
 	}
 
 	@Override

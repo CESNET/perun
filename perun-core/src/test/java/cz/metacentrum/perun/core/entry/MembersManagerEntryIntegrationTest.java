@@ -2153,6 +2153,33 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertNotSame("Sponsored member without sponsor cannot expire when expireSponsoredMembers rule is set to false", sponsoredMember.getStatus(), Status.EXPIRED);
 	}
 
+	@Test
+	public void getAllSponsoredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getAllSponsoredMembers");
+
+		// create user with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+
+		// create two sponsored members
+		Map<String, String> name = new HashMap<>();
+		name.put("guestName", "Bruce Wayne");
+		Member member = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", name, "secret", null, sponsorUser, false, null, false);
+		RichMember richMember = perun.getMembersManager().getRichMemberById(sess, member.getId());
+		Map<String, String> name2 = new HashMap<>();
+		name2.put("guestName", "Clark Kent");
+		Member member2 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", name2, "secret", null, sponsorUser, false, null, false);
+		RichMember richMember2 = perun.getMembersManager().getRichMemberById(sess, member2.getId());
+
+		List<RichMember> allSponsoredMembers = perun.getMembersManager().getAllSponsoredMembers(sess, createdVo);
+
+		// check that both members were returned by getAllSponsoredMembers
+		assertEquals( 2, allSponsoredMembers.size());
+		assertTrue(allSponsoredMembers.contains(richMember));
+		assertTrue(allSponsoredMembers.contains(richMember2));
+	}
+
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {
 		Attribute attr = new Attribute();
 		attr.setNamespace(namespace);
