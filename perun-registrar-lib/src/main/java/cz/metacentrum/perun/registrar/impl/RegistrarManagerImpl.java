@@ -1900,6 +1900,37 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state, String dateFrom, String dateTo) throws PerunException {
+		vosManager.checkVoExists(userSession, vo);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_policy", Collections.singletonList(vo))) {
+			throw new PrivilegeException(userSession, "getApplicationsForVo");
+		}
+		if (state == null || state.isEmpty()) {
+			// list all
+			try {
+				return jdbc.query(APP_SELECT + " where a.vo_id=? and a.created_at::date >= date ? and a.create_at::date <= date ? order by a.id desc", APP_MAPPER, vo.getId(), dateFrom, dateTo);
+			} catch (EmptyResultDataAccessException ex) {
+				return new ArrayList<>();
+			}
+		} else {
+			// filter by state
+			try {
+				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+				sqlParameterSource.addValue("voId", vo.getId());
+				sqlParameterSource.addValue("states", state);
+				sqlParameterSource.addValue("from", dateFrom);
+				sqlParameterSource.addValue("to", dateTo);
+				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) and a.created_at::date >= date :from and a.create_at::date <= date :to order by a.id desc", sqlParameterSource, APP_MAPPER);
+			} catch (EmptyResultDataAccessException ex) {
+				return new ArrayList<>();
+			}
+		}
+
+	}
+
+	@Override
 	public List<Application> getApplicationsForGroup(PerunSession userSession, Group group, List<String> state) throws PerunException {
 		groupsManager.checkGroupExists(userSession, group);
 
@@ -1921,6 +1952,37 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				sqlParameterSource.addValue("groupId", group.getId());
 				sqlParameterSource.addValue("states", state);
 				return namedJdbc.query(APP_SELECT + " where a.group_id=:groupId and state in ( :states ) order by a.id desc", sqlParameterSource, APP_MAPPER);
+			} catch (EmptyResultDataAccessException ex) {
+				return new ArrayList<>();
+			}
+		}
+
+	}
+
+	@Override
+	public List<Application> getApplicationsForGroup(PerunSession userSession, Group group, List<String> state, String dateFrom, String dateTo) throws PerunException {
+		groupsManager.checkGroupExists(userSession, group);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Vo_List<String>_policy", Collections.singletonList(group))) {
+			throw new PrivilegeException(userSession, "getApplicationsForGroup");
+		}
+		if (state == null || state.isEmpty()) {
+			// list all
+			try {
+				return jdbc.query(APP_SELECT + " where a.group_id=? and a.created_at::date >= date ? and a.create_at::date <= date ? order by a.id desc", APP_MAPPER, group.getId(), dateFrom, dateTo);
+			} catch (EmptyResultDataAccessException ex) {
+				return new ArrayList<>();
+			}
+		} else {
+			// filter by state
+			try {
+				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+				sqlParameterSource.addValue("groupId", group.getId());
+				sqlParameterSource.addValue("states", state);
+				sqlParameterSource.addValue("from", dateFrom);
+				sqlParameterSource.addValue("to", dateTo);
+				return namedJdbc.query(APP_SELECT + " where a.group_id=:groupId and state in ( :states ) and a.created_at::date >= date :from and a.create_at::date <= date :to order by a.id desc", sqlParameterSource, APP_MAPPER);
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<>();
 			}

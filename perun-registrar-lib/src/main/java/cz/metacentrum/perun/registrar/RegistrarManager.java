@@ -276,6 +276,22 @@ public interface RegistrarManager {
 	 */
 	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state) throws PerunException;
 
+
+	/**
+	 * Gets all applications in a given state for a given VO.
+	 * If state is null, returns all applications for a given VO.
+	 *
+	 * @param sess who is asking
+	 * @param vo VO to get applications for
+	 * @param state application state to filter by
+	 * @param dateFrom return only applications with this date or newer
+	 * @param dateTo return only applications with this date or older
+	 * @return list of applications
+	 * @throws PerunException
+	 */
+	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state, String dateFrom, String dateTo) throws PerunException;
+
+
 	/**
 	 * Gets all applications in a given state for a given Group
 	 * If state is null, returns all applications for a given Group.
@@ -287,6 +303,21 @@ public interface RegistrarManager {
 	 * @throws PerunException
 	 */
 	List<Application> getApplicationsForGroup(PerunSession sess, Group group, List<String> state) throws PerunException;
+
+
+	/**
+	 * Gets all applications in a given state for a given Group
+	 * If state is null, returns all applications for a given Group.
+	 *
+	 * @param sess who is asking
+	 * @param group Group to get applications for
+	 * @param state application state to filter by
+	 * @param dateFrom return only applications with this date or newer
+	 * @param dateTo return only applications with this date or older
+	 * @return list of applications
+	 * @throws PerunException
+	 */
+	List<Application> getApplicationsForGroup(PerunSession sess, Group group, List<String> state, String dateFrom, String dateTo) throws PerunException;
 
 
 	/**
