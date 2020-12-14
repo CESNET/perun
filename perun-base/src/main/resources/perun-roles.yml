@@ -2690,6 +2690,18 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getAllSponsoredMembers_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - REGISTRAR:
+      - VOADMIN: Vo
+      - SPONSOR: Vo
+    include_policies:
+      - default_policy
+
   getSponsoredMembersAndTheirSponsors_Vo_policy:
     policy_roles:
       - VOADMIN: Vo

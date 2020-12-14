@@ -1445,11 +1445,26 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		//Filter members based on authorization
-		List<Member> filteredMembers = membersManagerBl.getSponsoredMembers(sess, vo).stream()
+		return getAllSponsoredMembers(sess, vo).stream()
 			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_policy", member, vo))
 			.collect(Collectors.toList());
+	}
 
-		return membersManagerBl.convertMembersToRichMembers(sess, filteredMembers);
+	@Override
+	public List<RichMember> getAllSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(vo, "vo");
+
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getAllSponsoredMembers_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getAllSponsoredMembers");
+		}
+
+		List<Member> sponsoredMembers = membersManagerBl.getSponsoredMembers(sess, vo);
+
+		return membersManagerBl.convertMembersToRichMembers(sess, sponsoredMembers);
 	}
 
 	@Override
