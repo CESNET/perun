@@ -8,14 +8,14 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
 
-public class urn_perun_entityless_attribute_def_def_nonAuthzPwdResetMailTemplate_namespaceTest {
-	private static urn_perun_entityless_attribute_def_def_nonAuthzPwdResetMailTemplate_namespace classInstance;
+public class urn_perun_entityless_attribute_def_def_nonAuthzAccActivationMailTemplate_namespaceTest {
+	private static urn_perun_entityless_attribute_def_def_nonAuthzAccActivationMailTemplate_namespace classInstance;
 	private static PerunSessionImpl session;
 	private static Attribute attributeToCheck;
 
 	@Before
 	public void setUp() throws Exception {
-		classInstance = new urn_perun_entityless_attribute_def_def_nonAuthzPwdResetMailTemplate_namespace();
+		classInstance = new urn_perun_entityless_attribute_def_def_nonAuthzAccActivationMailTemplate_namespace();
 		session = mock(PerunSessionImpl.class);
 		attributeToCheck = new Attribute();
 	}
