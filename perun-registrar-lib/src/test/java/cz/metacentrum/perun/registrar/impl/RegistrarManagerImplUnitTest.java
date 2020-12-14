@@ -170,4 +170,23 @@ public class RegistrarManagerImplUnitTest {
 		assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
 		assertThat(candidate.getLastName()).isEqualTo("Sassmann");
 	}
+
+	@Test
+	public void testDisplayNameReverseWithCommaAndFedData() {
+		Candidate candidate = new Candidate();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put(URN_USER_DISPLAY_NAME, "Bc. Sassmann, Vojtech Dis.");
+		Map<String, String> fedData = new HashMap<>();
+		fedData.put("givenName", "Vojtech");
+		fedData.put("sn", "Sassmann");
+
+		registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+		assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
+		assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+		assertThat(candidate.getMiddleName()).isEqualTo(null);
+		assertThat(candidate.getLastName()).isEqualTo("Sassmann");
+		assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
+	}
+
 }

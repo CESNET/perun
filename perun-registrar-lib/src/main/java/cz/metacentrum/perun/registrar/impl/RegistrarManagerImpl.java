@@ -181,6 +181,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String shibFirstNameVar = "givenName";
 	private static final String shibLastNameVar = "sn";
 
+	// regular expression to match alfanumeric contents
+	private static final Pattern alnumPattern = Pattern.compile(".*\\p{Alnum}+.*", Pattern.UNICODE_CHARACTER_CLASS);
+	
 	private final Set<String> runningCreateApplication = new HashSet<>();
 	private final Set<Integer> runningApproveApplication = new HashSet<>();
 	private final Set<Integer> runningRejectApplication = new HashSet<>();
@@ -3530,9 +3533,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					"titles after, but get " + matcher.groupCount() + " groups." );
 		}
 
-		parseTitlesBefore(candidate, matcher.group(1));
-		parseMiddleName(candidate, matcher.group(2));
-		parseTitlesAfter(candidate, matcher.group(3));
+		parseTitlesBefore(candidate, matcher.group(1).trim());
+		parseMiddleName(candidate, matcher.group(2).trim());
+		parseTitlesAfter(candidate, matcher.group(3).trim());
 
 		return true;
 	}
@@ -3544,7 +3547,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param value value
 	 */
 	private void parseTitlesBefore(Candidate candidate, String value) {
-		candidate.setTitleBefore(value.trim().isEmpty() ? null : value.trim());
+		candidate.setTitleBefore(alnumPattern.matcher(value).matches() ? value : null);
 	}
 
 	/**
@@ -3553,7 +3556,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param value value
 	 */
 	private void parseMiddleName(Candidate candidate, String value) {
-		candidate.setMiddleName(value.trim().isEmpty() ? null : value.trim());
+		candidate.setMiddleName(alnumPattern.matcher(value).matches() ? value : null);
 	}
 
 	/**
@@ -3563,7 +3566,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param value value
 	 */
 	private void parseTitlesAfter(Candidate candidate, String value) {
-		candidate.setTitleAfter(value.trim().isEmpty() ? null : value.trim());
+		candidate.setTitleAfter(alnumPattern.matcher(value).matches() ? value : null);
 	}
 
 	/**
