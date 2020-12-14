@@ -5975,7 +5975,25 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getApplicationsForVo_Vo_List<String>_String_String_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getApplicationsForGroup_Vo_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+    include_policies:
+      - default_policy
+
+  getApplicationsForGroup_Vo_List<String>_String_String_policy:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo

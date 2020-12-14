@@ -1904,28 +1904,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		vosManager.checkVoExists(userSession, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_String_String_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(userSession, "getApplicationsForVo");
 		}
-		if (state == null || state.isEmpty()) {
-			// list all
-			try {
-				return jdbc.query(APP_SELECT + " where a.vo_id=? and a.created_at::date >= date ? and a.create_at::date <= date ? order by a.id desc", APP_MAPPER, vo.getId(), dateFrom, dateTo);
-			} catch (EmptyResultDataAccessException ex) {
-				return new ArrayList<>();
-			}
-		} else {
-			// filter by state
-			try {
-				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
-				sqlParameterSource.addValue("voId", vo.getId());
+		try {
+			MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+			StringBuilder query = new StringBuilder(APP_SELECT);
+			query.append(" where a.vo_id=:voId");
+			sqlParameterSource.addValue("voId", vo.getId());
+			if (state != null && !state.isEmpty()) {
+				// list all
 				sqlParameterSource.addValue("states", state);
-				sqlParameterSource.addValue("from", dateFrom);
-				sqlParameterSource.addValue("to", dateTo);
-				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) and a.created_at::date >= date :from and a.create_at::date <= date :to order by a.id desc", sqlParameterSource, APP_MAPPER);
-			} catch (EmptyResultDataAccessException ex) {
-				return new ArrayList<>();
+				query.append(" and state in ( :states )");
 			}
+			if(dateFrom != null && !dateFrom.isEmpty()) {
+				sqlParameterSource.addValue("from", dateFrom);
+				query.append(" and and a.created_at::date >= date :from ");
+			}
+			if(dateTo != null && !dateTo.isEmpty()) {
+				sqlParameterSource.addValue("to", dateTo);
+				query.append(" and a.create_at::date <= date :to ");
+			}
+			query.append(" order by a.id desc");
+			return namedJdbc.query(query.toString(), sqlParameterSource, APP_MAPPER);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
 		}
 
 	}
@@ -1964,28 +1967,31 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		groupsManager.checkGroupExists(userSession, group);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Vo_List<String>_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Vo_List<String>_String_String_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(userSession, "getApplicationsForGroup");
 		}
-		if (state == null || state.isEmpty()) {
-			// list all
-			try {
-				return jdbc.query(APP_SELECT + " where a.group_id=? and a.created_at::date >= date ? and a.create_at::date <= date ? order by a.id desc", APP_MAPPER, group.getId(), dateFrom, dateTo);
-			} catch (EmptyResultDataAccessException ex) {
-				return new ArrayList<>();
-			}
-		} else {
-			// filter by state
-			try {
-				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
-				sqlParameterSource.addValue("groupId", group.getId());
+		try {
+			MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+			StringBuilder query = new StringBuilder(APP_SELECT);
+			query.append(" where a.group_id=:groupId");
+			sqlParameterSource.addValue("groupId", group.getId());
+			if (state != null && !state.isEmpty()) {
+				// list all
 				sqlParameterSource.addValue("states", state);
-				sqlParameterSource.addValue("from", dateFrom);
-				sqlParameterSource.addValue("to", dateTo);
-				return namedJdbc.query(APP_SELECT + " where a.group_id=:groupId and state in ( :states ) and a.created_at::date >= date :from and a.create_at::date <= date :to order by a.id desc", sqlParameterSource, APP_MAPPER);
-			} catch (EmptyResultDataAccessException ex) {
-				return new ArrayList<>();
+				query.append(" and state in ( :states )");
 			}
+			if(dateFrom != null && !dateFrom.isEmpty()) {
+				sqlParameterSource.addValue("from", dateFrom);
+				query.append(" and and a.created_at::date >= date :from ");
+			}
+			if(dateTo != null && !dateTo.isEmpty()) {
+				sqlParameterSource.addValue("to", dateTo);
+				query.append(" and a.create_at::date <= date :to ");
+			}
+			query.append(" order by a.id desc");
+			return namedJdbc.query(query.toString(), sqlParameterSource, APP_MAPPER);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
 		}
 
 	}

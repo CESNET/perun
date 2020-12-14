@@ -465,7 +465,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("dateFrom")) {
+			if(parms.contains("dateFrom") || parms.contains("dateTo")) {
 					return ac.getRegistrarManager().getApplicationsForVo(
 							ac.getSession(), 
 							ac.getVoById(parms.readInt("vo")), 
@@ -511,7 +511,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("dateFrom")) {
+			if (parms.contains("dateFrom") || parms.contains("dateTo")) {
 				return ac.getRegistrarManager().getApplicationsForGroup(
 						ac.getSession(), 
 						ac.getGroupById(parms.readInt("group")), 
