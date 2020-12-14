@@ -62,7 +62,8 @@ public abstract class Deserializer {
 	 * @return parsed local date
 	 */
 	public LocalDate readLocalDate(String name) {
-		return LocalDate.parse(readString(name));
+		String date = readString(name);
+		return date == null ? null : LocalDate.parse(date);
 	}
 
 	public int[] readArrayOfInts(String name) {

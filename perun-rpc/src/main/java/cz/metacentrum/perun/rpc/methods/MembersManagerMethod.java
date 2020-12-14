@@ -275,7 +275,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 				sendActivationLink = params.readBoolean("sendActivationLinks");
 			}
 			LocalDate validityTo = null;
-			if (params.contains("validityTo") && params.readString("validityTo") != null) {
+			if (params.contains("validityTo")) {
 				validityTo = params.readLocalDate("validityTo");
 			}
 			User sponsor = null;
@@ -455,7 +455,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
 			User sponsor = ac.getUserById(params.readInt("sponsor"));
 			LocalDate newValidity = null;
-			if (params.contains("validityTo") && params.readString("validityTo") != null) {
+			if (params.contains("validityTo")) {
 				newValidity = params.readLocalDate("validityTo");
 			}
 
