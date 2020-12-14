@@ -1354,7 +1354,7 @@ public interface MembersManager {
 	/**
 	 * Gets list of all sponsored members of a VO.
 	 *
-	 * @param sess actor
+	 * @param sess perun session
 	 * @param vo virtual organization from which are the sponsored members chosen
 	 * @throws PrivilegeException insufficient permissions
 	 * @return list of members from given VO who are sponsored

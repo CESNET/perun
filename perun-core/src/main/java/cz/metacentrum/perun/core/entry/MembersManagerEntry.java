@@ -1434,6 +1434,16 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(vo, "vo");
+
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+		//Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getSponsoredMembers");
+		}
+
 		//Filter members based on authorization
 		return getAllSponsoredMembers(sess, vo).stream()
 			.filter(member -> AuthzResolver.authorizedInternal(sess, "filter-getSponsoredMembers_Vo_policy", member, vo))
@@ -1448,7 +1458,7 @@ public class MembersManagerEntry implements MembersManager {
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		//Authorization
-		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembers_Vo_policy", vo)) {
+		if(!AuthzResolver.authorizedInternal(sess, "getAllSponsoredMembers_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getAllSponsoredMembers");
 		}
 
