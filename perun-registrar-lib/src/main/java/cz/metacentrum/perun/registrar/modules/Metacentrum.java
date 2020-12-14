@@ -179,20 +179,17 @@ public class Metacentrum extends DefaultRegistrarModule {
 		if (METACENTRUM_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
 			throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
 					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
-					"NOT_ELIGIBLE", null, null);
+					"NOT_ELIGIBLE_METAIDP", null, null);
 		}
 
-		if (Application.AppType.EXTENSION.equals(appType)) {
+		User user = session.getPerunPrincipal().getUser();
+		boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, user));
+		boolean eligibleFromFederation = isCesnetEligibleLastSeen(params.get("isCesnetEligibleLastSeen"));
 
-			User user = session.getPerunPrincipal().getUser();
-			boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, user));
-			boolean eligibleFromFederation = isCesnetEligibleLastSeen(params.get("isCesnetEligibleLastSeen"));
+		if (!eligibleUser && !eligibleFromFederation) {
 
-			if (!eligibleUser && !eligibleFromFederation) {
-				// TODO - We must have much better info in GUI!
-				throw new CantBeSubmittedException("Your membership in VO Metacentrum can't be extended right now. Your account is not verified." +
-						" Please visit your profile and add verified academic identity to your account (from identity federation eduID.cz) " +
-						" or verify your academia status by letter signed by the head of your institution.", "NOT_ELIGIBLE", null, null);
+			if (Application.AppType.EXTENSION.equals(appType)) {
+				throw new CantBeSubmittedException("Your membership in VO Metacentrum can't be extended.", "NOT_ELIGIBLE_EINFRA_EXTENSION", null, null);
 			}
 
 		}
