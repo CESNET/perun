@@ -204,6 +204,31 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getAllSponsoredMembersAndTheirSponsors() throws Exception {
+		System.out.println(CLASS_NAME + "getAllSponsoredMembersAndTheirSponsors");
+
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess, createdVo, sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess, sponsors, sponsorMember);
+
+		Map<String, String> userName = new HashMap<>();
+		userName.put("guestName", "Ing. Jan Novák");
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", userName, "secret", null, sponsorUser, false, null, false);
+
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
+
+		List<MemberWithSponsors> memberWithSponsors = perun.getMembersManager().getAllSponsoredMembersAndTheirSponsors(sess, createdVo, attrNames);
+
+		assertEquals(memberWithSponsors.get(0).getMember(), sponsoredMember);
+		assertEquals(memberWithSponsors.get(0).getSponsors().get(0).getUser(), sponsorUser);
+		assertEquals(1, memberWithSponsors.get(0).getSponsors().size());
+	}
+
+	@Test
 	public void createMember() throws Exception {
 		System.out.println(CLASS_NAME + "createMemberSync");
 

@@ -1364,6 +1364,18 @@ public interface MembersManager {
 	List<MemberWithSponsors> getSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException, AttributeNotExistsException;
 
 	/**
+	 * Gets list of VO's all sponsored members with sponsors.
+	 *
+	 * @param sess session
+	 * @param vo virtual organization from which are the sponsored members chosen
+	 * @param attrNames list of attrNames for selected attributes
+	 * @throws VoNotExistsException if given VO does not exist
+	 * @throws PrivilegeException if not VOADMIN, VOOBSERVER, PERUNOBSERVER or SPONSOR
+	 * @return list of members with sponsors
+	 */
+	List<MemberWithSponsors> getAllSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException, AttributeNotExistsException;
+
+	/**
 	 * Extends expiration date. Sponsored members cannot apply for membership extension, this method allows a sponsor to extend it.
 	 * @param session actor
 	 * @param sponsored existing member that is sponsored

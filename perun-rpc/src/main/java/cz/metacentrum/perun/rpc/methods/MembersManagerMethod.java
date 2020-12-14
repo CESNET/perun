@@ -542,6 +542,23 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets list of VO's all sponsored members with sponsors.
+	 *
+	 * @param vo int id of virtual organization from which are the sponsored members chosen
+	 * @param attrNames List<String> list of attribute names
+	 * @throw VoNotExistsException if given VO does not exist
+	 * @return List<MemberWithSponsors> list of members with sponsors
+	 */
+	getAllSponsoredMembersAndTheirSponsors {
+		@Override
+		public List<MemberWithSponsors> call(ApiCaller ac, Deserializer params) throws PerunException {
+			Vo vo = ac.getVoById(params.readInt("vo"));
+			List<String> attrNames = params.contains("attrNames") ? params.readList("attrNames",String.class) : Collections.emptyList();
+			return ac.getMembersManager().getAllSponsoredMembersAndTheirSponsors(ac.getSession(), vo, attrNames);
+		}
+	},
+
+	/*#
 	 * Gets users sponsoring a given user in a VO.
 	 *
 	 * @deprecated - use usersManager/getSponsorsForMember
