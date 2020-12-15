@@ -90,6 +90,11 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunParentGroupId,
 						PerunAttributeDesc.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<Group>) (group, attrs) -> group.getParentGroupId() == null ? null : group.getParentGroupId().toString()
+				),
+				new PerunAttributeDesc<>(
+						PerunAttribute.PerunAttributeNames.ldapAttrUuid,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<Group>) (group, attrs) -> group.getUuid().toString()
 				)
 		);
 
@@ -316,8 +321,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	/**
 	 * Get Group DN using VoId and GroupId.
 	 *
-	 * @param voId    vo id
-	 * @param groupId group id
+	 * @param id IDs of VO and Group
 	 * @return DN in String
 	 */
 	@Override

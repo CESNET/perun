@@ -3,6 +3,7 @@ package cz.metacentrum.perun.ldapc.model.impl;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunFacility;
@@ -70,6 +71,11 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> perunFacility.getEntryDN(String.valueOf(resource.getFacilityId())).toString()
 								+ "," + ldapProperties.getLdapBase()
+				),
+				new PerunAttributeDesc<>(
+						PerunAttribute.PerunAttributeNames.ldapAttrUuid,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> resource.getUuid().toString()
 				)
 		);
 	}
