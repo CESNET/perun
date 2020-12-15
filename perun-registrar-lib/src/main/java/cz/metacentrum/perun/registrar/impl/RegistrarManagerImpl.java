@@ -3506,9 +3506,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private void parseTitlesAndMiddleName(Candidate candidate, String displayName, String firstName, String lastName) {
 		Pattern pattern = getNamesPattern(firstName, lastName);
-		if (!tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, pattern)) {
+		if (!tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, pattern, firstName)) {
 			Pattern reversePattern = getNamesPattern(lastName, firstName);
-			tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, reversePattern);
+			tryToParseTitlesAndMiddleNameFromPattern(candidate, displayName, reversePattern, lastName);
 		}
 	}
 
@@ -3523,7 +3523,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @param pattern pattern with 3 matching groups
 	 * @return true, if the matcher matched
 	 */
-	private boolean tryToParseTitlesAndMiddleNameFromPattern(Candidate candidate, String displayName, Pattern pattern) {
+	private boolean tryToParseTitlesAndMiddleNameFromPattern(Candidate candidate, String displayName, Pattern pattern, String firstName) {
 		Matcher matcher = pattern.matcher(displayName);
 		if (!matcher.matches()) {
 			return false;
@@ -3533,8 +3533,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					"titles after, but get " + matcher.groupCount() + " groups." );
 		}
 
-		parseTitlesBefore(candidate, matcher.group(1).trim());
-		parseMiddleName(candidate, matcher.group(2).trim());
+		// if the middle name equals to the first name placed in displayName (it can be firstName or lastName too)
+		if (matcher.group(1).contains(firstName)) {
+			candidate.setTitleBefore(matcher.group(1).split(firstName)[0].trim());
+			candidate.setMiddleName(firstName);
+		} else {
+			parseTitlesBefore(candidate, matcher.group(1).trim());
+			parseMiddleName(candidate, matcher.group(2).trim());
+		}
 		parseTitlesAfter(candidate, matcher.group(3).trim());
 
 		return true;

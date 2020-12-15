@@ -189,4 +189,53 @@ public class RegistrarManagerImplUnitTest {
 		assertThat(candidate.getFirstName()).isEqualTo("Vojtech");
 	}
 
+	@Test
+	public void testParseNamesIfTheMiddleNameEqualsFirstName() {
+		Candidate candidate = new Candidate();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put(URN_USER_DISPLAY_NAME, "Bc. Jakub Jakub Hejda Dis.");
+		Map<String, String> fedData = new HashMap<>();
+		fedData.put("givenName", "Jakub");
+		fedData.put("sn", "Hejda");
+
+		Candidate candidate2 = new Candidate();
+		Map<String, String> attributes2 = new HashMap<>();
+		attributes2.put(URN_USER_DISPLAY_NAME, "Sir doc. John Paolo John Paolo Van Horn Phd.");
+		Map<String, String> fedData2 = new HashMap<>();
+		fedData2.put("givenName", "John Paolo");
+		fedData2.put("sn", "Van Horn");
+
+		registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+		registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate2, attributes2, fedData2);
+
+		assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
+		assertThat(candidate.getFirstName()).isEqualTo("Jakub");
+		assertThat(candidate.getMiddleName()).isEqualTo("Jakub");
+		assertThat(candidate.getLastName()).isEqualTo("Hejda");
+		assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+
+		assertThat(candidate2.getTitleBefore()).isEqualTo("Sir doc.");
+		assertThat(candidate2.getFirstName()).isEqualTo("John Paolo");
+		assertThat(candidate2.getMiddleName()).isEqualTo("John Paolo");
+		assertThat(candidate2.getLastName()).isEqualTo("Van Horn");
+		assertThat(candidate2.getTitleAfter()).isEqualTo("Phd.");
+	}
+
+	@Test
+	public void testParseNamesIfTheMiddleNameEqualsFirstNameReversePattern() {
+		Candidate candidate = new Candidate();
+		Map<String, String> attributes = new HashMap<>();
+		attributes.put(URN_USER_DISPLAY_NAME, "Bc. Hejda Hejda Jakub Dis.");
+		Map<String, String> fedData = new HashMap<>();
+		fedData.put("givenName", "Jakub");
+		fedData.put("sn", "Hejda");
+
+		registrarManager.parseNamesFromDisplayNameAndFedInfo(candidate, attributes, fedData);
+
+		assertThat(candidate.getTitleBefore()).isEqualTo("Bc.");
+		assertThat(candidate.getFirstName()).isEqualTo("Jakub");
+		assertThat(candidate.getMiddleName()).isEqualTo("Hejda");
+		assertThat(candidate.getLastName()).isEqualTo("Hejda");
+		assertThat(candidate.getTitleAfter()).isEqualTo("Dis.");
+	}
 }
