@@ -15,6 +15,7 @@ import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.MembershipExtend
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1900,11 +1901,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state, String dateFrom, String dateTo) throws PerunException {
+	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state, LocalDate dateFrom, LocalDate dateTo) throws PerunException {
 		vosManager.checkVoExists(userSession, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_String_String_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_LocalDate_LocalDate_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(userSession, "getApplicationsForVo");
 		}
 		try {
@@ -1917,13 +1918,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				sqlParameterSource.addValue("states", state);
 				query.append(" and state in ( :states )");
 			}
-			if(dateFrom != null && !dateFrom.isEmpty()) {
+			if(dateFrom != null) {
 				sqlParameterSource.addValue("from", dateFrom);
-				query.append(" and and a.created_at::date >= date :from ");
+				query.append(" and a.created_at::date >= :from");
 			}
-			if(dateTo != null && !dateTo.isEmpty()) {
+			if(dateTo != null) {
 				sqlParameterSource.addValue("to", dateTo);
-				query.append(" and a.create_at::date <= date :to ");
+				query.append(" and a.created_at::date <= :to");
 			}
 			query.append(" order by a.id desc");
 			return namedJdbc.query(query.toString(), sqlParameterSource, APP_MAPPER);
@@ -1938,7 +1939,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		groupsManager.checkGroupExists(userSession, group);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Vo_List<String>_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(userSession, "getApplicationsForGroup");
 		}
 		if (state == null || state.isEmpty()) {
@@ -1963,11 +1964,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<Application> getApplicationsForGroup(PerunSession userSession, Group group, List<String> state, String dateFrom, String dateTo) throws PerunException {
+	public List<Application> getApplicationsForGroup(PerunSession userSession, Group group, List<String> state, LocalDate dateFrom, LocalDate dateTo) throws PerunException {
 		groupsManager.checkGroupExists(userSession, group);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Vo_List<String>_String_String_policy", Collections.singletonList(group))) {
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForGroup_Group_List<String>_LocalDate_LocalDate_policy", Collections.singletonList(group))) {
 			throw new PrivilegeException(userSession, "getApplicationsForGroup");
 		}
 		try {
@@ -1980,13 +1981,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				sqlParameterSource.addValue("states", state);
 				query.append(" and state in ( :states )");
 			}
-			if(dateFrom != null && !dateFrom.isEmpty()) {
+			if(dateFrom != null) {
 				sqlParameterSource.addValue("from", dateFrom);
-				query.append(" and and a.created_at::date >= date :from ");
+				query.append(" and a.created_at::date >= :from");
 			}
-			if(dateTo != null && !dateTo.isEmpty()) {
+			if(dateTo != null) {
 				sqlParameterSource.addValue("to", dateTo);
-				query.append(" and a.create_at::date <= date :to ");
+				query.append(" and a.created_at::date <= :to");
 			}
 			query.append(" order by a.id desc");
 			return namedJdbc.query(query.toString(), sqlParameterSource, APP_MAPPER);

@@ -12,6 +12,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -289,7 +290,7 @@ public interface RegistrarManager {
 	 * @return list of applications
 	 * @throws PerunException
 	 */
-	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state, String dateFrom, String dateTo) throws PerunException;
+	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state, LocalDate dateFrom, LocalDate dateTo) throws PerunException;
 
 
 	/**
@@ -317,7 +318,7 @@ public interface RegistrarManager {
 	 * @return list of applications
 	 * @throws PerunException
 	 */
-	List<Application> getApplicationsForGroup(PerunSession sess, Group group, List<String> state, String dateFrom, String dateTo) throws PerunException;
+	List<Application> getApplicationsForGroup(PerunSession sess, Group group, List<String> state, LocalDate dateFrom, LocalDate dateTo) throws PerunException;
 
 
 	/**
