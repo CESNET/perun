@@ -471,13 +471,15 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 							ac.getVoById(parms.readInt("vo")), 
 							parms.contains("state") ? parms.readList("state", String.class) : null, 
 							parms.readLocalDate("dateFrom"), 
-							parms.readLocalDate("dateTo")
+							parms.readLocalDate("dateTo"),
+							true
 							);
 			} else {
 				return ac.getRegistrarManager().getApplicationsForVo(
 						ac.getSession(), 
 						ac.getVoById(parms.readInt("vo")), 
-						parms.contains("state") ? parms.readList("state", String.class) : null
+						parms.contains("state") ? parms.readList("state", String.class) : null,
+						true
 						);
 			}
 

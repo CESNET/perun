@@ -1872,17 +1872,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state) throws PerunException {
+	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state, Boolean includeGroupApplications) throws PerunException {
 		vosManager.checkVoExists(userSession, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_Boolean_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(userSession, "getApplicationsForVo");
 		}
 		if (state == null || state.isEmpty()) {
 			// list all
 			try {
-				return jdbc.query(APP_SELECT + " where a.vo_id=? order by a.id desc", APP_MAPPER, vo.getId());
+				return jdbc.query(APP_SELECT + " where a.vo_id=? " 
+						+ (includeGroupApplications ? "" : " and a.group_id is null ")
+						+ " order by a.id desc", APP_MAPPER, vo.getId());
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<>();
 			}
@@ -1892,7 +1894,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 				sqlParameterSource.addValue("voId", vo.getId());
 				sqlParameterSource.addValue("states", state);
-				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) order by a.id desc", sqlParameterSource, APP_MAPPER);
+				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) " 
+						+ (includeGroupApplications ? "" : " and a.group_id is null ")
+						+ " order by a.id desc", sqlParameterSource, APP_MAPPER);
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<>();
 			}
@@ -1901,11 +1905,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state, LocalDate dateFrom, LocalDate dateTo) throws PerunException {
+	public List<Application> getApplicationsForVo(PerunSession userSession, Vo vo, List<String> state, LocalDate dateFrom, LocalDate dateTo, Boolean includeGroupApplications) throws PerunException {
 		vosManager.checkVoExists(userSession, vo);
 
 		//Authorization
-		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_LocalDate_LocalDate_policy", Collections.singletonList(vo))) {
+		if (!AuthzResolver.authorizedInternal(userSession, "getApplicationsForVo_Vo_List<String>_LocalDate_LocalDate_Boolean_policy", Collections.singletonList(vo))) {
 			throw new PrivilegeException(userSession, "getApplicationsForVo");
 		}
 		try {
@@ -1925,6 +1929,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if(dateTo != null) {
 				sqlParameterSource.addValue("to", dateTo);
 				query.append(" and a.created_at::date <= :to");
+			}
+			if(!includeGroupApplications) {
+				query.append(" and a.group_id is null");
 			}
 			query.append(" order by a.id desc");
 			return namedJdbc.query(query.toString(), sqlParameterSource, APP_MAPPER);

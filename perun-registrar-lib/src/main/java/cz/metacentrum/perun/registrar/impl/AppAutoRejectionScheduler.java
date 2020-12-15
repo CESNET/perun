@@ -134,7 +134,7 @@ public class AppAutoRejectionScheduler {
 		for (Vo vo : vos) {
 			Attribute expiration = perun.getAttributesManagerBl().getAttribute(sess, vo, A_VO_APP_EXP_RULES);
 			if (expiration.getValue() != null) {
-				List<Application> applications = registrarManager.getApplicationsForVo(sess, vo, states);
+				List<Application> applications = registrarManager.getApplicationsForVo(sess, vo, states, false);
 				rejectExpiredApplications(applications, expiration);
 			}
 		}

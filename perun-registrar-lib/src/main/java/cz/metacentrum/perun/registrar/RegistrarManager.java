@@ -275,7 +275,7 @@ public interface RegistrarManager {
 	 * @return list of applications
 	 * @throws PerunException
 	 */
-	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state) throws PerunException;
+	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state, Boolean includeGroupApplications) throws PerunException;
 
 
 	/**
@@ -290,7 +290,7 @@ public interface RegistrarManager {
 	 * @return list of applications
 	 * @throws PerunException
 	 */
-	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state, LocalDate dateFrom, LocalDate dateTo) throws PerunException;
+	List<Application> getApplicationsForVo(PerunSession sess, Vo vo, List<String> state, LocalDate dateFrom, LocalDate dateTo, Boolean includeGroupApplications) throws PerunException;
 
 
 	/**
