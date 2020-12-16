@@ -5988,7 +5988,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getApplicationsForVo_Vo_List<String>_policy:
+  getApplicationsForVo_Vo_List<String>_Boolean_policy:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo
@@ -5996,7 +5996,25 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getApplicationsForGroup_Vo_List<String>_policy:
+  getApplicationsForVo_Vo_List<String>_LocalDate_LocalDate_Boolean_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  getApplicationsForGroup_Group_List<String>_policy:
+    policy_roles:
+      - VOADMIN: Vo
+      - VOOBSERVER: Vo
+      - PERUNOBSERVER:
+      - GROUPADMIN: Group
+      - GROUPOBSERVER: Group
+    include_policies:
+      - default_policy
+
+  getApplicationsForGroup_Group_List<String>_LocalDate_LocalDate_policy:
     policy_roles:
       - VOADMIN: Vo
       - VOOBSERVER: Vo

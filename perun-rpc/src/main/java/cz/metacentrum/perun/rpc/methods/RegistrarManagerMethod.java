@@ -452,14 +452,35 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
 	 * @return List<Application> Found applications
 	 */
+	/*#
+	 * Gets all applications in a given state for a given VO in a given date period.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
+	 * @param dateFrom LocalDate Earliest date for applications (format "YYYY-MM-DD")
+	 * @param dateTo LocalDate Latest date for applications (format "YYYY-MM-DD")
+	 * @return List<Application> Found applications
+	 */
 	getApplicationsForVo {
 
 		@Override
 		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("state")) {
-				return ac.getRegistrarManager().getApplicationsForVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readList("state", String.class));
+			if(parms.contains("dateFrom") || parms.contains("dateTo")) {
+					return ac.getRegistrarManager().getApplicationsForVo(
+							ac.getSession(), 
+							ac.getVoById(parms.readInt("vo")), 
+							parms.contains("state") ? parms.readList("state", String.class) : null, 
+							parms.readLocalDate("dateFrom"), 
+							parms.readLocalDate("dateTo"),
+							true
+							);
 			} else {
-				return ac.getRegistrarManager().getApplicationsForVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), null);
+				return ac.getRegistrarManager().getApplicationsForVo(
+						ac.getSession(), 
+						ac.getVoById(parms.readInt("vo")), 
+						parms.contains("state") ? parms.readList("state", String.class) : null,
+						true
+						);
 			}
 
 		}
@@ -479,14 +500,33 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
 	 * @return List<Application> Found applications
 	 */
+	/*#
+	 * Gets all applications in a given state for a given Group in a given date period.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
+	 * @param dateFrom LocalDate Earliest date for applications (format "YYYY-MM-DD")
+	 * @param dateTo LocalDate Latest date for applications (format "YYYY-MM-DD")
+	 * @return List<Application> Found applications
+	 */
 	getApplicationsForGroup {
 
 		@Override
 		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("state")) {
-				return ac.getRegistrarManager().getApplicationsForGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readList("state", String.class));
+			if (parms.contains("dateFrom") || parms.contains("dateTo")) {
+				return ac.getRegistrarManager().getApplicationsForGroup(
+						ac.getSession(), 
+						ac.getGroupById(parms.readInt("group")), 
+						parms.contains("state") ? parms.readList("state", String.class) : null,
+						parms.readLocalDate("dateFrom"), 
+						parms.readLocalDate("dateTo")
+						);
 			} else {
-				return ac.getRegistrarManager().getApplicationsForGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), null);
+				return ac.getRegistrarManager().getApplicationsForGroup(
+						ac.getSession(), 
+						ac.getGroupById(parms.readInt("group")), 
+						parms.contains("state") ? parms.readList("state", String.class) : null
+						);
 			}
 
 		}
