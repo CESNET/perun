@@ -457,8 +457,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
-	 * @param dateFrom String Earliest date for applications
-	 * @param dateTo String Latest date for applications
+	 * @param dateFrom LocalDate Earliest date for applications (format "YYYY-MM-DD")
+	 * @param dateTo LocalDate Latest date for applications (format "YYYY-MM-DD")
 	 * @return List<Application> Found applications
 	 */
 	getApplicationsForVo {
@@ -505,8 +505,8 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param state List<String> List of states: NEW, VERIFIED, APPROVED, REJECTED
-	 * @param dateFrom String Earliest date for applications
-	 * @param dateTo String Latest date for applications
+	 * @param dateFrom LocalDate Earliest date for applications (format "YYYY-MM-DD")
+	 * @param dateTo LocalDate Latest date for applications (format "YYYY-MM-DD")
 	 * @return List<Application> Found applications
 	 */
 	getApplicationsForGroup {

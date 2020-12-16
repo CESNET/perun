@@ -272,6 +272,7 @@ public interface RegistrarManager {
 	 * @param sess who is asking
 	 * @param vo VO to get applications for
 	 * @param state application state to filter by
+	 * @param includeGroupApplications boolean flag whether to include group applications
 	 * @return list of applications
 	 * @throws PerunException
 	 */
@@ -287,6 +288,7 @@ public interface RegistrarManager {
 	 * @param state application state to filter by
 	 * @param dateFrom return only applications with this date or newer
 	 * @param dateTo return only applications with this date or older
+	 * @param includeGroupApplications boolean flag whether to include group applications
 	 * @return list of applications
 	 * @throws PerunException
 	 */

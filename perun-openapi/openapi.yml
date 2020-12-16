@@ -12892,8 +12892,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/voId'
         - { name: "state[]", schema: { type: array, items: { type: string } }, in: query, description: "list of states: NEW, VERIFIED, APPROVED, REJECTED" }
-        - { name: "dateFrom", schema: { type: string, format: date }, in: query, required: false, description: "return applications newer than this date" }
-        - { name: "dateTo", schema: { type: string, format: date }, in: query, required: false, description: "return applications older than this date" }
+        - { name: "dateFrom", schema: { type: string, format: date }, in: query, required: false, description: "return applications with the same date or newer than this date" }
+        - { name: "dateTo", schema: { type: string, format: date }, in: query, required: false, description: "return applications with the same date or older than this date" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfApplicationsResponse'
@@ -12909,8 +12909,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/groupId'
         - { name: "state[]", schema: { type: array, items: { type: string } }, in: query, description: "list of states: NEW, VERIFIED, APPROVED, REJECTED" }
-        - { name: "dateFrom", schema: { type: string, format: date }, in: query, required: false, description: "return applications newer than this date" }
-        - { name: "dateTo", schema: { type: string, format: date }, in: query, required: false, description: "return applications older than this date" }
+        - { name: "dateFrom", schema: { type: string, format: date }, in: query, required: false, description: "return with the same date or applications newer than this date" }
+        - { name: "dateTo", schema: { type: string, format: date }, in: query, required: false, description: "return applications with the same date or older than this date" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfApplicationsResponse'
