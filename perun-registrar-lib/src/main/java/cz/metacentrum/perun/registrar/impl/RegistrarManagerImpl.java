@@ -3611,8 +3611,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// if the middle name equals to the first name placed in displayName (it can be firstName or lastName too)
 		if (matcher.group(1).contains(firstName)) {
-			candidate.setTitleBefore(matcher.group(1).split(firstName)[0].trim());
-			candidate.setMiddleName(firstName);
+			parseTitlesBefore(candidate, matcher.group(1).split(firstName)[0].trim());
+			parseMiddleName(candidate, firstName);
 		} else {
 			parseTitlesBefore(candidate, matcher.group(1).trim());
 			parseMiddleName(candidate, matcher.group(2).trim());
