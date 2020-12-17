@@ -146,15 +146,18 @@ public class PerunBlImpl implements PerunBl {
 						ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
 						ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
 					}
-					if (ues != null && ues.getLoa() != principal.getExtSourceLoa()) {
-						ues.setLoa(principal.getExtSourceLoa());
-						usersManagerBl.updateUserExtSource(internalSession, ues);
-					}
-					// Update last access for userExtSource
-					usersManagerBl.updateUserExtSourceLastAccess(internalSession, ues);
+					if(!BeansUtils.isPerunReadOnly()) {
+						if (ues != null && ues.getLoa() != principal.getExtSourceLoa()) {
+							ues.setLoa(principal.getExtSourceLoa());
+							usersManagerBl.updateUserExtSource(internalSession, ues);
+						}
 
-					// update selected attributes for given extsourcetype
-					setUserExtSourceAttributes(perunSession, ues, principal.getAdditionalInformations());
+						// Update last access for userExtSource
+						usersManagerBl.updateUserExtSourceLastAccess(internalSession, ues);
+
+						// update selected attributes for given extsourcetype
+						setUserExtSourceAttributes(perunSession, ues, principal.getAdditionalInformations());
+					}
 
 				}
 			} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException | UserExtSourceExistsException e) {
