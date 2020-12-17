@@ -113,7 +113,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrUuid,
-						PerunAttribute.REQUIRED,
+						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<User>) (user, attrs) -> user.getUuid().toString()
 				)
 		);

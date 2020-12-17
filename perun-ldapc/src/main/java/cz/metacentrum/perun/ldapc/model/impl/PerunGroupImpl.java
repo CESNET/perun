@@ -93,7 +93,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrUuid,
-						PerunAttribute.REQUIRED,
+						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<Group>) (group, attrs) -> group.getUuid().toString()
 				)
 		);

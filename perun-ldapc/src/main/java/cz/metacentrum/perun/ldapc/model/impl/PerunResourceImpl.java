@@ -74,7 +74,7 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrUuid,
-						PerunAttribute.REQUIRED,
+						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<Resource>) (resource, attrs) -> resource.getUuid().toString()
 				)
 		);
