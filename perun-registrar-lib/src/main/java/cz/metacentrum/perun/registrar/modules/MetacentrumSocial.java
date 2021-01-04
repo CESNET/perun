@@ -69,7 +69,7 @@ public class MetacentrumSocial extends DefaultRegistrarModule {
 		if (METACENTRUM_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
 			throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
 					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
-					"NOT_ELIGIBLE", null, null);
+					"NOT_ELIGIBLE_METAIDP", null, null);
 		}
 
 	}

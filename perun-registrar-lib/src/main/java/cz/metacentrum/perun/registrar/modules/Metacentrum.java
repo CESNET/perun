@@ -3,12 +3,14 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -51,7 +53,7 @@ public class Metacentrum extends DefaultRegistrarModule {
 	private final static String A_USER_RESEARCH_GROUP_STATISTICS = AttributesManager.NS_USER_ATTR_DEF+":researchGroupStatistic";
 	private final static String A_GROUP_STATISTIC_GROUP = AttributesManager.NS_GROUP_ATTR_DEF+":statisticGroup";
 	private final static String A_GROUP_STATISTIC_GROUP_AUTOFILL = AttributesManager.NS_GROUP_ATTR_DEF+":statisticGroupAutoFill";
-	private final static String A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN = AttributesManager.NS_USER_ATTR_DEF+":isCesnetEligibleLastSeen";
+	protected final static String A_USER_IS_CESNET_ELIGIBLE_LAST_SEEN = AttributesManager.NS_USER_ATTR_DEF+":isCesnetEligibleLastSeen";
 	private final static String A_MEMBER_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration";
 	protected final static String METACENTRUM_IDP = "https://login.ics.muni.cz/idp/shibboleth";
 
@@ -102,6 +104,21 @@ public class Metacentrum extends DefaultRegistrarModule {
 				perun.getAttributesManagerBl().setAttribute(session, mem, expirationAttribute);
 			}
 
+		}
+
+		if (Application.AppType.INITIAL.equals(app.getType())) {
+			try {
+				Vo einfraVo = perun.getVosManagerBl().getVoByShortName(session, "einfra");
+				Member einfraMember = perun.getMembersManagerBl().createMember(session, einfraVo, user);
+				log.debug("Metacentrum member added to einfra {}", einfraMember);
+			} catch (VoNotExistsException e) {
+				log.warn("Einfra VO not exists, can't add Metacentrum member into it.");
+			} catch (AlreadyMemberException ignore) {
+				// user is already in einfra
+			} catch (ExtendMembershipException e) {
+				// can't be member of einfra, shouldn't happen
+				log.error("Metacentrum member can't be added to EINFRA VO.", e);
+			}
 		}
 
 		// Support statistic groups
@@ -162,20 +179,17 @@ public class Metacentrum extends DefaultRegistrarModule {
 		if (METACENTRUM_IDP.equals(session.getPerunPrincipal().getExtSourceName())) {
 			throw new CantBeSubmittedException("You are currently logged-in using Metacentrum IdP." +
 					"It can't be used to register or extend membership in Metacentrum. Please close browser and log-in using different identity provider.",
-					"NOT_ELIGIBLE", null, null);
+					"NOT_ELIGIBLE_METAIDP", null, null);
 		}
 
-		if (Application.AppType.EXTENSION.equals(appType)) {
+		User user = session.getPerunPrincipal().getUser();
+		boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, user));
+		boolean eligibleFromFederation = isCesnetEligibleLastSeen(params.get("isCesnetEligibleLastSeen"));
 
-			User user = session.getPerunPrincipal().getUser();
-			boolean eligibleUser = isCesnetEligibleLastSeen(getIsCesnetEligibleLastSeenFromUser(session, user));
-			boolean eligibleFromFederation = isCesnetEligibleLastSeen(params.get("isCesnetEligibleLastSeen"));
+		if (!eligibleUser && !eligibleFromFederation) {
 
-			if (!eligibleUser && !eligibleFromFederation) {
-				// TODO - We must have much better info in GUI!
-				throw new CantBeSubmittedException("Your membership in VO Metacentrum can't be extended right now. Your account is not verified." +
-						" Please visit your profile and add verified academic identity to your account (from identity federation eduID.cz) " +
-						" or verify your academia status by letter signed by the head of your institution.", "NOT_ELIGIBLE", null, null);
+			if (Application.AppType.EXTENSION.equals(appType)) {
+				throw new CantBeSubmittedException("Your membership in VO Metacentrum can't be extended.", "NOT_ELIGIBLE_EINFRA_EXTENSION", null, null);
 			}
 
 		}
