@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.Ban;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class BanNotExistsException extends EntityExistsException {
+public class BanNotExistsException extends EntityNotExistsException {
 
 	private Ban ban;
 
