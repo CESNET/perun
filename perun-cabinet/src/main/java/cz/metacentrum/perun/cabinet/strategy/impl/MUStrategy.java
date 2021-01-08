@@ -39,6 +39,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class MUStrategy extends AbstractPublicationSystemStrategy {
 		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 		try {
 			entityBuilder.addPart("typ", new StringBody("xml", ContentType.create("text/plain", Consts.UTF_8)));
-			entityBuilder.addPart("kodovani", new StringBody("utf-8", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("kodovani", new StringBody(StandardCharsets.UTF_8.toString(), ContentType.create("text/plain", Consts.UTF_8)));
 			entityBuilder.addPart("keyfile", new ByteArrayBody(buildRequestKeyfile(Integer.parseInt(uco), yearSince, yearTill).getBytes(), "template.xml"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -103,7 +104,7 @@ public class MUStrategy extends AbstractPublicationSystemStrategy {
 		//prepare post request
 		HttpPost post = new HttpPost(ps.getUrl());
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(ps.getUsername(), ps.getPassword());
-		post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));//cred, enc, proxy
+		post.addHeader(BasicScheme.authenticate(credentials, StandardCharsets.UTF_8.toString(), false));//cred, enc, proxy
 		post.setEntity(entityBuilder.build());
 		return post;
 

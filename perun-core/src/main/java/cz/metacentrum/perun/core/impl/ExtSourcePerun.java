@@ -306,11 +306,11 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 		HttpGet get = new HttpGet(commandUrl);
 		get.setHeader("Content-Type", "application/json");
-		get.setHeader("charset", "utf-8");
+		get.setHeader("charset", StandardCharsets.UTF_8.toString());
 		get.setHeader("Connection", "Close");
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
 
-		get.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));
+		get.addHeader(BasicScheme.authenticate(credentials, StandardCharsets.UTF_8.toString(), false));
 		//post.setParams(params);
 
 		InputStream rpcServerAnswer = null;
