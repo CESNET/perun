@@ -44,6 +44,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
@@ -339,11 +340,7 @@ public class Api extends HttpServlet {
 			if(attrValue!=null) {
 				//fix shibboleth encoding
 				if (ExtSourcesManager.EXTSOURCE_IDP.equals(extSourceType)) {
-					try {
-						attrValue = new String(attrValue.getBytes("iso-8859-1"), "utf-8");
-					} catch (UnsupportedEncodingException e) {
-						log.error("utf-8 is not known");
-					}
+					attrValue = new String(attrValue.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 				}
 				log.debug("storing {}={} to additionalInformations", attr.getFriendlyName(), attrValue);
 				additionalInformations.put(attr.getFriendlyName(), attrValue);

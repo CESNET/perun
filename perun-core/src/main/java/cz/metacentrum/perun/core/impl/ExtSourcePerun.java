@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -227,13 +227,8 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	private List<RichUser> findRichUsers(String substring) {
 
 		String query;
-		try {
-			// encode query params
-			query = "searchString=" + URLEncoder.encode(substring, "UTF-8");
-		} catch (UnsupportedEncodingException ex) {
-			// sent query params not encoded
-			query = "searchString=" + substring;
-		}
+		// encode query params
+		query = "searchString=" + URLEncoder.encode(substring, StandardCharsets.UTF_8);
 
 		List<RichUser> richUsers;
 		try {

@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 	@Override
 	public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
 		try {
-			return parseResponse(EntityUtils.toString(response.getEntity(), "utf-8"));
+			return parseResponse(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			throw new CabinetException(ErrorCodes.IO_EXCEPTION, e);
 		}
@@ -82,7 +83,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 		// prepare valid uri
 		URI uri = null;
 		try {
-			uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, "UTF-8"));
+			uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, StandardCharsets.UTF_8));
 			// log response into /var/log/perun/perun-cabinet.log
 			//log.debug("URI: {}", uri);
 

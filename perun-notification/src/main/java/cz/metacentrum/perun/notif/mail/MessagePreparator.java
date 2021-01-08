@@ -16,6 +16,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,7 +132,7 @@ public class MessagePreparator implements MimeMessagePreparator {
 	private BodyPart createTextMessage() throws Exception {
 		BodyPart textPart = new MimeBodyPart();
 
-		textPart.setDataHandler(createDataHandler(content.getBytes("utf-8"), "text/plain;charset=utf-8"));
+		textPart.setDataHandler(createDataHandler(content.getBytes(StandardCharsets.UTF_8), "text/plain;charset=utf-8"));
 
 		logger.debug("TEXT MESSAGE CREATED ; content: " + content);
 
@@ -148,7 +149,7 @@ public class MessagePreparator implements MimeMessagePreparator {
 		Multipart htmlContent = new MimeMultipart("related");
 		BodyPart htmlPage = new MimeBodyPart();
 
-		htmlPage.setDataHandler(createDataHandler(content.getBytes("utf-8"), "text/html;charset=utf-8"));
+		htmlPage.setDataHandler(createDataHandler(content.getBytes(StandardCharsets.UTF_8), "text/html;charset=utf-8"));
 
 		htmlContent.addBodyPart(htmlPage);
 		BodyPart htmlPart = new MimeBodyPart();

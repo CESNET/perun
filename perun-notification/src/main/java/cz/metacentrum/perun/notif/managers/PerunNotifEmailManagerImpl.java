@@ -16,8 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @org.springframework.stereotype.Service("perunNotifEmailManager")
@@ -148,8 +147,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 						MimeMessage message = (MimeMessage) key;
 						ByteArrayOutputStream out = new ByteArrayOutputStream();
 						message.writeTo(out);
-						byte[] charData = out.toByteArray();
-						String str = new String(charData, Charset.forName("UTF-8"));
+						String str = out.toString(StandardCharsets.UTF_8);
 						failedEmailLogger.error(str);
 					} catch (Exception e) {
 						logger.error("Failed to write log about not sent email.", ex);
