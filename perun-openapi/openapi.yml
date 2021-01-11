@@ -13074,10 +13074,10 @@ paths:
               type: object
               required:
                 - mailType
-                - applicationId
+                - appId
               properties:
                 mailType: { $ref: '#/components/schemas/MailType' }
-                applicationId: { type: integer, description: "application id" }
+                appId: { type: integer, description: "application id" }
                 reason: { type: string, description: "you can specify reason for case: mailType == APP_REJECTED_USER" }
 
   /json/registrarManager/getApplicationForm/vo:
