@@ -876,7 +876,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		Set<User> users = new HashSet<>(namedParameterJdbcTemplate.query("select distinct " + userMappingSelectQuery +
 			" from users " +
 			" left join members on users.id=members.user_id " +
-			" left join user_ext_sources ues on ues.user_id=users.id " +
+			" left join user_ext_sources ues on ues.user_id=users.id and lower(ues.login_ext)=lower(:searchString) " +
 			attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
 			attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
 			attributesToSearchByQueries.get("uesAttributesQuery").getLeft() +

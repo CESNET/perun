@@ -631,7 +631,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		Set<Member> members = new HashSet<>(namedParameterJdbcTemplate.query("select distinct " + memberMappingSelectQuery +
 				" from members " +
 				" left join users on members.user_id=users.id " +
-				" left join user_ext_sources ues on ues.user_id=users.id " +
+				" left join user_ext_sources ues on ues.user_id=users.id lower(ues.login_ext)=lower(:searchString) " +
 				attributesToSearchByQueries.get("memberAttributesQuery").getLeft() +
 				attributesToSearchByQueries.get("userAttributesQuery").getLeft() +
 				attributesToSearchByQueries.get("uesAttributesQuery").getLeft() +
