@@ -1265,7 +1265,7 @@ public class Utils {
 			//replace all optional parameters
 			if(parametersToReplace != null) {
 				for(String parameterToReplace : parametersToReplace.keySet()) {
-					optionalSubject.replace(parameterToReplace, parametersToReplace.get(parameterToReplace));
+					optionalSubject = optionalSubject.replace(parameterToReplace, parametersToReplace.get(parameterToReplace));
 				}
 			}
 			return optionalSubject;
@@ -1288,14 +1288,13 @@ public class Utils {
 	 */
 	private static String prepareBodyOfEmail(String optionalBody, String defaultBody, Map<String, String> parametersToReplace) {
 		notNull(defaultBody, "defaultBody");
-		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		//use optional body if not empty
 		if(optionalBody != null && !optionalBody.isEmpty()) {
 			//replace all optional parameters
 			if(parametersToReplace != null) {
 				for(String parameterToReplace : parametersToReplace.keySet()) {
-					optionalBody.replace(parameterToReplace, parametersToReplace.get(parameterToReplace));
+					optionalBody = optionalBody.replace(parameterToReplace, parametersToReplace.get(parameterToReplace));
 				}
 			}
 			return optionalBody;
