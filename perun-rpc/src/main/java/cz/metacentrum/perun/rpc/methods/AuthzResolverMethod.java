@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 
 import java.lang.reflect.InvocationTargetException;
@@ -8,13 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunPolicy;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.RoleManagementRules;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -808,7 +812,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 */
 	getVosWhereUserIsInRoles {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			List<String> roles = parms.readList("roles", String.class);
 			roles.replaceAll(String::toUpperCase);
 			for (String role: roles) {
@@ -817,17 +821,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				}
 			}
 			if(parms.contains("user")) {
-				cz.metacentrum.perun.core.api.AuthzResolver.getVosWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getVosWhereUserIsInRoles(
 					ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					roles);
 			} else {
-				cz.metacentrum.perun.core.api.AuthzResolver.getVosWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getVosWhereUserIsInRoles(
 					ac.getSession(),
 					null,
 					roles);
 			}
-			return null;
 		}
 	},
 
@@ -852,7 +855,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 */
 	getFacilitiesWhereUserIsInRoles {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			List<String> roles = parms.readList("roles", String.class);
 			roles.replaceAll(String::toUpperCase);
 			for (String role: roles) {
@@ -861,17 +864,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				}
 			}
 			if(parms.contains("user")) {
-				cz.metacentrum.perun.core.api.AuthzResolver.getFacilitiesWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getFacilitiesWhereUserIsInRoles(
 					ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					roles);
 			} else {
-				cz.metacentrum.perun.core.api.AuthzResolver.getFacilitiesWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getFacilitiesWhereUserIsInRoles(
 					ac.getSession(),
 					null,
 					roles);
 			}
-			return null;
 		}
 	},
 
@@ -896,7 +898,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 */
 	getResourcesWhereUserIsInRoles {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			List<String> roles = parms.readList("roles", String.class);
 			roles.replaceAll(String::toUpperCase);
 			for (String role: roles) {
@@ -905,17 +907,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				}
 			}
 			if(parms.contains("user")) {
-				cz.metacentrum.perun.core.api.AuthzResolver.getResourcesWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getResourcesWhereUserIsInRoles(
 					ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					roles);
 			} else {
-				cz.metacentrum.perun.core.api.AuthzResolver.getResourcesWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getResourcesWhereUserIsInRoles(
 					ac.getSession(),
 					null,
 					roles);
 			}
-			return null;
 		}
 	},
 
@@ -944,7 +945,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 */
 	getGroupsWhereUserIsInRoles {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			List<String> roles = parms.readList("roles", String.class);
 			roles.replaceAll(String::toUpperCase);
 			for (String role: roles) {
@@ -953,17 +954,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				}
 			}
 			if(parms.contains("user")) {
-				cz.metacentrum.perun.core.api.AuthzResolver.getGroupsWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getGroupsWhereUserIsInRoles(
 					ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					roles);
 			} else {
-				cz.metacentrum.perun.core.api.AuthzResolver.getGroupsWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getGroupsWhereUserIsInRoles(
 					ac.getSession(),
 					null,
 					roles);
 			}
-			return null;
 		}
 	},
 
@@ -988,7 +988,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 */
 	getMembersWhereUserIsInRoles {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			List<String> roles = parms.readList("roles", String.class);
 			roles.replaceAll(String::toUpperCase);
 			for (String role: roles) {
@@ -997,17 +997,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				}
 			}
 			if(parms.contains("user")) {
-				cz.metacentrum.perun.core.api.AuthzResolver.getMembersWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getMembersWhereUserIsInRoles(
 					ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					roles);
 			} else {
-				cz.metacentrum.perun.core.api.AuthzResolver.getMembersWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getMembersWhereUserIsInRoles(
 					ac.getSession(),
 					null,
 					roles);
 			}
-			return null;
 		}
 	},
 
@@ -1032,7 +1031,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 */
 	getSecurityTeamsWhereUserIsInRoles {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			List<String> roles = parms.readList("roles", String.class);
 			roles.replaceAll(String::toUpperCase);
 			for (String role: roles) {
@@ -1041,17 +1040,16 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				}
 			}
 			if(parms.contains("user")) {
-				cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(
 					ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
 					roles);
 			} else {
-				cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(
+				return cz.metacentrum.perun.core.api.AuthzResolver.getSecurityTeamsWhereUserIsInRoles(
 					ac.getSession(),
 					null,
 					roles);
 			}
-			return null;
 		}
 	};
 }
