@@ -14000,6 +14000,7 @@ paths:
       summary: Deletes a service.
       parameters:
         - $ref: '#/components/parameters/serviceId'
+        - { name: force, description: "boolean flag to force removal with all related objects", schema: { type: boolean }, in: query, required: false }
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'

@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.bl;
 
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Owner;
@@ -8,13 +11,23 @@ import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
+import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
+import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +39,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -61,10 +76,27 @@ public class ServicesManagerBlImplTest {
 	private int testFacilityId2;
 	private Facility facility1;
 	private Facility facility2;
+	private AttributeDefinition attribute;
+	private Resource resource;
+	private Vo vo;
+	private Destination destination;
+	private ServicesPackage servicesPackage;
+	private Task task;
 
 
+	/*
+	 * Tables with reference to service:
+	 *   - service_required_attrs
+	 *   - service_denials
+	 *   - resource_services
+	 *   - facility_service_destinations
+	 *   - service_service_packages
+	 *   - tasks
+	 *   - authz
+	 * 
+	 */
 	@Before
-	public void setUp() throws ServiceExistsException, PrivilegeException {
+	public void setUp() throws Exception {
 		perunSession = perun.getPerunSession(
 				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());
@@ -102,6 +134,20 @@ public class ServicesManagerBlImplTest {
 		testService1.setId(servicesManager.createService(perunSession, testService1).getId());
 		testService2.setId(servicesManager.createService(perunSession, testService2).getId());
 
+		// attribute
+		attribute = new AttributeDefinition();
+		attribute.setFriendlyName("ServicesManagerTestAttribute");
+		attribute.setDescription("TestingAttribute");
+		attribute.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		attribute.setType(String.class.getName());
+		attribute = ((PerunBl)perun).getAttributesManagerBl().createAttribute(perunSession, attribute);
+		
+		// required attributes
+		List<AttributeDefinition> attrlist = new ArrayList<>();
+		attrlist.add(attribute);
+		((PerunBl)perun).getServicesManagerBl().addRequiredAttributes(perunSession, testService1, attrlist); 
+		
+		// 
 		// Testing Destination #1
 		testDestinationId1 = Utils.getNewId(jdbcTemplate, "destinations_id_seq");
 		jdbcTemplate.update("insert into destinations(id, destination, type) values (?,?,'host')", testDestinationId1, "test.destination." + testDestinationId1);
@@ -117,9 +163,58 @@ public class ServicesManagerBlImplTest {
 		jdbcTemplate.update("insert into facilities(id, name) values (?,?)", testFacilityId2, "Cluster_" + testFacilityId2);
 		facility2.setId(testFacilityId2);
 
-
+		// service denials
+		((PerunBl)perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
+		
+		// vo
+		vo = new Vo(0, "ServicesManagerTestVo", "RMTestVo");
+		vo = ((PerunBl)perun).getVosManagerBl().createVo(perunSession, vo);
+		
+		// resource
+		resource = new Resource();
+		resource.setName("ServicesManagerTestResource");
+		resource.setDescription("Testovaci");
+		resource = ((PerunBl)perun).getResourcesManagerBl().createResource(perunSession, resource, vo, facility1);
+		
+		// resource services
+		((PerunBl)perun).getResourcesManagerBl().assignService(perunSession, resource, testService1);
+		
+		// facility_service_destinations
+		destination = ((PerunBl)perun).getServicesManagerBl().getDestinationById(perunSession, testDestinationId1);
+		((PerunBl)perun).getServicesManagerBl().addDestination(perunSession, testService1, facility1, destination);
+		
+		// service package
+		servicesPackage = new ServicesPackage();
+		servicesPackage.setName("ResourcesManagertTestSP");
+		servicesPackage.setDescription("testingServicePackage");
+		servicesPackage = ((PerunBl)perun).getServicesManagerBl().createServicesPackage(perunSession, servicesPackage);
+		
+		// service_service_packages
+		((PerunBl)perun).getServicesManagerBl().addServiceToServicesPackage(perunSession, servicesPackage, testService1);
+		
+		// tasks
+		task = new Task();
+		task.setFacility(facility1);
+		task.setService(testService1);
+		task.setSchedule(0L);
+		task.setStatus(TaskStatus.DONE);
+		List<Destination> destinationsList = new ArrayList<>();
+		destinationsList.add(destination);
+		task.setDestinations(destinationsList);
+		((PerunBl)perun).getTasksManagerBl().insertTask(task);
+		
+		// authz
+		// authz entries for service are removed in ServicesManagerImpl::deleteService(), 
+		// no point in testing here
 	}
 
+	@Test
+	public void testDeleteService() throws Exception {
+		System.out.println("ServicesManagerBlImplTest.testDeleteService");
+		
+		((PerunBl) perun).getServicesManagerBl().deleteService(perunSession, testService1, true);
+	}
+	
 	@Test
 	public void testIsServiceDeniedOnFacility() {
 		System.out.println("ServiceDenialDaoTest.isServiceBlockedOnFacility");

@@ -164,6 +164,11 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
+	public List<Task> listAllTasksForService(int serviceId) {
+		return getTasksManagerImpl().listAllTasksForService(serviceId);
+	}
+
+	@Override
 	public List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state) {
 		return getTasksManagerImpl().listAllTasksInState(state);
 	}
@@ -428,4 +433,13 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	public void setPerunBl(PerunBlImpl perunBl) {
 		this.perun = perunBl;
 	}
+
+	@Override
+	public void removeAllTasksForService(Service service) {
+		for(Task task : listAllTasksForService(service.getId())) {
+			getTasksManagerImpl().deleteTaskResults(task.getId());
+			removeTask(task.getId());
+		}
+	}
+
 }

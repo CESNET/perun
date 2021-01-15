@@ -371,7 +371,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 			parms.stateChangingCheck();
 
 			ac.getServicesManager().deleteService(ac.getSession(),
-					ac.getServiceById(parms.readInt("service")));
+					ac.getServiceById(parms.readInt("service")),
+					parms.readBoolean("force"));
 			return null;
 		}
 	},

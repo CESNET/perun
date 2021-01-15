@@ -150,6 +150,8 @@ public interface TasksManagerBl {
 	 */
 	List<Task> listAllTasksForFacility(int facilityId);
 
+	List<Task> listAllTasksForService(int serviceId);
+
 	List<Task> listAllTasksInState(Task.TaskStatus state);
 
 	void updateTask(Task task);
@@ -161,6 +163,8 @@ public interface TasksManagerBl {
 	Task getTaskById(int id);
 
 	void removeTask(Service service, Facility facility);
+
+	void removeAllTasksForService(Service service);
 
 	List<Task> listAllTasksNotInState(Task.TaskStatus state);
 
@@ -229,7 +233,5 @@ public interface TasksManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames);
-
-
 
 }

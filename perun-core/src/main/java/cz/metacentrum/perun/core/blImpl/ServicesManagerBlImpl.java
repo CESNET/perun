@@ -63,6 +63,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
@@ -71,12 +72,14 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedFromServicePackageException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
@@ -266,6 +269,52 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			throw new RelationExistsException("Service is defined on some resource");
 		}
 
+		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
+		getServicesManagerImpl().deleteService(sess, service);
+		getPerunBl().getAuditer().log(sess, new ServiceDeleted(service));
+	}
+
+	/*
+	 * Tables with reference to service:
+	 *   - service_required_attrs
+	 *   - service_denials
+	 *   - resource_services
+	 *   - facility_service_destinations
+	 *   - service_service_packages
+	 *   - tasks
+	 *   - authz
+	 */
+	@Override
+	public void deleteService(PerunSession sess, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException {
+
+		if(!forceFlag) {
+			this.deleteService(sess, service);
+			return;
+		}
+		
+		// Remove all denials for this service
+		getServicesManagerImpl().unblockService(service.getId());
+		
+		// Remove from assigned resources
+		ResourcesManagerBl resourcesManager = getPerunBl().getResourcesManagerBl(); 
+		for(Resource resource: this.getAssignedResources(sess, service)) {
+			try {
+				resourcesManager.removeService(sess, resource, service);
+				// Remove from facility_service_destinations
+				Facility facility = getPerunBl().getFacilitiesManagerBl()
+						.getFacilityById(sess, resource.getFacilityId());
+				removeAllDestinations(sess, service, facility);
+			} catch (ServiceNotAssignedException | FacilityNotExistsException e) {
+				// should not happen
+			}
+		}
+
+		// Remove from service packages
+		getServicesManagerImpl().removeServiceFromAllServicesPackages(sess, service);
+
+		// Remove all related tasks
+		getPerunBl().getTasksManagerBl().removeAllTasksForService(service);
+		
 		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
 		getServicesManagerImpl().deleteService(sess, service);
 		getPerunBl().getAuditer().log(sess, new ServiceDeleted(service));

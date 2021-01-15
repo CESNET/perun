@@ -500,6 +500,20 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 	}
 
 	@Override
+	public List<Task> listAllTasksForService(int serviceId) {
+		try {
+			// jdbc template cannot be null
+			return getMyJdbcTemplate().query(
+				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
+					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id " +
+					"left join facilities on facilities.id = tasks.facility_id where services.id = ?",
+				TASK_ROWMAPPER, serviceId);
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		}
+	}
+
+	@Override
 	public Task getTaskById(int id) {
 		try {
 			// jdbc template cannot be null

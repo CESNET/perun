@@ -260,6 +260,17 @@ public interface ServicesManagerBl {
 	 */
 	void deleteService(PerunSession perunSession, Service service) throws RelationExistsException, ServiceAlreadyRemovedException;
 
+	/** Deletes the service.
+	 *
+	 * @param perunSession
+	 * @param service
+	 * @param forceFlag
+	 * @throws RelationExistsException
+	 * @throws InternalErrorException
+	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 */
+	void deleteService(PerunSession sess, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException;
+
 	/** Updates the service.
 	 *
 	 * @param perunSession
@@ -863,4 +874,5 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	int getDestinationsCount(PerunSession perunSession);
+
 }
