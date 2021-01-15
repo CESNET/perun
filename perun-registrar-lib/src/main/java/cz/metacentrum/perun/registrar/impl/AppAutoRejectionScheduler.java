@@ -7,16 +7,20 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.impl.Synchronizer;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +49,28 @@ public class AppAutoRejectionScheduler {
 
 	private static final String A_VO_APP_EXP_RULES = "urn:perun:vo:attribute-def:def:applicationExpirationRules";
 	private static final String A_GROUP_APP_EXP_RULES = "urn:perun:group:attribute-def:def:applicationExpirationRules";
+
+	private static final String A_VO_APP_REJECT_MESSAGES = "urn:perun:vo:attribute-def:def:applicationAutoRejectMessages";
+	private static final String A_GROUP_APP_REJECT_MESSAGES = "urn:perun:group:attribute-def:def:applicationAutoRejectMessages";
+
+	private static final String A_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
+
+
+	private static final String GROUP_PLACEHOLDER = "%group_name%";
+	private static final String VO_PLACEHOLDER = "%vo_name%";
+	private static final String ADMIN_IGNORED_KEY = "ignoredByAdmin";
+	private static final String EMAIL_VERIFICATION_KEY = "emailVerification";
+	private static final String DEFAULT_LANG = "en";
+
+	private static final String DEFAULT_VO_MSG_ADMIN = "Your application to VO " + VO_PLACEHOLDER +
+			" was automatically rejected, because admin didn't approve your application in a timely manner.";
+	private static final String DEFAULT_GROUP_MSG_ADMIN = "Your application to group " + GROUP_PLACEHOLDER +
+			" was automatically rejected, because admin didn't approve your application in a timely manner.";
+
+	private static final String DEFAULT_VO_MSG_MAIL = "Your application to VO " + VO_PLACEHOLDER + " was " +
+			"automatically rejected, because you didn't verify your email address.";
+	private static final String DEFAULT_GROUP_MSG_MAIL = "Your application to group " + GROUP_PLACEHOLDER +
+			" was automatically rejected, because you didn't verify your email address.";
 
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
@@ -174,43 +200,149 @@ public class AppAutoRejectionScheduler {
 			String date = application.getModifiedAt();
 			LocalDate modifiedAt = LocalDate.parse(date.substring(0, 10));
 			LocalDate now = getCurrentLocalDate();
-			if (application.getState() == Application.AppState.NEW && attrValue.containsKey("emailVerification")) {
-				int expirationAppWaitingForEmail = Integer.parseInt(attrValue.get("emailVerification"));
+			if (application.getState() == Application.AppState.NEW && attrValue.containsKey(EMAIL_VERIFICATION_KEY)) {
+				int expirationAppWaitingForEmail = Integer.parseInt(attrValue.get(EMAIL_VERIFICATION_KEY));
 				if (now.minusDays(expirationAppWaitingForEmail).isAfter(modifiedAt)) {
-					String reasonForVo = "Your application to VO " + application.getVo().getName() + " was auto rejected, because you didn't verify your email address.";
-					String reasonForGroup = application.getGroup() == null ? "" : "Your application to group " + application.getGroup().getName() + " was auto rejected, because you didn't verify your email address.";
-					rejectWithReason(application, reasonForVo, reasonForGroup);
-					continue;
+					if (application.getGroup() != null) {
+						rejectApplication(application, EMAIL_VERIFICATION_KEY, DEFAULT_GROUP_MSG_MAIL);
+					} else {
+						rejectApplication(application, EMAIL_VERIFICATION_KEY, DEFAULT_VO_MSG_MAIL);
+					}
 				}
-			} else if (attrValue.containsKey("ignoredByAdmin")) {
-				int expirationAppIgnoredByAdmin = Integer.parseInt(attrValue.get("ignoredByAdmin"));
+			} else if (attrValue.containsKey(ADMIN_IGNORED_KEY)) {
+				int expirationAppIgnoredByAdmin = Integer.parseInt(attrValue.get(ADMIN_IGNORED_KEY));
 				if (now.minusDays(expirationAppIgnoredByAdmin).isAfter(modifiedAt)) {
-					String reasonForVo = "Your application to VO " + application.getVo().getName() + " was auto rejected, because admin didn't approve your application in a timely manner.";
-					String reasonForGroup = application.getGroup() == null ? "" : "Your application to group " + application.getGroup().getName() + " was auto rejected, because admin didn't approve your application in a timely manner.";
-					rejectWithReason(application, reasonForVo, reasonForGroup);
+					if (application.getGroup() != null) {
+						rejectApplication(application, ADMIN_IGNORED_KEY, DEFAULT_GROUP_MSG_ADMIN);
+					} else {
+						rejectApplication(application, ADMIN_IGNORED_KEY, DEFAULT_VO_MSG_ADMIN);
+					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * Rejects given application to Vo or group due to given reason.
+	 * Rejects the given application with custom message. The 'attrValueKey' represents the
+	 * key of the message in the applicationAutoRejectMessages attribute. If the vo/group has no
+	 * such attribute set, the default message will be used.
 	 *
-	 * @param application application to reject
-	 * @param reasonForVo reason for reject VO application
-	 * @param reasonForGroup reason for reject group application
+	 * @param application application to be rejected
+	 * @param attrValueKey key of a message in the applicationAutoRejectMessages
+	 * @param defaultMessage default message if the appropriate vo/group has no
+	 *                       applicationAutoRejectMessages attribute set
 	 */
-	private void rejectWithReason (Application application, String reasonForVo, String reasonForGroup) {
+	private void rejectApplication(Application application, String attrValueKey, String defaultMessage) {
+		Group group = application.getGroup();
+		String lang = getUserPreferredLang(application);
+		Vo vo = application.getVo();
+
+		Attribute messagesAttr = null;
 		try {
-			if (application.getGroup() == null) {
-				registrarManager.rejectApplication(sess, application.getId(), reasonForVo);
+			if (group != null) {
+				messagesAttr = perun.getAttributesManagerBl().getAttribute(sess, group, A_GROUP_APP_REJECT_MESSAGES);
 			} else {
-				registrarManager.rejectApplication(sess, application.getId(), reasonForGroup);
+				messagesAttr = perun.getAttributesManagerBl().getAttribute(sess, vo, A_VO_APP_REJECT_MESSAGES);
 			}
-		} catch (PerunException e) {
-			log.error("Failed to reject expired application: {}", application, e);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			log.error("Failed to get attribute with reject messages.", e);
 		}
 
+		String message;
+		if (group != null) {
+			message = getRejectMessage(messagesAttr, lang, attrValueKey, defaultMessage)
+					.replaceAll(GROUP_PLACEHOLDER, group.getName());
+		} else {
+			message = getRejectMessage(messagesAttr, lang, attrValueKey, defaultMessage)
+					.replaceAll(VO_PLACEHOLDER, vo.getName());
+		}
+
+		try {
+			registrarManager.rejectApplication(sess, application.getId(), message);
+		} catch (PerunException e) {
+			log.error("Failed to reject application {}.", application, e);
+		}
+	}
+
+	/**
+	 * Returns reject message obtained from the given attribute, using the given key; or returns the default msg,
+	 * if there is no suitable message in the attribute.
+	 *
+	 * @param attribute attribute of type map
+	 * @param lang user preferred language
+	 * @param key key used to find the value in the given attribute
+	 * @param defaultMsg returned if there is no suitable message in the attribute
+	 * @return reject message, concerning the preferred language, obtained from the given attribute,
+	 *         or the given default message
+	 */
+	private String getRejectMessage(Attribute attribute, String lang, String key, String defaultMsg) {
+		String attrKey = key + "-" + lang;
+		String attrValue = attribute != null  && attribute.getValue() != null
+				? attribute.valueAsMap().get(attrKey)
+				: null;
+
+		if (attrValue == null && attribute != null  && attribute.getValue() != null) {
+			attrValue = attribute.valueAsMap().get(key);
+		}
+
+		return attrValue != null ? attrValue : defaultMsg;
+	}
+
+	/**
+	 * Returns preferred language of user from the given application.
+	 * Preferred language is taken from the submitted application, or from the user's
+	 * preferred language attribute. If none is present, 'en' is returned.
+	 *
+	 * @param application user
+	 * @return preferred language, 'en' as default
+	 */
+	private String getUserPreferredLang(Application application) {
+		User user = application.getUser();
+		if (user == null) {
+			String appLang = null;
+			try {
+				appLang = getPreferredLangFromApplication(application);
+			} catch (PerunException e) {
+				log.error("Failed to read user preferred lang from application.", e);
+			}
+			if (appLang == null) {
+				return DEFAULT_LANG;
+			}
+			return appLang;
+		}
+		try {
+			Attribute langAttr = perun.getAttributesManagerBl().getAttribute(sess, user, A_USER_PREFERRED_LANGUAGE);
+			String attrValue = langAttr.valueAsString();
+
+			if (attrValue != null && !attrValue.isBlank()) {
+				return attrValue;
+			}
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			log.error("Failed to read user preferred lang attribute.", e);
+		}
+
+		return DEFAULT_LANG;
+	}
+
+	/**
+	 * Returns preferred language filled in the application. If there is no item
+	 * with destination attribute 'urn:perun:user:attribute-def:def:preferredLanguage filled,
+	 * null is returned.
+	 *
+	 * @param application application, from which the preferred language should be returned
+	 * @return value filled by user, for application item mapping to preferredLanguage attribute,
+	 *         or null if the value is empty of there is no such item
+	 * @throws PerunException if anything goes wrong
+	 */
+	private String getPreferredLangFromApplication(Application application) throws PerunException {
+		List<ApplicationFormItemData> appData = registrarManager.getApplicationDataById(sess, application.getId());
+		for (ApplicationFormItemData data : appData) {
+			String destAttr = data.getFormItem().getPerunDestinationAttribute();
+			if (A_USER_PREFERRED_LANGUAGE.equals(destAttr) && data.getValue() != null && !data.getValue().isBlank()) {
+				return data.getValue();
+			}
+		}
+		return null;
 	}
 
 	/**
