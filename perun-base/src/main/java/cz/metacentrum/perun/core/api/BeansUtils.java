@@ -42,8 +42,6 @@ public class BeansUtils {
 	private final static int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
 	private final static String MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX = ";";
 	private final static String configurationsLocations = "/etc/perun/";
-	public final static String largeStringClassName = "java.lang.LargeString";
-	public final static String largeArrayListClassName = "java.util.LargeArrayList";
 
 	private static CoreConfig coreConfig;
 
@@ -232,9 +230,6 @@ public class BeansUtils {
 
 
 		String attributeType = attribute.getType();
-		// convert internal "large" types to generic java types
-		if (Objects.equals(attributeType, BeansUtils.largeStringClassName)) attributeType = String.class.getName();
-		if (Objects.equals(attributeType, BeansUtils.largeArrayListClassName)) attributeType = ArrayList.class.getName();
 
 		if(!Objects.equals(attributeType, attribute.getValue().getClass().getName())) {
 			throw new InternalErrorException("Attribute's type mismatch " + attribute + ". The type of attribute's value (" + attribute.getValue().getClass().getName() + ") doesn't match the type of attribute (" + attribute.getType() + ").");
@@ -396,15 +391,7 @@ public class BeansUtils {
 
 		Class<?> attributeClass;
 		try {
-			// convert internal "large" types to generic java types
-			if (Objects.equals(type, BeansUtils.largeStringClassName)) {
-				attributeClass = Class.forName(String.class.getName());
-			} else if (Objects.equals(type, BeansUtils.largeArrayListClassName)) {
-				attributeClass = Class.forName(ArrayList.class.getName());
-			} else {
-				// is already generic java type
-				attributeClass = Class.forName(type);
-			}
+			attributeClass = Class.forName(type);
 		} catch (ClassNotFoundException e) {
 			throw new InternalErrorException("Unknown attribute type", e);
 		} catch (NoClassDefFoundError e) {

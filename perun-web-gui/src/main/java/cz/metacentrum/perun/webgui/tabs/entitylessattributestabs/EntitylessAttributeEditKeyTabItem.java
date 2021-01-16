@@ -390,14 +390,6 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 			case "java.lang.Boolean":
 				newAttr.put("value", JSONBoolean.getInstance(Boolean.parseBoolean("True")));
 				break;
-			case "java.lang.LargeString":
-				newAttr.put("value", new JSONString(value));
-				break;
-			case "java.util.LargeArrayList":
-				JSONArray lal = new JSONArray();
-				lal.set(0, new JSONString("value"));
-				newAttr.put("value", lal);
-				break;
 		}
 
 		// create whole JSON query
@@ -412,8 +404,7 @@ public class EntitylessAttributeEditKeyTabItem implements TabItem, TabItemWithUr
 
 	private boolean shouldHaveValueBox() {
 		return (attrDef.getType().equals("java.lang.String") ||
-				attrDef.getType().equals("java.lang.Integer") ||
-				attrDef.getType().equals("java.lang.LargeString"));
+				attrDef.getType().equals("java.lang.Integer"));
 	}
 
 	static public EntitylessAttributeEditKeyTabItem load(Map<String, String> parameters) {

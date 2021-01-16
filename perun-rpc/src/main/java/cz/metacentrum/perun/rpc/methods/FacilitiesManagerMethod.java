@@ -122,7 +122,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns all facilities that have set the attribute 'attributeName' with the value 'attributeValue'.
-	 * Searching only def and opt attributes. Large attributes are not supported.
+	 * Searching only def and opt attributes.
 	 *
 	 * @param attributeName String
 	 * @param attributeValue String

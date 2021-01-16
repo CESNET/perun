@@ -201,7 +201,7 @@ public class PerunBlImpl implements PerunBl {
 					}
 
 					//for Array list attributes try to parse string value into individual fields
-					if(attributeWithValue.getType().equals(ArrayList.class.getName()) || attributeWithValue.getType().equals(BeansUtils.largeArrayListClassName)) {
+					if(attributeWithValue.getType().equals(ArrayList.class.getName())) {
 						List<String> value = new ArrayList<>();
 						if (attrValue != null) {
 							value = new ArrayList<>(Arrays.asList(attrValue.split(UsersManagerBl.MULTIVALUE_ATTRIBUTE_SEPARATOR_REGEX)));

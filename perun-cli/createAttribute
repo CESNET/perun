@@ -14,13 +14,11 @@ sub help {
 	--attributeName       | -N attribute friendly name
 	--attributeNameSpace  | -n namespace (e.g.: urn:perun:user:attribute-def:def)
 	--attributeDisplayName| -e attribute display name
-	--attributeType       | -t attribute type (integer/string/array/hash/boolean/largestring/largearray)*
+	--attributeType       | -t attribute type (integer/string/array/hash/boolean)
 	--attributeDsc        | -d description
 	--isUnique            | -u attribute have to be unique
 	--batch               | -b batch
 	--help                | -h prints this help
-
-	*) If you expect values larger than 4000 chars, you should user large version of string/array.
 
 	};
 }

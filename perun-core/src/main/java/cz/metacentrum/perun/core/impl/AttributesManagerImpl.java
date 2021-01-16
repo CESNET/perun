@@ -151,9 +151,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			Integer.class.getName(),
 			Boolean.class.getName(),
 			ArrayList.class.getName(),
-			LinkedHashMap.class.getName(),
-			BeansUtils.largeStringClassName,
-			BeansUtils.largeArrayListClassName
+			LinkedHashMap.class.getName()
 	);
 
 	static {
@@ -367,7 +365,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			//noinspection StatementWithEmptyBody
 			if (value == null) {
 				// No need to convert NULL value (for String it caused NULL->"null" conversion)
-			} else if ((attribute.getType().equals(String.class.getName()) || attribute.getType().equals(BeansUtils.largeStringClassName)) && !(value instanceof String)) {
+			} else if ((attribute.getType().equals(String.class.getName())) && !(value instanceof String)) {
 				//TODO check exceptions
 				value = String.valueOf(value);
 			} else //noinspection StatementWithEmptyBody
@@ -376,7 +374,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				} else //noinspection StatementWithEmptyBody
 					if (attribute.getType().equals(Boolean.class.getName()) && !(value instanceof Boolean)) {
 						//TODO try to cast to boolean
-					} else if ((attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) && !(value instanceof ArrayList)) {
+					} else if (attribute.getType().equals(ArrayList.class.getName()) && !(value instanceof ArrayList)) {
 						if (value instanceof List) {
 							//noinspection unchecked
 							value = new ArrayList<String>((List) value);
@@ -1862,7 +1860,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		String sql = "INSERT INTO " + tableName + " (attr_value," + buildParameters(columnNames, "", ", ") + ") VALUES (?" + questionMarks + ")";
 			switch (attribute.getType()) {
 				case "java.util.ArrayList":
-				case BeansUtils.largeArrayListClassName:
 					for (String value : (List<String>) attribute.getValue()) {
 						sqlArgs[0] = value;
 						tryToInsertUniqueValue(sql,sqlArgs, attribute, pb1, pb2);
@@ -4545,13 +4542,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		HashSet<Pair<Integer,Integer>> ids = new HashSet<>();
 		switch(attribute.getType()) {
 			case "java.lang.String":
-			case BeansUtils.largeStringClassName:
 			case "java.lang.Integer":
 			case "java.lang.Boolean":
 				ids.addAll(jdbc.query(sql, pairRowMapper, attribute.getId(), attribute.getValue().toString()));
 				break;
 			case "java.util.ArrayList":
-			case BeansUtils.largeArrayListClassName:
 				for(String value : attribute.valueAsList()) {
 					ids.addAll(jdbc.query(sql, pairRowMapper,attribute.getId(),value));
 				}
@@ -4585,13 +4580,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						Utils.notNull(value, "value");
 						switch (attrDef.getType()) {
 							case "java.lang.String":
-							case BeansUtils.largeStringClassName:
 							case "java.lang.Integer":
 							case "java.lang.Boolean":
 								jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean + "_id,attr_id,attr_value) VALUES (?,?,?)", beanId, attrDef.getId(), value.toString());
 								break;
 							case "java.util.ArrayList":
-							case BeansUtils.largeArrayListClassName:
 								@SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) value;
 								for (String s : list) {
 									jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean + "_id,attr_id,attr_value) VALUES (?,?,?)", beanId, attrDef.getId(), s);
@@ -4625,13 +4618,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						Utils.notNull(value, "value");
 						switch (attrDef.getType()) {
 							case "java.lang.String":
-							case BeansUtils.largeStringClassName:
 							case "java.lang.Integer":
 							case "java.lang.Boolean":
 								jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean1 + "_id," + bean2 + "_id,attr_id,attr_value) VALUES (?,?,?,?)", bean1Id, bean2Id, attrDef.getId(), value.toString());
 								break;
 							case "java.util.ArrayList":
-							case BeansUtils.largeArrayListClassName:
 								@SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) value;
 								for (String s : list) {
 									jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean1 + "_id," + bean2 + "_id,attr_id,attr_value) VALUES (?,?,?,?)", bean1Id, bean2Id, attrDef.getId(), s);

@@ -51,7 +51,7 @@ public class urn_perun_vo_attribute_def_def_aup extends VoAttributesModuleAbstra
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
 		attr.setFriendlyName("aup");
 		attr.setDisplayName("AUP");
-		attr.setType(BeansUtils.largeStringClassName);
+		attr.setType(String.class.getName());
 		attr.setDescription("Contains all custom AUPs used at VO level.");
 		return attr;
 	}
