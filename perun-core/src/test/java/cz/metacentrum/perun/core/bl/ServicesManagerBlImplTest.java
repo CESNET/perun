@@ -163,9 +163,6 @@ public class ServicesManagerBlImplTest {
 		jdbcTemplate.update("insert into facilities(id, name) values (?,?)", testFacilityId2, "Cluster_" + testFacilityId2);
 		facility2.setId(testFacilityId2);
 
-		// service denials
-		((PerunBl)perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
-		
 		// vo
 		vo = new Vo(0, "ServicesManagerTestVo", "RMTestVo");
 		vo = ((PerunBl)perun).getVosManagerBl().createVo(perunSession, vo);
@@ -211,6 +208,9 @@ public class ServicesManagerBlImplTest {
 	@Test
 	public void testDeleteService() throws Exception {
 		System.out.println("ServicesManagerBlImplTest.testDeleteService");
+		
+		// service denials (set up here, otherwise it breaks other test)
+		((PerunBl)perun).getServicesManagerBl().blockServiceOnDestination(perunSession, testService1, testDestinationId1);
 		
 		((PerunBl) perun).getServicesManagerBl().deleteService(perunSession, testService1, true);
 	}
