@@ -140,6 +140,15 @@ public class PerunWebSession {
 	}-*/;
 
 	/**
+	 * Returns version of RPC
+	 *
+	 * @return RPC versions
+	 */
+	public native String getRpcVersion() /*-{
+		return $wnd.RPC_VERSION;
+	}-*/;
+
+	/**
 	 * Returns the UI elements
 	 *
 	 * @return return class which contains UI elements - menus,log,pages,tabs

@@ -26,10 +26,20 @@
 	<script type="text/javascript" language="javascript" >
 		RPC_SERVER = window.location.pathname.split("/")[1];
 
+		RPC_VERSION = undefined;
+
 		<!-- Fix Windows+Chrome+Kerberos authz - chrome doesn't trust whole domain, we must call most top-level path -->
 		$.ajax({
 			url: "/" + window.location.pathname.split("/")[1] + "/rpc/",
-			type: "get"
+			type: "get",
+			success:
+				function(result){
+					var startIndex = result.indexOf(":");
+					var endIndex = result.indexOf(",");
+					if (startIndex > -1 && endIndex > -1) {
+						RPC_VERSION = result.substring(startIndex+2,endIndex);
+					}
+				}
 		});
 
 	</script>
@@ -40,7 +50,7 @@
 		// get URL param function
 		function getURLParameter(name) {
 			return decodeURI(
-					(RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,'default'])[1]
+				(RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,'default'])[1]
 			);
 		}
 
@@ -126,7 +136,7 @@
 
 <!-- OPTIONAL: include this if you want history support -->
 <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
-		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+        style="position: absolute; width: 0; height: 0; border: 0"></iframe>
 
 <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
 <noscript>

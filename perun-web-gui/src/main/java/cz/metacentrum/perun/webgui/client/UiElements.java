@@ -986,7 +986,13 @@ public class UiElements {
 
 		ft.setWidget(0, 0, foot);
 
-		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + " " + JsonUtils.getCurrentYear() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
+		String rpcVersion = PerunWebSession.getInstance().getRpcVersion();
+		String rpcVersionString = "";
+		if (rpcVersion != null && rpcVersion.length() > 0) {
+			rpcVersionString = ", server: " + rpcVersion;
+		}
+
+		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + " " + JsonUtils.getCurrentYear() + ", version: " + PerunWebConstants.INSTANCE.guiVersion() + SafeHtmlUtils.htmlEscape(rpcVersionString)));
 		ft.setWidget(0, 2, new HTML("<strong>" + ButtonTranslation.INSTANCE.settingsButton() + ": </strong>"));
 
 		ftf.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
