@@ -164,7 +164,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 					public void onClick(ClickEvent event) {
 						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 						for (int i=0; i<list.size(); i++) {
-							if (list.get(i).getLocked() && !session.isPerunAdmin()) {
+							if (list.get(i).isLocked() && !session.isPerunAdmin()) {
 								// skip locked pubs
 								UiElements.generateAlert("Publication locked", "Publication <strong>" + SafeHtmlUtils.fromString(list.get(i).getTitle()).asString() + "</strong> is locked by " +
 									"administrator and can't be deleted. Please notify administrator about your request.");

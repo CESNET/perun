@@ -122,8 +122,8 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			titleWidget.setText("Add publication");
 
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Please select either \"Create\" or \"Import\" for new publication.</strong>" +
-						"<p> - To add custom publication or report publication for somebody else choose \"Create\".</p>" +
-						"<p> - To add publication you already reported in IS MU / OBD ZČU please choose \"Import\".</p></li><ol>"));
+					"<p> - To add custom publication or report publication for somebody else choose \"Create\".</p>" +
+					"<p> - To add publication you already reported in IS MU / OBD ZČU please choose \"Import\".</p></li><ol>"));
 
 		} else if (state == State.CREATE) {
 
@@ -134,11 +134,11 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			titleWidget.setText("Create publication");
 
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Enter publication title and full citation.</strong></li>" +
-						"<li>If known, <strong>enter publication's ISBN / ISSN / DOI</strong>" +
-						"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>" +
-						"<li>Please use <strong>\"Check\" button</strong> to see, if same publication already exists in Perun. If so, you don't have to create new, just add yourself as author of publication.</li>" +
-						"<li>When satisfied, <strong>click on \"Create\" button</strong> to submit your publication.</li>" +
-						"<li>You will be then able to review publication details.</li><ol>"));
+					"<li>If known, <strong>enter publication's ISBN / ISSN / DOI</strong>" +
+					"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>" +
+					"<li>Please use <strong>\"Check\" button</strong> to see, if same publication already exists in Perun. If so, you don't have to create new, just add yourself as author of publication.</li>" +
+					"<li>When satisfied, <strong>click on \"Create\" button</strong> to submit your publication.</li>" +
+					"<li>You will be then able to review publication details.</li><ol>"));
 
 		} else if (state == State.IMPORT) {
 
@@ -149,13 +149,13 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			titleWidget.setText("Import publications");
 
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Select ext. publication system for searching</strong>. Currently we can import publications reported in IS MU and OBD ZČU.</li>" +
-						"<li><strong>Select year range</strong> to search and click on \"Search in\" button." +
-						"<p> - Search in IS MU is based on your's UČO." +
-						"<br /> - Search in OBD ZČU is based on your last name.</p></li>" +
-						"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>"+
-						"<li><strong>Select publications to import</strong> and <strong>click on \"Import\" button.</strong></li>" +
-						"<li>You will be then able to review publication details." +
-						"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p></li><ol>"));
+					"<li><strong>Select year range</strong> to search and click on \"Search in\" button." +
+					"<p> - Search in IS MU is based on your's UČO." +
+					"<br /> - Search in OBD ZČU is based on your last name.</p></li>" +
+					"<li>If you don't want to be automatically added as author of publications, uncheck \"Add me as author\" checkbox.</li>"+
+					"<li><strong>Select publications to import</strong> and <strong>click on \"Import\" button.</strong></li>" +
+					"<li>You will be then able to review publication details." +
+					"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p></li><ol>"));
 
 
 		} else if (state == State.REVIEW){
@@ -164,12 +164,12 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 			// help widget
 			helpWidget.add(new HTML("<ol style=\"line-height:1.5;\"><li><strong>Click on publication title</strong> to edit it's details." +
-						"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p>" +
-						"<li><strong>Update full citation</strong> if needed and click on \"Save changes\" button.</li>" +
-						"<li><strong>Select category</strong> where publication belongs and click on \"Save changes\" button. If not sure, keep it as it is (\"Ke kontrole\").</li>" +
-						"<li><strong>Add acknowledgment</strong> mentioned in your publication. Typically \"MetaCentrum\" or \"CERIT-SC\".</li>" +
-						"<li><strong>Add authors</strong> of your publication. Authors can be only users of PERUN. If not added, they can't have benefits from reporting publication.</li>" +
-						"<li>When you are done, <strong>click on \"Finish\"</strong> button left of publication title. When clicked, publication is removed from the view and can't be edited anymore.</li></ol>"));
+					"<p> - If some of your colleagues already reported same publication, some properties may already be set.</p>" +
+					"<li><strong>Update full citation</strong> if needed and click on \"Save changes\" button.</li>" +
+					"<li><strong>Select category</strong> where publication belongs and click on \"Save changes\" button. If not sure, keep it as it is (\"Ke kontrole\").</li>" +
+					"<li><strong>Add acknowledgment</strong> mentioned in your publication. Typically \"MetaCentrum\" or \"CERIT-SC\".</li>" +
+					"<li><strong>Add authors</strong> of your publication. Authors can be only users of PERUN. If not added, they can't have benefits from reporting publication.</li>" +
+					"<li>When you are done, <strong>click on \"Finish\"</strong> button left of publication title. When clicked, publication is removed from the view and can't be edited anymore.</li></ol>"));
 
 		}
 
@@ -346,10 +346,10 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 							if (addAsAuthor.getValue()) {
 								CreateAuthorship request = new CreateAuthorship();
 								request.createAuthorship(pub.getId(), userId);
-								previousState = State.CREATE;
-								state = State.REVIEW;
-								session.getTabManager().reloadTab(tab);
 							}
+							previousState = State.CREATE;
+							state = State.REVIEW;
+							session.getTabManager().reloadTab(tab);
 						}
 						@Override
 						public void onError(PerunError error) {
@@ -411,13 +411,13 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 					mainPanel.add(checkLayout);
 				}
 			}
-		@Override
-		public void onError(PerunError error) {
-			finishButton.setEnabled(true);
-		}
-		@Override
-		public void onLoadingStart() {
-		}
+			@Override
+			public void onError(PerunError error) {
+				finishButton.setEnabled(true);
+			}
+			@Override
+			public void onLoadingStart() {
+			}
 		}));
 		checkButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
@@ -459,19 +459,19 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 					category.addItem("No category available");
 				}
 			}
-		@Override
-		public void onError(PerunError error){
-			category.clear();
-			category.addItem("Error while loading");
-			// categories must be loaded !!
-			checkButton.setEnabled(false);
-			finishButton.setEnabled(false);
-		}
-		@Override
-		public void onLoadingStart(){
-			category.clear();
-			category.addItem("Loading...");
-		}
+			@Override
+			public void onError(PerunError error){
+				category.clear();
+				category.addItem("Error while loading");
+				// categories must be loaded !!
+				checkButton.setEnabled(false);
+				finishButton.setEnabled(false);
+			}
+			@Override
+			public void onLoadingStart(){
+				category.clear();
+				category.addItem("Loading...");
+			}
 		});
 		request.retrieveData();
 
@@ -674,7 +674,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 							Publication pub = jso.cast();
 							importedPublications.add(pub);
 							counter--;
-							if (addAsAuthor.getValue() && !pub.getLocked()) {
+							if (addAsAuthor.getValue() && !pub.isLocked()) {
 								// create authorship only if wanted and not locked
 								CreateAuthorship request = new CreateAuthorship();
 								request.createAuthorship(pub.getId(), userId);
@@ -857,70 +857,12 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			final ListBoxWithObjects<Category> categoryBox = new ListBoxWithObjects<Category>();
 
 			// finish button
-			final CustomButton finishPublicationButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "", new ClickHandler(){
-				public void onClick(ClickEvent event) {
-					// DONT CALL UPDATE FOR LOCKED PUBS
-					if (pub.getLocked() == true) {
-						// remove finished publication
-						for (int i=0; i<importedPublications.size(); i++) {
-							if (importedPublications.get(i).getId()==pub.getId()) {
-								importedPublications.remove(i);
-								break;
-							}
-						}
-						pubHeader.removeFromParent();
-						splitter.removeFromParent();
-						pubTable.removeFromParent();
-						if (importedPublications.isEmpty()) {
-							errorIcon.setVisible(false);
-							errorText.setVisible(false);
-							successText.setVisible(false);
-							finishButton.setVisible(true); // enable finish if all pubs removed
-							scrollContent.add(new HTML("<p style=\"font-size: 12pt; font-weight:bold; text-align:center; color:darkgreen\">You are now done. <br/><br/>Please click on Finish or Back button (close tab / repeat create or import publication).</p>"));
-						}
-					} else {
-						// CALL UPDATE ON UNLOCKED PUBS
-						pub.setCategoryId(categoryBox.getSelectedObject().getId());
-						pub.setMain(cite.getText());
-						UpdatePublication request = new UpdatePublication(new JsonCallbackEvents(){
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								// remove finished publication
-								for (int i=0; i<importedPublications.size(); i++) {
-									if (importedPublications.get(i).getId()==pub.getId()) {
-										importedPublications.remove(i);
-										break;
-									}
-								}
-								pubHeader.removeFromParent();
-								splitter.removeFromParent();
-								pubTable.removeFromParent();
-								if (importedPublications.isEmpty()) {
-									errorIcon.setVisible(false);
-									errorText.setVisible(false);
-									successText.setVisible(false);
-									finishButton.setVisible(true); // enable finish if all pubs removed
-									scrollContent.add(new HTML("<p style=\"font-size: 12pt; font-weight:bold; text-align:center; color:darkgreen\">You are now done. <br/><br/>Please click on Finish or Back button (close tab / repeat create or import publication).</p>"));
-								}
-							}
-						// FIXME - testing
-						/*
-							 @Override
-							 public void onError(PerunError error) {
-							 onFinished(null);
-							 }
-							 */
-						});
-						request.updatePublication(pub);
-
-					}
-				}
-			});
+			final CustomButton finishPublicationButton = TabMenu.getPredefinedButton(ButtonType.SAVE, "");
 			pubHeader.addWidget(finishPublicationButton);
 			finishPublicationButton.setTitle("Finish editing publication (remove from view)");
 			finishPublicationButton.setVisible(false);
 
-			if (pub.getLocked()==true) {
+			if (pub.isLocked()) {
 				finishPublicationButton.setText("Remove from view");
 			}
 
@@ -962,7 +904,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 			citePanel.addWidget(cite);
 
-			if (pub.getLocked()==true) {
+			if (pub.isLocked()) {
 				// disable cite modification if locked
 				cite.setEnabled(false);
 			}
@@ -973,7 +915,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			categoryPanel.addWidget(new Image(LargeIcons.INSTANCE.bookshelfIcon()));
 			categoryPanel.addWidget(new HTML("<h4>Category</h4>"));
 
-			if (pub.getLocked()==true) {
+			if (pub.isLocked()) {
 				// if locked display category name
 				categoryPanel.addWidget(new HTML(pub.getCategoryName()));
 			} else {
@@ -1000,7 +942,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 			// callback
 			final GetRichThanksByPublicationId thanksCall = new GetRichThanksByPublicationId(pub.getId());
-			if (pub.getLocked()==true) {
+			if (pub.isLocked()) {
 				// disable modifications if locked
 				thanksCall.setCheckable(false);
 				thanksMenu.setVisible(false);
@@ -1040,6 +982,8 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			removeThanksButton.setEnabled(false);
 			JsonUtils.addTableManagedButton(thanksCall, thanksTable, removeThanksButton);
 
+			thanksMenu.addWidget(removeThanksButton);
+
 			/*
 			// refresh table button
 			thanksMenu.addButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
@@ -1068,7 +1012,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 			// callback
 			final FindAuthorsByPublicationId authorCall = new FindAuthorsByPublicationId(pub.getId());
-			if (pub.getLocked()==true) {
+			if (pub.isLocked()) {
 				authorCall.setCheckable(false);
 				authorMenu.setVisible(false);
 			}
@@ -1121,6 +1065,8 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 				}
 			});
 
+			authorMenu.addWidget(removeAuthorButton);
+
 			/*
 			// refresh table button
 			authorMenu.addButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler(){
@@ -1144,9 +1090,55 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			authSp.addStyleName("perun-tableScrollPanel");
 			authorsPanel.add(authSp);
 
+			finishPublicationButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					// DONT CALL UPDATE FOR LOCKED PUBS
+					if (pub.isLocked()) {
+						// remove finished publication
+						for (int i=0; i<importedPublications.size(); i++) {
+							if (importedPublications.get(i).getId()==pub.getId()) {
+								importedPublications.remove(i);
+								break;
+							}
+						}
+						pubHeader.removeFromParent();
+						splitter.removeFromParent();
+						pubTable.removeFromParent();
+						if (importedPublications.isEmpty()) {
+							errorIcon.setVisible(false);
+							errorText.setVisible(false);
+							successText.setVisible(false);
+							finishButton.setVisible(true); // enable finish if all pubs removed
+							scrollContent.add(new HTML("<p style=\"font-size: 12pt; font-weight:bold; text-align:center; color:darkgreen\">You are now done. <br/><br/>Please click on Finish or Back button (close tab / repeat create or import publication).</p>"));
+						}
+					} else {
+
+						boolean authorFound = false;
+						for (Author a : authorCall.getList()) {
+							if (PerunWebSession.getInstance().getUser().getId() == a.getId()) {
+								authorFound = true;
+								break;
+							}
+						}
+						if (!authorFound) {
+							UiElements.generateAlert("You are not set as an author",
+									"<p>You are not set as an author of this publication. If you submit it like this, you won't be able to edit it afterwards.", new ClickHandler() {
+										@Override
+										public void onClick(ClickEvent event) {
+											saveSinglePublication(pub, categoryBox.getSelectedObject().getId(), cite.getText(), pubHeader, splitter, pubTable, errorIcon, errorText, successText, finishButton, scrollContent);
+										}
+									});
+						} else {
+							saveSinglePublication(pub, categoryBox.getSelectedObject().getId(), cite.getText(), pubHeader, splitter, pubTable, errorIcon, errorText, successText, finishButton, scrollContent);
+						}
+					}
+				}
+			});
+
 			// PUT ALL SUBENTRIES INTO TABLE
 
-			if (pub.getLocked() == true) {
+			if (pub.isLocked()) {
 				pubTable.setHTML(0, 0, "<p style=\"font-size: 10pt; font-weight:bold; text-align:center; color:red\">Same publication is already in Perun and it's locked. To perform changes notify administrator (meta@cesnet.cz).");
 			} else {
 				pubTable.setHTML(0, 0, "<ol style=\"color:red\"><li>Please check and correct citation if needed.</li><li>Select publication's category (if not sure keep as it is).</li><li>Add other authors and acknowledgements. (If same publication was already reported, it can have some authors and acknowledgements set.)</li><li>When done with changes, click on \"Save changes\" button. Saved publication will be removed from review list and considered done.</li></ol>");
@@ -1167,6 +1159,37 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		session.getUiElements().resizePerunTable(scrollPanel, 350, this);
 
 		this.contentWidget.setWidget(configMainPanel);
+
+	}
+
+	private void saveSinglePublication(Publication pub, int categoryId, String cite, TabMenu pubHeader, HTML splitter, FlexTable pubTable,
+	                               Image errorIcon, HTML errorText, HTML successText, CustomButton finishButton, VerticalPanel scrollContent) {
+
+		pub.setCategoryId(categoryId);
+		pub.setMain(cite);
+		UpdatePublication request = new UpdatePublication(new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				// remove finished publication
+				for (int i=0; i<importedPublications.size(); i++) {
+					if (importedPublications.get(i).getId()==pub.getId()) {
+						importedPublications.remove(i);
+						break;
+					}
+				}
+				pubHeader.removeFromParent();
+				splitter.removeFromParent();
+				pubTable.removeFromParent();
+				if (importedPublications.isEmpty()) {
+					errorIcon.setVisible(false);
+					errorText.setVisible(false);
+					successText.setVisible(false);
+					finishButton.setVisible(true); // enable finish if all pubs removed
+					scrollContent.add(new HTML("<p style=\"font-size: 12pt; font-weight:bold; text-align:center; color:darkgreen\">You are now done. <br/><br/>Please click on Finish or Back button (close tab / repeat create or import publication).</p>"));
+				}
+			}
+		});
+		request.updatePublication(pub);
 
 	}
 

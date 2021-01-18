@@ -154,7 +154,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 
 		Column<Publication, ImageResource> lockedColumn = new Column<Publication, ImageResource>(new CustomImageResourceCell("click")){
 			public ImageResource getValue(Publication object) {
-				if (object.getLocked() == true) {
+				if (object.isLocked()) {
 					return SmallIcons.INSTANCE.lockIcon();
 				} else {
 					return SmallIcons.INSTANCE.lockOpenIcon();
@@ -164,7 +164,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 				// on click and for perun admin
 				if ("click".equals(event.getType()) && session.isPerunAdmin()) {
 					final ImageResource value;
-					if (object.getLocked() == true) {
+					if (object.isLocked()) {
 						value = SmallIcons.INSTANCE.lockOpenIcon();
 						object.setLocked(false);
 					} else {
@@ -184,7 +184,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 					@Override
 					public void onError(PerunError error) {
 						// on error switch object back
-						if (object.getLocked() == true) {
+						if (object.isLocked()) {
 							object.setLocked(false);
 							getCell().setValue(context, elem, SmallIcons.INSTANCE.lockOpenIcon());
 						} else {
@@ -196,7 +196,7 @@ public class FindSimilarPublications implements JsonCallback, JsonCallbackTable<
 					// send request
 					ArrayList<Publication> list = new ArrayList<Publication>();
 					list.add(object);
-					request.lockUnlockPublications(object.getLocked(), list);
+					request.lockUnlockPublications(object.isLocked(), list);
 
 				}
 			}

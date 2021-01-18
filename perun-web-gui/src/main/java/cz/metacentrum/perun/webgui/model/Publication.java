@@ -304,7 +304,7 @@ public class Publication extends JavaScriptObject {
 	 * If publication is locked
 	 * @return true if pub locked / false otherwise
 	 */
-	public final native boolean getLocked() /*-{
+	public final native boolean isLocked() /*-{
 		if (!this.locked) { return false; }
 		return this.locked;
 	}-*/;
