@@ -503,12 +503,12 @@ public class CoreConfig {
 				case "entitlement":
 					attr.setDisplayName("eduPersonEntitlement");
 					attr.setDescription("Entitlements of user (aka group memberships).");
-					attr.setType(BeansUtils.largeStringClassName);
+					attr.setType(String.class.getName());
 					break;
 				case "assurance":
 					attr.setDisplayName("eduPersonAssurance");
 					attr.setDescription("Assurance about user as defined at: https://wiki.refeds.org/display/ASS/REFEDS+Assurance+Framework+ver+1.0");
-					attr.setType(BeansUtils.largeStringClassName);
+					attr.setType(String.class.getName());
 					break;
 				case "europeanStudentID":
 					attr.setDisplayName("European Student ID");
@@ -529,7 +529,7 @@ public class CoreConfig {
 				case "certificate":
 					attr.setDisplayName("X509 certificate");
 					attr.setDescription("PEM encoded X509 certificate");
-					attr.setType(BeansUtils.largeStringClassName);
+					attr.setType(String.class.getName());
 					break;
 				case "additionalIdentifiers":
 					attr.setDisplayName("Additional Identifiers");

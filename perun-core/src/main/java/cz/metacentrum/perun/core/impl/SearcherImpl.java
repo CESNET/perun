@@ -209,7 +209,7 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, Integer.class.getName());
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
-				} else if (key.getType().equals(String.class.getName()) || key.getType().equals(BeansUtils.largeStringClassName)) {
+				} else if (key.getType().equals(String.class.getName())) {
 					key.setValue(value);
 					if(allowPartialMatchForString) {
 						whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ") LIKE CONCAT('%', CONCAT(lower(" + Compatibility.convertToAscii(":v" + counter) + "), '%')) ");
@@ -225,7 +225,7 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, Boolean.class.getName());
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
-				} else if (key.getType().equals(ArrayList.class.getName()) || key.getType().equals(BeansUtils.largeArrayListClassName)) {
+				} else if (key.getType().equals(ArrayList.class.getName())) {
 					List<String> list = new ArrayList<>();
 					list.add(value);
 					key.setValue(list);

@@ -5390,7 +5390,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			if (bean.equals("entityless")) continue;
 
 			for (String type : AttributesManagerImpl.ATTRIBUTE_TYPES) {
-				//large string and large array are unsupported types for uniqueness
 
 				log.debug("conversion to unique bean {} type {}", bean, type);
 				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
@@ -5414,7 +5413,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 				Attribute b = new Attribute(attributeDefinition);
 				switch (type) {
 					case "java.lang.String":
-					case BeansUtils.largeStringClassName:
 						a.setValue("string1");
 						b.setValue("string2");
 						break;
@@ -5427,7 +5425,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 						b.setValue(Boolean.TRUE);
 						break;
 					case "java.util.ArrayList":
-					case BeansUtils.largeArrayListClassName:
 						a.setValue(new ArrayList<>(Arrays.asList("value1","value2")));
 						b.setValue(new ArrayList<>(Arrays.asList("value3","value4")));
 						break;
@@ -5627,7 +5624,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 				Attribute b = new Attribute(attributeDefinition);
 				switch (type) {
 					case "java.lang.String":
-					case BeansUtils.largeStringClassName:
 						a.setValue("samestring");
 						b.setValue("samestring");
 						break;
@@ -5640,7 +5636,6 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 						b.setValue(Boolean.TRUE);
 						break;
 					case "java.util.ArrayList":
-					case BeansUtils.largeArrayListClassName:
 						a.setValue(Lists.newArrayList("value1","value2"));
 						b.setValue(Lists.newArrayList("value3","value2"));
 						break;

@@ -18,7 +18,7 @@ public class SingleAttributeValueExtractor<T extends PerunBean> extends Attribut
 		for (Attribute attribute : attributes) {
 			if (this.appliesToAttribute(attribute)) {
 				if (attribute == null) return null;
-				if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
+				if (attribute.getType().equals(ArrayList.class.getName())) {
 					List<String> values = attribute.valueAsList();
 					if (values == null || values.size() == 0)
 						return null;
@@ -33,7 +33,7 @@ public class SingleAttributeValueExtractor<T extends PerunBean> extends Attribut
 						result = (valueTransformer == null)
 								? values.toString() : valueTransformer.getValue(values, attribute);
 				} else {
-					// use toString() for String, LargeString, Integer nad Boolean types
+					// use toString() for String, Integer nad Boolean types
 					Object value = attribute.getValue();
 					if (value == null)
 						return null;

@@ -6,6 +6,11 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.74
+UPDATE attr_names SET type='java.lang.String' WHERE type='java.lang.LargeString';
+UPDATE attr_names SET type='java.util.ArrayList' WHERE type='java.util.LargeArrayList';
+UPDATE configurations SET value='3.1.74' WHERE property='DATABASE VERSION';
+
 3.1.73
 ALTER TABLE pwdreset ADD COLUMN validity_to timestamp;
 UPDATE pwdreset SET validity_to = created_at + interval '1 days';

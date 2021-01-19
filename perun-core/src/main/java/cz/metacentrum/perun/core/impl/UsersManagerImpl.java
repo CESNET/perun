@@ -787,8 +787,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attributeValue) {
 		String value = "";
 		String operator = "=";
-		if (attributeDefinition.getType().equals(String.class.getName()) ||
-				attributeDefinition.getType().equals(BeansUtils.largeStringClassName)) {
+		if (attributeDefinition.getType().equals(String.class.getName())) {
 			value = attributeValue.trim();
 			operator = "=";
 		} else if (attributeDefinition.getType().equals(Integer.class.getName())) {
@@ -797,8 +796,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}  else if (attributeDefinition.getType().equals(Boolean.class.getName())) {
 			value = attributeValue.trim();
 			operator = "=";
-		} else if (attributeDefinition.getType().equals(ArrayList.class.getName()) ||
-				attributeDefinition.getType().equals(BeansUtils.largeArrayListClassName)) {
+		} else if (attributeDefinition.getType().equals(ArrayList.class.getName())) {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
 		} else if (attributeDefinition.getType().equals(LinkedHashMap.class.getName())) {

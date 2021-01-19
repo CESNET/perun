@@ -2423,10 +2423,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//check if attribute.type is valid class name
 		try {
-			if (!attribute.getType().equals(BeansUtils.largeStringClassName) &&
-					!attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
-				Class.forName(attribute.getType());
-			}
+			Class.forName(attribute.getType());
 		} catch (ClassNotFoundException ex) {
 			throw new InternalErrorException("Wrong attribute type", ex);
 		} catch (RuntimeException ex) {
@@ -5406,8 +5403,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public Object stringToAttributeValue(String value, String type) {
-		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName()) ||
-				type.equals(BeansUtils.largeArrayListClassName)) {
+		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName())) {
 			if (value != null && !value.isEmpty() && !value.endsWith(String.valueOf(AttributesManagerImpl.LIST_DELIMITER))) {
 				value = value.concat(String.valueOf(AttributesManagerImpl.LIST_DELIMITER));
 			}
@@ -5543,7 +5539,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			return storedAttribute;
 
 		// Check type ArrayList
-		if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
+		if (attribute.getType().equals(ArrayList.class.getName())) {
 			ArrayList<String> updatedList = (ArrayList<String>) storedAttribute.getValue();
 			// If there were someting then find values which haven't been already stored
 			if (updatedList != null) {
@@ -7699,7 +7695,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//urn_perun_entityless_attribute_def_def_randomPwdResetTemplate
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-		attr.setType("java.lang.LargeString");
+		attr.setType(String.class.getName());
 		attr.setFriendlyName("randomPwdResetTemplate");
 		attr.setDisplayName("Random password reset templates");
 		attr.setDescription("Random password reset templates. Each value should be String representing an HTML page." +
@@ -7720,7 +7716,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-		attr.setType("java.lang.LargeString");
+		attr.setType(String.class.getName());
 		attr.setFriendlyName("preferredMailChangeMailTemplate");
 		attr.setDisplayName("PreferredMail change mail template");
 		attr.setDescription("Template of the preferred mail change notification. Keyword {link} will be replaced with the link to verify new mail address.");
@@ -7763,7 +7759,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 			attr = new AttributeDefinition();
 			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-			attr.setType("java.lang.LargeString");
+			attr.setType(String.class.getName());
 			attr.setFriendlyName("nonAuthzPwdResetConfirmMailTemplate:"+namespace);
 			attr.setDisplayName("Non-Authz Pwd Reset Confirmation Mail Template");
 			attr.setDescription("Template of confirmation message in password reset notification.");
@@ -7783,7 +7779,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 			attr = new AttributeDefinition();
 			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-			attr.setType("java.lang.LargeString");
+			attr.setType(String.class.getName());
 			attr.setFriendlyName("nonAuthzPwdResetMailTemplate:"+namespace);
 			attr.setDisplayName("Non-Authz Pwd Reset Mail Template");
 			attr.setDescription("Non authz password reset mail template for "+namespace+".");

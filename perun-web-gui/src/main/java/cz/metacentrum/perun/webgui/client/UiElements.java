@@ -429,11 +429,11 @@ public class UiElements {
 
 		String text = "";
 		String name = object.getDisplayName();
-		if (object.getType().equalsIgnoreCase("java.lang.String") || object.getType().equalsIgnoreCase(Utils.largeStringClassName)) {
+		if (object.getType().equalsIgnoreCase("java.lang.String")) {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxWrongString(name);
 		} else if (object.getType().equalsIgnoreCase("java.lang.Integer")) {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxWrongInteger(name);
-		} else if (object.getType().equalsIgnoreCase("java.util.ArrayList") || object.getType().equalsIgnoreCase(Utils.largeArrayListClassName)) {
+		} else if (object.getType().equalsIgnoreCase("java.util.ArrayList")) {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxWrongList(name);
 		} else {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxGeneral(name);
