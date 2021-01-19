@@ -1616,17 +1616,13 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	/**
-	 * Return URL encoded String in utf-8. If not possible, return original string.
+	 * Return URL encoded String in UTF-8. If not possible, return original string.
 	 *
 	 * @param s String to encode
 	 * @return URL Encoded string
 	 */
 	private static String getUrlEncodedString(String s) {
-		try {
-			return URLEncoder.encode(s, "UTF-8");
-		} catch (UnsupportedEncodingException ex) {
-			return s;
-		}
+		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
 
 	private void copyApplicationMails(PerunSession sess, ApplicationForm formFrom, ApplicationForm formTo) throws PerunException {
@@ -1732,11 +1728,7 @@ public class MailManagerImpl implements MailManager {
 									newValue += namespace + "/registrar/";
 									newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
 									newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
-									try {
-										newValue += "&i=" + URLEncoder.encode(i, "UTF-8") + "&m=" + URLEncoder.encode(m, "UTF-8");
-									} catch (UnsupportedEncodingException ex) {
-										newValue += "&i=" + i + "&m=" + m;
-									}
+									newValue += "&i=" + URLEncoder.encode(i, StandardCharsets.UTF_8) + "&m=" + URLEncoder.encode(m, StandardCharsets.UTF_8);
 								}
 							}
 							// substitute {validationLink-authz} with actual value or empty string
@@ -1767,12 +1759,8 @@ public class MailManagerImpl implements MailManager {
 								if (!url2.toString().isEmpty()) url2.append("?");
 							}
 
-							try {
-								if (!url2.toString().isEmpty())
-									url2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-							} catch (UnsupportedEncodingException ex) {
-								if (!url2.toString().isEmpty()) url2.append("i=").append(i).append("&m=").append(m);
-							}
+							if (!url2.toString().isEmpty())
+								url2.append("i=").append(URLEncoder.encode(i, StandardCharsets.UTF_8)).append("&m=").append(URLEncoder.encode(m, StandardCharsets.UTF_8));
 
 							// replace validation link
 							mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());

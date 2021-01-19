@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.notif.entities;
 
 import cz.metacentrum.perun.notif.dto.PoolMessage;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -224,7 +224,7 @@ public class PerunNotifPoolMessage {
 		for (String pair : pairs) {
 			String key = pair.substring(0, pair.indexOf("="));
 			String value = pair.substring(pair.indexOf("=") + 1);
-			String decodedValue = URLDecoder.decode(value, "utf-8");
+			String decodedValue = URLDecoder.decode(value, StandardCharsets.UTF_8);
 
 			result.put(key, decodedValue);
 		}
@@ -238,7 +238,7 @@ public class PerunNotifPoolMessage {
 		Collections.sort(sortedList);
 		for (String key : sortedList) {
 			if (map.get(key) != null) {
-				String encodedKey = URLEncoder.encode(map.get(key), "utf-8");
+				String encodedKey = URLEncoder.encode(map.get(key), StandardCharsets.UTF_8);
 				serializedKeyAttributes.append(key).append("=").append(encodedKey).append(PerunNotifPoolMessage.DELIMITER);
 			}
 		}

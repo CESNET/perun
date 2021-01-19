@@ -56,7 +56,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -1378,18 +1377,16 @@ public class Utils {
 			link.append(urlObject.getHost());
 			link.append(linkLocation);
 			link.append("?i=");
-			link.append(URLEncoder.encode(i, "UTF-8"));
+			link.append(URLEncoder.encode(i, StandardCharsets.UTF_8));
 			link.append("&m=");
-			link.append(URLEncoder.encode(m, "UTF-8"));
+			link.append(URLEncoder.encode(m, StandardCharsets.UTF_8));
 			link.append("&login-namespace=");
-			link.append(URLEncoder.encode(namespace, "UTF-8"));
+			link.append(URLEncoder.encode(namespace, StandardCharsets.UTF_8));
 			if(activation) {
 				link.append("&activation=true");
 			}
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
-		} catch (UnsupportedEncodingException ex) {
-			throw new InternalErrorException("Unable to encode URL for password reset.", ex);
 		}
 
 		return link.toString();
@@ -1424,14 +1421,12 @@ public class Utils {
 			link.append(urlObject.getHost());
 			link.append(linkLocation);
 			link.append("?i=");
-			link.append(URLEncoder.encode(i, "UTF-8"));
+			link.append(URLEncoder.encode(i, StandardCharsets.UTF_8));
 			link.append("&m=");
-			link.append(URLEncoder.encode(m, "UTF-8"));
+			link.append(URLEncoder.encode(m, StandardCharsets.UTF_8));
 			link.append("&u=" + user.getId());
 		} catch (MalformedURLException ex) {
 			throw new InternalErrorException("Not valid URL of running Perun instance.", ex);
-		} catch (UnsupportedEncodingException ex) {
-			throw new InternalErrorException("Unable to encode URL for password reset.", ex);
 		}
 
 		return link.toString();

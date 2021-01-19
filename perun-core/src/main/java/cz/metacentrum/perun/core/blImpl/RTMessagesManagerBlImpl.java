@@ -36,6 +36,7 @@ import org.springframework.mail.SimpleMailMessage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -275,7 +276,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 		try {
 			entityBuilder.addPart("Content-Type", new StringBody("application/x-www-form-urlencoded", ContentType.create("text/plain", Consts.UTF_8)));
-			entityBuilder.addPart("charset", new StringBody("utf-8", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("charset", new StringBody(StandardCharsets.UTF_8.toString(), ContentType.create("text/plain", Consts.UTF_8)));
 			entityBuilder.addPart("Connection", new StringBody("Close", ContentType.create("text/plain", Consts.UTF_8)));
 			StringBody content = new StringBody("id: " + id + '\n' +
 					"Queue: " + queue + '\n' +

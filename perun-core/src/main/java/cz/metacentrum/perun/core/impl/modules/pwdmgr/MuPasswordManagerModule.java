@@ -44,6 +44,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -290,9 +291,9 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 			String response = null;
 			try {
-				response = convertStreamToString(con.getErrorStream(), "UTF-8");
+				response = convertStreamToString(con.getErrorStream(), StandardCharsets.UTF_8);
 			} catch (IOException ex) {
-				log.error("Unable to convert InputStream to String: {}", ex);
+				log.error("Unable to convert InputStream to String.", ex);
 			}
 
 			log.trace("[IS Request {}] Response: {}", requestId, response);
@@ -485,7 +486,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		String response;
 		try {
-			response = convertStreamToString(inputStream, "UTF-8");
+			response = convertStreamToString(inputStream, StandardCharsets.UTF_8);
 		} catch (IOException ex) {
 			throw new IllegalArgumentException("Unable to convert InputStream to String.", ex);
 		}
@@ -558,7 +559,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 * @return Content of inputStream as a String
 	 * @throws IOException
 	 */
-	static String convertStreamToString(InputStream inputStream, String encoding) throws IOException {
+	static String convertStreamToString(InputStream inputStream, Charset encoding) throws IOException {
 
 		ByteArrayOutputStream result = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];

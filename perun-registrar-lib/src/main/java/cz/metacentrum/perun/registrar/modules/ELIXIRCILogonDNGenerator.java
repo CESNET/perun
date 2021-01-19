@@ -122,7 +122,7 @@ public class ELIXIRCILogonDNGenerator extends DefaultRegistrarModule {
 			size = RDN_MAX_SIZE;
 		}
 
-		Charset defaultCharset = Charset.forName("UTF-8");
+		Charset defaultCharset = StandardCharsets.UTF_8;
 
 		// only truncate if the RDN exceeds the maximum allowed size
 		if ( rdn.getBytes(defaultCharset).length > size ) {
