@@ -150,6 +150,12 @@ public interface TasksManagerBl {
 	 */
 	List<Task> listAllTasksForFacility(int facilityId);
 
+	/**
+	 * Returns all tasks associated with given service
+	 * 
+	 * @param serviceId
+	 * @return tasks for service
+	 */
 	List<Task> listAllTasksForService(int serviceId);
 
 	List<Task> listAllTasksInState(Task.TaskStatus state);
@@ -164,6 +170,11 @@ public interface TasksManagerBl {
 
 	void removeTask(Service service, Facility facility);
 
+	/**
+	 * Removes all tasks associated with given service including the associated task results
+	 * 
+	 * @param service
+	 */
 	void removeAllTasksForService(Service service);
 
 	List<Task> listAllTasksNotInState(Task.TaskStatus state);

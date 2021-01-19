@@ -262,18 +262,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return getServicesManagerImpl().createService(sess, service);
 	}
 
-	@Override
-	public void deleteService(PerunSession sess, Service service) throws RelationExistsException, ServiceAlreadyRemovedException {
-		// Check if the relation with the resources exists
-		if (this.getAssignedResources(sess, service).size() > 0) {
-			throw new RelationExistsException("Service is defined on some resource");
-		}
-
-		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
-		getServicesManagerImpl().deleteService(sess, service);
-		getPerunBl().getAuditer().log(sess, new ServiceDeleted(service));
-	}
-
 	/*
 	 * Tables with reference to service:
 	 *   - service_required_attrs
@@ -287,33 +275,39 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	@Override
 	public void deleteService(PerunSession sess, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException {
 
-		if(!forceFlag) {
-			this.deleteService(sess, service);
-			return;
-		}
+		List<Resource> assignedResources = this.getAssignedResources(sess, service);
 		
-		// Remove all denials for this service
-		getServicesManagerImpl().unblockService(service.getId());
-		
-		// Remove from assigned resources
-		ResourcesManagerBl resourcesManager = getPerunBl().getResourcesManagerBl(); 
-		for(Resource resource: this.getAssignedResources(sess, service)) {
-			try {
-				resourcesManager.removeService(sess, resource, service);
-				// Remove from facility_service_destinations
-				Facility facility = getPerunBl().getFacilitiesManagerBl()
-						.getFacilityById(sess, resource.getFacilityId());
-				removeAllDestinations(sess, service, facility);
-			} catch (ServiceNotAssignedException | FacilityNotExistsException e) {
-				// should not happen
+		if(forceFlag) {
+
+			// Remove all denials for this service
+			getServicesManagerImpl().unblockService(service.getId());
+			
+			// Remove from assigned resources
+			ResourcesManagerBl resourcesManager = getPerunBl().getResourcesManagerBl(); 
+			for(Resource resource: assignedResources) {
+				try {
+					resourcesManager.removeService(sess, resource, service);
+					// Remove from facility_service_destinations
+					Facility facility = getPerunBl().getFacilitiesManagerBl()
+							.getFacilityById(sess, resource.getFacilityId());
+					removeAllDestinations(sess, service, facility);
+				} catch (ServiceNotAssignedException | FacilityNotExistsException e) {
+					// should not happen
+					throw new InternalErrorException("Error removing service", e);
+				}
+			}
+
+			// Remove from service packages
+			getServicesManagerImpl().removeServiceFromAllServicesPackages(sess, service);
+
+			// Remove all related tasks
+			getPerunBl().getTasksManagerBl().removeAllTasksForService(service);
+
+		} else {
+			if (assignedResources.size() > 0) {
+				throw new RelationExistsException("Service is defined on some resource");
 			}
 		}
-
-		// Remove from service packages
-		getServicesManagerImpl().removeServiceFromAllServicesPackages(sess, service);
-
-		// Remove all related tasks
-		getPerunBl().getTasksManagerBl().removeAllTasksForService(service);
 		
 		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
 		getServicesManagerImpl().deleteService(sess, service);

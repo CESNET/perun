@@ -256,19 +256,6 @@ public interface ServicesManager {
 	 *
 	 * @param perunSession
 	 * @param service
-	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
-	 * @throws PrivilegeException
-	 * @throws RelationExistsException
-	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
-	 */
-	void deleteService(PerunSession perunSession, Service service) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
-
-	/**
-	 * Deletes the service.
-	 *
-	 * @param perunSession
-	 * @param service
 	 * @param forceFlag
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException

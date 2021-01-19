@@ -285,25 +285,11 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public void deleteService(PerunSession sess, Service service) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteService_Service_policy", service)) {
-			throw new PrivilegeException(sess, "deleteService");
-		}
-
-		getServicesManagerBl().checkServiceExists(sess, service);
-
-		getServicesManagerBl().deleteService(sess, service);
-	}
-
-	@Override
 	public void deleteService(PerunSession sess, Service service, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "deleteService_Service_policy", service)) {
+		if (!AuthzResolver.authorizedInternal(sess, "deleteService_Service_boolean_policy", service)) {
 			throw new PrivilegeException(sess, "deleteService");
 		}
 

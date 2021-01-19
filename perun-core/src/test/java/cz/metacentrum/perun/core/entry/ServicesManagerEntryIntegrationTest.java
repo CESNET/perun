@@ -118,7 +118,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		service = setUpService();
 		assertNotNull("unable to create service before deletion",service);
-		perun.getServicesManager().deleteService(sess, service);
+		perun.getServicesManager().deleteService(sess, service, false);
 		perun.getServicesManager().getServiceById(sess, service.getId());
 		// shouldn't find deleted service
 
@@ -128,7 +128,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void deleteServiceWhenServiceNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "deleteServiceWhenServiceNotExists");
 
-		perun.getServicesManager().deleteService(sess, new Service());
+		perun.getServicesManager().deleteService(sess, new Service(), false);
 		// shouldn't find service
 
 	}
@@ -145,7 +145,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		perun.getResourcesManager().assignService(sess, resource, service);
 
-		perun.getServicesManager().deleteService(sess, service);
+		perun.getServicesManager().deleteService(sess, service, false);
 		// shouldn't deleted service assigned to resource
 
 	}

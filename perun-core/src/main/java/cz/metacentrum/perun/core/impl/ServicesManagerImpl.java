@@ -339,7 +339,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void unblockService(int serviceId) {
 		try {
