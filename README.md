@@ -1,6 +1,6 @@
 ![](https://github.com/CESNET/perun/workflows/Maven%20build/badge.svg)
 
-<a href="https://perun.cesnet.cz/"><img style="float: left; position: relative;" src="https://raw.githubusercontent.com/CESNET/perun/master/perun-web-gui/src/main/webapp/img/logo.png"></a>
+<a href="https://perun-aai.org"><img style="float: left; position: relative;" src="https://raw.githubusercontent.com/CESNET/perun/master/perun-web-gui/src/main/webapp/img/logo.png"></a>
 ## Identity & Access Management System ##
 
 Perun is an identity and access management system primary targeting academia environment. Perun is well suited for managing users within organizations and projects and managing access rights to the services.
@@ -8,7 +8,7 @@ Perun is an identity and access management system primary targeting academia env
 ### Features ###
 
 * Simplify and automate all identity management related workflows
-* Perform access management by provisioning and deprovisioning users to your services
+* Perform access management by provisioning and de-provisioning users to your services
 * Support delegation of user/service management responsibilities
 * Unified GUI as a single place for managing everything from personal profile to groups and services settings
 * Organize users within groups and virtual organizations
@@ -18,21 +18,17 @@ Perun is an identity and access management system primary targeting academia env
 * Can handle and join multiple user identities a manage them across your services
 * All actions are audited
 
-### Changelog ###
-
-* [Changelog web](https://perun.cesnet.cz/web/documentation.shtml)
-* [Changelog RSS](https://perun.cesnet.cz/web/release-rss.xml)
-
 ### Related projects ###
 
 * [Perun ansible](https://github.com/CESNET/perun-ansible) - Perun installation automation using Ansible
 * [Perun services](https://github.com/CESNET/perun-services) - connectors Perun uses to manage services
-* [Perun WUI](https://github.com/zlamalp/perun-wui) - next-gen web user interface for Perun
+* [Perun Web Apps](https://github.com/CESNET/perun-web-apps) - new web user interface for Perun using Angular
+* [Perun WUI](https://github.com/CESNET/perun-wui) - current web user interface for Perun
 * [Google Group connector](https://github.com/CESNET/google-group-connector) - allow provisioning of Google groups on your domain
 
 ### License ###
 
-&copy; 2010-2020 [CESNET](https://www.cesnet.cz/?lang=en), [CERIT-SC](https://www.cerit-sc.cz/en/index.html) and [Masaryk University](https://www.muni.cz/en), all rights reserved.
+&copy; 2010-2021 [CESNET](https://www.cesnet.cz/?lang=en), [CERIT-SC](https://www.cerit-sc.cz/en/index.html) and [Masaryk University](https://www.muni.cz/en), all rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
