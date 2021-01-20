@@ -256,7 +256,7 @@ public interface ServicesManager {
 	 *
 	 * @param perunSession
 	 * @param service
-	 * @param forceFlag
+	 * @param forceFlag if true, removes all dependant objects from database instead of raising exception
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 * @throws PrivilegeException

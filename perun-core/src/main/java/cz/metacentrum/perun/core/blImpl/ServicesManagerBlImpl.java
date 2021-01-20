@@ -273,9 +273,9 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	 *   - authz
 	 */
 	@Override
-	public void deleteService(PerunSession sess, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException {
+	public void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException {
 
-		List<Resource> assignedResources = this.getAssignedResources(sess, service);
+		List<Resource> assignedResources = this.getAssignedResources(perunSession, service);
 		
 		if(forceFlag) {
 
@@ -286,11 +286,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			ResourcesManagerBl resourcesManager = getPerunBl().getResourcesManagerBl(); 
 			for(Resource resource: assignedResources) {
 				try {
-					resourcesManager.removeService(sess, resource, service);
+					resourcesManager.removeService(perunSession, resource, service);
 					// Remove from facility_service_destinations
 					Facility facility = getPerunBl().getFacilitiesManagerBl()
-							.getFacilityById(sess, resource.getFacilityId());
-					removeAllDestinations(sess, service, facility);
+							.getFacilityById(perunSession, resource.getFacilityId());
+					removeAllDestinations(perunSession, service, facility);
 				} catch (ServiceNotAssignedException | FacilityNotExistsException e) {
 					// should not happen
 					throw new InternalErrorException("Error removing service", e);
@@ -298,7 +298,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			}
 
 			// Remove from service packages
-			getServicesManagerImpl().removeServiceFromAllServicesPackages(sess, service);
+			getServicesManagerImpl().removeServiceFromAllServicesPackages(perunSession, service);
 
 			// Remove all related tasks
 			getPerunBl().getTasksManagerBl().removeAllTasksForService(service);
@@ -309,9 +309,9 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			}
 		}
 		
-		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
-		getServicesManagerImpl().deleteService(sess, service);
-		getPerunBl().getAuditer().log(sess, new ServiceDeleted(service));
+		getServicesManagerImpl().removeAllRequiredAttributes(perunSession, service);
+		getServicesManagerImpl().deleteService(perunSession, service);
+		getPerunBl().getAuditer().log(perunSession, new ServiceDeleted(service));
 	}
 
 	@Override

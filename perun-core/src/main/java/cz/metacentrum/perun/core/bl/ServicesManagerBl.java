@@ -259,7 +259,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteService(PerunSession sess, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException;
+	void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException;
 
 	/** Updates the service.
 	 *

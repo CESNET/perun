@@ -364,6 +364,12 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 */
+	/*#
+	 * Deletes a service.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param force boolean if true, service will be removed with all dependant objects from the db instead of raising exception 
+	 */
 	deleteService {
 
 		@Override
