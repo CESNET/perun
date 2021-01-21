@@ -26,6 +26,14 @@ public interface TasksManagerImplApi {
 	 */
 	List<Task> listAllTasksForFacility(int facilityId);
 
+	/**
+	 * Returns all tasks associated with given service
+	 * 
+	 * @param serviceId
+	 * @return tasks for service
+	 */
+	List<Task> listAllTasksForService(int serviceId);
+
 	List<Task> listAllTasksInState(Task.TaskStatus state);
 
 	List<Task> listAllTasksNotInState(TaskStatus state);

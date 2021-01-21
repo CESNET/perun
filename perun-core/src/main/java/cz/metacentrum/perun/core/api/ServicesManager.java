@@ -256,13 +256,14 @@ public interface ServicesManager {
 	 *
 	 * @param perunSession
 	 * @param service
+	 * @param forceFlag if true, removes all dependant objects from database instead of raising exception
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 * @throws PrivilegeException
 	 * @throws RelationExistsException
 	 * @throws ServiceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void deleteService(PerunSession perunSession, Service service) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
+	void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException;
 
 	/** Updates the service.
 	 *

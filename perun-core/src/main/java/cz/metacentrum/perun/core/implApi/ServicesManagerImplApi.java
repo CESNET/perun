@@ -87,6 +87,13 @@ public interface ServicesManagerImplApi {
 	void unblockAllServicesOnDestination(int destination);
 
 	/**
+	 * Unblock Service everywhere. If was not blocked, nothing happens.
+	 *
+	 * @param serviceId ID of Service to unblock.
+	 */
+	void unblockService(int serviceId);
+
+	/**
 	 * Get Services blocked on Facility.
 	 *
 	 * @param facilityId ID of Facility to get blocked Services for.
@@ -301,6 +308,18 @@ public interface ServicesManagerImplApi {
 	 */
 	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws ServiceAlreadyRemovedFromServicePackageException;
 
+	/**
+	 * Remove Service from all Services Packages
+	 *
+	 * @param perunSession
+	 * @param service service that will be removed from the services package
+	 *
+	 * @throws InternalErrorException
+	 * @throws ServiceNotExistsException
+	 * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from service package in DB
+	 */
+	void removeServiceFromAllServicesPackages(PerunSession sess, Service service);
+	
 	/**
 	 * List services stored in the packages
 	 *
@@ -591,4 +610,5 @@ public interface ServicesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	int getDestinationsCount(PerunSession perunSession);
+
 }

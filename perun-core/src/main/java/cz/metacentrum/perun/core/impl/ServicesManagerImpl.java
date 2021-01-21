@@ -339,6 +339,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	}
 
+	@Override
+	public void unblockService(int serviceId) {
+		try {
+			jdbc.update("delete from service_denials where service_id = ?", serviceId);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	private int queryForInt(String sql, Object... args) {
 		try {
 			@SuppressWarnings("ConstantConditions")
@@ -536,6 +545,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		try {
 			int numAffected = jdbc.update("delete from service_service_packages where package_id=? and service_id=?", servicesPackage.getId(), service.getId());
 			if(numAffected == 0) throw new ServiceAlreadyRemovedFromServicePackageException("Service: " + service + " , ServicePackage: " + servicesPackage);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeServiceFromAllServicesPackages(PerunSession sess, Service service) {
+		try {
+			jdbc.update("delete from service_service_packages where service_id=?", service.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -878,4 +896,5 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+
 }
