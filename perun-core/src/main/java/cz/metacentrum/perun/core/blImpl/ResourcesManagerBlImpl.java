@@ -239,7 +239,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		List<Service> services = getAssignedServices(sess, resource);
 		for (Service service: services) {
 			try {
-				getResourcesManagerImpl().removeService(sess, resource, service);
+				this.removeService(sess, resource, service);
 			} catch (ServiceNotAssignedException e) {
 				throw new ConsistencyErrorException(e);
 			}
