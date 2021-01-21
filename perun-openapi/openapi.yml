@@ -7704,7 +7704,7 @@ paths:
   /json/usersManager/getUserExtSourceById:
     get:
       tags:
-        - UserManager
+        - UsersManager
       operationId: getUserExtSourceById
       summary: Returns user ext source by its id.
       parameters:
