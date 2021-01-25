@@ -988,8 +988,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		try {
 			return new HashSet<>(namedParameterJdbcTemplate.query("select " + memberMappingSelectQuery + " from authz join members on authz.member_id=members.id " +
 					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
-					" left outer join members on members.id=groups_members.member_id " +
-					" where (authz.user_id=:uid or members.user_id=:uid) and authz.role_id in " +
+					" left outer join members m on m.id=groups_members.member_id " +
+					" where (authz.user_id=:uid or m.user_id=:uid) and authz.role_id in " +
 					"(select id from roles where name in (:roles))",
 				parameters, MEMBER_MAPPER));
 		} catch (RuntimeException ex) {
