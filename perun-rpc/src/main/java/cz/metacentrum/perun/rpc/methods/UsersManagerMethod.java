@@ -987,7 +987,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param ids List<Integer> list of users IDs
 	 * @return List<User> users with specified IDs
 	 */
-	getUserByIds {
+	getUsersByIds {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().getUsersByIds(ac.getSession(), parms.readList("ids", Integer.class));
