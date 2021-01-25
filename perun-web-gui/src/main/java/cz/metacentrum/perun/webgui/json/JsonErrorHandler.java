@@ -378,6 +378,8 @@ public class JsonErrorHandler {
 			String text = "";
 			if (error.getType().equalsIgnoreCase("NO_IDENTITY_FOR_PUBLICATION_SYSTEM")) {
 				text = "You don't have registered identity in Perun related to selected publication system.<p>Please visit <a target=\"new\" href=\"" + Utils.getIdentityConsolidatorLink(false) + "\">identity consolidator</a> to add more identities.";
+			} else if (error.getType().equalsIgnoreCase("THANKS_ALREADY_EXISTS")) {
+				text = "Acknowledgement is already added.";
 			}
 
 			return text;

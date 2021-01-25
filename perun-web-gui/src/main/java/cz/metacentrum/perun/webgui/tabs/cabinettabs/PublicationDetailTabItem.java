@@ -27,9 +27,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -132,7 +130,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		final FlexTable ft = new FlexTable();
 		ft.setStyleName("inputFormFlexTable");
 
-		if (publication.getLocked() == false) {
+		if (!publication.isLocked()) {
 
 			ft.setHTML(1, 0, "Id / Origin:");
 			ft.setHTML(2, 0, "Title:");
@@ -283,7 +281,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 		if (session.isPerunAdmin()) {
 			final CustomButton lock;
-			if (publication.getLocked()) {
+			if (publication.isLocked()) {
 				lock = new CustomButton("Unlock", "Allow editing of publication details (for users).", SmallIcons.INSTANCE.lockOpenIcon());
 				ft.setWidget(0, 0, lock);
 				ft.getFlexCellFormatter().setColSpan(0, 0, 1);
@@ -297,12 +295,12 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 					LockUnlockPublications upCall = new LockUnlockPublications(JsonCallbackEvents.disableButtonEvents(lock, new JsonCallbackEvents(){
 						public void onFinished(JavaScriptObject jso) {
 							// refresh page content
-							publication.setLocked(!publication.getLocked());
+							publication.setLocked(!publication.isLocked());
 							draw();
 						}
 					}));
 					Publication p = JsonUtils.clone(publication).cast();
-					upCall.lockUnlockPublication(!publication.getLocked(), p);
+					upCall.lockUnlockPublication(!publication.isLocked(), p);
 				}
 			});
 
@@ -354,7 +352,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		final FindAuthorsByPublicationId call = new FindAuthorsByPublicationId(publication.getId());
 		call.setCheckable(false);
 
-		if (!publication.getLocked()) {
+		if (!publication.isLocked()) {
 			// editable if not locked
 			vp.add(menu);
 			vp.setCellHeight(menu, "30px");
@@ -451,7 +449,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		final GetRichThanksByPublicationId thanksCall = new GetRichThanksByPublicationId(publicationId);
 		thanksCall.setCheckable(false);
 
-		if (!publication.getLocked()) {
+		if (!publication.isLocked()) {
 			// editable if not locked
 			vp.add(menu);
 			vp.setCellHeight(menu, "30px");
