@@ -613,62 +613,98 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a new member and sets all member's attributes from the candidate.
-	 * Also stores the associated user if doesn't exist. This method is used by the registrar.
-	 *
-	 * @param vo int VO <code>id</code>
-	 * @param extSourceName String Name of the extSource
-	 * @param extSourceType String Type of the extSource
-	 * @param login String User's login within extSource
-	 * @param candidate Candidate Candidate JSON object
-	 * @return Member Created member
-	 */
-	/*#
-	 * Creates a new member and sets all member's attributes from the candidate.
-	 * Also stores the associated user if doesn't exist. This method is used by the registrar.
-	 * This method also add user to all groups in list.
-	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
-	 *
-	 * @param vo int VO ID
-	 * @param extSourceName String Name of the extSource
-	 * @param extSourceType String Type of the extSource
-	 * @param login String User's login within extSource
-	 * @param candidate Candidate Candidate JSON object
-	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
-	 * @return Member Created member
-	 */
-	/*#
-	 * Creates a new member from user.
+	 * Creates a new Member in VO from existing User.
+	 * <strong>This method doesn't validate the member. If necessary, you can call it afterwards.</strong>
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param user int User <code>id</code>
 	 * @return Member Created member
 	 */
 	/*#
-	 * Creates a new member from user.
-	 * This method also add user to all groups in list.
-	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
+	 * Creates a new Member in VO from existing User.
+	 * Member is also added to all specified Groups within the VO (empty list is allowed).
+	 * <strong>This method doesn't validate the member. If necessary, you can call it afterwards.</strong>
 	 *
 	 * @param vo int VO ID
 	 * @param user int User ID
-	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
+	 * @param groups List<Group> List of groups where Member need to be added (must be from the same vo)
 	 * @return Member Created member
 	 */
 	/*#
-	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
-	 * <strong>This method runs asynchronously</strong>
+	 * Creates a new Member in VO from Candidate.
+	 * <strong>This method doesn't validate the member. If necessary, you can call it afterwards.</strong>
 	 *
 	 * @param vo int VO ID
 	 * @param candidate Candidate Candidate JSON object
 	 * @return Member Created member
 	 */
 	/*#
-	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
-	 * This method also add user to all groups in list.
-	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
-	 * <strong>This method runs asynchronously</strong>
+	 * Creates a new Member in VO from Candidate.
+	 * Member is also added to all specified Groups within the VO (empty list is allowed).
+	 * <strong>This method doesn't validate the member. If necessary, you can call it afterwards.</strong>
 	 *
 	 * @param vo int VO <code>id</code>
+	 * @param candidate Candidate Candidate JSON object
+	 * @param groups List<Group> List of groups where Member need to be added (must be from the same vo)
+	 * @return Member Created member
+	 */
+	/*#
+	 * Creates a new Member in VO from Candidate retrieved internally from the specified ExtSource
+	 * by the specified login.
+	 * <strong>This method validates member asynchronously</strong>.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param extSource int ID of ExtSource to get Candidate from
+	 * @param login String Login of Candidate in the specified ExtSource
+	 * @return Member Created member
+	 */
+	/*#
+	 * Creates a new Member in VO from Candidate retrieved internally from the specified ExtSource
+	 * by the specified login.
+	 * Member is also added to all specified Groups within the VO (empty list is allowed).
+	 * <strong>This method validates member asynchronously</strong>.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param extSource int ID of ExtSource to get Candidate from
+	 * @param login String Login of Candidate in the specified ExtSource
+	 * @param groups List<Group> List of groups where member need to be added (must be from the same VO)
+	 * @return Member Created member
+	 */
+	/*#
+	 * Creates a new Member in VO from the Candidate object. It is joined with the identity
+	 * provided by the combination of extSourceName, extSourceType and login.
+	 *
+	 * If no match is found, new User/Member is created and provided identity and attributes are set from the Candidate.
+	 *
+	 * If existing User/Member is found (by the provided identities or Candidate), it is used instead, but
+	 * its attributes are updated by the Candidate object.
+	 *
+	 * Member is also added to all specified Groups within the VO (empty list is allowed).
+	 *
+	 * <strong>This method doesn't validate the member. If necessary, you can call it afterwards.</strong>
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param extSourceName String Name of the extSource
+	 * @param extSourceType String Type of the extSource
+	 * @param login String User's login within extSource
+	 * @param candidate Candidate Candidate JSON object
+	 * @return Member Created member
+	 */
+	/*#
+	 * Creates a new Member in VO from the Candidate object. It is joined with the identity
+	 * provided by the combination of extSourceName, extSourceType and login.
+	 *
+	 * If no match is found, new User/Member is created and provided identity and attributes are set from the Candidate.
+	 *
+	 * If existing User/Member is found (by the provided identities or Candidate), it is used instead, but
+	 * its attributes are updated by the Candidate object.
+	 *
+	 * <strong>This method doesn't validate the member. If necessary, you can call it afterwards.</strong>
+	 *
+	 * @param vo int VO ID
+	 * @param extSourceName String Name of the extSource
+	 * @param extSourceType String Type of the extSource
+	 * @param login String User's login within extSource
 	 * @param candidate Candidate Candidate JSON object
 	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
 	 * @return Member Created member
