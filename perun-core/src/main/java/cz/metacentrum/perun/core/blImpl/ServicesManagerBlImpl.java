@@ -276,14 +276,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	public void deleteService(PerunSession perunSession, Service service, boolean forceFlag) throws RelationExistsException, ServiceAlreadyRemovedException {
 
 		List<Resource> assignedResources = this.getAssignedResources(perunSession, service);
-		
+
 		if(forceFlag) {
 
 			// Remove all denials for this service
 			getServicesManagerImpl().unblockService(service.getId());
-			
+
 			// Remove from assigned resources
-			ResourcesManagerBl resourcesManager = getPerunBl().getResourcesManagerBl(); 
+			ResourcesManagerBl resourcesManager = getPerunBl().getResourcesManagerBl();
 			for(Resource resource: assignedResources) {
 				try {
 					resourcesManager.removeService(perunSession, resource, service);
@@ -308,7 +308,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 				throw new RelationExistsException("Service is defined on some resource");
 			}
 		}
-		
+
 		getServicesManagerImpl().removeAllRequiredAttributes(perunSession, service);
 		getServicesManagerImpl().deleteService(perunSession, service);
 		getPerunBl().getAuditer().log(perunSession, new ServiceDeleted(service));
@@ -554,6 +554,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 				.sess((PerunSessionImpl) sess)
 				.service(service)
 				.facility(facility)
+				.filterExpiredMembers(filterExpiredMembers)
 				.build();
 
 		return hashedDataGenerator.generateData();
@@ -565,6 +566,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 				.sess((PerunSessionImpl) sess)
 				.service(service)
 				.facility(facility)
+				.filterExpiredMembers(filterExpiredMembers)
 				.build();
 
 		return hashedDataGenerator.generateData();
