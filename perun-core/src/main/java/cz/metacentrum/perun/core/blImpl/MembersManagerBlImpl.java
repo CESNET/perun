@@ -135,6 +135,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	private static final String NO_REPLY_EMAIL = "no-reply@muni.cz";
 
+	private static final String OK = "OK";
+	private static final String LOGIN = "login";
+	private static final String PASSWORD = "password";
+	private static final String STATUS = "status";
+	private static final String MEMBER = "member";
+
 	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
 			"firstname",
 			"lastname",
@@ -2475,14 +2481,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 			// convert result to expected "type" for outer API
 			Map<String, String> newResult = new HashMap<>();
-			if ("OK".equals(originalResult.get("status"))) {
-				newResult.put("status", (String)originalResult.get("status"));
-				newResult.put("login", (String)originalResult.get("login"));
-				newResult.put("password", (String)originalResult.get("password"));
-				createdMembers.add((Member)originalResult.get("member"));
+			if (OK.equals(originalResult.get(STATUS))) {
+				newResult.put(STATUS, (String)originalResult.get(STATUS));
+				newResult.put(LOGIN, (String)originalResult.get(LOGIN));
+				newResult.put(PASSWORD, (String)originalResult.get(PASSWORD));
+				createdMembers.add((Member)originalResult.get(MEMBER));
 			} else {
 				// error when creating
-				newResult.put("status", (String)originalResult.get("status"));
+				newResult.put(STATUS, (String)originalResult.get(STATUS));
 			}
 			totalResult.put(data.get(processedCounter++), newResult);
 		}
@@ -2526,9 +2532,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				// get login to return
 				String login = perunBl.getAttributesManagerBl().getAttribute(sess, user, PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
 				Map<String, String> statusWithLogin = new HashMap<>();
-				statusWithLogin.put("status", "OK");
-				statusWithLogin.put("login", login);
-				statusWithLogin.put("password", password);
+				statusWithLogin.put(STATUS, OK);
+				statusWithLogin.put(LOGIN, login);
+				statusWithLogin.put(PASSWORD, password);
 
 				result.put(name, statusWithLogin);
 
@@ -2536,7 +2542,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 			} catch (Exception e) {
 				Map<String, String> status = new HashMap<>();
-				status.put("status", e.getMessage());
+				status.put(STATUS, e.getMessage());
 				result.put(name, status);
 			}
 		}
@@ -2905,17 +2911,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			// get login to return
 			String login = perunBl.getAttributesManagerBl().getAttribute(sess, user,
 					PasswordManagerModule.LOGIN_PREFIX + namespace).valueAsString();
-			status.put("login", login);
-			status.put("password", password);
+			status.put(LOGIN, login);
+			status.put(PASSWORD, password);
 
 			setAdditionalValues(sess, additionalValues, data, user, member);
 
 			// we must pass member back for the purpose of validation
-			status.put("member", member);
+			status.put(MEMBER, member);
 
-			status.put("status", "OK");
+			status.put(STATUS, OK);
 		} catch (Exception e) {
-			status.put("status", e.getMessage());
+			status.put(STATUS, e.getMessage());
 		}
 		return status;
 	}
