@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Validation;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
@@ -1450,7 +1451,7 @@ public interface MembersManagerBl {
 	 * @param sponsor sponsoring user
 	 * @param sendActivationLink if true link for manual activation of account will be send to the email
 	 *                           be careful when using with empty (no-reply) email
-	 * @param asyncValidation
+	 * @param validation Type of validation, when using Validation.ASYNC do not call this method in a cycle!
 	 * @param url base URL of Perun Instance
 	 * @return created member
 	 * @throws InternalErrorException
@@ -1464,7 +1465,7 @@ public interface MembersManagerBl {
 	 * @throws UserNotInRoleException if the member is not in required role
 	 * @throws AlreadySponsorException
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean sendActivationLink, String url, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean sendActivationLink, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates a new sponsored member.
@@ -1481,7 +1482,7 @@ public interface MembersManagerBl {
 	 * @param sendActivationLink if true link for manual activation of account will be send to the email
 	 *                           be careful when using with empty (no-reply) email
 	 * @param url base URL of Perun Instance
-	 * @param asyncValidation
+	 * @param validation Type of members validation, when using Validation.ASYNC do not call this method in a cycle!
 	 * @return created member
 	 * @throws InternalErrorException
 	 * @throws AlreadyMemberException
@@ -1494,7 +1495,7 @@ public interface MembersManagerBl {
 	 * @throws UserNotInRoleException if the member is not in required role
 	 * @throws AlreadySponsorException
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1505,7 +1506,7 @@ public interface MembersManagerBl {
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param password password
 	 * @param sponsor sponsoring user
-	 * @param asyncValidation
+	 * @param validation Type of members validation, when using Validation.ASYNC do not call this method in a cycle!
 	 * @return sponsored member
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
@@ -1519,7 +1520,7 @@ public interface MembersManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 * @throws AlreadySponsorException
 	 */
-	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
+	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo, Validation validation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1530,7 +1531,7 @@ public interface MembersManagerBl {
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param password password
 	 * @param sponsor sponsoring user
-	 * @param asyncValidation
+	 * @param validation Type of members validation, when using Validation.ASYNC do not call this method in a cycle!
 	 * @return sponsored member
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
@@ -1544,7 +1545,7 @@ public interface MembersManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 * @throws AlreadySponsorException
 	 */
-	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, boolean asyncValidation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
+	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, Validation validation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
 
 	/**
 	 * Creates new sponsored members.
@@ -1570,13 +1571,13 @@ public interface MembersManagerBl {
 	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
 	 *                           to email which was set for him, be careful when using no-reply emails
 	 * @param url base URL of Perun Instance
-	 * @param asyncValidation switch for easier testing
-	 * @return map of names to map of status, login and password
+	 * @param validation Type of members validation, when ASYNC do not call this method in a cycle!
+	 * @return map of names to map of status, login, password, user and member
 	 */
 	Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               List<String> data, String header, User sponsor,
 	                                                               LocalDate validityTo, boolean sendActivationLink,
-																   String url, boolean asyncValidation);
+																   String url, Validation validation);
 
 	/**
 	 * Creates new sponsored members.
@@ -1601,10 +1602,10 @@ public interface MembersManagerBl {
 	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
 	 *                           to the email, be careful when using with empty (no-reply) email
 	 * @param url base URL of Perun Instance
-	 * @param asyncValidation switch for easier testing
-	 * @return map of names to map of status, login and password
+	 * @param validation Type of members validation, when ASYNC do not call this method in a cycle!
+	 * @return map of names to map of status, login, password
 	 */
-	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, boolean asyncValidation);
+	Map<String, Map<String, String>> createSponsoredMembers(PerunSession session, Vo vo, String namespace, List<String> names, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation);
 
 	/**
 	 * Links sponsored member and sponsoring user.

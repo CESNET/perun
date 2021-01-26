@@ -322,7 +322,7 @@ public interface MembersManager {
 	/**
 	 * Create new member from user by login and ExtSource.
 	 *
-	 * <strong>This method runs asynchronously</strong>
+	 * <strong>This method validates member asynchronously</strong>
 	 *
 	 * @param sess
 	 * @param vo
@@ -346,7 +346,7 @@ public interface MembersManager {
 	 *
 	 * Also add this member to groups in list.
 	 *
-	 * <strong>This method runs asynchronously</strong>
+	 * <strong>This method validates member asynchronously</strong>
 	 *
 	 * @param sess
 	 * @param vo
