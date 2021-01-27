@@ -11,6 +11,7 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskSchedule;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,11 @@ import javax.annotation.Resource;
 import static org.junit.Assert.assertFalse;
 
 /**
- * FIXME - All those tests must be reworked to use Mocks!
  *
  * @author Michal Voců
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
+@Ignore("All those tests must be reworked to use Mocks!")
 public class TaskSchedulerTest extends AbstractDispatcherTest {
 
 	private final static Logger log = LoggerFactory.getLogger(TaskSchedulerTest.class);

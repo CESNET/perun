@@ -20,18 +20,12 @@ public class Compatibility {
 		return "postgresql".equals(getDbType());
 	}
 
-	public static boolean isHSQLDB() {
-		return "hsqldb".equals(getDbType());
-	}
-
 	static String getSequenceNextval(String sequenceName) {
 		switch (getDbType()) {
 			case "oracle":
 				return sequenceName + ".nextval";
 			case "postgresql":
 				return "nextval('" + sequenceName + "')";
-			case "hsqldb":
-				return "next value for " + sequenceName;
 			default:
 				throw new InternalErrorException("Unsupported DB type");
 		}
@@ -42,8 +36,6 @@ public class Compatibility {
 			case "oracle":
 			case "postgresql":
 				return "LOCK TABLE "+tableName+" IN EXCLUSIVE MODE";
-			case "hsqldb":
-				return "LOCK TABLE "+tableName+" WRITE";
 			default:
 				throw new InternalErrorException("unknown DB type");
 		}
@@ -55,8 +47,6 @@ public class Compatibility {
 				return " IN (SELECT * FROM TABLE(?)) ";
 			case "postgresql":
 				return " = ANY(?) ";
-			case "hsqldb":
-				return "  IN ( UNNEST(?) ) ";
 			default:
 				throw new InternalErrorException("unknown DB type");
 		}
@@ -67,8 +57,6 @@ public class Compatibility {
 			case "oracle":
 				return "'1'";
 			case "postgresql":
-				return "TRUE";
-			case "hsqldb":
 				return "TRUE";
 			default:
 				throw new InternalErrorException("unknown DB type");
@@ -81,8 +69,6 @@ public class Compatibility {
 				return "'0'";
 			case "postgresql":
 				return "FALSE";
-			case "hsqldb":
-				return "FALSE";
 			default:
 				throw new InternalErrorException("unknown DB type");
 		}
@@ -94,8 +80,6 @@ public class Compatibility {
 				return "sysdate";
 			case "postgresql":
 				return "statement_timestamp()";
-			case "hsqldb":
-				return "current_date";
 			default:
 				throw new InternalErrorException("unknown DB type");
 		}
@@ -106,8 +90,6 @@ public class Compatibility {
 			case "oracle":
 				return new Date(dateInMiliseconds);
 			case "postgresql":
-				return new Timestamp(dateInMiliseconds);
-			case "hsqldb":
 				return new Timestamp(dateInMiliseconds);
 			default:
 				throw new InternalErrorException("unknown DB type");
@@ -153,11 +135,7 @@ public class Compatibility {
 	}
 
 	static String getRowNumberOver() {
-		if ("hsqldb".equals(getDbType())) {
-			return ",row_number() over () as rownumber";
-		} else {
-			return ",row_number() over (ORDER BY id DESC) as rownumber";
-		}
+		return ",row_number() over (ORDER BY id DESC) as rownumber";
 	}
 
 	static String orderByBinary(String columnName) {
@@ -179,8 +157,6 @@ public class Compatibility {
 
 			case "postgresql":
 				return "unaccent(" + columnName + ")";
-			case "hsqldb":
-				return "translate(" + columnName + ", 'ÁÇÉÍÓÚÀÈÌÒÙÚÂÊÎÔÛÃÕËÜŮŘřáçéíóúàèìòùâêîôûãõëüů', 'ACEIOUUAEIOUAEIOUAOEUURraceiouaeiouaeiouaoeuu')";
 			default:
 				return "unaccent(" + columnName + ")";
 		}

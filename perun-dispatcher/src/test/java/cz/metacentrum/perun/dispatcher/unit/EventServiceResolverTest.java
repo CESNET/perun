@@ -64,8 +64,6 @@ public class EventServiceResolverTest extends AbstractDispatcherTest {
 	public void parseEventTest() throws ServiceNotExistsException, InvalidEventMessageException, PrivilegeException {
 		System.out.println("EventServiceResolver.parseEventTest()");
 
-		// FIXME - přesunout setup sem, jinde member není potřeba
-
 		AuditEvent auditEvent = new DirectMemberAddedToGroup(member1, group1);
 
 		Event event = new Event();
