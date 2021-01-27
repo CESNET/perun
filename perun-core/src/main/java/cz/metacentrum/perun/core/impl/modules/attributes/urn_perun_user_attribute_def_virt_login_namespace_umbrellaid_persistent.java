@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Class for access def:umbrellaid-persistent-shadow attribute. It generates value if you call it for the first time.
+ * Class for access def:umbrellaid-persistent-shadow attribute. It generates a value if it is not set already.
  *
  */
 @SkipValueCheckDuringDependencyCheck
@@ -32,11 +32,11 @@ public class urn_perun_user_attribute_def_virt_login_namespace_umbrellaid_persis
 		try {
 			Attribute umbrellaIDPersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
-			if (umbrellaIDPersistentShadow.getValue() == null) {
+			if (umbrellaIDPersistentShadow.getValue() == null || umbrellaIDPersistentShadow.valueAsString().isEmpty()) {
 
 				umbrellaIDPersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, umbrellaIDPersistentShadow);
 
-				if (umbrellaIDPersistentShadow.getValue() == null) {
+				if (umbrellaIDPersistentShadow.getValue() == null || umbrellaIDPersistentShadow.valueAsString().isEmpty()) {
 					throw new InternalErrorException("UmbrellaID ID couldn't be set automatically");
 				}
 				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, umbrellaIDPersistentShadow);
@@ -61,7 +61,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_umbrellaid_persis
 		attr.setFriendlyName("login-namespace:umbrellaid-persistent");
 		attr.setDisplayName("UmbrellaID login");
 		attr.setType(String.class.getName());
-		attr.setDescription("Login for UmbrellaID. It is set automatically with first call.");
+		attr.setDescription("Login for UmbrellaID. It is filled by proxy during registration or set automatically with first call.");
 		return attr;
 	}
 }
