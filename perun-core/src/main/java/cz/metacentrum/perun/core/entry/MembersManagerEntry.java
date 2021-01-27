@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Validation;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
@@ -1248,7 +1249,7 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 		//create the sponsored member
-		return membersManagerBl.getRichMemberWithAttributes(session, membersManagerBl.createSponsoredMember(session, vo, namespace, name, password, email, sponsor, validityTo, sendActivationLink, url, true));
+		return membersManagerBl.getRichMemberWithAttributes(session, membersManagerBl.createSponsoredMember(session, vo, namespace, name, password, email, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC));
 	}
 
 	@Override
@@ -1276,7 +1277,7 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 		//create the sponsored member
-		return membersManagerBl.getRichMember(session, membersManagerBl.setSponsoredMember(session, vo, userToBeSponsored, namespace, password, sponsor, validityTo, true));
+		return membersManagerBl.getRichMember(session, membersManagerBl.setSponsoredMember(session, vo, userToBeSponsored, namespace, password, sponsor, validityTo, Validation.ASYNC));
 	}
 
 	@Override
@@ -1300,7 +1301,7 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		return membersManagerBl
-				.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, sendActivationLink, url, true);
+				.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC);
 	}
 
 	@Override
@@ -1321,7 +1322,7 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		// create sponsored members
-		return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, email, sponsor, validityTo, sendActivationLink, url, true);
+		return membersManagerBl.createSponsoredMembers(session, vo, namespace, names, email, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC);
 	}
 
 	@Override
@@ -1471,7 +1472,7 @@ public class MembersManagerEntry implements MembersManager {
 	public List<MemberWithSponsors> getSponsoredMembersAndTheirSponsors(PerunSession sess, Vo vo, List<String> attrNames) throws VoNotExistsException, PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
-		
+
 		//Authorization
 		if(!AuthzResolver.authorizedInternal(sess, "getSponsoredMembersAndTheirSponsors_Vo_policy", vo)) {
 			throw new PrivilegeException(sess, "getSponsoredMembersAndTheirSponsors");
