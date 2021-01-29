@@ -5,7 +5,7 @@ This module holds all DB related utilities, which are necessary to install and r
 ### Supported DB types ###
 
 * ~~Oracle (>11)~~ support for Oracle was dropped in 3.10.0
-* Postgres (>9.1)
+* Postgres (>=9.5)
 
 > ~~Data in Perun is stored using UTF-8 charset. When using Oracle DB, some columns are limited to 4000 of ASCII characters (1000 with full UTF-8 set).~~
 
