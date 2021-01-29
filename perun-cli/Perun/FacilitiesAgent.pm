@@ -249,7 +249,7 @@ sub copyAttributes
 
 sub getAssignedUsers
 {
-        return Perun::Common::callManagerMethod('getAssignedUsers', '[]User', @_);
+	return Perun::Common::callManagerMethod('getAssignedUsers', '[]User', @_);
 }
 
 1;
