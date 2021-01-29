@@ -7,8 +7,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
@@ -22,6 +20,7 @@ import java.util.List;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @SkipValueCheckDuringDependencyCheck
+@Deprecated
 public class urn_perun_user_attribute_def_virt_login_namespace_westlife_persistent extends UserVirtualAttributesModuleAbstract {
 
 	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:westlife-persistent-shadow";
@@ -33,6 +32,9 @@ public class urn_perun_user_attribute_def_virt_login_namespace_westlife_persiste
 		try {
 			Attribute westlifePersistentShadow = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, SHADOW);
 
+			// FIXME - Westlife project is inactive for 2 years and their UK based domain is down
+			//  Lets stop generating unique west-life IDs for all users in Perun.
+			/*
 			if (westlifePersistentShadow.getValue() == null) {
 
 				westlifePersistentShadow = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, westlifePersistentShadow);
@@ -42,11 +44,11 @@ public class urn_perun_user_attribute_def_virt_login_namespace_westlife_persiste
 				}
 				sess.getPerunBl().getAttributesManagerBl().setAttribute(sess, user, westlifePersistentShadow);
 			}
-
+			*/
 			westlifePersistent.setValue(westlifePersistentShadow.getValue());
 			return westlifePersistent;
 
-		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
 	}

@@ -48,7 +48,6 @@ public abstract class UserVirtualAttributesModuleAbstract extends UserAttributes
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
+		return new ArrayList<>();
 	}
 }

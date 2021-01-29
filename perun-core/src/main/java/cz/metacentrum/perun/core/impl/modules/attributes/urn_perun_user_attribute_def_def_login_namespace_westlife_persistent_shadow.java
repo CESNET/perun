@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserPersistentShadow
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
+@Deprecated
 public class urn_perun_user_attribute_def_def_login_namespace_westlife_persistent_shadow
 		extends UserPersistentShadowAttribute {
 
