@@ -119,6 +119,7 @@ public class EngineMessageConsumer extends AbstractRunner {
 			} catch (JMSException e) {
 				// try to restart JMS messaging
 				log.error(e.toString(), e);
+				// NOTE: this will call stop() on us
 				engineMessageProcessor.stopProcessingSystemMessages();
 				engineMessageProcessor.startProcessingSystemMessages();
 				try {

@@ -60,11 +60,14 @@ public class MessageReceiver implements Runnable {
 		while (running) {
 			if (!queueAcquired) {
 				try {
+					log.debug("Creating new JMS queue " + queueName);
 					// Step 1. Directly instantiate the JMS Queue object.
 					queue = HornetQJMSClient.createQueue(queueName);
 					// Step 9. Create a JMS Message Consumer
+					log.debug("Creating JMS consumer");
 					messageConsumer = session.createConsumer(queue);
 					queueAcquired = true;
+					log.debug("Ready to receive messages.");
 					// messageConsumer.receive(timeout) is a blocking operation!
 					waitTime = 0;
 				} catch (InvalidDestinationException e) {
