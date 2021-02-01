@@ -40,16 +40,15 @@ public class EngineMessageProducer {
 		this.session = session;
 		try {
 			// Step 1. Directly instantiate the JMS Queue object.
-			queue = HornetQJMSClient.createQueue(queueName);
+			this.queue = HornetQJMSClient.createQueue(this.queueName);
 			if (log.isDebugEnabled()) {
-				log.debug("Created queue named as: " + queueName);
+				log.debug("Created queue named as: " + this.queueName);
 			}
 			// Step 6. Create a JMS Message Producer
-			producer = session.createProducer(queue);
+			this.producer = session.createProducer(this.queue);
 			if (log.isDebugEnabled()) {
-				log.debug("Session created: " + session);
+				log.debug("Producer created: " + this.producer);
 			}
-
 		} catch (JMSException e) {
 			log.error(e.toString(), e);
 		} catch (Exception e) {
@@ -97,7 +96,8 @@ public class EngineMessageProducer {
 	public void shutdown() {
 		try {
 			producer.close();
-			session.close();
+			// session is not not ours to close
+			// session.close();
 		} catch (JMSException e) {
 			log.error(e.toString(), e);
 		}

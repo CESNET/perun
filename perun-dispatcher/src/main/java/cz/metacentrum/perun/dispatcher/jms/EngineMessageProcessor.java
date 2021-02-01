@@ -61,6 +61,8 @@ public class EngineMessageProcessor {
 	private boolean systemQueueInitiated = false;
 	private ConnectionFactory cf;
 	private Connection connection;
+	
+	private boolean restartHornetQServer = false;
 
 
 	// ----- setters -------------------------------------
@@ -134,6 +136,12 @@ public class EngineMessageProcessor {
 
 		connection = null;
 		try {
+			if(restartHornetQServer) {
+				engineMessageProducerFactory.removeProducer();
+				perunHornetQServer.stopServer();
+				perunHornetQServer.startServer();
+			}
+			
 			// Step 2. Instantiate the TransportConfiguration object which
 			// contains the knowledge of what transport to use,
 			// The server port etc.
@@ -188,6 +196,7 @@ public class EngineMessageProcessor {
 							+ dispatcherProperties.getProperty("dispatcher.ip.address")
 							+ "] on port [" + dispatcherProperties.getProperty("dispatcher.port")
 							+ "] ? \nSee: perun-dispatcher.properties. We gonna wait 5 sec and try again...", e);
+			restartHornetQServer = true;
 			throw new RuntimeException(e);
 		} catch (Exception e) {
 			log.error("Can't start processing of JMS: {}", e);
@@ -200,8 +209,10 @@ public class EngineMessageProcessor {
 	public void stopProcessingSystemMessages() {
 		if (processingMessages && engineMessageConsumer != null) {
 			engineMessageConsumer.stop();
+			engineMessageProducerFactory.removeProducer();
 			try {
 				connection.stop();
+				session.close();
 				connection.close();
 				((HornetQConnectionFactory)cf).close();
 				log.debug("JMS processing stopped.");
