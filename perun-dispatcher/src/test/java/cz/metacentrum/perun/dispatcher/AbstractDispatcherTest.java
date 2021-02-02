@@ -16,15 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-dispatcher-test.xml" })
 @Rollback
 @Transactional(transactionManager = "springTransactionManager")
+@ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-dispatcher-test.xml" })
 public abstract class AbstractDispatcherTest {
 
 	@Autowired
 	PerunBl perun;
 
-	protected PerunSession sess;
+	protected PerunSession sess = null;
 	protected Group group1;
 	protected Vo vo1;
 	protected User user1;
@@ -35,7 +35,7 @@ public abstract class AbstractDispatcherTest {
 	protected Member member1;
 
 	@Before
-	public void setUpSess() throws Exception {
+	public void setupTests() throws Exception {
 
 		if (sess == null) {
 			PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
@@ -44,27 +44,14 @@ public abstract class AbstractDispatcherTest {
 			// create VO for tests
 			vo1 = new Vo(0, "testVo", "testVo");
 			vo1 = perun.getVosManager().createVo(sess, vo1);
-			// create some group in there
-			group1 = new Group("falcon", "desc");
-			group1 = perun.getGroupsManager().createGroup(sess, vo1, group1);
-			// create user in the VO
-			// skip the xEntry (authorization check),
-			// could skip the xBl a go directly to xImpl to avoid writing audit
-			// log
-			user1 = new User(0, "firstName", "lastName", "", "", "");
-			user1 = perun.getUsersManagerBl().createUser(sess, user1);
-			// make the user the member of the group
-			member1 = perun.getMembersManager().createMember(sess, vo1, user1);
-			member1.setStatus("VALID");
-			perun.getGroupsManager().addMember(sess, group1, member1);
+
 			// now create some facility
 			facility1 = new Facility(0, "testFacility", "desc");
-			facility1 = perun.getFacilitiesManager().createFacility(sess, facility1);
+			facility1 = perun.getFacilitiesManagerBl().createFacility(sess, facility1);
 			// create a resource
 			resource1 = new Resource(0, "testResource", "test resource", facility1.getId(), vo1.getId());
-			resource1 = perun.getResourcesManager().createResource(sess, resource1, vo1, facility1);
-			// assign the group to this resource
-			perun.getResourcesManager().assignGroupToResource(sess, group1, resource1);
+			resource1 = perun.getResourcesManagerBl().createResource(sess, resource1, vo1, facility1);
+
 			// create service
 			service1 = new Service(0, "testService", null);
 			service1.setDelay(1);
@@ -72,7 +59,7 @@ public abstract class AbstractDispatcherTest {
 			service1.setEnabled(true);
 			service1 = perun.getServicesManager().createService(sess, service1);
 			// assign service to the resource
-			perun.getResourcesManager().assignService(sess, resource1, service1);
+			perun.getResourcesManagerBl().assignService(sess, resource1, service1);
 			// create service 2
 			service2 = new Service(0, "testService2", null);
 			service2.setDelay(1);
@@ -80,7 +67,7 @@ public abstract class AbstractDispatcherTest {
 			service2.setEnabled(true);
 			service2 = perun.getServicesManager().createService(sess, service2);
 			// assign service to the resource
-			perun.getResourcesManager().assignService(sess, resource1, service2);
+			perun.getResourcesManagerBl().assignService(sess, resource1, service2);
 
 		}
 

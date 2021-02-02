@@ -484,7 +484,7 @@ public class Utils {
 	}
 
 	/**
-	 * Gets the next number from the sequence. This function hides differences in the databases engines.
+	 * Gets the next number from the sequence.
 	 *
 	 * @param jdbc
 	 * @param sequenceName
@@ -492,44 +492,9 @@ public class Utils {
 	 * @throws InternalErrorException
 	 */
 	public static int getNewId(JdbcTemplate jdbc, String sequenceName) {
-		String dbType;
-		String url = "";
-		String query;
-		// try to deduce database type from jdbc connection metadata
-		try {
-			DataSource ds = jdbc.getDataSource();
-			if (ds instanceof HikariDataSource) {
-				url = ((HikariDataSource) ds).getJdbcUrl();
-			}
-		} catch (Exception e) {
-			log.error("cannot get JDBC url", e);
-		}
 
-		if (url.contains("hsqldb")) {
-			dbType = "hsqldb";
-		} else if (url.contains("oracle")) {
-			dbType = "oracle";
-		} else if (url.contains("postgresql")) {
-			dbType = "postgresql";
-		} else {
-			dbType = BeansUtils.getCoreConfig().getDbType();
-		}
+		String query = "select nextval('" + sequenceName + "')";
 
-		switch (dbType) {
-			case "oracle":
-				query = "select " + sequenceName + ".nextval from dual";
-				break;
-			case "postgresql":
-				query = "select nextval('" + sequenceName + "')";
-				break;
-			case "hsqldb":
-				query = "call next value for " + sequenceName + ";";
-				break;
-			default:
-				throw new InternalErrorException("Unsupported DB type");
-		}
-
-		// Decide which type of the JdbcTemplate is provided
 		try {
 			Integer i = jdbc.queryForObject(query, Integer.class);
 			if (i == null) {
@@ -1894,8 +1859,6 @@ public class Utils {
 	public static String prepareUserSearchQueryExactMatch() {
 		if (Compatibility.isPostgreSql()) {
 			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
-		} else if (Compatibility.isHSQLDB()) {
-			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
 		} else {
 			throw new InternalErrorException("Unsupported db type");
 		}
@@ -1910,9 +1873,6 @@ public class Utils {
 		if (Compatibility.isPostgreSql()) {
 			return " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 or " +
 				   " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 ";
-		} else if (Compatibility.isHSQLDB()) {
-			return " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', '') like '%' || replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '') || '%' or " +
-				   " replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") + "), ' ', '') like '%' || replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '') || '%' ";
 		} else {
 			throw new InternalErrorException("Unsupported db type");
 		}

@@ -20,4 +20,7 @@
 	<logger name="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" level="off"/>
 	<logger name="cz.metacentrum.perun.core.entry.AttributesManagerEntryIntegrationTest" level="error"/>
 
+	<logger name="org.testcontainers" level="INFO"/>
+	<logger name="com.github.dockerjava" level="WARN"/>
+
 </configuration>

@@ -91,7 +91,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 		System.out.println(CLASS_NAME + "checkApplicationsExpirationForGroup");
 
 		// set up expired application and reject it
-		Group group = deleteApplicationFormAndCreateGroup();
+		Group group = createGroup();
 		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 		spyScheduler.checkApplicationsExpiration();
 
@@ -131,7 +131,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void checkGroupApplicationShouldBeAutoRejected() throws Exception {
 		System.out.println(CLASS_NAME + "checkGroupApplicationShouldBeAutoRejected");
 
-		Group group = deleteApplicationFormAndCreateGroup();
+		Group group = createGroup();
 
 		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(70, group, GROUP_APP_EXP_RULES);
 
@@ -145,7 +145,7 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	public void checkGroupApplicationShouldNotBeAutoRejected() throws Exception {
 		System.out.println(CLASS_NAME + "checkGroupApplicationShouldNotBeAutoRejected");
 
-		Group group = deleteApplicationFormAndCreateGroup();
+		Group group = createGroup();
 
 		Application submitApp = setUpAndSubmitAppForPotentialAutoRejection(50, group, GROUP_APP_EXP_RULES);
 
@@ -172,19 +172,12 @@ public class AppAutoRejectionSchedulerTest extends RegistrarBaseIntegrationTest{
 	}
 
 	/**
-	 * In test DB in application_form is created unique index for vo_id without dependency on group_id, so if you
-	 * want to create application form for group, firstly you have to delete automatically created form for Vo.
-	 * Then method creates new group.
+	 * Creates new group.
 	 *
 	 * @return created group
 	 * @throws GroupExistsException if group already exists
 	 */
-	private Group deleteApplicationFormAndCreateGroup() throws GroupExistsException {
-		// delete automatically created form for Vo
-		if (Compatibility.isHSQLDB()) {
-			jdbc.update("DELETE from application_form WHERE vo_id = ?", vo.getId());
-		}
-
+	private Group createGroup() throws GroupExistsException {
 		Group group = new Group();
 		group.setName("Group for apply");
 		return perun.getGroupsManagerBl().createGroup(session, vo, group);

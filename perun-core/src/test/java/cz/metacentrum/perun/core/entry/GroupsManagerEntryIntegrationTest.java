@@ -2037,9 +2037,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		Group subgroup = new Group("Test", "test");
 		this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
-//		org.hsqldb.util.DatabaseManager.main(new String[] {
-//				"--url", "jdbc:hsqldb:mem:dataSource", "--noexit"
-//		});
 		this.groupsManager.deleteGroups(sess, groups, false);
 	}
 

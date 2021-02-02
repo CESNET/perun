@@ -2,7 +2,10 @@ package cz.metacentrum.perun.dispatcher.unit;
 
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.model.Event;
@@ -10,6 +13,7 @@ import cz.metacentrum.perun.dispatcher.processing.EventProcessor;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.SchedulingPoolImpl;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +34,33 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 
 	@Autowired
 	private EventProcessor eventProcessor;
+
+	@Autowired
+	PerunBl perun;
+
+	@Before
+	public void setupTests() throws Exception {
+
+		super.setupTests();
+
+		// create some group in there
+		group1 = new Group("falcon", "desc");
+		group1 = perun.getGroupsManager().createGroup(sess, vo1, group1);
+		// create user in the VO
+		// skip the xEntry (authorization check),
+		// could skip the xBl a go directly to xImpl to avoid writing audit
+		// log
+		user1 = new User(0, "firstName", "lastName", "", "", "");
+		user1 = perun.getUsersManagerBl().createUser(sess, user1);
+		// make the user the member of the group
+		member1 = perun.getMembersManagerBl().createMember(sess, vo1, user1);
+		member1.setStatus("VALID");
+		perun.getGroupsManagerBl().addMember(sess, group1, member1);
+
+		// assign the group to resource
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1);
+
+	}
 
 	@Test
 	public void eventProcessorTest() {

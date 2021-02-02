@@ -1633,8 +1633,8 @@ CREATE INDEX mrauv_idx ON member_resource_attr_u_values (member_id, resource_id,
 CREATE INDEX rauv_idx ON resource_attr_u_values (resource_id, attr_id);
 CREATE INDEX uauv_idx ON user_attr_u_values (user_id, attr_id);
 CREATE INDEX uesauv_idx ON user_ext_source_attr_u_values (user_ext_source_id, attr_id);
-CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, attr_id) ;
-CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
+CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, attr_id);
+CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 grant all on users to perun;
 grant all on vos to perun;
