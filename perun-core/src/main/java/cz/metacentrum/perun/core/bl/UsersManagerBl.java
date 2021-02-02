@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -373,6 +374,19 @@ public interface UsersManagerBl {
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
 	 */
 	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+
+	/**
+	 * Anonymizes user - according to configuration, each of user's attributes is either
+	 * anonymized, kept untouched or deleted. Also deletes other user's related data, e.g.
+	 * authorships of users publications, mail change and password reset requests, bans...
+	 *
+	 * @param perunSession
+	 * @param user
+	 * @throws InternalErrorException
+	 * @throws RelationExistsException if the user has some members assigned
+	 * @throws AnonymizationNotSupportedException if an attribute should be anonymized but its module doesn't specify the anonymization process
+	 */
+	void anonymizeUser(PerunSession perunSession, User user) throws RelationExistsException, AnonymizationNotSupportedException;
 
 	/**
 	 * Updates users data in DB.

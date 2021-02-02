@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -3436,6 +3437,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		EntitylessAttributesModuleImplApi attributeModule = getEntitylessAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, key, attribute);
+	}
+
+	@Override
+	public Attribute getAnonymizedValue(PerunSession sess, User user, Attribute attribute) throws AnonymizationNotSupportedException {
+		UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
+		if (attributeModule == null) {
+			throw new AnonymizationNotSupportedException("Cannot get anonymized attribute value. There is no module for: " + attribute.getName() + ".");
+		}
+
+		return attributeModule.getAnonymizedValue((PerunSessionImpl) sess, user, attribute);
 	}
 
 	@Override

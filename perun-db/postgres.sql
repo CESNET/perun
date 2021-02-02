@@ -1,4 +1,4 @@
--- database version 3.1.74 (don't forget to update insert statement at the end of file)
+-- database version 3.1.75 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -30,6 +30,7 @@ create table users (
 	modified_by varchar default user not null,
 	service_acc boolean default false not null, --is it service account?
 	sponsored_acc boolean default false not null, --is it sponsored account?
+	anonymized boolean default false not null, --was user anonymized?
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint usr_pk primary key (id)
@@ -1736,7 +1737,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.74');
+insert into configurations values ('DATABASE VERSION','3.1.75');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
