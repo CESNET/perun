@@ -6,9 +6,11 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.modules.ModulesConfigLoader;
 import cz.metacentrum.perun.core.impl.modules.ModulesYamlConfigLoader;
@@ -31,6 +33,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_umbrellaid_persist
 	private final static Logger log = LoggerFactory.getLogger(
 		urn_perun_user_attribute_def_def_login_namespace_umbrellaid_persistent_shadow.class);
 
+	private static final String A_U_UMBRELLAID_IDENTIFIER = AttributesManager.NS_USER_ATTR_DEF + ":umbrellaIDIdentifier";
 	private final static String CONFIG_EXT_SOURCE_NAME_UMBRELLA_ID = "extSourceNameUmbrellaID";
 	private final static String FRIENDLY_NAME = "login-namespace:umbrellaid-persistent-shadow";
 	private final static String FRIENDLY_NAME_PARAMETER = "umbrellaid-persistent-shadow";
@@ -38,7 +41,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_umbrellaid_persist
 	private final ModulesConfigLoader loader = new ModulesYamlConfigLoader();
 
 	/**
-	 * fillAttribute will generate a version 1 UUID
+	 * fillAttribute will set value from umbrellaIDIdentifier attribute or generate a version 1 UUID if there is no value set for the attribute
 	 */
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
@@ -46,11 +49,26 @@ public class urn_perun_user_attribute_def_def_login_namespace_umbrellaid_persist
 		Attribute filledAttribute = new Attribute(attribute);
 
 		if (attribute.getFriendlyName().equals(FRIENDLY_NAME)) {
-			long most64SigBits = get64MostSignificantBits();
-			long least64SigBits = get64LeastSignificantBits();
-			UUID uuid = new UUID(most64SigBits, least64SigBits);
 
-			filledAttribute.setValue(uuid.toString());
+			Attribute umbrellaIDIdentifier = null;
+
+			try {
+				umbrellaIDIdentifier  = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, A_U_UMBRELLAID_IDENTIFIER);
+			} catch (WrongAttributeAssignmentException e) {
+				throw new InternalErrorException(e);
+			} catch (AttributeNotExistsException e) {
+				log.warn("Attribute " + A_U_UMBRELLAID_IDENTIFIER + " does not exist while filling attribute " + attribute.getName() + ".");
+			}
+
+			if (umbrellaIDIdentifier != null && umbrellaIDIdentifier.getValue() != null && !umbrellaIDIdentifier.valueAsString().isEmpty()) {
+				filledAttribute.setValue(umbrellaIDIdentifier.valueAsString());
+			} else {
+				long most64SigBits = get64MostSignificantBits();
+				long least64SigBits = get64LeastSignificantBits();
+				UUID uuid = new UUID(most64SigBits, least64SigBits);
+
+				filledAttribute.setValue(uuid.toString());
+			}
 			return filledAttribute;
 		} else {
 			// without value
