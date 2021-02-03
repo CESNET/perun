@@ -71,7 +71,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.lang.Nullable;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
@@ -92,7 +91,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_ENTITYLESS_ATTR;
@@ -134,6 +132,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	//Attributes modules.  name => module
 	private final Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<>();
+
+	//Uninitialized attributes modules.  name => module
+	private final Map<String, AttributesModuleImplApi> uninitializedAttributesModulesMap = new ConcurrentHashMap<>();
 
 	private AttributesManagerImplApi self;
 
@@ -4519,19 +4520,50 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules) {
+	public AttributesModuleImplApi getUninitiatedAttributesModule(PerunSession sess, AttributeDefinition attributeDefinition) {
+
+		// core attributes doesn't have modules
+		if (isCoreAttribute(sess, attributeDefinition)) return null;
+
+		String moduleName = attributeNameToModuleName(attributeDefinition.getNamespace() + ":" + attributeDefinition.getFriendlyName());
+		AttributesModuleImplApi module = uninitializedAttributesModulesMap.get(moduleName);
+
+		if (module == null) {
+			moduleName = attributeNameToModuleName(attributeDefinition.getNamespace() + ":" + attributeDefinition.getBaseFriendlyName());
+			module = uninitializedAttributesModulesMap.get(moduleName);
+		}
+
+		return module;
+	}
+
+	@Override
+	public void initAndRegisterAttributeModules(PerunSession sess, ServiceLoader<AttributesModuleImplApi> modules, Set<AttributeDefinition> allAttributesDef) {
 		for (AttributesModuleImplApi module : modules) {
-			attributesModulesMap.put(module.getClass().getName(), module);
-			log.debug("Module {} loaded.", module.getClass().getSimpleName());
+			uninitializedAttributesModulesMap.put(module.getClass().getName(), module);
+		}
+
+		for (AttributeDefinition attributeDefinition : allAttributesDef) {
+			AttributesModuleImplApi module = getUninitiatedAttributesModule(sess, attributeDefinition);
+
+			if (module != null) {
+				attributesModulesMap.put(module.getClass().getName(), module);
+				log.debug("Module {} loaded.", module.getClass().getSimpleName());
+				uninitializedAttributesModulesMap.remove(module.getClass().getName());
+				registerAttributeModule(module);
+				log.debug("Module {} was registered for audit message listening.", module.getClass().getName());
+			}
 		}
 	}
 
 	@Override
-	public void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules) {
-		for (AttributesModuleImplApi module : modules) {
-			Auditer.registerAttributeModule(module);
-			log.debug("Module {} was registered for audit message listening.", module.getClass().getName());
-		}
+	public void initAttributeModule(AttributesModuleImplApi module) {
+		attributesModulesMap.putIfAbsent(module.getClass().getName(), module);
+		uninitializedAttributesModulesMap.remove(module.getClass().getName());
+	}
+
+	@Override
+	public void registerAttributeModule(AttributesModuleImplApi module) {
+		Auditer.registerAttributeModule(module);
 	}
 
 	@Override

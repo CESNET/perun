@@ -1920,6 +1920,7 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace
+	 * Also tries to initialize its attribute module and register the module for listening Auditer messages.
 	 *
 	 * @param sess perun session
 	 * @param attributeDefinition attribute to create
