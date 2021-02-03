@@ -939,6 +939,7 @@ components:
         service: { $ref: '#/components/schemas/Service' }
         facility: { $ref: '#/components/schemas/Facility' }
         task: { $ref: '#/components/schemas/Task' }
+        status: { type: string }
         blockedOnFacility: { type: boolean }
         blockedGlobally: { type: boolean, readOnly: true }
         hasDestinations: { type: boolean }
