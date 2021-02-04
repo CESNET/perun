@@ -576,6 +576,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/Destination'
         - properties:
+            blocked: {type: boolean}
             service: { $ref: '#/components/schemas/Service' }
             facility: { $ref: '#/components/schemas/Facility' }
       discriminator:
