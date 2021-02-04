@@ -2398,7 +2398,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		AttributeDefinition attributeToReturn = createAttribute(sess, attribute, true);
 
 		// try to initialize and register module
-		AttributesModuleImplApi module = getAttributesManagerImpl().getUninitiatedAttributesModule(sess, attributeToReturn);
+		AttributesModuleImplApi module = getAttributesManagerImpl().getUninitializedAttributesModule(sess, attributeToReturn);
 		if (module != null) {
 			getAttributesManagerImpl().initAttributeModule(module);
 			getAttributesManagerImpl().registerAttributeModule(module);
@@ -2565,6 +2565,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			} else {
 				log.warn("Inverse strong dependencies inconsistency. Inverse strong dependencies should contain information about {}. ", attributeDef);
 			}
+		}
+
+		// try to remove and unregister attribute module
+		AttributesModuleImplApi module = (AttributesModuleImplApi) getAttributesManagerImpl().getAttributesModule(sess, attribute);
+		if (module != null) {
+			getAttributesManagerImpl().removeAttributeModule(module);
+			getAttributesManagerImpl().unregisterAttributeModule(module);
 		}
 	}
 

@@ -87,6 +87,14 @@ public class Auditer {
 
 	}
 
+	public static void unregisterAttributeModule(AttributesModuleImplApi attributesModuleImplApi) {
+		log.trace("Auditer: Try to unregister module {}", (attributesModuleImplApi == null) ? null : attributesModuleImplApi.getClass().getName());
+		if(attributesModuleImplApi != null && registeredAttributesModules.contains(attributesModuleImplApi)) {
+			registeredAttributesModules.remove(attributesModuleImplApi);
+			log.debug("Auditer: Module {} was removed from audit message listening.", attributesModuleImplApi.getClass().getName());
+		}
+	}
+
 	public Auditer() {
 	}
 

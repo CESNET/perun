@@ -2566,9 +2566,9 @@ public interface AttributesManagerImplApi {
 	 * Get uninitiated attributeModule for the attribute
 	 *
 	 * @param attribute get the attribute module for this attribute
-	 * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getUninitiatedAttributesModule(PerunSession, AttributeDefinition)
+	 * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getUninitializedAttributesModule(PerunSession, AttributeDefinition)
 	 */
-	AttributesModuleImplApi getUninitiatedAttributesModule(PerunSession sess, AttributeDefinition attribute);
+	AttributesModuleImplApi getUninitializedAttributesModule(PerunSession sess, AttributeDefinition attribute);
 
 	/**
 	 * Updates AttributeDefinition.
@@ -2635,12 +2635,28 @@ public interface AttributesManagerImplApi {
 	void initAttributeModule(AttributesModuleImplApi module);
 
 	/**
+	 * Remove attribute module from attribute module map in Impl layer.
+	 *
+	 * @see AttributesManagerBlImpl#deleteAttribute(PerunSession, AttributeDefinition)
+	 * @param module module to remove
+	 */
+	void removeAttributeModule(AttributesModuleImplApi module);
+
+	/**
 	 * Register attribute module in Auditer for message listening (if it is not there yet).
 	 *
 	 * @see AttributesManagerBlImpl#createAttribute(PerunSession, AttributeDefinition)
 	 * @param module module to register
 	 */
 	void registerAttributeModule(AttributesModuleImplApi module);
+
+	/**
+	 * Unregister attribute module in Auditer from message listening (if it is not there yet).
+	 *
+	 * @see AttributesManagerBlImpl#deleteAttribute(PerunSession, AttributeDefinition)
+	 * @param module module to unregister
+	 */
+	void unregisterAttributeModule(AttributesModuleImplApi module);
 
 	/**
 	 * Finds ids of PerunBeans that have the attribute's value for the attribute.

@@ -4520,7 +4520,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public AttributesModuleImplApi getUninitiatedAttributesModule(PerunSession sess, AttributeDefinition attributeDefinition) {
+	public AttributesModuleImplApi getUninitializedAttributesModule(PerunSession sess, AttributeDefinition attributeDefinition) {
 
 		// core attributes doesn't have modules
 		if (isCoreAttribute(sess, attributeDefinition)) return null;
@@ -4543,14 +4543,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		for (AttributeDefinition attributeDefinition : allAttributesDef) {
-			AttributesModuleImplApi module = getUninitiatedAttributesModule(sess, attributeDefinition);
+			AttributesModuleImplApi module = getUninitializedAttributesModule(sess, attributeDefinition);
 
 			if (module != null) {
-				attributesModulesMap.put(module.getClass().getName(), module);
-				log.debug("Module {} loaded.", module.getClass().getSimpleName());
-				uninitializedAttributesModulesMap.remove(module.getClass().getName());
+				initAttributeModule(module);
 				registerAttributeModule(module);
-				log.debug("Module {} was registered for audit message listening.", module.getClass().getName());
 			}
 		}
 	}
@@ -4558,12 +4555,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public void initAttributeModule(AttributesModuleImplApi module) {
 		attributesModulesMap.putIfAbsent(module.getClass().getName(), module);
+		log.debug("Module {} loaded.", module.getClass().getSimpleName());
 		uninitializedAttributesModulesMap.remove(module.getClass().getName());
+	}
+
+	@Override
+	public void removeAttributeModule(AttributesModuleImplApi module) {
+		uninitializedAttributesModulesMap.putIfAbsent(module.getClass().getName(), module);
+		log.debug("Module {} removed.", module.getClass().getSimpleName());
+		attributesModulesMap.remove(module.getClass().getName());
 	}
 
 	@Override
 	public void registerAttributeModule(AttributesModuleImplApi module) {
 		Auditer.registerAttributeModule(module);
+		log.debug("Module {} was registered for audit message listening.", module.getClass().getName());
+	}
+
+	@Override
+	public void unregisterAttributeModule(AttributesModuleImplApi module) {
+		Auditer.unregisterAttributeModule(module);
+		log.debug("Module {} was removed from audit message listening.", module.getClass().getName());
 	}
 
 	@Override

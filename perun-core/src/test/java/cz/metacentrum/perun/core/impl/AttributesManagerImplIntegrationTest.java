@@ -127,31 +127,47 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
-	public void getUninitiatedAttributesModule() throws Exception {
-		System.out.println(CLASS_NAME + "getUninitiatedAttributesModule");
+	public void getUninitializedAttributesModule() throws Exception {
+		System.out.println(CLASS_NAME + "getUninitializedAttributesModule");
 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("IPAddresses");
 		attr.setType(ArrayList.class.getName());
 
-		assertNotNull(attributesManager.getUninitiatedAttributesModule(sess, attr));
+		assertNotNull(attributesManager.getUninitializedAttributesModule(sess, attr));
 
 		perun.getAttributesManagerBl().createAttribute(sess, attr);
 
-		assertNull(attributesManager.getUninitiatedAttributesModule(sess, attr));
+		assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));
 	}
 
 	@Test
-	public void getUninitiatedAttributesModuleForAttributeWithoutModule() {
-		System.out.println(CLASS_NAME + "getUninitiatedAttributesModuleForAttributeWithoutModule");
+	public void getUninitializedAttributesModuleForAttributeWithoutModule() {
+		System.out.println(CLASS_NAME + "getUninitializedAttributesModuleForAttributeWithoutModule");
 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("SomeNonexistentAttribute");
 		attr.setType(ArrayList.class.getName());
 
-		assertNull(attributesManager.getUninitiatedAttributesModule(sess, attr));
+		assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));
+	}
+
+	@Test
+	public void getUninitializedAttributesModuleFromDeletedAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getUninitializedAttributesModuleFromDeletedAttribute");
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("IPAddresses");
+		attr.setType(ArrayList.class.getName());
+
+		perun.getAttributesManagerBl().createAttribute(sess, attr);
+		assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));
+
+		perun.getAttributesManagerBl().deleteAttribute(sess, attr);
+		assertNotNull(attributesManager.getUninitializedAttributesModule(sess, attr));
 	}
 
 
