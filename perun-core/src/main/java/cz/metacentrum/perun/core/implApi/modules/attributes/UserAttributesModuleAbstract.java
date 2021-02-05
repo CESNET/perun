@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -35,4 +36,10 @@ public abstract class UserAttributesModuleAbstract extends AttributesModuleAbstr
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws WrongReferenceAttributeValueException {
 
 	}
+
+	public Attribute getAnonymizedValue(PerunSessionImpl session, User user, Attribute attribute) throws AnonymizationNotSupportedException {
+		throw new AnonymizationNotSupportedException("Cannot get anonymized attribute value. The module for attribute "
+			+ attribute.getName() + " doesn't specify its anonymization process.");
+	}
+
 }

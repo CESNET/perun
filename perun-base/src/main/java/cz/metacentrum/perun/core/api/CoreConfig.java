@@ -82,6 +82,8 @@ public class CoreConfig {
 	private String groupNameSecondaryRegex;
 	private String groupFullNameSecondaryRegex;
 	private List<String> attributesToSearchUsersAndMembersBy;
+	private List<String> attributesToAnonymize;
+	private List<String> attributesToKeep;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -683,5 +685,21 @@ public class CoreConfig {
 
 	public void setAttributesToSearchUsersAndMembersBy(List<String> attributesToSearchUsersAndMembersBy) {
 		this.attributesToSearchUsersAndMembersBy = attributesToSearchUsersAndMembersBy;
+	}
+
+	public List<String> getAttributesToAnonymize() {
+		return attributesToAnonymize;
+	}
+
+	public void setAttributesToAnonymize(List<String> attributesToAnonymize) {
+		this.attributesToAnonymize = attributesToAnonymize;
+	}
+
+	public List<String> getAttributesToKeep() {
+		return attributesToKeep;
+	}
+
+	public void setAttributesToKeep(List<String> attributesToKeep) {
+		this.attributesToKeep = attributesToKeep;
 	}
 }

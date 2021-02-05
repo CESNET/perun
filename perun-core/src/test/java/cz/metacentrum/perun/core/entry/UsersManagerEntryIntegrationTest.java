@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -58,7 +59,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Integration tests of UsersManager.
@@ -389,6 +392,77 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		usersManager.deleteUser(sess, new User(), true);  // force delete
 		// shouldn't find user
+	}
+
+	@Test
+	public void anonymizeUser() throws Exception {
+		System.out.println(CLASS_NAME + "anonymizeUser");
+
+		List<String> originalAttributesToKeep = BeansUtils.getCoreConfig().getAttributesToKeep();
+		// configure attributesToKeep so it contains only 1 attribute - preferredMail
+		BeansUtils.getCoreConfig().setAttributesToKeep(Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+
+		// set preferredMail and phone attributes
+		Attribute preferredMail = perun.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+		preferredMail.setValue("mail@mail.com");
+		perun.getAttributesManagerBl().setAttribute(sess, user, preferredMail);
+		Attribute phone = perun.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
+		phone.setValue("+420555555");
+		perun.getAttributesManagerBl().setAttribute(sess, user, phone);
+
+		usersManager.anonymizeUser(sess, user);
+
+		// set attributesToKeep back to the original attributes
+		BeansUtils.getCoreConfig().setAttributesToKeep(originalAttributesToKeep);
+
+		User updatedUser = perun.getUsersManagerBl().getUserById(sess, user.getId());
+		assertTrue("Firstname should be null or empty.", updatedUser.getFirstName() == null || updatedUser.getFirstName().isEmpty());
+		assertTrue("Lastname should be null or empty.", updatedUser.getLastName() == null || updatedUser.getLastName().isEmpty());
+
+		Attribute updatedPreferredMail = perun.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+		Attribute updatedPhone = perun.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
+		assertEquals("PreferredMail attribute should be kept untouched.", updatedPreferredMail, preferredMail);
+		assertNull("Phone attribute should be deleted.", updatedPhone.getValue());
+	}
+
+	@Test(expected=UserNotExistsException.class)
+	public void anonymizeUserWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "anonymizeUserWhenUserNotExists");
+
+		usersManager.anonymizeUser(sess, new User());
+		// shouldn't find user
+	}
+
+	@Test
+	public void anonymizeUserWhenAnonymizationNotSupported() throws Exception {
+		System.out.println(CLASS_NAME + "anonymizeUserWhenAnonymizationNotSupported");
+
+		List<String> originalAttributesToAnonymize = BeansUtils.getCoreConfig().getAttributesToAnonymize();
+		// configure attributesToAnonymize so it contains only 1 attribute - dummy-test
+		BeansUtils.getCoreConfig().setAttributesToAnonymize(Collections.singletonList(AttributesManager.NS_USER_ATTR_DEF + ":dummy-test"));
+
+		// create dummy attribute
+		Attribute attrLogin = new Attribute();
+		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin.setFriendlyName("dummy-test");
+		attrLogin.setType(String.class.getName());
+		perun.getAttributesManager().createAttribute(sess, attrLogin);
+
+		// set dummy attribute
+		Attribute dummy = perun.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":dummy-test");
+		dummy.setValue("dummy");
+		perun.getAttributesManagerBl().setAttribute(sess, user, dummy);
+
+		try {
+			usersManager.anonymizeUser(sess, user);
+			// anonymizeUser() should have thrown AnonymizationNotSupportedException
+			fail();
+		} catch (AnonymizationNotSupportedException ex) {
+			// this is expected
+		} finally {
+			// set attributesToAnonymize back to the original attributes
+			BeansUtils.getCoreConfig().setAttributesToAnonymize(originalAttributesToAnonymize);
+		}
 	}
 
 	@Test (expected=InternalErrorException.class)

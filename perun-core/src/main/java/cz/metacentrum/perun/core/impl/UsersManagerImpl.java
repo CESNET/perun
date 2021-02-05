@@ -509,6 +509,23 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public User anonymizeUser(PerunSession sess, User user) {
+		try {
+			user.setFirstName("");
+			user.setMiddleName("");
+			user.setLastName("");
+			user.setTitleBefore("");
+			user.setTitleAfter("");
+			jdbc.update("update users set first_name=NULL, last_name=NULL, middle_name=NULL, title_before=NULL, title_after=NULL, " +
+					"anonymized=true, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+			return user;
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
 	public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) {
 		try {
 			jdbc.update("update user_ext_sources set last_access=" + Compatibility.getSysdate() + " where id=?", userExtSource.getId());
@@ -1175,6 +1192,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 
+	}
+
+	@Override
+	public void deleteUsersApplications(User user) {
+		try {
+			jdbc.update("delete from application where user_id=?", user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override

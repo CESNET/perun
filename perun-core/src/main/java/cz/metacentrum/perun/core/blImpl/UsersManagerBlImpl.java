@@ -41,6 +41,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
@@ -460,6 +461,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+		try {
+			this.deleteUser(sess, user, forceDelete, false);
+		} catch (AnonymizationNotSupportedException ex) {
+			//this shouldn't happen with 'anonymizedInstead' set to false
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	private void deleteUser(PerunSession sess, User user, boolean forceDelete, boolean anonymizeInstead) throws RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, AnonymizationNotSupportedException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -526,8 +536,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		// delete them from DB
 		getUsersManagerImpl().deleteUsersReservedLogins(user);
 
-		// all users applications and submitted data are deleted on cascade when "deleteUser()"
-
 		// Remove all possible passwords associated with logins (stored in attributes)
 		for (Attribute loginAttribute: getPerunBl().getAttributesManagerBl().getLogins(sess, user)) {
 			try {
@@ -547,14 +555,46 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 
-		// Delete assigned attributes
-		// Users one
+		// Delete, keep or anonymize assigned attributes
 		try {
-			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, user);
 			// User-Facilities one
 			getPerunBl().getAttributesManagerBl().removeAllUserFacilityAttributes(sess, user);
-		} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-			//All members are deleted => there are no required attribute => all atributes can be removed
+
+			// Users one
+			if (anonymizeInstead) {
+				List<String> attributesToAnonymize = BeansUtils.getCoreConfig().getAttributesToAnonymize();
+				List<String> attributesToKeep = BeansUtils.getCoreConfig().getAttributesToKeep();
+				List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, user);
+				for (Attribute attribute : userAttributes) {
+					// Skip core and virtual attributes
+					if (getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attribute) ||
+					    getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute)) {
+						continue;
+					}
+					// Skip attributes configured to keep untouched
+					if (attributesToKeep.contains(attribute.getName()) ||
+						// Attributes like 'login-namespace:mu' are configured as 'login-namespace:*'
+						(!attribute.getFriendlyNameParameter().isEmpty() &&
+						 attributesToKeep.contains(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName() + ":*"))) {
+						continue;
+					}
+					// Anonymize configured attributes
+					if (attributesToAnonymize.contains(attribute.getName()) ||
+						(!attribute.getFriendlyNameParameter().isEmpty() &&
+						 attributesToAnonymize.contains(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName() + ":*"))) {
+
+						Attribute anonymized = getPerunBl().getAttributesManagerBl().getAnonymizedValue(sess, user, attribute);
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, anonymized);
+					} else {
+						// Delete remaining attributes
+						getPerunBl().getAttributesManagerBl().removeAttribute(sess, user, attribute);
+					}
+				}
+			} else {
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, user);
+			}
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException ex) {
+			//All members are deleted => there are no required attributes => all attributes can be removed
 			throw new ConsistencyErrorException(ex);
 		}
 
@@ -575,9 +615,27 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Remove all sponsored user authz of his owners
 		if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
-		// Finally delete the user
-		getUsersManagerImpl().deleteUser(sess, user);
-		getPerunBl().getAuditer().log(sess, new UserDeleted(user));
+		if (anonymizeInstead) {
+			getUsersManagerImpl().anonymizeUser(sess, user);
+
+			// delete all users applications and submitted data, this is needed only when 'anonymizeInstead'
+			// because applications are deleted on cascade when user's row is deleted in DB
+			getUsersManagerImpl().deleteUsersApplications(user);
+		} else {
+			// Finally delete the user
+			getUsersManagerImpl().deleteUser(sess, user);
+			getPerunBl().getAuditer().log(sess, new UserDeleted(user));
+		}
+	}
+
+	@Override
+	public void anonymizeUser(PerunSession sess, User user) throws RelationExistsException, AnonymizationNotSupportedException {
+		try {
+			this.deleteUser(sess, user, false, true);
+		} catch (MemberAlreadyRemovedException | UserAlreadyRemovedException | SpecificUserAlreadyRemovedException ex) {
+			//this shouldn't happen with 'anonymizedInstead' set to true
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	@Override

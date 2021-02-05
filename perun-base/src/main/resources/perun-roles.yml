@@ -4670,6 +4670,11 @@ perun_policies:
     include_policies:
       - default_policy
 
+  anonymizeUser_User_policy:
+    policy_roles: []
+    include_policies:
+      - default_policy
+
   updateUser_User_policy:
     policy_roles:
       - REGISTRAR:

@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -414,6 +415,20 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().checkUserExists(sess, user);
 
 		getUsersManagerBl().deleteUser(sess, user, forceDelete);
+	}
+
+	@Override
+	public void anonymizeUser(PerunSession sess, User user) throws UserNotExistsException, PrivilegeException, RelationExistsException, AnonymizationNotSupportedException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.authorizedInternal(sess, "anonymizeUser_User_policy", user)) {
+			throw new PrivilegeException(sess, "anonymizeUser");
+		}
+
+		getUsersManagerBl().checkUserExists(sess, user);
+
+		getUsersManagerBl().anonymizeUser(sess, user);
 	}
 
 	@Override

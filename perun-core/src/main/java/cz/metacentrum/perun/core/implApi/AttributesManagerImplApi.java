@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -1964,6 +1965,19 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
 	 */
 	void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws WrongAttributeValueException;
+
+	/**
+	 * Gets anonymized value of the attribute.
+	 *
+	 * @param sess perun session
+	 * @param user user
+	 * @param attribute attribute to get anonymized value from
+	 * @return attribute with anonymized value
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws AnonymizationNotSupportedException if the module doesn't exist or it doesn't implement this method
+	 */
+	Attribute getAnonymizedValue(PerunSession sess, User user, Attribute attribute) throws AnonymizationNotSupportedException;
 
 	/**
 	 * Unset particular attribute for the facility.

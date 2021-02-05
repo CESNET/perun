@@ -72,6 +72,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -4176,6 +4177,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_RESOURCE_ATTR);
 
 		getAttributesManagerImpl().checkAttributeSemantics(sess, resource, attribute);
+	}
+
+	@Override
+	public Attribute getAnonymizedValue(PerunSession sess, User user, Attribute attribute) throws WrongAttributeAssignmentException, AnonymizationNotSupportedException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
+
+		return getAttributesManagerImpl().getAnonymizedValue(sess, user, attribute);
 	}
 
 	@Override

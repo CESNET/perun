@@ -66,6 +66,8 @@
 		<property name="queryTimeout" value="${perun.queryTimeout}" />
 		<property name="defaultLoaIdP" value="${perun.defaultLoa.idp}"/>
 		<property name="attributesToSearchUsersAndMembersBy" value="#{'${perun.attributesToSearchUsersAndMembersBy}'.split('\s*,\s*')}"/>
+		<property name="attributesToAnonymize" value="#{'${perun.attributesToAnonymize}'.split('\s*,\s*')}"/>
+		<property name="attributesToKeep" value="#{'${perun.attributesToKeep}'.split('\s*,\s*')}"/>
 	</bean>
 
 
@@ -131,6 +133,8 @@
 				<prop key="perun.queryTimeout">-1</prop>
 				<prop key="perun.defaultLoa.idp">2</prop>
 				<prop key="perun.attributesToSearchUsersAndMembersBy">urn:perun:user:attribute-def:def:preferredMail, urn:perun:member:attribute-def:def:mail</prop>
+				<prop key="perun.attributesToAnonymize"></prop>
+				<prop key="perun.attributesToKeep">urn:perun:user:attribute-def:def:login-namespace:*, urn:perun:user:attribute-def:def:uid-namespace:*</prop>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->

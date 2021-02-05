@@ -1,4 +1,4 @@
--- database version 3.1.74 (don't forget to update insert statement at the end of file)
+-- database version 3.1.75 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -32,6 +32,7 @@ create table users (
 						modified_by varchar default user not null,
 						service_acc boolean default false not null, --is it service account?
 						sponsored_acc boolean default false not null, --is it sponsored account?
+					    anonymized boolean default false not null, --was user anonymized?
 						created_by_uid integer,
 						modified_by_uid integer,
 						constraint usr_pk primary key (id)
@@ -1639,7 +1640,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.74');
+insert into configurations values ('DATABASE VERSION','3.1.75');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

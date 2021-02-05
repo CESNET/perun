@@ -258,6 +258,16 @@ public interface UsersManagerImplApi {
 	User updateNameTitles(PerunSession perunSession, User user);
 
 	/**
+	 * Anonymizes users data in DB - sets names and titles to NULL and sets anonymized flag to true.
+	 *
+	 * @param perunSession
+	 * @param user
+	 * @return user
+	 * @throws InternalErrorException
+	 */
+	User anonymizeUser(PerunSession perunSession, User user);
+
+	/**
 	 *  Updates user;s userExtSource in DB.
 	 *
 	 * @param perunSession
@@ -650,6 +660,14 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void deleteUsersReservedLogins(User user);
+
+	/**
+	 * Delete all applications and submitted data for specific user.
+	 *
+	 * @param user for which delete applications and submitted data
+	 * @throws InternalErrorException
+	 */
+	void deleteUsersApplications(User user);
 
 	/**
 	 * Store request of change of user's preferred email address.
