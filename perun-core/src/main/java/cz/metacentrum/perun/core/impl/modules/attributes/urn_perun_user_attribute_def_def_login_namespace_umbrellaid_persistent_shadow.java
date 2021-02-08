@@ -35,6 +35,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_umbrellaid_persist
 
 	private static final String A_U_UMBRELLAID_IDENTIFIER = AttributesManager.NS_USER_ATTR_DEF + ":umbrellaIDIdentifier";
 	private final static String CONFIG_EXT_SOURCE_NAME_UMBRELLA_ID = "extSourceNameUmbrellaID";
+	private final static String CONFIG_DOMAIN_NAME_UMBRELLA_ID = "domainNameUmbrellaID";
 	private final static String FRIENDLY_NAME = "login-namespace:umbrellaid-persistent-shadow";
 	private final static String FRIENDLY_NAME_PARAMETER = "umbrellaid-persistent-shadow";
 
@@ -67,7 +68,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_umbrellaid_persist
 				long least64SigBits = get64LeastSignificantBits();
 				UUID uuid = new UUID(most64SigBits, least64SigBits);
 
-				filledAttribute.setValue(uuid.toString());
+				String domain = "@" + getDomainName();
+
+				filledAttribute.setValue(uuid.toString() + domain);
 			}
 			return filledAttribute;
 		} else {
@@ -122,6 +125,15 @@ public class urn_perun_user_attribute_def_def_login_namespace_umbrellaid_persist
 	 */
 	private String getExtSourceName() {
 		return loader.loadString(getClass().getSimpleName(), CONFIG_EXT_SOURCE_NAME_UMBRELLA_ID);
+	}
+
+	/**
+	 * Get domain name for the login.
+	 *
+	 * @return domain name for the login
+	 */
+	public String getDomainName() {
+		return loader.loadString(getClass().getSimpleName(), CONFIG_DOMAIN_NAME_UMBRELLA_ID);
 	}
 
 	/**
