@@ -8077,6 +8077,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getRichMembersByIds:
+    get:
+      tags:
+        - MembersManager
+      operationId: getRichMembersByIds
+      summary: Returns rich members by their IDs with specific attributes.
+        When the list of attribute names is null or empty then rich members will be returned without attributes.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+        - $ref: '#/components/parameters/attrNamesOptional'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getRichMember:
     get:
       tags:

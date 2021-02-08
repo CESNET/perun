@@ -814,6 +814,36 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns rich members by their IDs with specific attributes.
+	 *
+	 * @param ids List<Integer> list of members IDs
+	 * @param attrsNames List<String> Attribute names. If the list is empty, no attributes will be provided.
+	 * @return List<RichMember> RichMembers with specified IDs and attributes
+	 */
+	/*#
+	 * Returns rich members by their IDs without attributes.
+	 *
+	 * @param ids List<Integer> list of members IDs
+	 * @return List<RichMember> RichMembers with specified IDs and attributes
+	 */
+	getRichMembersByIds {
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("attrNames")) {
+				return ac.getMembersManager().getRichMembersByIds(
+					ac.getSession(),
+					parms.readList("ids", Integer.class),
+					parms.readList("attrNames", String.class));
+			} else {
+				return ac.getMembersManager().getRichMembersByIds(
+					ac.getSession(),
+					parms.readList("ids", Integer.class),
+					new ArrayList<>());
+			}
+		}
+	},
+
+	/*#
 	 * Returns a member by VO and User.
 	 *
 	 * @param vo int VO <code>id</code>

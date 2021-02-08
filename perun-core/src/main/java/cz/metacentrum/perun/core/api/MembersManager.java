@@ -1447,4 +1447,14 @@ public interface MembersManager {
 	 * @return all namespaces rules
 	 */
 	List<NamespaceRules> getAllNamespacesRules();
+
+	/**
+	 * Returns rich members by their IDs with specific attributes.
+	 *
+	 * @param sess Perun session
+	 * @param ids List<Integer> list of members IDs
+	 * @param attrsNames List<String> Attribute names. If the list is null or empty, no attributes will be provided.
+	 * @return List<RichMember> RichMembers with specified IDs and attributes
+	 */
+	List<RichMember> getRichMembersByIds(PerunSession sess, List<Integer> ids, List<String> attrsNames) throws PrivilegeException, AttributeNotExistsException;
 }
