@@ -1,6 +1,6 @@
 package Perun::Agent;
 my $agentVersionMajor = '3';
-my $agentVersionMinor = '17';
+my $agentVersionMinor = '18';
 my $agentVersionPatch = '0';
 my $agentVersion = $agentVersionMajor . "." . $agentVersionMinor . "." . $agentVersionPatch;
 
