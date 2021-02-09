@@ -7284,7 +7284,31 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		attributes.put(attr, rights);
 
+		//urn:perun:vo:attribute-def:def:blockManualMemberAdding
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Block manual member adding");
+		attr.setFriendlyName("blockManualMemberAdding");
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		attr.setDescription("Block manual addition of Vo members. Users are expected to go through registration.");
+		attr.setType(Boolean.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
 
+		//urn:perun:group:attribute-def:def:blockManualMemberAdding
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Block manual member adding");
+		attr.setFriendlyName("blockManualMemberAdding");
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setDescription("Block manual addition of group members. Users are expected to go through registration.");
+		attr.setType(Boolean.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
 
 		//urn:perun:group:attribute-def:def:groupExtSource
 		attr = new AttributeDefinition();
