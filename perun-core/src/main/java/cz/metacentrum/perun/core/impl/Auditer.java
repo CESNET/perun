@@ -79,19 +79,22 @@ public class Auditer {
 	private static final Set<AttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
 
 	public static void registerAttributeModule(AttributesModuleImplApi attributesModuleImplApi) {
-		log.trace("Auditer: Try to register module {}", (attributesModuleImplApi == null) ? null : attributesModuleImplApi.getClass().getName());
-		if(attributesModuleImplApi != null && !registeredAttributesModules.contains(attributesModuleImplApi)) {
-			registeredAttributesModules.add(attributesModuleImplApi);
-			log.debug("Auditer: Module {} was registered for audit message listening.", attributesModuleImplApi.getClass().getName());
+		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
+			log.trace("Auditer: Try to register module {}", (attributesModuleImplApi == null) ? null : attributesModuleImplApi.getClass().getName());
+			if(attributesModuleImplApi != null && !registeredAttributesModules.contains(attributesModuleImplApi)) {
+				registeredAttributesModules.add(attributesModuleImplApi);
+				log.debug("Auditer: Module {} was registered for audit message listening.", attributesModuleImplApi.getClass().getName());
+			}
 		}
-
 	}
 
 	public static void unregisterAttributeModule(AttributesModuleImplApi attributesModuleImplApi) {
-		log.trace("Auditer: Try to unregister module {}", (attributesModuleImplApi == null) ? null : attributesModuleImplApi.getClass().getName());
-		if(attributesModuleImplApi != null && registeredAttributesModules.contains(attributesModuleImplApi)) {
-			registeredAttributesModules.remove(attributesModuleImplApi);
-			log.debug("Auditer: Module {} was removed from audit message listening.", attributesModuleImplApi.getClass().getName());
+		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
+			log.trace("Auditer: Try to unregister module {}", (attributesModuleImplApi == null) ? null : attributesModuleImplApi.getClass().getName());
+			if (attributesModuleImplApi != null && registeredAttributesModules.contains(attributesModuleImplApi)) {
+				registeredAttributesModules.remove(attributesModuleImplApi);
+				log.debug("Auditer: Module {} was removed from audit message listening.", attributesModuleImplApi.getClass().getName());
+			}
 		}
 	}
 
