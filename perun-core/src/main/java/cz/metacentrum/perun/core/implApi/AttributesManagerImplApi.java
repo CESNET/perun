@@ -24,7 +24,6 @@ import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AnonymizationNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -2564,6 +2563,14 @@ public interface AttributesManagerImplApi {
 	Object getAttributesModule(PerunSession sess, AttributeDefinition attribute);
 
 	/**
+	 * Get uninitiated attributeModule for the attribute
+	 *
+	 * @param attribute get the attribute module for this attribute
+	 * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getUninitializedAttributesModule(PerunSession, AttributeDefinition)
+	 */
+	AttributesModuleImplApi getUninitializedAttributesModule(PerunSession sess, AttributeDefinition attribute);
+
+	/**
 	 * Updates AttributeDefinition.
 	 *
 	 * @param perunSession
@@ -2612,20 +2619,44 @@ public interface AttributesManagerImplApi {
 	UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute);
 
 	/**
-	 * Init attribute modules map in Impl layer.
+	 * Init attribute modules map in Impl layer. And register them in Auditer for message listening.
 	 *
 	 * @see AttributesManagerBlImpl#initialize()
 	 * @param modules List of attribute module class instances
 	 */
-	void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+	void initAndRegisterAttributeModules(PerunSession session, ServiceLoader<AttributesModuleImplApi> modules, Set<AttributeDefinition> allAttributesDef);
 
 	/**
-	 * Register attribute modules in Auditer for message listening.
+	 * Add attribute module to attribute module map in Impl layer (if it is not there yet).
 	 *
-	 * @see AttributesManagerBlImpl#initialize()
-	 * @param modules List of attribute module class instances
+	 * @see AttributesManagerBlImpl#createAttribute(PerunSession, AttributeDefinition)
+	 * @param module module to add
 	 */
-	void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+	void initAttributeModule(AttributesModuleImplApi module);
+
+	/**
+	 * Remove attribute module from attribute module map in Impl layer.
+	 *
+	 * @see AttributesManagerBlImpl#deleteAttribute(PerunSession, AttributeDefinition)
+	 * @param module module to remove
+	 */
+	void removeAttributeModule(AttributesModuleImplApi module);
+
+	/**
+	 * Register attribute module in Auditer for message listening (if it is not there yet).
+	 *
+	 * @see AttributesManagerBlImpl#createAttribute(PerunSession, AttributeDefinition)
+	 * @param module module to register
+	 */
+	void registerAttributeModule(AttributesModuleImplApi module);
+
+	/**
+	 * Unregister attribute module in Auditer from message listening (if it is not there yet).
+	 *
+	 * @see AttributesManagerBlImpl#deleteAttribute(PerunSession, AttributeDefinition)
+	 * @param module module to unregister
+	 */
+	void unregisterAttributeModule(AttributesModuleImplApi module);
 
 	/**
 	 * Finds ids of PerunBeans that have the attribute's value for the attribute.

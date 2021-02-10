@@ -2395,7 +2395,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws AttributeDefinitionExistsException {
-		return createAttribute(sess, attribute, true);
+		AttributeDefinition attributeToReturn = createAttribute(sess, attribute, true);
+
+		// try to initialize and register module
+		AttributesModuleImplApi module = getAttributesManagerImpl().getUninitializedAttributesModule(sess, attributeToReturn);
+		if (module != null) {
+			getAttributesManagerImpl().initAttributeModule(module);
+			getAttributesManagerImpl().registerAttributeModule(module);
+		}
+
+		return attributeToReturn;
 	}
 
 	/**
@@ -2556,6 +2565,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			} else {
 				log.warn("Inverse strong dependencies inconsistency. Inverse strong dependencies should contain information about {}. ", attributeDef);
 			}
+		}
+
+		// try to remove and unregister attribute module
+		AttributesModuleImplApi module = (AttributesModuleImplApi) getAttributesManagerImpl().getAttributesModule(sess, attribute);
+		if (module != null) {
+			getAttributesManagerImpl().removeAttributeModule(module);
+			getAttributesManagerImpl().unregisterAttributeModule(module);
 		}
 	}
 
@@ -6713,11 +6729,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		PerunPrincipal pp = new PerunPrincipal(attributesManagerInitializator, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		PerunSession sess = perunBl.getPerunSession(pp, new PerunClient());
 
-		//Load all attributes modules
-		ServiceLoader<AttributesModuleImplApi> attributeModulesLoader = ServiceLoader.load(AttributesModuleImplApi.class);
-		getAttributesManagerImpl().initAttributeModules(attributeModulesLoader);
-		getAttributesManagerImpl().registerAttributeModules(attributeModulesLoader);
-
 		//Check if all core attributes exists, create if doesn't
 		Map<AttributeDefinition, List<AttributeRights>> attributes = new HashMap<>();
 		//Facility.id
@@ -7869,6 +7880,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//Prepare all attribute definition from system perun
 		Set<AttributeDefinition> allAttributesDef = new HashSet<>(this.getAttributesDefinition(sess));
+
+		//Load all attributes modules
+		ServiceLoader<AttributesModuleImplApi> attributeModulesLoader = ServiceLoader.load(AttributesModuleImplApi.class);
+		getAttributesManagerImpl().initAndRegisterAttributeModules(sess, attributeModulesLoader, allAttributesDef);
 
 		initializeModuleDependencies(sess, allAttributesDef);
 

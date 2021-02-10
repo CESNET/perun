@@ -25,6 +25,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
@@ -122,6 +124,50 @@ public class AttributesManagerImplIntegrationTest extends AbstractPerunIntegrati
 		List<Attribute> attributes =
 			attributesManager.getRequiredAttributes(sess, Collections.singletonList(service1), resource, group);
 		assertThat(attributes).hasSize(1);
+	}
+
+	@Test
+	public void getUninitializedAttributesModule() throws Exception {
+		System.out.println(CLASS_NAME + "getUninitializedAttributesModule");
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("IPAddresses");
+		attr.setType(ArrayList.class.getName());
+
+		assertNotNull(attributesManager.getUninitializedAttributesModule(sess, attr));
+
+		perun.getAttributesManagerBl().createAttribute(sess, attr);
+
+		assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));
+	}
+
+	@Test
+	public void getUninitializedAttributesModuleForAttributeWithoutModule() {
+		System.out.println(CLASS_NAME + "getUninitializedAttributesModuleForAttributeWithoutModule");
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("SomeNonexistentAttribute");
+		attr.setType(ArrayList.class.getName());
+
+		assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));
+	}
+
+	@Test
+	public void getUninitializedAttributesModuleFromDeletedAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getUninitializedAttributesModuleFromDeletedAttribute");
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("IPAddresses");
+		attr.setType(ArrayList.class.getName());
+
+		perun.getAttributesManagerBl().createAttribute(sess, attr);
+		assertNull(attributesManager.getUninitializedAttributesModule(sess, attr));
+
+		perun.getAttributesManagerBl().deleteAttribute(sess, attr);
+		assertNotNull(attributesManager.getUninitializedAttributesModule(sess, attr));
 	}
 
 
