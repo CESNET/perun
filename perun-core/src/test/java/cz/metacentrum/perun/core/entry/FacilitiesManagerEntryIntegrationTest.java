@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
@@ -248,6 +249,39 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("at least one facility should exists", facilities.size() > 0);
 		assertTrue("created facility should exist between others", facilities.contains(facility));
 
+	}
+
+	@Test
+	public void getEnrichedFacilities() throws Exception {
+		System.out.println(CLASS_NAME + "getEnrichedFacilities");
+
+		Service serv = new Service();
+		serv.setName("TestovaciSluzba");
+		perun.getServicesManager().createService(sess, serv);
+
+		Destination dest = new Destination();
+		dest.setType("service-specific");
+		dest.setDestination("TestovaciDestinace");
+		perun.getServicesManager().addDestination(sess, serv, facility, dest);
+
+		facilitiesManagerEntry.addHosts(sess, hosts, facility);
+		// set this host for deletion - host is created after adding to facility !!
+		hostsForDeletion.add(hosts.get(0));
+
+		EnrichedFacility expectedEnrichedFacility = new EnrichedFacility(facility, Collections.singletonList(dest), hosts);
+
+		List<EnrichedFacility> enrichedFacilities = perun.getFacilitiesManager().getEnrichedFacilities(sess);
+		assertTrue("The expected enriched facility should be returned", enrichedFacilities.contains(expectedEnrichedFacility));
+
+		EnrichedFacility actualEnrichedFacility = enrichedFacilities.get(enrichedFacilities.indexOf(expectedEnrichedFacility));
+		assertEquals("Returned enrichedFacility should have the same number of destinations",
+			expectedEnrichedFacility.getDestinations().size(), actualEnrichedFacility.getDestinations().size());
+		assertEquals("Returned enrichedFacility should have the same number of hosts",
+			expectedEnrichedFacility.getHosts().size(), actualEnrichedFacility.getHosts().size());
+		assertTrue("Returned enrichedFacility should have the same destinations",
+			expectedEnrichedFacility.getDestinations().containsAll(actualEnrichedFacility.getDestinations()));
+		assertTrue("Returned enrichedFacility should have the same hosts",
+			expectedEnrichedFacility.getHosts().containsAll(actualEnrichedFacility.getHosts()));
 	}
 
 	@Test

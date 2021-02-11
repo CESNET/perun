@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.EnrichedHost;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -213,6 +214,20 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		facilities.removeIf(facility -> !AuthzResolver.authorizedInternal(sess, "filter-getFacilities_policy", facility));
 
 		return facilities;
+	}
+
+	@Override
+	public List<EnrichedFacility> getEnrichedFacilities(PerunSession sess) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getEnrichedFacilities_policy")) {
+			throw new PrivilegeException(sess, "getEnrichedFacilities");
+		}
+		List<EnrichedFacility> enrichedFacilities = getFacilitiesManagerBl().getEnrichedFacilities(sess);
+		enrichedFacilities.removeIf(enrichedFacility -> !AuthzResolver.authorizedInternal(sess, "filter-getEnrichedFacilities_policy", enrichedFacility.getFacility()));
+
+		return enrichedFacilities;
 	}
 
 	@Override

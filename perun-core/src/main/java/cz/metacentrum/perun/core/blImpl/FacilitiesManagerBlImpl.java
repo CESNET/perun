@@ -27,6 +27,9 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.EnrichedFacility;
+import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -87,6 +90,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -160,6 +164,13 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public int getFacilitiesCount(PerunSession sess) {
 		return getFacilitiesManagerImpl().getFacilitiesCount(sess);
+	}
+
+	@Override
+	public List<EnrichedFacility> getEnrichedFacilities(PerunSession sess) {
+		return getFacilities(sess).stream()
+				.map(facility -> convertToEnrichedFacility(sess, facility))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -1173,5 +1184,18 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			}
 		}
 		return mandatoryAttrs;
+	}
+
+	/**
+	 * Converts given facility into enriched facility.
+	 *
+	 * @param sess
+	 * @param facility facility to be converted
+	 * @return converted EnrichedFacility
+	 */
+	private EnrichedFacility convertToEnrichedFacility(PerunSession sess, Facility facility) {
+		List<Destination> destinations = getPerunBl().getServicesManagerBl().getDestinations(sess, facility);
+		List<Host> hosts = this.getHosts(sess, facility);
+		return new EnrichedFacility(facility, destinations, hosts);
 	}
 }
