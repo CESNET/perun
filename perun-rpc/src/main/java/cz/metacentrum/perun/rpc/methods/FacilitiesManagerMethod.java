@@ -162,6 +162,23 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets all enriched facilities user has access rights to.
+	 * If User is:
+	 * - PERUNADMIN : all facilities
+	 * - FACILITYADMIN : only facilities where user is facility admin
+	 * - FACILITYOBSERVER: only facilities where user is facility observer
+	 *
+	 * @return List<EnrichedFacility> All enriched facilities
+	 */
+	getEnrichedFacilities {
+
+		@Override
+		public List<EnrichedFacility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getEnrichedFacilities(ac.getSession());
+		}
+	},
+
+	/*#
 	 * Returns owners of a facility.
 	 *
 	 * @param facilityName String Facility name

@@ -615,6 +615,24 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getEnrichedFacilities_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN:
+      - FACILITYOBSERVER:
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
+  filter-getEnrichedFacilities_policy:
+    policy_roles:
+      - ENGINE:
+      - FACILITYADMIN: Facility
+      - FACILITYOBSERVER: Facility
+      - PERUNOBSERVER:
+    include_policies:
+      - default_policy
+
   getOwners_Facility_policy:
     policy_roles:
       - ENGINE:

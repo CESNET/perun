@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.EnrichedFacility;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -140,6 +141,16 @@ public interface FacilitiesManagerBl {
 	 */
 	int getFacilitiesCount(PerunSession perunSession);
 
+	/**
+	 * Gets all enriched facilities.
+	 *
+	 * @param perunSession
+	 *
+	 * @return List of all EnrichedFacilities
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<EnrichedFacility> getEnrichedFacilities(PerunSession perunSession);
 
 	/**
 	 * Returns owners of the facility.

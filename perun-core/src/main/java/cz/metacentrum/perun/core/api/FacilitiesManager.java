@@ -115,6 +115,19 @@ public interface FacilitiesManager {
 	List<Facility> getFacilities(PerunSession perunSession) throws PrivilegeException;
 
 	/**
+	 * Gets all enriched facilities user has access rights to.
+	 * If User is:
+	 * - PERUNADMIN : all facilities
+	 * - FACILITYADMIN : only facilities where user is facility admin
+	 * - FACILITYOBSERVER: only facilities where user is facility observer
+	 *
+	 * @param perunSession
+	 * @return List of all EnrichedFacilities
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	List<EnrichedFacility> getEnrichedFacilities(PerunSession perunSession) throws PrivilegeException;
+
+	/**
 	 * Returns owners of the facility.
 	 *
 	 * @return owners of specified facility
