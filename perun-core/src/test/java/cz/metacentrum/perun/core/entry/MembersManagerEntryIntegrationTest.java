@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
+import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -35,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParseUserNameException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -56,12 +58,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Integration tests for MembersManager
@@ -2427,6 +2431,34 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
 		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
 		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
+	}
+
+	@Test
+	public void getNamespaceRules() throws Exception {
+		System.out.println(CLASS_NAME + "getNamespaceRule");
+
+		NamespaceRules rules = perun.getMembersManagerBl().getNamespaceRules("dummy_namespace");
+
+		assertEquals(rules.getNamespaceName(), "dummy_namespace");
+		assertThat(rules.getRequiredAttributes()).containsExactly("login");
+		assertThat(rules.getOptionalAttributes()).containsExactly("password");
+	}
+
+	@Test (expected= NamespaceRulesNotExistsException.class)
+	public void getNamespaceRulesWrongNamespace() throws Exception {
+		System.out.println(CLASS_NAME + "getNamespaceRulesWrongNamespace");
+
+		perun.getMembersManagerBl().getNamespaceRules("non_existing_namespace");
+	}
+
+	@Test
+	public void getAllNamespacesRules() throws Exception {
+		System.out.println(CLASS_NAME + "getAllNamespacesRules");
+
+		List<NamespaceRules> allRules = membersManagerEntry.getAllNamespacesRules();
+
+		assertEquals(allRules.size(), 1);
+		assertEquals(allRules.get(0).getNamespaceName(), "dummy_namespace");
 	}
 
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {

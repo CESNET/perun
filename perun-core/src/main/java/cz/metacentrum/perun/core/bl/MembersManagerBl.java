@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
@@ -33,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
@@ -1784,4 +1786,20 @@ public interface MembersManagerBl {
 	 * @throws ExtendMembershipException when the targetUser doesn't have required LOA for the VO
 	 */
 	void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser) throws MemberNotExistsException, AlreadyMemberException, ExtendMembershipException;
+
+	/**
+	 * Return all loaded namespaces rules.
+	 *
+	 * @return all namespaces rules
+	 */
+	List<NamespaceRules> getAllNamespacesRules();
+
+	/**
+	 * Get NamespaceRules for the namespace from the SponsoredAccountsConfigContainer
+	 *
+	 * @param namespace for which will be the rules fetched
+	 * @return NamespaceRules for the namespace
+	 * @throws NamespaceRulesNotExistsException if there are no rules for the namespace
+	 */
+	NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException;
 }

@@ -1713,5 +1713,17 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 			return null;
 		}
+	},
+
+	/*#
+	 * Return all loaded namespaces rules.
+	 *
+	 * @return all namespaces rules
+	 */
+	getAllNamespacesRules {
+		@Override
+		public List<NamespaceRules> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getAllNamespacesRules();
+		}
 	}
 }

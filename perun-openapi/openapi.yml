@@ -462,6 +462,22 @@ components:
         - entitiesToManage
         - assignedObjects
 
+    NamespaceRules:
+      type: object
+      properties:
+        namespaceName: { type: string }
+        requiredAttributes:
+          type: array
+          items:
+            type: string
+        optionalAttributes:
+          type: array
+          items:
+            type: string
+      required:
+        - namespaceName
+        - attributesRules
+
     Group:
       allOf:
         - $ref: '#/components/schemas/Auditable'
@@ -1404,6 +1420,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RoleManagementRules"
+
+    ListOfNamespacesRulesResponse:
+      description: "returns List<NamespaceRules>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/NamespaceRules"
 
     ListOfRichGroupsResponse:
       description: "returns List<RichGroup>"
@@ -8846,6 +8871,17 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getAllNamespacesRules:
+    get:
+      tags:
+        - MembersManager
+      operationId: getAllNamespacesRules
+      summary: Return all loaded namespaces rules.
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfNamespacesRulesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
 
   #################################################
   #                                               #
