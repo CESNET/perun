@@ -4,20 +4,22 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents facility with its destinations and hosts.
+ * Represents facility with its owners, destinations and hosts.
  *
  * @author Radoslav Čerhák <r.cerhak@gmail.com>
  */
 public class EnrichedFacility {
 	private Facility facility;
+	private List<Owner> owners;
 	private List<Destination> destinations;
 	private List<Host> hosts;
 
 	public EnrichedFacility() {
 	}
 
-	public EnrichedFacility(Facility facility, List<Destination> destinations, List<Host> hosts) {
+	public EnrichedFacility(Facility facility, List<Owner> owners, List<Destination> destinations, List<Host> hosts) {
 		this.facility = facility;
+		this.owners = owners;
 		this.destinations = destinations;
 		this.hosts = hosts;
 	}
@@ -28,6 +30,14 @@ public class EnrichedFacility {
 
 	public void setFacility(Facility facility) {
 		this.facility = facility;
+	}
+
+	public List<Owner> getOwners() {
+		return owners;
+	}
+
+	public void setOwners(List<Owner> owners) {
+		this.owners = owners;
 	}
 
 	public List<Destination> getDestinations() {
@@ -63,6 +73,7 @@ public class EnrichedFacility {
 	public String toString() {
 		return "EnrichedFacility{" +
 			"facility=" + facility +
+			", owners=" + owners +
 			", destinations=" + destinations +
 			", hosts=" + hosts +
 			'}';

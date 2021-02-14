@@ -268,16 +268,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// set this host for deletion - host is created after adding to facility !!
 		hostsForDeletion.add(hosts.get(0));
 
-		EnrichedFacility expectedEnrichedFacility = new EnrichedFacility(facility, Collections.singletonList(dest), hosts);
+		EnrichedFacility expectedEnrichedFacility = new EnrichedFacility(facility, Collections.singletonList(owner), Collections.singletonList(dest), hosts);
 
 		List<EnrichedFacility> enrichedFacilities = perun.getFacilitiesManager().getEnrichedFacilities(sess);
 		assertTrue("The expected enriched facility should be returned", enrichedFacilities.contains(expectedEnrichedFacility));
 
 		EnrichedFacility actualEnrichedFacility = enrichedFacilities.get(enrichedFacilities.indexOf(expectedEnrichedFacility));
+		assertEquals("Returned enrichedFacility should have the same number of owners",
+			expectedEnrichedFacility.getOwners().size(), actualEnrichedFacility.getOwners().size());
 		assertEquals("Returned enrichedFacility should have the same number of destinations",
 			expectedEnrichedFacility.getDestinations().size(), actualEnrichedFacility.getDestinations().size());
 		assertEquals("Returned enrichedFacility should have the same number of hosts",
 			expectedEnrichedFacility.getHosts().size(), actualEnrichedFacility.getHosts().size());
+		assertTrue("Returned enrichedFacility should have the same owners",
+			expectedEnrichedFacility.getOwners().containsAll(actualEnrichedFacility.getOwners()));
 		assertTrue("Returned enrichedFacility should have the same destinations",
 			expectedEnrichedFacility.getDestinations().containsAll(actualEnrichedFacility.getDestinations()));
 		assertTrue("Returned enrichedFacility should have the same hosts",
