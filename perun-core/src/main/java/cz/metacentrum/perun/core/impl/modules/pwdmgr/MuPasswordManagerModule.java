@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 /**
  * Password manager implementation for MU login-namespace.
@@ -63,8 +64,13 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	private final static Logger log = LoggerFactory.getLogger(MuPasswordManagerModule.class);
 	private final static String CRLF = "\r\n"; // Line separator required by multipart/form-data.
 
-	protected int randomPasswordLength = 12;
+	protected int randomPasswordLength = 24;
 	protected char[] randomPasswordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?".toCharArray();
+
+	protected final Pattern muPasswordContainsDigit = Pattern.compile(".*[0-9].*");
+	protected final Pattern muPasswordContainsLower = Pattern.compile(".*[a-z].*");
+	protected final Pattern muPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
+	protected final Pattern muPasswordContainsSpec = Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
 
 	@Override
 	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws PasswordStrengthException {
@@ -181,7 +187,22 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			throw new PasswordStrengthException("Password for mu:" + login + " cannot be empty.");
 		}
 
-		// TODO - some more generic checks ???
+		if (password.length() < 12) {
+			log.warn("Password for {}:{} is too short. At least 12 characters is required.", "mu", login);
+			throw new PasswordStrengthException("Password for mu:" + login + " is too short. At least 12 characters is required.");
+		}
+
+		// check that it contains at least 3 groups of 4
+		int groupsCounter = 0;
+		if (muPasswordContainsDigit.matcher(password).matches()) groupsCounter++;
+		if (muPasswordContainsUpper.matcher(password).matches()) groupsCounter++;
+		if (muPasswordContainsLower.matcher(password).matches()) groupsCounter++;
+		if (muPasswordContainsSpec.matcher(password).matches()) groupsCounter++;
+
+		if (groupsCounter < 3) {
+			log.warn("Password for {}:{} is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", "mu", login);
+			throw new PasswordStrengthException("Password for mu:" + login + " is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
+		}
 
 	}
 
