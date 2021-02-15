@@ -184,7 +184,7 @@ public class TaskScheduler extends AbstractRunner {
 						break;
 				}
 				// update task status in DB
-				tasksManagerBl.updateTask(task);
+				tasksManagerBl.updateTask(perunSession, task);
 			}
 		}
 		log.debug("TaskScheduler has stopped.");

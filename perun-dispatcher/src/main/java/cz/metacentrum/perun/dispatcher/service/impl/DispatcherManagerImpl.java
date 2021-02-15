@@ -10,6 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 
+import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.TasksManagerBl;
 import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProcessor;
@@ -45,6 +50,9 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	private Properties dispatcherProperties;
 	private PropagationMaintainer propagationMaintainer;
 
+	@Autowired
+	private Perun perun;
+	
 	// allow cleaning of old TaskResults
 	private boolean cleanTaskResultsJobEnabled = true;
 
@@ -248,7 +256,12 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	public void cleanOldTaskResults() {
 		if (cleanTaskResultsJobEnabled) {
 			try {
-				int numRows = tasksManagerBl.deleteOldTaskResults(3);
+				PerunSession sess = perun.getPerunSession(new PerunPrincipal(
+						 				dispatcherProperties.getProperty("perun.principal.name"),
+										dispatcherProperties.getProperty("perun.principal.extSourceName"),
+										dispatcherProperties.getProperty("perun.principal.extSourceType")),
+								new PerunClient());
+				int numRows = tasksManagerBl.deleteOldTaskResults(sess, 3);
 				log.debug("Cleaned {} old task results for engine", numRows);
 			} catch (Throwable e) {
 				log.error("Error cleaning old task results for engine: {}", e);

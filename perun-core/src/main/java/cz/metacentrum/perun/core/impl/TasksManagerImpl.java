@@ -274,7 +274,7 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			TASKRESULT_ROWMAPPER, taskId, destinationId);
 	}
 
-	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) {
+	public List<TaskResult> getTaskResultsByDestinations(List<String> destinationsNames) {
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("destinations", destinationsNames);

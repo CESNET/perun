@@ -4,7 +4,12 @@ package cz.metacentrum.perun.core.bl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.chrono.JapaneseDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -31,6 +36,8 @@ import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
+import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextHierarchy({
@@ -53,6 +60,7 @@ public class TasksManagerBlImplTest {
 	private Facility facility1, facility2;
 	private Destination destination;
 	private Task task1, task2;
+	private TaskResult result1, result2;
 
 	@Before
 	public void setUp() throws Exception
@@ -112,7 +120,7 @@ public class TasksManagerBlImplTest {
 		List<Destination> destinationsList = new ArrayList<>();
 		destinationsList.add(destination);
 		task1.setDestinations(destinationsList);
-		((PerunBl)perun).getTasksManagerBl().insertTask(task1);
+		int task1Id = ((PerunBl)perun).getTasksManagerBl().insertTask(perunSession, task1);
 		
 		// tasks
 		task2 = new Task();
@@ -123,8 +131,157 @@ public class TasksManagerBlImplTest {
 		destinationsList = new ArrayList<>();
 		destinationsList.add(destination);
 		task2.setDestinations(destinationsList);
-		((PerunBl)perun).getTasksManagerBl().insertTask(task2);
+		int task2Id = ((PerunBl)perun).getTasksManagerBl().insertTask(perunSession, task2);
 
+		// task results
+		result1 = new TaskResult();
+		result1.setDestination(destination);
+		result1.setService(testService1);
+		result1.setTaskId(task1Id);
+		result1.setStatus(TaskResultStatus.DONE);
+		result1.setTimestamp(new Date());
+		((PerunBl)perun).getTasksManagerBl().insertNewTaskResult(perunSession, result1);
+
+		// task results
+		result2 = new TaskResult();
+		result2.setDestination(destination);
+		result2.setService(testService1);
+		result2.setTaskId(task1Id);
+		result2.setStatus(TaskResultStatus.DONE);
+		result2.setTimestamp(Date.from(
+				LocalDate
+				.now()
+				.minusDays(7)
+				.atStartOfDay(ZoneId.systemDefault())
+				.toInstant()));
+		((PerunBl)perun).getTasksManagerBl().insertNewTaskResult(perunSession, result2);
+	}
+	
+	@Test
+	public void testCountTasks() {
+		 assertEquals(2, ((PerunBl)perun).getTasksManagerBl().countTasks());
+	}
+
+	@Test
+	public void testDeleteAllTaskResults() {
+		((PerunBl)perun).getTasksManagerBl().deleteAllTaskResults(perunSession);
+		assertEquals(0,((PerunBl)perun).getTasksManagerBl().getTaskResults(perunSession).size());
+	}
+	
+	@Test
+	public void testDeleteOldTaskResults() {
+		((PerunBl)perun).getTasksManagerBl().deleteOldTaskResults(perunSession, 3);
+		assertEquals(1,((PerunBl)perun).getTasksManagerBl().getTaskResults(perunSession).size());
+	}
+
+	@Test 
+	public void testDeleteTask() {
+		// TODO
+	}
+	
+	@Test 
+	public void testDeleteTaskResultsById() {
+		// TODO
+	}
+	
+	@Test 
+	public void testDeleteTaskResults_Task() {
+		// TODO
+	}
+	
+	@Test 
+	public void testDeleteTaskResults_TaskDestination() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetAllFacilitiesStates() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetAllFacilitiesStatesForVo() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetFacilityServicesState() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetFacilityState() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetResourcesState() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTask() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTaskById() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTaskResultById() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTaskResults() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTaskResultsByTask() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTaskResultsByTaskAndDestination() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTaskResultsByTaskOnlyNewest() {
+		// TODO
+	}
+	
+	@Test 
+	public void testGetTaskResultsByDestinations() {
+		// TODO
+	}
+	
+	@Test 
+	public void testInsertNewTaskResult() {
+		// TODO
+	}
+	
+	@Test 
+	public void testInsertTask() {
+		// TODO
+	}
+	
+	@Test 
+	public void testIsThereSuchTask() {
+		// TODO
+	}
+	
+	@Test 
+	public void testListAllTasks() {
+		// TODO
+	}
+	
+	@Test 
+	public void testListAllTasksForFacility() {
+		// TODO
 	}
 	
 	@Test
@@ -132,10 +289,20 @@ public class TasksManagerBlImplTest {
 	{
 		System.out.println("TasksManagerBlImplTest.testListAllTasksForService");
 		
-		List<Task> tasks = ((PerunBl)perun).getTasksManagerBl().listAllTasksForService(testService1.getId());
+		List<Task> tasks = ((PerunBl)perun).getTasksManagerBl().listAllTasksForService(perunSession, testService1.getId());
 		
 		assertNotNull(tasks);
 		assertEquals(tasks.size(), 2);
+	}
+	
+	@Test 
+	public void testListAllTasksInState() {
+		// TODO
+	}
+	
+	@Test 
+	public void testListAllTasksNotInState() {
+		// TODO
 	}
 	
 	@Test
@@ -143,11 +310,27 @@ public class TasksManagerBlImplTest {
 	{
 		System.out.println("TasksManagerBlImplTest.testRemoveAllTasksForService");
 		
-		((PerunBl)perun).getTasksManagerBl().removeAllTasksForService(testService1);
-		List<Task> tasks = ((PerunBl)perun).getTasksManagerBl().listAllTasksForService(testService1.getId());
+		((PerunBl)perun).getTasksManagerBl().removeAllTasksForService(perunSession, testService1);
+		List<Task> tasks = ((PerunBl)perun).getTasksManagerBl().listAllTasksForService(perunSession, testService1.getId());
 		
 		assertNotNull(tasks);
 		assertEquals(tasks.size(), 0);
 		
 	}
+
+	@Test 
+	public void testRemoveTask() {
+		// TODO
+	}
+
+	@Test 
+	public void testRemoveTask_ServiceFacility() {
+		// TODO
+	}
+	
+	@Test 
+	public void testUpdateTask() {
+		// TODO
+	}
+	
 }

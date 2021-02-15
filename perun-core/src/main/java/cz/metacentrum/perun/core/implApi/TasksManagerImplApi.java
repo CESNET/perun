@@ -14,84 +14,26 @@ import java.util.List;
  */
 public interface TasksManagerImplApi {
 
-	int insertTask(Task task);
-
-	List<Task> listAllTasks();
-
 	/**
-	 * Returns all tasks associated with selected facility
-	 *
-	 * @param facilityId
-	 * @return tasks for facility
-	 */
-	List<Task> listAllTasksForFacility(int facilityId);
-
-	/**
-	 * Returns all tasks associated with given service
 	 * 
-	 * @param serviceId
-	 * @return tasks for service
+	 * @return
 	 */
-	List<Task> listAllTasksForService(int serviceId);
-
-	List<Task> listAllTasksInState(Task.TaskStatus state);
-
-	List<Task> listAllTasksNotInState(TaskStatus state);
-
-	void updateTask(Task task);
-
-	void removeTask(int id);
-
 	int countTasks();
 
-	Task getTask(int serviceId, int facilityId);
-
-	Task getTask(Service service, Facility facility);
-
-	Task getTaskById(int id);
-
-	boolean isThereSuchTask(Service service, Facility facility);
-
-	void removeTask(Service service, Facility facility);
+	/**
+	 * Delete all TaskResults
+	 *
+	 * @return number of deleted TaskResults
+	 */
+	int deleteAllTaskResults();
 
 	/**
-	 * List TaskResults
+	 * Delete all TaskResults older than specified number of days
 	 *
-	 * @return all TaskResults
+	 * @param numDays Number of days to keep
+	 * @return number of deleted TaskResults
 	 */
-	List<TaskResult> getTaskResults();
-
-	/**
-	 * List newest TaskResults tied to a certain task
-	 *
-	 * @param taskId
-	 * @return
-	 */
-	List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId);
-
-	/**
-	 * List TaskResults tied to a certain task
-	 *
-	 * @param taskId
-	 * @return
-	 */
-	List<TaskResult> getTaskResultsByTask(int taskId);
-
-	/**
-	 * List newest TaskResults tied to a certain task and destination
-	 *
-	 * @param taskId
-	 * @return
-	 */
-	List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId);
-
-	/**
-	 * Get TaskResult by its ID
-	 *
-	 * @param taskResultId
-	 * @return
-	 */
-	TaskResult getTaskResultById(int taskResultId);
+	int deleteOldTaskResults(int numDays);
 
 	/**
 	 * Delete TaskResult by its ID
@@ -118,21 +60,69 @@ public interface TasksManagerImplApi {
 	int deleteTaskResults(int taskId, int destinationId);
 
 	/**
-	 * Delete all TaskResults older than specified number of days
-	 *
-	 * @param numDays Number of days to keep
-	 * @return number of deleted TaskResults
+	 * Retrieve task for given service and facility (by id).
+	 * 
+	 * @param serviceId
+	 * @param facilityId
+	 * @return Task
 	 */
-	int deleteOldTaskResults(int numDays);
+	Task getTask(int serviceId, int facilityId);
 
 	/**
-	 * Delete all TaskResults
-	 *
-	 * @return number of deleted TaskResults
+	 * Retrieve task for given service and facility.
+	 * 
+	 * @param service
+	 * @param facility
+	 * @return Task
 	 */
-	int deleteAllTaskResults();
+	Task getTask(Service service, Facility facility);
 
-	int insertNewTaskResult(TaskResult taskResult);
+	/**
+	 * Retrieve task with given id.
+	 * 
+	 * @param id
+	 * @return Task
+	 */
+	Task getTaskById(int id);
+
+	/**
+	 * Get TaskResult by its ID
+	 *
+	 * @param taskResultId
+	 * @return TaskResult
+	 */
+	TaskResult getTaskResultById(int taskResultId);
+
+	/**
+	 * List TaskResults
+	 *
+	 * @return all TaskResults
+	 */
+	List<TaskResult> getTaskResults();
+
+	/**
+	 * List TaskResults tied to a certain task
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	List<TaskResult> getTaskResultsByTask(int taskId);
+
+	/**
+	 * List newest TaskResults tied to a certain task and destination
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId);
+
+	/**
+	 * List newest TaskResults tied to a certain task
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId);
 
 	/**
 	 * Returns list of tasks results for defined destinations (string representation).
@@ -141,6 +131,92 @@ public interface TasksManagerImplApi {
 	 * @return list of tasks results
 	 * @throws InternalErrorException
 	 */
-	List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames);
+	List<TaskResult> getTaskResultsByDestinations(List<String> destinationsNames);
+
+	/**
+	 * Store task result into DB.
+	 * 
+	 * @param taskResult
+	 * @return id of new task result
+	 */
+	int insertNewTaskResult(TaskResult taskResult);
+
+	/**
+	 * Insert new task into DB.
+	 * 
+	 * @param task
+	 * @return id of new task
+	 */
+	int insertTask(Task task);
+
+	/**
+	 * Check if there is a task for given service and facility.
+	 * 
+	 * @param service
+	 * @param facility
+	 * @return boolean true if there is a task, false otherwise
+	 */
+	boolean isThereSuchTask(Service service, Facility facility);
+
+	/**
+	 * Retrieve all tasks from DB.
+	 * 
+	 * @return List of Task
+	 */
+	List<Task> listAllTasks();
+
+	/**
+	 * Returns all tasks associated with selected facility.
+	 *
+	 * @param facilityId
+	 * @return tasks for facility
+	 */
+	List<Task> listAllTasksForFacility(int facilityId);
+
+	/**
+	 * Returns all tasks associated with given service
+	 * 
+	 * @param serviceId
+	 * @return tasks for service
+	 */
+	List<Task> listAllTasksForService(int serviceId);
+
+	/**
+	 * Retrieve all tass in given state.
+	 * 
+	 * @param state
+	 * @return List of Task
+	 */
+	List<Task> listAllTasksInState(Task.TaskStatus state);
+
+	/**
+	 * Retrieve all tasks not in given state.
+	 * 
+	 * @param state
+	 * @return List of Task
+	 */
+	List<Task> listAllTasksNotInState(TaskStatus state);
+
+	/**
+	 * Remove task with given id.
+	 * 
+	 * @param id
+	 */
+	void removeTask(int id);
+
+	/**
+	 * Remove task for given service and facility.
+	 * 
+	 * @param service
+	 * @param facility
+	 */
+	void removeTask(Service service, Facility facility);
+
+	/**
+	 * Update DB record of given task.
+	 * 
+	 * @param task
+	 */
+	void updateTask(Task task);
 
 }

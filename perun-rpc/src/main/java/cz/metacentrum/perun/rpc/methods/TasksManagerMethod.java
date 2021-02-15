@@ -90,7 +90,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 */
 	getTaskResults {
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getTasksManager().getTaskResults();
+			return ac.getTasksManager().getTaskResults(ac.getSession());
 		}
 	},
 
@@ -112,9 +112,9 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 * @param task int Task
 	 * @return List<TaskResult> Results
 	 */
-	getTaskResultsForGUIByTaskOnlyNewest {
+	getTaskResultsForGUIByTaskOnlyNewestGUI {
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getTasksManager().getTaskResultsForGUIByTaskOnlyNewest(ac.getSession(), parms.readInt("task"));
+			return ac.getTasksManager().getTaskResultsByTaskOnlyNewest(ac.getSession(), parms.readInt("task"));
 		}
 	},
 
@@ -127,7 +127,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 */
 	getTaskResultsForGUIByTaskAndDestination {
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getTasksManager().getTaskResultsForGUIByTaskAndDestination(ac.getSession(), parms.readInt("task"), parms.readInt("destination"));
+			return ac.getTasksManager().getTaskResultsByTaskAndDestination(ac.getSession(), parms.readInt("task"), parms.readInt("destination"));
 		}
 	},
 
@@ -138,8 +138,9 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 * @return List<TaskResult> Results
 	 */
 	getTaskResultsForGUIByTask {
+		@Deprecated
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getTasksManager().getTaskResultsForGUIByTask(ac.getSession(), parms.readInt("task"));
+			return ac.getTasksManager().getTaskResultsByTask(ac.getSession(), parms.readInt("task"));
 		}
 	},
 
@@ -151,7 +152,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 */
 	getTaskResultById {
 		public TaskResult call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getTasksManager().getTaskResultById(parms.readInt("taskResult"));
+			return ac.getTasksManager().getTaskResultById(ac.getSession(), parms.readInt("taskResult"));
 		}
 	},
 
@@ -221,7 +222,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 */
 	getTaskResultsForDestinations {
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getTasksManager().getTaskResultsForDestinations(ac.getSession(), parms.readList("destinations", String.class));
+			return ac.getTasksManager().getTaskResultsByDestinations(ac.getSession(), parms.readList("destinations", String.class));
 		}
 	},
 

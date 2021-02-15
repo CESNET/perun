@@ -255,7 +255,7 @@ public class PropagationMaintainer extends AbstractRunner {
 						task.getId(), task.getStatus(), task);
 				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
-				((PerunBl) perun).getTasksManagerBl().updateTask(task);
+				((PerunBl) perun).getTasksManagerBl().updateTask(perunSession, task);
 				continue;
 			}
 
@@ -269,7 +269,7 @@ public class PropagationMaintainer extends AbstractRunner {
 						task.getId(), task.getStatus(), rescheduleTime, task);
 				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
-				((PerunBl) perun).getTasksManagerBl().updateTask(task);
+				((PerunBl) perun).getTasksManagerBl().updateTask(perunSession, task);
 			}
 
 		}

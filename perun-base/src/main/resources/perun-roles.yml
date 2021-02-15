@@ -4413,14 +4413,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getTask_int_int_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
   getTaskResultsByTask_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
@@ -4429,7 +4421,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getTaskResultsForGUIByTaskOnlyNewest_int_policy:
+  getTaskResultsByTaskOnlyNewest_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -4437,15 +4429,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getTaskResultsForGUIByTaskAndDestination_int_int_policy:
-    policy_roles:
-      - FACILITYADMIN: Facility
-      - FACILITYOBSERVER: Facility
-      - PERUNOBSERVER:
-    include_policies:
-      - default_policy
-
-  getTaskResultsForGUIByTask_int_policy:
+  getTaskResultsByTaskAndDestination_int_int_policy:
     policy_roles:
       - FACILITYADMIN: Facility
       - FACILITYOBSERVER: Facility
@@ -4492,6 +4476,18 @@ perun_policies:
     include_policies:
       - default_policy
 
+  deleteTaskResultById_int_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+  
+  deleteTaskResults_Task_Destination_policy:
+    policy_roles:
+      - FACILITYADMIN: Facility
+    include_policies:
+      - default_policy
+  
   #UsersManagerEntry
   getUserByUserExtSource_UserExtSource_policy:
     policy_roles:

@@ -20,54 +20,60 @@ import java.util.List;
  */
 public interface TasksManagerBl {
 
-	Task getTask(PerunSession perunSession, Service service, Facility facility);
-
-	Task getTaskById(PerunSession perunSession, int id);
-
-	List<Task> listAllTasks(PerunSession perunSession);
-
 	/**
-	 * Returns all tasks associated with selected facility
-	 *
-	 * @param session
-	 * @param facilityId
-	 *
-	 * @return all tasks for facility
-	 *
+	 * Get number of tasks in DB.
+	 * 
+	 * @return int number of tasks
 	 */
-	List<Task> listAllTasksForFacility(PerunSession session, int facilityId);
-
-	List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state);
-
-	boolean isThereSuchTask(Service service, Facility facility);
-
 	int countTasks();
 
-	Task getTask(PerunSession perunSession, int serviceId, int facilityId);
-
-	List<TaskResult> getTaskResults();
-
-	List<TaskResult> getTaskResultsByTask(int taskId);
-
-	List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId);
-
-	List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId);
-
-	List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId);
-
-	TaskResult getTaskResultById(int taskResultId);
+	/**
+	 * Delete all TaskResults
+	 *
+	 * @return number of deleted TaskResults
+	 */
+	int deleteAllTaskResults(PerunSession sess);
 
 	/**
-	 * Return propagation status of facility
+	 * Delete all TaskResults older than specified number of days
 	 *
-	 * @param session
-	 * @param facility
-	 * @return propagation status of facility
+	 * @param numDays Number of days to keep
+	 * @return number of deleted TaskResults
+	 */
+	int deleteOldTaskResults(PerunSession sess, int numDays);
+
+	/**
+	 * Delete Task and it's TaskResults. Use this method only before deleting whole Facility.
 	 *
-	 * @throws FacilityNotExistsException
+	 * @param sess PerunSession
+	 * @param task Task to delete
 	 * @throws InternalErrorException
 	 */
-	FacilityState getFacilityState(PerunSession session, Facility facility) throws FacilityNotExistsException;
+	void deleteTask(PerunSession sess, Task task);
+
+	/**
+	 * Delete TaskResults by its ID
+	 *
+	 * @param taskResultId ID of TaskResult to delete
+	 */
+	void deleteTaskResultById(PerunSession sess, int taskResultId);
+
+	/**
+	 * Delete all TaskResults for the particular Task
+	 *
+	 * @param taskId ID of Task to delete TaskResults
+	 * @return number of deleted TaskResults
+	 */
+	int deleteTaskResults(PerunSession sess, int taskId);
+
+	/**
+	 * Delete all TaskResults for the particular Task and Destination.
+	 *
+	 * @param taskId ID of Task to delete TaskResults
+	 * @param destinationId ID of Destination to delete TaskResults
+	 * @return number of deleted TaskResults
+	 */
+	int deleteTaskResults(PerunSession sess, int taskId, int destinationId);
 
 	/**
 	 * Return propagation status of all facilities in Perun
@@ -90,28 +96,6 @@ public interface TasksManagerBl {
 	 */
 	List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws VoNotExistsException, FacilityNotExistsException;
 
-	// TODO - add more methods
-
-	/**
-	 * Returns task results for defined destinations (string representation).
-	 *
-	 * @param session
-	 * @param destinationsNames
-	 * @return list of tasks results
-	 */
-	List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames);
-
-	/**
-	 * Returns list of ResourceStates for VO.
-	 *
-	 * @param session PerunSession
-	 * @param vo VirtualOrganization
-	 * @return list of ResourceStates
-	 * @throws VoNotExistsException
-	 * @throws InternalErrorException
-	 */
-	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws VoNotExistsException;
-
 	/**
 	 * Returns list of ServiceStates for given facility. It lists states for all services, which are currently
 	 * assigned to the facility or has any Task related to this facility.
@@ -126,123 +110,205 @@ public interface TasksManagerBl {
 	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility);
 
 	/**
-	 * Delete Task and it's TaskResults. Use this method only before deleting whole Facility.
+	 * Return propagation status of facility
 	 *
-	 * @param sess PerunSession
-	 * @param task Task to delete
+	 * @param session
+	 * @param facility
+	 * @return propagation status of facility
+	 *
+	 * @throws FacilityNotExistsException
 	 * @throws InternalErrorException
 	 */
-	void deleteTask(PerunSession sess, Task task);
+	FacilityState getFacilityState(PerunSession session, Facility facility) throws FacilityNotExistsException;
+
+	/**
+	 * Returns list of ResourceStates for VO.
+	 *
+	 * @param session PerunSession
+	 * @param vo VirtualOrganization
+	 * @return list of ResourceStates
+	 * @throws VoNotExistsException
+	 * @throws InternalErrorException
+	 */
+	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws VoNotExistsException;
+
+	/**
+	 * Find propagation task for given service and facility.
+	 * 
+	 * @param perunSession
+	 * @param service
+	 * @param facility
+	 * @return Task
+	 */
+	Task getTask(PerunSession perunSession, Service service, Facility facility);
+
+	// TODO - add more methods
+
+	/**
+	 * Retrieve task given its id.
+	 * 
+	 * @param perunSession
+	 * @param id
+	 * @return Task
+	 */
+	Task getTaskById(PerunSession perunSession, int id);
+
+	/**
+	 * Retrieve all task results for given task (by task id)
+	 * 
+	 * @param sess
+	 * @param taskResultId
+	 * @return TaskResult
+	 */
+	TaskResult getTaskResultById(PerunSession sess, int taskResultId);
+
+	/**
+	 * Retrieve all task results from DB.
+	 * 
+	 * @param sess
+	 * @return List of TaskResult
+	 */
+	List<TaskResult> getTaskResults(PerunSession sess);
 
 	//all new from dao
 
-	Task getTask(Service service, Facility facility);
-
-	int insertTask(Task task);
-
-	List<Task> listAllTasks();
-
 	/**
-	 * Returns all tasks associated with selected facility
-	 *
-	 * @param facilityId
-	 * @return tasks for facility
+	 * Retrieve all tasks results for given task 
+	 * 
+	 * @param sess
+	 * @param taskId
+	 * @return List of TaskResult
 	 */
-	List<Task> listAllTasksForFacility(int facilityId);
+	List<TaskResult> getTaskResultsByTask(PerunSession sess, int taskId);
 
 	/**
-	 * Returns all tasks associated with given service
+	 * List newest TaskResults tied to a certain task and destination
+	 *
+	 * @param taskId
+	 * @return List of TaskResult
+	 */
+	List<TaskResult> getTaskResultsByTaskAndDestination(PerunSession sess, int taskId, int destinationId);
+
+	/**
+	 * List newest TaskResults tied to a certain task
+	 *
+	 * @param taskId
+	 * @return List of TaskResult
+	 */
+	List<TaskResult> getTaskResultsByTaskOnlyNewest(PerunSession sess, int taskId);
+
+	/**
+	 * Returns task results for defined destinations (string representation).
+	 *
+	 * @param session
+	 * @param destinationsNames
+	 * @return list of tasks results
+	 */
+	List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames);
+
+	/**
+	 * Insert TaskResult into DB.
+	 * 
+	 * @param sess
+	 * @param taskResult
+	 * @return int id of the new task result
+	 */
+	int insertNewTaskResult(PerunSession sess, TaskResult taskResult);
+
+	/**
+	 * Insert Task into DB.
+	 * 
+	 * @param sess
+	 * @param task
+	 * @return int id of the inserted task
+	 */
+	int insertTask(PerunSession sess, Task task);
+
+	/**
+	 * Check if there is a task for given service and facility.
+	 * 
+	 * @param sess
+	 * @param service
+	 * @param facility
+	 * @return boolean true if there is a task, false otherwise
+	 */
+	boolean isThereSuchTask(PerunSession sess, Service service, Facility facility);
+
+	/**
+	 * Retrieve all tasks from DB.
+	 * 
+	 * @param perunSession
+	 * @return List of Task
+	 */
+	List<Task> listAllTasks(PerunSession perunSession);
+
+	/**
+	 * Returns all tasks associated with selected facility.
+	 *
+	 * @param session
+	 * @param facilityId
+	 *
+	 * @return all tasks for facility
+	 *
+	 */
+	List<Task> listAllTasksForFacility(PerunSession session, int facilityId);
+
+	/**
+	 * Returns all tasks associated with given service.
 	 * 
 	 * @param serviceId
 	 * @return tasks for service
 	 */
-	List<Task> listAllTasksForService(int serviceId);
+	List<Task> listAllTasksForService(PerunSession sess, int serviceId);
 
-	List<Task> listAllTasksInState(Task.TaskStatus state);
+	/**
+	 * Retrieve all tasks in given state.
+	 * 
+	 * @param perunSession
+	 * @param state
+	 * @return List of Task
+	 */
+	List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state);
 
-	void updateTask(Task task);
-
-	void removeTask(int id);
-
-	Task getTask(int serviceId, int facilityId);
-
-	Task getTaskById(int id);
-
-	void removeTask(Service service, Facility facility);
+	/**
+	 * Retrieve all tasks that are not in given state.
+	 * 
+	 * @param sess
+	 * @param state
+	 * @return List of Task
+	 */
+	List<Task> listAllTasksNotInState(PerunSession sess,  Task.TaskStatus state);
 
 	/**
 	 * Removes all tasks associated with given service including the associated task results
 	 * 
 	 * @param service
 	 */
-	void removeAllTasksForService(Service service);
-
-	List<Task> listAllTasksNotInState(Task.TaskStatus state);
+	void removeAllTasksForService(PerunSession sess, Service service);
 
 	/**
-	 * List newest TaskResults tied to a certain task
-	 *
-	 * @param taskId
-	 * @return
+	 * Remove task with given id.
+	 * 
+	 * @param sess
+	 * @param id
 	 */
-	List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId);
+	void removeTask(PerunSession sess, int id);
 
 	/**
-	 * List newest TaskResults tied to a certain task and destination
-	 *
-	 * @param taskId
-	 * @return
+	 * Remove task for given service and facility.
+	 * 
+	 * @param sess
+	 * @param service
+	 * @param facility
 	 */
-	List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId);
+	void removeTask(PerunSession sess, Service service, Facility facility);
 
 	/**
-	 * Delete TaskResults by its ID
-	 *
-	 * @param taskResultId ID of TaskResult to delete
+	 * Update DB record for given task.
+	 * 
+	 * @param sess
+	 * @param task
 	 */
-	void deleteTaskResultById(int taskResultId);
-
-	/**
-	 * Delete all TaskResults for the particular Task
-	 *
-	 * @param taskId ID of Task to delete TaskResults
-	 * @return number of deleted TaskResults
-	 */
-	int deleteTaskResults(int taskId);
-
-	/**
-	 * Delete all TaskResults for the particular Task and Destination.
-	 *
-	 * @param taskId ID of Task to delete TaskResults
-	 * @param destinationId ID of Destination to delete TaskResults
-	 * @return number of deleted TaskResults
-	 */
-	int deleteTaskResults(int taskId, int destinationId);
-
-	/**
-	 * Delete all TaskResults older than specified number of days
-	 *
-	 * @param numDays Number of days to keep
-	 * @return number of deleted TaskResults
-	 */
-	int deleteOldTaskResults(int numDays);
-
-	/**
-	 * Delete all TaskResults
-	 *
-	 * @return number of deleted TaskResults
-	 */
-	int deleteAllTaskResults();
-
-	int insertNewTaskResult(TaskResult taskResult);
-
-	/**
-	 * Returns list of tasks results for defined destinations (string representation).
-	 *
-	 * @param destinationsNames
-	 * @return list of tasks results
-	 * @throws InternalErrorException
-	 */
-	List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames);
+	void updateTask(PerunSession sess, Task task);
 
 }

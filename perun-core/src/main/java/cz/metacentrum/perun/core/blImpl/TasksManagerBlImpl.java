@@ -33,6 +33,7 @@ import java.util.Set;
  * TasksManagerBlImpl
  */
 public class TasksManagerBlImpl implements TasksManagerBl {
+
 	@Autowired
 	private ServicesManagerBl servicesManagerBl;
 	@Autowired
@@ -45,172 +46,120 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public int insertNewTaskResult(TaskResult taskResult) {
-		return getTasksManagerImpl().insertNewTaskResult(taskResult);
-	}
-
-	@Override
-	public void deleteTaskResultById(int taskResultId) {
-		getTasksManagerImpl().deleteTaskResultById(taskResultId);
-	}
-
-	@Override
-	public int deleteTaskResults(int taskId) {
-		return getTasksManagerImpl().deleteTaskResults(taskId);
-	}
-
-	@Override
-	public int deleteTaskResults(int taskId, int destinationId) {
-		return getTasksManagerImpl().deleteTaskResults(taskId, destinationId);
-	}
-
-	@Override
-	public int deleteAllTaskResults() {
-		return getTasksManagerImpl().deleteAllTaskResults();
-	}
-
-	@Override
-	public int deleteOldTaskResults(int numDays) {
-		return getTasksManagerImpl().deleteOldTaskResults(numDays);
-	}
-
-	@Override
-	public List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId) {
-		return getTasksManagerImpl().getTaskResultsByTaskOnlyNewest(taskId);
-	}
-
-	@Override
-	public List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId) {
-		return getTasksManagerImpl().getTaskResultsByTaskAndDestination(taskId, destinationId);
-	}
-
-	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) {
-		return getTasksManagerImpl().getTaskResultsForDestinations(destinationsNames);
-	}
-
-	@Override
-	public int insertTask(Task task) {
-		return getTasksManagerImpl().insertTask(task);
-	}
-
-	@Override
-	public Task getTask(Service service, Facility facility) {
-		return getTask(service.getId(), facility.getId());
-	}
-
-	@Override
-	public Task getTask(int serviceId, int facilityId) {
-		return getTasksManagerImpl().getTask(serviceId, facilityId);
-	}
-
-	@Override
-	public List<Task> listAllTasksForFacility(int facilityId) {
-		return getTasksManagerImpl().listAllTasksForFacility(facilityId);
-	}
-
-	@Override
-	public Task getTaskById(int id) {
-		return getTasksManagerImpl().getTaskById(id);
-	}
-
-	@Override
-	public List<Task> listAllTasks() {
-		return getTasksManagerImpl().listAllTasks();
-	}
-
-	@Override
-	public List<Task> listAllTasksInState(Task.TaskStatus state) {
-		return getTasksManagerImpl().listAllTasksInState(state);
-	}
-
-	@Override
-	public List<Task> listAllTasksNotInState(Task.TaskStatus state) {
-		return getTasksManagerImpl().listAllTasksNotInState(state);
-	}
-
-	@Override
-	public void updateTask(Task task) {
-		getTasksManagerImpl().updateTask(task);
-	}
-
-	@Override
-	public void removeTask(Service service, Facility facility) {
-		getTasksManagerImpl().removeTask(service, facility);
-	}
-
-	@Override
-	public void removeTask(int id) {
-		getTasksManagerImpl().removeTask(id);
-	}
-
-	@Override
-	public Task getTask(PerunSession perunSession, Service service, Facility facility) {
-		return getTasksManagerImpl().getTask(service, facility);
-	}
-
-	@Override
-	public Task getTaskById(PerunSession perunSession, int id) {
-		return getTasksManagerImpl().getTaskById(id);
-	}
-
-	@Override
-	public List<Task> listAllTasks(PerunSession perunSession) {
-		return getTasksManagerImpl().listAllTasks();
-	}
-
-	@Override
-	public List<Task> listAllTasksForFacility(PerunSession session, int facilityId) {
-		return getTasksManagerImpl().listAllTasksForFacility(facilityId);
-	}
-
-	@Override
-	public List<Task> listAllTasksForService(int serviceId) {
-		return getTasksManagerImpl().listAllTasksForService(serviceId);
-	}
-
-	@Override
-	public List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state) {
-		return getTasksManagerImpl().listAllTasksInState(state);
-	}
-
-	@Override
-	public boolean isThereSuchTask(Service service, Facility facility) {
-		return getTasksManagerImpl().isThereSuchTask(service, facility);
-	}
-
-	@Override
 	public int countTasks() {
 		return getTasksManagerImpl().countTasks();
 	}
 
 	@Override
-	public Task getTask(PerunSession perunSession,int serviceId, int facilityId) {
-		return getTasksManagerImpl().getTask(serviceId, facilityId);
+	public int deleteAllTaskResults(PerunSession sess) {
+		return getTasksManagerImpl().deleteAllTaskResults();
 	}
 
 	@Override
-	public List<TaskResult> getTaskResults() {
-		return getTasksManagerImpl().getTaskResults();
+	public int deleteOldTaskResults(PerunSession sess, int numDays) {
+		return getTasksManagerImpl().deleteOldTaskResults(numDays);
 	}
 
 	@Override
-	public List<TaskResult> getTaskResultsByTask(int taskId) {
-		return getTasksManagerImpl().getTaskResultsByTask(taskId);
+	public void deleteTask(PerunSession sess, Task task) {
+
+		Facility facility = task.getFacility();
+		Service service = task.getService();
+
+		// clear all task results
+		getTasksManagerImpl().deleteTaskResults(task.getId());
+
+		// remove task itself
+		getTasksManagerImpl().removeTask(service, facility);
+
 	}
 
 	@Override
-	public List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId) {
-		return getTasksManagerImpl().getTaskResultsByTaskOnlyNewest(taskId);
+	public void deleteTaskResultById(PerunSession sess, int taskResultId) {
+		getTasksManagerImpl().deleteTaskResultById(taskResultId);
 	}
 
 	@Override
-	public List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId) {
-		return getTasksManagerImpl().getTaskResultsByTaskAndDestination(taskId, destinationId);
+	public int deleteTaskResults(PerunSession sess, int taskId) {
+		return getTasksManagerImpl().deleteTaskResults(taskId);
 	}
 
 	@Override
-	public List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId) {
-		return getTasksManagerImpl().getTaskResultsByTask(taskId);
+	public int deleteTaskResults(PerunSession sess, int taskId, int destinationId) {
+		return getTasksManagerImpl().deleteTaskResults(taskId, destinationId);
+	}
+
+	@Override
+	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws FacilityNotExistsException {
+		List<FacilityState> list = new ArrayList<>();
+
+		// return facilities where user is admin or all if perun admin
+		List<Facility> facs = perun.getFacilitiesManagerBl().getFacilities(session);
+		Collections.sort(facs);
+		for (Facility facility : facs) {
+			list.add(getFacilityState(session, facility));
+		}
+		return list;
+	}
+
+	@Override
+	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws VoNotExistsException, FacilityNotExistsException {
+		perun.getVosManagerBl().checkVoExists(session, vo);
+
+		List<FacilityState> list = new ArrayList<>();
+		List<RichResource> facs = perun.getResourcesManagerBl().getRichResources(session, vo);
+
+		Set<Facility> facilities = new HashSet<>();
+		for (RichResource res : facs) {
+			facilities.add(res.getFacility());
+		}
+		for (Facility f : facilities) {
+			list.add(getFacilityState(session, f));
+		}
+		Collections.sort(list);
+		return list;
+	}
+
+	@Override
+	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) {
+
+		Map<Service, ServiceState> serviceStates = new HashMap<>();
+
+		// fill states for all services which are currently on facility
+		for (Service service : perun.getServicesManagerBl().getAssignedServices(sess, facility)) {
+
+			serviceStates.put(service, new ServiceState(service, facility));
+			serviceStates.get(service).setBlockedOnFacility(getServicesManagerBl().isServiceBlockedOnFacility(service, facility));
+
+			// service has destination on facility
+			serviceStates.get(service).setHasDestinations(!perun.getServicesManagerBl().getDestinations(sess, service, facility).isEmpty());
+
+		}
+
+		// fill states for all tasks on facility
+
+		List<Task> tasks = getTasksManagerImpl().listAllTasksForFacility(facility.getId());
+
+		for (Task task : tasks) {
+
+			Service taskService = task.getService();
+
+			ServiceState serviceState = serviceStates.get(taskService);
+			if (serviceState == null) {
+				serviceState = new ServiceState(taskService, facility);
+				serviceStates.put(taskService, serviceState);
+				// fill destinations if service was not assigned
+				serviceStates.get(taskService).setHasDestinations(!perun.getServicesManagerBl().getDestinations(sess, taskService, facility).isEmpty());
+			}
+
+			// fill service state
+			serviceState.setTask(task);
+			serviceStates.get(taskService).setBlockedOnFacility(getServicesManagerBl().isServiceBlockedOnFacility(task.getService(), facility));
+
+		}
+
+		return new ArrayList<>(serviceStates.values());
+
 	}
 
 	@Override
@@ -300,46 +249,6 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	}
 
 	@Override
-	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws FacilityNotExistsException {
-		List<FacilityState> list = new ArrayList<>();
-
-		// return facilities where user is admin or all if perun admin
-		List<Facility> facs = perun.getFacilitiesManagerBl().getFacilities(session);
-		Collections.sort(facs);
-		for (Facility facility : facs) {
-			list.add(getFacilityState(session, facility));
-		}
-		return list;
-	}
-
-	@Override
-	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws VoNotExistsException, FacilityNotExistsException {
-		perun.getVosManagerBl().checkVoExists(session, vo);
-
-		List<FacilityState> list = new ArrayList<>();
-		List<RichResource> facs = perun.getResourcesManagerBl().getRichResources(session, vo);
-
-		Set<Facility> facilities = new HashSet<>();
-		for (RichResource res : facs) {
-			facilities.add(res.getFacility());
-		}
-		for (Facility f : facilities) {
-			list.add(getFacilityState(session, f));
-		}
-		Collections.sort(list);
-		return list;
-	}
-
-	@Override
-	public TaskResult getTaskResultById(int taskResultId) {
-		return getTasksManagerImpl().getTaskResultById(taskResultId);
-	}
-
-	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) {
-		return getTasksManagerImpl().getTaskResultsForDestinations(destinationsNames);
-	}
-
-	@Override
 	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws VoNotExistsException {
 		perun.getVosManagerBl().checkVoExists(session, vo);
 
@@ -347,7 +256,7 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 		List<ResourceState> resourceStateList = new ArrayList<>();
 
 		for (Resource resource : resources) {
-			List<Task> taskList = listAllTasksForFacility(resource.getFacilityId());
+			List<Task> taskList = listAllTasksForFacility(session, resource.getFacilityId());
 
 			// create new resourceState
 			ResourceState resourceState = new ResourceState();
@@ -361,85 +270,124 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 		return resourceStateList;
 	}
 
-	@Override
-	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) {
-
-		Map<Service, ServiceState> serviceStates = new HashMap<>();
-
-		// fill states for all services which are currently on facility
-		for (Service service : perun.getServicesManagerBl().getAssignedServices(sess, facility)) {
-
-			serviceStates.put(service, new ServiceState(service, facility));
-			serviceStates.get(service).setBlockedOnFacility(getServicesManagerBl().isServiceBlockedOnFacility(service, facility));
-
-			// service has destination on facility
-			serviceStates.get(service).setHasDestinations(!perun.getServicesManagerBl().getDestinations(sess, service, facility).isEmpty());
-
-		}
-
-		// fill states for all tasks on facility
-
-		List<Task> tasks = getTasksManagerImpl().listAllTasksForFacility(facility.getId());
-
-		for (Task task : tasks) {
-
-			Service taskService = task.getService();
-
-			ServiceState serviceState = serviceStates.get(taskService);
-			if (serviceState == null) {
-				serviceState = new ServiceState(taskService, facility);
-				serviceStates.put(taskService, serviceState);
-				// fill destinations if service was not assigned
-				serviceStates.get(taskService).setHasDestinations(!perun.getServicesManagerBl().getDestinations(sess, taskService, facility).isEmpty());
-			}
-
-			// fill service state
-			serviceState.setTask(task);
-			serviceStates.get(taskService).setBlockedOnFacility(getServicesManagerBl().isServiceBlockedOnFacility(task.getService(), facility));
-
-		}
-
-		return new ArrayList<>(serviceStates.values());
-
-	}
-
-	@Override
-	public void deleteTask(PerunSession sess, Task task) {
-
-		Facility facility = task.getFacility();
-		Service service = task.getService();
-
-		// clear all task results
-		getTasksManagerImpl().deleteTaskResults(task.getId());
-
-		// remove task itself
-		getTasksManagerImpl().removeTask(service, facility);
-
-	}
-
 	public ServicesManagerBl getServicesManagerBl() {
 		return servicesManagerBl;
 	}
 
+	@Override
+	public Task getTask(PerunSession perunSession, Service service, Facility facility) {
+		return getTasksManagerImpl().getTask(service, facility);
+	}
+
+	@Override
+	public Task getTaskById(PerunSession perunSession, int id) {
+		return getTasksManagerImpl().getTaskById(id);
+	}
+
+	@Override
+	public TaskResult getTaskResultById(PerunSession sess, int taskResultId) {
+		return getTasksManagerImpl().getTaskResultById(taskResultId);
+	}
+
+	@Override
+	public List<TaskResult> getTaskResults(PerunSession sess) {
+		return getTasksManagerImpl().getTaskResults();
+	}
+
+	@Override
+	public List<TaskResult> getTaskResultsByTask(PerunSession sess, int taskId) {
+		return getTasksManagerImpl().getTaskResultsByTask(taskId);
+	}
+
+	@Override
+	public List<TaskResult> getTaskResultsByTaskAndDestination(PerunSession sess, int taskId, int destinationId) {
+		return getTasksManagerImpl().getTaskResultsByTaskAndDestination(taskId, destinationId);
+	}
+
+	@Override
+	public List<TaskResult> getTaskResultsByTaskOnlyNewest(PerunSession sess, int taskId) {
+		return getTasksManagerImpl().getTaskResultsByTaskOnlyNewest(taskId);
+	}
+
+	@Override
+	public List<TaskResult> getTaskResultsByDestinations(PerunSession session, List<String> destinationsNames) {
+		return getTasksManagerImpl().getTaskResultsByDestinations(destinationsNames);
+	}
 
 	public TasksManagerImplApi getTasksManagerImpl() {
 		return tasksManagerImpl;
 	}
 
-	public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
-		this.servicesManagerBl = servicesManagerBl;
+	@Override
+	public int insertNewTaskResult(PerunSession sess, TaskResult taskResult) {
+		return getTasksManagerImpl().insertNewTaskResult(taskResult);
+	}
+
+	@Override
+	public int insertTask(PerunSession sess, Task task) {
+		return getTasksManagerImpl().insertTask(task);
+	}
+
+	@Override
+	public boolean isThereSuchTask(PerunSession sess, Service service, Facility facility) {
+		return getTasksManagerImpl().isThereSuchTask(service, facility);
+	}
+
+	@Override
+	public List<Task> listAllTasks(PerunSession perunSession) {
+		return getTasksManagerImpl().listAllTasks();
+	}
+
+	@Override
+	public List<Task> listAllTasksForFacility(PerunSession session, int facilityId) {
+		return getTasksManagerImpl().listAllTasksForFacility(facilityId);
+	}
+
+	@Override
+	public List<Task> listAllTasksForService(PerunSession sess, int serviceId) {
+		return getTasksManagerImpl().listAllTasksForService(serviceId);
+	}
+
+	@Override
+	public List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state) {
+		return getTasksManagerImpl().listAllTasksInState(state);
+	}
+
+	@Override
+	public List<Task> listAllTasksNotInState(PerunSession sess, Task.TaskStatus state) {
+		return getTasksManagerImpl().listAllTasksNotInState(state);
+	}
+
+	@Override
+	public void removeAllTasksForService(PerunSession sess, Service service) {
+		for(Task task : listAllTasksForService(sess, service.getId())) {
+			getTasksManagerImpl().deleteTaskResults(task.getId());
+			removeTask(sess, task.getId());
+		}
+	}
+
+	@Override
+	public void removeTask(PerunSession sess, int id) {
+		getTasksManagerImpl().removeTask(id);
+	}
+
+
+	@Override
+	public void removeTask(PerunSession sess, Service service, Facility facility) {
+		getTasksManagerImpl().removeTask(service, facility);
 	}
 
 	public void setPerunBl(PerunBlImpl perunBl) {
 		this.perun = perunBl;
 	}
 
+	public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
+		this.servicesManagerBl = servicesManagerBl;
+	}
+
 	@Override
-	public void removeAllTasksForService(Service service) {
-		for(Task task : listAllTasksForService(service.getId())) {
-			getTasksManagerImpl().deleteTaskResults(task.getId());
-			removeTask(task.getId());
-		}
+	public void updateTask(PerunSession sess, Task task) {
+		getTasksManagerImpl().updateTask(task);
 	}
 
 }
