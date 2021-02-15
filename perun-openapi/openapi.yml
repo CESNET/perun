@@ -296,6 +296,14 @@ components:
         host: { $ref: '#/components/schemas/Host' }
         hostAttributes: { type: array, items: { $ref: '#/components/schemas/Attribute' } }
 
+    EnrichedFacility:
+      type: object
+      properties:
+        facility: { $ref: '#/components/schemas/Facility' }
+        owners: { type: array, items: { $ref: '#/components/schemas/Owner' } }
+        destinations: { type: array, items: { $ref: '#/components/schemas/Destination' } }
+        hosts: { type: array, items: { $ref: '#/components/schemas/Host' } }
+
     PublicationSystem:
       allOf:
         - $ref: '#/components/schemas/PerunBean'
@@ -1179,6 +1187,15 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RichFacility"
+
+    ListOfEnrichedFacilitiesResponse:
+      description: "returns List<EnrichedFacility>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/EnrichedFacility"
 
     OwnerResponse:
       description: "returns Owner"
@@ -8968,6 +8985,19 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/facilitiesManager/getEnrichedFacilities:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getEnrichedFacilities
+      summary: Gets all enriched facilities user has access rights to.
+      parameters: [ ]
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfEnrichedFacilitiesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

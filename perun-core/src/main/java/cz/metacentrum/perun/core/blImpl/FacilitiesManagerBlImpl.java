@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.EnrichedFacility;
-import cz.metacentrum.perun.core.api.EnrichedResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -1194,8 +1193,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	 * @return converted EnrichedFacility
 	 */
 	private EnrichedFacility convertToEnrichedFacility(PerunSession sess, Facility facility) {
+		List<Owner> owners = this.getOwners(sess, facility);
 		List<Destination> destinations = getPerunBl().getServicesManagerBl().getDestinations(sess, facility);
 		List<Host> hosts = this.getHosts(sess, facility);
-		return new EnrichedFacility(facility, destinations, hosts);
+		return new EnrichedFacility(facility, owners, destinations, hosts);
 	}
 }
