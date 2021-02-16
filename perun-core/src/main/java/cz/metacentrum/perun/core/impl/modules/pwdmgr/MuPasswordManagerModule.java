@@ -188,7 +188,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		}
 
 		if (password.length() < 12) {
-			log.warn("Password for {}:{} is too short. At least 12 characters is required.", "mu", login);
+			log.warn("Password for {}:{} is too short. At least 12 characters are required.", "mu", login);
 			throw new PasswordStrengthException("Password for mu:" + login + " is too short. At least 12 characters is required.");
 		}
 
@@ -200,8 +200,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		if (muPasswordContainsSpec.matcher(password).matches()) groupsCounter++;
 
 		if (groupsCounter < 3) {
-			log.warn("Password for {}:{} is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", "mu", login);
-			throw new PasswordStrengthException("Password for mu:" + login + " is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
+			log.warn("Password for {}:{} is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", "mu", login);
+			throw new PasswordStrengthException("Password for mu:" + login + " is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
 		}
 
 	}

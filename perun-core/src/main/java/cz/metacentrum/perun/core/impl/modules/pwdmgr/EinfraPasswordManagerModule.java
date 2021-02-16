@@ -220,7 +220,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		}
 
 		if (password.length() < 10) {
-			log.warn("Password for {}:{} is too short. At least 10 characters is required.", actualLoginNamespace, login);
+			log.warn("Password for {}:{} is too short. At least 10 characters are required.", actualLoginNamespace, login);
 			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too short. At least 10 characters is required.");
 		}
 
@@ -249,8 +249,8 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		if (einfraPasswordContainsSpec.matcher(password).matches()) groupsCounter++;
 
 		if (groupsCounter < 3) {
-			log.warn("Password for {}:{} is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", actualLoginNamespace, login);
-			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is two weak. It must consist of at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
+			log.warn("Password for {}:{} is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.", actualLoginNamespace, login);
+			throw new PasswordStrengthException("Password for " + actualLoginNamespace + ":" + login + " is too weak. It has to contain at least 3 kinds of characters from: lower-case letter, upper-case letter, digit, spec. character.");
 		}
 
 	}
