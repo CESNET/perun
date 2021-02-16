@@ -58,10 +58,12 @@ public class TasksManagerBlImplTest {
 	private int testDestinationId1, testDestinationId2;
 	private int testFacilityId1, testFacilityId2;
 	private Facility facility1, facility2;
-	private Destination destination;
+	private Destination destination1, destination2;
 	private Task task1, task2;
+	private int task1Id, task2Id;
 	private TaskResult result1, result2;
-
+	private int result1Id, result2Id;
+	
 	@Before
 	public void setUp() throws Exception
 	{
@@ -105,11 +107,11 @@ public class TasksManagerBlImplTest {
 		facility2.setId(testFacilityId2);
 
 		// facility_service_destinations
-		destination = ((PerunBl)perun).getServicesManagerBl().getDestinationById(perunSession, testDestinationId1);
-		((PerunBl)perun).getServicesManagerBl().addDestination(perunSession, testService1, facility1, destination);
+		destination1 = ((PerunBl)perun).getServicesManagerBl().getDestinationById(perunSession, testDestinationId1);
+		((PerunBl)perun).getServicesManagerBl().addDestination(perunSession, testService1, facility1, destination1);
 		// facility_service_destinations
-		destination = ((PerunBl)perun).getServicesManagerBl().getDestinationById(perunSession, testDestinationId2);
-		((PerunBl)perun).getServicesManagerBl().addDestination(perunSession, testService1, facility2, destination);
+		destination2 = ((PerunBl)perun).getServicesManagerBl().getDestinationById(perunSession, testDestinationId2);
+		((PerunBl)perun).getServicesManagerBl().addDestination(perunSession, testService1, facility2, destination2);
 
 		// tasks
 		task1 = new Task();
@@ -118,9 +120,10 @@ public class TasksManagerBlImplTest {
 		task1.setSchedule(0L);
 		task1.setStatus(TaskStatus.DONE);
 		List<Destination> destinationsList = new ArrayList<>();
-		destinationsList.add(destination);
+		destinationsList.add(destination1);
 		task1.setDestinations(destinationsList);
-		int task1Id = ((PerunBl)perun).getTasksManagerBl().insertTask(perunSession, task1);
+		task1Id = ((PerunBl)perun).getTasksManagerBl().insertTask(perunSession, task1);
+		task1.setId(task1Id);
 		
 		// tasks
 		task2 = new Task();
@@ -129,22 +132,26 @@ public class TasksManagerBlImplTest {
 		task2.setSchedule(0L);
 		task2.setStatus(TaskStatus.DONE);
 		destinationsList = new ArrayList<>();
-		destinationsList.add(destination);
+		destinationsList.add(destination2);
 		task2.setDestinations(destinationsList);
-		int task2Id = ((PerunBl)perun).getTasksManagerBl().insertTask(perunSession, task2);
+		task2Id = ((PerunBl)perun).getTasksManagerBl().insertTask(perunSession, task2);
+		task2.setId(task2Id);
 
 		// task results
 		result1 = new TaskResult();
-		result1.setDestination(destination);
+		result1.setDestination(destination1);
+		result1.setDestinationId(testDestinationId1);
 		result1.setService(testService1);
 		result1.setTaskId(task1Id);
 		result1.setStatus(TaskResultStatus.DONE);
 		result1.setTimestamp(new Date());
-		((PerunBl)perun).getTasksManagerBl().insertNewTaskResult(perunSession, result1);
-
+		result1Id = ((PerunBl)perun).getTasksManagerBl().insertNewTaskResult(perunSession, result1);
+		result1.setId(result1Id);
+		
 		// task results
 		result2 = new TaskResult();
-		result2.setDestination(destination);
+		result2.setDestination(destination1);
+		result2.setDestinationId(testDestinationId2);
 		result2.setService(testService1);
 		result2.setTaskId(task1Id);
 		result2.setStatus(TaskResultStatus.DONE);
@@ -154,7 +161,8 @@ public class TasksManagerBlImplTest {
 				.minusDays(7)
 				.atStartOfDay(ZoneId.systemDefault())
 				.toInstant()));
-		((PerunBl)perun).getTasksManagerBl().insertNewTaskResult(perunSession, result2);
+		result2Id = ((PerunBl)perun).getTasksManagerBl().insertNewTaskResult(perunSession, result2);
+		result2.setId(result2Id);
 	}
 	
 	@Test
@@ -170,7 +178,7 @@ public class TasksManagerBlImplTest {
 	
 	@Test
 	public void testDeleteOldTaskResults() {
-		((PerunBl)perun).getTasksManagerBl().deleteOldTaskResults(perunSession, 3);
+		assertEquals(1, ((PerunBl)perun).getTasksManagerBl().deleteOldTaskResults(perunSession, 1));
 		assertEquals(1,((PerunBl)perun).getTasksManagerBl().getTaskResults(perunSession).size());
 	}
 
