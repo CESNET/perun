@@ -1857,11 +1857,7 @@ public class Utils {
 	 * @return search query
 	 */
 	public static String prepareUserSearchQueryExactMatch() {
-		if (Compatibility.isPostgreSql()) {
-			return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
-		} else {
-			throw new InternalErrorException("Unsupported db type");
-		}
+		return " replace(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"), ' ', '')=replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')";
 	}
 
 	/**
@@ -1870,12 +1866,8 @@ public class Utils {
 	 * @return search query
 	 */
 	public static String prepareUserSearchQuerySimilarMatch() {
-		if (Compatibility.isPostgreSql()) {
-			return " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 or " +
-				   " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 ";
-		} else {
-			throw new InternalErrorException("Unsupported db type");
-		}
+		return " strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 or " +
+			" strpos(replace(lower(" + Compatibility.convertToAscii("COALESCE(users.last_name,'') || COALESCE(users.first_name,'') || COALESCE(users.middle_name,'')") + "), ' ', ''),replace(lower(" + Compatibility.convertToAscii(":nameString") + "), ' ', '')) > 0 ";
 	}
 
 	/**

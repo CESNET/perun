@@ -12,7 +12,6 @@
 		<property name="admins" value="#{'${perun.admins}'.split('\s*,\s*')}"/>
 		<property name="alternativePasswordManagerProgram" value="${perun.alternativePasswordManager.program}"/>
 		<property name="dbInitializatorEnabled" value="${perun.DBInitializatorEnabled}"/>
-		<property name="dbType" value="${perun.db.type}"/>
 		<property name="dontLookupUsers" value="#{'${perun.dont.lookup.users}'.split('\s*,\s*')}"/>
 		<property name="extSourcesMultipleIdentifiers" value="#{'${perun.extsources.multiple.identifiers}'.split('\s*,\s*')}"/>
 		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
@@ -91,7 +90,6 @@
 				<prop key="perun.dont.lookup.users">perunTests, perunController, perunEngine, perunDispatcher,
 					perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc, perunLdapc
 				</prop>
-				<prop key="perun.db.type">postgresql</prop>
 				<prop key="perun.group.synchronization.interval">1</prop>
 				<prop key="perun.group.synchronization.timeout">10</prop>
 				<prop key="perun.group.structure.synchronization.interval">1</prop>

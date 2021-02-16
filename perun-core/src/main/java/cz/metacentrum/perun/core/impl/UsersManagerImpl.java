@@ -1229,13 +1229,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		// get new email if possible
 		String newEmail;
 		try {
-			if (Compatibility.isPostgreSql()) {
-				// postgres
-				newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (now() - interval '"+validWindow+" hours'))", String.class, changeId, user.getId());
-			} else {
-				// oracle
-				newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", String.class, changeId, user.getId());
-			}
+			newEmail = jdbc.queryForObject("select value from mailchange where id=? and user_id=? and (created_at > (now() - interval '"+validWindow+" hours'))", String.class, changeId, user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			throw new InternalErrorException("Preferred mail change request with ID="+changeId+" doesn't exists or isn't valid anymore.");
 		}
@@ -1261,17 +1255,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
 
 		try {
-			if (Compatibility.isPostgreSql()) {
-
-				return jdbc.query("select value from mailchange where user_id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
-					(resultSet, i) -> resultSet.getString("value"), user.getId());
-
-			} else {
-
-				return jdbc.query("select value from mailchange where user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
-					(resultSet, i) -> resultSet.getString("value"), user.getId());
-
-			}
+			return jdbc.query("select value from mailchange where user_id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
+				(resultSet, i) -> resultSet.getString("value"), user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		}
@@ -1292,16 +1277,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				throw new ConsistencyErrorException("Password reset request " + requestId + " exists more than once.");
 			}
 
-			Pair<String,String> result;
-			if (Compatibility.isPostgreSql()) {
-				result = jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and validity_to >= now()",
+			return jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and validity_to >= now()",
 					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
-			} else {
-				result =  jdbc.queryForObject("select namespace, mail from pwdreset where user_id=? and id=? and validity_to >= SYSTIMESTAMP",
-					(resultSet, i) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("mail")), user.getId(), requestId);
-			}
-
-			return result;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new PasswordResetLinkExpiredException("Password reset request " + requestId + " has already expired.");
 		} catch(RuntimeException ex) {
