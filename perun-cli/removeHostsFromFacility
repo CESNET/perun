@@ -42,7 +42,6 @@ unless (defined $facilityId or (defined $facilityName)) { die "ERROR: facilityId
 @hosts = map { 0 + $_ } @hosts;
 
 my $agent = Perun::Agent->new();
-my $hostsAgent = $agent->getHostsAgent;
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 unless ($facilityId) {

@@ -19,7 +19,7 @@ sub help {
 	};
 }
 
-my ($hostId, $hostName, $attributeId, $batch);
+my ($hostId, $attributeId, $batch);
 GetOptions ("help|h"  => sub {
 		print help();
 		exit 0;
@@ -32,12 +32,6 @@ unless (defined($hostId)) { die "ERROR: hostId is required \n";}
 unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 
 my $agent = Perun::Agent->new();
-
-#unless($hostId) {
-#my $hostsAgent = $agent->getHostsAgent;
-#my $host = $hostsAgent->getHostByName(name => $hostName);
-#$hostId=$host->getId;
-#}
 
 my $attributesAgent = $agent->getAttributesAgent;
 

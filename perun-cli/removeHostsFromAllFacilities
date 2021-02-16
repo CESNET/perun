@@ -35,7 +35,6 @@ unless (@hosts) { die "ERROR: hosts are required \n";}
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 my $servicesAgent = $agent->getServicesAgent;
-my $hostsAgent = $agent->getHostsAgent;
 
 # deleting hosts
 while (@hosts) {

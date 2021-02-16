@@ -35,7 +35,6 @@ unless (@hosts) { die "ERROR: hosts are required \n";}
 unless (defined $facilityId or (defined $facilityName)) { die "ERROR: facilityId or facilityName is required\n";}
 
 my $agent = Perun::Agent->new();
-my $hostsAgent = $agent->getHostsAgent;
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 my $servicesAgent = $agent->getServicesAgent;
 
