@@ -101,19 +101,8 @@ public interface DatabaseManagerBl {
 	 */
 	static java.sql.Array prepareSQLArrayOfNumbersFromIntegers(List<Integer> integers, PreparedStatement preparedStatement) throws SQLException {
 		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
-		if(Compatibility.isOracle()) {
-			int[] arrayOfInts = integers.stream().mapToInt(i -> i).toArray();
-			try {
-				Method createOracleArrayMethod = connection.getClass().getMethod(NAME_OF_ORACLE_ARRAY_METHOD, String.class, Object.class);
-				createOracleArrayMethod.setAccessible(true);
-				return (java.sql.Array) createOracleArrayMethod.invoke(connection, AttributesManager.ORACLE_ARRAY_OF_NUMBERS, arrayOfInts);
-			} catch (Exception ex) {
-				throw new InternalErrorException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
-			}
-		} else {
-			Integer[] arrayOfBeansIds = integers.toArray(new Integer[0]);
-			return connection.createArrayOf(JDBCType.INTEGER.name(), arrayOfBeansIds);
-		}
+		Integer[] arrayOfBeansIds = integers.toArray(new Integer[0]);
+		return connection.createArrayOf(JDBCType.INTEGER.name(), arrayOfBeansIds);
 	}
 	/**
 	 * Take list of String and generate an array in sql database from it.
@@ -128,17 +117,7 @@ public interface DatabaseManagerBl {
 	static java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException {
 		String[] arrayOfStrings = strings.toArray(new String[0]);
 		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
-		if(Compatibility.isOracle()) {
-			try {
-				Method createOracleArrayMethod = connection.getClass().getMethod(NAME_OF_ORACLE_ARRAY_METHOD, String.class, Object.class);
-				createOracleArrayMethod.setAccessible(true);
-				return (java.sql.Array) createOracleArrayMethod.invoke(connection, AttributesManager.ORACLE_ARRAY_OF_STRINGS, arrayOfStrings);
-			} catch (Exception ex) {
-				throw new InternalErrorException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
-			}
-		} else {
-			return connection.createArrayOf(JDBCType.VARCHAR.name(), arrayOfStrings);
-		}
+		return connection.createArrayOf(JDBCType.VARCHAR.name(), arrayOfStrings);
 	}
 
 	/**

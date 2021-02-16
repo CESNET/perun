@@ -51,7 +51,6 @@ public class CoreConfig {
 	private Set<String> dontLookupUsers;
 	private Set<String> extSourcesMultipleIdentifiers;
 	private String alternativePasswordManagerProgram;
-	private String dbType;
 	private String instanceId;
 	private String instanceName;
 	private String mailchangeBackupFrom;
@@ -255,14 +254,6 @@ public class CoreConfig {
 
 	public void setAlternativePasswordManagerProgram(String alternativePasswordManagerProgram) {
 		this.alternativePasswordManagerProgram = alternativePasswordManagerProgram;
-	}
-
-	public String getDbType() {
-		return dbType;
-	}
-
-	public void setDbType(String dbType) {
-		this.dbType = dbType;
 	}
 
 	public String getInstanceId() {
