@@ -1685,6 +1685,32 @@ public enum MembersManagerMethod implements ManagerMethod {
 			return null;
 
 		}
-	}
+	},
 
+	/*#
+	 * Moves membership in VO from source user to target user - moves the source user's
+	 * memberships in non-synchronized groups, member related attributes, bans and
+	 * sponsorships in the VO. Removes the source user's member object.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param sourceUser int User <code>id</code> to move membership from
+	 * @param targetUser int User <code>id</code> to move membership to
+	 * @throw UserNotExistsException if there is no such user
+	 * @throw VoNotExistsException if there is no such VO
+	 * @throw PrivilegeException insufficient permissions
+	 * @throw MemberNotExistsException when sourceUser is not member of the VO
+	 * @throw AlreadyMemberException when targetUser is already member of the VO
+	 * @throw ExtendMembershipException when targetUser doesn't have required LOA for the VO
+	 */
+	moveMembership {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+
+			ac.getMembersManager().moveMembership(ac.getSession(), ac.getVoById(parms.readInt("vo")),
+				ac.getUserById(parms.readInt("sourceUser")), ac.getUserById(parms.readInt("targetUser")));
+
+			return null;
+		}
+	}
 }

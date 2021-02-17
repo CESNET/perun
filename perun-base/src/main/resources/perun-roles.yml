@@ -2773,6 +2773,12 @@ perun_policies:
     include_policies:
       - default_policy
 
+  moveMembership_Vo_User_User_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   #OwnersManagerEntry
   createOwner_Owner_policy:
     policy_roles: []

@@ -53,6 +53,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -119,6 +120,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -2716,6 +2718,204 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Utils.notNull(from, "from");
 		Utils.notNull(to, "to");
 		return membersManagerImpl.getSponsorshipsExpiringInRange(sess, from, to);
+	}
+
+	@Override
+	public void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser) throws MemberNotExistsException, AlreadyMemberException, ExtendMembershipException {
+		Member sourceMember = this.getMemberByUserId(sess, vo, sourceUser.getId());
+		List<Group> directGroups = getPerunBl().getGroupsManagerBl().getMemberDirectGroups(sess, sourceMember);
+
+		List<Group> synchronizedGroups = new ArrayList<>();
+		try {
+			for (Group group : directGroups) {
+				Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, getPerunBl().getGroupsManager().GROUPSYNCHROENABLED_ATTRNAME);
+				if ("true".equals(attrSynchronizeEnabled.getValue())) {
+					synchronizedGroups.add(group);
+				}
+			}
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+
+		Member targetMember;
+		try {
+			// create targetMember and add him to all direct groups that are not synchronized
+			directGroups.removeAll(synchronizedGroups);
+			targetMember = this.createMember(sess, vo, targetUser, directGroups);
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			throw new InternalErrorException(e);
+		}
+
+		// move member related attributes
+		// add 'members' group to directGroups to move its member-group attributes too
+		try {
+			directGroups.add(getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP));
+		} catch (GroupNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+		moveMembersAttributes(sess, vo, sourceMember, targetMember, directGroups);
+
+		// set status from old member
+		// first validate member to prevent MemberNotValidYetException later
+		try {
+			this.validateMember(sess, targetMember);
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			throw new InternalErrorException(e);
+		}
+		if (sourceMember.getStatus() != Status.VALID) {
+			try {
+				this.setStatus(sess, targetMember, sourceMember.getStatus());
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | MemberNotValidYetException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+
+		getMembersManagerImpl().moveMembersApplications(sess, sourceMember, targetMember);
+
+		moveMembersSponsorships(sess, vo, sourceUser, targetUser, sourceMember, targetMember);
+
+		moveMembersBans(sess, sourceMember, targetMember);
+
+		try {
+			this.deleteMember(sess, sourceMember);
+		} catch (MemberAlreadyRemovedException e) {
+			log.warn("Trying to delete already deleted member {}. Exception: {}", sourceMember, e);
+		}
+	}
+
+	/**
+	 * Moves member related attributes from source member to target member.
+	 *
+	 * @param sess
+	 * @param vo VO where sourceUser and targetUser are members
+	 * @param sourceMember member to move attributes from
+	 * @param targetMember member to move attributes to
+	 * @param groups groups for which move member-group attributes
+	 */
+	private void moveMembersAttributes(PerunSession sess, Vo vo, Member sourceMember, Member targetMember, List<Group> groups) {
+		try {
+			// set member attributes
+			List<Attribute> memberAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceMember);
+			for (Attribute attribute : memberAttributes) {
+				if (!getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute) &&
+					!getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attribute))
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, targetMember, attribute);
+			}
+
+			// set member-group attributes
+			for (Group group : groups) {
+				List<Attribute> groupMemberAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceMember, group);
+				for (Attribute attribute : groupMemberAttributes) {
+					if (!getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute)) {
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, targetMember, group, attribute);
+					}
+				}
+			}
+
+			// set member-resource attributes
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+			for (Resource resource : resources) {
+				List<Attribute> memberResourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceMember, resource);
+				for (Attribute attribute : memberResourceAttributes) {
+					if (!getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute)) {
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, targetMember, resource, attribute);
+					}
+				}
+			}
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException |
+			MemberGroupMismatchException | MemberResourceMismatchException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Moves sponsorships in VO from source user to target user - moves sponsorships
+	 * where the source user is sponsor or where the source member is sponsored.
+	 *
+	 * @param sess
+	 * @param vo VO to move sponsorships in
+	 * @param sourceUser user to move sponsorships from
+	 * @param targetUser user to move sponsorships to
+	 * @param sourceMember member of the source user in the VO
+	 * @param targetMember member of the target user in the VO
+	 */
+	private void moveMembersSponsorships(PerunSession sess, Vo vo, User sourceUser, User targetUser, Member sourceMember, Member targetMember) {
+		// move sponsorships where sourceUser is sponsor
+		List<Member> sponsoredMembers = this.getSponsoredMembers(sess, vo, sourceUser);
+		for (Member sponsoredMember : sponsoredMembers) {
+			try {
+				Sponsorship sponsorship = this.getSponsorship(sess, sponsoredMember, sourceUser);
+				// if target user isn't in role SPONSOR for the VO, assign the role to him
+				if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, targetUser, Role.SPONSOR, vo, true)) {
+					AuthzResolverBlImpl.setRole(sess, targetUser, vo, Role.SPONSOR);
+				}
+				// first add sponsorship to targetUser
+				this.sponsorMember(sess, sponsoredMember, targetUser, sponsorship.getValidityTo());
+				// then remove sponsorship from sourceUser
+				this.removeSponsor(sess, sponsoredMember, sourceUser);
+			} catch (SponsorshipDoesNotExistException | MemberNotSponsoredException e) {
+				throw new ConsistencyErrorException(e);
+			} catch (AlreadySponsorException e) {
+				log.warn("When moving sponsorships from sponsor {} to sponsor {}, the sponsor already sponsored " +
+					"member {}. Exception: {}", sourceUser, targetUser, sponsoredMember, e);
+			} catch (UserNotInRoleException | AlreadyAdminException | RoleCannotBeManagedException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+
+		// move sponsorships where sourceMember is sponsored
+		if (sourceMember.isSponsored()) {
+			List<User> sponsors = getPerunBl().getUsersManagerBl().getSponsors(sess, sourceMember);
+			try {
+				for (int i = 0; i < sponsors.size(); i++) {
+					User sponsor = sponsors.get(i);
+					Sponsorship sponsorship = this.getSponsorship(sess, sourceMember, sponsor);
+					// first sponsorship must be set with setSponsorshipForMember(),
+					// because the member needs to be marked as sponsored first
+					if (i == 0) {
+						this.setSponsorshipForMember(sess, targetMember, sponsor, sponsorship.getValidityTo());
+					} else {
+						this.sponsorMember(sess, targetMember, sponsor, sponsorship.getValidityTo());
+					}
+				}
+			} catch (SponsorshipDoesNotExistException e) {
+				throw new ConsistencyErrorException(e);
+			} catch (AlreadySponsoredMemberException | MemberNotSponsoredException | AlreadySponsorException | UserNotInRoleException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+	}
+
+	/**
+	 * Moves bans on resources and ban on VO from source member to target member.
+	 *
+	 * @param sess
+	 * @param sourceMember member to move bans from
+	 * @param targetMember member to move bans to
+	 */
+	private void moveMembersBans(PerunSession sess, Member sourceMember, Member targetMember) {
+		// move members bans on resources
+		List<BanOnResource> bansOnResources = getPerunBl().getResourcesManagerBl().getBansForMember(sess, sourceMember.getId());
+		for (BanOnResource banOnResource : bansOnResources) {
+			try {
+				banOnResource.setMemberId(targetMember.getId());
+				getPerunBl().getResourcesManagerBl().setBan(sess, banOnResource);
+			} catch (BanAlreadyExistsException e) {
+				log.warn("Moving ban on resource {} from source member {} to target member {}, but the target member" +
+						 " already has ban on the resource.", banOnResource, sourceMember, targetMember);
+			}
+		}
+
+		// move members ban on VO
+		Optional<BanOnVo> banOnVo = getPerunBl().getVosManagerBl().getBanForMember(sess, sourceMember.getId());
+		if (banOnVo.isPresent()) {
+			banOnVo.get().setMemberId(targetMember.getId());
+			try {
+				getPerunBl().getVosManagerBl().setBan(sess, banOnVo.get());
+			} catch (MemberNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		}
 	}
 
 	/**

@@ -409,4 +409,13 @@ public interface MembersManagerImplApi {
 	 * @return list of sponsorships which have validityTo set in the given range
 	 */
 	List<Sponsorship> getSponsorshipsExpiringInRange(PerunSession sess, LocalDate from, LocalDate to);
+
+	/**
+	 * Move all applications from one member to another member.
+	 *
+	 * @param sess
+	 * @param sourceMember for which move applications from
+	 * @param targetMember for which move applications to
+	 */
+	void moveMembersApplications(PerunSession sess, Member sourceMember, Member targetMember);
 }

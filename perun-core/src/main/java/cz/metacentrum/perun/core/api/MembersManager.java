@@ -1420,4 +1420,22 @@ public interface MembersManager {
 	 * @throws UserNotExistsException if there is no such user
 	 */
 	void updateSponsorshipValidity(PerunSession sess, Member sponsoredMember, User sponsor, LocalDate newValidity) throws PrivilegeException, SponsorshipDoesNotExistException, MemberNotExistsException, UserNotExistsException;
+
+	/**
+	 * Moves membership in VO from source user to target user - moves the source user's
+	 * memberships in non-synchronized groups, member related attributes, bans and
+	 * sponsorships in the VO. Removes the source user's member object.
+	 *
+	 * @param sess session
+	 * @param vo the VO in which the membership should be moved
+	 * @param sourceUser the user to move membership from
+	 * @param targetUser the user to move membership to
+	 * @throws UserNotExistsException if there is no such user
+	 * @throws VoNotExistsException if there is no such VO
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws MemberNotExistsException when sourceUser is not member of the VO
+	 * @throws AlreadyMemberException when targetUser is already member of the VO
+	 * @throws ExtendMembershipException when targetUser doesn't have required LOA for the VO
+	 */
+	void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser) throws UserNotExistsException, VoNotExistsException, PrivilegeException, ExtendMembershipException, MemberNotExistsException, AlreadyMemberException;
 }

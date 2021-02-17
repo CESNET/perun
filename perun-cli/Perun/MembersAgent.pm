@@ -133,4 +133,9 @@ sub getSponsoredMembers
  return Perun::Common::callManagerMethod('getSponsoredMembers', '[]RichMember', @_);
 }
 
+sub moveMembership
+{
+	return Perun::Common::callManagerMethod('moveMembership', '', @_);
+}
+
 1;
