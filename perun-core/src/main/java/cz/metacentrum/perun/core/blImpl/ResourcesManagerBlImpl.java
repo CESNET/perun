@@ -286,7 +286,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		// Get the resource VO
 		Vo vo = this.getVo(sess, resource);
 		getResourcesManagerImpl().deleteResource(sess, vo, resource);
-		getPerunBl().getAuditer().log(sess, new ResourceDeleted(resource, facility, services));
+		getPerunBl().getAuditer().log(sess, new ResourceDeleted(resource, facility));
 	}
 
 	@Override
