@@ -559,11 +559,12 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param perunSession
 	 * @param host
+	 * @param facility
 	 *
 	 * @throws InternalErrorException
 	 * @throws HostAlreadyRemovedException if 0 rows was affected by deleting from DB
 	 */
-	void removeHost(PerunSession perunSession, Host host) throws HostAlreadyRemovedException;
+	void removeHost(PerunSession perunSession, Host host, Facility facility) throws HostAlreadyRemovedException;
 
 	/**
 	 * Remove hosts from the Facility.

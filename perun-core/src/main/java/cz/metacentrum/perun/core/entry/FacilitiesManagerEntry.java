@@ -1018,7 +1018,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "removeHost");
 		}
 
-		getFacilitiesManagerBl().removeHost(sess, host);
+		getFacilitiesManagerBl().removeHost(sess, host, facility);
 	}
 
 	@Override
@@ -1040,8 +1040,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		if (hosts.size() != 1) throw new HostNotExistsException("There is no unique host with this hostname: " + hostname);
 		Host host = hosts.get(0);
+		Facility facility = getFacilitiesManagerBl().getFacilityForHost(sess, host);
 
-		getFacilitiesManagerBl().removeHost(sess, host);
+		getFacilitiesManagerBl().removeHost(sess, host, facility);
 	}
 
 	@Override
