@@ -55,6 +55,20 @@ public abstract class PerunException extends Exception {
 		log.debug("Exception {}: {}.", errorId, this);
 	}
 
+	/**
+	 * Return template of a message that is more user friendly and can be displayed in GUI.
+	 * If an exception doesn't implement this message, returns null as default.
+	 *
+	 * There can be used placeholder in the template, using format '%{field}%' (e.g.: '%{invalidGroup}%')
+	 * where the 'group' should be a field of the given exception, that can be accessed.
+	 *
+	 * @return template of a friendly message or null, if no template is defined for given exception
+	 */
+	@SuppressWarnings("unused") // this method is used during serialization
+	public String getFriendlyMessageTemplate() {
+		return null;
+	}
+
 	@Override
 	public String getMessage() {
 		return "Error "+errorId+": "+super.getMessage();

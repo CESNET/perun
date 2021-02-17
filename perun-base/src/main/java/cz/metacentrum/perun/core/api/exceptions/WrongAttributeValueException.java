@@ -158,4 +158,8 @@ public class WrongAttributeValueException extends AttributeValueException {
 		return attributeHolderSecondary;
 	}
 
+	@Override
+	public String getFriendlyMessageTemplate() {
+		return "The attribute %{attribute}% has an invalid value.";
+	}
 }
