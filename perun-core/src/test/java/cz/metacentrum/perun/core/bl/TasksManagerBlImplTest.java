@@ -151,7 +151,7 @@ public class TasksManagerBlImplTest {
 		// task results
 		result2 = new TaskResult();
 		result2.setDestination(destination1);
-		result2.setDestinationId(testDestinationId2);
+		result2.setDestinationId(testDestinationId1);
 		result2.setService(testService1);
 		result2.setTaskId(task1Id);
 		result2.setStatus(TaskResultStatus.DONE);
