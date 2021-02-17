@@ -10,9 +10,7 @@ import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupContactsRemo
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupsAddedToContactGroupOfFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupsRemovedFromContactGroupOfFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostAddedToFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostRemovedForFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostsAddedToFacility;
-import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostsRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostRemovedFromFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnerContactsRemovedForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnersAddedToContactGroupOfFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnersRemovedFromContactGroupOfFacility;
@@ -364,7 +362,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		//remove hosts
 		List<Host> hosts = this.getHosts(sess, facility);
 		for (Host host: hosts) {
-			this.removeHost(sess, host);
+			this.removeHost(sess, host, facility);
 		}
 
 		//remove destinations
@@ -559,8 +557,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 		for(Host host : hosts) {
 			getFacilitiesManagerImpl().addHost(sess, host, facility);
+			getPerunBl().getAuditer().log(sess, new HostAddedToFacility(host, facility));
 		}
-		getPerunBl().getAuditer().log(sess, new HostsAddedToFacility(hosts, facility));
 
 		return hosts;
 	}
@@ -594,9 +592,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			}
 
 			getFacilitiesManagerImpl().removeHost(sess, host);
+			getPerunBl().getAuditer().log(sess, new HostRemovedFromFacility(host, facility));
 		}
 
-		getPerunBl().getAuditer().log(sess, new HostsRemovedForFacility(hosts, facility));
 	}
 
 	public boolean hostExists(PerunSession sess, Host host) {
@@ -697,14 +695,14 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public void removeHost(PerunSession sess, Host host) throws HostAlreadyRemovedException {
+	public void removeHost(PerunSession sess, Host host, Facility facility) throws HostAlreadyRemovedException {
 		try {
 			perunBl.getAttributesManagerBl().removeAllAttributes(sess, host);
 		} catch (WrongAttributeValueException e) {
 			throw new InternalErrorException(e);
 		}
 		facilitiesManagerImpl.removeHost(sess, host);
-		getPerunBl().getAuditer().log(sess, new HostRemovedForFacility(host));
+		getPerunBl().getAuditer().log(sess, new HostRemovedFromFacility(host, facility));
 	}
 
 	@Override

@@ -4,35 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Host;
 
-import java.util.List;
+public class HostRemovedFromFacility extends AuditEvent {
 
-public class HostsRemovedForFacility extends AuditEvent {
-
-	private List<Host> hosts;
+	private Host host;
 	private Facility facility;
 	private String message;
 
 	@SuppressWarnings("unused") // used by jackson mapper
-	public HostsRemovedForFacility() {
+	public HostRemovedFromFacility() {
 	}
 
-	public HostsRemovedForFacility(List<Host> hosts, Facility facility) {
+	public HostRemovedFromFacility(Host host, Facility facility) {
+		this.host = host;
 		this.facility = facility;
-		this.hosts = hosts;
-		this.message = formatMessage("Hosts %s removed from cluster %s", hosts, facility);
+		this.message = formatMessage("%s removed from %s.", host, facility);
+	}
+
+	public Host getHost() {
+		return host;
+	}
+
+	public Facility getFacility() {
+		return facility;
 	}
 
 	@Override
 	public String getMessage() {
 		return message;
-	}
-
-	public List<Host> getHosts() {
-		return hosts;
-	}
-
-	public Facility getFacility() {
-		return facility;
 	}
 
 	@Override
