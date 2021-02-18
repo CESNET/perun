@@ -4,15 +4,13 @@ package cz.metacentrum.perun.core.bl;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.chrono.JapaneseDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -46,8 +45,6 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
@@ -70,7 +67,7 @@ public class TasksManagerBlImplTest {
 	private TasksManagerBl tasksManager;
 	private JdbcPerunTemplate jdbcTemplate;
 	private PerunSession perunSession;
-	private Service testService1;
+	private Service testService1, testService2;
 	private int testDestinationId1, testDestinationId2;
 	private int testFacilityId1, testFacilityId2;
 	private Facility facility1, facility2;
@@ -106,6 +103,16 @@ public class TasksManagerBlImplTest {
 		testService1.setScript("/hellish/test/script");
 
 		testService1.setId(servicesManager.createService(perunSession, testService1).getId());
+
+		// Test Service #2
+		testService2 = new Service();
+		testService2.setName("Test_service_2_" + Long.toHexString(System.currentTimeMillis()));
+		testService2.setDelay(1);
+		testService2.setRecurrence(1);
+		testService2.setEnabled(true);
+		testService2.setScript("/hellish/test/script");
+
+		testService2.setId(servicesManager.createService(perunSession, testService2).getId());
 
 		// 
 		// Testing Destination #1
@@ -210,6 +217,12 @@ public class TasksManagerBlImplTest {
 				.toInstant()));
 		result3Id = tasksManager.insertNewTaskResult(perunSession, result3);
 		result3.setId(result3Id);
+		
+		jdbcTemplate.query("select id from tasks_results where task_id = ?", 
+				row -> { System.out.println("ID: " + row.getInt("id")); },
+				task2Id
+			);
+			
 	}
 	
 	@Test
@@ -316,79 +329,86 @@ public class TasksManagerBlImplTest {
 	@Test 
 	public void testGetTask() {
 		System.out.println("TasksManagerBlImplTest.testGetTask");
-		assertTrue(task1.equals(tasksManager.getTask(perunSession, testService1, facility1)));
+		Task task =  tasksManager.getTask(perunSession, testService1, facility1);
+		assertEquals(testService1.getId(), task.getServiceId());
+		assertEquals(facility1.getId(), task.getFacilityId());
 	}
 	
 	@Test 
 	public void testGetTaskById() {
 		System.out.println("TasksManagerBlImplTest.testGetTaskById");
-		// TODO
+		assertEquals(task1Id, tasksManager.getTaskById(perunSession, task1Id).getId());
 	}
 	
 	@Test 
 	public void testGetTaskResultById() {
 		System.out.println("TasksManagerBlImplTest.testGetTaskResultById");
-		// TODO
+		assertTrue(result1.equals(tasksManager.getTaskResultById(perunSession, result1Id)));
 	}
 	
 	@Test 
 	public void testGetTaskResults() {
 		System.out.println("TasksManagerBlImplTest.testGetTaskResults");
-		// TODO
+		assertEquals(3,  tasksManager.getTaskResults(perunSession).size());
 	}
 	
 	@Test 
 	public void testGetTaskResultsByTask() {
 		System.out.println("TasksManagerBlImplTest.testGetTaskResultsByTask");
-		// TODO
+		assertEquals(3, tasksManager.getTaskResultsByTask(perunSession, task1Id).size());
 	}
 	
 	@Test 
 	public void testGetTaskResultsByTaskAndDestination() {
 		System.out.println("TasksManagerBlImplTest.testGetTaskResultsByTaskAndDestination");
-		// TODO
+		assertEquals(2, tasksManager.getTaskResultsByTaskAndDestination(perunSession, task1Id, testDestinationId1).size());
+		assertEquals(1, tasksManager.getTaskResultsByTaskAndDestination(perunSession, task1Id, testDestinationId2).size());
 	}
 	
 	@Test 
 	public void testGetTaskResultsByTaskOnlyNewest() {
 		System.out.println("TasksManagerBlImplTest.testGetTaskResultsByTaskOnlyNewest");
-		// TODO
+		assertEquals(2,  tasksManager.getTaskResultsByTaskOnlyNewest(perunSession, task1Id).size());
 	}
 	
 	@Test 
 	public void testGetTaskResultsByDestinations() {
 		System.out.println("TasksManagerBlImplTest.testGetTaskResultsByDestinations");
-		// TODO
+		assertEquals(2, tasksManager.getTaskResultsByDestinations(perunSession, List.of("test.destination." + testDestinationId1)).size());
+		assertEquals(1, tasksManager.getTaskResultsByDestinations(perunSession, List.of("test.destination." + testDestinationId2)).size());
+		assertEquals(3, tasksManager.getTaskResultsByDestinations(perunSession, List.of("test.destination." + testDestinationId1, "test.destination." + testDestinationId2)).size());
 	}
 	
 	@Test 
 	public void testInsertNewTaskResult() {
 		System.out.println("TasksManagerBlImplTest.testInsertNewTaskResults");
-		// TODO
+		assertTrue(result1.equals(tasksManager.getTaskResultById(perunSession, result1Id)));
 	}
 	
 	@Test 
 	public void testInsertTask() {
 		System.out.println("TasksManagerBlImplTest.testInsertTask");
-		// TODO
+		assertEquals(task1Id, tasksManager.getTaskById(perunSession, task1Id).getId());
 	}
 	
 	@Test 
 	public void testIsThereSuchTask() {
 		System.out.println("TasksManagerBlImplTest.testIsThereSuchTask");
-		// TODO
+		assertTrue(tasksManager.isThereSuchTask(perunSession, testService1, facility1));
+		assertFalse(tasksManager.isThereSuchTask(perunSession, testService2, facility1));
 	}
 	
 	@Test 
 	public void testListAllTasks() {
 		System.out.println("TasksManagerBlImplTest.testListAllTasks");
-		// TODO
+		assertEquals(2, tasksManager.listAllTasks(perunSession).size());
 	}
 	
 	@Test 
 	public void testListAllTasksForFacility() {
 		System.out.println("TasksManagerBlImplTest.testListAllTasksForFacility");
-		// TODO
+		assertEquals(1, tasksManager.listAllTasksForFacility(perunSession, testFacilityId1).size());
+		assertEquals(1, tasksManager.listAllTasksForFacility(perunSession, testFacilityId2).size());
 	}
 	
 	@Test
@@ -405,13 +425,17 @@ public class TasksManagerBlImplTest {
 	@Test 
 	public void testListAllTasksInState() {
 		System.out.println("TasksManagerBlImplTest.testListAllTasksInState");
-		// TODO
+		assertEquals(1, tasksManager.listAllTasksInState(perunSession, TaskStatus.DONE).size());
+		assertEquals(1, tasksManager.listAllTasksInState(perunSession, TaskStatus.WARNING).size());
+		assertEquals(0, tasksManager.listAllTasksInState(perunSession, TaskStatus.ERROR).size());
 	}
 	
 	@Test 
 	public void testListAllTasksNotInState() {
 		System.out.println("TasksManagerBlImplTest.testListAllTasksNotInState");
-		// TODO
+		assertEquals(1, tasksManager.listAllTasksNotInState(perunSession, TaskStatus.DONE).size());
+		assertEquals(1, tasksManager.listAllTasksNotInState(perunSession, TaskStatus.WARNING).size());
+		assertEquals(2, tasksManager.listAllTasksNotInState(perunSession, TaskStatus.ERROR).size());
 	}
 	
 	@Test
@@ -430,19 +454,29 @@ public class TasksManagerBlImplTest {
 	@Test 
 	public void testRemoveTask() {
 		System.out.println("TasksManagerBlImplTest.testRemoveTask");
-		// TODO
+		assertThatExceptionOfType(DataIntegrityViolationException.class)
+			.isThrownBy( () -> tasksManager.removeTask(perunSession, task1Id) );
+		assertThatNoException().isThrownBy(() -> tasksManager.removeTask(perunSession, task2Id) );
+		assertNull(tasksManager.getTaskById(perunSession, task2Id));
 	}
 
 	@Test 
 	public void testRemoveTask_ServiceFacility() {
 		System.out.println("TasksManagerBlImplTest.testRemoveTask_ServiceFacility");
-		// TODO
+		assertThatExceptionOfType(DataIntegrityViolationException.class)
+			.isThrownBy( () -> tasksManager.removeTask(perunSession, testService1, facility1) );
+		assertThatNoException().isThrownBy( () -> tasksManager.removeTask(perunSession, testService1, facility2) );
+		assertNull(tasksManager.getTaskById(perunSession, task2Id));
+		assertNotNull(tasksManager.getTaskById(perunSession, task1Id));
 	}
 	
 	@Test 
 	public void testUpdateTask() {
 		System.out.println("TasksManagerBlImplTest.testUpdateTask");
-		// TODO
+		task1.setStatus(TaskStatus.ERROR);
+		tasksManager.updateTask(perunSession, task1);
+		Task task = tasksManager.getTaskById(perunSession, task1Id);
+		assertEquals(TaskStatus.ERROR, task.getStatus());
 	}
 	
 }
