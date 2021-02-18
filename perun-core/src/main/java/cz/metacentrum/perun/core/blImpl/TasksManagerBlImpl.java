@@ -41,9 +41,31 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	@Autowired
 	protected TasksManagerImplApi tasksManagerImpl;
 
+	// -------------- constructors
+	
 	public TasksManagerBlImpl(TasksManagerImplApi tasksManagerImpl) {
 		this.tasksManagerImpl = tasksManagerImpl;
 	}
+
+	// -------------- getters and setters
+	
+	public PerunBl getPerunBl() {
+		return perun;
+	}
+
+	public void setPerunBl(PerunBlImpl perunBl) {
+		this.perun = perunBl;
+	}
+
+	public ServicesManagerBl getServicesManagerBl() {
+		return servicesManagerBl;
+	}
+
+	public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
+		this.servicesManagerBl = servicesManagerBl;
+	}
+
+	// -------------- methods
 
 	@Override
 	public int countTasks() {
@@ -270,10 +292,6 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 		return resourceStateList;
 	}
 
-	public ServicesManagerBl getServicesManagerBl() {
-		return servicesManagerBl;
-	}
-
 	@Override
 	public Task getTask(PerunSession perunSession, Service service, Facility facility) {
 		return getTasksManagerImpl().getTask(service, facility);
@@ -375,14 +393,6 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	@Override
 	public void removeTask(PerunSession sess, Service service, Facility facility) {
 		getTasksManagerImpl().removeTask(service, facility);
-	}
-
-	public void setPerunBl(PerunBlImpl perunBl) {
-		this.perun = perunBl;
-	}
-
-	public void setServicesManagerBl(ServicesManagerBl servicesManagerBl) {
-		this.servicesManagerBl = servicesManagerBl;
 	}
 
 	@Override

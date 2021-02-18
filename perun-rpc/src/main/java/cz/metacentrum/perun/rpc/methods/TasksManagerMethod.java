@@ -112,7 +112,33 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 * @param task int Task
 	 * @return List<TaskResult> Results
 	 */
-	getTaskResultsForGUIByTaskOnlyNewestGUI {
+	getTaskResultsByTaskOnlyNewest {
+		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getTasksManager().getTaskResultsByTaskOnlyNewest(ac.getSession(), parms.readInt("task"));
+		}
+	},
+
+	/*#
+	 * Return list of TaskResults by a Task and destination for GUI.
+	 *
+	 * @param task int Task
+	 * @param destination int Destination <code>id</code>
+	 * @return List<TaskResult> Results
+	 */
+	getTaskResultsByTaskAndDestination {
+		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getTasksManager().getTaskResultsByTaskAndDestination(ac.getSession(), parms.readInt("task"), parms.readInt("destination"));
+		}
+	},
+
+	/*#
+	 * Return list of only newest TaskResults by a Task for GUI.
+	 *
+	 * @param task int Task
+	 * @return List<TaskResult> Results
+	 */
+	getTaskResultsForGUIByTaskOnlyNewest {
+		@Deprecated
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getTasksManager().getTaskResultsByTaskOnlyNewest(ac.getSession(), parms.readInt("task"));
 		}
@@ -126,6 +152,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	 * @return List<TaskResult> Results
 	 */
 	getTaskResultsForGUIByTaskAndDestination {
+		@Deprecated
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getTasksManager().getTaskResultsByTaskAndDestination(ac.getSession(), parms.readInt("task"), parms.readInt("destination"));
 		}
