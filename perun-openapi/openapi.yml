@@ -9499,6 +9499,7 @@ paths:
         - FacilitiesManager
       operationId: addHosts
       summary: Adds hosts to the Facility.
+      description: InvalidHostnameException is thrown when any host has invalid hostname.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/hostnames'
@@ -9514,6 +9515,7 @@ paths:
         - FacilitiesManager
       operationId: addHostsByFacilityName
       summary: Adds hosts to the Facility.
+      description: InvalidHostnameException is thrown when any host has invalid hostname.
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - $ref: '#/components/parameters/hostnames'
@@ -9559,6 +9561,7 @@ paths:
         - FacilitiesManager
       operationId: addHost
       summary: Adds a host to the Facility.
+      description: InvalidHostnameException is thrown when host has invalid hostname.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - { name: hostname, description: "DNS name of host", schema: { type: string },  in: query, required: true }
@@ -9574,6 +9577,7 @@ paths:
         - FacilitiesManager
       operationId: addHostByFacilityName
       summary: Adds a host to the Facility.
+      description: InvalidHostnameException is thrown when host has invalid hostname.
       parameters:
         - $ref: '#/components/parameters/facilityName'
         - { name: hostname, description: "DNS name of host", schema: { type: string },  in: query, required: true }
@@ -14542,6 +14546,7 @@ paths:
         - ServicesManager
       operationId: addDestination
       summary: Adds an destination for a facility and service. If destination doesn't exist it will be created.
+      description: InvalidDestinationException is thrown when destination value is invalid in given destination type.
       parameters:
         - $ref: '#/components/parameters/serviceId'
         - $ref: '#/components/parameters/facilityId'
@@ -14560,6 +14565,7 @@ paths:
         - ServicesManager
       operationId: addDestinationToMultipleServices
       description: Adds an destination for a facility and list of services. If destination doesn't exist it will be created.
+        InvalidDestinationException is thrown when destination value is invalid in given destination type.
       responses:
         '200':
           $ref: '#/components/responses/DestinationResponse'
@@ -14595,6 +14601,7 @@ paths:
         - ServicesManager
       operationId: addDestinationsForAllServicesOnFacility
       summary: Adds destination for all services defined on the facility.
+      description: InvalidDestinationException is thrown when destination value is invalid in given destination type.
       parameters:
         - $ref: '#/components/parameters/facilityId'
         - $ref: '#/components/parameters/destinationName'

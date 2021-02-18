@@ -104,7 +104,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// create list of hosts with 1 host
 		createdHost = new Host();
-		createdHost.setHostname("FacilitiesManagerTest");
+		createdHost.setHostname("facilities.manager.test");
 		hosts = new ArrayList<>();
 		hosts.add(createdHost);
 
@@ -129,7 +129,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void getFacilitiesByHostName() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilitiesByHostname");
 
-		String hostname = "testHostname";
+		String hostname = "test.hostname";
 		Host host = new Host(15, hostname);
 		perun.getFacilitiesManagerBl().addHost(sess, host, facility);
 
@@ -781,10 +781,10 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void addHostsWithPattern()throws Exception {
 		System.out.println(CLASS_NAME + "addHostsWithPattern");
 
-		String hostname = "name[00-01]surname[99-100]cz";
+		String hostname = "name[00-01]surname[99-100].cz";
 		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
-		hostname = "local";
+		hostname = "local.cz";
 		listOfHosts.add(hostname);
 		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
 		// test
@@ -795,11 +795,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		for (Host h: hosts) {
 			hostNames.add(h.getHostname());
 		}
-		assertTrue("List doesn't contain host with name 'name00surname99cz'.", hostNames.contains("name00surname99cz"));
-		assertTrue("List doesn't contain host with name 'name00surname100cz'.", hostNames.contains("name00surname100cz"));
-		assertTrue("List doesn't contain host with name 'name01surname99cz'.", hostNames.contains("name01surname99cz"));
-		assertTrue("List doesn't contain host with name 'name01surname100cz'.", hostNames.contains("name01surname100cz"));
-		assertTrue("List doesn't contain host with name 'local'.", hostNames.contains("local"));
+		assertTrue("List doesn't contain host with name 'name00surname99.cz'.", hostNames.contains("name00surname99.cz"));
+		assertTrue("List doesn't contain host with name 'name00surname100.cz'.", hostNames.contains("name00surname100.cz"));
+		assertTrue("List doesn't contain host with name 'name01surname99.cz'.", hostNames.contains("name01surname99.cz"));
+		assertTrue("List doesn't contain host with name 'name01surname100.cz'.", hostNames.contains("name01surname100.cz"));
+		assertTrue("List doesn't contain host with name 'local.cz'.", hostNames.contains("local.cz"));
 	}
 
 	@Test(expected = WrongPatternException.class)
@@ -859,7 +859,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Facility secondFacility = new Facility(0, "testFacilityGetHostsByHostnname");
 		secondFacility = perun.getFacilitiesManagerBl().createFacility(sess, secondFacility);
 
-		String hostname = "sameHostNameForAllHosts";
+		String hostname = "same.hostname.for.all.hosts";
 		Host host1 = new Host(0, hostname);
 		Host host2 = new Host(0, hostname);
 		Host host3 = new Host(0, hostname);
@@ -945,7 +945,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// set this host for deletion - host is created after adding to facility !!
 		hostsForDeletion.add(hosts.get(0));
 
-		facilitiesManagerEntry.removeHostByHostname(sess, "FacilitiesManagerTest");
+		facilitiesManagerEntry.removeHostByHostname(sess, "facilities.manager.test");
 	}
 
 	@Test(expected=HostNotExistsException.class)
@@ -953,7 +953,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "removeHostByHostnameNotUniqueHostname");
 
 		Host createdHost2 = new Host();
-		createdHost2.setHostname("FacilitiesManagerTest");
+		createdHost2.setHostname("facilities.manager.test");
 		hosts.add(createdHost2);
 
 		facilitiesManagerEntry.addHosts(sess, hosts, facility);
@@ -961,7 +961,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		hostsForDeletion.add(hosts.get(0));
 		hostsForDeletion.add(hosts.get(1));
 
-		facilitiesManagerEntry.removeHostByHostname(sess, "FacilitiesManagerTest");
+		facilitiesManagerEntry.removeHostByHostname(sess, "facilities.manager.test");
 	}
 
 	@Test(expected=HostNotExistsException.class)
@@ -972,7 +972,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// set this host for deletion - host is created after adding to facility !!
 		hostsForDeletion.add(hosts.get(0));
 
-		facilitiesManagerEntry.removeHostByHostname(sess, "FacilitiesManagerTest2");
+		facilitiesManagerEntry.removeHostByHostname(sess, "facilities.manager.test2");
 	}
 
 	@Test
@@ -1868,7 +1868,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostAndDestinationSameNameSameAdmin");
 
 		// Initialize host, destination and service
-	 	String hostName = "TestHost";
+	 	String hostName = "test.host";
 		Host hostOne = new Host(0, hostName);
 		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
 		Service service = new Service(0, "testService", null);
@@ -1911,7 +1911,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostSameHostDifferentAdmin");
 
 		// Initialize host
-		Host host = new Host(0, "testHost");
+		Host host = new Host(0, "test.host");
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
@@ -1946,7 +1946,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostSameDestinationDifferentAdmin");
 
 		// Initialize host, destination and service
-	 	String hostName = "TestHost";
+	 	String hostName = "test.host";
 		Host host = new Host(0, hostName);
 		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
 		Service service = new Service(0, "testService", null);
@@ -1986,10 +1986,10 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void addHostsStringsSameHostsDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostsStringsSameHostsDifferentAdmin");
 		// Sets list of hostnames
-		String hostName = "testHostOne";
+		String hostName = "test.host.one";
 		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostName);
-		hostName = "testHostTwo";
+		hostName = "test.host.two";
 		listOfHosts.add(hostName);
 		// Set up two members
 		Member memberOne = setUpMember(vo);
@@ -2024,10 +2024,10 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsStringsSameDestinationDifferentAdmin");
 
 	 	// Sets list of hostnames
-		String hostName = "testHostOne";
+		String hostName = "test.host.one";
 		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostName);
-		hostName = "testHostTwo";
+		hostName = "test.host.two";
 		listOfHosts.add(hostName);
 		// Initialize destination and service
 		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
@@ -2069,9 +2069,9 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsSameHostsDifferentAdmin");
 		// Sets list of hosts
 		List<Host> listOfHosts = new ArrayList<>();
-		Host testHost = new Host(0, "testHostOne");
+		Host testHost = new Host(0, "test.host.one");
 		listOfHosts.add(testHost);
-		testHost = new Host(0, "testHostTwo");
+		testHost = new Host(0, "test.host.two");
 		listOfHosts.add(testHost);
 		// Set up two members
 		Member memberOne = setUpMember(vo);
@@ -2109,7 +2109,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		List<Host> listOfHosts = new ArrayList<>();
 		Host testHost = new Host(0, "testHostOne");
 		listOfHosts.add(testHost);
-		String hostName = "testHostTwo";
+		String hostName = "test.host.two";
 		testHost = new Host(0, hostName);
 		listOfHosts.add(testHost);
 		// Initialize destination and service

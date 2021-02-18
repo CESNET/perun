@@ -93,9 +93,9 @@ public class ServicesManagerImplIntegrationTest extends AbstractPerunIntegration
 		servicesManagerImpl.addDestination(sess, service, facility, destination);
 	}
 
-	private void setUpDestination() {
+	private void setUpDestination() throws Exception {
 		destination = new Destination();
-		destination.setDestination("destination");
+		destination.setDestination("destination.host");
 		destination.setType(Destination.DESTINATIONHOSTTYPE);
 		destination = servicesManagerImpl.createDestination(sess, destination);
 	}

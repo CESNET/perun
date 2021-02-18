@@ -1796,7 +1796,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		facility = setUpFacility();
 		resource = setUpResource();
 		service = setUpService();
-		Destination testDestination = new Destination(0, "TestDestination", Destination.DESTINATIONHOSTTYPE);
+		Destination testDestination = new Destination(0, "test.destination", Destination.DESTINATIONHOSTTYPE);
 		member = setUpMember();
 		Member memberTwo = setUpMember();
 
@@ -2134,11 +2134,11 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// add first host
 		Host host1 = new Host();
-		host1.setHostname("testing_host_1");
+		host1.setHostname("testing.host1");
 
 		// add second host
 		Host host2 = new Host();
-		host2.setHostname("testing_host_2");
+		host2.setHostname("testing.host2");
 
 		List<Host> hosts = new ArrayList<>();
 		hosts.add(host1);

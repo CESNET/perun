@@ -41,6 +41,7 @@ import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
@@ -614,7 +615,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, PrivilegeException, HostExistsException {
+	public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, PrivilegeException, HostExistsException, InvalidHostnameException {
 		Utils.checkPerunSession(sess);
 
 		Utils.notNull(hosts, "hosts");
@@ -661,7 +662,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws FacilityNotExistsException, PrivilegeException, HostExistsException, WrongPatternException {
+	public List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws FacilityNotExistsException, PrivilegeException, HostExistsException, WrongPatternException, InvalidHostnameException {
 		Utils.checkPerunSession(sess);
 
 		Utils.notNull(hosts, "hosts");
@@ -965,7 +966,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public Host addHost(PerunSession sess, Host host, Facility facility) throws FacilityNotExistsException, PrivilegeException {
+	public Host addHost(PerunSession sess, Host host, Facility facility) throws FacilityNotExistsException, PrivilegeException, InvalidHostnameException {
 		Utils.checkPerunSession(sess);
 
 		Utils.notNull(host, "host");

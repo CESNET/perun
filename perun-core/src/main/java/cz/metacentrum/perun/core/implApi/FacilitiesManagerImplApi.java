@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
@@ -376,9 +377,9 @@ public interface FacilitiesManagerImplApi {
 	 *
 	 * return host
 	 *
-	 * @throws InternalErrorException
+	 * @throws InvalidHostnameException if host has invalid hostname
 	 */
-	Host addHost(PerunSession perunSession, Host host, Facility facility);
+	Host addHost(PerunSession perunSession, Host host, Facility facility) throws InvalidHostnameException;
 
 	/**
 	 * Remove hosts from the Facility.

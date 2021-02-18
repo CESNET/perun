@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
@@ -691,8 +692,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Host addHost(PerunSession sess, Host host, Facility facility) {
+	public Host addHost(PerunSession sess, Host host, Facility facility) throws InvalidHostnameException {
 		Utils.notNull(host.getHostname(), "host.getHostname()");
+		Utils.checkHostname(host);
 
 		try {
 			// Store the host into the DB

@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
@@ -331,7 +332,7 @@ public interface FacilitiesManager {
 	 * @param hosts ID of any host doesn't need to be filled. Hosts will be created.
 	 * @return Hosts with ID's set.
 	 */
-	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, PrivilegeException, HostExistsException;
+	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, PrivilegeException, HostExistsException, InvalidHostnameException;
 
 	/**
 	 * Create hosts in Perun and add them to the Facility.
@@ -345,7 +346,7 @@ public interface FacilitiesManager {
 	 * @return Hosts with ID's set.
 	 * @throws WrongPatternException when syntax of any of the hostnames is wrong
 	 */
-	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws FacilityNotExistsException, PrivilegeException, HostExistsException, WrongPatternException;
+	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws FacilityNotExistsException, PrivilegeException, HostExistsException, WrongPatternException, InvalidHostnameException;
 
 	/**
 	 * Remove hosts from the Facility.
@@ -360,7 +361,7 @@ public interface FacilitiesManager {
 	 *
 	 * @return host
 	 */
-	Host addHost(PerunSession perunSession, Host host, Facility facility) throws FacilityNotExistsException, PrivilegeException;
+	Host addHost(PerunSession perunSession, Host host, Facility facility) throws FacilityNotExistsException, PrivilegeException, InvalidHostnameException;
 
 	/**
 	 * Remove hosts from the Facility.

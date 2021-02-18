@@ -87,13 +87,13 @@ public abstract class AbstractEngineTest {
 		service2 = perun.getServicesManagerBl().createService(sess, srv2);
 
 		destination1 = perun.getServicesManagerBl().addDestination(
-				sess, service, facility, new Destination(0, "par_dest1", "host", "PARALLEL"));
+				sess, service, facility, new Destination(0, "par.dest1", "host", "PARALLEL"));
 		destination2 = perun.getServicesManagerBl().addDestination(
-				sess, service, facility, new Destination(0, "par_dest2", "host", "PARALLEL"));
+				sess, service, facility, new Destination(0, "par.dest2", "host", "PARALLEL"));
 		destination3 = perun.getServicesManagerBl().addDestination(
-				sess, service, facility, new Destination(0, "one_dest1", "host", "ONE"));
+				sess, service, facility, new Destination(0, "one.dest1", "host", "ONE"));
 		destination4 = perun.getServicesManagerBl().addDestination(
-				sess, service, facility, new Destination(0, "one_dest2", "host", "ONE"));
+				sess, service, facility, new Destination(0, "one.dest2", "host", "ONE"));
 
 		List<Destination> destinations = new ArrayList<Destination>() {{
 			add(destination1);
