@@ -30,14 +30,12 @@ GetOptions ("help|h" => sub {
 unless (defined($hostId) or defined($hostName)) { die "ERROR: hostId or hostName is required \n";}
 
 my $agent = Perun::Agent->new();
-my $hostsAgent = $agent->getHostsAgent;
+my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-unless ($hostId) {
-	my $host = $hostsAgent->getHostByName( name => $hostName );
-	$hostId = $host->getId;
+if ($hostId) {
+	$facilitiesAgent->removeHost->( host => $hostId );
+	printMessage("Host Id:$hostId successfully deleted", $batch);
+} else {
+	$facilitiesAgent->removeHostByHostname( hostname => $hostName );
+	printMessage("Host Name:$hostName successfully deleted", $batch);
 }
-
-$hostsAgent->deleteHost( host => $hostId );
-
-printMessage("Host Id:$hostId successfully deleted", $batch);
-

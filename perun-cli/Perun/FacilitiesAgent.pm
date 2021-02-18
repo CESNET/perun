@@ -122,7 +122,7 @@ sub addHosts
 	return Perun::Common::callManagerMethod('addHosts', '[]Host', @_);
 }
 
-#(facility => $facilityId, hosts => @hosts)
+#(facility => $facilityId, hosts => @hosts )
 sub removeHosts
 {
 	return Perun::Common::callManagerMethod('removeHosts', '', @_);
@@ -134,10 +134,16 @@ sub addHost
 	return Perun::Common::callManagerMethod('addHost', 'Host', @_);
 }
 
-#(facility => $facilityId, hosts => "prvni.cz")
+#( host => 123 )
 sub removeHost
 {
 	return Perun::Common::callManagerMethod('removeHost', '', @_);
+}
+
+#( hostname => "prvni.cz" )
+sub removeHostByHostname
+{
+	return Perun::Common::callManagerMethod('removeHostByHostname', '', @_);
 }
 
 sub addAdmin

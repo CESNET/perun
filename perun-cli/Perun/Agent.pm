@@ -27,7 +27,6 @@ use Perun::AttributesAgent;
 use Perun::ResourcesAgent;
 use Perun::OwnersAgent;
 use Perun::AuthzResolverAgent;
-use Perun::HostsAgent;
 use Perun::AuditMessagesAgent;
 use Perun::TasksAgent;
 use Perun::CabinetAgent;
@@ -42,7 +41,7 @@ use Sys::Hostname;
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _auditMessagesAgent _tasksAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _attributesAgent _ownersAgent _authzResolverAgent _auditMessagesAgent _tasksAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -300,16 +299,6 @@ sub getAuthzResolverAgent
 	}
 
 	return $self->{_authzResolverAgent};
-}
-
-sub getHostsAgent {
-	my $self = shift;
-
-	if (!$self->{_hostsAgent}) {
-		$self->{_hostsAgent} = Perun::HostsAgent->new( $self );
-	}
-
-	return $self->{_hostsAgent};
 }
 
 sub getAuditMessagesAgent {
