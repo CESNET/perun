@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -20,7 +21,9 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MinSizeExceededException;
@@ -33,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
@@ -104,6 +108,12 @@ public class Utils {
 	private static final Pattern titleBeforePattern = Pattern.compile("^(([\\p{L}]+[.])|(et))$");
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
 	private static final Pattern lastNamePattern = Pattern.compile("^(([\\p{L}-']+)|([\\p{L}][.]))$");
+
+	public static final Pattern hostPattern = Pattern.compile("^(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)[a-z0-9-]+\\.?)$|^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+	public static final Pattern urlPattern = Pattern.compile("[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)");
+	public static final Pattern userAtHostPattern = Pattern.compile("^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)@(?:(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)[a-z0-9-]+\\.?)$|(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$)");
+	public static final Pattern userAtHostPortPattern = Pattern.compile("^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)@(?:(?!:\\/\\/)(?=.{1,255}$)((.{1,63}\\.){1,127}(?![0-9]*$)[a-z0-9-]+\\.?)|(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}):[0-9]+");
+	public static final Pattern serviceSpecificPattern = Pattern.compile("^(?!-)[a-zA-Z0-9-_.:/]*$");
 
 	private static final String userPhoneAttribute = "urn:perun:user:attribute-def:def:phone";
 	private static final String memberPhoneAttribute = "urn:perun:member:attribute-def:def:phone";
@@ -1461,6 +1471,58 @@ public class Utils {
 				&& (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWSPROXY)))) {
 			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
 		}
+	}
+
+	/**
+	 * Checks whether the destinations name has correct syntax.
+	 *
+	 * @param destination destination to check
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException if destination has invalid name
+	 */
+	public static void checkDestination(Destination destination) throws InvalidDestinationException {
+		if (destination == null) {
+			throw new InternalErrorException("Destination is null.");
+		}
+
+		Matcher matcher = null;
+		String destinationType = destination.getType();
+		if (destinationType.equals(Destination.DESTINATIONHOSTTYPE) || destinationType.equals(Destination.DESTINATIONWINDOWSPROXY))
+			matcher = hostPattern.matcher(destination.getDestination());
+		if (destinationType.equals(Destination.DESTINATIONEMAILTYPE) || destinationType.equals(Destination.DESTINATIONSEMAILTYPE))
+			matcher = emailPattern.matcher(destination.getDestination());
+		if (destinationType.equals(Destination.DESTINATIONURLTYPE))
+			matcher = urlPattern.matcher(destination.getDestination());
+		if (destinationType.equals(Destination.DESTINATIONUSERHOSTTYPE) || destinationType.equals(Destination.DESTINATIONWINDOWS))
+			matcher = userAtHostPattern.matcher(destination.getDestination());
+		if (destinationType.equals(Destination.DESTINATIONUSERHOSTPORTTYPE))
+			matcher = userAtHostPortPattern.matcher(destination.getDestination());
+		if (destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE))
+			matcher = serviceSpecificPattern.matcher(destination.getDestination());
+
+		// it should not happen because destination type is checked earlier
+		if (matcher == null)
+			throw new InvalidDestinationException("Destination type " + destinationType + " is not supported.");
+
+		if (!matcher.matches())
+			throw new InvalidDestinationException("Wrong syntax of destination " + destination.getDestination());
+
+	}
+
+	/**
+	 * Checks whether the hostname has correct syntax.
+	 *
+	 * @param host host to check
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException if host has invalid hostname
+	 */
+	public static void checkHostname(Host host) throws InvalidHostnameException {
+		if (host == null) {
+			throw new InternalErrorException("Host is null.");
+		}
+
+		Matcher matcher = hostPattern.matcher(host.getHostname());
+
+		if (!matcher.matches())
+			throw new InvalidHostnameException("Wrong syntax of hostname " + host.getHostname());
 	}
 
 	/**

@@ -3,8 +3,10 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.RichUserExtSource;
 import cz.metacentrum.perun.core.api.User;
@@ -12,6 +14,8 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -332,6 +336,110 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 		String invalidPattern = "[a-";
 		assertThatExceptionOfType(InternalErrorException.class)
 				.isThrownBy(() -> Utils.validateGroupName("members", invalidPattern));
+	}
+
+	@Test
+	public void checkHostDestination() throws Exception {
+		System.out.println("Utils.checkHostDestination");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONHOSTTYPE);
+
+		destination.setDestination("192.168.1.1");
+		Utils.checkDestination(destination);
+
+		destination.setDestination("hostname.test");
+		Utils.checkDestination(destination);
+	}
+
+	@Test
+	public void checkMailDestination() throws Exception {
+		System.out.println("Utils.checkHostDestination");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONEMAILTYPE);
+
+		destination.setDestination("testing@host.test");
+		Utils.checkDestination(destination);
+	}
+
+	@Test
+	public void checkUrlDestination() throws Exception {
+		System.out.println("Utils.checkHostDestination");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONURLTYPE);
+
+		destination.setDestination("https://www.url.test/");
+		Utils.checkDestination(destination);
+	}
+
+	@Test
+	public void checkUserHostDestination() throws Exception {
+		System.out.println("Utils.checkHostDestination");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONUSERHOSTTYPE);
+
+		destination.setDestination("test@192.168.1.1");
+		Utils.checkDestination(destination);
+	}
+
+	@Test
+	public void checkUserHostPortDestination() throws Exception {
+		System.out.println("Utils.checkHostDestination");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONUSERHOSTPORTTYPE);
+
+		destination.setDestination("test@192.168.1.1:6060");
+		Utils.checkDestination(destination);
+
+		destination.setDestination("test@jakse.mas:6060");
+		Utils.checkDestination(destination);
+	}
+
+	@Test
+	public void checkServiceSpecificDestination() throws Exception {
+		System.out.println("Utils.checkHostDestination");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONSERVICESPECIFICTYPE);
+
+		destination.setDestination("test");
+		Utils.checkDestination(destination);
+	}
+
+	@Test(expected = InvalidDestinationException.class)
+	public void checkDestinationInvalid() throws Exception {
+		System.out.println("Utils.checkHostDestination");
+
+		Destination destination = new Destination();
+		destination.setType(Destination.DESTINATIONUSERHOSTPORTTYPE);
+
+		destination.setDestination("test@192.168.1.1");
+		Utils.checkDestination(destination);
+	}
+
+	@Test
+	public void checkHostname() throws Exception {
+		System.out.println("Utils.checkhostname");
+
+		Host host = new Host();
+		host.setHostname("192.168.1.1");
+		Utils.checkHostname(host);
+
+		host.setHostname("hostname.test");
+		Utils.checkHostname(host);
+	}
+
+	@Test(expected = InvalidHostnameException.class)
+	public void checkHostnameInvalid() throws Exception {
+		System.out.println("Utils.checkHostnameInvalid");
+
+		Host host = new Host();
+		host.setHostname("invalid");
+		Utils.checkHostname(host);
 	}
 
 	private Vo setUpVo() throws Exception {

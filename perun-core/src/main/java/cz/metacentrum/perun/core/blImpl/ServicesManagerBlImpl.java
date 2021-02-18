@@ -31,6 +31,7 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUp
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.HashedGenData;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
 import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
@@ -758,7 +759,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException {
+	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException, InvalidDestinationException {
 		if(!getServicesManagerImpl().destinationExists(sess, destination)) {
 			try {
 				//Try to get the destination without id
@@ -783,7 +784,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) {
+	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InvalidDestinationException {
 		if(!getServicesManagerImpl().destinationExists(perunSession, destination)) {
 			try {
 				//Try to get the destination without id
@@ -811,7 +812,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return destination;
 	}
 
-	private Destination addDestinationEvenIfAlreadyExists(PerunSession sess, Service service, Facility facility, Destination destination) {
+	private Destination addDestinationEvenIfAlreadyExists(PerunSession sess, Service service, Facility facility, Destination destination) throws InvalidDestinationException {
 		if(!getServicesManagerImpl().destinationExists(sess, destination)) {
 			try {
 				//Try to get the destination without id
@@ -924,7 +925,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return servicesManagerImpl.getAssignedServices(sess, facility);
 	}
 
-	public Destination createDestination(PerunSession sess, Destination destination) throws DestinationExistsException {
+	public Destination createDestination(PerunSession sess, Destination destination) throws DestinationExistsException, InvalidDestinationException {
 		if(getServicesManagerImpl().destinationExists(sess, destination)) throw new DestinationExistsException(destination);
 		destination = getServicesManagerImpl().createDestination(sess, destination);
 		getPerunBl().getAuditer().log(sess, new DestinationCreated(destination));
@@ -958,7 +959,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public List<Destination> addDestinationsForAllServicesOnFacility(PerunSession sess, Facility facility, Destination destination)
-	throws DestinationAlreadyAssignedException {
+		throws DestinationAlreadyAssignedException, InvalidDestinationException {
 	List<Service> services = this.getAssignedServices(sess, facility);
 	List<Destination> destinations = new ArrayList<>();
 
@@ -980,7 +981,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 				Destination destination = new Destination();
 				destination.setDestination(host.getHostname());
 				destination.setType(Destination.DESTINATIONHOSTTYPE);
-				destinations.add(this.addDestination(perunSession, service, facility, destination));
+				try {
+					destinations.add(this.addDestination(perunSession, service, facility, destination));
+				} catch (InvalidDestinationException e) {
+					throw new ConsistencyErrorException("Destination created out of hostname has invalid name.", e);
+				}
 			}
 		}
 
@@ -998,7 +1003,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 					Destination destination = new Destination();
 					destination.setDestination(host.getHostname());
 					destination.setType(Destination.DESTINATIONHOSTTYPE);
-					destinations.add(this.addDestinationEvenIfAlreadyExists(perunSession, service, facility, destination));
+					try {
+						destinations.add(this.addDestinationEvenIfAlreadyExists(perunSession, service, facility, destination));
+					} catch (InvalidDestinationException e) {
+						throw new ConsistencyErrorException("Destination created out of hostname has invalid name.", e);
+					}
 				}
 			}
 		}

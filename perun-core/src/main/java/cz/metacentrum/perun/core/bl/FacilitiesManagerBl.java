@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidHostnameException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -517,10 +518,10 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @return Hosts with ID's set.
 	 *
-	 * @throws InternalErrorException
+	 * @throws InvalidHostnameException if host has invalid hostname
 	 * @throws HostExistsException
 	 */
-	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostExistsException;
+	List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws HostExistsException, InvalidHostnameException;
 
 	/**
 	 * Create hosts in Perun and add them to the Facility.
@@ -535,11 +536,11 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @return Hosts with ID's set.
 	 *
-	 * @throws InternalErrorException
+	 * @throws InvalidHostnameException if host has invalid hostname
 	 * @throws HostExistsException
 	 * @throws WrongPatternException when syntax of any of the hostnames is wrong
 	 */
-	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws HostExistsException, WrongPatternException;
+	List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws HostExistsException, WrongPatternException, InvalidHostnameException;
 
 	/**
 	 * Adds host to the Facility.
@@ -550,9 +551,9 @@ public interface FacilitiesManagerBl {
 	 *
 	 * return host
 	 *
-	 * @throws InternalErrorException
+	 * @throws InvalidHostnameException if host has invalid hostname
 	 */
-	Host addHost(PerunSession perunSession, Host host, Facility facility);
+	Host addHost(PerunSession perunSession, Host host, Facility facility) throws InvalidHostnameException;
 
 	/**
 	 * Remove hosts from the Facility.

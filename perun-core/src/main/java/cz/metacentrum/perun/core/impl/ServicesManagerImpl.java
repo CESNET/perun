@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
@@ -864,7 +865,8 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	public Destination createDestination(PerunSession sess, Destination destination) {
+	public Destination createDestination(PerunSession sess, Destination destination) throws InvalidDestinationException {
+		Utils.checkDestination(destination);
 		try {
 			int destinationId = Utils.getNewId(jdbc, "destinations_id_seq");
 			jdbc.update("insert into destinations (id, destination, type, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +

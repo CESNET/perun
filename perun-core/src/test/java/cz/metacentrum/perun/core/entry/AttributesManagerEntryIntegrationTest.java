@@ -381,12 +381,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facility3 = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "testFacility3"));
 
 		//Create Host on Facilities
-		host1OnFacility1 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost1OnFacility1"), facility1);
-		host2OnFacility1 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost2OnFacility1"), facility1);
-		host1OnFacility2 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost1OnFacility2"), facility2);
-		host2OnFacility2 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost2OnFacility2"), facility2);
-		host1OnFacility3 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost1OnFacility3"), facility3);
-		host2OnFacility3 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "testHost2OnFacility3"), facility3);
+		host1OnFacility1 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "test.host1.on.facility1"), facility1);
+		host2OnFacility1 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "test.host2.on.facility1"), facility1);
+		host1OnFacility2 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "test.host1.on.facility2"), facility2);
+		host2OnFacility2 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "test.host2.on.facility2"), facility2);
+		host1OnFacility3 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "test.host1.on.facility3"), facility3);
+		host2OnFacility3 = perun.getFacilitiesManagerBl().addHost(sess, new Host(0, "test.host2.on.facility3"), facility3);
 
 		//Create resources and assing group to them
 		resource1InVo1 = perun.getResourcesManagerBl().createResource(sess, new Resource(0, "testResource1InVo1", "", facility1.getId(), vo1.getId()), vo1, facility1);
@@ -14952,7 +14952,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	private List<Host> setUpHost() throws Exception {
 
 		Host host = new Host();
-		host.setHostname("AttrTestHost");
+		host.setHostname("attr.test.host");
 		List<Host> hosts = new ArrayList<>();
 		hosts.add(host);
 

@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -666,7 +667,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, WrongPatternException {
+	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, WrongPatternException, InvalidDestinationException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(services, "services");
 		Utils.checkDestinationType(destination);
@@ -722,7 +723,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
+	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException, InvalidDestinationException {
 		Utils.checkPerunSession(sess);
 		Utils.checkDestinationType(destination);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -945,7 +946,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
 	@Override
 	public List<Destination> addDestinationsForAllServicesOnFacility(PerunSession sess, Facility facility, Destination destination) throws PrivilegeException,
-			FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
+		FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException, InvalidDestinationException {
 					 Utils.checkPerunSession(sess);
 					 Utils.checkDestinationType(destination);
 
