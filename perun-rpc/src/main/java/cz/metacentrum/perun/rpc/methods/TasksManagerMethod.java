@@ -132,6 +132,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * @deprecated
 	 * Return list of only newest TaskResults by a Task for GUI.
 	 *
 	 * @param task int Task
@@ -145,6 +146,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * @deprecated
 	 * Return list of TaskResults by a Task and destination for GUI.
 	 *
 	 * @param task int Task
@@ -159,6 +161,7 @@ public enum TasksManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * @deprecated
 	 * Return list of TaskResults by a Task for GUI.
 	 *
 	 * @param task int Task

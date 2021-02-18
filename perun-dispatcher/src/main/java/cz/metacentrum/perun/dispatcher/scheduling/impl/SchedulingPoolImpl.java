@@ -149,6 +149,7 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 
 	// --- session init ----------------------------------
 	
+	@Override
 	public void afterPropertiesSet() {
 		// init session
 		try {
@@ -161,7 +162,6 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 			}
 		} catch (InternalErrorException e1) {
 			log.error("Error establishing perun session to add task schedule: ", e1);
-			return;
 		}
 	}
 	
