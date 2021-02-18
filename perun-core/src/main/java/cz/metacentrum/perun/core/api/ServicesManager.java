@@ -850,7 +850,7 @@ public interface ServicesManager {
 	 * @param destination (Id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set.
 	 * @throws PrivilegeException
-	 * @throws InvalidDestinationException if destination has invalid name
+	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
 	 * @throws DestinationAlreadyAssignedException
@@ -867,7 +867,7 @@ public interface ServicesManager {
 	 * @param destination (id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set
 	 * @throws PrivilegeException
-	 * @throws InvalidDestinationException if destination has invalid name
+	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
 	 * @throws WrongPatternException
@@ -882,7 +882,7 @@ public interface ServicesManager {
 	 * @param destination
 	 * @return list of added destinations
 	 * @throws PrivilegeException
-	 * @throws InvalidDestinationException if destination has invalid name
+	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 * @throws FacilityNotExistsException
 	 * @throws DestinationAlreadyAssignedException
 	 * @throws WrongPatternException

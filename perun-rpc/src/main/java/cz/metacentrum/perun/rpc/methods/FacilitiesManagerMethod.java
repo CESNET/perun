@@ -696,6 +696,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * @param hostnames List<String> Host names
 	 * @param facilityName String Facility name
 	 * @return List<Host> Hosts with <code>id</code>'s set.
+	 * @throw InvalidHostnameException When host has invalid hostname.
 	 */
 	/*#
 	 * Adds hosts to the Facility.
@@ -703,6 +704,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * @param hostnames List<String> Host names
 	 * @param facility int Facility <code>id</code>
 	 * @return List<Host> Hosts with <code>id</code>'s set.
+	 * @throw InvalidHostnameException When host has invalid hostname.
 	 */
 	addHosts {
 		@Override
@@ -753,12 +755,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * @param hostname String Hostname
 	 * @param facilityName String Facility name
 	 * @return Host Host with <code>id</code> set.
+	 * @throw InvalidHostnameException When host has invalid hostname.
 	 */
 	/*#
 	 * Adds host to a Facility.
 	 * @param hostname String Hostname
 	 * @param facility int Facility <code>id</code>
 	 * @return Host Host with <code>id</code> set.
+	 * @throw InvalidHostnameException When host has invalid hostname.
 	 */
 	addHost {
 		@Override

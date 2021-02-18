@@ -1496,6 +1496,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param destination String Destination
 	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @return Destination Created destination.
+	 * @throw InvalidDestinationException When destination value is invalid in given destination type.
 	 */
 	/*#
 	 * Adds an destination for a facility and list of services. If destination doesn't exist it will be created.
@@ -1505,6 +1506,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param destination String Destination
 	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @return Destination Created destination.
+	 * @throw InvalidDestinationException When destination value is invalid in given destination type.
 	 */
 	/*#
 	 * Adds an destination for a facility and service. If destination doesn't exist it will be created.
@@ -1515,6 +1517,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return Destination Created destination.
+	 * @throw InvalidDestinationException When destination value is invalid in given destination type.
 	 */
 	/*#
 	 * Adds an destination for a facility and list of services. If destination doesn't exist it will be created.
@@ -1525,6 +1528,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return Destination Created destination.
+	 * @throw InvalidDestinationException When destination value is invalid in given destination type.
 	 */
 	addDestination {
 
@@ -1563,6 +1567,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param destination String Destination
 	 * @param type String String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @return List<Destinations> Added destinations
+	 * @throw InvalidDestinationException When destination value is invalid in given destination type.
 	 */
 	/*#
 	 * Adds destination for all services defined on the facility.
@@ -1572,6 +1577,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return List<Destinations> Added destinations
+	 * @throw InvalidDestinationException When destination value is invalid in given destination type.
 	 */
 	addDestinationsForAllServicesOnFacility {
 

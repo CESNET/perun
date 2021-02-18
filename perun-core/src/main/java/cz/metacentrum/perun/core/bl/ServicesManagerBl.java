@@ -629,7 +629,7 @@ public interface ServicesManagerBl {
 	 * @param destination (Id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set.
 	 * @throws PrivilegeException
-	 * @throws InvalidDestinationException if destination has invalid name
+	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 * @throws DestinationAlreadyAssignedException
 	 */
 	Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws DestinationAlreadyAssignedException, InvalidDestinationException;
@@ -642,7 +642,7 @@ public interface ServicesManagerBl {
 	 * @param facility
 	 * @param destination (id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set
-	 * @throws InvalidDestinationException if destination has invalid name
+	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 */
 	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InvalidDestinationException;
 
@@ -653,7 +653,7 @@ public interface ServicesManagerBl {
 	 * @param facility
 	 * @param destination
 	 * @return list of added destinations
-	 * @throws InvalidDestinationException if destination has invalid name
+	 * @throws InvalidDestinationException if destination has invalid value in given destination type.
 	 * @throws DestinationAlreadyAssignedException
 	 */
 	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws DestinationAlreadyAssignedException, InvalidDestinationException;

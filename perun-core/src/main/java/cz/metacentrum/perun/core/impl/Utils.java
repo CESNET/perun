@@ -1477,7 +1477,7 @@ public class Utils {
 	 * Checks whether the destinations name has correct syntax.
 	 *
 	 * @param destination destination to check
-	 * @throws cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException if destination has invalid name
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException if destination has invalid value in given destination type.
 	 */
 	public static void checkDestination(Destination destination) throws InvalidDestinationException {
 		if (destination == null) {

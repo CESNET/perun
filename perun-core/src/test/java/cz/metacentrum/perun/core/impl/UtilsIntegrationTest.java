@@ -354,7 +354,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void checkMailDestination() throws Exception {
-		System.out.println("Utils.checkHostDestination");
+		System.out.println("Utils.checkMailDestination");
 
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONEMAILTYPE);
@@ -365,7 +365,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void checkUrlDestination() throws Exception {
-		System.out.println("Utils.checkHostDestination");
+		System.out.println("Utils.checkUrlDestination");
 
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONURLTYPE);
@@ -376,7 +376,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void checkUserHostDestination() throws Exception {
-		System.out.println("Utils.checkHostDestination");
+		System.out.println("Utils.checkUserHostDestination");
 
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONUSERHOSTTYPE);
@@ -387,7 +387,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void checkUserHostPortDestination() throws Exception {
-		System.out.println("Utils.checkHostDestination");
+		System.out.println("Utils.checkUserHostPortDestination");
 
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONUSERHOSTPORTTYPE);
@@ -401,7 +401,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void checkServiceSpecificDestination() throws Exception {
-		System.out.println("Utils.checkHostDestination");
+		System.out.println("Utils.checkServiceSpecificDestination");
 
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONSERVICESPECIFICTYPE);
@@ -412,7 +412,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test(expected = InvalidDestinationException.class)
 	public void checkDestinationInvalid() throws Exception {
-		System.out.println("Utils.checkHostDestination");
+		System.out.println("Utils.checkDestinationInvalid");
 
 		Destination destination = new Destination();
 		destination.setType(Destination.DESTINATIONUSERHOSTPORTTYPE);
@@ -423,7 +423,7 @@ public class UtilsIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void checkHostname() throws Exception {
-		System.out.println("Utils.checkhostname");
+		System.out.println("Utils.checkHostname");
 
 		Host host = new Host();
 		host.setHostname("192.168.1.1");
