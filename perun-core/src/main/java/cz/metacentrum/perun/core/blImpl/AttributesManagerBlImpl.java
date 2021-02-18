@@ -95,8 +95,10 @@ import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_groupStructureResources;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_applicationAutoRejectMessages;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
@@ -7628,6 +7630,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:group:attribute-def:def:applicationAutoRejectMessages
+		attr = new urn_perun_group_attribute_def_def_applicationAutoRejectMessages().getAttributeDefinition();
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
 		//urn:perun:facility:attribute-def:def:login-namespace
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
@@ -7686,6 +7696,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:vo:attribute-def:def:applicationAutoRejectMessages
+		attr = new urn_perun_vo_attribute_def_def_applicationAutoRejectMessages().getAttributeDefinition();
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		attributes.put(attr, rights);
 
 		//urn:perun:user_facility:attribute-def:virt:login
