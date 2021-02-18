@@ -50,6 +50,7 @@ use Perun::beans::ApplicationForm;
 use Perun::beans::ResourceTag;
 use Perun::beans::ApplicationFormItem;
 use Perun::beans::Sponsor;
+use Perun::beans::Application;
 
 sub newEmptyBean
 {
