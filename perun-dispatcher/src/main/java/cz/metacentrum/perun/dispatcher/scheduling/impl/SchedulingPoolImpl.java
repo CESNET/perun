@@ -27,6 +27,7 @@ import cz.metacentrum.perun.taskslib.service.TaskStore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Instant;
@@ -52,7 +53,7 @@ import javax.annotation.Resource;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @org.springframework.stereotype.Service("schedulingPool")
-public class SchedulingPoolImpl implements SchedulingPool {
+public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
 
@@ -146,7 +147,24 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		this.perun = perun;
 	}
 
-
+	// --- session init ----------------------------------
+	
+	@Override
+	public void afterPropertiesSet() {
+		// init session
+		try {
+			if (sess == null) {
+				sess = perun.getPerunSession(new PerunPrincipal(
+								dispatcherProperties.getProperty("perun.principal.name"),
+								dispatcherProperties.getProperty("perun.principal.extSourceName"),
+								dispatcherProperties.getProperty("perun.principal.extSourceType")),
+						new PerunClient());
+			}
+		} catch (InternalErrorException e1) {
+			log.error("Error establishing perun session to add task schedule: ", e1);
+		}
+	}
+	
 	// ----- methods -------------------------------------
 
 
@@ -187,20 +205,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 	@Override
 	public void scheduleTask(Task task, int delayCount) {
-
-		// init session
-		try {
-			if (sess == null) {
-				sess = perun.getPerunSession(new PerunPrincipal(
-								dispatcherProperties.getProperty("perun.principal.name"),
-								dispatcherProperties.getProperty("perun.principal.extSourceName"),
-								dispatcherProperties.getProperty("perun.principal.extSourceType")),
-						new PerunClient());
-			}
-		} catch (InternalErrorException e1) {
-			log.error("Error establishing perun session to add task schedule: ", e1);
-			return;
-		}
 
 		// check if service/facility exists
 
@@ -323,7 +327,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			task.setGenEndTime((LocalDateTime) null);
 			task.setSendEndTime((LocalDateTime) null);
 
-			tasksManagerBl.updateTask(task);
+			tasksManagerBl.updateTask(sess, task);
 
 		}
 
@@ -355,17 +359,17 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 		if (task.getId() == 0) {
 			if (getTask(task.getFacility(), task.getService()) == null) {
-				int id = tasksManagerBl.insertTask(task);
+				int id = tasksManagerBl.insertTask(sess, task);
 				task.setId(id);
 				log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 			} else {
-				Task existingTask = tasksManagerBl.getTaskById(task.getId());
+				Task existingTask = tasksManagerBl.getTaskById(sess, task.getId());
 				if (existingTask == null) {
-					int id = tasksManagerBl.insertTask(task);
+					int id = tasksManagerBl.insertTask(sess, task);
 					task.setId(id);
 					log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 				} else {
-					tasksManagerBl.updateTask(task);
+					tasksManagerBl.updateTask(sess, task);
 					log.debug("[{}] Task updated in the pool: {}", task.getId(), task);
 				}
 			}
@@ -422,7 +426,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 		EngineMessageProducer queue = engineMessageProducerFactory.getProducer();
 
-		for (Task task : tasksManagerBl.listAllTasks()) {
+		for (Task task : tasksManagerBl.listAllTasks(sess)) {
 			try {
 				// just add DB Task to in-memory structure
 				addToPool(task);
@@ -436,7 +440,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				if (task.getStatus().equals(TaskStatus.WAITING)) {
 					// if were in WAITING, reset timestamp to now
 					task.setSchedule(LocalDateTime.now());
-					tasksManagerBl.updateTask(task);
+					tasksManagerBl.updateTask(sess, task);
 				}
 				scheduleTask(task, 0);
 			}
@@ -514,7 +518,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				break;
 		}
 
-		tasksManagerBl.updateTask(task);
+		tasksManagerBl.updateTask(sess, task);
 
 		log.debug("[{}] Task status changed from {} to {} as reported by Engine: {}.", task.getId(), oldStatus, task.getStatus(), task);
 
@@ -546,7 +550,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public void onTaskDestinationComplete(TaskResult taskResult) {
 		try {
-			tasksManagerBl.insertNewTaskResult(taskResult);
+			tasksManagerBl.insertNewTaskResult(sess, taskResult);
 		} catch (Exception e) {
 			log.error("Could not save TaskResult from Engine, {}, {}", taskResult, e.getMessage());
 		}

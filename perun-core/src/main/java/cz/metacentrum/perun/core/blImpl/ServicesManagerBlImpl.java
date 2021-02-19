@@ -302,7 +302,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			getServicesManagerImpl().removeServiceFromAllServicesPackages(perunSession, service);
 
 			// Remove all related tasks
-			getPerunBl().getTasksManagerBl().removeAllTasksForService(service);
+			getPerunBl().getTasksManagerBl().removeAllTasksForService(perunSession, service);
 
 		} else {
 			if (assignedResources.size() > 0) {

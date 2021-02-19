@@ -198,7 +198,7 @@ public class ServicesManagerBlImplTest {
 		List<Destination> destinationsList = new ArrayList<>();
 		destinationsList.add(destination);
 		task.setDestinations(destinationsList);
-		((PerunBl)perun).getTasksManagerBl().insertTask(task);
+		((PerunBl)perun).getTasksManagerBl().insertTask(perunSession, task);
 		
 		// authz
 		// authz entries for service are removed in ServicesManagerImpl::deleteService(), 
