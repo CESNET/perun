@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.BanOnVo;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -2205,6 +2207,226 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertEquals( 2, allSponsoredMembers.size());
 		assertTrue(allSponsoredMembers.contains(richMember));
 		assertTrue(allSponsoredMembers.contains(richMember2));
+	}
+
+	@Test
+	public void moveMembership() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembership");
+
+		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		Member member = setUpMember(createdVo);
+		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		// delete member - member was created just to create target user
+		perun.getMembersManager().deleteMember(sess, member);
+
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
+
+		Member targetMember = perun.getMembersManagerBl().getMemberByUser(sess, createdVo, targetUser);
+
+		assertFalse("The target member shouldn't have ban on VO.",
+			perun.getVosManagerBl().getBanForMember(sess, targetMember.getId()).isPresent());
+		assertTrue("The target member shouldn't have any bans on resources.",
+			perun.getResourcesManagerBl().getBansForMember(sess, targetMember.getId()).isEmpty());
+
+		// member should be deleted
+		assertThatExceptionOfType(MemberNotExistsException.class)
+			.isThrownBy(() -> membersManagerEntry.getMemberById(sess, createdMember.getId()));
+	}
+
+	@Test
+	public void moveMembershipMovesAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembershipMovesAttributes");
+
+		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		Member member = setUpMember(createdVo);
+		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		// delete member - member was created just to create target user
+		perun.getMembersManager().deleteMember(sess, member);
+
+		// add createdMember to createdGroup
+		groupsManagerEntry.addMember(sess, createdGroup, createdMember);
+
+		// create resource and assign it to createdGroup
+		Facility facility = new Facility(0, "TESTING Facility", "TESTING Facility");
+		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
+		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource);
+
+		// set attributes
+		Attribute memberAttribute = setUpAttribute(Integer.class.getName(), "testMemberAttribute", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		perun.getAttributesManagerBl().setAttribute(sess, createdMember, memberAttribute);
+		Attribute memberGroupAttribute = setUpAttribute(Integer.class.getName(), "testMemberGroupAttribute", AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, 15);
+		perun.getAttributesManagerBl().setAttribute(sess, createdMember, createdGroup, memberGroupAttribute);
+		Attribute memberResourceAttribute = setUpAttribute(Integer.class.getName(), "testMemberResourceAttribute", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, 15);
+		perun.getAttributesManagerBl().setAttribute(sess, createdMember, resource, memberResourceAttribute);
+
+		List<Attribute> sourceMemberAttrs = perun.getAttributesManagerBl().getAttributes(sess, createdMember);
+		List<Attribute> sourceMemberGroupAttrs = perun.getAttributesManagerBl().getAttributes(sess, createdMember, createdGroup);
+		List<Attribute> sourceMemberResourceAttrs = perun.getAttributesManagerBl().getAttributes(sess, createdMember, resource);
+
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
+
+		Member targetMember = perun.getMembersManagerBl().getMemberByUser(sess, createdVo, targetUser);
+		List<Attribute> targetMemberAttrs = perun.getAttributesManagerBl().getAttributes(sess, targetMember);
+		List<Attribute> targetMemberGroupAttrs = perun.getAttributesManagerBl().getAttributes(sess, targetMember, createdGroup);
+		List<Attribute> targetMemberResourceAttrs = perun.getAttributesManagerBl().getAttributes(sess, targetMember, resource);
+
+		// remove ID attribute from list because it is the only different attribute and then compare lists
+		targetMemberAttrs.removeIf(attribute -> attribute.getName().equals(AttributesManager.NS_MEMBER_ATTR_CORE + ":id"));
+		sourceMemberAttrs.removeIf(attribute -> attribute.getName().equals(AttributesManager.NS_MEMBER_ATTR_CORE + ":id"));
+		assertThat(sourceMemberAttrs).containsExactlyInAnyOrderElementsOf(targetMemberAttrs);
+		assertThat(sourceMemberGroupAttrs).containsExactlyInAnyOrderElementsOf(targetMemberGroupAttrs);
+		assertThat(sourceMemberResourceAttrs).containsExactlyInAnyOrderElementsOf(targetMemberResourceAttrs);
+	}
+
+	@Test
+	public void moveMembershipMovesGroupMemberships() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembershipMovesGroupMemberships");
+
+		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		Member member = setUpMember(createdVo);
+		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		// delete member - member was created just to create target user
+		perun.getMembersManager().deleteMember(sess, member);
+
+		// add createdMember to createdGroup
+		groupsManagerEntry.addMember(sess, createdGroup, createdMember);
+
+		// create syncGroup, add createdMember to it and mark it as synchronized group - set all
+		// required attributes for synchronization
+		Group syncGroup = groupsManagerEntry.createGroup(sess, createdVo, new Group("SyncTestGroup123", "SyncTestGroup123 descr"));
+		groupsManagerEntry.addMember(sess, syncGroup, createdMember);
+		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+		synchroAttr1.setValue("5");
+		perun.getAttributesManager().setAttribute(sess, syncGroup, synchroAttr1);
+
+		perun.getExtSourcesManagerBl().addExtSource(sess, createdVo, extSource);
+		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		synchroAttr2.setValue(extSource.getName());
+		perun.getAttributesManager().setAttribute(sess, syncGroup, synchroAttr2);
+
+		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		synchroAttr3.setValue("testVal");
+		perun.getAttributesManager().setAttribute(sess, syncGroup, synchroAttr3);
+
+		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		synchroAttr4.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, syncGroup, synchroAttr4);
+
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
+
+		Member targetMember = perun.getMembersManagerBl().getMemberByUser(sess, createdVo, targetUser);
+		List<Group> targetMemberGroups = perun.getGroupsManagerBl().getAllMemberGroups(sess, targetMember);
+		assertTrue("The target member should be added to all non-synchronized groups.", targetMemberGroups.contains(createdGroup));
+		assertFalse("The target member shouldn't be added to synchronized groups.", targetMemberGroups.contains(syncGroup));
+	}
+
+	@Test
+	public void moveMembershipMovesBans() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembershipMovesBans");
+
+		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		Member member = setUpMember(createdVo);
+		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		// delete member - member was created just to create target user
+		perun.getMembersManager().deleteMember(sess, member);
+
+		// create resource and assign it to createdGroup
+		Facility facility = new Facility(0, "TESTING Facility", "TESTING Facility");
+		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
+		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource);
+
+		LocalDate today = LocalDate.now();
+		Date tommorow = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		BanOnVo banOnVo = new BanOnVo(-1, createdMember.getId(), createdMember.getVoId(), tommorow, "ban");
+		perun.getVosManagerBl().setBan(sess, banOnVo);
+
+		BanOnResource banOnResource = new BanOnResource(-1, tommorow, "ban", createdMember.getId(), resource.getId());
+		perun.getResourcesManagerBl().setBan(sess, banOnResource);
+
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
+
+		Member targetMember = perun.getMembersManagerBl().getMemberByUser(sess, createdVo, targetUser);
+		assertTrue("Ban on VO should be moved from the source member to the target member.",
+			perun.getVosManagerBl().getBanForMember(sess, targetMember.getId()).isPresent());
+
+		// Ban on resource should be moved from the source member to the target member
+		BanOnResource actualBanOnResource = perun.getResourcesManagerBl().getBan(sess, targetMember.getId(), resource.getId());
+		banOnResource.setId(actualBanOnResource.getId());
+		banOnResource.setMemberId(targetMember.getId());
+		assertEquals(banOnResource, actualBanOnResource);
+		assertThat(perun.getResourcesManagerBl().getBansForMember(sess, targetMember.getId()))
+			.containsExactlyInAnyOrder(banOnResource);
+	}
+
+	@Test
+	public void moveMembershipMovesSponsorshipWhenSourceUserIsSponsor() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembershipMovesSponsorshipWhenSourceUserIsSponsor");
+
+		Member member = setUpMember(createdVo);
+		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		// delete member - member was created just to create target user
+		perun.getMembersManager().deleteMember(sess, member);
+
+		Member sourceSponsorMember = setUpSponsor(createdVo);
+		User sourceSponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sourceSponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sourceSponsorUser, createdVo, Role.SPONSOR);
+
+		// make sourceSponsorUser sponsor createdMember
+		membersManagerEntry.setSponsorshipForMember(sess, createdMember, sourceSponsorUser, null);
+
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceSponsorUser, targetUser);
+
+		// targetUser should be sponsor of created member
+		assertThat(perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo, targetUser))
+			.containsExactlyInAnyOrder(createdMember);
+		// sourceSponsorUser should no longer be sponsor of created member
+		assertThat(perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo, sourceSponsorUser))
+			.doesNotContain(createdMember);
+	}
+
+	@Test
+	public void moveMembershipMovesSponsorshipWhenSourceMemberIsSponsored() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembershipMovesSponsorshipWhenSourceMemberIsSponsored");
+
+		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		Member member = setUpMember(createdVo);
+		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		// delete member - member was created just to create target user
+		perun.getMembersManager().deleteMember(sess, member);
+
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+
+		// make sponsorUser sponsor createdMember
+		membersManagerEntry.setSponsorshipForMember(sess, createdMember, sponsorUser, null);
+
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
+
+		Member targetMember = perun.getMembersManagerBl().getMemberByUser(sess, createdVo, targetUser);
+		// targetMember should be sponsored by sponsorUser
+		assertThat(perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo, sponsorUser))
+			.containsExactlyInAnyOrder(targetMember);
+	}
+
+	@Test(expected=AlreadyMemberException.class)
+	public void moveMembershipWhenAlreadyMember() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembershipWhenAlreadyMember");
+
+		Member member = setUpMember(createdVo);
+		User sourceUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		User targetUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		perun.getMembersManager().moveMembership(sess, createdVo, sourceUser, targetUser);
 	}
 
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {

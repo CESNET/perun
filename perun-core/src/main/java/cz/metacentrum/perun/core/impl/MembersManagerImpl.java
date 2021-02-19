@@ -674,4 +674,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 						"validity_to >= ? AND validity_to < ?",
 				MEMBER_SPONSORSHIP_MAPPER, true, from, to);
 	}
+
+	@Override
+	public void moveMembersApplications(PerunSession sess, Member sourceMember, Member targetMember) {
+		try {
+			jdbc.update("update application set user_id=?, modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and vo_id=?",
+				targetMember.getUserId(), sess.getPerunPrincipal().getUserId(), sourceMember.getVoId(), sourceMember.getVoId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 }

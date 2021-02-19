@@ -1578,6 +1578,22 @@ public class MembersManagerEntry implements MembersManager {
 		membersManagerBl.updateSponsorshipValidity(sess, sponsoredMember, sponsor, newValidity);
 	}
 
+	@Override
+	public void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser) throws UserNotExistsException, VoNotExistsException, PrivilegeException, ExtendMembershipException, MemberNotExistsException, AlreadyMemberException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, sourceUser);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, targetUser);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		//Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "moveMembership_Vo_User_User_policy", vo)) {
+			throw new PrivilegeException("moveMembership");
+		}
+
+		getMembersManagerBl().moveMembership(sess, vo, sourceUser, targetUser);
+	}
+
 	/**
 	 * Converts member to member with sponsors and sets all his sponsors.
 	 *

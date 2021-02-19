@@ -1767,4 +1767,19 @@ public interface MembersManagerBl {
 	 * @return list of sponsorships which have validityTo set in the given range
 	 */
 	List<Sponsorship> getSponsorshipsExpiringInRange(PerunSession sess, LocalDate from, LocalDate to);
+
+	/**
+	 * Moves membership in VO from source user to target user - moves the source user's
+	 * memberships in non-synchronized groups, member related attributes, bans and
+	 * sponsorships in the VO. Removes the source user's member object.
+	 *
+	 * @param sess session
+	 * @param vo the VO in which the membership should be moved
+	 * @param sourceUser the user to move membership from
+	 * @param targetUser the user to move membership to
+	 * @throws MemberNotExistsException when sourceUser is not member of the VO
+	 * @throws AlreadyMemberException when targetUser is already member of the VO
+	 * @throws ExtendMembershipException when the targetUser doesn't have required LOA for the VO
+	 */
+	void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser) throws MemberNotExistsException, AlreadyMemberException, ExtendMembershipException;
 }
