@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction printTable);
+use Perun::beans::Application;
+use Text::ASCIITable;
+
+sub help {
+	return qq{
+	Get Application by its ID
+	---------------------------------------------------------------
+	Available options:
+	--applicationId   | -i Application ID
+	--batch           | -b batch
+	--help            | -h prints this help
+
+};
+}
+my $applicationId;
+our $batch;
+
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"applicationId|i=i"      => \$applicationId
+) || die help();
+
+# Check options
+unless (defined($applicationId)) {
+	die "ERROR: application ID is required \n";
+}
+
+my $agent = Perun::Agent->new();
+my $registrarAgent = $agent->getRegistrarAgent;
+my $application = $registrarAgent->getApplicationById( id => $applicationId );
+my @applications = ();
+push @applications, $application;
+
+my $sortingFunction = getSortingFunction("getId");
+unless (@applications) {
+	printMessage "No application found by ID: $applicationId", $batch;
+	exit 0;
+}
+printTable($sortingFunction, @applications);

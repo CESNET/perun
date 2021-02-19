@@ -13,11 +13,11 @@ sub new
 sub fromHash
 {
         my $applicationForm = Perun::Common::fromHash(@_);
-	my $vo = $applicationForm->{_vo};
-	$vo = Perun::beans::Vo::fromHash("Perun::beans::Vo", $vo);
-	my $group = $applicationForm->{_group};
-	$group = Perun::beans::Group::fromHash("Perun::beans::Group", $group);
-	return $applicationForm;
+        my $vo = $applicationForm->{_vo};
+        $vo = Perun::beans::Vo::fromHash("Perun::beans::Vo", $vo);
+        my $group = $applicationForm->{_group};
+        $group = Perun::beans::Group::fromHash("Perun::beans::Group", $group);
+        return $applicationForm;
 }
 
 sub TO_JSON
@@ -31,42 +31,42 @@ sub TO_JSON
                 $id = 0;
         }
 
-	my $vo;
+        my $vo;
         if (defined($self->{_vo})) {
                 $vo = $self->{_vo};
         } else {
                 $vo = undef;
         }
 
-	my $group;
+        my $group;
         if (defined($self->{_group})) {
                 $group = $self->{_group};
         } else {
                 $group = undef;
         }
 
-	my $automaticApproval;
+        my $automaticApproval;
         if (defined($self->{_automaticApproval})) {
                 $automaticApproval = $self->{_automaticApproval};
         } else {
                 $automaticApproval = undef;
         }
 
-	my $automaticApprovalExtension;
+        my $automaticApprovalExtension;
         if (defined($self->{_automaticApprovalExtension})) {
                 $automaticApprovalExtension = $self->{_automaticApprovalExtension};
         } else {
                 $automaticApprovalExtension = undef;
         }
 
-	my $moduleClassName;
+        my $moduleClassName;
         if (defined($self->{_moduleClassName})) {
                 $moduleClassName = "$self->{_moduleClassName}";
         } else {
                 $moduleClassName = undef;
         }
 
-	return { id => $id, vo => $vo, group => $group, automaticApproval => $automaticApproval, automaticApprovalExtension => $automaticApprovalExtension, moduleClassName => $moduleClassName };
+        return { id => $id, vo => $vo, group => $group, automaticApproval => $automaticApproval, automaticApprovalExtension => $automaticApprovalExtension, moduleClassName => $moduleClassName };
 }
 
 sub getId

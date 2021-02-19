@@ -58,4 +58,9 @@ sub updateFormItems
 	return Perun::Common::callManagerMethod('updateFormItems', 'null', @_);
 }
 
+sub getApplicationById
+{
+	return Perun::Common::callManagerMethod('getApplicationById', 'Application', @_);
+}
+
 1;
