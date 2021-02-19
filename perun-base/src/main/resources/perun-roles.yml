@@ -2774,8 +2774,7 @@ perun_policies:
       - default_policy
 
   moveMembership_Vo_User_User_policy:
-    policy_roles:
-      - VOADMIN: Vo
+    policy_roles: []
     include_policies:
       - default_policy
 
