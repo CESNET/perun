@@ -477,8 +477,10 @@ public class TasksManagerImpl implements TasksManagerImplApi {
 			// jdbc template cannot be null
 			return getMyJdbcTemplate().queryForObject(
 				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id and tasks.service_id=?" +
-					"left join facilities on facilities.id = tasks.facility_id and tasks.facility_id = ?",
+					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks " + 
+					" left join services on tasks.service_id = services.id" +
+					" left join facilities on facilities.id = tasks.facility_id" +
+					" where tasks.service_id = ? and tasks.facility_id = ?",
 				TASK_ROWMAPPER, serviceId, facilityId);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
