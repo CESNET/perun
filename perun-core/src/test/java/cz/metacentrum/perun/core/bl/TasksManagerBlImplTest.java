@@ -454,22 +454,34 @@ public class TasksManagerBlImplTest {
 	@Test 
 	public void testRemoveTask() {
 		System.out.println("TasksManagerBlImplTest.testRemoveTask");
-		assertThatExceptionOfType(DataIntegrityViolationException.class)
-			.isThrownBy( () -> tasksManager.removeTask(perunSession, task1Id) );
 		assertThatNoException().isThrownBy(() -> tasksManager.removeTask(perunSession, task2Id) );
 		assertNull(tasksManager.getTaskById(perunSession, task2Id));
 	}
 
 	@Test 
+	public void testRemoveTask_fails() {
+		System.out.println("TasksManagerBlImplTest.testRemoveTask_fails");
+		assertThatExceptionOfType(DataIntegrityViolationException.class)
+			.isThrownBy( () -> tasksManager.removeTask(perunSession, task1Id) );
+		// the transaction above fails, so add no db operations here, as they would fail too
+	}
+
+	@Test 
 	public void testRemoveTask_ServiceFacility() {
 		System.out.println("TasksManagerBlImplTest.testRemoveTask_ServiceFacility");
-		assertThatExceptionOfType(DataIntegrityViolationException.class)
-			.isThrownBy( () -> tasksManager.removeTask(perunSession, testService1, facility1) );
 		assertThatNoException().isThrownBy( () -> tasksManager.removeTask(perunSession, testService1, facility2) );
 		assertNull(tasksManager.getTaskById(perunSession, task2Id));
 		assertNotNull(tasksManager.getTaskById(perunSession, task1Id));
 	}
 	
+	@Test 
+	public void testRemoveTask_ServiceFacility_fails() {
+		System.out.println("TasksManagerBlImplTest.testRemoveTask_ServiceFacility");
+		assertThatExceptionOfType(DataIntegrityViolationException.class)
+			.isThrownBy( () -> tasksManager.removeTask(perunSession, testService1, facility1) );
+		// the transaction above fails, so add no db operations here, as they would fail too
+	}
+
 	@Test 
 	public void testUpdateTask() {
 		System.out.println("TasksManagerBlImplTest.testUpdateTask");
