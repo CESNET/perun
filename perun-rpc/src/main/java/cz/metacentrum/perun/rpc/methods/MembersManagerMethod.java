@@ -131,7 +131,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param lastName last name - mandatory
 	 * @param titleBefore titles before the name - optionally
 	 * @param titleAfter titles after the name - optionally
-	 * @param password String password
+	 * @param password String password, if the password is empty, and the `sendActivationLink` is set to true, this method will
+	 *                 generate a random password for the created user
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
