@@ -2386,6 +2386,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 
+		if (password.isBlank() && sendActivationLink) {
+			var module = getPerunBl().getUsersManagerBl().getPasswordManagerModule(session, namespace);
+			password = module.generateRandomPassword(session, null);
+		}
+
 		Member sponsoredMember = setSponsoredMember(session, vo, sponsoredUser, namespace, password, sponsor, validityTo, validation);
 
 		//try to send activation link

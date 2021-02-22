@@ -1445,7 +1445,8 @@ public interface MembersManagerBl {
 	 * @param vo virtual organization
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
-	 * @param password password
+	 * @param password password, if the password is empty, and the `sendActivationLink` is set to true, this method will
+	 *                 generate a random password for the created user
 	 * @param email (optional) preferred email that will be set to the created user. If no email
 	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user
@@ -1474,7 +1475,8 @@ public interface MembersManagerBl {
 	 * @param vo virtual organization
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
-	 * @param password password
+	 * @param password password, if the password is empty, and the `sendActivationLink` is set to true, this method will
+	 *                 generate a random password for the created user
 	 * @param email (optional) preferred email that will be set to the created user. If no email
 	 *              is provided, "no-reply@muni.cz" is used.
 	 * @param sponsor sponsoring user
