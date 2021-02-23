@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.NamespaceRules;
+import cz.metacentrum.perun.core.api.RoleManagementRules;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -21,6 +23,9 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
@@ -69,6 +74,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 	private final JdbcPerunTemplate jdbc;
 	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+	private SponsoredAccountsConfigLoader sponsoredAccountsConfigLoader;
+	private SponsoredAccountsConfigContainer sponsoredAccountsConfigContainer = new SponsoredAccountsConfigContainer();
 
 	/**
 	 * Simple member mapper.
@@ -146,6 +154,15 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 		this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+	}
+
+	/**
+	 * Load all namespaces rules for sponsored accounts
+	 *
+	 */
+	public void initialize() {
+		this.sponsoredAccountsConfigLoader.loadSponsoredAccountsConfig();
+		sponsoredAccountsConfigContainer.setNamespacesRules(this.sponsoredAccountsConfigLoader.loadSponsoredAccountsConfig());
 	}
 
 	@Override
@@ -683,5 +700,20 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public void setSponsoredAccountsConfigLoader(SponsoredAccountsConfigLoader sponsoredAccountsConfigLoader) {
+		this.sponsoredAccountsConfigLoader = sponsoredAccountsConfigLoader;
+	}
+
+	@Override
+	public List<NamespaceRules> getAllNamespacesRules() {
+		return sponsoredAccountsConfigContainer.getAllNamespacesRules();
+	}
+
+	@Override
+	public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
+		return sponsoredAccountsConfigContainer.getNamespaceRules(namespace);
 	}
 }

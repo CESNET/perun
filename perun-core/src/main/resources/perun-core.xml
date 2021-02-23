@@ -368,8 +368,9 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
 		<constructor-arg ref="dataSource" />
 	</bean>
-	<bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+	<bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
+		<property name="sponsoredAccountsConfigLoader" ref="sponsoredAccountsConfigLoader"/>
 	</bean>
 	<bean id="resourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ResourcesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
@@ -493,6 +494,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="secondaryConfigurationPath" value="file:@perun.conf@perun-roles.yml"/>
 		</bean>
 
+		<!-- SponsoredAccountsConfigLoader implementation -->
+		<bean id="sponsoredAccountsConfigLoader" class="cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader">
+			<property name="configurationPath" value="file:@perun.conf@sponsored-accounts-config.yml"/>
+		</bean>
 	</beans>
 
 	<!-- Containerized Perun for local testing -->
@@ -525,6 +530,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="secondaryConfigurationPath" value="classpath:test-roles.yml"/>
 		</bean>
 
+		<!-- SponsoredAccountsConfigLoader implementation -->
+		<bean id="sponsoredAccountsConfigLoader" class="cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader">
+			<property name="configurationPath" value="classpath:sponsored-accounts-config.yml"/>
+		</bean>
 	</beans>
 
 </beans>

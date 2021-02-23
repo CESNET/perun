@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Sponsorship;
@@ -15,7 +16,9 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
+import cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -418,4 +421,27 @@ public interface MembersManagerImplApi {
 	 * @param targetMember for which move applications to
 	 */
 	void moveMembersApplications(PerunSession sess, Member sourceMember, Member targetMember);
+
+	/**
+	 * Set Sponsored accounts config loader property
+	 *
+	 * @param sponsoredAccountsConfigLoader to set
+	 */
+	void setSponsoredAccountsConfigLoader(SponsoredAccountsConfigLoader sponsoredAccountsConfigLoader);
+
+	/**
+	 * Return all loaded namespaces rules.
+	 *
+	 * @return all namespaces rules
+	 */
+	List<NamespaceRules> getAllNamespacesRules();
+
+	/**
+	 * Get NamespaceRules for the namespace from the SponsoredAccountsConfigContainer
+	 *
+	 * @param namespace for which will be the rules fetched
+	 * @return NamespaceRules for the namespace
+	 * @throws NamespaceRulesNotExistsException of there are no rules for the namespace
+	 */
+	NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException;
 }

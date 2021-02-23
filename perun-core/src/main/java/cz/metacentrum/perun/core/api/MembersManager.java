@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
+import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetMailNotExistsException;
@@ -1439,4 +1440,11 @@ public interface MembersManager {
 	 * @throws ExtendMembershipException when targetUser doesn't have required LOA for the VO
 	 */
 	void moveMembership(PerunSession sess, Vo vo, User sourceUser, User targetUser) throws UserNotExistsException, VoNotExistsException, PrivilegeException, ExtendMembershipException, MemberNotExistsException, AlreadyMemberException;
+
+	/**
+	 * Return all loaded namespaces rules.
+	 *
+	 * @return all namespaces rules
+	 */
+	List<NamespaceRules> getAllNamespacesRules();
 }

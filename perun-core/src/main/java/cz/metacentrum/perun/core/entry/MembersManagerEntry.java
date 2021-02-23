@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
@@ -36,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
+import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetMailNotExistsException;
@@ -1641,5 +1643,10 @@ public class MembersManagerEntry implements MembersManager {
 
 	public PerunBl getPerunBl() {
 		return this.perunBl;
+	}
+
+	@Override
+	public List<NamespaceRules> getAllNamespacesRules() {
+		return membersManagerBl.getAllNamespacesRules();
 	}
 }

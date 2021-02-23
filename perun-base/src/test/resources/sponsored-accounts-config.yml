@@ -1,0 +1,9 @@
+---
+namespaces:
+
+  dummy_namespace:
+    required_attributes:
+      - login
+    optional_attributes:
+      - password
+...

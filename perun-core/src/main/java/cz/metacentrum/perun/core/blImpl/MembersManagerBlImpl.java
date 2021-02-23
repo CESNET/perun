@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.NamespaceRules;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -72,6 +73,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
@@ -2907,7 +2909,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				getPerunBl().getResourcesManagerBl().setBan(sess, banOnResource);
 			} catch (BanAlreadyExistsException e) {
 				log.warn("Moving ban on resource {} from source member {} to target member {}, but the target member" +
-						 " already has ban on the resource.", banOnResource, sourceMember, targetMember);
+					" already has ban on the resource.", banOnResource, sourceMember, targetMember);
 			}
 		}
 
@@ -2921,6 +2923,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				throw new InternalErrorException(e);
 			}
 		}
+	}
+
+	@Override
+	public List<NamespaceRules> getAllNamespacesRules() {
+		return membersManagerImpl.getAllNamespacesRules();
+	}
+
+	@Override
+	public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
+		return membersManagerImpl.getNamespaceRules(namespace);
 	}
 
 	/**
