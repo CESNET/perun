@@ -44,9 +44,10 @@ public interface VosManagerImplApi {
 	 *
 	 * @param perunSession
 	 * @param vo
+	 * @return deleted VO
 	 * @throws InternalErrorException
 	 */
-	void deleteVo(PerunSession perunSession, Vo vo);
+	Vo deleteVo(PerunSession perunSession, Vo vo);
 
 
 	/**
