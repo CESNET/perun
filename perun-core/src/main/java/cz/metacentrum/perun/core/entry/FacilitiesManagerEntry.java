@@ -63,7 +63,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import org.slf4j.Logger;
@@ -71,7 +70,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -396,6 +394,21 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		return getFacilitiesManagerBl().getAssignedResources(sess, facility);
+	}
+
+	@Override
+	public List<Resource> getAssignedResourcesByAssignedService(PerunSession sess, Facility facility, Service service) throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getAssignedResourcesByAssignedService_Facility_Service_policy", facility, service)) {
+			throw new PrivilegeException(sess, "getAssignedResourcesByAssignedService");
+		}
+
+		return getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
 	}
 
 	@Override

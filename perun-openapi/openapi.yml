@@ -9324,6 +9324,21 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/facilitiesManager/getAssignedResourcesByAssignedService:
+    get:
+      tags:
+        - FacilitiesManager
+      operationId: getAssignedResourcesByAssignedServiceForFacility
+      summary: Returns resources with specific service assigned to the facility.
+      parameters:
+        - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/serviceId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfResourcesResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/facilitiesManager/getAssignedRichResources:
     get:
       tags:
