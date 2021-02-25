@@ -465,6 +465,7 @@ components:
     NamespaceRules:
       type: object
       properties:
+        defaultEmail: { type: string }
         namespaceName: { type: string }
         requiredAttributes:
           type: array
@@ -1014,6 +1015,19 @@ components:
       type: object
       additionalProperties:
         $ref: '#/components/schemas/Attribute'
+
+    SponsoredUserData:
+      type: object
+      properties:
+        guestName: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        titleBefore: { type: string }
+        titleAfter: { type: string }
+        namespace: { type: string }
+        email: { type: string }
+        password: { type: string }
+        login: { type: string }
 
   #################################################
   #                                               #
@@ -8322,24 +8336,15 @@ paths:
               description: "input for createSponsoredMember"
               type: object
               required:
-                - firstName
-                - lastName
-                - password
+                - userData
                 - vo
                 - sponsor
-                - namespace
               properties:
-                firstName: { type: string }
-                lastName: { type: string }
-                titleBefore: { type: string }
-                titleAfter: { type: string }
-                password: { type: string }
-                email: { type: string }
                 vo: { type: integer }
-                sponsor: { type: integer }
-                namespace: { type: string }
                 validityTo: { type: string }
+                sponsor: { type: integer }
                 sendActivationLink: { type: boolean }
+                userData: { $ref: '#/components/schemas/SponsoredUserData' }
 
   /json/membersManager/setSponsoredMember:
     post:

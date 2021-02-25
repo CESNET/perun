@@ -6,11 +6,13 @@ import java.util.Set;
 public class NamespaceRules {
 
 	private String namespaceName;
+	private String defaultEmail;
 	private Set<String> requiredAttributes;
 	private Set<String> optionalAttributes;
 
-	public NamespaceRules(String namespaceName, Set<String> requiredAttributes, Set<String> optionalAttributes) {
+	public NamespaceRules(String namespaceName, String defaultEmail, Set<String> requiredAttributes, Set<String> optionalAttributes) {
 		this.namespaceName = namespaceName;
+		this.defaultEmail = defaultEmail;
 		this.requiredAttributes = requiredAttributes;
 		this.optionalAttributes = optionalAttributes;
 	}
@@ -59,5 +61,13 @@ public class NamespaceRules {
 			", requiredAttributes=" + requiredAttributes +
 			", optionalAttributes=" + optionalAttributes +
 			'}';
+	}
+
+	public String getDefaultEmail() {
+		return defaultEmail;
+	}
+
+	public void setDefaultEmail(String defaultEmail) {
+		this.defaultEmail = defaultEmail;
 	}
 }

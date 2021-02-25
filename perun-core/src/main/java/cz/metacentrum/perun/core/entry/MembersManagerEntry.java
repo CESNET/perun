@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -55,6 +56,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1223,23 +1225,20 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name,
-	                                        String password, String email, User sponsor, LocalDate validityTo,
-											boolean sendActivationLink, String url)
+	public RichMember createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor,
+	                                        LocalDate validityTo, boolean sendActivationLink, String url)
 			throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
 			ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
-			UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException {
+			UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
-		Utils.notNull(namespace, "namespace");
-		if (name.get("guestName") == null) {
-			Utils.notNull(name.get("firstName"), "firstName");
-			Utils.notNull(name.get("lastName"), "lastName");
-		}
-		Utils.notNull(password, "password");
 
-		String nameForLog = name.containsKey("guestName") ? name.get("guestName") : name.get("firstName") + " " + name.get("lastName");
-		log.info("createSponsoredMember(vo={},namespace='{}',guestName='{}',sponsor={}", vo.getShortName(), namespace, nameForLog, sponsor == null ? "null" : sponsor.getId());
+		if (data.getGuestName() == null) {
+			Utils.notNull(data.getFirstName(), "firstName");
+			Utils.notNull(data.getLastName(), "lastName");
+		}
+
+		log.info("createSponsoredMember(vo={},input={},sponsor={})", vo.getShortName(), data, sponsor == null ? "null" : sponsor.getId());
 
 		if (sponsor == null) {
 			//sponsor is the caller, authorization is checked in Bl
@@ -1251,21 +1250,19 @@ public class MembersManagerEntry implements MembersManager {
 			}
 		}
 		//create the sponsored member
-		return membersManagerBl.getRichMemberWithAttributes(session, membersManagerBl.createSponsoredMember(session, vo, namespace, name, password, email, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC));
+		return membersManagerBl.getRichMemberWithAttributes(session, membersManagerBl.createSponsoredMember(session, data, vo, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC));
 	}
 
 	@Override
 	public RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace,
-	                                     String password, User sponsor, LocalDate validityTo)
-		throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
-		ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
-		UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException {
+	                                     String password, String login, User sponsor, LocalDate validityTo)
+			throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException,
+			ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException,
+			UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException {
 
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(userToBeSponsored, "userToBeSponsored");
-		Utils.notNull(namespace, "namespace");
-		Utils.notNull(password, "password");
 
 		log.debug("setSponsoredMember(vo={},namespace='{}',displayName='{}',sponsor={}", vo.getShortName(), namespace, userToBeSponsored.getFirstName() + " " + userToBeSponsored.getLastName(), sponsor == null ? "null" : sponsor.getId());
 
@@ -1278,8 +1275,13 @@ public class MembersManagerEntry implements MembersManager {
 				throw new PrivilegeException(session, "setSponsoredMember");
 			}
 		}
-		//create the sponsored member
-		return membersManagerBl.getRichMember(session, membersManagerBl.setSponsoredMember(session, vo, userToBeSponsored, namespace, password, sponsor, validityTo, Validation.ASYNC));
+
+		var data = new SponsoredUserData();
+		data.setNamespace(namespace);
+		data.setPassword(password);
+		data.setLogin(login);
+
+		return membersManagerBl.getRichMember(session, membersManagerBl.setSponsoredMember(session, data, vo, userToBeSponsored, sponsor, validityTo, Validation.ASYNC));
 	}
 
 	@Override
@@ -1287,7 +1289,6 @@ public class MembersManagerEntry implements MembersManager {
 			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
-		Utils.notNull(namespace, "namespace");
 		Utils.notNull(data, "names");
 		Utils.notNull(header, "header");
 

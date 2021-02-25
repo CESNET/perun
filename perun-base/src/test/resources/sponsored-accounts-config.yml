@@ -1,7 +1,50 @@
 ---
+# Namespace rules which are used to determine, which information is needed
+# for each namespace during sponsorship of a new user. These information are generally
+# used to create an external account.
+#
+#
+# default_email - this field determines, which email will be set as a preferred attribute, for the generated sponsored
+#                 user. If this value is not specified, it fallbacks to 'no-reply@perun-aai.org'
+# required_attributes - fields from the SponsoredUserData class, which are required for the given namespace during the
+#                       creation of a sponsorship. Allowed values are fields of the SponsoredUserData class. This
+#                       should be mainly used in GUI to determine, which items should be visible in the dialog. But, it
+#                       is also used in the backend to validate the RPC input data. The value of these fields has to
+#                       be provided and only these fields should be used in the namespace's implementation. The only
+#                       exception is the 'password' which doesn't have to be provided, if the user will receive an
+#                       activation link.
+# optional_attributes - fields from the SponsoredUserData class, which are optional for the given namespace during the
+#                       creation of a sponsorship. Allowed values are fields of the SponsoredUserData class. This is
+#                       used only in GUI! It doesn't affect anything on the backend, since the optional attributes are
+#                       limited by the actual fields of the SponsoredUserData class. These values can be omitted and it
+#                       should be still possible to create a sponsored user.
+#
+# Currently allowed fields are:
+#  * guestName
+#  * firstName
+#  * lastName
+#  * titleBefore
+#  * titleAfter
+#  * email
+#  * password
+#  * login
+#
+# If some namespace would require an additional information, some steps are needed to be done:
+#  1.A new field has to be added to the SponsoredUserData class
+#  2 GUI has to edit the dialog accordingly
+#  3.This configuration has to be updated for the namespaces which need this new field
+#  4.Update the list of the currently allowed fields above.
+#
 namespaces:
 
-  dummy_namespace:
+  dummy:
+    default_email: "no-reply@dummy.com"
+    required_attributes: []
+    optional_attributes:
+      - password
+
+  dummy_with_login:
+    default_email: "no-reply@dummy.com"
     required_attributes:
       - login
     optional_attributes:

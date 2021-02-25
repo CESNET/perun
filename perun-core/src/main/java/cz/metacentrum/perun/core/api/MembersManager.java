@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -1151,12 +1152,9 @@ public interface MembersManager {
 	 * Creates a new sponsored Member and its User.
 	 * @param session actor
 	 * @param vo virtual organization  for the member
-	 * @param namespace namespace for selecting password module
-	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
-	 * @param password password, if the password is empty, and the `sendActivationLink` is set to true, this method will
-	 *                 generate a random password for the created user
-	 * @param email (optional) preferred email that will be set to the created user. If no email
-	 *              is provided, "no-reply@muni.cz" is used.
+	 * @param data about the user that should be created, required fields depend on the
+	 *        provided namespace. However, it has to contain either `guestName`, or `firstName` and `lastName`.
+	 *        Also, if you want to create an external account, specify the `namespace` field.
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @param sendActivationLink if true link for manual activation of account will be send to the email
@@ -1175,7 +1173,7 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException
 	 * @throws AlreadySponsorException
 	 */
-	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
+	RichMember createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1185,6 +1183,7 @@ public interface MembersManager {
 	 * @param userToBeSponsored user, that will be sponsored by sponsor
 	 * @param namespace namespace for selecting password module
 	 * @param password password
+	 * @param login login
 	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 *
@@ -1203,7 +1202,7 @@ public interface MembersManager {
 	 * @throws InvalidLoginException
 	 * @throws AlreadySponsorException
 	 */
-	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
+	RichMember setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, String login, User sponsor, LocalDate validityTo) throws PrivilegeException, AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
 
 	/**
 	 * Creates new sponsored members using input from CSV file.

@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -71,6 +72,20 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	protected final Pattern muPasswordContainsLower = Pattern.compile(".*[a-z].*");
 	protected final Pattern muPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
 	protected final Pattern muPasswordContainsSpec = Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
+
+	@Override
+	public String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws PasswordStrengthException {
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put(PasswordManagerModule.TITLE_BEFORE_KEY, userData.getTitleBefore());
+		parameters.put(PasswordManagerModule.FIRST_NAME_KEY, userData.getFirstName());
+		parameters.put(PasswordManagerModule.LAST_NAME_KEY, userData.getLastName());
+		parameters.put(PasswordManagerModule.TITLE_AFTER_KEY, userData.getTitleAfter());
+		if (userData.getPassword() != null) {
+			parameters.put(PasswordManagerModule.PASSWORD_KEY, userData.getPassword());
+		}
+
+		return generateAccount(sess, parameters).get(PasswordManagerModule.LOGIN_PREFIX + "mu");
+	}
 
 	@Override
 	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws PasswordStrengthException {

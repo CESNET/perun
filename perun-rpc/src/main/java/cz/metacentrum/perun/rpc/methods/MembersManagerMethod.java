@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -16,6 +17,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @SuppressWarnings("unused")
 public enum MembersManagerMethod implements ManagerMethod {
@@ -110,6 +113,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
 	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
 	 *
+	 * @deprecated
+	 *
 	 * @param guestName String identification of sponsored account, e.g. "John Doe" or "conference member 1"
 	 * @param password String password
 	 * @param vo int VO ID
@@ -127,6 +132,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
 	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
 	 *
+	 * @deprecated
+	 *
 	 * @param firstName first name - mandatory
 	 * @param lastName last name - mandatory
 	 * @param titleBefore titles before the name - optionally
@@ -143,45 +150,107 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *                            default is false, can't be used with empty email parameter
 	 * @return RichMember newly created sponsored member
 	 */
+	/*#
+	 * Creates a new sponsored member in a given VO and namespace.
+	 *
+	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
+	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
+	 *
+	 * @param userData SponsoredUserData data about the user that should be created, required fields depend on the
+	 *        provided namespace. However, it has to contain either `guestName`, or `firstName` and `lastName`.
+	 *        Also, if you want to create an external account, specify the `namespace` field.
+	 * @param vo int VO ID
+	 * @param namespace String namespace selecting remote system for storing the password
+	 * @param sponsor int sponsor's ID
+	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
+	 * @param sendActivationLink (optional) boolean if true link for manual activation of account will be send to the email
+	 *                            default is false, can't be used with empty email parameter
+	 *                            If set to true, a non-empty namespace has to be provided.
+	 * @return RichMember newly created sponsored member
+	 */
 	createSponsoredMember {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
 			params.stateChangingCheck();
-			String password = params.readString("password");
-			Vo vo =  ac.getVoById(params.readInt("vo"));
-			String namespace = params.readString("namespace");
-			boolean sendActivationLink = false;
-			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
-				sendActivationLink = params.readBoolean("sendActivationLinks");
-			}
-			String email = null;
-			if (params.contains("email")) {
-				email = params.readString("email");
-			}
-			if (email != null && !Utils.emailPattern.matcher(email).matches()) {
-				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
-			}
-			if(email == null && sendActivationLink) throw new RpcException(RpcException.Type.MISSING_VALUE, "Can't send link for activation when email is missing!");
-			User sponsor = null;
-			LocalDate validityTo = null;
-			if (params.contains("validityTo")) {
-				validityTo = params.readLocalDate("validityTo");
-			}
-			if(params.contains("sponsor")) {
-				sponsor = ac.getUserById(params.readInt("sponsor"));
-			}
-			Map<String, String> name = new HashMap<>();
-			if (params.contains("guestName")) {
-				name.put("guestName", params.readString("guestName"));
-			} else if (params.contains("firstName") && params.contains("lastName")) {
-				name.put("firstName", params.readString("firstName"));
-				name.put("lastName", params.readString("lastName"));
-				if (params.contains("titleBefore")) name.put("titleBefore", params.readString("titleBefore"));
-				if (params.contains("titleAfter")) name.put("titleAfter", params.readString("titleAfter"));
+			if (!params.contains("userData")) {
+				// FIXME old behaviour - this should be removed once we are ready to use only the new behaviour
+
+				SponsoredUserData userData = new SponsoredUserData();
+
+				userData.setPassword(params.readString("password"));
+				Vo vo =  ac.getVoById(params.readInt("vo"));
+				userData.setNamespace(params.readString("namespace"));
+				boolean sendActivationLink = false;
+				if (params.contains("sendActivationLink") && params.readBoolean("sendActivationLink") != null) {
+					sendActivationLink = params.readBoolean("sendActivationLink");
+				}
+				if (params.contains("email")) {
+					userData.setEmail(params.readString("email"));
+				}
+				if (userData.getEmail() != null && !Utils.emailPattern.matcher(userData.getEmail()).matches()) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
+				}
+				if(userData.getEmail() == null && sendActivationLink) throw new RpcException(RpcException.Type.MISSING_VALUE, "Can't send link for activation when email is missing!");
+				User sponsor = null;
+				LocalDate validityTo = null;
+				if (params.contains("validityTo")) {
+					validityTo = params.readLocalDate("validityTo");
+				}
+				if(params.contains("sponsor")) {
+					sponsor = ac.getUserById(params.readInt("sponsor"));
+				}
+
+
+				Map<String, String> name = new HashMap<>();
+				if (params.contains("guestName")) {
+					userData.setGuestName(params.readString("guestName"));
+				} else if (params.contains("firstName") && params.contains("lastName")) {
+					userData.setFirstName(params.readString("firstName"));
+					userData.setLastName(params.readString("lastName"));
+					if (params.contains("titleBefore")) userData.setTitleBefore(params.readString("titleBefore"));
+					if (params.contains("titleAfter")) userData.setTitleAfter(params.readString("titleAfter"));
+				} else {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
+				}
+
+				return ac.getMembersManager().createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
+				// FIXME new behaviour
+
+				Vo vo =  ac.getVoById(params.readInt("vo"));
+				User sponsor = null;
+				LocalDate validityTo = null;
+				if (params.contains("validityTo")) {
+					validityTo = params.readLocalDate("validityTo");
+				}
+				if(params.contains("sponsor")) {
+					sponsor = ac.getUserById(params.readInt("sponsor"));
+				}
+
+				boolean sendActivationLink = false;
+				if (params.contains("sendActivationLink")) {
+					sendActivationLink = params.readBoolean("sendActivationLink");
+				}
+
+				SponsoredUserData userData = params.read("userData", SponsoredUserData.class);
+
+				if (sendActivationLink && isNotBlank(userData.getNamespace())) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "If the sendActivationLink is set to true, a namespace has to be provided.");
+				}
+				if (userData.getEmail() != null && !Utils.emailPattern.matcher(userData.getEmail()).matches()) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Email has an invalid format.");
+				}
+				if(userData.getEmail() == null && sendActivationLink) {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "Can't send link for activation when email is missing!");
+				}
+
+				if (userData.getGuestName() == null &&
+						(userData.getFirstName() == null || userData.getLastName() == null)) {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. Either 'guestName' or ('firstName' and 'lastName') must be sent.");
+				}
+				return ac.getMembersManager().createSponsoredMember(ac.getSession(), userData, vo, sponsor, validityTo,
+						sendActivationLink, params.getServletRequest().getRequestURL().toString());
 			}
-			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, name, password, email, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
 		}
 	},
 
@@ -195,6 +264,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param userToBeSponsored int id of user, that will be sponsored by sponsor
 	 * @param namespace String used for selecting external system in which guest user account will be created
 	 * @param password String password
+	 * @param login String login
 	 * @param sponsor int id of sponsoring user
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member
@@ -209,6 +279,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param userToBeSponsored int id of user, that will be sponsored by sponsor
 	 * @param namespace String used for selecting external system in which guest user account will be created
 	 * @param password String password
+	 * @param login String login
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @return RichMember sponsored member
 	 */
@@ -216,9 +287,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
 			params.stateChangingCheck();
-			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
-			String namespace = params.readString("namespace");
+			String login = null;
+			String password = null;
+			if (params.contains("password")) {
+				password = params.readString("password");
+			}
+			if (params.contains("login")) {
+				login = params.readString("login");
+			}
+			String namespace = null;
+			if (params.contains("namespace")) {
+				namespace = params.readString("namespace");
+			}
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {
 				validityTo = params.readLocalDate("validityTo");
@@ -233,7 +314,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing value. The 'userToBeSponsored' must be sent.");
 			}
-			return ac.getMembersManager().setSponsoredMember(ac.getSession(), vo, userToBeSponsored, namespace, password, sponsor, validityTo);
+			return ac.getMembersManager().setSponsoredMember(ac.getSession(), vo, userToBeSponsored, namespace, password, login, sponsor, validityTo);
 		}
 	},
 
@@ -263,6 +344,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
 	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member
 	 *                           account will be send to the email (can't be used with empty email parameter), default is false
+	 *                           If set to true, a non-empty namespace has to be provided.
 	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
 	 */
 	createSponsoredMembersFromCSV {
@@ -270,10 +352,16 @@ public enum MembersManagerMethod implements ManagerMethod {
 		public Map<String, Map<String, String>> call(ApiCaller ac, Deserializer params) throws PerunException {
 			params.stateChangingCheck();
 			Vo vo =  ac.getVoById(params.readInt("vo"));
-			String namespace = params.readString("namespace");
+			String namespace = null;
+			if (params.contains("namespace")) {
+				namespace = params.readString("namespace");
+			}
 			boolean sendActivationLink = false;
 			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
 				sendActivationLink = params.readBoolean("sendActivationLinks");
+			}
+			if (sendActivationLink && isNotBlank(namespace)) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "If the sendActivationLink is set to true, a namespace has to be provided.");
 			}
 			LocalDate validityTo = null;
 			if (params.contains("validityTo")) {

@@ -28,7 +28,7 @@ public class SponsoredAccountsConfigContainer {
 	 */
 	public NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException {
 		if (namespacesRules.get(namespace) == null) {
-			throw new NamespaceRulesNotExistsException("Namespace with name "+ namespace + "does not exist in the SponsoredAccountsConfigContainer.");
+			throw new NamespaceRulesNotExistsException("Namespace with name '"+ namespace + "' does not exist in the SponsoredAccountsConfigContainer.");
 		}
 
 		return namespacesRules.get(namespace);

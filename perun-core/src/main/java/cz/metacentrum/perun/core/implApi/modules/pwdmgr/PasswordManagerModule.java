@@ -2,13 +2,11 @@ package cz.metacentrum.perun.core.implApi.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
 import java.util.Map;
 
@@ -34,6 +32,21 @@ public interface PasswordManagerModule {
 	String ALT_PASSWORD_PREFIX = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
 
 	Map<String,String> generateAccount(PerunSession sess, Map<String, String> parameters) throws PasswordStrengthException;
+
+	/**
+	 * Handles member's sponsorship in given namespace. Returns login, which should be used in the given namespace.
+	 * This method is usually used to create an account in external systems.
+	 *
+	 * @param sess session
+	 * @param userData information, about the user for which the sponsorship should be handled
+	 * @return login, or null, if no login was provided nor generated
+	 * @throws PasswordStrengthException if the password strength is too weak for given namespace
+	 * @throws InvalidLoginException if the provided login is invalid for the given namespace
+	 */
+	default String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws InvalidLoginException, PasswordStrengthException {
+		// do nothing
+		return userData.getLogin();
+	}
 
 	void reservePassword(PerunSession sess, String userLogin, String password) throws InvalidLoginException, PasswordStrengthException;
 

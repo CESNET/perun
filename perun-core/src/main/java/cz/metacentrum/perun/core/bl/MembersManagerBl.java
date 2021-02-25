@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -44,6 +45,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -1445,43 +1447,10 @@ public interface MembersManagerBl {
 	 *
 	 * @param session perun session
 	 * @param vo virtual organization
-	 * @param namespace used for selecting external system in which guest user account will be created
-	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
-	 * @param password password, if the password is empty, and the `sendActivationLink` is set to true, this method will
-	 *                 generate a random password for the created user
-	 * @param email (optional) preferred email that will be set to the created user. If no email
-	 *              is provided, "no-reply@muni.cz" is used.
-	 * @param sponsor sponsoring user
-	 * @param sendActivationLink if true link for manual activation of account will be send to the email
-	 *                           be careful when using with empty (no-reply) email
-	 * @param validation Type of validation, when using Validation.ASYNC do not call this method in a cycle!
-	 * @param url base URL of Perun Instance
-	 * @return created member
-	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws LoginNotExistsException
-	 * @throws PasswordCreationFailedException
-	 * @throws ExtendMembershipException
-	 * @throws WrongAttributeValueException
-	 * @throws ExtSourceNotExistsException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws UserNotInRoleException if the member is not in required role
-	 * @throws AlreadySponsorException
-	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, boolean sendActivationLink, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
-
-	/**
-	 * Creates a new sponsored member.
-	 *
-	 * @param session perun session
-	 * @param vo virtual organization
-	 * @param namespace used for selecting external system in which guest user account will be created
-	 * @param name a map containing the full name or its parts (mandatory: firstName, lastName; optionally: titleBefore, titleAfter)
-	 * @param password password, if the password is empty, and the `sendActivationLink` is set to true, this method will
-	 *                 generate a random password for the created user
-	 * @param email (optional) preferred email that will be set to the created user. If no email
-	 *              is provided, "no-reply@muni.cz" is used.
-	 * @param sponsor sponsoring user
+	 * @param data about the user that should be created, required fields depend on the
+	 *        provided namespace. However, it has to contain either `guestName`, or `firstName` and `lastName`.
+	 *        Also, if you want to create an external account, specify the `namespace` field.
+	 * @param sponsor sponsoring user or null for the caller
 	 * @param validityTo last day when the sponsorship is active (null means the sponsorship will last forever)
 	 * @param sendActivationLink if true link for manual activation of account will be send to the email
 	 *                           be careful when using with empty (no-reply) email
@@ -1499,7 +1468,32 @@ public interface MembersManagerBl {
 	 * @throws UserNotInRoleException if the member is not in required role
 	 * @throws AlreadySponsorException
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, Map<String, String> name, String password, String email, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException;
+	Member createSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) throws AlreadyMemberException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException, PasswordStrengthException, InvalidLoginException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
+
+	/**
+	 * Creates a sponsored membership for the given user.
+	 *
+	 * @param session perun session
+	 * @param vo virtual organization
+	 * @param userToBeSponsored user, that will be sponsored by sponsor
+	 * @param data data about the user, which are used to create an account in an external system, if needed
+	 * @param sponsor sponsoring user
+	 * @param validation Type of members validation, when using Validation.ASYNC do not call this method in a cycle!
+	 * @return sponsored member
+	 * @throws AlreadyMemberException
+	 * @throws ExtendMembershipException
+	 * @throws UserNotInRoleException
+	 * @throws PasswordStrengthException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordCreationFailedException
+	 * @throws InvalidLoginException
+	 * @throws ExtSourceNotExistsException
+	 * @throws AlreadySponsorException
+	 */
+	Member setSponsoredMember(PerunSession session, SponsoredUserData data, Vo vo, User userToBeSponsored, User sponsor,
+	                          LocalDate validityTo, Validation validation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
 
 	/**
 	 * Creates a sponsored membership for the given user.
@@ -1524,32 +1518,7 @@ public interface MembersManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 * @throws AlreadySponsorException
 	 */
-	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, LocalDate validityTo, Validation validation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
-
-	/**
-	 * Creates a sponsored membership for the given user.
-	 *
-	 * @param session perun session
-	 * @param vo virtual organization
-	 * @param userToBeSponsored user, that will be sponsored by sponsor
-	 * @param namespace used for selecting external system in which guest user account will be created
-	 * @param password password
-	 * @param sponsor sponsoring user
-	 * @param validation Type of members validation, when using Validation.ASYNC do not call this method in a cycle!
-	 * @return sponsored member
-	 * @throws AlreadyMemberException
-	 * @throws ExtendMembershipException
-	 * @throws UserNotInRoleException
-	 * @throws PasswordStrengthException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws LoginNotExistsException
-	 * @throws PasswordCreationFailedException
-	 * @throws InvalidLoginException
-	 * @throws ExtSourceNotExistsException
-	 * @throws AlreadySponsorException
-	 */
-	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, Validation validation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException;
+	Member setSponsoredMember(PerunSession session, Vo vo, User userToBeSponsored, String namespace, String password, User sponsor, Validation validation) throws AlreadyMemberException, ExtendMembershipException, UserNotInRoleException, PasswordStrengthException, WrongAttributeValueException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, InvalidLoginException, ExtSourceNotExistsException, AlreadySponsorException, InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
 
 	/**
 	 * Creates new sponsored members.
@@ -1802,4 +1771,15 @@ public interface MembersManagerBl {
 	 * @throws NamespaceRulesNotExistsException if there are no rules for the namespace
 	 */
 	NamespaceRules getNamespaceRules(String namespace) throws NamespaceRulesNotExistsException;
+
+	/**
+	 * Checks, whether the provided data are valid according to the
+	 * namespace rules, if the namespace is not null.
+	 *
+	 * @param sess session
+	 * @param data data to be checked
+	 * @throws InvalidSponsoredUserDataException if the data are not valid
+	 * @throws NamespaceRulesNotExistsException if there are no namespace rules for the given namespace
+	 */
+	void checkSponsoredUserData(PerunSession sess, SponsoredUserData data) throws InvalidSponsoredUserDataException, NamespaceRulesNotExistsException;
 }
