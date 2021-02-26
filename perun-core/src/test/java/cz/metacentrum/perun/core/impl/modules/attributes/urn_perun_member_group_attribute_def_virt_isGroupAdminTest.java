@@ -78,6 +78,7 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdminTest  extends
         Vo newVo = new Vo(0, "TestVo", "TestVo");
         Vo returnedVo = vosManager.createVo(sess, newVo);
         assertNotNull(returnedVo);
+        newVo.setId(returnedVo.getId());
         assertEquals(newVo,returnedVo);
         return returnedVo;
 

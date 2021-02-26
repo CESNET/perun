@@ -966,14 +966,14 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Vo vo = new Vo();
 		vo.setShortName("testVo");
 		vo.setName("Test VO");
-		perun.getVosManager().createVo(sess, vo);
+		Vo createdVo = perun.getVosManager().createVo(sess, vo);
 
 		Group authGroup = new Group();
 		authGroup.setShortName("testGroup");
 		authGroup.setName("Test Group");
-		Member m0 = perun.getMembersManager().createMember(sess, vo, u0);
-		Member m1 = perun.getMembersManager().createMember(sess, vo, u1);
-		perun.getGroupsManager().createGroup(sess, vo, authGroup);
+		Member m0 = perun.getMembersManager().createMember(sess, createdVo, u0);
+		Member m1 = perun.getMembersManager().createMember(sess, createdVo, u1);
+		perun.getGroupsManager().createGroup(sess, createdVo, authGroup);
 		perun.getGroupsManager().addMember(sess, authGroup, m0);
 		perun.getGroupsManager().addMember(sess, authGroup, m1);
 

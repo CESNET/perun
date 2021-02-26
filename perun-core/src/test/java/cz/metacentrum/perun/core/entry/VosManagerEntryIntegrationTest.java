@@ -101,7 +101,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		System.out.println(CLASS_NAME + "getVoById");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
-		final Vo returnedVo = vosManagerEntry.getVoById(sess, myVo.getId());
+		final Vo returnedVo = vosManagerEntry.getVoById(sess, createdVo.getId());
 
 		final String createVoFailMsg = "The created vo is not ok, maybe try to check createVo()?";
 

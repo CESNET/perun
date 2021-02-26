@@ -139,6 +139,7 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
 		// create test VO in database
 		assertNotNull("unable to create testing Vo",returnedVo);
+		newVo.setId(returnedVo.getId());
 		assertEquals("both VOs should be the same",newVo,returnedVo);
 
 		ExtSource es = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
