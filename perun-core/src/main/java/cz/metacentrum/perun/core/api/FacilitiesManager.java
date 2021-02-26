@@ -228,6 +228,18 @@ public interface FacilitiesManager {
 	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException;
 
 	/**
+	 * Returns resources with specific service assigned to the facility.
+	 *
+	 * @param perunSession 	perun session
+	 * @param facility		facility
+	 * @param service 		specific only those results, which have resource with assigned specific service
+	 * @return list of resources assigned to the facility by specific service
+	 * @throws FacilityNotExistsException if facility does not exist
+	 * @throws ServiceNotExistsException  if service does not exist
+	 */
+	List<Resource> getAssignedResourcesByAssignedService(PerunSession perunSession, Facility facility, Service service) throws PrivilegeException, FacilityNotExistsException, ServiceNotExistsException;
+
+	/**
 	 * Returns all rich resources assigned to the facility with VO property filled
 	 *
 	 * @return list of rich resources assigned to the facility
