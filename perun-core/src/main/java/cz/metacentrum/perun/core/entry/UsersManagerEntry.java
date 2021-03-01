@@ -319,7 +319,13 @@ public class UsersManagerEntry implements UsersManager {
 			}
 		}
 
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersFromListOfUsers(sess, users));
+		List<Integer> userIds = users.stream()
+				.map(User::getId)
+				.collect(Collectors.toList());
+
+		List<User> usersFromDB = getPerunBl().getUsersManagerBl().getUsersByIds(sess, userIds);
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersFromListOfUsers(sess, usersFromDB));
 	}
 
 	@Override
@@ -339,7 +345,13 @@ public class UsersManagerEntry implements UsersManager {
 			}
 		}
 
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, users));
+		List<Integer> userIds = users.stream()
+				.map(User::getId)
+				.collect(Collectors.toList());
+
+		List<User> usersFromDB = getPerunBl().getUsersManagerBl().getUsersByIds(sess, userIds);
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, usersFromDB));
 	}
 
 	@Override
