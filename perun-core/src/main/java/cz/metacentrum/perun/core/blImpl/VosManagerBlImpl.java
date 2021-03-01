@@ -205,8 +205,8 @@ public class VosManagerBlImpl implements VosManagerBl {
 		}
 
 		// Finally delete the VO
-		getVosManagerImpl().deleteVo(sess, vo);
-		getPerunBl().getAuditer().log(sess, new VoDeleted(vo));
+		Vo deletedVo = getVosManagerImpl().deleteVo(sess, vo);
+		getPerunBl().getAuditer().log(sess, new VoDeleted(deletedVo));
 	}
 
 	@Override

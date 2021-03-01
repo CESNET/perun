@@ -175,19 +175,21 @@ public class VosManagerImpl implements VosManagerImplApi {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo) {
+	public Vo deleteVo(PerunSession sess, Vo vo) {
 		try {
 			// Delete authz entries for this VO
 			AuthzResolverBlImpl.removeAllAuthzForVo(sess, vo);
 
-			if (jdbc.update("delete from vos where id=?", vo.getId()) == 0) {
-				throw new ConsistencyErrorException("no record was deleted from the DB.");
-			}
+			vo = jdbc.queryForObject("delete from vos where id=? returning " + voMappingSelectQuery, VO_MAPPER, vo.getId());
+		} catch (EmptyResultDataAccessException e) {
+			throw new ConsistencyErrorException("no record was deleted from the DB.");
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 
 		log.debug("Vo {} deleted", vo);
+
+		return vo;
 	}
 
 	@Override
