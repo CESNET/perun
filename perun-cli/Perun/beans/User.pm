@@ -75,9 +75,16 @@ sub TO_JSON
 		$sponsoredUser = undef;
 	}
 
+	my $uuid;
+	if (defined($self->{_uuid})) {
+		$uuid = $self->{_uuid};
+	} else {
+		$uuid = undef;
+	}
+
 	return { id         => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
 		titleBefore     => $titleBefore, titleAfter => $titleAfter, serviceUser => $serviceUser,
-		sponsoredUser => $sponsoredUser };
+		sponsoredUser => $sponsoredUser, uuid => $uuid };
 }
 
 sub getId
@@ -93,6 +100,21 @@ sub setId
 	$self->{_id} = shift;
 
 	return;
+}
+
+sub getUuid
+{
+  my $self = shift;
+
+  return $self->{_uuid};
+}
+
+sub setUuid
+{
+  my $self = shift;
+  $self->{_uuid} = shift;
+
+  return;
 }
 
 sub getTitleBefore

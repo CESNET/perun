@@ -20,7 +20,7 @@ sub TO_JSON
 {
 	my $self = shift;
 
-	return { id => $self->{_id}, userAttributes => $self->{_userAttributes}, userExtSources =>
+	return { id => $self->{_id}, uuid => $self->{_uuid}, userAttributes => $self->{_userAttributes}, userExtSources =>
 		$self->{_userExtSources} };
 }
 
@@ -34,6 +34,19 @@ sub setId
 	$self->{_id} = shift;
 
 	return;
+}
+
+sub getUuid 
+{
+	return shift->{_uuid};
+}
+
+sub setUuid
+{
+  my $self = shift;
+  $self->{_uuid} = shift;
+
+  return;
 }
 
 sub getUserAttributes {
