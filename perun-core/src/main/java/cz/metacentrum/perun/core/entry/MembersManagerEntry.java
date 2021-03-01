@@ -1596,6 +1596,30 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().moveMembership(sess, vo, sourceUser, targetUser);
 	}
 
+	@Override
+	public List<RichMember> getRichMembersByIds(PerunSession sess, List<Integer> ids, List<String> attrNames) throws PrivilegeException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getRichMembersByIds_List<Integer>_List<String>_policy")) {
+			throw new PrivilegeException(sess, "getRichMembersByIds");
+		}
+
+		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
+		for (String attrName : attrNames) {
+			attributeDefinitions.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+		}
+
+		List<Member> members = getMembersManagerBl().getMembersByIds(sess, ids);
+		members.removeIf(member -> !AuthzResolver.authorizedInternal(sess, "filter-getRichMembersByIds_List<Integer>_List<String>_policy", member));
+
+		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembers(sess, members);
+		//Enriched rich members with attributes by list of attributes
+		richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, richMembers, attributeDefinitions);
+		//RichMembers with filtered attributes by rights from session
+		return membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers);
+	}
+
 	/**
 	 * Converts member to member with sponsors and sets all his sponsors.
 	 *
