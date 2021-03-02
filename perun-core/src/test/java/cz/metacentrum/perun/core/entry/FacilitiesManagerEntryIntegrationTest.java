@@ -486,7 +486,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Vo vo2 = new Vo();
 		vo2.setName("FacilitiesMangerTestVo2");
 		vo2.setShortName("FMTVO2");
-		assertNotNull("unable to create VO",perun.getVosManager().createVo(sess, vo2));
+		vo2 = perun.getVosManager().createVo(sess, vo2);
+		assertNotNull("unable to create VO", vo2);
 
 		Member member2 = setUpMember(vo2);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -2310,9 +2311,9 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Vo vo = new Vo();
 		vo.setName("FacilitiesMangerTestVo");
 		vo.setShortName("FMTVO");
-		assertNotNull("unable to create VO",perun.getVosManager().createVo(sess, vo));
-		//System.out.println(vo);
-		return vo;
+		Vo createdVo = perun.getVosManager().createVo(sess, vo);
+		assertNotNull("unable to create VO", createdVo);
+		return createdVo;
 
 	}
 

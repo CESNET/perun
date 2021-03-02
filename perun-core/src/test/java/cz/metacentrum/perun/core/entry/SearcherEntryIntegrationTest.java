@@ -858,6 +858,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Vo returnedVo = perun.getVosManager().createVo(sess, newVo);
 		// create test VO in database
 		assertNotNull("unable to create testing Vo",returnedVo);
+		newVo.setId(returnedVo.getId());
 		assertEquals("both VOs should be the same",newVo,returnedVo);
 		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);

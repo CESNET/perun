@@ -14852,8 +14852,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Vo vo = new Vo();
 		vo.setName("AttributesMangerTestVo");
 		vo.setShortName("AMTVO");
-		assertNotNull("unable to create VO",perun.getVosManager().createVo(sess, vo));
-		return vo;
+		Vo createdVo = perun.getVosManager().createVo(sess, vo);
+		assertNotNull("unable to create VO", createdVo);
+		return createdVo;
 
 	}
 

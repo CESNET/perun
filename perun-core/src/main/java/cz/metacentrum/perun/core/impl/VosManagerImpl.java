@@ -158,20 +158,13 @@ public class VosManagerImpl implements VosManagerImplApi {
 		if (this.voExists(sess, vo)) throw new VoExistsException(vo.toString());
 		if (this.shortNameForVoExists(sess, vo)) throw new VoExistsException(vo.toString());
 
-		// Get VO ID
-		int voId;
 		try {
-			voId = Utils.getNewId(jdbc, "vos_id_seq");
-			jdbc.update("insert into vos(id, name, short_name, created_by,modified_by, created_by_uid, modified_by_uid) values (?,?,?,?,?,?,?)",
-					voId, vo.getName(), vo.getShortName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			// Get VO ID
+			return jdbc.queryForObject("insert into vos(id, name, short_name, created_by,modified_by, created_by_uid, modified_by_uid) values (nextval('vos_id_seq'),?,?,?,?,?,?) returning " + voMappingSelectQuery,
+					VO_MAPPER, vo.getName(), vo.getShortName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-
-		// set assigned id
-		vo.setId(voId);
-
-		return vo;
 	}
 
 	@Override

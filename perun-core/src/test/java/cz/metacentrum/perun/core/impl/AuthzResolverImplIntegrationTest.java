@@ -21,7 +21,7 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
 
 	private static final String CLASS_NAME = "AttributesManagerImplIntegrationTest.";
 	private AuthzResolverImplApi authzResolverImpl;
-	private static final Vo vo = new Vo(1, "", "");
+	private static Vo createdVo;
 	private static final User user1 = new User(1, "", "", "", "", "");
 	private static final User user2 = new User(2, "", "", "", "", "");
 	private static final User user3 = new User(3, "", "", "", "", "");
@@ -34,7 +34,7 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
 			AuthzResolverBlImpl.class, "authzResolverImpl"
 		);
 
-		perun.getVosManagerBl().createVo(sess, vo);
+		createdVo = perun.getVosManagerBl().createVo(sess, new Vo(1, "", ""));
 		perun.getUsersManagerBl().createUser(sess, user1);
 		perun.getUsersManagerBl().createUser(sess, user2);
 		perun.getUsersManagerBl().createUser(sess, user3);
@@ -50,7 +50,7 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
 		authzResolverImpl.setRole(sess, mapping, Role.VOADMIN);
 		AuthzRoles userRoles = AuthzResolverBlImpl.getUserRoles(sess, user1);
 
-		assertTrue(userRoles.hasRole(Role.VOADMIN, vo));
+		assertTrue(userRoles.hasRole(Role.VOADMIN, createdVo));
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class AuthzResolverImplIntegrationTest extends AbstractPerunIntegrationTe
 		Map<String, Integer> mapping = new HashMap<>();
 
 		mapping.put("user_id", user.getId());
-		mapping.put("vo_id", vo.getId());
+		mapping.put("vo_id", createdVo.getId());
 		mapping.put("role_id", authzResolverImpl.getRoleId(Role.VOADMIN));
 
 		return mapping;
