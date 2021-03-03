@@ -4,12 +4,14 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -65,6 +67,13 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 			altPasswordManagerProgram += ".einfra";
 		}
 
+	}
+
+	@Override
+	public String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws InvalidLoginException, PasswordStrengthException {
+		reservePassword(sess, userData.getLogin(), userData.getPassword());
+
+		return userData.getLogin();
 	}
 
 	@Override
@@ -225,7 +234,7 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		}
 
 		// if login is at least 3 chars, test if its not contained in password
-		if (login.length() > 2) {
+		if (login != null && login.length() > 2) {
 			String backwardsLogin = StringUtils.reverse(login);
 			if (password.toLowerCase().contains(login.toLowerCase()) ||
 					password.toLowerCase().contains(backwardsLogin.toLowerCase())) {

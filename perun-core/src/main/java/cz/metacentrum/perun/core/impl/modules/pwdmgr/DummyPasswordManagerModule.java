@@ -3,11 +3,13 @@ package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.SponsoredUserData;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -28,6 +30,20 @@ public class DummyPasswordManagerModule implements PasswordManagerModule {
 	private final static Logger log = LoggerFactory.getLogger(DummyPasswordManagerModule.class);
 
 	private static final Random RANDOM = new Random();
+
+	@Override
+	public String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws PasswordStrengthException {
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put(PasswordManagerModule.TITLE_BEFORE_KEY, userData.getTitleBefore());
+		parameters.put(PasswordManagerModule.FIRST_NAME_KEY, userData.getFirstName());
+		parameters.put(PasswordManagerModule.LAST_NAME_KEY, userData.getLastName());
+		parameters.put(PasswordManagerModule.TITLE_AFTER_KEY, userData.getTitleAfter());
+		if (userData.getPassword() != null) {
+			parameters.put(PasswordManagerModule.PASSWORD_KEY, userData.getPassword());
+		}
+		return generateAccount(sess, parameters).get(PasswordManagerModule.LOGIN_PREFIX + "dummy");
+	}
+
 	@Override
 	public Map<String, String> generateAccount(PerunSession sess, Map<String, String> parameters) {
 		log.debug("generateAccount(parameters={})",parameters);

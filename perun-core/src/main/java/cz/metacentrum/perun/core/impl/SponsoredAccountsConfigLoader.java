@@ -56,12 +56,13 @@ public class SponsoredAccountsConfigLoader {
 		while (namespacesNames.hasNext()) {
 			String namespaceName = namespacesNames.next();
 			JsonNode namespaceNode = namespacesNodes.get(namespaceName);
+			JsonNode defaultEmail = namespaceNode.get("default_email");
 			JsonNode requiredAttributesNode = namespaceNode.get("required_attributes");
 			JsonNode optionalAttributesNode = namespaceNode.get("optional_attributes");
 			Set<String> requiredAttributes = objectMapper.convertValue(requiredAttributesNode, new TypeReference<>() {});
 			Set<String> optionalAttributes = objectMapper.convertValue(optionalAttributesNode, new TypeReference<>() {});
 
-			rules.add(new NamespaceRules(namespaceName,requiredAttributes, optionalAttributes));
+			rules.add(new NamespaceRules(namespaceName, defaultEmail.asText(), requiredAttributes, optionalAttributes));
 		}
 
 		return rules;
