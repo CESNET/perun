@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
@@ -612,4 +613,14 @@ public interface ServicesManagerImplApi {
 	 */
 	int getDestinationsCount(PerunSession perunSession);
 
+	/**
+	 * Deletes destination.
+	 *
+	 * @param sess
+	 * @param destination destination to be deleted
+	 * @throws InternalErrorException
+	 * @throws DestinationAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 * @throws RelationExistsException if the destination has some existing relations in DB
+	 */
+	void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException;
 }
