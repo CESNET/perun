@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @SuppressWarnings("unused")
@@ -234,7 +235,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 				SponsoredUserData userData = params.read("userData", SponsoredUserData.class);
 
-				if (sendActivationLink && isNotBlank(userData.getNamespace())) {
+				if (sendActivationLink && isBlank(userData.getNamespace())) {
 					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "If the sendActivationLink is set to true, a namespace has to be provided.");
 				}
 				if (userData.getEmail() != null && !Utils.emailPattern.matcher(userData.getEmail()).matches()) {
@@ -360,7 +361,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			if (params.contains("sendActivationLinks") && params.readBoolean("sendActivationLinks") != null) {
 				sendActivationLink = params.readBoolean("sendActivationLinks");
 			}
-			if (sendActivationLink && isNotBlank(namespace)) {
+			if (sendActivationLink && isBlank(namespace)) {
 				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "If the sendActivationLink is set to true, a namespace has to be provided.");
 			}
 			LocalDate validityTo = null;
