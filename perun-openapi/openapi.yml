@@ -8427,6 +8427,7 @@ paths:
                 namespace: { type: string }
                 validityTo: { type: string }
                 sendActivationLink: { type: boolean }
+                groups: { type: array, items: { type: integer }, description: "groups to which should be the created users assigned" }
 
   /json/membersManager/createSponsoredMembers:
     post:

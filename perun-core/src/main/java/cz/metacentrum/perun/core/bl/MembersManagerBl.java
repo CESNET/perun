@@ -1545,12 +1545,13 @@ public interface MembersManagerBl {
 	 *                           to email which was set for him, be careful when using no-reply emails
 	 * @param url base URL of Perun Instance
 	 * @param validation Type of members validation, when ASYNC do not call this method in a cycle!
+	 * @param groups groups, to which will be the created users assigned
 	 * @return map of names to map of status, login, password, user and member
 	 */
 	Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               List<String> data, String header, User sponsor,
 	                                                               LocalDate validityTo, boolean sendActivationLink,
-																   String url, Validation validation);
+																   String url, Validation validation, List<Group> groups);
 
 	/**
 	 * Creates new sponsored members.

@@ -845,7 +845,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public void addMember(PerunSession sess, List<Group> groups, Member member) throws WrongReferenceAttributeValueException, AlreadyMemberException, WrongAttributeValueException, GroupNotExistsException {
-		Collections.sort(groups, Collections.reverseOrder());
+		groups = new ArrayList<>(groups);
+		groups.sort(Collections.reverseOrder());
 		for (Group group : groups) {
 			// Check if the group is NOT members or administrators group
 			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {

@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1286,7 +1287,8 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
-			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url) throws PrivilegeException {
+			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink,
+			String url, List<Group> groups) throws PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(data, "names");
@@ -1298,13 +1300,20 @@ public class MembersManagerEntry implements MembersManager {
 		} else {
 			//Authorization
 			if (!AuthzResolver.authorizedInternal(sess,
-					"createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy", Arrays.asList(vo, sponsor))) {
-				throw new PrivilegeException(sess, "createSponsoredMembers");
+					"createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy", vo, sponsor)) {
+				throw new PrivilegeException(sess, "createSponsoredMembersFromCSV");
+			}
+		}
+
+		for (Group group : groups) {
+			if (!AuthzResolver.authorizedInternal(sess,
+					"group-createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy", vo, group)) {
+				throw new PrivilegeException(sess, "createSponsoredMembersFromCSV");
 			}
 		}
 
 		return membersManagerBl
-				.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC);
+				.createSponsoredMembersFromCSV(sess, vo, namespace, data, header, sponsor, validityTo, sendActivationLink, url, Validation.ASYNC, groups);
 	}
 
 	@Override

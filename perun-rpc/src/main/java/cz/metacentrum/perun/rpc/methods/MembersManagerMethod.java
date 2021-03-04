@@ -345,6 +345,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member
 	 *                           account will be send to the email (can't be used with empty email parameter), default is false
 	 *                           If set to true, a non-empty namespace has to be provided.
+	 * @param groups int[] group ids, to which will be the created users assigned (has to be from the given vo)
 	 * @return Map<String, Map<String, String> newly created sponsored member, their password and status of creation
 	 */
 	createSponsoredMembersFromCSV {
@@ -375,8 +376,22 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 			List<String> data = new ArrayList<>(params.readList("data", String.class));
 
+			List<Group> groups = new ArrayList<>();
+
+			if (params.contains("groups")) {
+				int[] groupIds = params.readArrayOfInts("groups");
+				for (int groupId : groupIds) {
+					var group = ac.getGroupById(groupId);
+					if (group.getVoId() != vo.getId()) {
+						throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Given groups must be from the given vo.");
+					}
+					groups.add(group);
+				}
+			}
+
 			return ac.getMembersManager()
-					.createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo, sendActivationLink, params.getServletRequest().getRequestURL().toString());
+					.createSponsoredMembersFromCSV(ac.getSession(), vo, namespace, data, header, sponsor, validityTo,
+							sendActivationLink, params.getServletRequest().getRequestURL().toString(), groups);
 		}
 	},
 
