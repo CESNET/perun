@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -47,6 +48,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -881,6 +883,34 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test
+	public void removeDestinationDeletesDestination() throws Exception {
+		System.out.println(CLASS_NAME + "removeDestinationDeletesDestination");
+
+		List<Service> services = setUpServices();
+		facility = setUpFacility();
+		destination = setUpDestination();
+
+		destination = perun.getServicesManager().addDestination(sess, services.get(0), facility, destination);
+		perun.getServicesManager().addDestination(sess, services.get(1), facility, destination);
+
+		// service denials should be deleted too
+		perun.getServicesManager().blockServiceOnDestination(sess, services.get(0), destination.getId());
+
+		perun.getServicesManager().removeDestination(sess, services.get(0), facility, destination);
+		List<Destination> destinations = perun.getServicesManager().getDestinations(sess, services.get(0), facility);
+		assertTrue("there shouldn't be any destinations", destinations.isEmpty());
+		// shouldn't throw exception - destination should still exist
+		perun.getServicesManager().getDestinationById(sess, destination.getId());
+
+		perun.getServicesManager().removeDestination(sess, services.get(1), facility, destination);
+		destinations = perun.getServicesManager().getDestinations(sess, services.get(1), facility);
+		assertTrue("there shouldn't be any destinations", destinations.isEmpty());
+		// destination should be deleted because it is no longer used
+		assertThatExceptionOfType(DestinationNotExistsException.class)
+			.isThrownBy(() -> perun.getServicesManager().getDestinationById(sess, destination.getId()));
+	}
+
+	@Test
 	public void removeAllDestinationsWithFacility() throws Exception {
 		System.out.println(CLASS_NAME + "removeAllDestinationsWithFacility");
 
@@ -898,6 +928,33 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManagerBl().removeAllDestinations(sess, facility);
 		destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
 		assertTrue("All destinations should be removed", destinations.isEmpty());
+	}
+
+	@Test
+	public void removeAllDestinationsWithFacilityDeletesDestination() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllDestinationsWithFacilityDeletesDestination");
+
+		List<Service> services = setUpServices();
+		facility = setUpFacility();
+		destination = setUpDestination();
+
+		Destination dest1 = perun.getServicesManager().addDestination(sess, services.get(0), facility, destination);
+		Destination dest2 = perun.getServicesManager().addDestination(sess, services.get(1), facility, destination);
+
+		List<Destination> destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("There need to be dest1", destinations.contains(dest1));
+		assertTrue("There need to be dest2", destinations.contains(dest2));
+
+		// service denials should be deleted too
+		perun.getServicesManager().blockServiceOnDestination(sess, services.get(0), dest1.getId());
+
+		perun.getServicesManagerBl().removeAllDestinations(sess, facility);
+		destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("All destinations should be removed", destinations.isEmpty());
+
+		// destination should be deleted because it is no longer used
+		assertThatExceptionOfType(DestinationNotExistsException.class)
+			.isThrownBy(() -> perun.getServicesManager().getDestinationById(sess, dest1.getId()));
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
@@ -951,7 +1008,33 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		List<Destination> destinations = perun.getServicesManager().getDestinations(sess, service, facility);
 		assertTrue("there shoudln't be any detinations",destinations.isEmpty());
+	}
 
+	@Test
+	public void removeAllDestinationsDeletesDestination() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllDestinationsDeletesDestination");
+
+		List<Service> services = setUpServices();
+		facility = setUpFacility();
+		destination = setUpDestination();
+
+		destination = perun.getServicesManager().addDestination(sess, services.get(0), facility, destination);
+		perun.getServicesManager().addDestination(sess, services.get(1), facility, destination);
+		// service denials should be deleted too
+		perun.getServicesManager().blockServiceOnDestination(sess, services.get(1), destination.getId());
+
+		perun.getServicesManager().removeAllDestinations(sess, services.get(0), facility);
+		// shouldn't throw exception - destination should still exist
+		perun.getServicesManager().getDestinationById(sess, destination.getId());
+		List<Destination> destinations = perun.getServicesManager().getDestinations(sess, services.get(0), facility);
+		assertTrue("there shoudln't be any detinations",destinations.isEmpty());
+
+		perun.getServicesManager().removeAllDestinations(sess, services.get(1), facility);
+		destinations = perun.getServicesManager().getDestinations(sess, services.get(1), facility);
+		assertTrue("there shouldn't be any destinations", destinations.isEmpty());
+		// destination should be deleted because it is no longer used
+		assertThatExceptionOfType(DestinationNotExistsException.class)
+			.isThrownBy(() -> perun.getServicesManager().getDestinationById(sess, destination.getId()));
 	}
 
 	@Test (expected=ServiceNotExistsException.class)

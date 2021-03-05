@@ -39,6 +39,7 @@ import cz.metacentrum.perun.core.provisioning.GroupsHashedDataGenerator;
 import cz.metacentrum.perun.core.provisioning.HierarchicalHashedDataGenerator;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.provisioning.HashedDataGenerator;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -85,6 +86,7 @@ import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -848,8 +850,16 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 				throw new DestinationAlreadyRemovedException(destination);
 			}
 		}
+
 		getServicesManagerImpl().removeDestination(sess, service, facility, destination);
-		//TODO remove destination from destination taable if is not used anymore
+
+		// remove destination from destination table if it is not used anymore
+		try {
+			this.deleteDestination(sess, destination);
+		} catch (RelationExistsException ex) {
+			// destination is used by some services and facilities, dont delete it
+		}
+
 		getPerunBl().getAuditer().log(sess, new DestinationRemovedFromService(destination, service, facility));
 	}
 
@@ -894,14 +904,35 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) {
+		List<Destination> destinations = getDestinations(sess, service, facility);
 		getServicesManagerImpl().removeAllDestinations(sess, service, facility);
-		//TODO remove destination from destination taable if is not used anymore
+
+		// remove destinations from destination table if they are not used anymore
+		for (Destination destination : destinations) {
+			try {
+				this.deleteDestination(sess, destination);
+			} catch (RelationExistsException | DestinationAlreadyRemovedException ex) {
+				// destination is used by some services and facilities or it is already removed, skip the destination
+			}
+		}
+
 		getPerunBl().getAuditer().log(sess, new DestinationsRemovedFromService(service, facility));
 	}
 
 	@Override
 	public void removeAllDestinations(PerunSession perunSession, Facility facility) {
+		List<Destination> destinations = getDestinations(perunSession, facility);
 		getServicesManagerImpl().removeAllDestinations(perunSession, facility);
+
+		// remove destinations from destination table if they are not used anymore
+		for (Destination destination : destinations) {
+			try {
+				this.deleteDestination(perunSession, destination);
+			} catch (RelationExistsException | DestinationAlreadyRemovedException ex) {
+				// destination is used by some services and facilities or it is already removed, skip the destination
+			}
+		}
+
 		getPerunBl().getAuditer().log(perunSession, new DestinationsRemovedFromAllServices(facility));
 	}
 
@@ -1031,5 +1062,24 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	@Override
 	public int getDestinationsCount(PerunSession sess) {
 		return getServicesManagerImpl().getDestinationsCount(sess);
+	}
+
+	@Override
+	public void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException {
+		List<Service> services = getServicesManagerImpl().getServicesFromDestination(destination.getId());
+		if (!services.isEmpty()) {
+			throw new RelationExistsException("Destination is used by some services and facilities.");
+		}
+
+		// remove task results of destination
+		List<TaskResult> taskResults = getPerunBl().getTasksManagerBl().getTaskResultsByDestinations(sess, Collections.singletonList(destination.getDestination()));
+		for (TaskResult taskResult : taskResults) {
+			getPerunBl().getTasksManagerBl().deleteTaskResultById(sess, taskResult.getId());
+		}
+
+		// remove all service denials on destination
+		this.unblockAllServicesOnDestination(sess, destination.getId());
+
+		getServicesManagerImpl().deleteDestination(sess, destination);
 	}
 }

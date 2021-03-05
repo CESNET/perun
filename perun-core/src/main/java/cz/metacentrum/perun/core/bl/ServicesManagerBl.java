@@ -866,4 +866,14 @@ public interface ServicesManagerBl {
 	 */
 	int getDestinationsCount(PerunSession perunSession);
 
+	/**
+	 * Deletes destination.
+	 *
+	 * @param sess
+	 * @param destination destination to be deleted
+	 * @throws InternalErrorException
+	 * @throws DestinationAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 * @throws RelationExistsException if the destination is used by some services and facilities
+	 */
+	void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException;
 }

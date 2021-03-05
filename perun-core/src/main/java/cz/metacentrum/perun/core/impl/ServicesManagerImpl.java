@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidDestinationException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
@@ -29,6 +30,7 @@ import cz.metacentrum.perun.core.implApi.ServicesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -794,7 +796,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) {
 		try {
 			jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=?", service.getId(), facility.getId());
-			//TODO remove from table destinations?
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -804,7 +805,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	public void removeAllDestinations(PerunSession sess, Facility facility) {
 		try {
 			jdbc.update("delete from facility_service_destinations where facility_id=?", facility.getId());
-			//TODO remove from table destinations?
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -899,4 +899,16 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	}
 
+	@Override
+	public void deleteDestination(PerunSession sess, Destination destination) throws DestinationAlreadyRemovedException, RelationExistsException {
+		try {
+			if (0 == jdbc.update("delete from destinations where id = ?", destination.getId())) {
+				throw new DestinationAlreadyRemovedException("Destination: " + destination);
+			}
+		} catch (DataIntegrityViolationException ex) {
+			throw new RelationExistsException("Destination: " + destination + " has existing relations.", ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 }
