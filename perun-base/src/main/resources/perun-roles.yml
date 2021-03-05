@@ -2614,6 +2614,13 @@ perun_policies:
     include_policies:
       - default_policy
 
+  group-createSponsoredMembersFromCSV_Vo_String_List<String>_User_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   createSponsoredMembers_Vo_String_List<String>_User_policy:
     policy_roles:
       - SPONSOR: Vo

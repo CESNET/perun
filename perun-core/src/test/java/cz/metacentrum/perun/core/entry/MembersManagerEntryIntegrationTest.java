@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.VO_EXPIRATION_RULES_ATTR;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_vo_attribute_def_def_membershipExpirationRules.expireSponsoredMembers;
@@ -1653,7 +1654,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 				"Obi-wan;Kenobi;obi@ics.muni.cz;\"He has the high ground\""
 		);
 		Map<String, Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
-				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null, Validation.SYNC);
+				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null, Validation.SYNC, null);
 		assertThat(allResults).hasSize(2);
 
 		Map<String, String> user1Data = allResults.get("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"");
@@ -1690,8 +1691,34 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		);
 		assertThatExceptionOfType(InternalErrorException.class)
 				.isThrownBy(() -> perun.getMembersManagerBl().createSponsoredMembersFromCSV(sess, createdVo, "dummy",
-						data, header, sponsorUser, null, false, null, Validation.SYNC))
+						data, header, sponsorUser, null, false, null, Validation.SYNC, null))
 				.withMessageContaining("Not allowed additional value passed, value: ");
+	}
+
+	@Test
+	public void createSponsoredMembersFromCSVAssignToGroups() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMembersFromCSVAssignToGroups");
+		//create user in group sponsors with role SPONSOR
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		AuthzResolverBlImpl.setRole(sess, sponsorUser, createdVo, Role.SPONSOR);
+
+				//create guests
+		String header = "firstname;lastname;" + A_U_PREFERRED_MAIL + ";" + A_U_NOTE;
+		List<String> data = List.of(
+				"Darth;Vader;vader@ics.muni.cz;\"Best dad ever\""
+		);
+		Map<String, Map<String, String>> allResults = perun.getMembersManagerBl().createSponsoredMembersFromCSV(
+				sess, createdVo, "dummy", data, header, sponsorUser, null, false, null,
+				Validation.SYNC, List.of(createdGroup));
+
+		Map<String, String> user1Data = allResults.get("Darth;Vader;vader@ics.muni.cz;\"Best dad ever\"");
+		User createdUser = getUserByDummyLogin(user1Data.get("login"));
+		Member member = perun.getMembersManager().getMemberByUser(sess, createdVo, createdUser);
+
+		var groupMembers = perun.getGroupsManagerBl().getGroupMembers(sess, createdGroup);
+
+		assertThat(groupMembers).contains(member);
 	}
 
 	@Test

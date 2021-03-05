@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1228,13 +1229,14 @@ public interface MembersManager {
 	 * @param sendActivationLink if true link for manual activation of every created sponsored member account will be send
 	 *                           to email which was set for him, be careful when using no-reply emails
 	 * @param url base URL of Perun Instance
+	 * @param groups groups, to which will be the created users assigned
 	 * @return map of names to map of status, login and password
 	 * @throws PrivilegeException insufficient permissions
 	 */
 	Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               List<String> data, String header, User sponsor,
 	                                                               LocalDate validityTo, boolean sendActivationLink,
-																   String url) throws PrivilegeException;
+																   String url, List<Group> groups) throws PrivilegeException;
 
 	/**
 	 * Creates new sponsored Members (with random generated passwords).

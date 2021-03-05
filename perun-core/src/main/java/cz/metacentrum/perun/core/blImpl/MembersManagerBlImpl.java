@@ -151,6 +151,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	private static final String LOGIN = "login";
 	private static final String PASSWORD = "password";
 	private static final String STATUS = "status";
+	private static final String GROUP_ADDING_ERRORS = "group_adding_errors";
 	private static final String MEMBER = "member";
 
 	public static final List<String> SPONSORED_MEMBER_REQUIRED_FIELDS = Arrays.asList(
@@ -2444,7 +2445,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Map<String, Map<String, String>> createSponsoredMembersFromCSV(PerunSession sess, Vo vo, String namespace,
-			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink, String url, Validation validation) {
+			List<String> data, String header, User sponsor, LocalDate validityTo, boolean sendActivationLink,
+			String url, Validation validation, List<Group> groups) {
 
 		Map<String, Map<String, String>> totalResult = new HashMap<>();
 		Set<Member> createdMembers = new HashSet<>();
@@ -2472,7 +2474,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			// async validation must be performed at the end, not directly during member creation
 			Validation localValidation = (Objects.equals(Validation.ASYNC, validation)) ? Validation.NONE : validation;
 			Map<String, Object> originalResult = createSingleSponsoredMemberFromCSV(sess, vo, namespace, singleRow,
-					sponsor, validityTo, sendActivationLink, url, localValidation);
+					sponsor, validityTo, sendActivationLink, url, localValidation, groups);
 
 			// convert result to expected "type" for outer API
 			Map<String, String> newResult = new HashMap<>();
@@ -3119,12 +3121,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @param validityTo validity of the sponsorship. If null, the sponsorship will not be automatically canceled.
 	 * @param url base URL of Perun Instance
 	 * @param validation Which type of validation to perform. If you are using ASYNC, do not call this method in a cycle!
+	 * @param groups groups, to which will be the created users assigned
 	 * @return result of the procedure
 	 */
 	private Map<String, Object> createSingleSponsoredMemberFromCSV(PerunSession sess, Vo vo, String namespace,
 	                                                               Map<String, String> data, User sponsor,
 	                                                               LocalDate validityTo, boolean sendActivationLink,
-																   String url, Validation validation) {
+																   String url, Validation validation, List<Group> groups) {
 		for (String requiredField : SPONSORED_MEMBER_REQUIRED_FIELDS) {
 			if (!data.containsKey(requiredField)) {
 				log.error("Invalid data passed, missing required value: {}", requiredField);
@@ -3167,8 +3170,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		// create sponsored member
 		Map<String, Object> status = new HashMap<>();
+		Member member = null;
 		try {
-			Member member = createSponsoredMember(sess, input, vo, sponsor, validityTo, sendActivationLink, url, validation);
+			member = createSponsoredMember(sess, input, vo, sponsor, validityTo, sendActivationLink, url, validation);
 			User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 			// get login to return
 			String login = null;
@@ -3183,12 +3187,28 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 			// we must pass member back for the purpose of validation
 			status.put(MEMBER, member);
-
 			status.put(STATUS, OK);
 		} catch (Exception e) {
 			log.error("Failed to create a sponsored user.", e);
 			status.put(STATUS, e.getMessage());
 		}
+
+		if (groups != null && !groups.isEmpty()) {
+			Map<Integer, String> groupAssignmentErrors = new HashMap<>();
+			if (member != null) {
+				for (Group group : groups) {
+					try {
+						perunBl.getGroupsManagerBl().addMember(sess, group, member);
+					} catch (Exception e) {
+						groupAssignmentErrors.put(group.getId(), e.getMessage());
+						log.error("Failed to add a member to a group. Member: {}, Group: {}", member, group, e);
+					}
+				}
+			}
+			status.put(GROUP_ADDING_ERRORS, groupAssignmentErrors);
+		}
+
+
 		return status;
 	}
 
