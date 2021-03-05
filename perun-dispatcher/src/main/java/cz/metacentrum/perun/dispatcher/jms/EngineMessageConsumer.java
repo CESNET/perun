@@ -36,6 +36,9 @@ public class EngineMessageConsumer extends AbstractRunner {
 	private MessageConsumer messageConsumer = null;
 	private Session session = null;
 	private String queueName = null;
+	@Autowired
+	private EngineMessageProducerFactory producerFactory;
+	private EngineMessageProducer producer = null;
 
 	public EngineMessageConsumer() {
 	}
@@ -50,6 +53,14 @@ public class EngineMessageConsumer extends AbstractRunner {
 	@Autowired
 	public void setEngineMessageProcessor(EngineMessageProcessor engineMessageProcessor) {
 		this.engineMessageProcessor = engineMessageProcessor;
+	}
+
+	public EngineMessageProducerFactory getProducerFactory() {
+		return producerFactory;
+	}
+
+	public void setProducerFactory(EngineMessageProducerFactory producerFactory) {
+		this.producerFactory = producerFactory;
 	}
 
 
@@ -94,9 +105,15 @@ public class EngineMessageConsumer extends AbstractRunner {
 
 		while (!shouldStop()) {
 
-			// Step 11. Receive the message
+			producer = producerFactory.getProducer();
+			
+			// Step 11. Deliver output and try to receive the message
 			TextMessage messageReceived = null;
 			try {
+				if(producer != null) {
+					producer.deliverOutputMessages();
+				}
+
 				log.debug("Gonna call messageConsumer.receive(timeout)...");
 				messageReceived = (TextMessage) messageConsumer.receive(timeout);
 				if (messageReceived != null) {

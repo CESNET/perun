@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.dispatcher.jms;
 
+import java.util.concurrent.BlockingDeque;
+
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.springframework.stereotype.Service;
 
@@ -17,8 +20,8 @@ public class EngineMessageProducerFactory {
 		this.producer = producer;
 	}
 
-	public void createProducer(String queueName, Session session) {
-		producer = new EngineMessageProducer(queueName, session);
+	public void createProducer(String queueName, Session session, BlockingDeque<TextMessage> outputQueue) {
+		producer = new EngineMessageProducer(queueName, session, outputQueue);
 	}
 
 	public void removeProducer() {

@@ -145,7 +145,7 @@ public class SendCollector extends AbstractRunner {
 				// report TaskResult to Dispatcher for this SendTask (Destination)
 				jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(task.getId(), destination.getId(), stderr, stdout, returnCode, service));
 
-			} catch (JMSException e1) {
+			} catch (JMSException | InterruptedException e1) {
 				log.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(), destination, e1);
 			}
 

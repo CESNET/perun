@@ -1,8 +1,13 @@
 package cz.metacentrum.perun.engine.jms;
 
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import javax.jms.DeliveryMode;
 import javax.jms.InvalidDestinationException;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -31,6 +36,8 @@ public class MessageReceiver implements Runnable {
 	private final static int TOO_LONG = 15000;
 
 	private MessageConsumer messageConsumer = null;
+	private MessageProducer messageProducer = null;
+	
 	private Queue queue = null;
 	private boolean running = true;
 	// time out for message consumer
@@ -46,13 +53,16 @@ public class MessageReceiver implements Runnable {
 	private EventProcessor eventProcessor;
 	@Autowired
 	private TaskExecutor taskExecutorMessageProcess;
+	private BlockingDeque<TextMessage> inputMessages;
 
 	public MessageReceiver() {
 	}
 
-	public void setUp(String queueName, Session session) {
+	public void setUp(String queueName, Session session, MessageProducer producer) {
 		this.queueName = queueName;
 		this.session = session;
+		this.messageProducer = producer;
+		inputMessages = new LinkedBlockingDeque<TextMessage>();
 	}
 
 	@Override
@@ -86,6 +96,21 @@ public class MessageReceiver implements Runnable {
 					log.error("Can not continue. We gonna wait a bit ({} s) and try it again...", (waitTime / 1000), e);
 				}
 			} else {
+
+				// Try to send queued messages first
+				while(!inputMessages.isEmpty()) {
+					TextMessage message = inputMessages.remove();
+					try {
+						messageProducer.send(message, DeliveryMode.PERSISTENT, message.getIntProperty("priority"), 0);
+						log.debug("Message {} for dispatcher sent.\n", message);
+					} catch (JMSException e) {
+						queueAcquired = false;
+						log.error("Something went wrong with JMS. We are gonna restart and try it again...", e);
+						// goes back to reinitialize the connection
+						return;
+					}
+				}
+				
 				// Step 11. Receive the message
 				TextMessage messageReceived = null;
 				try {
@@ -166,6 +191,10 @@ public class MessageReceiver implements Runnable {
 		return running;
 	}
 
+	public void sendMessage(TextMessage msg) throws InterruptedException {
+		inputMessages.put(msg);
+	}
+		
 	public void setCommandProcessor(CommandProcessor commandProcessor) {
 		this.commandProcessor = commandProcessor;
 	}

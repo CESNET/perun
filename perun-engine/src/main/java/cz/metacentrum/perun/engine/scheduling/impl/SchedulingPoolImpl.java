@@ -137,7 +137,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			}
 			try {
 				jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
-			} catch (JMSException e) {
+			} catch (JMSException | InterruptedException e) {
 				log.error("[{}] Error while sending final status update for Task to Dispatcher", task.getId());
 			}
 			log.debug("[{}] Trying to remove Task from allTasks since its done ({})", task.getId(), task.getStatus());

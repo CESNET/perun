@@ -116,15 +116,17 @@ public class JMSQueueManager {
 			// Step 6. Create a JMS Message Producer
 			producer = session.createProducer(queue);
 
-			TextMessage message = session.createTextMessage("register");
+			if(!receivingMessages) {
+				TextMessage message = session.createTextMessage("register");
 
-			// Step 8. Send the Message
-			producer.send(message);
-			log.debug("Registration message[{}] has been sent.", message.getText());
-			Thread.sleep(1000);
+				// Step 8. Send the Message
+				producer.send(message);
+				log.debug("Registration message[{}] has been sent.", message.getText());
+				Thread.sleep(1000);
+			}
 
 			// Execute receiver
-			messageReceiver.setUp("queue", session);
+			messageReceiver.setUp("queue", session, producer);
 			// taskExecutorMessageProcess.execute(messageReceiver);
 			messageReceiver.run();
 			receivingMessages = true;
@@ -159,19 +161,19 @@ public class JMSQueueManager {
 
 	}
 
-	public void reportTaskResult(TaskResult taskResult) throws JMSException {
+	public void reportTaskResult(TaskResult taskResult) throws JMSException, InterruptedException {
 		TextMessage message = session.createTextMessage("taskresult:" + taskResult.serializeToString());
-		synchronized(producer) {
-			producer.send(message, DeliveryMode.PERSISTENT, 2, 0);
-		}
+		message.setIntProperty("priority",  2);
+		messageReceiver.sendMessage(message);
 		log.info("[{}] TaskResult for destination {} sent to dispatcher.", taskResult.getTaskId(),
 				taskResult.getDestinationId());
 	}
 
-	public void reportTaskStatus(int id, Task.TaskStatus status, long miliseconds) throws JMSException {
+	public void reportTaskStatus(int id, Task.TaskStatus status, long miliseconds) throws JMSException, InterruptedException {
 		TextMessage message = session.createTextMessage("task:"
 				+ id + ":" + status + ":" + miliseconds);
-		producer.send(message, DeliveryMode.PERSISTENT, 6, 0);
+		message.setIntProperty("priority", 6);
+		messageReceiver.sendMessage(message);
 		log.info("[{}] Task state {} sent to dispatcher.", id, status);
 	}
 

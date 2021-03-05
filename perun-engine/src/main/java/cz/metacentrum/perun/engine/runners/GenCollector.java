@@ -98,14 +98,14 @@ public class GenCollector extends AbstractRunner {
 					for (Destination dest : task.getDestinations()) {
 						try {
 							jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(task.getId(), dest.getId(), e.getStderr(), e.getStdout(), e.getReturnCode(), task.getService()));
-						} catch (JMSException ex) {
+						} catch (JMSException | InterruptedException ex) {
 							log.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(), dest, ex);
 						}
 					}
 
 					try {
 						jmsQueueManager.reportTaskStatus(task.getId(), GENERROR, System.currentTimeMillis());
-					} catch (JMSException e1) {
+					} catch (JMSException | InterruptedException e1) {
 						jmsErrorLog(task.getId(), task.getStatus());
 					}
 					try {
