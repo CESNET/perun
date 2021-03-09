@@ -293,8 +293,37 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns rich users without attributes by their IDs.
+	 *
+	 * @param ids List<Integer> list of users IDs
+	 * @return List<RichUser> rich users with specified IDs
+	 */
+	getRichUsersByIds {
+
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getRichUsersByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
+	 * Returns rich users with attributes by their IDs.
+	 *
+	 * @param ids List<Integer> list of users IDs
+	 * @return List<RichUser> rich users with specified IDs
+	 */
+	getRichUsersWithAttributesByIds {
+
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getRichUsersWithAttributesByIds(ac.getSession(), parms.readList("ids", Integer.class));
+		}
+	},
+
+	/*#
 	 * From Users makes RichUsers without attributes.
 	 *
+	 * @deprecated use getRichUsersByIds
 	 * @param users List<RichUser> users to convert
 	 * @return List<RichUser> list of rich users
 	 */
@@ -312,6 +341,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * From Users makes RichUsers with attributes.
 	 *
+	 * @deprecated use getRichUsersWithAttributesByIds
 	 * @param users List<RichUser> users to convert
 	 * @return List<RichUser> list of richUsers
 	 */

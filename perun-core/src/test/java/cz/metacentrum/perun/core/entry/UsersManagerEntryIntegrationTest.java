@@ -1252,6 +1252,48 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void getRichUsersByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getRichUsersByIds");
+
+		RichUser richUser = new RichUser(user, perun.getUsersManager().getUserExtSources(sess, user));
+		List<RichUser> richUsers = perun.getUsersManager().getRichUsersByIds(sess, Collections.singletonList(user.getId()));
+		assertThat(richUsers).containsExactlyInAnyOrder(richUser);
+		assertThat(richUsers.get(0).getUserExtSources()).containsExactlyInAnyOrderElementsOf(richUser.getUserExtSources());
+
+		User user2 = new User();
+		user2.setFirstName(userFirstName + "2");
+		user2 = perun.getUsersManagerBl().createUser(sess, user2);
+		RichUser richUser2 = new RichUser(user2, perun.getUsersManager().getUserExtSources(sess, user2));
+
+		richUsers = perun.getUsersManager().getRichUsersByIds(sess, Arrays.asList(user.getId(), user2.getId()));
+		assertThat(richUsers).containsExactlyInAnyOrder(richUser, richUser2);
+		assertThat(richUsers.get(richUsers.indexOf(richUser)).getUserExtSources()).containsExactlyInAnyOrderElementsOf(richUser.getUserExtSources());
+		assertThat(richUsers.get(richUsers.indexOf(richUser2)).getUserExtSources()).containsExactlyInAnyOrderElementsOf(richUser2.getUserExtSources());
+	}
+
+	@Test
+	public void getRichUsersWithAttributesByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getRichUsersWithAttributesByIds");
+
+		RichUser richUser = new RichUser(user, perun.getUsersManager().getUserExtSources(sess, user), perun.getAttributesManager().getAttributes(sess, user));
+		List<RichUser> richUsers = perun.getUsersManager().getRichUsersByIds(sess, Collections.singletonList(user.getId()));
+		assertThat(richUsers).containsExactlyInAnyOrder(richUser);
+		assertThat(richUsers.get(0).getUserExtSources()).containsExactlyInAnyOrderElementsOf(richUser.getUserExtSources());
+
+		User user2 = new User();
+		user2.setFirstName(userFirstName + "2");
+		user2 = perun.getUsersManagerBl().createUser(sess, user2);
+		RichUser richUser2 = new RichUser(user2, perun.getUsersManager().getUserExtSources(sess, user2), perun.getAttributesManager().getAttributes(sess, user2));
+
+		richUsers = perun.getUsersManager().getRichUsersWithAttributesByIds(sess, Arrays.asList(user.getId(), user2.getId()));
+		assertThat(richUsers).containsExactlyInAnyOrder(richUser, richUser2);
+		assertThat(richUsers.get(richUsers.indexOf(richUser)).getUserExtSources()).containsExactlyInAnyOrderElementsOf(richUser.getUserExtSources());
+		assertThat(richUsers.get(richUsers.indexOf(richUser2)).getUserExtSources()).containsExactlyInAnyOrderElementsOf(richUser2.getUserExtSources());
+		assertThat(richUsers.get(richUsers.indexOf(user)).getUserAttributes()).containsExactlyInAnyOrderElementsOf(richUser.getUserAttributes());
+		assertThat(richUsers.get(richUsers.indexOf(user2)).getUserAttributes()).containsExactlyInAnyOrderElementsOf(richUser2.getUserAttributes());
+	}
+
+	@Test
 	public void getGroupsWhereUserIsActive() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupsWhereUserIsActive(resource/facility)");
 

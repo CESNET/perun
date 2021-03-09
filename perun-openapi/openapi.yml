@@ -7541,6 +7541,34 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getRichUsersByIds:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichUsersByIds
+      summary: Returns rich users without attributes by their IDs.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/usersManager/getRichUsersWithAttributesByIds:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichUsersWithAttributesByIds
+      summary: Returns rich users with attributes by their IDs.
+      parameters:
+        - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getUserExtSources:
     get:
       tags:
