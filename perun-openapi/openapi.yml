@@ -7555,6 +7555,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/checkPasswordStrength:
+    get:
+      tags:
+        - UsersManager
+      operationId: checkPasswordStrength
+      summary: Check password strength for the given namespace.
+      description: If the check fails, the PasswordStrengthException error is returned.
+      parameters:
+        - $ref: '#/components/parameters/password'
+        - $ref: '#/components/parameters/namespace'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getGroupsWhereUserIsActive/facility:
     get:
       tags:

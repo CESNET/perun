@@ -1909,6 +1909,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				.replace("{login}", StringEscapeUtils.escapeHtml4(userLogin));
 	}
 
+	@Override
+	public void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException {
+		getPasswordManagerModule(sess, namespace).checkPasswordStrength(sess, null, password);
+	}
+
 	/**
 	 * Returns template for password reset.
 	 * <p>
