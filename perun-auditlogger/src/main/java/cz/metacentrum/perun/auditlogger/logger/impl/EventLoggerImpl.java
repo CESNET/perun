@@ -108,7 +108,7 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 									lastProcessedIdNumber, message.getId(), (lastProcessedIdNumber - message.getId()));
 					}
 					//IMPORTANT STEP2: send all messages to syslog
-					if(this.logEvent(message.getEvent()) == 0) {
+					if(this.logMessage(message) == 0) {
 						messagesIterator.remove();
 						lastProcessedIdNumber = message.getId();
 					} else {
@@ -146,9 +146,9 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 	}
 
 	@Override
-	public int logEvent(AuditEvent event) {
+	public int logMessage(AuditMessage message) {
 		try {
-			syslog.info(mapper.writeValueAsString(event));
+			syslog.info(mapper.writeValueAsString(message));
 		} catch (JsonProcessingException e) {
 			return -1;
 		}
