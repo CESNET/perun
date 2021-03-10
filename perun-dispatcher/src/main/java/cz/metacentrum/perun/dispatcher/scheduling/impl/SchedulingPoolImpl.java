@@ -148,7 +148,7 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 	}
 
 	// --- session init ----------------------------------
-	
+
 	@Override
 	public void afterPropertiesSet() {
 		// init session
@@ -164,7 +164,7 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 			log.error("Error establishing perun session to add task schedule: ", e1);
 		}
 	}
-	
+
 	// ----- methods -------------------------------------
 
 
@@ -434,11 +434,12 @@ public class SchedulingPoolImpl implements SchedulingPool, InitializingBean {
 				log.error("Adding Task {} and Queue {} into SchedulingPool failed, so the Task will be lost.", task, queue);
 			}
 
-			// if service was not in DONE or any kind of ERROR - reschedule now
-			// error/done tasks will be rescheduled later by periodic jobs !!
-			if (!Arrays.asList(TaskStatus.DONE, TaskStatus.ERROR, TaskStatus.GENERROR, TaskStatus.SENDERROR, TaskStatus.WARNING).contains(task.getStatus())) {
+			// if task was in any kind of processing state - reschedule now !!
+			// done/error tasks will be rescheduled later by periodic jobs of PropagationMaintainer !!
+			if (Arrays.asList(TaskStatus.WAITING, TaskStatus.PLANNED, TaskStatus.GENERATING, TaskStatus.SENDING).contains(task.getStatus())) {
 				if (task.getStatus().equals(TaskStatus.WAITING)) {
-					// if were in WAITING, reset timestamp to now
+					// reset timestamp to 'now' for WAITING Tasks, since scheduling task
+					// sets this to all tasks except the waiting
 					task.setSchedule(LocalDateTime.now());
 					tasksManagerBl.updateTask(sess, task);
 				}

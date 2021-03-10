@@ -135,10 +135,11 @@ public class PropagationMaintainer extends AbstractRunner {
 
 
 	/**
-	 * Reschedule Tasks in DONE/WARNING/WAITING state if their
+	 * Reschedule Tasks in DONE/WARNING state if their
 	 * - source was updated
 	 * - OR haven't run for X hours
-	 * - or have no end time set
+	 * - OR have no end time set
+	 * Reschedule also WAITING tasks (only when their source was updated).
 	 */
 	private void rescheduleDoneTasks() {
 
@@ -150,13 +151,22 @@ public class PropagationMaintainer extends AbstractRunner {
 			LocalDateTime tooManyHoursAgo = LocalDateTime.now().minusHours(oldRescheduleHours);
 
 			if (task.isSourceUpdated()) {
+				// source data has changed - re-schedule task
 				log.info("[{}] Task in {} state will be rescheduled, source data changed.", task.getId(), task.getStatus());
 				schedulingPool.scheduleTask(task, -1);
-			} else if (task.getEndTime() == null || task.getEndTime().isBefore(tooManyHoursAgo)) {
-				log.info("[{}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(), task.getStatus(), oldRescheduleHours);
-				schedulingPool.scheduleTask(task, -1);
 			} else {
-				log.trace("[{}] Task has finished recently or source data hasn't changed, leaving it for now.", task.getId());
+				// data hasn't changed => check if its not too old
+				if (task.getEndTime() == null || task.getEndTime().isBefore(tooManyHoursAgo)) {
+					// don't re-schedule waiting tasks, since their 'end time' is always NULL
+					// they will get re-scheduled if stuck by endStuckTasks()
+					if (!TaskStatus.WAITING.equals(task.getStatus())) {
+						log.info("[{}] Task in {} state will be rescheduled, hasn't run for {} hours.", task.getId(), task.getStatus(), oldRescheduleHours);
+						schedulingPool.scheduleTask(task, -1);
+					}
+				} else {
+					log.trace("[{}] Task has finished recently or source data hasn't changed, leaving it for now.", task.getId());
+				}
+
 			}
 
 		}
