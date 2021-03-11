@@ -8242,6 +8242,26 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/membersManager/getMembersCount/status:
+    get:
+      tags:
+        - MembersManager
+      operationId: getMembersWithStatusCount
+      summary: Returns count of VO members with specified status.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+        - name: status
+          description: status (VALID | INVALID | EXPIRED | DISABLED)
+          schema:
+            type: string
+          in: query
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/membersManager/getSponsoredMembers/v:
     get:
       tags:
