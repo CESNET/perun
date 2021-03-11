@@ -93,6 +93,7 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_group_attribute_def_def_applicationAutoRejectMessages;
@@ -7760,6 +7761,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setDisplayName("Random password reset templates");
 		attr.setDescription("Random password reset templates. Each value should be String representing an HTML page." +
 				" Keywords {password} and {login} will be replaced.");
+
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
+		//urn:perun:entityless:attribute-def:def:identityAlerts
+		attr = new urn_perun_entityless_attribute_def_def_identityAlertsTemplates().getAttributeDefinition();
 
 		rights = new ArrayList<>();
 		attributes.put(attr, rights);

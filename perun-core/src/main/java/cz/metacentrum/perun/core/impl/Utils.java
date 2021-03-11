@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -36,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
@@ -54,7 +52,6 @@ import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +67,7 @@ import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -83,12 +81,37 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ALERT_TIME_FORMATTER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_PREF_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_ADDED_UES_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_PREF_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_PREF_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.DEFAULT_IDENTITY_REMOVED_UES_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.KEY_EN;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.LOGIN_PLACEHOLDER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ORG_PLACEHOLDER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.ORG_UNKNOWN_TEXT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.TIME_PLACEHOLDER;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_PREFERRED_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_PREFERRED_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_ADDED_UES_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_PREF_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_PREF_MAIL_SUBJECT;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL;
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_identityAlertsTemplates.UES_REMOVED_UES_MAIL_SUBJECT;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Utilities.
@@ -117,6 +140,11 @@ public class Utils {
 
 	private static final String userPhoneAttribute = "urn:perun:user:attribute-def:def:phone";
 	private static final String memberPhoneAttribute = "urn:perun:member:attribute-def:def:phone";
+
+	private static final String A_U_MAIL = AttributesManager.NS_USER_ATTR_DEF + ":preferredMail";
+	private static final String A_UES_MAIL = AttributesManager.NS_UES_ATTR_DEF + ":mail";
+	private static final String A_E_IDENTITY_ALERTS = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":identityAlerts";
+	private static final String A_UES_ORGANIZATION = AttributesManager.NS_UES_ATTR_DEF + ":o";
 
 	/**
 	 * Replaces dangerous characters.
@@ -2021,4 +2049,279 @@ public class Utils {
 
 		return namedParams;
 	}
+
+	/**
+	 * Sends all alerts about an identity being added. Sends an email to the preferred email of
+	 * the user. Also, if the identity has an email and it is different that the preferred email,
+	 * another different email is send to this email.
+	 *
+	 * @param sess session
+	 * @param newUes removed userExtSource
+	 */
+	public static void sendIdentityAddedAlerts(PerunSession sess, UserExtSource newUes) {
+		String userEmail = getUserPreferredEmail(sess);
+		if (userEmail == null) {
+			log.error("Cannot send identity added alert because the user has no preferred mail. User: {}",
+					sess.getPerunPrincipal().getUser());
+		} else {
+			sendIdentityAddedAlertToPreferredMail(sess, newUes, userEmail);
+		}
+		String uesMail = getUESEmail(sess, newUes);
+		if (uesMail != null && !uesMail.equals(userEmail)) {
+			sendIdentityAddedAlertToNewIdentityMail(sess, newUes, uesMail);
+		}
+	}
+
+	/**
+	 * Sends all alerts about an identity being removed. Sends an email to the preferred email of
+	 * the user. Also, if the identity has an email and it is different that the preferred email,
+	 * another different email is send to this email.
+	 *
+	 * @param sess session
+	 * @param removedUes removed userExtSource
+	 * @param uesAttrs attributes of the removed userExtSource
+	 */
+	public static void sendIdentityRemovedAlerts(PerunSession sess, UserExtSource removedUes, List<Attribute> uesAttrs) {
+		String userEmail = getUserPreferredEmail(sess);
+		if (userEmail == null) {
+			log.error("Cannot send identity removed alert because the user has no preferred mail. User: {}",
+					sess.getPerunPrincipal().getUser());
+		} else {
+			sendIdentityRemovedAlertToPreferredMail(sess, removedUes, uesAttrs, userEmail);
+		}
+		Optional<Attribute> mailAttr = uesAttrs.stream()
+				.filter(attr -> attr.getFriendlyName().equals("mail"))
+				.filter(attr -> attr.getValue() != null)
+				.findFirst();
+		if (mailAttr.isPresent()) {
+			String uesMail = mailAttr.get().valueAsString();
+			if (!uesMail.equals(userEmail)) {
+				sendIdentityRemovedAlertToUesMail(sess, removedUes, uesAttrs, uesMail);
+			}
+		}
+	}
+
+	/**
+	 * Sends alert to the mail of the removed identity.
+	 *
+	 * @param sess session
+	 * @param removedUes removed userExtSource
+	 * @param uesAttrs attributes of the removed userExtSource
+	 * @param uesMail email, where the message is send
+	 */
+	private static void sendIdentityRemovedAlertToUesMail(PerunSession sess, UserExtSource removedUes,
+	                                                      List<Attribute> uesAttrs, String uesMail) {
+		sendIdentityRemovedAlert(sess, removedUes, uesAttrs, uesMail,
+				UES_REMOVED_UES_MAIL, DEFAULT_IDENTITY_REMOVED_UES_MAIL,
+				UES_REMOVED_UES_MAIL_SUBJECT, DEFAULT_IDENTITY_REMOVED_UES_MAIL_SUBJECT);
+	}
+
+	/**
+	 * Sends alert to the preferred mail of the user whose identity has bee removed.
+	 *
+	 * @param sess session
+	 * @param removedUes removed userExtSource
+	 * @param uesAttrs attributes of the removed userExtSource
+	 * @param userEmail email, where the message is send
+	 */
+	private static void sendIdentityRemovedAlertToPreferredMail(PerunSession sess, UserExtSource removedUes,
+	                                                            List<Attribute> uesAttrs, String userEmail) {
+		sendIdentityRemovedAlert(sess, removedUes, uesAttrs, userEmail,
+				UES_REMOVED_PREF_MAIL, DEFAULT_IDENTITY_REMOVED_PREF_MAIL,
+				UES_REMOVED_PREF_MAIL_SUBJECT, DEFAULT_IDENTITY_REMOVED_PREF_MAIL_SUBJECT);
+	}
+
+	/**
+	 * Sends alert to the preferred mail of the user of the newly added identity.
+	 *
+	 * @param sess session
+	 * @param newUes new userExtSource
+	 * @param userEmail email, where the message is send
+	 */
+	private static void sendIdentityAddedAlertToPreferredMail(PerunSession sess, UserExtSource newUes, String userEmail) {
+		sendIdentityAddedAlert(sess, newUes, userEmail,
+				UES_ADDED_PREFERRED_MAIL, DEFAULT_IDENTITY_ADDED_PREF_MAIL,
+				UES_ADDED_PREFERRED_MAIL_SUBJECT, DEFAULT_IDENTITY_ADDED_PREF_MAIL_SUBJECT);
+	}
+
+	/**
+	 * Sends alert to the email of the new given userExtSource.
+	 *
+	 * @param sess session
+	 * @param newUes new userExtSource
+	 * @param uesMail email of the newUserExtSource
+	 */
+	private static void sendIdentityAddedAlertToNewIdentityMail(PerunSession sess, UserExtSource newUes, String uesMail) {
+		sendIdentityAddedAlert(sess, newUes, uesMail,
+				UES_ADDED_UES_MAIL, DEFAULT_IDENTITY_ADDED_UES_MAIL,
+				UES_ADDED_UES_MAIL_SUBJECT, DEFAULT_IDENTITY_ADDED_UES_MAIL_SUBJECT);
+	}
+
+	/**
+	 * Sends alert about the given ues being removed.
+	 *
+	 * @param sess session
+	 * @param removedUes the removed ues
+	 * @param uesAttrs attributes of the removed ues
+	 * @param email email, where the alert is send
+	 * @param templateName name of the template for the message
+	 * @param defaultTemplate default template for the message
+	 * @param subjectName name of the subject template
+	 * @param defaultSubject default template for the subject
+	 */
+	private static void sendIdentityRemovedAlert(PerunSession sess, UserExtSource removedUes, List<Attribute> uesAttrs,
+	                                             String email, String templateName, String defaultTemplate,
+	                                             String subjectName, String defaultSubject) {
+		String message = getAlertTemplate(sess, templateName, defaultTemplate);
+		message = message.replace(LOGIN_PLACEHOLDER, removedUes.getLogin());
+		message = insertOrganization(message, uesAttrs);
+		message = insertCurrentTime(message);
+
+		String subject = getAlertTemplate(sess, subjectName, defaultSubject);
+
+		Utils.sendEmail(subject, message, email);
+	}
+
+	/**
+	 * Sends alert about the given ues being added.
+	 *
+	 * @param sess session
+	 * @param newUes the added ues
+	 * @param email email, where the alert is send
+	 * @param templateName name of the template for the message
+	 * @param defaultTemplate default template for the message
+	 * @param subjectName name of the subject template
+	 * @param defaultSubject default template for the subject
+	 */
+	private static void sendIdentityAddedAlert(PerunSession sess, UserExtSource newUes, String email, String templateName,
+	                                           String defaultTemplate, String subjectName, String defaultSubject) {
+		String message = getAlertTemplate(sess, templateName, defaultTemplate);
+		message = message.replace(LOGIN_PLACEHOLDER, newUes.getLogin());
+		message = insertOrganization(sess, message, newUes);
+		message = insertCurrentTime(message);
+
+		String subject = getAlertTemplate(sess, subjectName, defaultSubject);
+
+		Utils.sendEmail(subject, message, email);
+	}
+
+	/**
+	 * Into the given message, replace all '{organization}' placeholders with the value of the
+	 * organization attribute, that is found for the given userUxtSource. If the ues has no organization
+	 * attribute filled, the '<unknown>' string is used.
+	 *
+	 * @param sess session
+	 * @param message message, where the placeholder will be replaced
+	 * @param newUes userExtSource for which the organization is found
+	 * @return message where the '{organization}' placeholders are replaced
+	 */
+	private static String insertOrganization(PerunSession sess, String message, UserExtSource newUes) {
+		String organization = ORG_UNKNOWN_TEXT;
+		try {
+			Attribute orgAttr = ((PerunBl)sess.getPerun()).getAttributesManagerBl().getAttribute(sess, newUes, A_UES_ORGANIZATION);
+			if (orgAttr != null) {
+				organization = orgAttr.valueAsString();
+			}
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		} catch (AttributeNotExistsException e) {
+			log.error("Cannot add organization info, because the attribute does not exist.");
+		}
+		return message.replace(ORG_PLACEHOLDER, organization);
+	}
+
+	/**
+	 * In the given message, replaces all '{organization}' placeholders with the value of the
+	 * organization attribute, that is given. If there is no such attribute, the '<unknown>'
+	 * is used.
+	 *
+	 * @param message message, where the placeholders will be replaced
+	 * @param uesAttributes attributes with the organization attribute
+	 * @return message where the '{organization}' placeholders are replaced
+	 */
+	private static String insertOrganization(String message, List<Attribute> uesAttributes) {
+		String organization = uesAttributes.stream()
+				.filter(attr -> attr.getFriendlyName().equals("o"))
+				.filter(attr -> attr.getValue() != null)
+				.map(Attribute::valueAsString)
+				.findFirst()
+				.orElse(ORG_UNKNOWN_TEXT);
+
+		return message.replace(ORG_PLACEHOLDER, organization);
+	}
+
+	/**
+	 * In the given message, replaces all '{time}' placeholders with the value of the
+	 * current date and time in format MM/dd/yyyy - HH:mm:ss Z.
+	 *
+	 * @param message message, where the placeholders will be replaced.
+	 * @return message with inserted date and time info
+	 */
+	private static String insertCurrentTime(String message) {
+		String currentDateTime = ALERT_TIME_FORMATTER.format(ZonedDateTime.now());
+		return message.replace(TIME_PLACEHOLDER, currentDateTime);
+	}
+
+	/**
+	 * Returns alert template for the given templateName. The templates should be stored in
+	 * entityless:def:identityAlerts attribute, under the 'en' key.
+	 * If the templateName is not present or has an empty value, the default value is used.
+	 *
+	 * @param sess session
+	 * @param templateName key of the template
+	 * @param defaultValue default value that will be used if needed
+	 * @return template for the given templateName, or the default value
+	 */
+	private static String getAlertTemplate(PerunSession sess, String templateName, String defaultValue) {
+		String value = defaultValue;
+		try {
+			Attribute attr = ((PerunBl)sess.getPerun()).getAttributesManagerBl().getAttribute(sess, KEY_EN, A_E_IDENTITY_ALERTS);
+			if (attr.getValue() != null) {
+				String attrValue = attr.valueAsMap().get(templateName);
+				if (isNotBlank(attrValue)) {
+					value = attrValue;
+				}
+			}
+		} catch (AttributeNotExistsException e) {
+			log.warn("Identity alerts attribute not found, using default templates.");
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
+		return value;
+	}
+
+	/**
+	 * Returns the mail for the given userExtSource.
+	 *
+	 * @param sess session
+	 * @param ues userExtSource
+	 * @return email of the userExtSource or null, if not present
+	 */
+	private static String getUESEmail(PerunSession sess, UserExtSource ues) {
+		try {
+			return ((PerunBl)sess.getPerun()).getAttributesManagerBl()
+					.getAttribute(sess, ues, A_UES_MAIL)
+					.valueAsString();
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+
+	/**
+	 * Returns preferred mail of the user from the principal.
+	 *
+	 * @param sess session
+	 * @return preferred mail of the user from the principal
+	 */
+	private static String getUserPreferredEmail(PerunSession sess) {
+		try {
+			return ((PerunBl)sess.getPerun()).getAttributesManagerBl()
+					.getAttribute(sess, sess.getPerunPrincipal().getUser(), A_U_MAIL)
+					.valueAsString();
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 }
