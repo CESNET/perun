@@ -102,7 +102,7 @@ public class MessageReceiver implements Runnable {
 					TextMessage message = inputMessages.remove();
 					try {
 						messageProducer.send(message, DeliveryMode.PERSISTENT, message.getIntProperty("priority"), 0);
-						log.debug("Message {} for dispatcher sent.\n", message);
+						log.trace("Message {} for dispatcher sent.\n", message.getText());
 					} catch (JMSException e) {
 						queueAcquired = false;
 						log.error("Something went wrong with JMS. We are gonna restart and try it again...", e);
