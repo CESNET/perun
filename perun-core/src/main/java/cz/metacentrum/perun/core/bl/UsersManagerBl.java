@@ -278,6 +278,27 @@ public interface UsersManagerBl {
 	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws UserNotExistsException;
 
 	/**
+	 * Returns rich users without attributes by their ids.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return list of rich users with specified ids
+	 * @throws InternalErrorException
+	 */
+	List<RichUser> getRichUsersByIds(PerunSession sess, List<Integer> ids);
+
+	/**
+	 * Returns rich users with attributes by their ids.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return list of rich users with specified ids
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getRichUsersWithAttributesByIds(PerunSession sess, List<Integer> ids) throws UserNotExistsException;
+
+	/**
 	 * From Users makes RichUsers without attributes.
 	 *
 	 * @param sess

@@ -250,8 +250,31 @@ public interface UsersManager {
 	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws PrivilegeException, UserNotExistsException;
 
 	/**
+	 * Returns rich users without attributes by their ids.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return list of rich users with specified ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<RichUser> getRichUsersByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException;
+
+	/**
+	 * Returns rich users with attributes by their ids.
+	 *
+	 * @param sess
+	 * @param ids
+	 * @return list of rich users with specified ids
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<RichUser> getRichUsersWithAttributesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException, UserNotExistsException;
+
+	/**
 	 * From Users makes RichUsers without attributes.
 	 *
+	 * @deprecated - use getRichUsersByIds
 	 * @param sess
 	 * @param users users to convert
 	 * @return list of richUsers
@@ -259,11 +282,13 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException;
 
 	/**
 	 * From Users makes RichUsers with attributes.
 	 *
+	 * @deprecated - use getRichUsersWithAttributesByIds
 	 * @param sess
 	 * @param users users to convert
 	 * @return list of richUsers
@@ -271,6 +296,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException;
 
 	/**

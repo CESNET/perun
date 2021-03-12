@@ -383,6 +383,17 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
 	}
 
+	@Override
+	public List<RichUser> getRichUsersByIds(PerunSession sess, List<Integer> ids) {
+		List<User> users = this.getUsersByIds(sess, ids);
+		return this.convertUsersToRichUsers(sess, users);
+	}
+
+	@Override
+	public List<RichUser> getRichUsersWithAttributesByIds(PerunSession sess, List<Integer> ids) throws UserNotExistsException {
+		List<User> users = this.getUsersByIds(sess, ids);
+		return this.getRichUsersWithAttributesFromListOfUsers(sess, users);
+	}
 
 	@Override
 	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) {

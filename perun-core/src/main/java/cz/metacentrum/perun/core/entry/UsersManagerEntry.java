@@ -303,6 +303,35 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public List<RichUser> getRichUsersByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getRichUsersByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getRichUsersByIds");
+		}
+		List<RichUser> richUsers = getUsersManagerBl().getRichUsersByIds(sess, ids);
+		richUsers.removeIf(richUser -> !AuthzResolver.authorizedInternal(sess, "filter-getRichUsersByIds_List<Integer>_policy", richUser));
+
+		return richUsers;
+	}
+
+	@Override
+	public List<RichUser> getRichUsersWithAttributesByIds(PerunSession sess, List<Integer> ids) throws PrivilegeException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getRichUsersWithAttributesByIds_List<Integer>_policy")) {
+			throw new PrivilegeException(sess, "getRichUsersWithAttributesByIds");
+		}
+		List<RichUser> richUsers = getUsersManagerBl().getRichUsersWithAttributesByIds(sess, ids);
+		richUsers.removeIf(richUser -> !AuthzResolver.authorizedInternal(sess, "filter-getRichUsersWithAttributesByIds_List<Integer>_policy", richUser));
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, richUsers);
+	}
+
+	@Override
+	@Deprecated
 	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -329,6 +358,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	@Deprecated
 	public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 

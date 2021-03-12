@@ -148,6 +148,16 @@ sub getUsersBySpecificUser
 	return Perun::Common::callManagerMethod('getUsersBySpecificUser', '[]User', @_);
 }
 
+sub getRichUsersByIds
+{
+	return Perun::Common::callManagerMethod('getRichUsersByIds', '[]RichUser', @_);
+}
+
+sub getRichUsersWithAttributesByIds
+{
+	return Perun::Common::callManagerMethod('getRichUsersWithAttributesByIds', '[]RichUser', @_);
+}
+
 sub getRichUsersFromListOfUsersWithAttributes
 {
 	return Perun::Common::callManagerMethod('getRichUsersFromListOfUsersWithAttributes', '[]RichUser', @_);
