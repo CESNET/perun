@@ -1251,6 +1251,17 @@ public interface UsersManager {
 	String changePasswordRandom(PerunSession sess, User user, String loginNamespace) throws PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException;
 
 	/**
+	 * Check password strength for the given namespace. If the password is too weak,
+	 * the PasswordStrengthException is thrown
+	 *
+	 * @param password password, that will be checked
+	 * @param namespace namespace, that will be used to check the strength of the password
+	 *
+	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throws PrivilegeException insufficient permission
+	 */
+	void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException, PrivilegeException;
+	/**
 	 * Return all groups where user is active (has VALID status in VO and Group together)
 	 * for specified user and resource
 	 *

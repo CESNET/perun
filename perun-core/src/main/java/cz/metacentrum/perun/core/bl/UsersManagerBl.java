@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkExpiredExceptio
 import cz.metacentrum.perun.core.api.exceptions.PasswordResetLinkNotValidException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
@@ -1456,6 +1457,16 @@ public interface UsersManagerBl {
 	 */
 	String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException, InvalidLoginException, PasswordStrengthException;
 
+	/**
+	 * Check password strength for the given namespace. If the password is too weak,
+	 * the PasswordStrengthException is thrown
+	 *
+	 * @param password password, that will be checked
+	 * @param namespace namespace, that will be used to check the strength of the password
+	 *
+	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 */
+	void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException;
 	/**
 	 * Return all groups where user is active (has VALID status in VO and Group together)
 	 * for specified user and resource

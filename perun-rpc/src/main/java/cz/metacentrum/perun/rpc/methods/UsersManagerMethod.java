@@ -1476,6 +1476,26 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Check password strength for the given namespace. If the password is too weak,
+	 * the PasswordStrengthException is thrown
+	 *
+	 * @param password String password, that will be checked
+	 * @param namespace String namespace, that will be used to check the strength of the password
+	 *
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 */
+	checkPasswordStrength {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getUsersManager().checkPasswordStrength(ac.getSession(),
+					parms.readString("password"),
+					parms.readString("namespace"));
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Get list of groups of user on specified resource where use is active,
 	 * that means User is a VALID in the VO and the Group and groups are assigned to the resource.
 	 *
