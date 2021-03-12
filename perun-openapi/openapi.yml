@@ -1344,7 +1344,9 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/PublicationForGUI"
+            type: array
+            items:
+              $ref: "#/components/schemas/PublicationForGUI"
 
     AttributeDefinitionResponse:
       description: "returns AttributeDefinition"
