@@ -179,7 +179,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 								sendTask.getStderr(), sendTask.getStdout(),
 								sendTask.getReturnCode(), task.getService());
 						jmsQueueManager.reportTaskResult(taskResult);
-					} catch (JMSException e) {
+					} catch (JMSException | InterruptedException e) {
 						log.error("[{}] Error trying to reportTaskResult {} of {} to Dispatcher: {}", task.getId(), taskResult, task, e);
 					}
 
@@ -334,7 +334,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			// some kind of inconsistency and we don't want to spam dispatcher - it will mark it as error on its own
 			try {
 				jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
-			} catch (JMSException e) {
+			} catch (JMSException | InterruptedException e) {
 				log.error("[{}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task, e);
 			}
 		} else {

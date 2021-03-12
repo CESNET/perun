@@ -3,12 +3,15 @@ package cz.metacentrum.perun.dispatcher.jms;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.annotation.Resource;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.jms.HornetQJMSClient;
@@ -61,7 +64,7 @@ public class EngineMessageProcessor {
 	private boolean systemQueueInitiated = false;
 	private ConnectionFactory cf;
 	private Connection connection;
-	
+	private BlockingDeque<TextMessage> outputMessages = null;
 	private boolean restartHornetQServer = false;
 
 
@@ -134,6 +137,10 @@ public class EngineMessageProcessor {
 	 */
 	public void startProcessingSystemMessages() {
 
+		if(outputMessages == null) {
+			outputMessages = new LinkedBlockingDeque<TextMessage>();
+		}
+		
 		connection = null;
 		try {
 			if(restartHornetQServer) {
@@ -350,7 +357,7 @@ public class EngineMessageProcessor {
 			log.error("Can't create JMS {}: {}", queueName, e);
 		}
 
-		engineMessageProducerFactory.createProducer(queueName, session);
+		engineMessageProducerFactory.createProducer(queueName, session, outputMessages);
 	}
 
 }

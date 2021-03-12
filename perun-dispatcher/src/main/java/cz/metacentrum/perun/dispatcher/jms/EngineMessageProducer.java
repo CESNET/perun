@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.dispatcher.jms;
 
+import java.util.concurrent.BlockingDeque;
+
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -29,15 +31,17 @@ public class EngineMessageProducer {
 	private Session session;
 	private MessageProducer producer;
 	private String queueName;
+	private BlockingDeque<TextMessage> outputMessages;
 
 	// this one is to allow for mock objects which extend this class
 	public EngineMessageProducer(String queueName) {
 		this.queueName = queueName;
 	}
 
-	public EngineMessageProducer(String queueName, Session session) {
+	public EngineMessageProducer(String queueName, Session session, BlockingDeque<TextMessage> outputQueue) {
 		this.queueName = queueName;
 		this.session = session;
+		this.outputMessages = outputQueue;
 		try {
 			// Step 1. Directly instantiate the JMS Queue object.
 			this.queue = HornetQJMSClient.createQueue(this.queueName);
@@ -58,7 +62,7 @@ public class EngineMessageProducer {
 	}
 
 	/**
-	 * Send JMS message to the Engine associated with this queue.
+	 * Queue  JMS message to the Engine associated with this queue for delivery.
 	 *
 	 * @param text Message content
 	 */
@@ -68,10 +72,7 @@ public class EngineMessageProducer {
 			// Step 7. Create a Text Message
 			TextMessage message = session.createTextMessage("task|" + text);
 			// Step 8. Send...
-			producer.send(message);
-			if (log.isDebugEnabled()) {
-				log.debug("Sent message (queue:" + queueName + "): " + message.getText());
-			}
+			outputMessages.put(message);
 		} catch (JMSException e) {
 			log.error(e.toString(), e);
 		} catch (Exception e) {
@@ -80,6 +81,21 @@ public class EngineMessageProducer {
 		}
 	}
 
+	/**
+	 * Try to deliver all pending messages.
+	 * @throws JMSException 
+	 * 
+	 */
+	public void deliverOutputMessages() throws JMSException {
+		while(!outputMessages.isEmpty()) {
+			TextMessage message = outputMessages.poll();
+			producer.send(message);
+			if (log.isDebugEnabled()) {
+				log.debug("Sent message (queue:" + queueName + "): " + message.getText());
+			}
+		}
+	}
+	
 	/**
 	 * Get name of the queue for engine.
 	 *
