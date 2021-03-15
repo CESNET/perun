@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
@@ -836,7 +838,10 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "getUsersByAttribute");
 		}
 
-		return getUsersManagerBl().getUsersByAttribute(sess, attribute);
+		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attribute);
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, user));
+
+		return users;
 	}
 
 	@Override
@@ -849,9 +854,11 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "getUsersByAttribute");
 		}
 
-		getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+		List<User> users = getUsersManagerBl().getUsersByAttribute(sess, attributeName, attributeValue);
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, user));
 
-		return getUsersManagerBl().getUsersByAttribute(sess, attributeName, attributeValue);
+		return users;
 	}
 
 	@Override
@@ -864,9 +871,11 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "getUsersByAttributeValue");
 		}
 
-		getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+		AttributeDefinition attribute = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+		List<User> users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, attributeValue);
+		users.removeIf(user -> !AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, user));
 
-		return getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, attributeValue);
+		return users;
 	}
 
 	@Override
