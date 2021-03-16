@@ -82,19 +82,20 @@ public class EventLoggerImpl implements EventLogger, Runnable {
 
 				int sleepTime = 1000;
 				//Waiting for new messages. If consumer failed in some internal case, waiting until it will be repaired (waiting time is increases by each attempt)
-				while(messages == null) {
+				while(messages == null || messages.isEmpty()) {
 					try {
 						//IMPORTANT STEP1: Get new bulk of messages
+						log.debug("Waiting for audit messages.");
 						messages = ((PerunBl)perun).getAuditMessagesManagerBl().pollConsumerMessages(perunSession, auditLoggerManager.getConsumerName(), lastProcessedIdNumber);
-						log.debug("Read {} new audit messages starting from {}", messages.size(), lastProcessedIdNumber);
+						if (messages.size() > 0) log.debug("Read {} new audit messages starting from {}", messages.size(), lastProcessedIdNumber);
 					} catch (InternalErrorException ex) {
 						log.error("Consumer failed due to {}. Sleeping for {} ms.", ex, sleepTime);
 						Thread.sleep(sleepTime);
 						sleepTime += sleepTime;
 					}
 
-					//If there are no messages, sleep for 1 sec and then try it again
-					if (messages == null) Thread.sleep(1000);
+					//If there are no messages, sleep for 5 sec and then try it again
+					if (messages == null || messages.isEmpty()) Thread.sleep(5000);
 				} 
 				//If new messages exist, resolve them all
 				Iterator<AuditMessage> messagesIterator = messages.iterator();
