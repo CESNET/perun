@@ -1,3 +1,4 @@
+
 openapi: 3.0.2
 info:
   version: 3.20.0
@@ -160,6 +161,42 @@ components:
             - userExtSources
       discriminator:
         propertyName: beanName
+
+    PaginatedRichMembers:
+      properties:
+        offset: { type: integer }
+        pageSize: { type: integer }
+        totalCount: { type: integer }
+        data: { type: array, items: { $ref: '#/components/schemas/RichMember' } }
+      required:
+        - offset
+        - pageSize
+        - totalCount
+        - data
+
+    SortingOrder:
+      type: string
+      enum:
+        - ASCENDING
+        - DESCENDING
+
+    MembersOrderColumn:
+      type: string
+      enum:
+        - ID
+        - NAME
+
+    MembersPageQuery:
+      properties:
+        pageSize: { type: integer }
+        offset: { type: integer }
+        order: { $ref: '#/components/schemas/SortingOrder' }
+        sortColumn: { $ref: '#/components/schemas/MembersOrderColumn' }
+      required:
+        - pageSize
+        - offset
+        - order
+        - sortColumn
 
     UserExtSource:
       allOf:
@@ -1454,6 +1491,13 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/RichGroup"
+
+    PaginatedRichMembersResponse:
+      description: "returns Paginated<RichMember>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedRichMembers"
 
     ResourceResponse:
       description: "returns Resource"
@@ -8970,6 +9014,34 @@ paths:
           $ref: '#/components/responses/ListOfNamespacesRulesResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
+
+  /json/membersManager/getMembersPage:
+    post:
+      tags:
+        - MembersManager
+      operationId: getMembersPage
+      summary: Get page of members from the given vo, with the given attributes.
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginatedRichMembersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InputGetPaginatedMembers
+              description: "input to getPaginatedMembers"
+              type: object
+              required:
+                - vo
+                - query
+                - attrNames
+              properties:
+                vo: { type: integer }
+                attrNames: { type: array, items: { type: string }}
+                query: { $ref: '#/components/schemas/MembersPageQuery' }
 
   #################################################
   #                                               #

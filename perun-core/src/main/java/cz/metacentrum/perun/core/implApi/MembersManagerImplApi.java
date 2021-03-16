@@ -4,8 +4,10 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.NamespaceRules;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.MembersPageQuery;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -390,6 +392,16 @@ public interface MembersManagerImplApi {
 	 * @return all members from specific VO by specific string
 	 */
 	List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
+
+	/**
+	 * Get page of members from the given vo
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @return page of requested rich members
+	 */
+	Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query);
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.

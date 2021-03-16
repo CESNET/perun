@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @SuppressWarnings("unused")
 public enum MembersManagerMethod implements ManagerMethod {
@@ -1858,6 +1857,27 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@Override
 		public List<NamespaceRules> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getMembersManager().getAllNamespacesRules();
+		}
+	},
+
+	/*#
+	 * Get page of members from the given vo, with the given attributes.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 *
+	 * @return Paginated<RichMember> page of requested rich members
+	 * @throw VoNotExistsException if there is no such vo
+	 */
+	getMembersPage {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getMembersPage(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.read("query", MembersPageQuery.class),
+					parms.readList("attrNames", String.class));
 		}
 	}
 }
