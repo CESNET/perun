@@ -4977,6 +4977,13 @@ perun_policies:
 
   getUsersByAttribute_Attribute_policy:
     policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF:
       - SERVICEUSER:
       - PERUNOBSERVER:
     include_policies:
@@ -4984,6 +4991,13 @@ perun_policies:
 
   getUsersByAttribute_String_String_policy:
     policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF:
       - SERVICEUSER:
       - PERUNOBSERVER:
     include_policies:
@@ -4991,6 +5005,13 @@ perun_policies:
 
   getUsersByAttributeValue_String_String_policy:
     policy_roles:
+      - RPC:
+      - ENGINE:
+      - GROUPADMIN:
+      - GROUPOBSERVER:
+      - VOOBSERVER:
+      - VOADMIN:
+      - SELF:
       - SERVICEUSER:
       - PERUNOBSERVER:
     include_policies:
