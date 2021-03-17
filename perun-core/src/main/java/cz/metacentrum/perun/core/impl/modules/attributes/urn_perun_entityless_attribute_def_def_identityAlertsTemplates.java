@@ -127,7 +127,7 @@ public class urn_perun_entityless_attribute_def_def_identityAlertsTemplates exte
 		attr.setDescription("Templates for identity alerts. Use 'en' key to set the values. Allowed values are " +
 				"'identityAddedPreferredMail', 'identityAddedPreferredMailSubject', 'identityAddedUESMail', 'identityAddedUESMailSubject', " +
 				"'identityRemovedPreferredMail', 'identityRemovedPreferredMailSubject', 'identityRemovedUESMail', and 'identityRemovedUESMailSubject'. " +
-				"You can use placeholders {organization}, {login} in the templates that will be replaced with actual values.");
+				"You can use placeholders {organization}, {login}, {time} in the templates that will be replaced with actual values.");
 		return attr;
 	}
 }
