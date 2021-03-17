@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -65,6 +66,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +82,8 @@ import java.util.stream.Collectors;
  * @author Sona Mastrakova
  */
 public class UsersManagerEntry implements UsersManager {
+
+	private final static Logger log = LoggerFactory.getLogger(UsersManagerEntry.class);
 
 	private UsersManagerBl usersManagerBl;
 	private PerunBl perunBl;
@@ -633,7 +638,18 @@ public class UsersManagerEntry implements UsersManager {
 					"It means it can not be removed.");
 		}
 
+		List<Attribute> attrs = perunBl.getAttributesManagerBl().getAttributes(sess, userExtSource);
+
 		getUsersManagerBl().removeUserExtSource(sess, user, userExtSource);
+
+		if (BeansUtils.getCoreConfig().isSendIdentityAlerts() &&
+				user.getId() == sess.getPerunPrincipal().getUserId()) {
+			try {
+				Utils.sendIdentityRemovedAlerts(sess, userExtSource, attrs);
+			} catch (Exception e) {
+				log.error("Failed to send identity removed alerts.", e);
+			}
+		}
 	}
 
 	@Override

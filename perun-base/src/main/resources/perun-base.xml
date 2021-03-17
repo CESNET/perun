@@ -67,6 +67,7 @@
 		<property name="attributesToSearchUsersAndMembersBy" value="#{'${perun.attributesToSearchUsersAndMembersBy}'.split('\s*,\s*')}"/>
 		<property name="attributesToAnonymize" value="#{'${perun.attributesToAnonymize}'.split('\s*,\s*')}"/>
 		<property name="attributesToKeep" value="#{'${perun.attributesToKeep}'.split('\s*,\s*')}"/>
+		<property name="sendIdentityAlerts" value="${perun.sendIdentityAlerts}"/>
 	</bean>
 
 
@@ -155,6 +156,7 @@
 				<prop key="perun.smtp.pass"></prop>
 
 				<prop key="perun.autocreatedNamespaces"></prop>
+				<prop key="perun.sendIdentityAlerts">false</prop>
 
 			</props>
 		</property>

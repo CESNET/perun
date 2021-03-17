@@ -75,6 +75,7 @@ public class CoreConfig {
 	private boolean smtpAuth;
 	private boolean smtpStartTls;
 	private boolean mailDebug;
+	private boolean sendIdentityAlert;
 	private String smtpUser;
 	private String smtpPass;
 	private List<String> autocreatedNamespaces;
@@ -692,5 +693,13 @@ public class CoreConfig {
 
 	public void setAttributesToKeep(List<String> attributesToKeep) {
 		this.attributesToKeep = attributesToKeep;
+	}
+
+	public boolean isSendIdentityAlerts() {
+		return sendIdentityAlert;
+	}
+
+	public void setSendIdentityAlerts(boolean sendIdentityAlerts) {
+		this.sendIdentityAlert = sendIdentityAlerts;
 	}
 }

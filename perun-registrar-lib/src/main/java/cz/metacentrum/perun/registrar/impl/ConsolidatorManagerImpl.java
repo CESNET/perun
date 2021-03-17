@@ -418,6 +418,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			throw ex;
 		}
 
+		UserExtSource newUes = null;
 		// merge original identity into current user
 		if (originalUser == null) {
 			UserExtSource ues = createExtSourceAndUserExtSource(currentUser, (String) originalIdentity.get("actor"),
@@ -427,7 +428,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			log.info("{} joined identities. Current identity: {}, Original identity: {}", currentUser,
 					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(), " | ")),
 					StringUtils.join(Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType")), " | "));
-
+			newUes = ues;
 		}
 
 		// merge current identity into original user
@@ -439,6 +440,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			log.info("{} joined identities. Current identity: {}, Original identity: {}", originalUser,
 					StringUtils.join(Arrays.asList(sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(), " | ")),
 					StringUtils.join(Arrays.asList((String) originalIdentity.get("actor"), (String) originalIdentity.get("extSourceName"), (String) originalIdentity.get("extSourceType")), " | "));
+			newUes = ues;
 		}
 
 
@@ -446,9 +448,18 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		requestCache.remove(token);
 
+		if (BeansUtils.getCoreConfig().isSendIdentityAlerts()) {
+			try {
+				Utils.sendIdentityAddedAlerts(sess, newUes);
+			} catch (Exception e) {
+				log.error("Failed to send identity added alerts.", e);
+			}
+		}
+
 		return perun.getUsersManagerBl().getUserExtSources(sess, sess.getPerunPrincipal().getUser());
 
 	}
+
 
 	/**
 	 * Creates ExtSource and UserExtSource if necessary for the purpose of joining users identities.
