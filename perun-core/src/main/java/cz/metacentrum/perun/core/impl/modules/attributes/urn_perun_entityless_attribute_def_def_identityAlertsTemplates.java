@@ -122,8 +122,8 @@ public class urn_perun_entityless_attribute_def_def_identityAlertsTemplates exte
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attr.setType(LinkedHashMap.class.getName());
-		attr.setFriendlyName("identityAlerts");
-		attr.setDisplayName("Identity alerts");
+		attr.setFriendlyName("identityAlertsTemplates");
+		attr.setDisplayName("Identity alerts templates");
 		attr.setDescription("Templates for identity alerts. Use 'en' key to set the values. Allowed values are " +
 				"'identityAddedPreferredMail', 'identityAddedPreferredMailSubject', 'identityAddedUESMail', 'identityAddedUESMailSubject', " +
 				"'identityRemovedPreferredMail', 'identityRemovedPreferredMailSubject', 'identityRemovedUESMail', and 'identityRemovedUESMailSubject'. " +
