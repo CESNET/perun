@@ -8,9 +8,11 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.NamespaceRules;
+import cz.metacentrum.perun.core.api.Paginated;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.MembersPageQuery;
 import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.Sponsorship;
@@ -1719,6 +1721,17 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> findMembers(PerunSession sess, Vo vo, String searchString, boolean onlySponsored);
+
+	/**
+	 * Get page of members from the given vo, with the given attributes.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 * @return page of requested rich members
+	 */
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames);
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.

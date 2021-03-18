@@ -6,7 +6,8 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.NamespaceRules;
-import cz.metacentrum.perun.core.api.RoleManagementRules;
+import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.MembersPageQuery;
 import cz.metacentrum.perun.core.api.Sponsorship;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -24,8 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NamespaceRulesNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PolicyNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RoleManagementRulesNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SponsorshipDoesNotExistException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
@@ -91,6 +90,27 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		member.setSponsored(rs.getBoolean("members_sponsored"));
 		return member;
 	};
+
+	/**
+	 * Returns ResultSetExtractor that can be used to extract returned paginated members
+	 * from db.
+	 *
+	 * @param query query data
+	 * @return extractor, that can be used to extract returned paginated members from db
+	 */
+	private static ResultSetExtractor<Paginated<Member>> getPaginatedMembersExtractor(MembersPageQuery query) {
+		return resultSet -> {
+			List<Member> members = new ArrayList<>();
+			int total_count = 0;
+			int row = 0;
+			while (resultSet.next()) {
+				total_count = resultSet.getInt("total_count");
+				members.add(MEMBER_MAPPER.mapRow(resultSet, row));
+				row++;
+			}
+			return new Paginated<>(members, query.getOffset(), query.getPageSize(), total_count);
+		};
+	}
 
 	static final RowMapper<Sponsorship> MEMBER_SPONSORSHIP_MAPPER = (rs, i) -> {
 		Sponsorship ms = new Sponsorship();
@@ -671,6 +691,24 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		}
 
 		return new ArrayList<>(members);
+	}
+
+	@Override
+	public Paginated<Member> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query) {
+		return jdbc.query(
+				"SELECT " + memberMappingSelectQuery +
+				query.getSortColumn().getSqlSelect() +
+				", count(*) OVER() AS total_count" +
+				" FROM members " +
+				query.getSortColumn().getSqlJoin() +
+				" WHERE members.vo_id = ?" +
+				" ORDER BY " + query.getSortColumn().getSqlOrderBy(query) +
+				" OFFSET ?" +
+				" LIMIT ?;",
+				getPaginatedMembersExtractor(query),
+				vo.getId(),
+				query.getOffset(),
+				query.getPageSize());
 	}
 
 	@Override

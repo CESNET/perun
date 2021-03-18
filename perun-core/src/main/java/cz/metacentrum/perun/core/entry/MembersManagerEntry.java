@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.NamespaceRules;
+import cz.metacentrum.perun.core.api.Paginated;
+import cz.metacentrum.perun.core.api.MembersPageQuery;
 import cz.metacentrum.perun.core.api.Sponsor;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
@@ -27,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1561,6 +1562,21 @@ public class MembersManagerEntry implements MembersManager {
 		}
 		//remove sponsor
 		membersManagerBl.removeSponsor(sess,sponsoredMember, sponsorToRemove);
+	}
+
+	@Override
+	public Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+
+		if (!AuthzResolver.authorizedInternal(sess, "getMembersPage_Vo_MembersPageQuery_List<String>_policy", vo)) {
+			throw new PrivilegeException(sess, "getMembersPage");
+		}
+
+		Paginated<RichMember> result = membersManagerBl.getMembersPage(sess, vo, query, attrNames);
+		result.setData(getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, result.getData()));
+
+		return result;
 	}
 
 	@Override

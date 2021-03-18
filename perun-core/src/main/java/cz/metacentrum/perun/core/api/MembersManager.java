@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1409,6 +1408,19 @@ public interface MembersManager {
 	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws PrivilegeException;
+
+	/**
+	 * Get page of members from the given vo, with the given attributes.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param query query with page information
+	 * @param attrNames attribute names
+	 * @return page of requested rich members
+	 * @throws VoNotExistsException if there is no such vo
+	 * @throws PrivilegeException insufficient permission
+	 */
+	Paginated<RichMember> getMembersPage(PerunSession sess, Vo vo, MembersPageQuery query, List<String> attrNames) throws VoNotExistsException, PrivilegeException;
 
 	/**
 	 * Update the sponsorship of given member for given sponsor.
