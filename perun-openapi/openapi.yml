@@ -7856,7 +7856,7 @@ paths:
       operationId: getUserExtSourceById
       summary: Returns user ext source by its id.
       parameters:
-        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/userExtSourceId'
       responses:
         '200':
           $ref: '#/components/responses/UserExtSourceResponse'
