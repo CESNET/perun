@@ -8536,7 +8536,7 @@ paths:
                 sponsor: { type: integer }
                 namespace: { type: string }
                 validityTo: { type: string }
-                sendActivationLink: { type: boolean }
+                sendActivationLinks: { type: boolean }
                 groups: { type: array, items: { type: integer }, description: "groups to which should be the created users assigned" }
 
   /json/membersManager/createSponsoredMembers:
