@@ -343,7 +343,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param namespace String namespace selecting remote system for storing the password
 	 * @param sponsor int sponsor's ID
 	 * @param validityTo (Optional) String the last day, when the sponsorship is active, yyyy-mm-dd format.
-	 * @param sendActivationLink (optional) boolean if true link for manual activation of every created sponsored member
+	 * @param sendActivationLinks (optional) boolean if true link for manual activation of every created sponsored member
 	 *                           account will be send to the email (can't be used with empty email parameter), default is false
 	 *                           If set to true, a non-empty namespace has to be provided.
 	 * @param groups int[] group ids, to which will be the created users assigned (has to be from the given vo)
