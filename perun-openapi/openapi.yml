@@ -690,6 +690,7 @@ components:
         id: { type: integer }
         shortname: { type: string }
         required: { type: boolean }
+        updatable: { type: boolean }
         type: { $ref: '#/components/schemas/Type' }
         federationAttribute: { type: string }
         perunSourceAttribute: { type: string }
@@ -703,6 +704,10 @@ components:
         i18n:
           type: object
           additionalProperties: { $ref: '#/components/schemas/ItemTexts' }
+        hiddenDependencyItemId: { type: integer }
+        disabledDependencyItemId: { type: integer }
+        hidden: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ]}
+        disabled: { type: string, enum: [ 'NEVER', 'ALWAYS', 'IF_PREFILLED', 'IF_EMPTY' ]}
         forDelete: { type: boolean }
 
     ApplicationFormItemData:

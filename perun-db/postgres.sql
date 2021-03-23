@@ -1,4 +1,4 @@
--- database version 3.1.76 (don't forget to update insert statement at the end of file)
+-- database version 3.1.77 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -486,10 +486,29 @@ create table application_form (
   constraint applform_group_fk foreign key (group_id) references groups(id) on delete cascade
 );
 
+create type app_item_disabled as enum (
+	'NEVER',
+	'ALWAYS',
+	'IF_PREFILLED',
+	'IF_EMPTY'
+	);
+
+create type app_item_hidden as enum (
+	'NEVER',
+	'ALWAYS',
+	'IF_PREFILLED',
+	'IF_EMPTY'
+	);
+
 -- APPLICATION_FORM_ITEMS - items of application form
 create table application_form_items (
 	id integer not null,
 	form_id integer not null,  --identifier of form (application_form.id)
+	hidden app_item_hidden not null default 'NEVER',
+	disabled app_item_disabled not null default 'NEVER',
+	updatable boolean not null default true,
+	hidden_dependency_item_id integer,
+	disabled_dependency_item_id integer,
 	ordnum integer not null,   --order of item
 	shortname varchar not null,  --name of item
 	required boolean default false not null,          --value for item is mandatory
@@ -501,7 +520,9 @@ create table application_form_items (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint applfrmit_pk primary key (id),
-  constraint applfrmit_applform foreign key (form_id) references application_form(id) on delete cascade
+  constraint applfrmit_applform foreign key (form_id) references application_form(id) on delete cascade,
+	constraint applfrmit_hd foreign key (hidden_dependency_item_id) references application_form_items(id) ON DELETE SET NULL,
+	constraint applfrmit_dd foreign key (disabled_dependency_item_id) references application_form_items(id) ON DELETE SET NULL
 );
 
 -- APPLICATION_FORM_ITEM_APPTYPES - possible types of app. form items
@@ -1738,7 +1759,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.76');
+insert into configurations values ('DATABASE VERSION','3.1.77');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

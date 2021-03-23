@@ -31,7 +31,9 @@ import java.util.*;
 import static cz.metacentrum.perun.registrar.model.Application.AppType.INITIAL;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.CS;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.EN;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Base registrar-lib test class
@@ -183,7 +185,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		ApplicationFormItem i2 = new ApplicationFormItem();
 		i2.setShortname("displayName");
 		i2.setPerunDestinationAttribute("urn:perun:user:attribute-def:core:displayName");
-		i2.setType(ApplicationFormItem.Type.FROM_FEDERATION_HIDDEN);
+		i2.setType(ApplicationFormItem.Type.TEXTFIELD);
+		i2.setHidden(ApplicationFormItem.Hidden.ALWAYS);
+		i2.setUpdatable(false);
 		i2.setRequired(true);
 		i2.setFederationAttribute("Shib-Person-displayName");
 		registrarManager.addFormItem(session, applicationForm, i2);
@@ -232,7 +236,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		ApplicationFormItem i5 = new ApplicationFormItem();
 		i5.setShortname("organization");
 		i5.setPerunDestinationAttribute("urn:perun:user:attribute-def:def:organization");
-		i5.setType(ApplicationFormItem.Type.FROM_FEDERATION_SHOW);
+		i5.setType(ApplicationFormItem.Type.TEXTFIELD);
+		i5.setUpdatable(false);
+		i5.setDisabled(ApplicationFormItem.Disabled.ALWAYS);
 		i5.setRequired(true);
 		i5.setFederationAttribute("Shib-Person-o");
 		i5.getTexts(CS).setLabel("Organizace");
@@ -242,7 +248,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		ApplicationFormItem i5c = new ApplicationFormItem();
 		i5c.setShortname("mail");
 		i5c.setPerunDestinationAttribute("urn:perun:user:attribute-def:def:mail");
-		i5c.setType(ApplicationFormItem.Type.FROM_FEDERATION_HIDDEN);
+		i5c.setType(ApplicationFormItem.Type.TEXTFIELD);
+		i5c.setUpdatable(false);
+		i5c.setHidden(ApplicationFormItem.Hidden.ALWAYS);
 		i5c.setRequired(true);
 		i5c.setFederationAttribute("Shib-InetOrgPerson-mail");
 		registrarManager.addFormItem(session, applicationForm, i5c);
@@ -374,6 +382,67 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 				new PerunPrincipal("rumcajs" + random.nextInt(100000) + "@raholec.cz", "http://www.raholec.cz/idp/", ExtSourcesManager.EXTSOURCE_IDP),
 				new PerunClient());
 
+	}
+
+	@Test
+	public void createApplicationFormItem() throws Exception {
+		var form = registrarManager.getFormForVo(vo);
+
+		var newItem = new ApplicationFormItem();
+		newItem.setShortname("test");
+		newItem.setUpdatable(true);
+
+		newItem = registrarManager.addFormItem(session, form, newItem);
+
+		assertThat(newItem.getHidden()).isEqualTo(ApplicationFormItem.Hidden.NEVER);
+		assertThat(newItem.getDisabled()).isEqualTo(ApplicationFormItem.Disabled.NEVER);
+		assertThat(newItem.isUpdatable()).isTrue();
+	}
+
+
+	@Test
+	public void createApplicationFormItemValidHiddenId() throws Exception {
+		var form = registrarManager.getFormForVo(vo);
+
+		var firstItem = new ApplicationFormItem();
+		firstItem.setShortname("test");
+		firstItem = registrarManager.addFormItem(session, form, firstItem);
+
+		var secondItem = new ApplicationFormItem();
+		secondItem.setShortname("dependant");
+		secondItem.setHidden(ApplicationFormItem.Hidden.IF_PREFILLED);
+		secondItem.setHiddenDependencyItemId(firstItem.getId());
+
+		secondItem = registrarManager.addFormItem(session, form, secondItem);
+
+		assertThat(secondItem.getHiddenDependencyItemId())
+				.isEqualTo(firstItem.getId());
+	}
+
+	@Test
+	public void copyItemsCorrectDependencyIds() throws Exception {
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationFormItem firstItem = new ApplicationFormItem();
+		firstItem.setShortname("dependency");
+		firstItem = registrarManager.addFormItem(session, form, firstItem);
+
+		ApplicationFormItem otherItem = new ApplicationFormItem();
+		otherItem.setShortname("dep");
+		otherItem.setHidden(ApplicationFormItem.Hidden.IF_PREFILLED);
+		otherItem.setHiddenDependencyItemId(firstItem.getId());
+		otherItem.setDisabledDependencyItemId(firstItem.getId());
+		registrarManager.addFormItem(session, form, otherItem);
+
+		Vo otherVo = perun.getVosManagerBl().createVo(session, new Vo(-1, "other", ""));
+		registrarManager.copyFormFromVoToVo(session, vo, otherVo);
+
+		var items = registrarManager.getFormItems(session, registrarManager.getFormForVo(otherVo));
+		assertThat(items).hasSize(2);
+		assertThat(items.get(1).getHiddenDependencyItemId())
+				.isEqualTo(items.get(0).getId());
+		assertThat(items.get(1).getDisabledDependencyItemId())
+				.isEqualTo(items.get(0).getId());
 	}
 
 	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException {

@@ -16,6 +16,7 @@ public class ApplicationFormItem {
 	private int id;
 	private String shortname;
 	private boolean required = false;
+	private boolean updatable;
 	private Type type = Type.TEXTFIELD;
 	private String federationAttribute;
 	private String perunSourceAttribute;
@@ -24,6 +25,11 @@ public class ApplicationFormItem {
 	private List<AppType> applicationTypes = Arrays.asList(AppType.INITIAL,AppType.EXTENSION);
 
 	private Integer ordnum;
+
+	private Integer hiddenDependencyItemId;
+	private Integer disabledDependencyItemId;
+	private Disabled disabled = Disabled.NEVER;
+	private Hidden hidden = Hidden.NEVER;
 
 	/**
 	 * Field for GUI purpose - tells updateFromItems()
@@ -120,6 +126,60 @@ public class ApplicationFormItem {
 		this.forDelete = forDelete;
 	}
 
+	public Integer getHiddenDependencyItemId() {
+		return hiddenDependencyItemId;
+	}
+
+	public void setHiddenDependencyItemId(Integer hiddenDependencyItemId) {
+		this.hiddenDependencyItemId = hiddenDependencyItemId;
+	}
+
+	public Integer getDisabledDependencyItemId() {
+		return disabledDependencyItemId;
+	}
+
+	public void setDisabledDependencyItemId(Integer disabledDependencyItemId) {
+		this.disabledDependencyItemId = disabledDependencyItemId;
+	}
+
+	public Disabled getDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(Disabled disabled) {
+		this.disabled = disabled;
+	}
+
+	public Hidden getHidden() {
+		return hidden;
+	}
+
+	public void setHidden(Hidden hidden) {
+		this.hidden = hidden;
+	}
+
+	public boolean isUpdatable() {
+		return updatable;
+	}
+
+	public void setUpdatable(boolean updatable) {
+		this.updatable = updatable;
+	}
+
+	public enum Hidden {
+		NEVER,
+		ALWAYS,
+		IF_PREFILLED,
+		IF_EMPTY
+	}
+
+	public enum Disabled {
+		NEVER,
+		ALWAYS,
+		IF_PREFILLED,
+		IF_EMPTY
+	}
+
 	/**
 	 * Enumeration for types of application form items. For example text fields, checkboxes and so on.
 	 */
@@ -137,14 +197,6 @@ public class ApplicationFormItem {
 		 * automatically submitted. When validation fails, user have to fix it and submit form manually.
 		 */
 		AUTO_SUBMIT_BUTTON,
-		/**
-		 * For read-only fields with values taken from identity federation.
-		 */
-		FROM_FEDERATION_SHOW,
-		/**
-		 * For hidden fields with values taken from identity federation.
-		 */
-		FROM_FEDERATION_HIDDEN,
 		/**
 		 * For password, which needs to be typed twice.
 		 */
@@ -363,16 +415,25 @@ public class ApplicationFormItem {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+":[" +
-				"id='" + getId() + '\'' +
-				", shortname='" + getShortname() + '\'' +
-				", ordnum='" + getOrdnum() + '\'' +
-				", required='" + isRequired() + '\'' +
-				", type='" + getType().toString() + '\'' +
-				", federationAttribute='" + getFederationAttribute() + '\'' +
-				", regex='" + getRegex() + '\'' +
-				", i18n='" + getI18n().toString() + '\'' +
-				"]";
+		return "ApplicationFormItem[" +
+				"id=" + id +
+				", shortname='" + shortname + '\'' +
+				", required=" + required +
+				", updatable=" + updatable +
+				", type=" + type +
+				", federationAttribute='" + federationAttribute + '\'' +
+				", perunSourceAttribute='" + perunSourceAttribute + '\'' +
+				", perunDestinationAttribute='" + perunDestinationAttribute + '\'' +
+				", regex='" + regex + '\'' +
+				", applicationTypes=" + applicationTypes +
+				", ordnum=" + ordnum +
+				", hiddenDependencyItemId=" + hiddenDependencyItemId +
+				", disabledDependencyItemId=" + disabledDependencyItemId +
+				", disabled=" + disabled +
+				", hidden=" + hidden +
+				", forDelete=" + forDelete +
+				", i18n=" + i18n +
+				']';
 	}
 
 	@Override
