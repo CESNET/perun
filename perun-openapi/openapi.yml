@@ -7729,6 +7729,27 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/getRichUsersWithoutVoWithAttributes:
+    get:
+      tags:
+        - UsersManager
+      operationId: getRichUsersWithoutVoWithAttributes
+      summary: Returns list of RichUsers which are not members of any VO with attributes.
+      parameters:
+        - name: "attrsNames[]"
+          description: "list of attribute names List<String> or null"
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfRichUsersResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /json/usersManager/getVosWhereUserIsMember:
     get:
       tags:
