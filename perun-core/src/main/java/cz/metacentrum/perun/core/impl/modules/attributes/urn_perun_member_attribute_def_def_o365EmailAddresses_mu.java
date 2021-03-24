@@ -38,11 +38,10 @@ import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
  * Requirements:
  * <ul>
  * <li>type is list</li>
- * <li>all values are email addresses</li>
- * <li>must contain value uco@muni.cz</li>
+ * <li>value can be null</li>
+ * <li>if not null, than all values are email addresses</li>
  * <li>no duplicates among the list values</li>
- * <li>no duplicates among all values of this attribute for all members and all values of
- * attribute urn:perun:group_resource:attribute-def:def:o365EmailAddresses:mu</li>
+ * <li>no duplicates among all values of this attribute for all members</li>
  * </ul>
  *
  * @author Martin Kuba &lt;makub@ics.muni.cz>
@@ -53,8 +52,6 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_attribute_def_def_o365EmailAddresses_mu.class);
 
 	private static final String NAMESPACE = AttributesManager.NS_MEMBER_ATTR_DEF;
-	static final String UCO_ATTRIBUTE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
-	static final String G_D_O365_EMAIL_ADDRESSES_O365MU_ATTR = AttributesManager.NS_GROUP_ATTR_DEF + ":o365EmailAddresses:o365mu";
 
 	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
 		Object value = attribute.getValue();
@@ -82,84 +79,13 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	@Override
 	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		log.trace("checkAttributeSemantics(member={},attribute={})", member, attribute);
-		List<String> emails;
 
 		//get values
 		if (attribute.getValue() == null) {
 			throw new WrongReferenceAttributeValueException(attribute, "can't be null.");
-		} else {
-			emails = attribute.valueAsList();
 		}
 
-		//check for presence of uco@muni.cz
-		Attribute attrUCO = getUserUco(sess, member);
-		String UCO = attrUCO.valueAsString();
-		//Throw an exception if UCO is null (we need to have this value not-null to correctly check value of this attribute)
-		if(UCO == null) {
-			throw new WrongReferenceAttributeValueException(attribute, attrUCO, member, null, UCO_ATTRIBUTE + " has null value!");
-		}
-		String ucoEmail = UCO + "@muni.cz";
-		if (!emails.contains(ucoEmail)) {
-			throw new WrongReferenceAttributeValueException(attribute, attrUCO, member, null, member, null, "does not contain " + ucoEmail);
-		}
-
-		//No need to check duplicities between other members, cause attribute is unique
-		//Check uniqueness between this attribute and groups
-		try {
-			Attribute groupO365EmailAddresses = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, G_D_O365_EMAIL_ADDRESSES_O365MU_ATTR));
-			groupO365EmailAddresses.setValue(emails);
-			Set<Integer> groupsWithSameAttributeValueSet = sess.getPerunBl().getAttributesManagerBl().getPerunBeanIdsForUniqueAttributeValue(sess, groupO365EmailAddresses).stream()
-				.map(Pair::getLeft)
-				.collect(Collectors.toSet());
-			if (!groupsWithSameAttributeValueSet.isEmpty()) {
-				try {
-					Group groupWithDuplicateEmail = sess.getPerunBl().getGroupsManagerBl().getGroupById(sess, groupsWithSameAttributeValueSet.iterator().next());
-					throw new WrongReferenceAttributeValueException(attribute, groupO365EmailAddresses, member, null, groupWithDuplicateEmail, null, "some of the email addresses are already assigned.");
-				} catch (GroupNotExistsException e) {
-					throw new ConsistencyErrorException(e);
-				}
-			}
-		} catch (AttributeNotExistsException ex) {
-			//If attribute not exists, we can log it and skip it, because there are no duplicates in not existing attributes
-			log.debug("Attribute {} not exists to check duplicities in it while checkAttributeSemantics for {}.", G_D_O365_EMAIL_ADDRESSES_O365MU_ATTR, attribute);
-		}
-	}
-
-	@Override
-	public List<String> getDependencies() {
-		return Arrays.asList(UCO_ATTRIBUTE, G_D_O365_EMAIL_ADDRESSES_O365MU_ATTR);
-	}
-
-	/**
-	 * Prefills values uco@mail.muni.cz and uco@muni.cz
-	 */
-	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Member member, AttributeDefinition attrDef) throws WrongAttributeAssignmentException {
-		return new Attribute(attrDef, getUserUcoEmails(sess, member));
-	}
-
-	/**
-	 * Gets user uco attribute urn:perun:user:attribute-def:def:login-namespace:mu.
-	 *
-	 * @return Attribute with STRING UCO value if exists, with null value if not exists
-	 */
-	private Attribute getUserUco(PerunSessionImpl sess, Member member) throws WrongAttributeAssignmentException {
-		try {
-			User user = sess.getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, UCO_ATTRIBUTE);
-		} catch (UserNotExistsException | AttributeNotExistsException e) {
-			throw new InternalErrorException(e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * @returns uco@muni.cz in list if UCO exists, null if not exists
-	 */
-	private ArrayList<String> getUserUcoEmails(PerunSessionImpl sess, Member member) throws WrongAttributeAssignmentException {
-		Attribute attributeUCO = getUserUco(sess, member);
-		String uco = attributeUCO.valueAsString();
-		if(uco == null) return null;
-		else return Lists.newArrayList(uco + "@muni.cz");
+		//No need to check duplicities, attribute is unique
 	}
 
 	@Override
