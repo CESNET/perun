@@ -106,11 +106,11 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 		if (!groupResourcePairs.isEmpty()) {
 			throw new WrongReferenceAttributeValueException(attribute, attribute, group, resource, "some of the email addresses are already assigned to the following group_resource pairs: " + groupResourcePairs);
 		}
-		Attribute memberO365EmailAddresses = new Attribute(new urn_perun_member_attribute_def_def_o365EmailAddresses_mu().getAttributeDefinition());
-		memberO365EmailAddresses.setValue(emails);
-		Set<Pair<Integer, Integer>> memberPairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, memberO365EmailAddresses);
-		if (!memberPairs.isEmpty()) {
-			throw new WrongReferenceAttributeValueException(attribute, memberO365EmailAddresses, group, resource, "member " + BeansUtils.getSingleId(memberPairs) + " ");
+		Attribute userO365EmailAddresses = new Attribute(new urn_perun_user_attribute_def_def_o365UserEmailAddresses_mu().getAttributeDefinition());
+		userO365EmailAddresses.setValue(emails);
+		Set<Pair<Integer, Integer>> userPairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, userO365EmailAddresses);
+		if (!userPairs.isEmpty()) {
+			throw new WrongReferenceAttributeValueException(attribute, userO365EmailAddresses, group, resource, "user " + BeansUtils.getSingleId(userPairs) + " ");
 		}
 	}
 
@@ -134,7 +134,10 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 
 	@Override
 	public List<String> getDependencies() {
-		return Collections.singletonList(ADNAME_ATTRIBUTE);
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(ADNAME_ATTRIBUTE);
+		dependencies.add(new urn_perun_user_attribute_def_def_o365UserEmailAddresses_mu().getAttributeDefinition().getName());
+		return dependencies;
 	}
 
 	@Override
