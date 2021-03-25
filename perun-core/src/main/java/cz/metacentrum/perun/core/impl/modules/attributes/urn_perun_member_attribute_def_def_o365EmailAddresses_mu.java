@@ -77,18 +77,6 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	}
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		log.trace("checkAttributeSemantics(member={},attribute={})", member, attribute);
-
-		//get values
-		if (attribute.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(attribute, "can't be null.");
-		}
-
-		//No need to check duplicities, attribute is unique
-	}
-
-	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(NAMESPACE);
