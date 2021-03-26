@@ -326,6 +326,33 @@ public enum TasksManagerMethod implements ManagerMethod {
 			}
 			return null;
 		}
+	},
+
+	/*#
+	 * Stops dispatcher from propagating waiting tasks to the engine.
+	 * Tasks which were sent to the engine before won't be affected and will be finished.
+	 */
+	suspendTasksPropagation {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getTasksManager().suspendTasksPropagation(
+				ac.getSession(),
+				true);
+			return null;
+		}
+	},
+
+	/*#
+	 * Resumes dispatcher's tasks propagation to the engine.
+	 */
+	resumeTasksPropagation {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			ac.getTasksManager().suspendTasksPropagation(
+				ac.getSession(),
+				false);
+			return null;
+		}
 	};
 
 }

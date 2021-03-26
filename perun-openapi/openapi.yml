@@ -15339,6 +15339,20 @@ paths:
                 destinationName: { type: string, description: "destination name", nullable: false }
                 destinationType: { type: string, description: "destination type", nullable: false }
 
+  /json/tasksManager/suspendTasksPropagation:
+    post:
+      tags:
+        - TasksManager
+      operationId: suspendTasksPropagation
+      summary: Suspends waiting tasks propagation to the engine. Does not affect already propagated tasks.
+      parameters:
+        - { name: suspend, description: "if true stops propagating waiting tasks to the engine, if false resumes propagation", schema: { type: boolean }, in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # RTMessagesManager                               #

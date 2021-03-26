@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Resumes tasks propagation to engine.
+	--------------------------------------
+	Available options:
+	--batch        | -b batch
+	--help         | -h prints this help
+
+	};
+}
+
+my ($batch);
+GetOptions ("help|h"   => sub {
+	print help();
+	exit 0;
+}, "batch|b"       => \$batch) || die help();
+
+my $agent = Perun::Agent->new();
+my $tasksAgent = $agent->getTasksAgent;
+
+$tasksAgent->resumeTasksPropagation();
+
+printMessage("Tasks propagation resumed.", $batch);

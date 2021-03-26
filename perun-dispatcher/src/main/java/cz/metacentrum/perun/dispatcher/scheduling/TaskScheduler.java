@@ -148,6 +148,10 @@ public class TaskScheduler extends AbstractRunner {
 		TaskSchedule schedule;
 		while (!shouldStop()) {
 			try {
+				if (tasksManagerBl.isSuspendedTasksPropagation()) {
+					// do not continue sending tasks to the engine until propagation is set to resume
+					waitForResumingPropagation();
+				}
 				schedule = getWaitingTaskSchedule();
 			} catch (InterruptedException e) {
 				String message = "Thread was interrupted, cannot continue.";
@@ -212,6 +216,22 @@ public class TaskScheduler extends AbstractRunner {
 		}
 		log.trace("[{}] Returning Task schedule {}.", taskSchedule.getTask().getId(), taskSchedule);
 		return taskSchedule;
+	}
+
+	/**
+	 * Method waiting for propagation of tasks to the engine to be resumed.
+	 * Called when propagation was suspended.
+	 * @throws InterruptedException Waiting thread was interrupted.
+	 */
+	private void waitForResumingPropagation() throws InterruptedException {
+		int sleepTime = 10000;
+		while (tasksManagerBl.isSuspendedTasksPropagation()) {
+			log.debug("Propagation of tasks is suspended.");
+			log.debug(schedulingPool.getReport());
+			log.debug("WaitingTasksQueue has {} normal Tasks and {} forced Tasks.", waitingTasksQueue.size(), waitingForcedTasksQueue.size());
+			Thread.sleep(sleepTime);
+		}
+		log.debug("Propagation of tasks is resumed.");
 	}
 
 	/**
