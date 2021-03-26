@@ -1,4 +1,4 @@
--- database version 3.1.75 (don't forget to update insert statement at the end of file)
+-- database version 3.1.76 (don't forget to update insert statement at the end of file)
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -1259,6 +1259,7 @@ create table mailchange (
 --PWDRESET - allows to user to change passwd
 create table pwdreset (
 						   id integer not null,
+						   uu_id uuid not null default gen_random_uuid(),
 						   namespace text not null,
 						   mail text,
 						   user_id integer not null,
@@ -1640,7 +1641,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.75');
+insert into configurations values ('DATABASE VERSION','3.1.76');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

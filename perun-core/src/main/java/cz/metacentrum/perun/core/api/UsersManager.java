@@ -875,6 +875,7 @@ public interface UsersManager {
 	 * @throws PasswordResetLinkExpiredException when the reset link expired
 	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
 	 */
+	@Deprecated
 	void checkPasswordResetRequestIsValid(PerunSession sess, String i, String m) throws UserNotExistsException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
 	/**
@@ -892,8 +893,39 @@ public interface UsersManager {
 	 * @throws PasswordResetLinkNotValidException
 	 * @throws PasswordResetLinkExpiredException
 	 */
+	@Deprecated
 	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang)
 		throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
+	 * Checks if the password reset request is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param sess
+	 * @param token token for the request to check
+	 * @throws PasswordResetLinkExpiredException when the reset link expired
+	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
+	 */
+	void checkPasswordResetRequestIsValid(PerunSession sess, String token) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
+	 * Changes user password in defined login-namespace based on token parameter.
+	 *
+	 * @param sess
+	 * @param token token for the password reset request
+	 * @param password new password
+	 * @param lang language to get notification in
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException When the user who requested the password reset doesn't exist
+	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throws PasswordResetLinkExpiredException When the password reset request expired
+	 * @throws PasswordResetLinkNotValidException When the password reset request was already used or has never existed
+	 * @throws PasswordChangeFailedException When password change failed
+	 * @throws PasswordOperationTimeoutException When password change timed out
+	 */
+	void changeNonAuthzPassword(PerunSession sess, String token, String password, String lang) throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
 	/**
 	 * Reserves random password in external system. User must not exists.

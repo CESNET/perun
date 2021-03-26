@@ -131,6 +131,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2241,8 +2242,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		int validationWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
 		LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
 
-		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
-		Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, id, message, subject, validityTo);
+		UUID uuid = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
+		Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, uuid, message, subject, validityTo);
 	}
 
 	@Override
@@ -2298,8 +2299,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		LocalDateTime validityTo = LocalDateTime.now().plusHours(validationWindow);
 
 		//IMPORTANT: we are using the same requests for password reset and account activation
-		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
-		Utils.sendAccountActivationEmail(user, mailAddress, namespace, url, id, message, subject, validityTo);
+		UUID uuid = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace, mailAddress, validityTo);
+		Utils.sendAccountActivationEmail(user, mailAddress, namespace, url, uuid, message, subject, validityTo);
 	}
 
 	@Override

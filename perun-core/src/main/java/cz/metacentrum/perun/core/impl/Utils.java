@@ -85,6 +85,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -1053,20 +1054,19 @@ public class Utils {
 
 	/**
 	 * Sends email with link to non-authz account activation where user can activate his account by setting a password.
-	 *
-	 * @param user user to send notification for
+	 *  @param user user to send notification for
 	 * @param email user's email to send notification to
 	 * @param namespace namespace to reset password in
 	 * @param url base URL of Perun instance
-	 * @param id ID of account activation request
+	 * @param uuid UUID of account activation request
 	 * @param messageTemplate message of the email (use default if null)
 	 * @param subject subject of the email (use default if null)
 	 * @param validityTo time till link is valid
 	 */
-	public static void sendAccountActivationEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject, LocalDateTime validityTo) {
+	public static void sendAccountActivationEmail(User user, String email, String namespace, String url, UUID uuid, String messageTemplate, String subject, LocalDateTime validityTo) {
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", id, user, namespace, true);
+		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", uuid, user, namespace, true);
 		String validityToString = prepareValidityTo(validityTo);
 
 		String defaultSubject = "[" + instanceName + "] Account activation in namespace: " + namespace;
@@ -1120,16 +1120,16 @@ public class Utils {
 	 * @param email user's email to send notification to
 	 * @param namespace namespace to reset password in
 	 * @param url base URL of Perun instance
-	 * @param id ID of pwd reset request
+	 * @param uuid UUID of pwd reset request
 	 * @param messageTemplate message of the email
 	 * @param subject subject of the email
 	 * @param validityTo time till link is valid
 	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject, LocalDateTime validityTo) {
+	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, UUID uuid, String messageTemplate, String subject, LocalDateTime validityTo) {
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", id, user, namespace, false);
+		String validationLink = prepareValidationLinkForPasswordResetAndAccountActivation(url, "/non/pwd-reset/", uuid, user, namespace, false);
 		String validityToString = prepareValidityTo(validityTo);
 
 		String defaultSubject = "[" + instanceName + "] Password reset in namespace: " + namespace;
@@ -1354,21 +1354,17 @@ public class Utils {
 	 *
 	 * @param url base URL of Perun instance
 	 * @param linkLocation location of validation link under specific Perun instance (for example '/non/pwd-reset/')
-	 * @param id ID of request
+	 * @param uuid UUID of request
 	 * @param user user to who link will be send
 	 * @param namespace namespace to processing request for
 	 * @param activation if result link should work as activation
 	 *
 	 * @return link of validation as String
 	 */
-	private static String prepareValidationLinkForPasswordResetAndAccountActivation(String url, String linkLocation, int id, User user, String namespace, boolean activation) {
+	private static String prepareValidationLinkForPasswordResetAndAccountActivation(String url, String linkLocation, UUID uuid, User user, String namespace, boolean activation) {
 		notNull(user, "user");
 		notNull(url, "url");
 		notNull(linkLocation, "linkLocation");
-
-		// prepare arguments
-		String i = cipherInput(String.valueOf(user.getId()), false);
-		String m = cipherInput(String.valueOf(id), false);
 
 		StringBuilder link = new StringBuilder();
 
@@ -1379,10 +1375,8 @@ public class Utils {
 			link.append("://");
 			link.append(urlObject.getHost());
 			link.append(linkLocation);
-			link.append("?i=");
-			link.append(URLEncoder.encode(i, StandardCharsets.UTF_8));
-			link.append("&m=");
-			link.append(URLEncoder.encode(m, StandardCharsets.UTF_8));
+			link.append("?token=");
+			link.append(URLEncoder.encode(uuid.toString(), StandardCharsets.UTF_8));
 			link.append("&login-namespace=");
 			link.append(URLEncoder.encode(namespace, StandardCharsets.UTF_8));
 			if(activation) {

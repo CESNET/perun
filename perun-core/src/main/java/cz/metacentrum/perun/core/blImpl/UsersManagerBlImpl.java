@@ -104,6 +104,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -1824,6 +1825,103 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 	}
+
+	@Override
+	public void checkPasswordResetRequestIsValid(PerunSession sess, String token) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		getUsersManagerImpl().checkPasswordResetRequestIsValid(sess, UUID.fromString(token));
+	}
+
+	@Override
+	public void changeNonAuthzPassword(PerunSession sess, String token, String password, String lang) throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException, UserNotExistsException {
+		Map<String, Object> request = getUsersManagerImpl().loadPasswordResetRequest(sess, UUID.fromString(token));
+
+		User user = perunBl.getUsersManagerBl().getUserById(sess, (Integer) request.get("user_id"));
+		String namespace = (String) request.get("namespace");
+		String mail = (String) request.get("mail");
+
+		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
+		String login = null;
+		for (Attribute a : logins) {
+			if (a.getFriendlyNameParameter().equals(namespace)) {
+				login = a.valueAsString();
+				break;
+			}
+		}
+		if (login == null) throw new InternalErrorException(user.toString()+" doesn't have login in namespace: "+namespace);
+
+		// reset password without checking old
+		try {
+			changePassword(sess, user, namespace, "", password, false);
+		} catch (PasswordDoesntMatchException ex) {
+			// shouldn't happen
+			throw new InternalErrorException(ex);
+		}
+
+		// was changed - send notification to all member's emails
+		Set<String> emails = new HashSet<>();
+
+		// add mail used for reset request
+		if (mail != null && !mail.isEmpty()) emails.add(mail);
+
+		try {
+			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
+			if (a != null && a.getValue() != null) {
+				emails.add((String)a.getValue());
+			}
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member member : members) {
+
+			try {
+				Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_DEF+":mail");
+				if (a != null && a.getValue() != null) {
+					emails.add((String)a.getValue());
+				}
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+				throw new InternalErrorException(ex);
+			}
+
+		}
+
+		// get template
+
+		String subject;
+		try {
+			Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, lang,
+				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailSubject:" + namespace);
+			subject = (String) subjectTemplateAttribute.getValue();
+			if (subject == null) {
+				subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailSubject:" + namespace);
+				subject = (String) subjectTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		String message;
+		try {
+			Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, lang,
+				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailTemplate:" + namespace);
+			message = (String) messageTemplateAttribute.getValue();
+			if (message == null) {
+				messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailTemplate:" + namespace);
+				message = (String) messageTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		for (String email : emails) {
+			Utils.sendPasswordResetConfirmationEmail(user, email, namespace, login, subject, message);
+		}
+
+	}
+
 
 	@Override
 	public int getUsersCount(PerunSession sess) {

@@ -30,6 +30,7 @@ import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * UsersManager can find users.
@@ -747,6 +748,34 @@ public interface UsersManagerImplApi {
 	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
 	 */
 	Pair<String,String> loadPasswordResetRequest(PerunSession sess, User user, int request) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
+	 * Checks if the password reset request link is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param sess PerunSession
+	 * @param uuid UUID of the request to check
+	 * @throws PasswordResetLinkExpiredException when the password reset request expired
+	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
+	 */
+	void checkPasswordResetRequestIsValid(PerunSession sess, UUID uuid) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
+	 * Returns only valid password reset request with specified UUID.
+	 * Validity is determined by time since request creation and actual usage (only once).
+	 *
+	 * If no valid entry is found, exception is thrown. Entry is invalidated once loaded.
+	 *
+	 * @param sess PerunSession
+	 * @param uuid UUID of the request to get
+	 * @return Map with 3 keys:
+	 * 				- "user_id" = ID of the user who requested this password reset, value is Integer
+	 * 				- "namespace" = namespace user wants to reset password, value is String
+	 * 				- "mail" = mail used for notification, value is String
+	 * @throws PasswordResetLinkExpiredException when the password reset request expired
+	 * @throws PasswordResetLinkNotValidException when the password reset request was already used or has never existed
+	 */
+	Map<String, Object> loadPasswordResetRequest(PerunSession sess, UUID uuid) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
 	/**
 	 * Removes all password reset requests associated with user.

@@ -1300,6 +1300,41 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public void checkPasswordResetRequestIsValid(PerunSession sess, UUID uuid) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		this.checkAndGetPasswordResetRequest(uuid);
+	}
+
+	private Map<String, Object> checkAndGetPasswordResetRequest(UUID uuid) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		try {
+			int numberOfRequests = jdbc.queryForInt("select count(1) from pwdreset where uu_id=?", uuid);
+			if (numberOfRequests == 0) {
+				throw new PasswordResetLinkNotValidException("Password request " + uuid + " doesn't exist.");
+			} else if (numberOfRequests > 1) {
+				throw new ConsistencyErrorException("Password reset request " + uuid + " exists more than once.");
+			}
+
+			return jdbc.queryForMap("select namespace, mail, user_id from pwdreset where uu_id=? and validity_to >= now()", uuid);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new PasswordResetLinkExpiredException("Password reset request " + uuid + " has already expired.");
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Map<String, Object> loadPasswordResetRequest(PerunSession sess, UUID uuid) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		Map<String, Object> requestInfo = this.checkAndGetPasswordResetRequest(uuid);
+
+		try {
+			jdbc.update("delete from pwdreset where uu_id=?", uuid);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		return requestInfo;
+	}
+
+	@Override
 	public void removeAllPasswordResetRequests(PerunSession sess, User user) {
 
 		try {

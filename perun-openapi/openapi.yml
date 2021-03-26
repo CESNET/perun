@@ -8109,6 +8109,24 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/usersManager/checkPasswordResetRequestIsValid/token:
+    get:
+      tags:
+        - UsersManager
+      operationId: checkPasswordResetRequestByTokenIsValid
+      summary: Checks if the password reset request is valid.
+      description: |
+        This method throws PasswordResetLinkExpiredException when the password reset request expired.
+        This method throws PasswordResetLinkNotValidException when the password reset request was already
+        used or has never existed.
+      parameters:
+        - { name: token, description: "token for the password reset request", schema: { type: string }, in: query, required: true }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/usersManager/changeNonAuthzPassword:
     post:
       tags:
@@ -8122,6 +8140,26 @@ paths:
       parameters:
         - { name: i, description: "encrypted user id", schema: { type: string }, in: query, required: true }
         - { name: m, description: "encrypted password reset request id", schema: { type: string }, in: query, required: true }
+        - $ref: '#/components/parameters/password'
+        - { name: lang, description: "language to get notifications in (optional)", schema: { type: string }, in: query, required: false }
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/changeNonAuthzPassword/token:
+    post:
+      tags:
+        - UsersManager
+      operationId: changeNonAuthzPasswordByToken
+      summary: Changes user password in defined login-namespace based on token parameter.
+      description: |
+        This method throws PasswordResetLinkExpiredException when the password reset request expired.
+        This method throws PasswordResetLinkNotValidException when the password reset request was already
+        used or has never existed.
+      parameters:
+        - { name: token, description: "token for the password reset request", schema: { type: string }, in: query, required: true }
         - $ref: '#/components/parameters/password'
         - { name: lang, description: "language to get notifications in (optional)", schema: { type: string }, in: query, required: false }
       responses:

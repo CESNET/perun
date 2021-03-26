@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.76
+ALTER TABLE pwdreset ADD COLUMN uu_id uuid not null default gen_random_uuid();
+UPDATE configurations SET value='3.1.76' WHERE property='DATABASE VERSION';
+
 3.1.75
 ALTER TABLE users ADD COLUMN anonymized boolean default false not null;
 UPDATE configurations SET value='3.1.75' WHERE property='DATABASE VERSION';
