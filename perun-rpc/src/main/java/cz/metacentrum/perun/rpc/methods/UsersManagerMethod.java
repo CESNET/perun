@@ -1463,6 +1463,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * <p>
 	 * Warning: No matter which serializer you specify, this method always
 	 * returns .pdf file as an attachment.
+	 *
+	 * @param userId Integer ID of User to change password to random
+	 * @param loginNamespace String namespace that will be used
+	 * @return PDF PDF document with password
 	 */
 	changePasswordRandom {
 		@Override
