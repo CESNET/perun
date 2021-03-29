@@ -99,4 +99,20 @@ public class SponsoredUserData {
 	public void setGuestName(String guestName) {
 		this.guestName = guestName;
 	}
+
+	@Override
+	public String toString() {
+		return "SponsoredUserData{" +
+				"guestName='" + guestName + '\'' +
+				", firstName='" + firstName + '\'' +
+				", lastName='" + lastName + '\'' +
+				", titleBefore='" + titleBefore + '\'' +
+				", titleAfter='" + titleAfter + '\'' +
+				", namespace='" + namespace + '\'' +
+				", email='" + email + '\'' +
+				", password='realPasswordIsNotLogged'" +
+				", login='" + login + '\'' +
+				'}';
+	}
+
 }
