@@ -331,6 +331,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 				"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
 				"<osoba reqid=\"" + requestID + "\">\n" +
+				"<jazyk>en</jazyk>\n" +
 				"<uco>" + login + "</uco>\n" +
 				loggedParams +
 				"<operace>UPD</operace>\n" +
@@ -340,6 +341,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
 				"<osoba reqid=\"" + requestID + "\">\n" +
+				"<jazyk>en</jazyk>\n" +
 				"<uco>" + login + "</uco>\n" +
 				params +
 				"<operace>UPD</operace>\n" +
