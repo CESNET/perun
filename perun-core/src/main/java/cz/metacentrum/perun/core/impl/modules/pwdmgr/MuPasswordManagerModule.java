@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISResponseData;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.ISServiceCaller;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -56,10 +57,21 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	@Override
 	public String handleSponsorship(PerunSession sess, SponsoredUserData userData) throws PasswordStrengthException {
 		Map<String, String> parameters = new HashMap<>();
-		parameters.put(PasswordManagerModule.TITLE_BEFORE_KEY, userData.getTitleBefore());
-		parameters.put(PasswordManagerModule.FIRST_NAME_KEY, userData.getFirstName());
-		parameters.put(PasswordManagerModule.LAST_NAME_KEY, userData.getLastName());
-		parameters.put(PasswordManagerModule.TITLE_AFTER_KEY, userData.getTitleAfter());
+
+		// We need to support both - whole guestName and separate first/lastName
+		if (StringUtils.isNotBlank(userData.getGuestName())) {
+			User fakeUser = Utils.parseUserFromCommonName(userData.getGuestName(), true);
+			parameters.put(PasswordManagerModule.TITLE_BEFORE_KEY, fakeUser.getTitleBefore());
+			parameters.put(PasswordManagerModule.FIRST_NAME_KEY, fakeUser.getFirstName());
+			parameters.put(PasswordManagerModule.LAST_NAME_KEY, fakeUser.getLastName());
+			parameters.put(PasswordManagerModule.TITLE_AFTER_KEY, fakeUser.getTitleAfter());
+		} else {
+			parameters.put(PasswordManagerModule.TITLE_BEFORE_KEY, userData.getTitleBefore());
+			parameters.put(PasswordManagerModule.FIRST_NAME_KEY, userData.getFirstName());
+			parameters.put(PasswordManagerModule.LAST_NAME_KEY, userData.getLastName());
+			parameters.put(PasswordManagerModule.TITLE_AFTER_KEY, userData.getTitleAfter());
+		}
+
 		if (userData.getPassword() != null) {
 			parameters.put(PasswordManagerModule.PASSWORD_KEY, userData.getPassword());
 		}
