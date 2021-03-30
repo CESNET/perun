@@ -75,8 +75,6 @@ public class CreateFormItemTabItem implements TabItem {
 		aMap.put("HTML_COMMENT", "Custom HTML text");
 		aMap.put("HEADING", "Header");
 		aMap.put("TIMEZONE", "Selection of timezone");
-		aMap.put("FROM_FEDERATION_HIDDEN", "Hidden input text pre-filled from external source");
-		aMap.put("FROM_FEDERATION_SHOW", "Input text field pre-filled from external source");
 		inputTypes = Collections.unmodifiableMap(aMap);
 	}
 
@@ -217,10 +215,6 @@ public class CreateFormItemTabItem implements TabItem {
 					layout.setHTML(3,0,"Item is used to display customizable heading of form. Can have any HTML content.");
 				} else if (type.equals("TIMEZONE")) {
 					layout.setHTML(3,0,"Selection box with pre-defined values of UTC timezones.");
-				} else if (type.equals("FROM_FEDERATION_HIDDEN")) {
-					layout.setHTML(3,0,"Non-editable and hidden form item. Form is submitted even on invalid input ! Useful to automatically gather information provided by AUTH mechanism (IdP federation, certificate).");
-				} else if (type.equals("FROM_FEDERATION_SHOW")) {
-					layout.setHTML(3,0,"Non-editable and visible form item. Form is submitted even on invalid input ! Useful to automatically gather information provided by AUTH mechanism (IdP federation, certificate).");
 				} else {
 					layout.setHTML(3,0,"");
 				}
@@ -286,7 +280,7 @@ public class CreateFormItemTabItem implements TabItem {
 		item.setOrdnum(positionToAdd);
 		sourceList.add(positionToAdd, item);
 
-		session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, forGroup, events));
+		session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, forGroup, sourceList, events));
 
 		events.onFinished(item);
 

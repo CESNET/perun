@@ -203,8 +203,7 @@ public class RegistrarFormItemGenerator {
 
 				// missing?
 				valid = (!(item.isRequired() && getValue().equals("")));
-				if(!valid && !item.getType().equalsIgnoreCase("FROM_FEDERATION_SHOW")){
-					// from_federation_show can be valid when empty
+				if(!valid && !item.getDisabled().equalsIgnoreCase("ALWAYS")){
 					statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
 					return false;
 				}
@@ -454,13 +453,14 @@ public class RegistrarFormItemGenerator {
 			return generateTimezoneListBox();
 		}
 
-		if(item.getType().equals("FROM_FEDERATION_HIDDEN")){
+		// FIXME we can only detect always hidden items
+		if(item.getHidden().equals("ALWAYS")) {
 			this.visibleOnlyToAdmin = true;
 			this.visible = false;
 			return generateHidden();
 		}
 
-		if(item.getType().equals("FROM_FEDERATION_SHOW")){
+		if (item.getDisabled().equals("ALWAYS")) {
 			this.visible = true;
 			return generateReadonlyTextBox();
 		}
@@ -483,14 +483,13 @@ public class RegistrarFormItemGenerator {
 	}
 
 	public boolean isUpdatable() {
-		return !"FROM_FEDERATION_HIDDEN".equalsIgnoreCase(item.getType()) &&
-				!"FROM_FEDERATION_SHOW".equalsIgnoreCase(item.getType()) &&
-				!"USERNAME".equalsIgnoreCase(item.getType()) &&
+		return !"USERNAME".equalsIgnoreCase(item.getType()) &&
 				!"PASSWORD".equalsIgnoreCase(item.getType()) &&
 				!"HEADING".equalsIgnoreCase(item.getType()) &&
 				!"HTML_COMMENT".equalsIgnoreCase(item.getType()) &&
 				!"SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
-				!"AUTO_SUBMIT_BUTTON".equalsIgnoreCase(item.getType());
+				!"AUTO_SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
+				item.isUpdatable();
 	}
 
 	/**

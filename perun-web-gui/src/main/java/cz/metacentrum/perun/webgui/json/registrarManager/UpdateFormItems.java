@@ -131,6 +131,11 @@ public class UpdateFormItems {
 			newItem.put("ordnum", obj.get("ordnum"));
 			newItem.put("forDelete", obj.get("forDelete"));
 			newItem.put("applicationTypes", obj.get("applicationTypes"));
+			newItem.put("updatable", obj.get("updatable"));
+			newItem.put("disabled", obj.get("disabled"));
+			newItem.put("hidden", obj.get("hidden"));
+			newItem.put("hiddenDependencyItemId", obj.get("hiddenDependencyItemId"));
+			newItem.put("disabledDependencyItemId", obj.get("disabledDependencyItemId"));
 
 			// recreate i18n
 			JSONObject i18n = new JSONObject();

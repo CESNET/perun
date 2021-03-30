@@ -66,6 +66,7 @@ public class EditFormItemTabItem implements TabItem {
 	 */
 	private ApplicationFormItem item;
 	private boolean forGroup = false;
+	private ArrayList<ApplicationFormItem> otherItems;
 	private JsonCallbackEvents events;
 
 	/**
@@ -75,9 +76,14 @@ public class EditFormItemTabItem implements TabItem {
 	private TextBox shortNameTextBox = new TextBox();
 	private ListBox federationAttributes = new ListBox();
 	private CheckBox requiredCheckBox = new CheckBox();
+	private CheckBox updatableCheckBox = new CheckBox();
 	private ListBox perunDestinationAttributeListBox = new ListBox();
 	private ListBox perunSourceAttributeListBox = new ListBox();
+	private ListBox hiddenBox = new ListBox();
+	private ListBox disabledBox = new ListBox();
 	private TextBox regexTextBox = new TextBox();
+	private ListBox hiddenDependencyItemIdBox = new ListBox();
+	private ListBox disabledDependencyItemIdBox = new ListBox();
 	private ArrayList<CheckBox> applicationTypesCheckBoxes = new ArrayList<CheckBox>();
 	private TextBox federationAttributeCustomValue = new TextBox();
 
@@ -99,23 +105,13 @@ public class EditFormItemTabItem implements TabItem {
 	 * Creates a tab instance
 	 *
 	 * @param item
-	 * @param events
-	 */
-	public EditFormItemTabItem(ApplicationFormItem item, JsonCallbackEvents events) {
-		this.item = item;
-		this.events = events;
-	}
-
-	/**
-	 * Creates a tab instance
-	 *
-	 * @param item
 	 * @param forGroup
 	 * @param events
 	 */
-	public EditFormItemTabItem(ApplicationFormItem item, boolean forGroup, JsonCallbackEvents events) {
+	public EditFormItemTabItem(ApplicationFormItem item, boolean forGroup, ArrayList<ApplicationFormItem> otherItems, JsonCallbackEvents events) {
 		this.item = item;
 		this.forGroup = forGroup;
+		this.otherItems = otherItems;
 		this.events = events;
 	}
 
@@ -464,6 +460,34 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("Login", "uid");
 		federationAttributes.addItem("Alternative login name", "alternativeLoginName");
 
+		hiddenBox.addItem("Never", "NEVER");
+		hiddenBox.addItem("Always", "ALWAYS");
+		hiddenBox.addItem("If prefilled (self or other item, if dependency specified)", "IF_PREFILLED");
+		hiddenBox.addItem("If empty (self or other item, if dependency specified)", "IF_EMPTY");
+
+		disabledBox.addItem("Never", "NEVER");
+		disabledBox.addItem("Always", "ALWAYS");
+		disabledBox.addItem("If prefilled (self or other item, if dependency specified)", "IF_PREFILLED");
+		disabledBox.addItem("If empty (self or other item, if dependency specified)", "IF_EMPTY");
+
+		disabledDependencyItemIdBox.addItem("-- Not selected --", "null");
+		hiddenDependencyItemIdBox.addItem("-- Not selected --", "null");
+		for (ApplicationFormItem otherItem : otherItems) {
+			if (otherItem.getId() != 0 && otherItem.getId() != item.getId() && (otherItem.getType().equals("PASSWORD") ||
+					otherItem.getType().equals("VALIDATED_EMAIL") ||
+					otherItem.getType().equals("TEXTFIELD") ||
+					otherItem.getType().equals("TEXTAREA") ||
+					otherItem.getType().equals("CHECKBOX") ||
+					otherItem.getType().equals("RADIO") ||
+					otherItem.getType().equals("SELECTIONBOX") ||
+					otherItem.getType().equals("COMBOBOX") ||
+					otherItem.getType().equals("USERNAME")
+			)) {
+				disabledDependencyItemIdBox.addItem(otherItem.getShortname(), String.valueOf(otherItem.getId()));
+				hiddenDependencyItemIdBox.addItem(otherItem.getShortname(), String.valueOf(otherItem.getId()));
+			}
+		}
+
 		// application types
 		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
 			@Override
@@ -585,8 +609,46 @@ public class EditFormItemTabItem implements TabItem {
 			}
 		});
 
+		for (int i = 0; i < hiddenBox.getItemCount(); i++) {
+			String value = hiddenBox.getValue(i);
+			if (value.equals(item.getHidden())) {
+				hiddenBox.setSelectedIndex(i);
+			}
+		}
+		for (int i = 0; i < disabledBox.getItemCount(); i++) {
+			String value = disabledBox.getValue(i);
+			if (value.equals(item.getDisabled())) {
+				disabledBox.setSelectedIndex(i);
+			}
+		}
+		for (int i = 0; i < hiddenDependencyItemIdBox.getItemCount(); i++) {
+			if (hiddenDependencyItemIdBox.getValue(i).equals("null")) {
+				if (item.getHiddenDependencyItemId() == 0) {
+					hiddenDependencyItemIdBox.setSelectedIndex(i);
+				}
+			} else {
+				int value = Integer.parseInt(hiddenDependencyItemIdBox.getValue(i));
+				if (value == item.getHiddenDependencyItemId()) {
+					hiddenDependencyItemIdBox.setSelectedIndex(i);
+				}
+			}
+		}
+		for (int i = 0; i < disabledDependencyItemIdBox.getItemCount(); i++) {
+			if (disabledDependencyItemIdBox.getValue(i).equals("null")) {
+				if (item.getDisabledDependencyItemId() == 0) {
+					disabledDependencyItemIdBox.setSelectedIndex(i);
+				}
+			} else {
+				int value = Integer.parseInt(disabledDependencyItemIdBox.getValue(i));
+				if (value == item.getDisabledDependencyItemId()) {
+					disabledDependencyItemIdBox.setSelectedIndex(i);
+				}
+			}
+		}
 		requiredCheckBox.setValue(item.isRequired());
+		updatableCheckBox.setValue(item.isUpdatable());
 		regexTextBox.setText(item.getRegex());
+
 
 		for (Application.ApplicationType type : Application.ApplicationType.values()) {
 			CheckBox cb = new CheckBox();
@@ -673,6 +735,19 @@ public class EditFormItemTabItem implements TabItem {
 			ftf.setStyleName(row, 1, "inputFormInlineComment");
 			ftf.setColSpan(row, 1, 2);
 
+			if (!item.getType().equals("USERNAME") && !item.getType().equals("PASSWORD")) {
+				row++;
+				Label updatableLabel = new Label("Updatable:");
+				ft.setWidget(row, 0, updatableLabel);
+				ft.setWidget(row, 1, updatableCheckBox);
+				ftf.setColSpan(row, 1, 2);
+
+				row++;
+				ft.setHTML(row, 1, "If checked, user can update the submitted value.");
+				ftf.setStyleName(row, 1, "inputFormInlineComment");
+				ftf.setColSpan(row, 1, 2);
+			}
+
 			row++;
 
 			Label srcAttrLabel = new Label("Source attribute:");
@@ -727,6 +802,48 @@ public class EditFormItemTabItem implements TabItem {
 				ftf.setStyleName(row, 1, "inputFormInlineComment");
 				ftf.setColSpan(row, 1, 2);
 
+			}
+
+			row++;
+			ft.setWidget(row, 0, new Label("Hidden:"));
+			ft.setWidget(row, 1, hiddenBox);
+			ftf.setColSpan(row, 1, 2);
+
+			row++;
+			ft.setHTML(row, 1, "When the item should be hidden during the submission.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
+			ftf.setColSpan(row, 1, 2);
+
+			row++;
+			ft.setWidget(row, 0, new Label("Hidden dependency:"));
+			ft.setWidget(row, 1, hiddenDependencyItemIdBox);
+			ftf.setColSpan(row, 1, 2);
+
+			row++;
+			ft.setHTML(row, 1, "Other form item, which is used to decide, if this one should be hidden.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
+			ftf.setColSpan(row, 1, 2);
+
+			if (!item.getType().equals("PASSWORD")) {
+				row++;
+				ft.setWidget(row, 0, new Label("Disabled:"));
+				ft.setWidget(row, 1, disabledBox);
+				ftf.setColSpan(row, 1, 2);
+
+				row++;
+				ft.setHTML(row, 1, "When the item should be disabled during the submission.");
+				ftf.setStyleName(row, 1, "inputFormInlineComment");
+				ftf.setColSpan(row, 1, 2);
+
+				row++;
+				ft.setWidget(row, 0, new Label("Disabled dependency:"));
+				ft.setWidget(row, 1, disabledDependencyItemIdBox);
+				ftf.setColSpan(row, 1, 2);
+
+				row++;
+				ft.setHTML(row, 1, "Other form item, which is used to decide, if this one should be disabled.");
+				ftf.setStyleName(row, 1, "inputFormInlineComment");
+				ftf.setColSpan(row, 1, 2);
 			}
 
 		}
@@ -846,7 +963,16 @@ public class EditFormItemTabItem implements TabItem {
 
 		item.setRegex(regexTextBox.getText().trim());
 		item.setRequired(requiredCheckBox.getValue());
+		item.setUpdatable(updatableCheckBox.getValue());
 		item.setShortname(shortNameTextBox.getText().trim());
+		item.setHidden(hiddenBox.getValue(hiddenBox.getSelectedIndex()));
+		item.setDisabled(disabledBox.getValue(disabledBox.getSelectedIndex()));
+
+		String disabledDependency = disabledDependencyItemIdBox.getValue(disabledDependencyItemIdBox.getSelectedIndex());
+		item.setDisabledDependencyItemId(disabledDependency.equals("null") ? 0 : Integer.parseInt(disabledDependency));
+
+		String hiddenDependency = hiddenDependencyItemIdBox.getValue(hiddenDependencyItemIdBox.getSelectedIndex());
+		item.setHiddenDependencyItemId(hiddenDependency.equals("null") ? 0 : Integer.parseInt(hiddenDependency));
 
 		JSONArray newApplicationTypesJson = new JSONArray();
 		int pointer = 0;

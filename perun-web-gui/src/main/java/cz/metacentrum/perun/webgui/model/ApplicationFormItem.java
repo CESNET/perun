@@ -66,6 +66,59 @@ public class ApplicationFormItem extends JavaScriptObject {
 		return this.type;
 	}-*/;
 
+	public final native String getDisabled() /*-{
+		return this.disabled;
+	}-*/;
+
+	public final native String getHidden() /*-{
+        return this.hidden;
+    }-*/;
+
+	public final native void setDisabled(String disabled) /*-{
+        this.disabled = disabled;
+    }-*/;
+
+	public final native void setHidden(String hidden) /*-{
+        this.hidden = hidden;
+    }-*/;
+
+	public final native int getHiddenDependencyItemId() /*-{
+        if (this.hiddenDependencyItemId == null) {
+            return 0;
+        }
+        return this.hiddenDependencyItemId;
+    }-*/;
+
+	public final native int getDisabledDependencyItemId() /*-{
+        if (this.disabledDependencyItemId == null) {
+            return 0;
+        }
+        return this.disabledDependencyItemId;
+    }-*/;
+
+	public final native void setHiddenDependencyItemId(int itemId) /*-{
+        if (itemId === 0) {
+        	this.hiddenDependencyItemId = null;
+        } else {
+        	this.hiddenDependencyItemId = itemId;
+        }
+    }-*/;
+
+	public final native void setDisabledDependencyItemId(int itemId) /*-{
+        if (itemId === 0) {
+            this.disabledDependencyItemId = null;
+        } else {
+            this.disabledDependencyItemId = itemId;
+        }
+    }-*/;
+
+	public final native boolean isUpdatable() /*-{
+		return this.updatable;
+	}-*/;
+
+	public final native void setUpdatable(boolean updatable) /*-{
+        this.updatable = updatable;
+    }-*/;
 	/**
 	 * Get federationAttribute
 	 * @return federationAttribute
