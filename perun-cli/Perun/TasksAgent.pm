@@ -23,4 +23,14 @@ sub getTaskResultsForDestinations
 	return Perun::Common::callManagerMethod('getTaskResultsForDestinations', '[]TaskResult', @_);
 }
 
+sub suspendTasksPropagation
+{
+	return Perun::Common::callManagerMethod('suspendTasksPropagation', '', @_);
+}
+
+sub resumeTasksPropagation
+{
+	return Perun::Common::callManagerMethod('resumeTasksPropagation', '', @_);
+}
+
 1;

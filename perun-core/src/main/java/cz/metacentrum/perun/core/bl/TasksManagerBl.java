@@ -311,4 +311,18 @@ public interface TasksManagerBl {
 	 */
 	void updateTask(PerunSession sess, Task task);
 
+	/**
+	 * Suspend propagating tasks to engine.
+	 *
+	 * @param sess
+	 * @param suspend True for suspending propagation, false for resuming propagation
+	 */
+	void suspendTasksPropagation(PerunSession sess, boolean suspend);
+
+	/**
+	 * Check if propagating tasks to engine is suspended.
+	 *
+	 * @return True if suspended, false if propagating
+	 */
+	boolean isSuspendedTasksPropagation();
 }

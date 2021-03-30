@@ -41,6 +41,8 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	@Autowired
 	protected TasksManagerImplApi tasksManagerImpl;
 
+	private static boolean suspendedTasksPropagation = false; //are tasks stopped from propagating to engine
+
 	// -------------- constructors
 	
 	public TasksManagerBlImpl(TasksManagerImplApi tasksManagerImpl) {
@@ -398,6 +400,20 @@ public class TasksManagerBlImpl implements TasksManagerBl {
 	@Override
 	public void updateTask(PerunSession sess, Task task) {
 		getTasksManagerImpl().updateTask(task);
+	}
+
+	@Override
+	public void suspendTasksPropagation(PerunSession perunSession, boolean suspend) {
+		synchronized(TasksManagerBlImpl.class) {
+			suspendedTasksPropagation = suspend;
+		}
+	}
+
+	@Override
+	public boolean isSuspendedTasksPropagation() {
+		synchronized(TasksManagerBlImpl.class) {
+			return suspendedTasksPropagation;
+		}
 	}
 
 }

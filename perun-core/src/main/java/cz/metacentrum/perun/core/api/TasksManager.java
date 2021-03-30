@@ -244,5 +244,13 @@ public interface TasksManager {
 	 */
 	List<Task> listAllTasksInState(PerunSession perunSession, Task.TaskStatus state) throws PrivilegeException;
 
+	/**
+	 * Suspends tasks propagation to engine.
+	 *
+	 * @param perunSession
+	 * @param suspend True to suspend propagation, false to resume propagation
+	 * @throws PrivilegeException
+	 */
+	void suspendTasksPropagation(PerunSession perunSession, boolean suspend) throws PrivilegeException;
 
 }

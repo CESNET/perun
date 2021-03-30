@@ -262,6 +262,16 @@ public class TasksManagerEntry implements TasksManager {
 		return tasksManagerBl.listAllTasksInState(perunSession, state);
 	}
 
+	@Override
+	public void suspendTasksPropagation(PerunSession perunSession, boolean suspend) throws PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(perunSession, "suspendTasksPropagation_policy")) {
+			throw new PrivilegeException(perunSession, "suspendTasksPropagation");
+		}
+		tasksManagerBl.suspendTasksPropagation(perunSession, suspend);
+	}
+
+
 	public void setPerunBl(PerunBl perunBl) {
 		this.perun = perunBl;
 	}
