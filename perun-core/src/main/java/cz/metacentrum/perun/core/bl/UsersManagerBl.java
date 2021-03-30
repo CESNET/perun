@@ -1365,6 +1365,36 @@ public interface UsersManagerBl {
 		throws LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
 
 	/**
+	 * Checks if the password reset request link is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param sess PerunSession
+	 * @param token token for the request to check
+	 * @throws PasswordResetLinkExpiredException when the reset link expired
+	 * @throws PasswordResetLinkNotValidException when the reset link was already used or has never existed
+	 */
+	void checkPasswordResetRequestIsValid(PerunSession sess, String token) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
+	 * Changes user password in defined login-namespace based on token of the password reset request.
+	 *
+	 * @param sess PerunSession
+	 * @param token token for the password reset request
+	 * @param password new password
+	 * @param lang Language to get notification in
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException When the user who requested the password reset doesn't exist
+	 * @throws LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throws InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throws PasswordResetLinkExpiredException When the password reset request expired
+	 * @throws PasswordResetLinkNotValidException When the password reset request was already used or has never existed
+	 * @throws PasswordChangeFailedException When password change failed
+	 * @throws PasswordOperationTimeoutException When password change timed out
+	 */
+	void changeNonAuthzPassword(PerunSession sess, String token, String password, String lang) throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException;
+
+	/**
 	 * Get count of all users.
 	 *
 	 * @param perunSession

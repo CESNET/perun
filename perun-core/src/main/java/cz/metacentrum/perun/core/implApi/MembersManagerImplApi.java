@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.impl.SponsoredAccountsConfigLoader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * MembersManager can find members.
@@ -218,10 +219,10 @@ public interface MembersManagerImplApi {
 	 * @param namespace namespace to reset password in
 	 * @param mail mail address used to send request to
 	 * @param validityTo time till request is valid
-	 * @return ID of request to be used for validation
+	 * @return request's UUID to be used for validation
 	 * @throws InternalErrorException
 	 */
-	int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail, LocalDateTime validityTo);
+	UUID storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail, LocalDateTime validityTo);
 
 	/**
 	 * Creates a new member in given Vo with flag "sponsored", and linked to its sponsoring user.

@@ -1361,6 +1361,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	@Deprecated
 	public void checkPasswordResetRequestIsValid(PerunSession sess, String i, String m) throws UserNotExistsException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 		Utils.checkPerunSession(sess);
 
@@ -1372,6 +1373,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	@Deprecated
 	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
 
 		Utils.checkPerunSession(sess);
@@ -1384,6 +1386,24 @@ public class UsersManagerEntry implements UsersManager {
 
 		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password, lang);
 
+	}
+
+	@Override
+	public void checkPasswordResetRequestIsValid(PerunSession sess, String token) throws PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(token, "token");
+
+		getPerunBl().getUsersManagerBl().checkPasswordResetRequestIsValid(sess, token);
+	}
+
+	@Override
+	public void changeNonAuthzPassword(PerunSession sess, String token, String password, String lang) throws UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, InvalidLoginException, PasswordStrengthException, PasswordResetLinkExpiredException, PasswordResetLinkNotValidException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(token, "token");
+
+		if (lang == null || lang.isEmpty()) lang = "en"; // fallback to english
+
+		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, token, password, lang);
 	}
 
 	@Override

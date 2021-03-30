@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
 
@@ -409,20 +410,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
-	public int storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail, LocalDateTime validityTo) {
-
-		int newId = Utils.getNewId(jdbc, "pwdreset_id_seq");
-
+	public UUID storePasswordResetRequest(PerunSession sess, User user, String namespace, String mail, LocalDateTime validityTo) {
 		try {
-			jdbc.update("insert into pwdreset (id, namespace, user_id, mail, validity_to, created_by, created_by_uid, created_at) "
-							+ "values (?,?,?,?,?,?,?," + Compatibility.getSysdate() + ")",
-					newId, namespace, user.getId(), mail, validityTo, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+			return jdbc.queryForObject("insert into pwdreset (id, namespace, user_id, mail, validity_to, created_by, created_by_uid, created_at) "
+					+ "values (nextval('pwdreset_id_seq'),?,?,?,?,?,?," + Compatibility.getSysdate() + ") returning uu_id", UUID.class,
+				namespace, user.getId(), mail, validityTo, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-
-		return newId;
-
 	}
 
 	@Override

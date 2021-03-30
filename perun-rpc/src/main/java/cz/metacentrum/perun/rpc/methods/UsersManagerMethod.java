@@ -1104,9 +1104,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
+	 * Checks if the password reset request is valid. The request is valid, if it
+	 * was created, never used and hasn't expired yet.
+	 *
+	 * @param token String token for the password reset request
+	 * @throw PasswordResetLinkExpiredException when the reset link expired
+	 * @throw PasswordResetLinkNotValidException when the reset link was already used or has never existed
+	 */
+	/*#
 	 * Checks if the password reset request link is valid. The request is valid, if it
 	 * was created, never used and hasn't expired yet.
 	 *
+	 * @deprecated
 	 * @param i String first encrypted parameter
 	 * @param m String second encrypted parameter
 	 * @throw PasswordResetLinkExpiredException When the password reset request expired
@@ -1115,14 +1124,36 @@ public enum UsersManagerMethod implements ManagerMethod {
 	checkPasswordResetRequestIsValid {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("i"), parms.readString("m"));
+			if (parms.contains("token")) {
+				ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("token"));
+			} else if (parms.contains("i") && parms.contains("m")) {
+				ac.getUsersManager().checkPasswordResetRequestIsValid(ac.getSession(), parms.readString("i"), parms.readString("m"));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "token or (i and m)");
+			}
 
 			return null;
 		}
 	},
 	/*#
+	 * Changes user password in defined login-namespace based on token parameter.
+	 *
+	 * @param token String token for the password reset request
+	 * @param password String new password
+	 * @param lang language to get notification in (optional).
+	 * @throw UserNotExistsException When the user who requested the password reset doesn't exist
+	 * @throw LoginNotExistsException When user doesn't have login in specified namespace
+	 * @throw InvalidLoginException When login of user has invalid syntax (is not allowed)
+	 * @throw PasswordStrengthException When password doesn't match expected strength by namespace configuration
+	 * @throw PasswordResetLinkExpiredException When the password reset request expired
+	 * @throw PasswordResetLinkNotValidException When the password reset request was already used or has never existed
+	 * @throw PasswordChangeFailedException When password change failed
+	 * @throw PasswordOperationTimeoutException When password change timed out
+	 */
+	/*#
 	 * Changes user's password in namespace based on encrypted input parameters.
 	 *
+	 * @deprecated
 	 * @param i String first encrypted parameter
 	 * @param m String second encrypted parameter
 	 * @param password String new password
@@ -1138,7 +1169,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"), (parms.contains("lang") ? parms.readString("lang") : null));
+			if (parms.contains("token")) {
+				ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("token"), parms.readString("password"), (parms.contains("lang") ? parms.readString("lang") : null));
+			} else if (parms.contains("i") && parms.contains("m")) {
+				ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"), (parms.contains("lang") ? parms.readString("lang") : null));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "token or (i and m)");
+			}
 
 			return null;
 		}
