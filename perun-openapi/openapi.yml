@@ -9045,6 +9045,22 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /urlinjsonout/membersManager/sponsorMember:
+    post:
+      tags:
+        - MembersManager
+      operationId: sponsorMember
+      summary: For an existing member, assigns a new sponsor
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/sponsorId'
+        - $ref: '#/components/parameters/optionalValidityTo'
+      responses:
+        '200':
+          $ref: '#/components/responses/RichMemberResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/membersManager/moveMembership:
     post:
       tags:
