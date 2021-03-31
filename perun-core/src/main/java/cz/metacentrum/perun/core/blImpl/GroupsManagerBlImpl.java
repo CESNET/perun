@@ -1298,6 +1298,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public Map<Status, Integer> getGroupMembersCountsByVoStatus(PerunSession sess, Group group) {
+		List<Member> members = this.getGroupMembers(sess, group);
+
+		Map<Status, Integer> counts = new HashMap<>();
+		for (Status status : Status.values()) {
+			counts.put(status, 0);
+		}
+		members.forEach(member -> counts.computeIfPresent(member.getStatus(), (key, value) -> value + 1));
+
+		return counts;
+	}
+
+	@Override
+	public Map<MemberGroupStatus, Integer> getGroupMembersCountsByGroupStatus(PerunSession sess, Group group) {
+		List<Member> members = this.getGroupMembers(sess, group);
+
+		Map<MemberGroupStatus, Integer> counts = new HashMap<>();
+		for (MemberGroupStatus status : MemberGroupStatus.values()) {
+			counts.put(status, 0);
+		}
+		members.forEach(member -> counts.computeIfPresent(member.getGroupStatus(), (key, value) -> value + 1));
+
+		return counts;
+	}
+
+	@Override
 	public List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) {
 		if(onlyDirectAdmins) {
 			return getGroupsManagerImpl().getDirectAdmins(perunSession, group);

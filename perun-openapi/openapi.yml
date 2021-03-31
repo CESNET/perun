@@ -1146,6 +1146,15 @@ components:
             additionalProperties:
               type: string
 
+    MapStringIntegerResponse:
+      description: "returns Map<String,Integer>"
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: integer
+
     MapStringMapStringStringResponse:
       description: "returns Map<String,Map<String,String>>"
       content:
@@ -11371,6 +11380,34 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/IntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroupMembersCountsByVoStatus:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupMembersCountsByVoStatus
+      summary: Returns counts of group members by their status in VO.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringIntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getGroupMembersCountsByGroupStatus:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupMembersCountsByGroupStatus
+      summary: Returns counts of group members by their group status.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringIntegerResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 

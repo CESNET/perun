@@ -565,6 +565,28 @@ public interface GroupsManager {
 	int getGroupMembersCount(PerunSession perunSession, Group group) throws GroupNotExistsException, PrivilegeException;
 
 	/**
+	 * Returns counts of group members by their status in VO.
+	 *
+	 * @param sess
+	 * @param group
+	 * @return map of member status in VO to count of group members with the status
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 * @throws PrivilegeException
+	 */
+	Map<Status, Integer> getGroupMembersCountsByVoStatus(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns counts of group members by their group status.
+	 *
+	 * @param sess
+	 * @param group
+	 * @return map of member status in group to count of group members with the status
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 * @throws PrivilegeException
+	 */
+	Map<MemberGroupStatus, Integer> getGroupMembersCountsByGroupStatus(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException;
+
+	/**
 	 * Get groups of Vo by ACCESS RIGHTS:
 	 * If user is:
 	 * - PERUNADMIN or VOADMIN : all groups in vo
