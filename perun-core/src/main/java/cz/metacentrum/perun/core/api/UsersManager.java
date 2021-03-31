@@ -1290,9 +1290,8 @@ public interface UsersManager {
 	 * @param namespace namespace, that will be used to check the strength of the password
 	 *
 	 * @throws PasswordStrengthException When password doesn't match expected strength by namespace configuration
-	 * @throws PrivilegeException insufficient permission
 	 */
-	void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException, PrivilegeException;
+	void checkPasswordStrength(PerunSession sess, String password, String namespace) throws PasswordStrengthException;
 	/**
 	 * Return all groups where user is active (has VALID status in VO and Group together)
 	 * for specified user and resource
