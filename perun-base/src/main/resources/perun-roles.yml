@@ -5262,12 +5262,6 @@ perun_policies:
     include_policies:
       - default_policy
 
-  checkPasswordStrength_String_String:
-    policy_roles:
-      - SELF:
-    include_policies:
-      - default_policy
-
   getGroupsWhereUserIsActive_Resource_User_policy:
     policy_roles:
       - VOOBSERVER: Vo
