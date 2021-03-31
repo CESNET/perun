@@ -656,6 +656,24 @@ public interface GroupsManagerBl {
 	int getGroupMembersCount(PerunSession perunSession, Group group);
 
 	/**
+	 * Returns counts of group members by their status in VO.
+	 *
+	 * @param sess
+	 * @param group
+	 * @return map of member status in VO to count of group members with the status
+	 */
+	Map<Status, Integer> getGroupMembersCountsByVoStatus(PerunSession sess, Group group);
+
+	/**
+	 * Returns counts of group members by their group status.
+	 *
+	 * @param sess
+	 * @param group
+	 * @return map of member status in group to count of group members with the status
+	 */
+	Map<MemberGroupStatus, Integer> getGroupMembersCountsByGroupStatus(PerunSession sess, Group group);
+
+	/**
 	 * Checks whether the user is member of the group.
 	 *
 	 * @param sess

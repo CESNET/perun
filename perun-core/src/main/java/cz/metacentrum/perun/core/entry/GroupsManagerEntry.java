@@ -622,6 +622,32 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public Map<Status, Integer> getGroupMembersCountsByVoStatus(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupMembersCountsByVoStatus_Group_policy", group)) {
+			throw new PrivilegeException(sess, "getGroupMembersCountsByVoStatus");
+		}
+
+		return getGroupsManagerBl().getGroupMembersCountsByVoStatus(sess, group);
+	}
+
+	@Override
+	public Map<MemberGroupStatus, Integer> getGroupMembersCountsByGroupStatus(PerunSession sess, Group group) throws GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupMembersCountsByGroupStatus_Group_policy", group)) {
+			throw new PrivilegeException(sess, "getGroupMembersCountsByGroupStatus");
+		}
+
+		return getGroupsManagerBl().getGroupMembersCountsByGroupStatus(sess, group);
+	}
+
+	@Override
 	public void addAdmin(PerunSession sess, Group group, User user) throws AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException, RoleCannotBeManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);

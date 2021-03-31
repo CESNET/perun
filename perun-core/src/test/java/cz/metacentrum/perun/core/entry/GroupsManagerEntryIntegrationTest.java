@@ -3005,6 +3005,60 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getGroupMembersCountsByVoStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersCountsByVoStatus");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+
+		Member disabledMember = setUpMember(vo);
+		groupsManager.addMember(sess, group, disabledMember);
+		perun.getMembersManager().setStatus(sess, disabledMember, Status.DISABLED);
+
+		Map<Status, Integer> counts = groupsManager.getGroupMembersCountsByVoStatus(sess, group);
+		assertThat(counts.get(Status.VALID)).isEqualTo(1);
+		assertThat(counts.get(Status.DISABLED)).isEqualTo(1);
+		assertThat(counts.get(Status.INVALID)).isEqualTo(0);
+		assertThat(counts.get(Status.EXPIRED)).isEqualTo(0);
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void getGroupMembersCountsByVoStatusWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersCountsByVoStatusWhenGroupNotExists");
+
+		groupsManager.getGroupMembersCountsByVoStatus(sess, new Group());
+	}
+
+	@Test
+	public void getGroupMembersCountsByGroupStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersCountsByGroupStatus");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+
+		Member expiredMember = setUpMember(vo);
+		groupsManager.addMember(sess, group, expiredMember);
+		groupsManager.setMemberGroupStatus(sess, expiredMember, group, MemberGroupStatus.EXPIRED);
+
+		Map<MemberGroupStatus, Integer> counts = groupsManager.getGroupMembersCountsByGroupStatus(sess, group);
+		assertThat(counts.get(MemberGroupStatus.VALID)).isEqualTo(1);
+		assertThat(counts.get(MemberGroupStatus.EXPIRED)).isEqualTo(1);
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void getGroupMembersCountsByGroupStatusWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersCountsByGroupStatusWhenGroupNotExists");
+
+		groupsManager.getGroupMembersCountsByGroupStatus(sess, new Group());
+	}
+
+	@Test
 	public void getAllGroups() throws Exception {
 		System.out.println(CLASS_NAME + "getAllGroups");
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -712,6 +714,44 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGroupsManager().getGroupMembersCount(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
+	 * Returns counts of group members by their status in VO.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return Map<String, Integer> map of member status in VO to count of group members with the status
+	 */
+	getGroupMembersCountsByVoStatus {
+		@Override
+		public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			Map<Status, Integer> counts = ac.getGroupsManager().getGroupMembersCountsByVoStatus(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")));
+
+			// convert Status to String
+			return counts.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue));
+		}
+	},
+
+	/*#
+	 * Returns counts of group members by their group status.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return Map<String, Integer> map of member status in group to count of group members with the status
+	 */
+	getGroupMembersCountsByGroupStatus {
+		@Override
+		public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			Map<MemberGroupStatus, Integer> counts = ac.getGroupsManager().getGroupMembersCountsByGroupStatus(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")));
+
+			// convert MemberGroupStatus to String
+			return counts.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue));
 		}
 	},
 
