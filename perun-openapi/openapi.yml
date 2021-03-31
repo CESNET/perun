@@ -503,6 +503,8 @@ components:
       type: object
       properties:
         defaultEmail: { type: string }
+        csvGenHeader: { type: string }
+        csvGenPlaceholder: { type: string }
         namespaceName: { type: string }
         requiredAttributes:
           type: array

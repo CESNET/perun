@@ -7,15 +7,12 @@ public class NamespaceRules {
 
 	private String namespaceName;
 	private String defaultEmail;
+	private String csvGenHeader;
+	private String csvGenPlaceholder;
 	private Set<String> requiredAttributes;
 	private Set<String> optionalAttributes;
 
-	public NamespaceRules(String namespaceName, String defaultEmail, Set<String> requiredAttributes, Set<String> optionalAttributes) {
-		this.namespaceName = namespaceName;
-		this.defaultEmail = defaultEmail;
-		this.requiredAttributes = requiredAttributes;
-		this.optionalAttributes = optionalAttributes;
-	}
+	public NamespaceRules() {}
 
 	public String getNamespaceName() {
 		return namespaceName;
@@ -69,5 +66,21 @@ public class NamespaceRules {
 
 	public void setDefaultEmail(String defaultEmail) {
 		this.defaultEmail = defaultEmail;
+	}
+
+	public String getCsvGenHeader() {
+		return csvGenHeader;
+	}
+
+	public void setCsvGenHeader(String csvGenHeader) {
+		this.csvGenHeader = csvGenHeader;
+	}
+
+	public String getCsvGenPlaceholder() {
+		return csvGenPlaceholder;
+	}
+
+	public void setCsvGenPlaceholder(String csvGenPlaceholder) {
+		this.csvGenPlaceholder = csvGenPlaceholder;
 	}
 }
