@@ -40,7 +40,7 @@ public class SponsoredAccountsConfigLoader {
 
 		} catch(RuntimeException e) {
 			throw new InternalErrorException("Configuration file has invalid syntax. Configuration file: " +
-				configurationPath.getFilename());
+				configurationPath.getFilename(), e);
 		}
 
 		return namespacesRules;
@@ -69,9 +69,9 @@ public class SponsoredAccountsConfigLoader {
 			namespaceRules.setDefaultEmail(defaultEmail.asText());
 			namespaceRules.setRequiredAttributes(requiredAttributes);
 			namespaceRules.setOptionalAttributes(optionalAttributes);
-			if (!csvGenHeader.isNull())
+			if (csvGenHeader != null && !csvGenHeader.isNull())
 				namespaceRules.setCsvGenHeader(csvGenHeader.asText());
-			if (!csvGenPlaceholder.isNull())
+			if (csvGenPlaceholder != null && !csvGenPlaceholder.isNull())
 				namespaceRules.setCsvGenPlaceholder(csvGenPlaceholder.asText());
 
 			rules.add(namespaceRules);
