@@ -1,4 +1,4 @@
-![](https://github.com/CESNET/perun/workflows/Maven%20build/badge.svg)
+![](https://github.com/CESNET/perun/workflows/test%20build/badge.svg)
 
 <a href="https://perun-aai.org"><img style="float: left; position: relative;" src="https://raw.githubusercontent.com/CESNET/perun/master/perun-web-gui/src/main/webapp/img/logo.png"></a>
 ## Identity & Access Management System ##
