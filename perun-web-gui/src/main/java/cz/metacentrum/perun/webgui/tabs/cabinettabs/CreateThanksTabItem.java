@@ -119,7 +119,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 		// CALLBACK
 		final GetOwners owners = new GetOwners();
 		// FIXME - maybe make it configurable in a future
-		List<String> names = Arrays.asList("MetaCentrum", "CERIT-SC", "ELIXIR");
+		List<String> names = Arrays.asList("e-INFRA CZ LM2018140", "ELIXIR CZ LM2018131", "CESNET LM2015042 (MetaCentrum)", "CERIT-SC LM2015085");
 		owners.setFilterByNames(names);
 
 		// MENU
