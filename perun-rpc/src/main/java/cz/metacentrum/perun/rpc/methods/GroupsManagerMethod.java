@@ -196,15 +196,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			if(parms.contains("force") && parms.readBoolean("force")) {
-				ac.getGroupsManager().deleteGroup(ac.getSession(),
-						ac.getGroupById(parms.readInt("group")), true);
-				return null;
-			} else {
-				ac.getGroupsManager().deleteGroup(ac.getSession(),
-						ac.getGroupById(parms.readInt("group")), false);
-				return null;
+			boolean force = false;
+			if (parms.contains("force")) {
+				force = parms.readBoolean("force");
 			}
+			ac.getGroupsManager().deleteGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), force);
+			return null;
 		}
 	},
 

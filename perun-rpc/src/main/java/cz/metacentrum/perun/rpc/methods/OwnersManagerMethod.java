@@ -58,14 +58,23 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	 * @param owner int Owner <code>id</code>
 	 * @return Object Always null
 	 */
+	/*#
+	 * Forcefully deletes an owner.
+	 *
+	 * @param owner int Owner <code>id</code>
+	 * @param force boolean Force must be true
+	 * @return Object Always null
+	 */
 	deleteOwner {
 		@Override
 		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();
 
-			ac.getOwnersManager().deleteOwner(ac.getSession(),
-					ac.getOwnerById(parms.readInt("owner")));
-
+			boolean force = false;
+			if (parms.contains("force")) {
+				force = parms.readBoolean("force");
+			}
+			ac.getOwnersManager().deleteOwner(ac.getSession(), ac.getOwnerById(parms.readInt("owner")), force);
 			return null;
 		}
 	},
