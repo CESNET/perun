@@ -8,6 +8,8 @@
 #                 user. If this value is not specified, it fallbacks to 'no-reply@perun-aai.org'
 # csv_gen_header - this field defines the csv format used for parsing data.
 # csv_gen_placeholder - this field contains placeholder for the used csv format.
+# csv_gen_header_description - this field is used in GUI, it is a user-friendly description of the CSV format, e.g.:
+#                              'Firstname;Lastname;Email;Note;'
 # required_attributes - fields from the SponsoredUserData class, which are required for the given namespace during the
 #                       creation of a sponsorship. Allowed values are fields of the SponsoredUserData class. This
 #                       should be mainly used in GUI to determine, which items should be visible in the dialog. But, it
@@ -43,6 +45,7 @@ namespaces:
     default_email: "no-reply@dummy.com"
     csv_gen_header: ""
     csv_gen_placeholder: ""
+    csv_gen_header_description: ""
     required_attributes: []
     optional_attributes:
       - password
@@ -51,6 +54,7 @@ namespaces:
     default_email: "no-reply@dummy.com"
     csv_gen_header: ""
     csv_gen_placeholder: ""
+    csv_gen_header_description: ""
     required_attributes:
       - login
     optional_attributes:

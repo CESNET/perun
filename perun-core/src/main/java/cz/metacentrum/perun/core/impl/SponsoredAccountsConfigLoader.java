@@ -59,6 +59,7 @@ public class SponsoredAccountsConfigLoader {
 			JsonNode defaultEmail = namespaceNode.get("default_email");
 			JsonNode csvGenHeader = namespaceNode.get("csv_gen_header");
 			JsonNode csvGenPlaceholder = namespaceNode.get("csv_gen_placeholder");
+			JsonNode csvGenHeaderDescription = namespaceNode.get("csv_gen_header_description");
 			JsonNode requiredAttributesNode = namespaceNode.get("required_attributes");
 			JsonNode optionalAttributesNode = namespaceNode.get("optional_attributes");
 			Set<String> requiredAttributes = objectMapper.convertValue(requiredAttributesNode, new TypeReference<>() {});
@@ -73,6 +74,9 @@ public class SponsoredAccountsConfigLoader {
 				namespaceRules.setCsvGenHeader(csvGenHeader.asText());
 			if (csvGenPlaceholder != null && !csvGenPlaceholder.isNull())
 				namespaceRules.setCsvGenPlaceholder(csvGenPlaceholder.asText());
+			if (csvGenHeaderDescription != null && !csvGenHeaderDescription.isNull()) {
+				namespaceRules.setCsvGenHeaderDescription(csvGenHeaderDescription.asText());
+			}
 
 			rules.add(namespaceRules);
 		}
