@@ -9,6 +9,7 @@ public class NamespaceRules {
 	private String defaultEmail;
 	private String csvGenHeader;
 	private String csvGenPlaceholder;
+	private String csvGenHeaderDescription;
 	private Set<String> requiredAttributes;
 	private Set<String> optionalAttributes;
 
@@ -82,5 +83,13 @@ public class NamespaceRules {
 
 	public void setCsvGenPlaceholder(String csvGenPlaceholder) {
 		this.csvGenPlaceholder = csvGenPlaceholder;
+	}
+
+	public String getCsvGenHeaderDescription() {
+		return csvGenHeaderDescription;
+	}
+
+	public void setCsvGenHeaderDescription(String csvGenHeaderDescription) {
+		this.csvGenHeaderDescription = csvGenHeaderDescription;
 	}
 }
