@@ -197,10 +197,12 @@ public class GetApplicationDataById implements JsonCallback{
 				if (!item.getFormItem().getType().equalsIgnoreCase("PASSWORD")) {
 
 					// 0 = label or shortname
-					if (item.getFormItem().getType().startsWith("FROM_FEDERATION_HIDDEN")) {
+					// FIXME for now, we can only detect that the item was hidden for the 'ALWAYS' option. This will be for the most cases.
+					if (item.getFormItem().getHidden().equals("ALWAYS")) {
 						// hidden
 						ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong><br /><i>(value provided by external source)</i>");
-					} else if (item.getFormItem().getType().startsWith("FROM_FEDERATION_SHOW")) {
+					// FIXME for now, we can only detect that the item was disabled for the 'ALWAYS' option. This will be for the most cases.
+					} else if (item.getFormItem().getDisabled().equals("ALWAYS")) {
 						// show
 						ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong><br /><i>(value provided by external source)</i>");
 					} else {

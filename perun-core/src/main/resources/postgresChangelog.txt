@@ -6,6 +6,21 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.77
+create type app_item_disabled as enum ('NEVER','ALWAYS','IF_PREFILLED','IF_EMPTY');
+create type app_item_hidden as enum ('NEVER','ALWAYS','IF_PREFILLED','IF_EMPTY');
+ALTER TABLE application_form_items ADD COLUMN hidden app_item_hidden not null default 'NEVER';
+ALTER TABLE application_form_items ADD COLUMN disabled app_item_disabled not null default 'NEVER';
+ALTER TABLE application_form_items ADD COLUMN hidden_dependency_item_id integer;
+ALTER TABLE application_form_items ADD COLUMN disabled_dependency_item_id integer;
+ALTER TABLE application_form_items ADD COLUMN updatable boolean default true not null;
+ALTER TABLE application_form_items ADD CONSTRAINT applfrmit_hd foreign key (hidden_dependency_item_id) references application_form_items(id) ON DELETE SET NULL;
+ALTER TABLE application_form_items ADD CONSTRAINT applfrmit_dd foreign key (disabled_dependency_item_id) references application_form_items(id) ON DELETE SET NULL;
+UPDATE application_form_items SET hidden = 'ALWAYS' where type = 'FROM_FEDERATION_HIDDEN';
+UPDATE application_form_items SET disabled = 'ALWAYS' where type = 'FROM_FEDERATION_SHOW';
+UPDATE application_form_items SET updatable = false, type = 'TEXTFIELD' where type = 'FROM_FEDERATION_SHOW' OR type = 'FROM_FEDERATION_HIDDEN';
+UPDATE configurations SET value='3.1.77' WHERE property='DATABASE VERSION';
+
 3.1.76
 ALTER TABLE pwdreset ADD COLUMN uu_id uuid not null default gen_random_uuid();
 UPDATE configurations SET value='3.1.76' WHERE property='DATABASE VERSION';

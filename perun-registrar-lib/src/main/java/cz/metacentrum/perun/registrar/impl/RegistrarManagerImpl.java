@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,6 +66,10 @@ import cz.metacentrum.perun.registrar.RegistrarModule;
 
 import static cz.metacentrum.perun.core.api.GroupsManager.GROUPSYNCHROENABLED_ATTRNAME;
 import static cz.metacentrum.perun.registrar.model.ApplicationFormItem.Type.*;
+import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Implementation of RegistrarManager. Provides methods for:
@@ -845,10 +850,23 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		int itemId = Utils.getNewId(jdbc, "APPLICATION_FORM_ITEMS_ID_SEQ");
 		jdbc.update(
-				"insert into application_form_items(id,form_id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex) values (?,?,?,?,?,?,?,?,?,?)",
-				itemId, form.getId(), ordnum, item.getShortname(), item.isRequired(),
-				item.getType().name(), item.getFederationAttribute(),
-				item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(), item.getRegex());
+				"insert into application_form_items(id,form_id,ordnum,shortname,required,type,fed_attr,src_attr," +
+						"dst_attr,regex,updatable,hidden,disabled,hidden_dependency_item_id,disabled_dependency_item_id) values (?,?,?,?,?,?,?,?,?,?,?,?::app_item_hidden,?::app_item_disabled,?,?)",
+				itemId,
+				form.getId(),
+				ordnum,
+				item.getShortname(),
+				item.isRequired(),
+				item.getType().name(),
+				item.getFederationAttribute(),
+				item.getPerunSourceAttribute(),
+				item.getPerunDestinationAttribute(),
+				item.getRegex(),
+				item.isUpdatable(),
+				item.getHidden().toString(),
+				item.getDisabled().toString(),
+				item.getHiddenDependencyItemId(),
+				item.getDisabledDependencyItemId());
 
 		// create texts
 		for (Locale locale : item.getI18n().keySet()) {
@@ -909,11 +927,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			// else update form item
 
-			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,src_attr=?,dst_attr=?,regex=? where id=?",
+			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?," +
+							"fed_attr=?,src_attr=?,dst_attr=?,regex=?,updatable=?,hidden=?::app_item_hidden,disabled=?::app_item_disabled,hidden_dependency_item_id=?," +
+							"disabled_dependency_item_id=? where id=?",
 					item.getOrdnum(), item.getShortname(), item.isRequired(),
 					item.getType().toString(), item.getFederationAttribute(),
 					item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(),
-					item.getRegex(), item.getId());
+					item.getRegex(),
+					item.isUpdatable(),
+					item.getHidden().toString(),
+					item.getDisabled().toString(),
+					item.getHiddenDependencyItemId(),
+					item.getDisabledDependencyItemId(),
+					item.getId());
 			finalResult += result;
 			if (result == 0) {
 				// skip whole set if not found for update
@@ -1130,7 +1156,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					itemData.setId(Utils.getNewId(jdbc, "APPLICATION_DATA_ID_SEQ"));
 					jdbc.update("insert into application_data(id,app_id,item_id,shortname,value,assurance_level) values (?,?,?,?,?,?)",
 							itemData.getId(), appId, itemData.getFormItem().getId(), itemData
-									.getFormItem().getShortname(), itemData.getValue(), ((StringUtils.isBlank(itemData
+									.getFormItem().getShortname(), itemData.getValue(), ((isBlank(itemData
 									.getAssuranceLevel())) ? null : itemData.getAssuranceLevel()));
 				} catch (Exception ex) {
 					// log and store exception so vo manager could see error in notification.
@@ -2150,11 +2176,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// else update form item
 
-		int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,src_attr=?,dst_attr=?,regex=? where id=?",
-				item.getOrdnum(), item.getShortname(), item.isRequired(),
-				item.getType().toString(), item.getFederationAttribute(),
-				item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(),
-				item.getRegex(), item.getId());
+		int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?," +
+						"src_attr=?,dst_attr=?,regex=?,updatable=?,hidden=?::app_item_hidden,disabled=?::app_item_disabled,hidden_dependency_item_id=?,disabled_dependency_item_id=? where id=?",
+				item.getOrdnum(),
+				item.getShortname(),
+				item.isRequired(),
+				item.getType().toString(),
+				item.getFederationAttribute(),
+				item.getPerunSourceAttribute(),
+				item.getPerunDestinationAttribute(),
+				item.getRegex(),
+				item.isUpdatable(),
+				item.getHidden().toString(),
+				item.getDisabled().toString(),
+				item.getHiddenDependencyItemId(),
+				item.getDisabledDependencyItemId(),
+				item.getId());
 
 		// update form item texts (easy way = delete and new insert)
 
@@ -2352,17 +2389,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				}
 
-				// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
-				if ((itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) && itemW.getFormItem().isRequired() &&
-						(Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType()))) {
+			}
+		}
 
-					if (URN_USER_DISPLAY_NAME.equals(item.getPerunDestinationAttribute())) {
-						log.error("Couldn't resolve displayName from: {}, parsedNames were: {}", federValues, parsedName);
-					}
+		Map<Integer, ApplicationFormItemWithPrefilledValue> allItemsByIds = itemsWithValues.stream()
+				.collect(toMap(item -> item.getFormItem().getId(), Function.identity()));
 
-					itemsWithMissingData.add(itemW);
+		for (ApplicationFormItemWithPrefilledValue itemW : itemsWithValues) {
+			// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
+			if (isEmpty(itemW.getPrefilledValue()) &&
+					itemW.getFormItem().isRequired() &&
+					(isItemHidden(itemW, allItemsByIds) || isItemDisabled(itemW, allItemsByIds))) {
+				if (URN_USER_DISPLAY_NAME.equals(itemW.getFormItem().getPerunDestinationAttribute())) {
+					log.error("Couldn't resolve displayName from: {}, parsedNames were: {}", federValues, parsedName);
 				}
-
+				itemsWithMissingData.add(itemW);
 			}
 		}
 
@@ -2380,6 +2421,136 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// return prefilled form
 		return itemsWithValues;
 
+	}
+
+	/**
+	 * Checks, if the given item will be displayed during the submission.
+	 *
+	 * @param formItemWithValue item that is checked
+	 * @param allItemsByIds all items from the same form by their ids
+	 * @return true, if the item will be hidden in the submission form
+	 */
+	private boolean isItemHidden(ApplicationFormItemWithPrefilledValue formItemWithValue,
+	                             Map<Integer, ApplicationFormItemWithPrefilledValue> allItemsByIds) {
+		ApplicationFormItem formItem = formItemWithValue.getFormItem();
+
+		return switch (formItem.getHidden()) {
+			case NEVER -> false;
+			case ALWAYS -> true;
+			case IF_EMPTY -> isItemOrDependencyHidden(formItemWithValue, allItemsByIds, this::isItemEmpty);
+			case IF_PREFILLED -> isItemOrDependencyHidden(formItemWithValue, allItemsByIds, this::isItemPrefilled);
+		};
+	}
+
+	/**
+	 * Checks, if the given item will be disabled during the submission.
+	 *
+	 * @param formItemWithValue item that is checked
+	 * @param allItemsByIds all items from the same form by their ids
+	 * @return true, if the item will be disabled in the submission form
+	 */
+	private boolean isItemDisabled(ApplicationFormItemWithPrefilledValue formItemWithValue,
+	                               Map<Integer, ApplicationFormItemWithPrefilledValue> allItemsByIds) {
+		ApplicationFormItem formItem = formItemWithValue.getFormItem();
+
+		return switch (formItem.getDisabled()) {
+			case NEVER -> false;
+			case ALWAYS -> true;
+			case IF_EMPTY -> isItemOrDependencyDisabled(formItemWithValue, allItemsByIds, this::isItemEmpty);
+			case IF_PREFILLED -> isItemOrDependencyDisabled(formItemWithValue, allItemsByIds, this::isItemPrefilled);
+		};
+	}
+
+	/**
+	 * Checks, if the given item matches the given validator, or its disabled dependency item, if specified.
+	 *
+	 * @param formItemWithValue the base item that is checked
+	 * @param allItemsByIds all items by their ids
+	 * @param validator validator that is used to check the given item, or its dependency item
+	 * @return true, if the given item matches the given validator, or its disabled dependency item, if specified.
+	 */
+	private boolean isItemOrDependencyDisabled(ApplicationFormItemWithPrefilledValue formItemWithValue,
+	                                           Map<Integer, ApplicationFormItemWithPrefilledValue> allItemsByIds,
+	                                           Function<ApplicationFormItemWithPrefilledValue, Boolean> validator) {
+		ApplicationFormItem formItem = formItemWithValue.getFormItem();
+
+		if (formItem.getDisabledDependencyItemId() == null) {
+			return validator.apply(formItemWithValue);
+		}
+		var dependencyItem = allItemsByIds.get(formItem.getDisabledDependencyItemId());
+		if (dependencyItem == null) {
+			log.error("Application item has a dependency on item, which is not part of the same form. Item: {}", formItem);
+			throw new InternalErrorException("Application item has a dependency on item, which is not part of the same form. Item: " + formItem);
+		} else {
+			return validator.apply(dependencyItem);
+		}
+	}
+
+	/**
+	 * Checks, if the given item matches the given validator, or its hidden dependency item, if specified.
+	 *
+	 * @param formItemWithValue the base item that is checked
+	 * @param allItemsByIds all items by their ids
+	 * @param validator validator that is used to check the given item, or its dependency item
+	 * @return true, if the given item matches the given validator, or its hidden dependency item, if specified.
+	 */
+	private boolean isItemOrDependencyHidden(ApplicationFormItemWithPrefilledValue formItemWithValue,
+	                                         Map<Integer, ApplicationFormItemWithPrefilledValue> allItemsByIds,
+	                                         Function<ApplicationFormItemWithPrefilledValue, Boolean> validator) {
+		ApplicationFormItem formItem = formItemWithValue.getFormItem();
+
+		if (formItem.getHiddenDependencyItemId() == null) {
+			return validator.apply(formItemWithValue);
+		}
+		var dependencyItem = allItemsByIds.get(formItem.getHiddenDependencyItemId());
+		if (dependencyItem == null) {
+			log.error("Application item has a dependency on item, which is not part of the same form. Item: {}", formItem);
+			throw new InternalErrorException("Application item has a dependency on item, which is not part of the same. form. Item: " + formItem);
+		}
+		return validator.apply(dependencyItem);
+	}
+
+	/**
+	 * Check, if the item will not be prefilled.
+	 *
+	 * @param formItemWithValue item that is checked
+	 * @return true, if the item is empty - was not prefilled
+	 */
+	private boolean isItemEmpty(ApplicationFormItemWithPrefilledValue formItemWithValue) {
+		return !isItemPrefilled(formItemWithValue);
+	}
+
+	/**
+	 * Checks, if the item will be prefilled in the gui.
+	 * @param formItemWithValue item, that is checked
+	 * @return true, if the item is prefilled
+	 */
+	private boolean isItemPrefilled(ApplicationFormItemWithPrefilledValue formItemWithValue) {
+		// For now, we support a special behaviour only for checkboxes
+		if (formItemWithValue.getFormItem().getType() == CHECKBOX) {
+			return isCheckBoxPrefilled(formItemWithValue);
+		}
+		return isNotBlank(formItemWithValue.getPrefilledValue());
+	}
+
+	/**
+	 * Check, if the checkbox will be checked automatically, in the form.
+	 *
+	 * @param formItemWithValue check form item
+	 * @return true, if the checkbox will be checked
+	 */
+	private boolean isCheckBoxPrefilled(ApplicationFormItemWithPrefilledValue formItemWithValue) {
+		if (isBlank(formItemWithValue.getPrefilledValue())) {
+			return false;
+		}
+		// This should probably be more sophisticated, but if the cs and en options have the same options, it should work
+		ItemTexts enTexts = formItemWithValue.getFormItem().getI18n().get(Locale.ENGLISH);
+		if (enTexts == null) {
+			return false;
+		}
+		return Arrays.stream(enTexts.getOptions().split("\\|"))
+				.map(option -> option.split("#")[0])
+				.anyMatch(value -> formItemWithValue.getPrefilledValue().equals(value));
 	}
 
 	/**
@@ -2545,12 +2716,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new PrivilegeException(sess, "copyFormFromVoToVo");
 		}
 
-		List<ApplicationFormItem> items = getFormItems(sess, getFormForVo(fromVo));
-		for (ApplicationFormItem item : items) {
-			item.setOrdnum(null); // reset order, id is always new inside add method
-			addFormItem(sess, getFormForVo(toVo), item);
-		}
-
+		copyItems(sess, getFormForVo(fromVo), getFormForVo(toVo));
 	}
 
 	@Override
@@ -2565,25 +2731,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		if (reverse) {
-
-			// copy from group to VO
-			List<ApplicationFormItem> items = getFormItems(sess, getFormForGroup(toGroup));
-			for (ApplicationFormItem item : items) {
-				item.setOrdnum(null); // reset order, id is always new inside add method
-				addFormItem(sess, getFormForVo(fromVo), item);
-			}
-
+			copyItems(sess, getFormForGroup(toGroup), getFormForVo(fromVo));
 		} else {
-
-			// copy from VO to group
-			List<ApplicationFormItem> items = getFormItems(sess, getFormForVo(fromVo));
-			for (ApplicationFormItem item : items) {
-				item.setOrdnum(null); // reset order, id is always new inside add method
-				addFormItem(sess, getFormForGroup(toGroup), item);
-			}
-
+			copyItems(sess, getFormForVo(fromVo), getFormForGroup(toGroup));
 		}
-
 	}
 
 	@Override
@@ -2597,12 +2748,33 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new PrivilegeException(sess, "copyFormFromGroupToGroup");
 		}
 
-		List<ApplicationFormItem> items = getFormItems(sess, getFormForGroup(fromGroup));
+		copyItems(sess, getFormForGroup(fromGroup), getFormForGroup(toGroup));
+	}
+
+	/**
+	 * Copy items from one form to another.
+	 *
+	 * @param sess session
+	 * @param fromForm the form from which the items are taken
+	 * @param toForm the form where the items are added
+	 */
+	private void copyItems(PerunSession sess, ApplicationForm fromForm, ApplicationForm toForm) throws PerunException {
+		List<ApplicationFormItem> items = getFormItems(sess, fromForm);
+		Map<Integer, Integer> oldToNewIDs = new HashMap<>();
 		for (ApplicationFormItem item : items) {
+			Integer oldId = item.getId();
 			item.setOrdnum(null); // reset order, id is always new inside add method
-			addFormItem(sess, getFormForGroup(toGroup), item);
+			item = addFormItem(sess, toForm, item);
+			oldToNewIDs.put(oldId, item.getId());
 		}
 
+		for (ApplicationFormItem item : items) {
+			if (item.getHiddenDependencyItemId() != null || item.getDisabledDependencyItemId() != null) {
+				item.setHiddenDependencyItemId(oldToNewIDs.get(item.getHiddenDependencyItemId()));
+				item.setDisabledDependencyItemId(oldToNewIDs.get(item.getDisabledDependencyItemId()));
+				updateFormItem(sess, item);
+			}
+		}
 	}
 
 	public void updateApplicationUser(PerunSession sess, Application app) {
@@ -2627,10 +2799,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		ApplicationFormItemData existingData = getFormItemDataById(data.getId(), appId);
 		if (existingData == null) throw new RegistrarException("Form item data specified by ID: "+ data.getId() + " not found or doesn't belong to the application "+appId);
 
-		List<Type> notAllowed = Arrays.asList(FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
+		List<Type> notAllowed = Arrays.asList(USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
 
 		if (notAllowed.contains(existingData.getFormItem().getType())) throw new RegistrarException("You are not allowed to modify "+existingData.getFormItem().getType()+" type of form items.");
 
+		if (!existingData.getFormItem().isUpdatable()) {
+			throw new RegistrarException("The item " + existingData.getFormItem().getShortname() + " is not allowed to be updated.");
+		}
 		updateFormItemData(sess, data);
 
 	}
@@ -2656,11 +2831,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			ApplicationFormItemData existingData = getFormItemDataById(dataItem.getId(), appId);
 			if (existingData == null) throw new RegistrarException("Form item data specified by ID: " + dataItem.getId() + " not found or doesn't belong to the application " + appId);
 
-			List<Type> notAllowed = Arrays.asList(FROM_FEDERATION_HIDDEN, FROM_FEDERATION_SHOW, USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
+			List<Type> notAllowed = Arrays.asList(USERNAME, PASSWORD, HEADING, HTML_COMMENT, SUBMIT_BUTTON, AUTO_SUBMIT_BUTTON);
 
 			if (notAllowed.contains(existingData.getFormItem().getType()))
 				throw new RegistrarException("You are not allowed to modify " + existingData.getFormItem().getType() + " type of form items.");
-
+			if (!existingData.getFormItem().isUpdatable()) {
+				throw new RegistrarException("The item " + existingData.getFormItem().getShortname() + " is not allowed to be updated.");
+			}
 			updateFormItemData(sess, dataItem);
 
 		}
@@ -2686,7 +2863,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				handleLoaForValidatedMail(session, dataItem);
 			}
 			int result = jdbc.update("update application_data set value=? , assurance_level=? where id=?",
-					dataItem.getValue(), ((StringUtils.isBlank(dataItem.getAssuranceLevel())) ? null : dataItem.getAssuranceLevel()),
+					dataItem.getValue(), ((isBlank(dataItem.getAssuranceLevel())) ? null : dataItem.getAssuranceLevel()),
 					dataItem.getId());
 			log.info("{} manually updated form item data {}", session.getPerunPrincipal(), dataItem);
 			if (result != 1) {
@@ -3301,7 +3478,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				// if attribute exists
 				if (a != null) {
-					if (StringUtils.isBlank(a.valueAsString())) {
+					if (isBlank(a.valueAsString())) {
 						// set login attribute if initial (new) value
 						a.setValue(newValue);
 						attributes.add(a);
@@ -3423,13 +3600,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// all mails from federation (lowercased)
 		List<String> mailsFromFed = new ArrayList<>();
 		String mailsFed = session.getPerunPrincipal().getAdditionalInformations().get("mail");
-		if (StringUtils.isNotBlank(mailsFed)) {
+		if (isNotBlank(mailsFed)) {
 			mailsFromFed.addAll(Arrays.stream(mailsFed.split(";")).map(String::toLowerCase).collect(Collectors.toList()));
 		}
 
 		// all prefilled mails (lowercased)
 		List<String> prefilledValues = new ArrayList<>();
-		if (StringUtils.isNotBlank(itemData.getPrefilledValue())) {
+		if (isNotBlank(itemData.getPrefilledValue())) {
 			prefilledValues.addAll(Arrays.stream(itemData.getPrefilledValue().split(";")).map(String::toLowerCase).collect(Collectors.toList()));
 		}
 
@@ -3439,7 +3616,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			valuesFromPerun.remove(fromFed);
 		}
 
-		String actualValue = (StringUtils.isNotBlank(itemData.getValue())) ? itemData.getValue().toLowerCase() : null;
+		String actualValue = (isNotBlank(itemData.getValue())) ? itemData.getValue().toLowerCase() : null;
 
 		if (valuesFromPerun.contains(actualValue)) {
 			// override incoming LOA, since it was from perun
@@ -3452,7 +3629,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// or else keep incoming LoA since it was one of pre-filled values from Federation.
 
 		// normalize empty value
-		if (StringUtils.isBlank(itemData.getValue())) {
+		if (isBlank(itemData.getValue())) {
 			itemData.setValue(null);
 		}
 
@@ -3825,7 +4002,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,module_name from application_form";
 
-	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex from application_form_items";
+	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex,hidden,disabled,hidden_dependency_item_id,disabled_dependency_item_id,updatable from application_form_items";
 
 	private static final String FORM_ITEM_TEXTS_SELECT = "select locale,label,options,help,error_message from application_form_item_texts";
 
@@ -3893,6 +4070,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				Type.valueOf(resultSet.getString("type")), resultSet.getString("fed_attr"),
 				resultSet.getString("src_attr"), resultSet.getString("dst_attr"), resultSet.getString("regex"));
 		app.setOrdnum(resultSet.getInt("ordnum"));
+		app.setHidden(ApplicationFormItem.Hidden.valueOf(resultSet.getString("hidden")));
+		app.setDisabled(ApplicationFormItem.Disabled.valueOf(resultSet.getString("disabled")));
+		app.setUpdatable(resultSet.getBoolean("updatable"));
+
+		if (resultSet.getInt("hidden_dependency_item_id") != 0) {
+			app.setHiddenDependencyItemId(resultSet.getInt("hidden_dependency_item_id"));
+		}
+		if (resultSet.getInt("disabled_dependency_item_id") != 0) {
+			app.setDisabledDependencyItemId(resultSet.getInt("disabled_dependency_item_id"));
+		}
 		return app;
 	};
 
