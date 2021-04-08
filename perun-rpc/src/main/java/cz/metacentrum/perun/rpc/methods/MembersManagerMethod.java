@@ -1048,9 +1048,9 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 */
 	/*#
  	 * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
- 	 * status which is contain in list of statuses.
+ 	 * status which is contain in lists of statuses.
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
- 	 * If listOfStatuses is empty or null, return all possible statuses.
+ 	 * If listOfStatuses or listOfGroupStatuses is empty or null, return all possible statuses.
  	 *
  	 * If lookingInParentGroup is true, get all these richMembers only for parentGroup of this group.
  	 * If this group is top level group, so get richMembers from members group.
@@ -1058,6 +1058,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> Attribute names
  	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | EXPIRED | DISABLED)
+ 	 * @param allowedGroupStatuses (Optional) List<String> Allowed statuses (VALID | EXPIRED)
  	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of richMembers with specific attributes from group
  	 */
@@ -1118,6 +1119,12 @@ public enum MembersManagerMethod implements ManagerMethod {
 				}
 			} else {
 				if (parms.contains("allowedStatuses")) {
+					// read allowedGroupStatuses from the params or use empty list
+					List<String> allowedGroupStatuses = Collections.emptyList();
+					if (parms.contains("allowedGroupStatuses")) {
+						allowedGroupStatuses = parms.readList("allowedGroupStatuses", String.class);
+					}
+
 					if (parms.contains("attrsNames")) {
 						if (parms.contains("resource")) {
 							// with selected attributes
@@ -1129,18 +1136,20 @@ public enum MembersManagerMethod implements ManagerMethod {
 						} else {
 							// with selected attributes
 							return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-									ac.getGroupById(parms.readInt("group")),
-									parms.readList("attrsNames", String.class),
-									parms.readList("allowedStatuses", String.class),
-									parms.readBoolean("lookingInParentGroup"));
+								ac.getGroupById(parms.readInt("group")),
+								parms.readList("attrsNames", String.class),
+								parms.readList("allowedStatuses", String.class),
+								allowedGroupStatuses,
+								parms.readBoolean("lookingInParentGroup"));
 						}
 					} else {
 						// with all attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-								ac.getGroupById(parms.readInt("group")),
-								null,
-								parms.readList("allowedStatuses", String.class),
-								parms.readBoolean("lookingInParentGroup"));
+							ac.getGroupById(parms.readInt("group")),
+							null,
+							parms.readList("allowedStatuses", String.class),
+							allowedGroupStatuses,
+							parms.readBoolean("lookingInParentGroup"));
 					}
 				} else {
 					if (parms.contains("attrsNames")) {
@@ -1476,9 +1485,9 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 */
 	/*#
  	 * Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames
- 	 * and who have only status which is contain in list of statuses.
+ 	 * and who have only status which is contain in lists of statuses.
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
- 	 * If listOfStatuses is empty or null, return all possible statuses.
+ 	 * If listOfStatuses or listOfGroupStatuses is empty or null, return all possible statuses.
  	 *
  	 * If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
  	 * If this group is top level group, so find richMembers from members group.
@@ -1486,6 +1495,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> Attribute names
  	 * @param allowedStatuses List<String> Allowed statuses
+ 	 * @param allowedGroupStatuses (Optional) List<String> Allowed group statuses
  	 * @param searchString String String to search by
  	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
@@ -1537,12 +1547,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				if(parms.contains("allowedStatuses")) {
 					if(parms.contains("group")) {
+						// read allowedGroupStatuses from the params or use empty list
+						List<String> allowedGroupStatuses = Collections.emptyList();
+						if (parms.contains("allowedGroupStatuses")) {
+							allowedGroupStatuses = parms.readList("allowedGroupStatuses", String.class);
+						}
+
 						return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
-								ac.getGroupById(parms.readInt("group")),
-								parms.readList("attrsNames", String.class),
-								parms.readList("allowedStatuses", String.class),
-								parms.readString("searchString"),
-								parms.readBoolean("lookingInParentGroup"));
+							ac.getGroupById(parms.readInt("group")),
+							parms.readList("attrsNames", String.class),
+							parms.readList("allowedStatuses", String.class),
+							allowedGroupStatuses,
+							parms.readString("searchString"),
+							parms.readBoolean("lookingInParentGroup"));
 					} else {
 						return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
 								parms.readList("attrsNames", String.class),

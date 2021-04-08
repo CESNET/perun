@@ -654,9 +654,9 @@ public interface MembersManagerBl {
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
-	 * status which is contain in list of statuses.
+	 * status which is contain in lists of statuses.
 	 * If attrsNames is empty or null return all attributes for specific richMembers.
-	 * If listOfStatuses is empty or null, return all possible statuses.
+	 * If listOfStatuses or listOfGroupStatuses is empty or null, return all possible statuses.
 	 *
 	 * If lookingInParentGroup is true, get all these richMembers only for parentGroup of this group.
 	 * If this group is top level group, so get richMembers from members group.
@@ -665,13 +665,14 @@ public interface MembersManagerBl {
 	 * @param group
 	 * @param attrsNames
 	 * @param allowedStatuses
+	 * @param allowedGroupStatuses
 	 * @param lookingInParentGroup
 	 * @return list of richMembers with specific attributes from group
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws AttributeNotExistsException, ParentGroupNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, List<String> allowedGroupStatuses, boolean lookingInParentGroup) throws AttributeNotExistsException, ParentGroupNotExistsException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrNames.
@@ -769,9 +770,9 @@ public interface MembersManagerBl {
 
 	/**
 	 * Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames
-	 * and who have only status which is contain in list of statuses.
+	 * and who have only status which is contain in lists of statuses.
 	 * If attrsNames is empty or null return all attributes for specific richMembers.
-	 * If listOfStatuses is empty or null, return all possible statuses.
+	 * If listOfStatuses or listOfGroupStatuses is empty or null, return all possible statuses.
 	 *
 	 * If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
 	 * If this group is top level group, so find richMembers from members group.
@@ -780,13 +781,14 @@ public interface MembersManagerBl {
 	 * @param group
 	 * @param attrsNames
 	 * @param allowedStatuses
+	 * @param allowedGroupStatuses
 	 * @param searchString
 	 * @param lookingInParentGroup
 	 * @return list of founded richMembers with specific attributes from Group for searchString
 	 * @throws InternalErrorException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws ParentGroupNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, List<String> allowedGroupStatuses, String searchString, boolean lookingInParentGroup) throws ParentGroupNotExistsException;
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
