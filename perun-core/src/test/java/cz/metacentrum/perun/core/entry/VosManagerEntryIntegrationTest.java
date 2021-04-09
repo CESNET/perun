@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.MemberWithSponsors;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Sponsor;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -673,6 +675,31 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		assertTrue("User should've been returned.", usersOfCompleteCandidates.contains(userToContain1));
 		assertTrue("User should've been returned.", usersOfCompleteCandidates.contains(userToContain2));
 		assertFalse("User shouldn't have been returned.", usersOfCompleteCandidates.contains(userNotToContain1));
+	}
+
+	@Test
+	public void getVoMembersCountsByStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getVoMembersCountsByStatus");
+
+		myVo = perun.getVosManagerBl().createVo(sess, myVo);
+
+		createMemberFromExtSource(myVo);
+
+		Member disabledMember = createMemberFromExtSource(myVo);
+		perun.getMembersManager().setStatus(sess, disabledMember, Status.DISABLED);
+
+		Map<Status, Integer> counts = vosManagerEntry.getVoMembersCountsByStatus(sess, myVo);
+		assertThat(counts.get(Status.VALID)).isEqualTo(1);
+		assertThat(counts.get(Status.DISABLED)).isEqualTo(1);
+		assertThat(counts.get(Status.INVALID)).isEqualTo(0);
+		assertThat(counts.get(Status.EXPIRED)).isEqualTo(0);
+	}
+
+	@Test (expected=VoNotExistsException.class)
+	public void getVoMembersCountsByStatusWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getVoMembersCountsByStatusWhenVoNotExists");
+
+		vosManagerEntry.getVoMembersCountsByStatus(sess, new Vo());
 	}
 
 	// private methods ------------------------------------------------------------------

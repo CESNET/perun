@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.IllegalArgumentException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -525,6 +527,19 @@ public class VosManagerEntry implements VosManager {
 		Utils.checkPerunSession(sess);
 
 		return vosManagerBl.getVosCount(sess);
+	}
+
+	@Override
+	public Map<Status, Integer> getVoMembersCountsByStatus(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		vosManagerBl.checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getVoMembersCountsByStatus_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getVoMembersCountsByStatus");
+		}
+
+		return vosManagerBl.getVoMembersCountsByStatus(sess, vo);
 	}
 
 	/**

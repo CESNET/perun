@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -62,6 +63,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -717,6 +719,19 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public int getVosCount(PerunSession sess) {
 		return getVosManagerImpl().getVosCount(sess);
+	}
+
+	@Override
+	public Map<Status, Integer> getVoMembersCountsByStatus(PerunSession sess, Vo vo) {
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+
+		Map<Status, Integer> counts = new HashMap<>();
+		for (Status status : Status.values()) {
+			counts.put(status, 0);
+		}
+		members.forEach(member -> counts.computeIfPresent(member.getStatus(), (key, value) -> value + 1));
+
+		return counts;
 	}
 
 	@Override

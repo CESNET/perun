@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public enum VosManagerMethod implements ManagerMethod {
 
@@ -270,6 +272,24 @@ public enum VosManagerMethod implements ManagerMethod {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getVosManager().getVosCount(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Returns number of vo members by their status.
+	 *
+	 * @throw VoNotExistsException When the vo does not exist.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @return Map<String, Integer> map of status in vo to number of vo members with the status
+	 */
+	getVoMembersCountsByStatus {
+		@Override
+		public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			Map<Status, Integer> counts = ac.getVosManager().getVoMembersCountsByStatus(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+
+			// convert Status to String
+			return counts.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue));
 		}
 	},
 
