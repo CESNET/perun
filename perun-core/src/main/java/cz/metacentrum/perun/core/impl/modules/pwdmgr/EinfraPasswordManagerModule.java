@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidLoginException;
-import cz.metacentrum.perun.core.api.exceptions.InvalidSponsoredUserDataException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -21,6 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeExceptio
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
+import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,6 +50,13 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 	protected final Pattern einfraPasswordContainsLower = Pattern.compile(".*[a-z].*");
 	protected final Pattern einfraPasswordContainsUpper = Pattern.compile(".*[A-Z].*");
 	protected final Pattern einfraPasswordContainsSpec = Pattern.compile(".*[\\x20-\\x2F\\x3A-\\x40\\x5B-\\x60\\x7B-\\x7E].*");
+
+	private static final List<Pattern> FORBIDDEN_LOGIN_PATTERNS = List.of(
+			Pattern.compile("^open-.*$"),
+			Pattern.compile("^dd-.*$"),
+			Pattern.compile("^it4i.*$"),
+			Pattern.compile("^pr[0-9].*$")
+	);
 
 	public EinfraPasswordManagerModule() {
 
@@ -211,13 +218,37 @@ public class EinfraPasswordManagerModule extends GenericPasswordManagerModule {
 		((PerunBl)sess.getPerun()).getModulesUtilsBl().checkLoginNamespaceRegex(actualLoginNamespace, login, einfraLoginPattern);
 
 		// check if login is permitted
-		if (!((PerunBl)sess.getPerun()).getModulesUtilsBl().isUserLoginPermitted(actualLoginNamespace, login)) {
+		if (!isLoginPermitted(sess, login)) {
 			log.warn("Login '{}' is not allowed in {} namespace by configuration.", login, actualLoginNamespace);
 			throw new InvalidLoginException("Login '"+login+"' is not allowed in '"+actualLoginNamespace+"' namespace by configuration.");
 		}
 
 		// TODO - we will probably want to split regex checks on multiple conditions and let user know about all problems at once
 
+	}
+
+	/**
+	 * Checks, if the login is permitted for the Einfra namespace.
+	 *
+	 * Login is verified in the given priority:
+	 * 1) If the login is exceptionally allowed, returns true.
+	 * 2) If the login matches some of the hardcoded prefixes, returns false.
+	 * 3) Checks the specified login format in the instance configuration.
+	 *
+	 * @param sess session
+	 * @param login checked login
+	 * @return true, if the given login is permitted, false otherwise
+	 */
+	public boolean isLoginPermitted(PerunSession sess, String login) {
+		ModulesUtilsBl utils = ((PerunBl)sess.getPerun()).getModulesUtilsBl();
+		if (utils.isLoginExceptionallyAllowed(actualLoginNamespace, login)) {
+			return true;
+		}
+		if (FORBIDDEN_LOGIN_PATTERNS.stream()
+				.anyMatch(pattern -> pattern.matcher(login).matches())) {
+			return false;
+		}
+		return utils.isUserLoginPermitted(actualLoginNamespace, login);
 	}
 
 	@Override
