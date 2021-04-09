@@ -1729,6 +1729,7 @@ public class MailManagerImpl implements MailManager {
 									newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
 									newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
 									newValue += "&i=" + URLEncoder.encode(i, StandardCharsets.UTF_8) + "&m=" + URLEncoder.encode(m, StandardCharsets.UTF_8);
+									newValue += "&target=" + BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
 								}
 							}
 							// substitute {validationLink-authz} with actual value or empty string
