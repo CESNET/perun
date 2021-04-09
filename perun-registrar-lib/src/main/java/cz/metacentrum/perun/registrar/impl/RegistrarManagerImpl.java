@@ -3925,8 +3925,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
-		// store user-ext-source attributes from session to application object
+		// store user-ext-source attributes and redirectURL from session to application object
 		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
+		if (application.getFedInfo() != null && application.getFedInfo().contains("redirectURL")) {
+			String redirectURL = StringUtils.substringBetween(application.getFedInfo().substring(application.getFedInfo().indexOf("redirectURL")), "\"", "\"");
+			map.put("redirectURL", redirectURL);
+		}
 		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
 		application.setFedInfo(additionalAttrs);
 
