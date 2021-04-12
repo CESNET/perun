@@ -1764,6 +1764,9 @@ public class MailManagerImpl implements MailManager {
 							if (!url2.toString().isEmpty())
 								url2.append("i=").append(URLEncoder.encode(i, StandardCharsets.UTF_8)).append("&m=").append(URLEncoder.encode(m, StandardCharsets.UTF_8));
 
+							String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
+							url2.append((redirectURL != null) ? "&target=" + redirectURL : EMPTY_STRING);
+
 							// replace validation link
 							mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());
 						}
