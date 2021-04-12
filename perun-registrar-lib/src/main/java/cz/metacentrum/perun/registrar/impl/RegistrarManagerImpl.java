@@ -892,6 +892,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int updateFormItems(PerunSession sess, ApplicationForm form, List<ApplicationFormItem> items) throws PrivilegeException {
+		//map storing [temporaryId : savedId] to enable fixing invalid dependencies on temporary ids
+		Map<Integer, Integer> temporaryToSaved = new HashMap<>();
+		//map storing [temporaryId : disabledDependencyTemporaryId]
+		Map<Integer, Integer> temporaryToDisabled = new HashMap<>();
+		//map storing [temporaryId : hiddenDependencyTemporaryId]
+		Map<Integer, Integer> temporaryToHidden = new HashMap<>();
+
+		prepareIdsMapping(items, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
 
 		//Authorization
 		if (form.getGroup() == null) {
@@ -912,9 +920,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		for (ApplicationFormItem item : items) {
 
 			// is item to create ? => create
-			if (item.getId() == 0 && !item.isForDelete()) {
-				if (addFormItem(sess, form, item) != null) {
+			if (item.getId() <= 0 && !item.isForDelete()) {
+				int temporaryId = item.getId();
+				ApplicationFormItem savedItem = addFormItem(sess, form, item);
+				if (savedItem != null) {
 					finalResult++;
+					temporaryToSaved.put(temporaryId, savedItem.getId()); // override with saved id
 				}
 				continue;
 			}
@@ -969,6 +980,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						item.getId(), appType.toString());
 			}
 		}
+
+		fixDependencies(form, temporaryToSaved, temporaryToDisabled, temporaryToHidden);
 
 		perun.getAuditer().log(sess, new FormItemsUpdated(form));
 		// return number of updated rows
@@ -3985,6 +3998,50 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (jdbc.update("update application set apptype=? where id=?", application.getType().toString(), application.getId()) > 0) {
 			log.debug("Application type changed to + " + application.getType());
+		}
+	}
+
+	/**
+	 * Prepare map tempId -> savedId, save tempId -> hiddenDependencyId and tempId -> disabledDependencyId
+	 * and reset the dependencyId attributes for unsaved items
+	 * @param items Updated items
+	 * @param ids tempId -> savedId map
+	 * @param toDisabled tempId -> disabledDependencyId
+	 * @param toHidden tempId -> hiddenDependencyId
+	 */
+	private void prepareIdsMapping(List<ApplicationFormItem> items, Map<Integer, Integer> ids, Map<Integer, Integer> toDisabled, Map<Integer, Integer> toHidden) {
+		for (ApplicationFormItem item : items) {
+			//save all updated items' ids
+			ids.put(item.getId(), item.getId());
+
+			//save all dependencies, which will be temporarily removed
+			if (item.getDisabledDependencyItemId() != null && item.getDisabledDependencyItemId() < 0) {
+				toDisabled.put(item.getId(), item.getDisabledDependencyItemId());
+				item.setDisabledDependencyItemId(null);
+			}
+			if (item.getHiddenDependencyItemId() != null && item.getHiddenDependencyItemId() < 0) {
+				toHidden.put(item.getId(), item.getHiddenDependencyItemId());
+				item.setHiddenDependencyItemId(null);
+			}
+		}
+	}
+
+	/**
+	 * Places removed dependencies back.
+	 */
+	private void fixDependencies(ApplicationForm form, Map<Integer, Integer> idsTranslation, Map<Integer, Integer> toDisabled, Map<Integer, Integer> toHidden) {
+		List<ApplicationFormItem> items = jdbc.query(FORM_ITEM_SELECT+" where form_id=?", ITEM_MAPPER, form.getId());
+
+		for (Integer tempId : toDisabled.keySet()) {
+			jdbc.update("update application_form_items set disabled_dependency_item_id=? where id=?",
+				idsTranslation.get(toDisabled.get(tempId)),
+				idsTranslation.get(tempId));
+		}
+
+		for (Integer tempId : toHidden.keySet()) {
+			jdbc.update("update application_form_items set hidden_dependency_item_id=? where id=?",
+				idsTranslation.get(toHidden.get(tempId)),
+				idsTranslation.get(tempId));
 		}
 	}
 

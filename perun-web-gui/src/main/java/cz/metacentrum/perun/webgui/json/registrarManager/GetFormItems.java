@@ -312,7 +312,7 @@ public class GetFormItems implements JsonCallback {
 			}
 
 			// color for new items to be saved
-			if (item.getId() == 0) {
+			if (item.getId() < 0) {
 				ft.getFlexCellFormatter().setStyleName(i, 0, "log-success");
 				ft.getFlexCellFormatter().setStyleName(i, 1, "log-success");
 				ft.getFlexCellFormatter().setStyleName(i, 2, "log-success");
@@ -402,12 +402,12 @@ public class GetFormItems implements JsonCallback {
 						if (it.isForDelete()) forDelete = true;
 					}
 
-					if (forDelete) {
+					if (forDelete || items.get(index).getId() < 0) {
 
 						// mark for deletion when save changes
 						items.get(index).setForDelete(true);
 						// remove if newly created
-						if (items.get(index).getId()==0) {
+						if (items.get(index).getId() < 0) {
 							items.remove(index);
 						}
 						// refresh
@@ -420,10 +420,6 @@ public class GetFormItems implements JsonCallback {
 							public void onClick(ClickEvent event) {
 								// mark for deletion when save changes
 								items.get(index).setForDelete(true);
-								// remove if newly created
-								if (items.get(index).getId()==0) {
-									items.remove(index);
-								}
 								// refresh
 								prepareSettings(items);
 							}

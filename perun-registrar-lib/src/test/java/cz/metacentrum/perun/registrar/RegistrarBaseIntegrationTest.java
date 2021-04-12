@@ -445,6 +445,52 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 				.isEqualTo(items.get(0).getId());
 	}
 
+	@Test
+	public void saveDependencyOnUnsavedItemWithTempId() throws Exception {
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		ApplicationFormItem savedItem = new ApplicationFormItem();
+		savedItem.setShortname("saved");
+		savedItem = registrarManager.addFormItem(session, form, savedItem);
+		registrarManager.updateFormItems(session, form, new ArrayList<>(Arrays.asList(savedItem)));
+
+		ApplicationFormItem firstUnsavedItem = new ApplicationFormItem();
+		firstUnsavedItem.setShortname("unsaved1");
+		firstUnsavedItem.setId(-1);
+
+		ApplicationFormItem secondUnsavedItem = new ApplicationFormItem();
+		secondUnsavedItem.setShortname("unsaved2");
+		secondUnsavedItem.setId(-2);
+
+		savedItem.setHidden(ApplicationFormItem.Hidden.IF_PREFILLED);
+		savedItem.setHiddenDependencyItemId(-1);
+		secondUnsavedItem.setHidden(ApplicationFormItem.Hidden.IF_PREFILLED);
+		secondUnsavedItem.setHiddenDependencyItemId(-1);
+
+		savedItem.setDisabled(ApplicationFormItem.Disabled.IF_PREFILLED);
+		savedItem.setDisabledDependencyItemId(-2);
+		firstUnsavedItem.setDisabled(ApplicationFormItem.Disabled.IF_PREFILLED);
+		firstUnsavedItem.setDisabledDependencyItemId(-2);
+
+		registrarManager.updateFormItems(session, form, new ArrayList<>(Arrays.asList(savedItem, firstUnsavedItem, secondUnsavedItem)));
+		var items = registrarManager.getFormItems(session, registrarManager.getFormForVo(vo));
+		assertThat(items).hasSize(3);
+
+		// ids were changed from negative to positive
+		assertThat(items.get(1).getId()).isGreaterThan(0);
+		assertThat(items.get(2).getId()).isGreaterThan(0);
+
+		// dependencies are valid
+		assertThat(items.get(0).getHiddenDependencyItemId())
+			.isEqualTo(items.get(1).getId());
+		assertThat(items.get(2).getHiddenDependencyItemId())
+			.isEqualTo(items.get(1).getId());
+		assertThat(items.get(0).getDisabledDependencyItemId())
+			.isEqualTo(items.get(2).getId());
+		assertThat(items.get(1).getDisabledDependencyItemId())
+			.isEqualTo(items.get(2).getId());
+	}
+
 	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException {
 
 		Map<String,String> feder = new HashMap<>();
