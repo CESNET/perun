@@ -785,8 +785,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws AttributeNotExistsException, ParentGroupNotExistsException {
-		return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), allowedStatuses);
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, List<String> allowedGroupStatuses, boolean lookingInParentGroup) throws AttributeNotExistsException, ParentGroupNotExistsException {
+		return getOnlyRichMembersWithAllowedStatusesAndGroupStatuses(sess, this.getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), allowedStatuses, allowedGroupStatuses);
 	}
 
 	@Override
@@ -817,8 +817,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws ParentGroupNotExistsException {
-		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), allowedStatuses);
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, List<String> allowedGroupStatuses, String searchString, boolean lookingInParentGroup) throws ParentGroupNotExistsException {
+		return getOnlyRichMembersWithAllowedStatusesAndGroupStatuses(sess, this.findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), allowedStatuses, allowedGroupStatuses);
 	}
 
 	/**
@@ -843,6 +843,36 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		for(RichMember rm: richMembers) {
 			if(statuses.contains(rm.getStatus())) allowedRichMembers.add(rm);
+		}
+
+		return allowedRichMembers;
+	}
+
+	/**
+	 * Return list of RichMembers with allowed statuses contains in list of allowedStatuses and in list of allowedGroupStatuses.
+	 * If allowedGroupStatuses is empty or null, get richMembers with all statuses.
+	 *
+	 * @param sess perun session
+	 * @param richMembers rich members
+	 * @param allowedStatuses allowed statuses
+	 * @param allowedGroupStatuses allowed group statuses
+	 * @return list of allowed richMembers
+	 */
+	private List<RichMember> getOnlyRichMembersWithAllowedStatusesAndGroupStatuses(PerunSession sess, List<RichMember> richMembers, List<String> allowedStatuses, List<String> allowedGroupStatuses) {
+		List<RichMember> allowedRichMembers = new ArrayList<>();
+		if(richMembers == null || richMembers.isEmpty()) return allowedRichMembers;
+		if((allowedStatuses == null || allowedStatuses.isEmpty()) && (allowedGroupStatuses == null || allowedGroupStatuses.isEmpty())) return richMembers;
+
+		allowedRichMembers = this.getOnlyRichMembersWithAllowedStatuses(sess, richMembers, allowedStatuses);
+
+		if (!allowedGroupStatuses.isEmpty()) {
+			//Covert group statuses to objects MemberGroupStatus
+			List<MemberGroupStatus> groupStatuses = new ArrayList<>();
+			for(String groupStatus: allowedGroupStatuses) {
+				groupStatuses.add(MemberGroupStatus.valueOf(groupStatus));
+			}
+
+			allowedRichMembers.removeIf(rm -> !groupStatuses.contains(rm.getGroupStatus()));
 		}
 
 		return allowedRichMembers;

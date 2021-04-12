@@ -338,6 +338,56 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getCompleteRichMembersWithAllowedGroupStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "getCompleteRichMembersWithAllowedGroupStatuses");
+
+		Group group = perun.getGroupsManagerBl().createGroup(sess, createdVo, new Group("TestGroup", "TestGroupDescription"));
+
+		Candidate candidate1 = new Candidate();
+		candidate1.setFirstName("first1");
+		candidate1.setId(1);
+		candidate1.setMiddleName("");
+		candidate1.setLastName("last1");
+		candidate1.setTitleBefore("");
+		candidate1.setTitleAfter("");
+		ues = new UserExtSource(extSource, "login1");
+		candidate1.setUserExtSource(ues);
+		candidate1.setAttributes(new HashMap<>());
+
+		Member createdMember1 = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate1);
+
+		Candidate candidate2 = new Candidate();
+		candidate2.setFirstName("first2");
+		candidate2.setId(2);
+		candidate2.setMiddleName("");
+		candidate2.setLastName("last2");
+		candidate2.setTitleBefore("");
+		candidate2.setTitleAfter("");
+		ues = new UserExtSource(extSource, "login2");
+		candidate2.setUserExtSource(ues);
+		candidate2.setAttributes(new HashMap<>());
+
+		Member createdMember2 = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate2);
+
+		perun.getGroupsManagerBl().addMember(sess, group, createdMember1);
+		perun.getGroupsManagerBl().addMember(sess, group, createdMember2);
+
+		List<RichMember> richMembers = membersManagerEntry.getCompleteRichMembers(sess, group, Collections.emptyList(), Arrays.asList("INVALID", "DISABLED", "EXPIRED"), Collections.singletonList("EXPIRED"), false);
+		assertEquals(0, richMembers.size());
+
+		richMembers = membersManagerEntry.getCompleteRichMembers(sess, group, Collections.emptyList(), Collections.singletonList("VALID"), Collections.singletonList("VALID"), false);
+		assertEquals(2, richMembers.size());
+
+		perun.getGroupsManagerBl().expireMemberInGroup(sess, createdMember1, group);
+		richMembers = membersManagerEntry.getCompleteRichMembers(sess, group, Collections.emptyList(), Arrays.asList("VALID", "INVALID", "DISABLED", "EXPIRED"), Collections.singletonList("EXPIRED"), false);
+		assertEquals(1, richMembers.size());
+		richMembers = membersManagerEntry.getCompleteRichMembers(sess, group, Collections.emptyList(), Collections.singletonList("EXPIRED"), Collections.singletonList("EXPIRED"), false);
+		assertEquals(0, richMembers.size());
+		richMembers = membersManagerEntry.getCompleteRichMembers(sess, group, Collections.emptyList(), Arrays.asList("VALID", "INVALID", "DISABLED", "EXPIRED"), Collections.emptyList(), false);
+		assertEquals(2, richMembers.size());
+	}
+
+	@Test
 	public void getRichMembersWithAttributesByNames() throws Exception {
 		System.out.println(CLASS_NAME + "getRichMembersWithAttributesByNames");
 

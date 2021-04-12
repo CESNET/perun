@@ -2259,7 +2259,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  getCompleteRichMembers_Group_List<String>_List<String>_boolean_policy:
+  getCompleteRichMembers_Group_List<String>_List<String>_List<String>_boolean_policy:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group
@@ -2328,7 +2328,7 @@ perun_policies:
     include_policies:
       - default_policy
 
-  findCompleteRichMembers_Group_List<String>_List<String>_String_boolean_policy:
+  findCompleteRichMembers_Group_List<String>_List<String>_List<String>_String_boolean_policy:
     policy_roles:
       - GROUPADMIN: Group
       - GROUPOBSERVER: Group

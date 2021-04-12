@@ -2380,6 +2380,19 @@ components:
         items:
           type: string
 
+    listOfAllowedGroupStatuses:
+      name: "allowedGroupStatuses[]"
+      description: "list of allowed group statuses List<String>"
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - VALID
+            - EXPIRED
+
     destinationId:
       name: destination
       description: "id of Destination"
@@ -8783,14 +8796,15 @@ paths:
         - MembersManager
       operationId: FindCompleteRichMembersForGroup
       summary: Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames
-        and who have only status which is contain in list of statuses. If attrsNames is empty or null
-        return all attributes for specific richMembers. If listOfStatuses is empty or null, return all possible statuses.
+        and who have only status which is contain in lists of statuses. If attrsNames is empty or null
+        return all attributes for specific richMembers. If listOfStatuses or listOfGroupStatuses is empty or null, return all possible statuses.
         If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
         If this group is top level group, so find richMembers from members group.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/attrsNames'
         - $ref: '#/components/parameters/listOfAllowedStatuses'
+        - $ref: '#/components/parameters/listOfAllowedGroupStatuses'
         - $ref: '#/components/parameters/searchString'
         - $ref: '#/components/parameters/lookingInParentGroup'
       responses:
@@ -8942,13 +8956,14 @@ paths:
         - MembersManager
       operationId: getCompleteRichMembersForGroup
       summary: Get all RichMembers with attributes specific for list of attrsNames from the group and have only status
-        which is contain in list of statuses. If attrsNames is empty or null return all attributes for specific richMembers.
-        If listOfStatuses is empty or null, return all possible statuses. If lookingInParentGroup is true,
+        which is contain in lists of statuses. If attrsNames is empty or null return all attributes for specific richMembers.
+        If listOfStatuses or listOfGroupStatuses is empty or null, return all possible statuses. If lookingInParentGroup is true,
         get all these richMembers only for parentGroup of this group. If this group is top level group,
         so get richMembers from members group.
       parameters:
         - $ref: '#/components/parameters/groupId'
         - $ref: '#/components/parameters/listOfAllowedStatuses'
+        - $ref: '#/components/parameters/listOfAllowedGroupStatuses'
         - $ref: '#/components/parameters/lookingInParentGroup'
         - name: "attrsNames[]"
           description: "list of attributes names List<String>"

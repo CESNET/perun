@@ -634,17 +634,17 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, List<String> allowedGroupStatuses, boolean lookingInParentGroup) throws PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_List<String>_boolean_policy", group)) {
+		if (!AuthzResolver.authorizedInternal(sess, "getCompleteRichMembers_Group_List<String>_List<String>_List<String>_boolean_policy", group)) {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, lookingInParentGroup), group, true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, allowedGroupStatuses, lookingInParentGroup), group, true);
 	}
 
 	@Override
@@ -724,17 +724,17 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, List<String> allowedGroupStatuses, String searchString, boolean lookingInParentGroup) throws PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_List<String>_String_boolean_policy", group)) {
+		if (!AuthzResolver.authorizedInternal(sess, "findCompleteRichMembers_Group_List<String>_List<String>_List<String>_String_boolean_policy", group)) {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, allowedStatuses, searchString, lookingInParentGroup), group, true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, allowedStatuses, allowedGroupStatuses, searchString, lookingInParentGroup), group, true);
 	}
 
 	@Override
