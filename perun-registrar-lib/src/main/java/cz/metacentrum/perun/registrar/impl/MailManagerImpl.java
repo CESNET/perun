@@ -1729,6 +1729,8 @@ public class MailManagerImpl implements MailManager {
 									newValue += "?vo="+ getUrlEncodedString(app.getVo().getShortName());
 									newValue += ((app.getGroup() != null) ? "&group="+ getUrlEncodedString(app.getGroup().getName()) : EMPTY_STRING);
 									newValue += "&i=" + URLEncoder.encode(i, StandardCharsets.UTF_8) + "&m=" + URLEncoder.encode(m, StandardCharsets.UTF_8);
+									String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
+									newValue += (redirectURL != null) ? "&target=" + redirectURL : EMPTY_STRING;
 								}
 							}
 							// substitute {validationLink-authz} with actual value or empty string
@@ -1761,6 +1763,9 @@ public class MailManagerImpl implements MailManager {
 
 							if (!url2.toString().isEmpty())
 								url2.append("i=").append(URLEncoder.encode(i, StandardCharsets.UTF_8)).append("&m=").append(URLEncoder.encode(m, StandardCharsets.UTF_8));
+
+							String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
+							url2.append((redirectURL != null) ? "&target=" + redirectURL : EMPTY_STRING);
 
 							// replace validation link
 							mailText = mailText.replace(FIELD_VALIDATION_LINK, url2.toString());
