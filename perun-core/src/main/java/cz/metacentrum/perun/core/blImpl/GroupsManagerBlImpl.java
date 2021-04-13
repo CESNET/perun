@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
+import cz.metacentrum.perun.core.api.CandidateSync;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -55,6 +56,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
@@ -65,7 +67,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -1721,8 +1722,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.debug("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", group, membersSource, membersSource.getName());
 
 			//Prepare containers for work with group members
-			List<Candidate> candidatesToAdd = new ArrayList<>();
-			Map<Candidate, RichMember> membersToUpdate = new HashMap<>();
+			List<CandidateSync> candidatesToAdd = new ArrayList<>();
+			Map<CandidateSync, RichMember> membersToUpdate = new HashMap<>();
 			List<RichMember> membersToRemove = new ArrayList<>();
 
 			//get all direct members of synchronized group (only direct, because we want to set direct membership with this group by synchronization)
@@ -1734,7 +1735,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				//Get subjects from extSource
 				List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
 				//Convert subjects to candidates
-				List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, actualGroupMembers, skippedMembers);
+				List<CandidateSync> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, actualGroupMembers, skippedMembers);
 
 				categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
 			}
@@ -1748,7 +1749,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			List<AttributeDefinition> attrDefs = new ArrayList<>();
 			//Update members already presented in group
-			for (Candidate candidate : membersToUpdate.keySet()) {
+			for (CandidateSync candidate : membersToUpdate.keySet()) {
 				RichMember memberToUpdate = membersToUpdate.get(candidate);
 				//Load attrDefinitions just once for first candidate
 				if (!candidate.getAttributes().isEmpty() && attrDefs.isEmpty()) {
@@ -1759,7 +1760,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			//Add not presented candidates to group
 			Collections.sort(candidatesToAdd);
-			for (Candidate candidateToAdd : candidatesToAdd) {
+			for (CandidateSync candidateToAdd : candidatesToAdd) {
 				addMissingMemberWhileSynchronization(sess, group, candidateToAdd, overwriteUserAttributesList, mergeMemberAttributesList, skippedMembers);
 			}
 
@@ -2970,9 +2971,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param membersToRemove
 	 * @param skippedMembers
 	 */
-	private void categorizeMembersForLightweightSynchronization(PerunSession sess, Group group, ExtSource loginSource, ExtSource memberSource, List<RichMember> groupMembers, List<Candidate> candidatesToAdd, List<RichMember> membersToRemove, List<String> skippedMembers) {
+	private void categorizeMembersForLightweightSynchronization(PerunSession sess, Group group, ExtSource loginSource, ExtSource memberSource, List<RichMember> groupMembers, List<CandidateSync> candidatesToAdd, List<RichMember> membersToRemove, List<String> skippedMembers) {
 		//Get subjects from loginSource
 		List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, loginSource, group);
+		List<RichMember> voMembers = getPerunBl().getMembersManagerBl().getRichMembers(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group));
+		Map<UserExtSource, RichMember> mappingStructure = createMappingStructure(voMembers);
 
 		//Prepare structure of userIds with richMembers to better work with actual members
 		Map<Integer, RichMember> idsOfUsersInGroup = new HashMap<>();
@@ -2996,45 +2999,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//try to find user from perun by login and member extSource (need to use memberSource because loginSource is not saved by synchronization)
 			User user = null;
 
-			List<UserExtSource> userExtSources = new ArrayList<>();
+			List<RichUserExtSource> userExtSources = new ArrayList<>();
 			try {
 				UserExtSource userExtSource = getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(sess, memberSource, login);
-				userExtSources.add(userExtSource);
+				userExtSources.add(new RichUserExtSource(userExtSource, new ArrayList<>()));
 			} catch (UserExtSourceNotExistsException e) {
 				//skipping, this extSource does not exist and thus won't be in the list
 			}
 			Vo groupVo = getVo(sess, group);
-			List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subjectFromLoginSource).stream().map(RichUserExtSource::asUserExtSource).collect(toList());
+			List<RichUserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subjectFromLoginSource);
 			userExtSources.addAll(additionalUserExtSources);
-			for (UserExtSource source : userExtSources) {
-				try {
-					user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, source);
-					// check if user is already member of group's vo
-					if (getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user).contains(groupVo)) {
-						if (idsOfUsersInGroup.containsKey(user.getId())) {
-							//we can skip this one, because he is already in group, and remove him from the map
-							//but first we need to also validate him if he was disabled before (invalidate and then validate)
-							RichMember richMember = idsOfUsersInGroup.get(user.getId());
-							if (richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
-								getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
-								try {
-									getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
-								} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-									log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
-								}
-							}
-							idsOfUsersInGroup.remove(user.getId());
-						} else {
-							//he is not yet in group, so we need to create a candidate
-							Candidate candidate = new Candidate(user, source);
-							//for lightweight synchronization we want to skip all update of attributes
-							candidate.setAttributes(new HashMap<>());
-							candidatesToAdd.add(candidate);
-						}
-						break;
+			for (RichUserExtSource source : userExtSources) {
+				//try to get richMember in vo based on ues or its attribute
+				RichMember memberByUes = findMatchingRichMemberForRichUserExtSource(sess, source, mappingStructure);
+
+				if (memberByUes == null) {
+					continue;
+				}
+
+				user = memberByUes.getUser();
+
+				// check if user is already member of group's vo
+				if (getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user).contains(groupVo)) {
+					if (idsOfUsersInGroup.containsKey(user.getId())) {
+						//we can skip this one, because he is already in group, and remove him from the map
+						//but first we need to also validate him if he was disabled before (invalidate and then validate)
+						RichMember richMember = idsOfUsersInGroup.get(user.getId());
+						revalidateRichMemberInLightSync(sess, richMember);
+						idsOfUsersInGroup.remove(user.getId());
+					} else {
+						//he is not yet in group, so we need to create a candidate, for lightweight synchronization we want to skip all update of attributes
+						CandidateSync candidate = new CandidateSync(user, source.asUserExtSource(), new HashMap<>(), null);
+						candidatesToAdd.add(candidate);
 					}
-				} catch(UserNotExistsException e) {
-					//skip because the user from this ExtSource does not exist so we can continue
+					break;
 				}
 			}
 
@@ -3046,6 +3044,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		//Rest of them need to be removed
 		membersToRemove.addAll(idsOfUsersInGroup.values());
+	}
+
+	/**
+	 * Invalidates and validates disabled member.
+	 *
+	 * @param sess Perun session
+	 * @param richMember member to be revalidated
+	 */
+	private void revalidateRichMemberInLightSync(PerunSession sess, RichMember richMember) {
+		if (Status.DISABLED.equals(richMember.getStatus())) {
+			getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
+			try {
+				getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
+			}
+		}
 	}
 
 	/**
@@ -3062,22 +3077,126 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param membersToRemove 3. container (more above)
 	 *
 	 */
-	private void categorizeMembersForSynchronization(PerunSession sess, List<RichMember> groupMembers, List<Candidate> candidates, List<Candidate> candidatesToAdd, Map<Candidate, RichMember> membersToUpdate, List<RichMember> membersToRemove) {
+	private void categorizeMembersForSynchronization(PerunSession sess, List<RichMember> groupMembers, List<CandidateSync> candidates, List<CandidateSync> candidatesToAdd, Map<CandidateSync, RichMember> membersToUpdate, List<RichMember> membersToRemove) {
 		candidatesToAdd.addAll(candidates);
 		membersToRemove.addAll(groupMembers);
 		//mapping structure for more efficient searching
 		Map<UserExtSource, RichMember> mappingStructure = this.createMappingStructure(groupMembers);
 
 		//try to find already existing candidates between members in group
-		for(Candidate candidate: candidates) {
-			List<UserExtSource> candidateExtSources = candidate.getUserExtSources();
-			for(UserExtSource key: candidateExtSources) {
-				//candidate exists, will be updated
-				if(mappingStructure.containsKey(key)) {
-					membersToUpdate.put(candidate, mappingStructure.get(key));
+		for(CandidateSync candidate: candidates) {
+			List<RichUserExtSource> candidateExtSources = candidate.getRichUserExtSources();
+			for(RichUserExtSource key: candidateExtSources) {
+				RichMember richMember = findMatchingRichMemberForRichUserExtSource(sess, key, mappingStructure);
+				if (richMember != null) {
+					//candidate exists, will be updated
+					membersToUpdate.put(candidate, richMember);
 					candidatesToAdd.remove(candidate);
-					membersToRemove.remove(mappingStructure.get(key));
+					membersToRemove.remove(richMember);
 					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks if userExtSource of candidate corresponds to some userExtSource of RichMember already in group. Whether
+	 * it's by extLogin or value of ues attribute. Returns this RichMember if it does, null otherwise.
+	 *
+	 * @param sess perun session
+	 * @param candidatesSource ues of candidate
+	 * @param mappingStructure map of ues to richMembers in group
+	 * @return richMember or null
+	 */
+	private RichMember findMatchingRichMemberForRichUserExtSource(PerunSession sess, RichUserExtSource candidatesSource, Map<UserExtSource, RichMember> mappingStructure) {
+		//check if ues is in the map
+		if (mappingStructure.containsKey(candidatesSource.asUserExtSource())) {
+			return mappingStructure.get(candidatesSource.asUserExtSource());
+		}
+
+		for (Attribute attribute : candidatesSource.getAttributes()) {
+
+			//logins are either single value string, or multi value list
+			List<String> loginsFromAttribute;
+			if (attribute.getType().equals(String.class.getName())) {
+				loginsFromAttribute = Arrays.asList(attribute.valueAsString());
+			}  else if (attribute.getType().equals(ArrayList.class.getName())) {
+				loginsFromAttribute = attribute.valueAsList();
+			} else {
+				log.error("Attribute {} has value type different than String or List, it will be skipped.", attribute);
+				continue;
+			}
+
+			//check if extSource with login from ues attribute is in the map
+			for (UserExtSource ues : mappingStructure.keySet()) {
+				if (ues.getExtSource().equals(candidatesSource.asUserExtSource().getExtSource())) {
+					try {
+						Attribute attributeToCompare = perunBl.getAttributesManagerBl().getAttribute(sess, ues, attribute.getName());
+
+						List<String> attributeToCompareValue;
+						if (attributeToCompare.getType().equals(String.class.getName())) {
+							attributeToCompareValue = Arrays.asList(attribute.valueAsString());
+						} else if (attributeToCompare.getType().equals(ArrayList.class.getName())) {
+							attributeToCompareValue = attribute.valueAsList();
+						} else {
+							log.error("Attribute {} has value type different than String or List, it will be skipped.", attribute);
+							break;
+						}
+
+						//calculate intersection of attribute values
+						boolean loginsMatch = attributeToCompareValue.stream()
+							.anyMatch(loginsFromAttribute::contains);
+
+						if (loginsMatch) {
+							return mappingStructure.get(ues);
+						}
+					} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+						//attribute not found, just continue
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Updates (or creates) ues attributes to additional userExtSources of candidate.
+	 *
+	 * @param sess perun session
+	 * @param candidateSync candidate whose ues attributes are being updated
+	 * @throws AttributeValueException when attribute is already set in Perun with different value
+	 */
+	private void updateAdditionalUserExtSourceAttributes(PerunSession sess, CandidateSync candidateSync) throws AttributeValueException {
+		for (RichUserExtSource ues : candidateSync.getRichUserExtSources()) {
+			for (Attribute attribute : ues.getAttributes()) {
+				try {
+					Attribute attributeToAdd = perunBl.getAttributesManagerBl().getAttribute(sess, ues.asUserExtSource(), attribute.getName());
+
+					if (attributeToAdd.getValue() == null) {
+						// Add new value
+						perunBl.getAttributesManagerBl().setAttribute(sess, ues.asUserExtSource(), attribute);
+					} else if (attributeToAdd.getType().equals(ArrayList.class.getName())) {
+						// Add missing values
+						for (String newValue : attributeToAdd.valueAsList()) {
+							if (!attribute.valueAsList().contains(newValue)) {
+								attribute.valueAsList().add(newValue);
+							}
+						}
+						perunBl.getAttributesManagerBl().setAttribute(sess, ues.asUserExtSource(), attribute);
+					} else if (attributeToAdd.getType().equals(String.class.getName()) && !attributeToAdd.getValue().equals(attribute.getValue())) {
+						// Values do not match, throw exception to skip/invalidate member
+						throw new AttributeValueException(attribute, "Attribute is already set with different value: ." + attributeToAdd.getValue());
+					}
+				} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+					log.error("Attribute {} for UserExtSource {} was not updated due to exception: {}", attribute, ues.asUserExtSource(), e);
+				} catch (AttributeNotExistsException e) {
+					try {
+						perunBl.getAttributesManagerBl().createAttribute(sess, attribute);
+						perunBl.getAttributesManagerBl().setAttribute(sess, ues.asUserExtSource(), attribute);
+					} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException | AttributeDefinitionExistsException ex) {
+						log.error("Attribute {} for UserExtSource {} was not set due to exception: {}", attribute, ues.asUserExtSource(), ex);
+					}
 				}
 			}
 		}
@@ -3350,8 +3469,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private List<Candidate> convertSubjectsToCandidates(PerunSession sess, List<Map<String, String>> subjects, ExtSource membersSource, ExtSource source, List<RichMember> actualGroupMembers, List<String> skippedMembers) {
-		List<Candidate> candidates = new ArrayList<>();
+	private List<CandidateSync> convertSubjectsToCandidates(PerunSession sess, List<Map<String, String>> subjects, ExtSource membersSource, ExtSource source, List<RichMember> actualGroupMembers, List<String> skippedMembers) {
+		List<CandidateSync> candidates = new ArrayList<>();
 
 		//mapping structure for more efficient searching of actual group members
 		Map<UserExtSource, RichMember> mappingStructure = this.createMappingStructure(actualGroupMembers);
@@ -3369,15 +3488,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// 1] sources of login and other attributes are not same
 				if(!membersSource.equals(source)) {
 					//need to read attributes from the new memberSource, we can't use locally data there (there are from other extSource)
-					candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					candidates.add(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login));
 				// 2] sources are same and we work with source which is instance of ExtSourceApi
 				} else if (membersSource instanceof ExtSourceApi) {
 					// we can use the data from this source without reading them again (all exists in the map of subject attributes)
-					candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
+					candidates.add(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login));
 				// 3] sources are same and we work with source which is instace of ExtSourceSimpleApi
 				} else if (membersSource instanceof ExtSourceSimpleApi) {
 					// we can't use the data from this source, we need to read them again (they are not in the map of subject attributes)
-					candidates.add(new Candidate(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					candidates.add(getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login));
 				} else {
 					// this could not happen without change in extSource API code
 					throw new InternalErrorException("ExtSource is other instance than SimpleApi or Api and this is not supported!");
@@ -3390,7 +3509,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				if(mappingStructure.containsKey(subjectUserExtSource)) {
 					RichMember richMember = mappingStructure.get(subjectUserExtSource);
 					//convert richMember to simple candidate object (to prevent wrong attribute updating)
-					candidates.add(BeansUtils.convertRichMemberToCandidate(richMember, subjectUserExtSource));
+					candidates.add(new CandidateSync(BeansUtils.convertRichMemberToCandidate(richMember, subjectUserExtSource)));
 					skippedMembers.add("MemberEntry:[" + richMember + "] was skipped from updating in the group, because he can't be found by login:'" + login + "' in extSource " + membersSource);
 				} else {
 					skippedMembers.add("MemberEntry:[" + subject + "] was skipped from adding to the group because he can't be found by login:'" + login + "' in extSource " + membersSource);
@@ -3431,7 +3550,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws AttributeNotExistsException if some attributes not exists and for this reason can't be updated
 	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
-	public void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<AttributeDefinition> attrDefs) throws AttributeNotExistsException, WrongAttributeAssignmentException {
+	public void updateExistingMemberWhileSynchronization(PerunSession sess, Group group, CandidateSync candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<AttributeDefinition> attrDefs) throws AttributeNotExistsException, WrongAttributeAssignmentException {
 		//If member does not exists in this moment (somebody removed him before updating process), skip him and log it
 		try {
 			getPerunBl().getMembersManagerBl().checkMemberExists(sess, memberToUpdate);
@@ -3468,6 +3587,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//Synchronize userExtSources (add not existing)
 		addUserExtSources(sess, candidate, memberToUpdate);
 
+		//Update userExtSource attributes
+		try {
+			updateAdditionalUserExtSourceAttributes(sess, candidate);
+		} catch (AttributeValueException e) {
+			// There is a problem with ues attribute value, so set INVALID status for the member
+			getPerunBl().getMembersManagerBl().invalidateMember(sess, memberToUpdate);
+		}
+
 		//Set correct member Status
 		updateMemberStatus(sess, memberToUpdate);
 	}
@@ -3480,7 +3607,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param candidate candidate from whom we get attributes
 	 * @return list of attribute definitions
 	 */
-	private List<AttributeDefinition> getAttributesToSynchronizeFromCandidates(PerunSession sess, Group group, Candidate candidate) {
+	private List<AttributeDefinition> getAttributesToSynchronizeFromCandidates(PerunSession sess, Group group, CandidateSync candidate) {
 		List<AttributeDefinition> attrDefs = new ArrayList<>();
 
 		if (candidate.getAttributes() == null) {
@@ -3507,7 +3634,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param memberToUpdate member to update
 	 * @param overwriteUserAttributesList list of attributes to be updated
 	 */
-	private void updateUserCoreAttributes(PerunSession sess, Candidate candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList) {
+	private void updateUserCoreAttributes(PerunSession sess, CandidateSync candidate, RichMember memberToUpdate, List<String> overwriteUserAttributesList) {
 		if (overwriteUserAttributesList != null) {
 			boolean someFound = false;
 			User user = memberToUpdate.getUser();
@@ -3549,7 +3676,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param attributeDefinition attribute being updated
 	 * @param mergeMemberAttributesList list of member attributes to be merged and not overwritten
 	 */
-	private void updateMemberAttribute(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate, AttributeDefinition attributeDefinition, List<String> mergeMemberAttributesList) {
+	private void updateMemberAttribute(PerunSession sess, Group group, CandidateSync candidate, RichMember memberToUpdate, AttributeDefinition attributeDefinition, List<String> mergeMemberAttributesList) {
 		for (Attribute memberAttribute: memberToUpdate.getMemberAttributes()) {
 			if (memberAttribute.getName().equals(attributeDefinition.getName())) {
 				Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeDefinition.getName()), memberAttribute.getType());
@@ -3587,7 +3714,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param attributeDefinition attribute being updated
 	 * @param overwriteUserAttributesList list of user attributes to be overwritten and not merged
 	 */
-	private void updateUserAttribute(PerunSession sess, Group group, Candidate candidate, RichMember memberToUpdate, AttributeDefinition attributeDefinition, List<String> overwriteUserAttributesList) {
+	private void updateUserAttribute(PerunSession sess, Group group, CandidateSync candidate, RichMember memberToUpdate, AttributeDefinition attributeDefinition, List<String> overwriteUserAttributesList) {
 		for (Attribute userAttribute: memberToUpdate.getUserAttributes()) {
 			if(userAttribute.getName().equals(attributeDefinition.getName())) {
 				Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeDefinition.getName()), userAttribute.getType());
@@ -3622,11 +3749,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param candidate candidate from whom we get the userExtSources
 	 * @param memberToUpdate member to update
 	 */
-	private void addUserExtSources(PerunSession sess, Candidate candidate, RichMember memberToUpdate) {
-		for (UserExtSource ues : candidate.getUserExtSources()) {
-			if (!getPerunBl().getUsersManagerBl().userExtSourceExists(sess, ues)) {
+	private void addUserExtSources(PerunSession sess, CandidateSync candidate, RichMember memberToUpdate) {
+		for (RichUserExtSource ues : candidate.getRichUserExtSources()) {
+			if (!getPerunBl().getUsersManagerBl().userExtSourceExists(sess, ues.asUserExtSource())) {
 				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, memberToUpdate.getUser(), ues);
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, memberToUpdate.getUser(), ues.asUserExtSource());
 				} catch (UserExtSourceExistsException e) {
 					throw new ConsistencyErrorException("Adding already existing userExtSource " + ues, e);
 				}
@@ -3705,42 +3832,48 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param mergeMemberAttributesList list of attributes to be merged for member if found
 	 * @param skippedMembers list of not successfully synchronized members
 	 */
-	public void addMissingMemberWhileSynchronization(PerunSession sess, Group group, Candidate candidate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<String> skippedMembers) {
-		Member member;
-		try {
-			// Check if the member is already in the VO (just not in the group)
-			member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());
+	public void addMissingMemberWhileSynchronization(PerunSession sess, Group group, CandidateSync candidate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<String> skippedMembers) {
+		Member member = null;
+		// Check if the member is already in the VO (just not in the group)
+		List<RichMember> richMembers = getPerunBl().getMembersManagerBl().getRichMembers(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group));
+		Map<UserExtSource, RichMember> mappingStructure = createMappingStructure(richMembers);
+		for (RichUserExtSource sourceOfCandidate : candidate.getRichUserExtSources()) {
+			RichMember memberToUpdate = findMatchingRichMemberForRichUserExtSource(sess, sourceOfCandidate, mappingStructure);
 
-			// member exists - update attributes
-			RichMember memberToUpdate = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
-			try {
-				updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-				// if update fails, skip him
-				log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
-				skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e.getMessage() + "'");
-				return;
+			if (memberToUpdate != null) {
+				// member exists - update attributes
+				try {
+					member = memberToUpdate;
+					updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
+				} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+					// if update fails, skip him
+					log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
+					skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e.getMessage() + "'");
+					return;
+				}
+				break;
 			}
+		}
 
-		} catch (MemberNotExistsException e) {
+		if (member == null) {
 			try {
 				// We have new member (candidate), so create him using synchronous createMember (and overwrite chosen user attributes)
-				member = getPerunBl().getMembersManagerBl().createMemberSync(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate, null, overwriteUserAttributesList);
+				member = getPerunBl().getMembersManagerBl().createMemberSync(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), new Candidate(candidate), null, overwriteUserAttributesList);
+				updateAdditionalUserExtSourceAttributes(sess, candidate);
 				log.info("Group synchronization {}: New member id {} created during synchronization.", group, member.getId());
 			} catch (AlreadyMemberException e1) {
 				//Probably race condition, give him another chance to fix this mess
 				// Check if the member is already in the VO (just not in the group)
 				try {
-					member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());
-					// member exists - update attribute
-					RichMember memberToUpdate = getPerunBl().getMembersManagerBl().getRichMember(sess, member);
-					try {
-						updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
-					} catch (WrongAttributeAssignmentException | AttributeNotExistsException e2) {
-						// if update fails, skip him
-						log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
-						skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e2.getMessage() + "'");
-						return;
+					for (RichUserExtSource sourceOfCandidate : candidate.getRichUserExtSources()) {
+						RichMember memberToUpdate = findMatchingRichMemberForRichUserExtSource(sess, sourceOfCandidate, mappingStructure);
+
+						if (memberToUpdate != null) {
+							member = memberToUpdate;
+							// member exists - update attribute
+							updateExistingMemberWhileSynchronization(sess, group, candidate, memberToUpdate, overwriteUserAttributesList, mergeMemberAttributesList, new ArrayList<>());
+							break;
+						}
 					}
 				} catch (Exception e2) {
 					//Something is still wrong, thrown consistency exception
@@ -3757,6 +3890,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		// If exception was not thrown nor member skipped (and returned in skippedMembers), member is not null
+		assert member != null;
 		try {
 			// Add the member to the group
 			if (!group.getName().equals(VosManager.MEMBERS_GROUP)) {
