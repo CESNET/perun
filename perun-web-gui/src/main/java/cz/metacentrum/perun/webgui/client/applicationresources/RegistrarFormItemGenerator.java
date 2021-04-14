@@ -1535,15 +1535,16 @@ public class RegistrarFormItemGenerator {
 	/**
 	 * Generates form item from given values
 	 *
+	 * @param tempId temporary id for unsaved items
 	 * @param shortname
 	 * @param type
 	 * @return
 	 */
-	public static ApplicationFormItem generateFormItem(String shortname, String type) {
+	public static ApplicationFormItem generateFormItem(int tempId, String shortname, String type) {
 
 		JSONObject jsonObj = new JSONObject();
 
-		jsonObj.put("id", new JSONNumber(0));
+		jsonObj.put("id", new JSONNumber(tempId));
 		jsonObj.put("shortname", new JSONString(shortname));
 		jsonObj.put("type", new JSONString(type));
 		jsonObj.put("regex", new JSONString(""));

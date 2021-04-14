@@ -55,6 +55,7 @@ public class CreateFormItemTabItem implements TabItem {
 	 */
 	private ArrayList<ApplicationFormItem> sourceList;
 
+	private int itemId = 0;
 	private JsonCallbackEvents events;
 	private boolean forGroup = false;
 
@@ -86,7 +87,8 @@ public class CreateFormItemTabItem implements TabItem {
 	/**
 	 * Creates a tab instance
 	 */
-	public CreateFormItemTabItem(ArrayList<ApplicationFormItem> sourceList, JsonCallbackEvents events) {
+	public CreateFormItemTabItem(int itemId, ArrayList<ApplicationFormItem> sourceList, JsonCallbackEvents events) {
+		this.itemId = itemId;
 		this.sourceList = sourceList;
 		this.events = events;
 	}
@@ -94,7 +96,8 @@ public class CreateFormItemTabItem implements TabItem {
 	/**
 	 * Creates a tab instance
 	 */
-	public CreateFormItemTabItem(ArrayList<ApplicationFormItem> sourceList, boolean forGroup, JsonCallbackEvents events) {
+	public CreateFormItemTabItem(int itemId, ArrayList<ApplicationFormItem> sourceList, boolean forGroup, JsonCallbackEvents events) {
+		this.itemId = itemId;
 		this.sourceList = sourceList;
 		this.forGroup = forGroup;
 		this.events = events;
@@ -268,7 +271,7 @@ public class CreateFormItemTabItem implements TabItem {
 	 */
 	protected void createItem(String shortname, String type, int positionToAdd) {
 
-		ApplicationFormItem item = RegistrarFormItemGenerator.generateFormItem(shortname, type);
+		ApplicationFormItem item = RegistrarFormItemGenerator.generateFormItem(itemId, shortname, type);
 
 		// set both app types checked for new item
 		JSONArray array = new JSONArray();

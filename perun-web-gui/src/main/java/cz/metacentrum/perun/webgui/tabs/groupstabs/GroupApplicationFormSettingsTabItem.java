@@ -41,6 +41,11 @@ import java.util.Map;
 public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
+	 * Unsaved items receive temporary id with negative value
+	 */
+	private int currentTemporaryId = -1;
+
+	/**
 	 * Perun web session
 	 */
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -167,6 +172,8 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 				}
 				// send request
 				request.updateFormItems(itemsRequest.getList());
+				// reset id counter
+				currentTemporaryId = -1;
 
 			}
 		});
@@ -176,7 +183,8 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		// add button
 		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(sourceList, true, refreshEvents));
+				session.getTabManager().addTabToCurrentTab(new CreateFormItemTabItem(currentTemporaryId, sourceList, true, refreshEvents));
+				currentTemporaryId--;
 			}
 		});
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
