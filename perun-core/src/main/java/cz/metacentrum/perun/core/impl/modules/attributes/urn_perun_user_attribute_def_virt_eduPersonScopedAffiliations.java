@@ -183,9 +183,19 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 
 		GroupsManagerBl groupsManagerBl = sess.getPerunBl().getGroupsManagerBl();
 
-		List<Group> groupsForAttrCheck = new ArrayList<>();
+		Set<Group> groupsForAttrCheck = new HashSet<>();
 		for (Member member : validVoMembers) {
 			groupsForAttrCheck.addAll(groupsManagerBl.getGroupsWhereMemberIsActive(sess, member));
+		}
+
+		if (!groupsForAttrCheck.isEmpty()) {
+			try {
+				// check, if attribute exists
+				sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, getTertiarySourceAttributeName());
+			} catch (AttributeNotExistsException e) {
+				log.debug("Attribute " + getTertiarySourceAttributeFriendlyName() + " does not exist", e);
+				return result;
+			}
 		}
 
 		for (Group group : groupsForAttrCheck) {
