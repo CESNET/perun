@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>VOs manager can create, delete, update and find VO.</p>
@@ -441,6 +442,17 @@ public interface VosManager {
 	 * @return count of all vos
 	 */
 	int getVosCount(PerunSession sess);
+
+	/**
+	 * Returns number of vo members by their status.
+	 *
+	 * @param sess perun session
+	 * @param vo vo of members
+	 * @return map of status in vo to number of vo members with the status
+	 * @throws VoNotExistsException if vo does not exist
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	Map<Status, Integer> getVoMembersCountsByStatus(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException;
 
 	/**
 	 * Adds role SPONSOR for user in a VO.

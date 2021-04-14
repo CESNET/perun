@@ -5570,6 +5570,16 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getVoMembersCountsByStatus_Vo_policy:
+    policy_roles:
+      - GROUPADMIN: Vo
+      - GROUPOBSERVER: Vo
+      - PERUNOBSERVER:
+      - VOOBSERVER: Vo
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   addSponsorRole_Vo_User_policy:
     policy_roles:
       - VOADMIN: Vo

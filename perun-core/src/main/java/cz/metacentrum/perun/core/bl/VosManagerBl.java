@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -25,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -406,6 +408,15 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	int getVosCount(PerunSession perunSession);
+
+	/**
+	 * Returns number of vo members by their status.
+	 *
+	 * @param sess perun session
+	 * @param vo vo of members
+	 * @return map of status in vo to number of vo members with the status
+	 */
+	Map<Status, Integer> getVoMembersCountsByStatus(PerunSession sess, Vo vo);
 
 	/**
 	 * Check whether a user is in a role for a given VO, possibly checking also user's groups.

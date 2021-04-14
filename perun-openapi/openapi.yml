@@ -12947,6 +12947,20 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/vosManager/getVoMembersCountsByStatus:
+    get:
+      tags:
+        - VosManager
+      operationId: getVoMembersCountsByStatus
+      summary: Returns number of vo members by their status.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/MapStringIntegerResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   /urlinjsonout/vosManager/addAdmin/user:
     post:
       tags:
