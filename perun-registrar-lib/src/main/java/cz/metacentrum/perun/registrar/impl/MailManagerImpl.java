@@ -108,7 +108,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String FIELD_APP_GUI_URL = "{appGuiUrl}";
 	private static final String FIELD_APP_DETAIL_URL = "{appDetailUrl}";
 	private static final String FIELD_VALIDATION_LINK = "{validationLink}";
-	private static final String FIELD_REDIRECT_URL = "{redirectURL}";
+	private static final String FIELD_REDIRECT_URL = "{redirectUrl}";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;

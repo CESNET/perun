@@ -281,6 +281,8 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/><strong>{validationLink-cert}</strong> - link for personal certificate authentication" +
 				"<br/><strong>{validationLink-non}</strong> - link without any authentication" +
 
+				"<p><strong>{redirectUrl}</strong> - contains the URL parameter which was present during the application submission. If the application was initial, contains the value of the 'targetnew' URL parameter. If the application was extensional, contains the value of the 'targetexisting' parameter." +
+
 				"<p><strong><u>Application GUI links for users:</u></strong>" +
 
 				"<p><span class=\"inputFormInlineComment\">Used to navigate users to the list of theirs applications.</span>" +
