@@ -2712,6 +2712,14 @@ components:
       in: query
       required: true
 
+    forceDelete:
+      name: force
+      description: "If true, delete entity forcefully."
+      schema:
+        type: boolean
+      in: query
+      required: false
+
 
 
 #################################################
@@ -7893,7 +7901,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userId'
         - $ref: '#/components/parameters/userExtSourceId'
-        - { name: force, description: "If true, use force deletion.", schema: { type: boolean },  in: query, required: false }
+        - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -8229,6 +8237,21 @@ paths:
         - $ref: '#/components/parameters/login'
         - $ref: '#/components/parameters/namespace'
         - $ref: '#/components/parameters/password'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/usersManager/deleteUser:
+    post:
+      tags:
+        - UsersManager
+      operationId: deleteUser
+      summary: Deletes a user.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -9657,6 +9680,7 @@ paths:
       summary: Deletes a facility.
       parameters:
         - $ref: '#/components/parameters/facilityId'
+        - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -10924,6 +10948,7 @@ paths:
           $ref: '#/components/responses/ExceptionResponse'
       parameters:
         - $ref: '#/components/parameters/ownerId'
+        - $ref: '#/components/parameters/forceDelete'
 
   /json/ownersManager/getOwnerById:
     get:
@@ -11160,6 +11185,21 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/GroupResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/deleteGroup:
+    post:
+      tags:
+        - GroupsManager
+      operationId: deleteGroup
+      summary: Deletes group with given id if it contains no members and group is not assigned to any resources. If force param is true, removes group forcefully.
+      parameters:
+        - $ref: '#/components/parameters/groupId'
+        - $ref: '#/components/parameters/forceDelete'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
@@ -12740,7 +12780,7 @@ paths:
         If force == false or null only empty VO is deleted or exception is thrown.
       parameters:
         - $ref: '#/components/parameters/voId'
-        - { name: force, description: "Force must be true", schema: { type: boolean },  in: query, required: false }
+        - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
@@ -14413,7 +14453,7 @@ paths:
       summary: Deletes a service.
       parameters:
         - $ref: '#/components/parameters/serviceId'
-        - { name: force, description: "boolean flag to force removal with all related objects", schema: { type: boolean }, in: query, required: false }
+        - $ref: '#/components/parameters/forceDelete'
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
