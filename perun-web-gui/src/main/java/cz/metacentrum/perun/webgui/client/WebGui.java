@@ -173,6 +173,13 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 
 						session.setConfiguration((BasicOverlayType)jso.cast());
 
+						String newGuiAlertContent = session.getConfiguration().getCustomProperty("newAdminGuiAlert");
+						if (newGuiAlertContent != null && !newGuiAlertContent.isEmpty()) {
+							HTML newGuiAlert = new HTML(newGuiAlertContent);
+							newGuiAlert.getElement().setId("perun-new-gui-alert");
+							body.add(newGuiAlert);
+						}
+
 						// check if user exists
 						if (session.getUser() == null && !pp.getRoles().hasAnyRole()) {
 							// if not and no role, redraw page body
