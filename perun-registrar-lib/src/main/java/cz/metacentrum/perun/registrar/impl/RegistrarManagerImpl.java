@@ -3942,7 +3942,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
 		if (application.getFedInfo() != null && application.getFedInfo().contains("redirectURL")) {
 			String redirectURL = StringUtils.substringBetween(application.getFedInfo().substring(application.getFedInfo().indexOf("redirectURL")), "\"", "\"");
-			map.put("redirectURL", redirectURL);
+			if (redirectURL != null && !redirectURL.equals("null")) {
+				map.put("redirectURL", redirectURL);
+			}
 		}
 		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
 		application.setFedInfo(additionalAttrs);
