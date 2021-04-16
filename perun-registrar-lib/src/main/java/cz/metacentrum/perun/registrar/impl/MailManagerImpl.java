@@ -1771,7 +1771,7 @@ public class MailManagerImpl implements MailManager {
 					if (mailText.contains(FIELD_REDIRECT_URL)) {
 						String redirectURL = BeansUtils.stringToMapOfAttributes(app.getFedInfo()).get("redirectURL");
 
-						mailText = mailText.replace(FIELD_REDIRECT_URL, (redirectURL != null) ? redirectURL : EMPTY_STRING);
+						mailText = mailText.replace(FIELD_REDIRECT_URL, redirectURL != null ? "&target=" + redirectURL : EMPTY_STRING);
 					}
 
 					// set replaced text
