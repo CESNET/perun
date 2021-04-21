@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -5056,6 +5057,32 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// cleanup
 		BeansUtils.getCoreConfig().setGroupNameSecondaryRegex(previousValue);
+	}
+
+	@Test
+	public void addAndGetGroupsForAutoRegistration() throws Exception {
+		System.out.println(CLASS_NAME + "addAndGetGroupsForAutoRegistration");
+
+		Vo vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+
+		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
+
+		assertEquals(Arrays.asList(group), groupsManager.getGroupsForAutoRegistration(sess, vo));
+	}
+
+	@Test
+	public void deleteGroupsFromAutoRegistration() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupsFromAutoRegistration");
+
+		Vo vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+
+		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
+		assertEquals(Arrays.asList(group), groupsManager.getGroupsForAutoRegistration(sess, vo));
+
+		groupsManager.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
+		assertEquals(Collections.emptyList(), groupsManager.getGroupsForAutoRegistration(sess, vo));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

@@ -11489,6 +11489,48 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
+  /json/groupsManager/getGroupsForAutoRegistration:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getGroupsForAutoRegistration
+      summary: Returns all groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/voId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfGroupsResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/deleteGroupsFromAutoRegistration:
+    post:
+      tags:
+        - GroupsManager
+      operationId: deleteGroupsFromAutoRegistration
+      summary: Deletes groups from a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /urlinjsonout/groupsManager/addGroupsToAutoRegistration:
+    post:
+      tags:
+        - GroupsManager
+      operationId: addGroupsToAutoRegistration
+      summary: Adds groups to a list of groups which can be registered into during vo registration.
+      parameters:
+        - $ref: '#/components/parameters/groupIds'
+      responses:
+        '200':
+          $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
   #################################################
   #                                               #
   # ResourceManager                               #

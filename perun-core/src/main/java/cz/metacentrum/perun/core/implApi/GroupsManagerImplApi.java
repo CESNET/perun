@@ -782,4 +782,29 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group);
+
+	/**
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @return list of groups
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo);
+
+	/**
+	 * Deletes group from list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param group group to delete
+	 */
+	void deleteGroupFromAutoRegistration(PerunSession sess, Group group);
+
+	/**
+	 * Adds group to the list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param group group to add
+	 */
+	void addGroupToAutoRegistration(PerunSession sess, Group group);
 }

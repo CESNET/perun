@@ -65,7 +65,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -5517,6 +5516,25 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} catch (ExtendMembershipException ex) {
 			// This exception should not be thrown for null membershipExpiration attribute
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) {
+		return this.getGroupsManagerImpl().getGroupsForAutoRegistration(sess, vo);
+	}
+
+	@Override
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) {
+		for (Group group : groups) {
+			this.getGroupsManagerImpl().deleteGroupFromAutoRegistration(sess, group);
+		}
+	}
+
+	@Override
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) {
+		for (Group group : groups) {
+			this.getGroupsManagerImpl().addGroupToAutoRegistration(sess, group);
 		}
 	}
 }

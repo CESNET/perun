@@ -1849,4 +1849,29 @@ public interface GroupsManagerBl {
 	 * @throws MemberNotExistsException if given member is not member of given group
 	 */
 	void reactivateMember(PerunSession sess, Member member, Group group) throws MemberNotExistsException;
+
+	/**
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @return list of groups
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo);
+
+	/**
+	 * Deletes groups from a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 */
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups);
+
+	/**
+	 * Adds groups to a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param groups list of groups
+	 */
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups);
 }
