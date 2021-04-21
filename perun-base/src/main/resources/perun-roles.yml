@@ -2032,6 +2032,26 @@ perun_policies:
     include_policies:
       - default_policy
 
+  getGroupsForAutoRegistration_Vo_policy:
+    policy_roles:
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  deleteGroupsFromAutoRegistration_Vo_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
+  addGroupsToAutoRegistration_Vo_List<Group>_policy:
+    policy_roles:
+      - GROUPADMIN: Group
+      - VOADMIN: Vo
+    include_policies:
+      - default_policy
+
   #MembersManagerEntry
   deleteMember_Member_policy:
     policy_roles:

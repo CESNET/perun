@@ -4,13 +4,11 @@ import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -38,7 +36,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationNotEnabledException;
-import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidGroupNameException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -57,14 +54,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -1447,6 +1441,57 @@ public class GroupsManagerEntry implements GroupsManager {
 		}
 
 		return getGroupsManagerBl().canExtendMembershipInGroupWithReason(sess, member, group);
+	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getGroupsForAutoRegistration_Vo_policy", vo)) {
+			throw new PrivilegeException(sess, "getGroupsForAutoRegistration");
+		}
+
+		return getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo);
+	}
+
+	@Override
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		for(Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if(!AuthzResolver.authorizedInternal(sess, "deleteGroupsFromAutoRegistration_Vo_List<Group>_policy", vo, group)) {
+				throw new PrivilegeException(sess, "deleteGroupsFromAutoRegistration");
+			}
+		}
+
+		getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, vo, groups);
+	}
+
+	@Override
+	public void addGroupsToAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupNotExistsException, PrivilegeException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		for(Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+		}
+
+		//Authorization
+		for (Group group : groups) {
+			if(!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_Vo_List<Group>_policy", vo, group)) {
+				throw new PrivilegeException(sess, "addGroupsToAutoRegistration");
+			}
+		}
+
+		getGroupsManagerBl().addGroupsToAutoRegistration(sess, vo, groups);
 	}
 
 }

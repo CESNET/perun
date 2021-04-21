@@ -2,7 +2,6 @@ package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -1758,6 +1757,79 @@ public enum GroupsManagerMethod implements ManagerMethod {
 					ac.getMemberById(parms.readInt("member")),
 					ac.getGroupById(parms.readInt("group")),
 					status);
+		}
+	},
+
+	/*#
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @throw VoNotExistsException When the vo doesn't exist
+	 *
+	 * @param vo int vo <code>id</code>
+	 * @return List<Group> list of groups
+	 */
+	getGroupsToAutoRegistration {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupsForAutoRegistration(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")));
+		}
+	},
+
+	/*#
+	 * Deletes groups from a list of groups which can be registered into during vo registration.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw VoNotExistsException When the vo doesn't exist
+	 * @throw GroupAlreadyRemovedException When deleting group which is already removed
+	 *
+	 * @param vo int vo <code>id</code>
+	 * @param ids List<Integer> list of groups IDs
+	 */
+	deleteGroupsToAutoRegistration {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			List<Integer> groupsInts = parms.readList("groups", Integer.class);
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupInt : groupsInts) {
+				groups.add(ac.getGroupById(groupInt));
+			}
+
+			ac.getGroupsManager().deleteGroupsFromAutoRegistration(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				groups);
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Adds groups to a list of groups which can be registered into during vo registration.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw VoNotExistsException When the vo doesn't exist
+	 *
+	 * @param vo int vo <code>id</code>
+	 * @param ids List<Integer> list of groups IDs
+	 */
+	addGroupsToAutoRegistration {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			parms.stateChangingCheck();
+			List<Integer> groupsInts = parms.readList("groups", Integer.class);
+
+			List<Group> groups = new ArrayList<>();
+			for (Integer groupInt : groupsInts) {
+				groups.add(ac.getGroupById(groupInt));
+			}
+
+			ac.getGroupsManager().addGroupsToAutoRegistration(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				groups);
+
+			return null;
 		}
 	};
 }

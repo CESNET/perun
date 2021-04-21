@@ -1458,6 +1458,13 @@ create table authz (
 							 ((user_id is not null and authorized_group_id is null) or (user_id is null and authorized_group_id is not null))
 );
 
+create table groups_to_register (
+                        vo_id integer,
+                        group_id integer,
+                        constraint voreg_vo_fk foreign key (vo_id) references vos(id),
+                        constraint grpreg_group_fk foreign key (group_id) references groups(id)
+);
+
 
 create sequence "attr_names_id_seq";
 create sequence "auditer_consumers_id_seq";
@@ -1662,7 +1669,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.77');
+insert into configurations values ('DATABASE VERSION','3.1.78');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

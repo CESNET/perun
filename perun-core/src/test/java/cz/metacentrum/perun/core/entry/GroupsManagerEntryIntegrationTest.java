@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -5056,6 +5057,47 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// cleanup
 		BeansUtils.getCoreConfig().setGroupNameSecondaryRegex(previousValue);
+	}
+
+	@Test
+	public void addAndGetGroupsForAutoRegistration() throws Exception {
+		System.out.println(CLASS_NAME + "addAndGetGroupsForAutoRegistration");
+
+		Vo vo = setUpVo();
+		Vo vo2 = perun.getVosManager().createVo(sess, new Vo(0, "secondVo", "secondVo"));
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo2, group2);
+		groupsManager.createGroup(sess, vo2, group3);
+
+		groupsManager.addGroupsToAutoRegistration(sess, vo, Arrays.asList(group, group2));
+		groupsManager.addGroupsToAutoRegistration(sess, vo2, Arrays.asList(group2, group3));
+
+		assertEquals(Arrays.asList(group, group2), groupsManager.getGroupsForAutoRegistration(sess, vo));
+		assertEquals(Arrays.asList(group2, group3), groupsManager.getGroupsForAutoRegistration(sess, vo2));
+	}
+
+	@Test
+	public void deleteGroupsFromAutoRegistration() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupsFromAutoRegistration");
+
+		Vo vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+
+		groupsManager.addGroupsToAutoRegistration(sess, vo, Arrays.asList(group));
+		assertEquals(Arrays.asList(group), groupsManager.getGroupsForAutoRegistration(sess, vo));
+
+		groupsManager.deleteGroupsFromAutoRegistration(sess, vo, Arrays.asList(group));
+		assertEquals(Collections.emptyList(), groupsManager.getGroupsForAutoRegistration(sess, vo));
+	}
+
+	@Test(expected = GroupAlreadyRemovedException.class)
+	public void deleteGroupsFromAutoRegistrationGroupAlreadyDeleted() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupsFromAutoRegistrationGroupAlreadyDeleted");
+
+		Vo vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+
+		groupsManager.deleteGroupsFromAutoRegistration(sess, vo, Arrays.asList(group));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

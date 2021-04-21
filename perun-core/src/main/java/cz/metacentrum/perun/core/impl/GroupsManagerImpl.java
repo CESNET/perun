@@ -1027,4 +1027,34 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	@Override
+	public List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups join groups_to_register on groups.id=groups_to_register.group_id " +
+				"where groups_to_register.vo_id=?", GROUP_MAPPER, vo.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void deleteGroupFromAutoRegistration(PerunSession sess, Vo vo, Group group) throws GroupAlreadyRemovedException {
+		try {
+			int rowAffected = jdbc.update("delete from groups_to_register where group_id=? and vo_id=?", group.getId(), vo.getId());
+
+			if(rowAffected == 0) throw new GroupAlreadyRemovedException("Group: " + group + " , Vo: " + vo);
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	@Override
+	public void addGroupToAutoRegistration(PerunSession sess, Vo vo, Group group) {
+		try {
+			jdbc.update("insert into groups_to_register (group_id, vo_id) values (?, ?)", group.getId(), vo.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
 }

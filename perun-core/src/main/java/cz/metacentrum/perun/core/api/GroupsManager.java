@@ -1320,4 +1320,37 @@ public interface GroupsManager {
 	 * @return true if given member can extend membership in given group or throws exception with reason why not
 	 */
 	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException;
+
+	/**
+	 * Returns all groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @return list of groups
+	 * @throws VoNotExistsException if vo does not exists
+	 */
+	List<Group> getGroupsForAutoRegistration(PerunSession sess, Vo vo) throws VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Deletes groups from a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param groups list of groups
+	 * @throws GroupAlreadyRemovedException if group was already removed from registration
+	 * @throws GroupNotExistsException if some group does not exist
+	 * @throws VoNotExistsException if vo does not exist
+	 */
+	void deleteGroupsFromAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException, VoNotExistsException;
+
+	/**
+	 * Adds groups to a list of groups which can be registered into during vo registration.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param groups list of groups
+	 * @throws GroupNotExistsException if some group does not exist
+	 * @throws VoNotExistsException if vo does not exist
+	 */
+	void addGroupsToAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupNotExistsException, PrivilegeException, VoNotExistsException;
 }
