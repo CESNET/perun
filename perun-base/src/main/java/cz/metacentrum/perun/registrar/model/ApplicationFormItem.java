@@ -246,7 +246,12 @@ public class ApplicationFormItem {
 		/**
 		 * Special item with pre-defined Timezone selection. Value is autoselected in GUI using Google's API
 		 */
-		TIMEZONE
+		TIMEZONE,
+		/**
+		 * Special type for specifying if will be allowed to register to group(s) through VO application form. This type
+		 * is represented by standard HTML checkbox.
+		 */
+		EMBEDDED_GROUP_APPLICATION
 	}
 
 	public static class ItemTexts {
