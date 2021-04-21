@@ -11,6 +11,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
@@ -175,9 +176,8 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 
 						String newGuiAlertContent = session.getConfiguration().getCustomProperty("newAdminGuiAlert");
 						if (newGuiAlertContent != null && !newGuiAlertContent.isEmpty()) {
-							HTML newGuiAlert = new HTML(newGuiAlertContent);
-							newGuiAlert.getElement().setId("perun-new-gui-alert");
-							body.add(newGuiAlert);
+							DOM.getElementById("perun-new-gui-alert").setInnerHTML(newGuiAlertContent);
+							DOM.getElementById("perun-new-gui-alert").setClassName("newGuiAlertActive");
 						}
 
 						// check if user exists
