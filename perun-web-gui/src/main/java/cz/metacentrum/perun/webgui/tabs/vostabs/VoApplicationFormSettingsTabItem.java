@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
+import cz.metacentrum.perun.webgui.tabs.registrartabs.AutoRegistrationGroupsTabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.CopyFormTabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.CreateFormItemTabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.MailsTabItem;
@@ -124,6 +125,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addNewAppFormItem());
 		final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton()+"…", ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
+		final CustomButton autoRegGroupsButton = new CustomButton(ButtonTranslation.INSTANCE.autoRegGroups()+"…", ButtonTranslation.INSTANCE.autoRegistrationGroups(), SmallIcons.INSTANCE.groupIcon());
 		final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton()+"…", ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
 		final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, true, ButtonTranslation.INSTANCE.previewAppForm());
 
@@ -135,6 +137,7 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 				save.setEnabled(false);
 				addButton.setEnabled(false);
 				emailButton.setEnabled(false);
+				autoRegGroupsButton.setEnabled(false);
 				copyButton.setEnabled(false);
 				previewButton.setEnabled(false);
 			}
@@ -227,6 +230,14 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		});
 		if (!session.isVoAdmin(voId)) emailButton.setEnabled(false);
 		menu.addWidget(emailButton);
+
+		autoRegGroupsButton.addClickHandler((event) ->
+				session.getTabManager().addTab(new AutoRegistrationGroupsTabItem(voId)));
+
+		if (!session.isVoAdmin(voId)) {
+			autoRegGroupsButton.setEnabled(false);
+		}
+		menu.addWidget(autoRegGroupsButton);
 
 		// load elements
 		itemsRequest.retrieveData();

@@ -126,6 +126,9 @@ public interface ButtonTranslation extends Messages {
 	@DefaultMessage("Notifications")
 	String emailNotificationsButton();
 
+	@DefaultMessage("Auto registration groups")
+	String autoRegGroups();
+
 	@DefaultMessage("E-mail footer")
 	String mailFooterButton();
 
@@ -501,6 +504,15 @@ public interface ButtonTranslation extends Messages {
 
 	@DefaultMessage("Manage e-mail notifications")
 	String emailNotifications();
+
+	@DefaultMessage("Manage groups for automatic registration")
+	String autoRegistrationGroups();
+
+	@DefaultMessage("Add group to automatic registration")
+	String addGroupToAutoReg();
+
+	@DefaultMessage("Remove group from automatic registration")
+	String removeGroupFromAutoReg();
 
 	@DefaultMessage("Copy notifications from another VO into yours")
 	String copyMailsFromVo();
