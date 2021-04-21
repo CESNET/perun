@@ -1336,7 +1336,6 @@ public interface GroupsManager {
 	 *
 	 * @param sess session
 	 * @param groups list of groups
-	 * @throws GroupAlreadyRemovedException if group was already removed from registration
 	 * @throws GroupNotExistsException if some group does not exist
 	 */
 	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException;

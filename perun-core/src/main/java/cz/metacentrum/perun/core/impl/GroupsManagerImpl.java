@@ -1038,11 +1038,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public void deleteGroupFromAutoRegistration(PerunSession sess, Group group) throws GroupAlreadyRemovedException {
+	public void deleteGroupFromAutoRegistration(PerunSession sess, Group group) {
 		try {
-			int rowAffected = jdbc.update("delete from groups_to_register where group_id=?", group.getId());
-
-			if(rowAffected == 0) throw new GroupAlreadyRemovedException("Group: " + group);
+			jdbc.update("delete from groups_to_register where group_id=?", group.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}

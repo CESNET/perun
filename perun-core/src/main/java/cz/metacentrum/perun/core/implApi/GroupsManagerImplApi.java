@@ -797,9 +797,8 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param sess session
 	 * @param group group to delete
-	 * @throws GroupAlreadyRemovedException if group was already removed from registration
 	 */
-	void deleteGroupFromAutoRegistration(PerunSession sess, Group group) throws GroupAlreadyRemovedException;
+	void deleteGroupFromAutoRegistration(PerunSession sess, Group group);
 
 	/**
 	 * Adds group to the list of groups which can be registered into during vo registration.

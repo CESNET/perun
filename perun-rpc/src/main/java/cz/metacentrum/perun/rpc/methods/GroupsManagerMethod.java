@@ -1780,11 +1780,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Deletes groups from a list of groups which can be registered into during vo registration.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
-	 * @throw GroupAlreadyRemovedException When deleting group which is already removed
 	 *
 	 * @param ids List<Integer> list of groups IDs
 	 */
-	deleteGroupsToAutoRegistration {
+	deleteGroupsFromAutoRegistration {
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			parms.stateChangingCheck();

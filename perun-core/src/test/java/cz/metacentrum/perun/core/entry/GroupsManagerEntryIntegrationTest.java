@@ -5085,16 +5085,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(Collections.emptyList(), groupsManager.getGroupsForAutoRegistration(sess, vo));
 	}
 
-	@Test(expected = GroupAlreadyRemovedException.class)
-	public void deleteGroupsFromAutoRegistrationGroupAlreadyDeleted() throws Exception {
-		System.out.println(CLASS_NAME + "deleteGroupsFromAutoRegistrationGroupAlreadyDeleted");
-
-		Vo vo = setUpVo();
-		groupsManager.createGroup(sess, vo, group);
-
-		groupsManager.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
-	}
-
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {

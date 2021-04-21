@@ -5525,7 +5525,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException {
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) {
 		for (Group group : groups) {
 			this.getGroupsManagerImpl().deleteGroupFromAutoRegistration(sess, group);
 		}
