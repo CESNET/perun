@@ -11510,7 +11510,6 @@ paths:
       operationId: deleteGroupsFromAutoRegistration
       summary: Deletes groups from a list of groups which can be registered into during vo registration.
       parameters:
-        - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/groupIds'
       responses:
         '200':
@@ -11525,7 +11524,6 @@ paths:
       operationId: addGroupsToAutoRegistration
       summary: Adds groups to a list of groups which can be registered into during vo registration.
       parameters:
-        - $ref: '#/components/parameters/voId'
         - $ref: '#/components/parameters/groupIds'
       responses:
         '200':

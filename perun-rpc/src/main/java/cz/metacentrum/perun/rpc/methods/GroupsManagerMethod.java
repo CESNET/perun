@@ -1780,10 +1780,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Deletes groups from a list of groups which can be registered into during vo registration.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
-	 * @throw VoNotExistsException When the vo doesn't exist
 	 * @throw GroupAlreadyRemovedException When deleting group which is already removed
 	 *
-	 * @param vo int vo <code>id</code>
 	 * @param ids List<Integer> list of groups IDs
 	 */
 	deleteGroupsToAutoRegistration {
@@ -1798,7 +1796,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			}
 
 			ac.getGroupsManager().deleteGroupsFromAutoRegistration(ac.getSession(),
-				ac.getVoById(parms.readInt("vo")),
 				groups);
 
 			return null;
@@ -1809,9 +1806,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Adds groups to a list of groups which can be registered into during vo registration.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
-	 * @throw VoNotExistsException When the vo doesn't exist
 	 *
-	 * @param vo int vo <code>id</code>
 	 * @param ids List<Integer> list of groups IDs
 	 */
 	addGroupsToAutoRegistration {
@@ -1826,7 +1821,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			}
 
 			ac.getGroupsManager().addGroupsToAutoRegistration(ac.getSession(),
-				ac.getVoById(parms.readInt("vo")),
 				groups);
 
 			return null;

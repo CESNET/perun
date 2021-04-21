@@ -1335,22 +1335,18 @@ public interface GroupsManager {
 	 * Deletes groups from a list of groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
-	 * @param vo vo
 	 * @param groups list of groups
 	 * @throws GroupAlreadyRemovedException if group was already removed from registration
 	 * @throws GroupNotExistsException if some group does not exist
-	 * @throws VoNotExistsException if vo does not exist
 	 */
-	void deleteGroupsFromAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException, VoNotExistsException;
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Adds groups to a list of groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
-	 * @param vo vo
 	 * @param groups list of groups
 	 * @throws GroupNotExistsException if some group does not exist
-	 * @throws VoNotExistsException if vo does not exist
 	 */
-	void addGroupsToAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupNotExistsException, PrivilegeException, VoNotExistsException;
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException;
 }

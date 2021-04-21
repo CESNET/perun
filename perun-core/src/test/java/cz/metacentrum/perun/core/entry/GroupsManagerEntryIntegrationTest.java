@@ -5064,16 +5064,11 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		System.out.println(CLASS_NAME + "addAndGetGroupsForAutoRegistration");
 
 		Vo vo = setUpVo();
-		Vo vo2 = perun.getVosManager().createVo(sess, new Vo(0, "secondVo", "secondVo"));
 		groupsManager.createGroup(sess, vo, group);
-		groupsManager.createGroup(sess, vo2, group2);
-		groupsManager.createGroup(sess, vo2, group3);
 
-		groupsManager.addGroupsToAutoRegistration(sess, vo, Arrays.asList(group, group2));
-		groupsManager.addGroupsToAutoRegistration(sess, vo2, Arrays.asList(group2, group3));
+		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
 
-		assertEquals(Arrays.asList(group, group2), groupsManager.getGroupsForAutoRegistration(sess, vo));
-		assertEquals(Arrays.asList(group2, group3), groupsManager.getGroupsForAutoRegistration(sess, vo2));
+		assertEquals(Arrays.asList(group), groupsManager.getGroupsForAutoRegistration(sess, vo));
 	}
 
 	@Test
@@ -5083,10 +5078,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Vo vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
 
-		groupsManager.addGroupsToAutoRegistration(sess, vo, Arrays.asList(group));
+		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
 		assertEquals(Arrays.asList(group), groupsManager.getGroupsForAutoRegistration(sess, vo));
 
-		groupsManager.deleteGroupsFromAutoRegistration(sess, vo, Arrays.asList(group));
+		groupsManager.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
 		assertEquals(Collections.emptyList(), groupsManager.getGroupsForAutoRegistration(sess, vo));
 	}
 
@@ -5097,7 +5092,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Vo vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
 
-		groupsManager.deleteGroupsFromAutoRegistration(sess, vo, Arrays.asList(group));
+		groupsManager.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------

@@ -1457,9 +1457,8 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public void deleteGroupsFromAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException, VoNotExistsException {
+	public void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException, GroupNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		for(Group group : groups) {
 			getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1467,18 +1466,17 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		//Authorization
 		for (Group group : groups) {
-			if(!AuthzResolver.authorizedInternal(sess, "deleteGroupsFromAutoRegistration_Vo_List<Group>_policy", vo, group)) {
+			if(!AuthzResolver.authorizedInternal(sess, "deleteGroupsFromAutoRegistration_List<Group>_policy", group)) {
 				throw new PrivilegeException(sess, "deleteGroupsFromAutoRegistration");
 			}
 		}
 
-		getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, vo, groups);
+		getGroupsManagerBl().deleteGroupsFromAutoRegistration(sess, groups);
 	}
 
 	@Override
-	public void addGroupsToAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupNotExistsException, PrivilegeException, VoNotExistsException {
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		for(Group group : groups) {
 			getGroupsManagerBl().checkGroupExists(sess, group);
@@ -1486,12 +1484,12 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		//Authorization
 		for (Group group : groups) {
-			if(!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_Vo_List<Group>_policy", vo, group)) {
+			if(!AuthzResolver.authorizedInternal(sess, "addGroupsToAutoRegistration_List<Group>_policy", group)) {
 				throw new PrivilegeException(sess, "addGroupsToAutoRegistration");
 			}
 		}
 
-		getGroupsManagerBl().addGroupsToAutoRegistration(sess, vo, groups);
+		getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
 	}
 
 }

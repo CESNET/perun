@@ -7,7 +7,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.78
-create table groups_to_register (vo_id integer, group_id integer, constraint voreg_vo_fk foreign key (vo_id) references vos(id), constraint grpreg_group_fk foreign key (group_id) references groups(id));
+create table groups_to_register (group_id integer, constraint grpreg_group_fk foreign key (group_id) references groups(id));
 grant all on groups_to_register to perun;
 UPDATE configurations SET value='3.1.78' WHERE property='DATABASE VERSION';
 

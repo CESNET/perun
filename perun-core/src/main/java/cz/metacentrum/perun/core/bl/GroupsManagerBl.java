@@ -1863,18 +1863,16 @@ public interface GroupsManagerBl {
 	 * Deletes groups from a list of groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
-	 * @param vo vo
 	 * @param groups list of groups
 	 * @throws GroupAlreadyRemovedException if group was already removed from registration
 	 */
-	void deleteGroupsFromAutoRegistration(PerunSession sess, Vo vo, List<Group> groups) throws GroupAlreadyRemovedException;
+	void deleteGroupsFromAutoRegistration(PerunSession sess, List<Group> groups) throws GroupAlreadyRemovedException;
 
 	/**
 	 * Adds groups to a list of groups which can be registered into during vo registration.
 	 *
 	 * @param sess session
-	 * @param vo vo
 	 * @param groups list of groups
 	 */
-	void addGroupsToAutoRegistration(PerunSession sess, Vo vo, List<Group> groups);
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups);
 }

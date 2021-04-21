@@ -2035,17 +2035,18 @@ perun_policies:
   getGroupsForAutoRegistration_Vo_policy:
     policy_roles:
       - VOADMIN: Vo
+      - VOOBSERVER: Vo
     include_policies:
       - default_policy
 
-  deleteGroupsFromAutoRegistration_Vo_List<Group>_policy:
+  deleteGroupsFromAutoRegistration_List<Group>_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo
     include_policies:
       - default_policy
 
-  addGroupsToAutoRegistration_Vo_List<Group>_policy:
+  addGroupsToAutoRegistration_List<Group>_policy:
     policy_roles:
       - GROUPADMIN: Group
       - VOADMIN: Vo

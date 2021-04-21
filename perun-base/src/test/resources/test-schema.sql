@@ -1459,9 +1459,7 @@ create table authz (
 );
 
 create table groups_to_register (
-                        vo_id integer,
                         group_id integer,
-                        constraint voreg_vo_fk foreign key (vo_id) references vos(id),
                         constraint grpreg_group_fk foreign key (group_id) references groups(id)
 );
 
