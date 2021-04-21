@@ -11489,11 +11489,11 @@ paths:
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
-  /json/groupsManager/getGroupsForAutoRegistration:
+  /json/groupsManager/getGroupsToAutoRegistration:
     get:
       tags:
         - GroupsManager
-      operationId: getGroupsForAutoRegistration
+      operationId: getGroupsToAutoRegistration
       summary: Returns all groups which can be registered into during vo registration.
       parameters:
         - $ref: '#/components/parameters/voId'
