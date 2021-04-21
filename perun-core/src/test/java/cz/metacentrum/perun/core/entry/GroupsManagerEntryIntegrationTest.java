@@ -5085,6 +5085,92 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals(Collections.emptyList(), groupsManager.getGroupsForAutoRegistration(sess, vo));
 	}
 
+	@Test
+	public void indirectMembershipPathSimple() throws Exception {
+		System.out.println(CLASS_NAME + "indirectMembershipPathSimple");
+
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+		Group parent = new Group("Parent", "Root group");
+		Group child = new Group("Child", "Subgroup group");
+		Group included = new Group("Included", "Included group by union");
+
+		// parent(PRESENT) : child <-- included(SOURCE)
+		// symbols for (:) subgroup, (<--) included group
+		groupsManagerBl.createGroup(sess, vo , included);
+		groupsManagerBl.addMember(sess, included, member);
+		groupsManagerBl.createGroup(sess, vo , parent);
+		groupsManagerBl.createGroup(sess, parent , child);
+		groupsManager.createGroupUnion(sess, child , included);
+
+		// for direct member the method should return only main group as single path of length 1
+		List<List<Group>> directPath = groupsManager.getIndirectMembershipPaths(sess, member, included);
+		assertEquals("One path expected", 1, directPath.size());
+		assertEquals("Path of length 1 expected for main group", 1, directPath.get(0).size());
+		assertEquals("Main group expected in path", included, directPath.get(0).get(0));
+
+		List<Group> expectedPath = Arrays.asList(parent, child, included);
+		List<List<Group>> paths = groupsManager.getIndirectMembershipPaths(sess, member, parent);
+
+		assertEquals("One path expected", 1, paths.size());
+		assertEquals("Path does not match", expectedPath, paths.get(0));
+
+		// child(PRESENT) <-- included(SOURCE)
+		List<Group> expectedPath2 = Arrays.asList(child, included);
+		List<List<Group>> paths2 = groupsManager.getIndirectMembershipPaths(sess, member, child);
+
+		assertEquals("Only one path expected", 1, paths2.size());
+		assertEquals("Path does not match", expectedPath2, paths2.get(0));
+	}
+
+	@Test
+	public void indirectMembershipPathComplex() throws Exception {
+		System.out.println(CLASS_NAME + "indirectMembershipPathComplex");
+		// parent(PRESENT) : child          : child2   		: child3   			: child4(DIRECT)
+		//				   <-- included    <-- child3 		: child4(DIRECT)
+		//				   : child5(DIRECT)
+		//				   <-- included3   <-- child4(DIRECT)
+		Vo vo = setUpVo();
+		Member member = setUpMember(vo);
+		Group parent = new Group("Parent", "Root group");
+		Group child = new Group("Child", "Subgroup group");
+		Group child2 = new Group("Child2", "Another subgroup");
+		Group child3 = new Group("Child3", "Third subgroup");
+		Group child4 = new Group("Child4", "Source group");
+		Group child5 = new Group("Child5", "Also source group");
+		Group included = new Group("Included", "Included group");
+		Group included3 = new Group("Included3", "Also included group");
+
+		groupsManagerBl.createGroup(sess, vo , parent);
+		groupsManagerBl.createGroup(sess, vo, included);
+		groupsManagerBl.createGroup(sess, vo, included3);
+		groupsManagerBl.createGroup(sess, parent , child);
+		groupsManager.createGroup(sess, child , child2);
+		groupsManager.createGroup(sess, child2 , child3);
+		groupsManagerBl.createGroup(sess, child3, child4);
+		groupsManager.addMember(sess, child4, member);
+		groupsManager.createGroupUnion(sess, parent, included);
+		groupsManager.createGroupUnion(sess, included, child3);
+		groupsManagerBl.createGroup(sess, parent, child5);
+		groupsManager.addMember(sess, child5, member);
+		groupsManager.createGroupUnion(sess, parent, included3);
+		groupsManager.createGroupUnion(sess, included3, child4);
+
+		Member myMember = groupsManager.getGroupMembers(sess, child4).get(0);
+
+		List<List<Group>> paths = groupsManager.getIndirectMembershipPaths(sess, myMember, parent);
+		List<Group> expectedPath1 = Arrays.asList(parent, child, child2, child3, child4);
+		List<Group> expectedPath2 = Arrays.asList(parent, included);
+		List<Group> expectedPath3 = Arrays.asList(parent, included3);
+		List<Group> expectedPath4 = Arrays.asList(parent, child5);
+
+		assertEquals("Four paths expected", 4, paths.size());
+		assertTrue("Path does not match expected path via source group", paths.contains(expectedPath1));
+		assertTrue("Path does not match expected path via included group", paths.contains(expectedPath2));
+		assertTrue("Path does not match expected path via another included group", paths.contains(expectedPath3));
+		assertTrue("Path does not match expected path via another source group", paths.contains(expectedPath4));
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {

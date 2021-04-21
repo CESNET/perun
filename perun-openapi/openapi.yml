@@ -1473,6 +1473,17 @@ components:
             items:
               $ref: "#/components/schemas/Group"
 
+    ListOfListsOfGroupsResponse:
+      description: "returns List<List<Group>>"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Group"
+
     ListOfPerunPoliciesResponse:
       description: "returns List<PerunPolicy>"
       content:
@@ -11528,6 +11539,21 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VoidResponse'
+        default:
+          $ref: '#/components/responses/ExceptionResponse'
+
+  /json/groupsManager/getIndirectMembershipPaths:
+    get:
+      tags:
+        - GroupsManager
+      operationId: getIndirectMembershipPaths
+      summary: Returns unique paths of groups as list of lists of groups [CURRENT GROUP -> SUBGROUP -> ... -> MEMBER'S SOURCE GROUP] via which member is indirectly included to the group. Cuts off after first included group.
+      parameters:
+        - $ref: '#/components/parameters/memberId'
+        - $ref: '#/components/parameters/groupId'
+      responses:
+        '200':
+          $ref: '#/components/responses/ListOfListsOfGroupsResponse'
         default:
           $ref: '#/components/responses/ExceptionResponse'
 
