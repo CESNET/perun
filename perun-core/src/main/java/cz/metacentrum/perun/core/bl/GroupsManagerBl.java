@@ -1874,4 +1874,12 @@ public interface GroupsManagerBl {
 	 * @param groups list of groups
 	 */
 	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups);
+
+	/**
+	 *  Check if group has automatic registration enabled.
+	 *
+	 * @param sess session
+	 * @param group group to check
+	 */
+	boolean isGroupForAutoRegistration(PerunSession sess, Group group);
 }

@@ -5537,4 +5537,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			this.getGroupsManagerImpl().addGroupToAutoRegistration(sess, group);
 		}
 	}
+
+	@Override
+	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
+		return this.getGroupsManagerImpl().isGroupForAutoRegistration(sess, group);
+	}
 }

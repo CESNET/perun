@@ -1054,4 +1054,13 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(err);
 		}
 	}
+
+	@Override
+	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
+		try {
+			return 0 < jdbc.queryForInt("SELECT count(1) FROM groups_to_register WHERE group_id = ?", group.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
 }

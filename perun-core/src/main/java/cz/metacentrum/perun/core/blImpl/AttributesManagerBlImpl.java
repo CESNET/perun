@@ -7733,6 +7733,20 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:group:attribute-def:virt:autoRegistrationEnabled
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_VIRT);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("autoRegistrationEnabled");
+		attr.setDisplayName("Automatic registration enabled");
+		attr.setDescription("If true, group can be selected for automatic registration.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
 		//urn_perun_facility_attribute_def_virt_GIDRanges
 		attr = new AttributeDefinition( (new urn_perun_facility_attribute_def_virt_GIDRanges()).getAttributeDefinition() );
 		//set attribute rights (with dummy id of attribute - not known yet)
