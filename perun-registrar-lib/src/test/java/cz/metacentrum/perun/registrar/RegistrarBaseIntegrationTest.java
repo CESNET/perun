@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -489,6 +490,33 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 			.isEqualTo(items.get(2).getId());
 		assertThat(items.get(1).getDisabledDependencyItemId())
 			.isEqualTo(items.get(2).getId());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked") // we know the exact type of the data
+	public void setGroupOptionsToGroupCheckbox() throws Exception {
+		Group groupA = new Group("A", "test");
+		groupA = perun.getGroupsManagerBl().createGroup(session, vo, groupA);
+
+		ApplicationForm formForVo = registrarManager.getFormForVo(vo);
+
+		ApplicationFormItem groupCheckboxItem = new ApplicationFormItem();
+		groupCheckboxItem.setShortname("groups");
+		groupCheckboxItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+
+		registrarManager.addFormItem(session, formForVo, groupCheckboxItem);
+
+		perun.getGroupsManagerBl().addGroupsToAutoRegistration(session, List.of(groupA));
+
+		Map<String, Object> data = registrarManager.initRegistrar(session, vo.getShortName(), null);
+		var items = (List<ApplicationFormItemWithPrefilledValue>)data.get("voFormInitial");
+
+		String expectedOptions = groupA.getId() + "#A";
+
+		assertThat(items.get(0).getFormItem().getI18n().get(ApplicationFormItem.EN).getOptions())
+				.isEqualTo(expectedOptions);
+		assertThat(items.get(0).getFormItem().getI18n().get(ApplicationFormItem.CS).getOptions())
+				.isEqualTo(expectedOptions);
 	}
 
 	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException {
