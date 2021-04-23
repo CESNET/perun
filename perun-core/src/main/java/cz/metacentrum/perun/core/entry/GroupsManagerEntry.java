@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -1475,7 +1476,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException {
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException {
 		Utils.checkPerunSession(sess);
 
 		for(Group group : groups) {

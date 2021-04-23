@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -5083,6 +5084,44 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.deleteGroupsFromAutoRegistration(sess, Arrays.asList(group));
 		assertEquals(Collections.emptyList(), groupsManager.getGroupsForAutoRegistration(sess, vo));
+	}
+
+	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
+	public void deleteMemberGroupFromAutoRegistration() throws Exception {
+		System.out.println(CLASS_NAME + "deleteMemberGroupFromAutoRegistration");
+
+		Vo vo = setUpVo();
+		Group membersGroup = perun.getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+
+		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(membersGroup));
+	}
+
+	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
+	public void deleteGroupWithSyncFromAutoRegistration() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupWithSyncFromAutoRegistration");
+
+		Vo vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+		perun.getExtSourcesManagerBl().addExtSource(sess, vo, es);
+
+		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+		synchroAttr1.setValue("5");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr1);
+
+		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		synchroAttr2.setValue(es.getName());
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr2);
+
+		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		synchroAttr3.setValue("testVal");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
+
+		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		synchroAttr4.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr4);
+
+		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
 	}
 
 	@Test

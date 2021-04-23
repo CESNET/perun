@@ -1805,6 +1805,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Adds groups to a list of groups which can be registered into during vo registration.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupNotAllowedToAutoRegistrationException When given group cannot be added to auto registration
 	 *
 	 * @param ids List<Integer> list of groups IDs
 	 */

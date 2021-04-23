@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -1346,6 +1347,7 @@ public interface GroupsManager {
 	 * @param sess session
 	 * @param groups list of groups
 	 * @throws GroupNotExistsException if some group does not exist
+	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
 	 */
-	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException;
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException;
 }
