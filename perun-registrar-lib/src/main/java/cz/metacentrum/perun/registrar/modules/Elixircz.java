@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -54,9 +53,10 @@ public class Elixircz extends DefaultRegistrarModule {
 		}
 
 		if ((app.getGroup() != null && Objects.equals(app.getType(), Application.AppType.INITIAL)) ||
+				(app.getGroup() != null && Objects.equals(app.getType(), Application.AppType.EMBEDDED)) ||
 				(app.getGroup() == null && Objects.equals(app.getType(), Application.AppType.EXTENSION))) {
 
-			// GROUP INITIAL OR VO EXTENSION -> set back standard expiration date based on VO rules
+			// GROUP INITIAL/EMBEDDED OR VO EXTENSION -> set back standard expiration date based on VO rules
 			Attribute attr = perun.getAttributesManagerBl().getAttribute(session, member, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 			perun.getAttributesManagerBl().removeAttribute(session, member, attr);
 			perun.getMembersManagerBl().extendMembership(session, member);

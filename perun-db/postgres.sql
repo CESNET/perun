@@ -1,4 +1,4 @@
--- database version 3.1.77 (don't forget to update insert statement at the end of file)
+-- database version 3.1.79 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -451,7 +451,7 @@ create table application (
 	id integer not null,
 	vo_id integer not null,  --identifier of VO (vos.id)
 	user_id integer,         --identifier of user (users.id)
-	apptype varchar not null,  --type of application (initial/extension)
+	apptype varchar not null,  --type of application (initial/extension/embedded)
 	extSourceName varchar,  --name of external source of users
 	extSourceType varchar,  --type of external source of users (federation...)
 	fed_info text,               --data from federation or cert
@@ -477,6 +477,7 @@ create table application_form (
 	vo_id integer not null,     --identifier of VO (vos.id)
 	automatic_approval boolean default false not null, --approval of application is automatic
 	automatic_approval_extension boolean default false not null, --approval of extension is automatic
+	automatic_approval_embedded boolean default false not null, --approval of embedded application is automatic
 	module_name varchar,  --name of module which processes application
 	group_id integer,          --identifier of group (groups.id) if application is for group
 	created_by_uid integer,
@@ -567,7 +568,7 @@ create table application_data (
 create table application_mails (
 	id integer not null,
 	form_id integer not null,       --identifier of form (application_form.id)
-	app_type varchar not null,  --application type (initial/extension)
+	app_type varchar not null,  --application type (initial/extension/embedded)
 	mail_type varchar not null, --type of mail (user/administrator)
 	send boolean default false not null,       --sent (Y/N)
 	created_by_uid integer,
@@ -1765,7 +1766,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.78');
+insert into configurations values ('DATABASE VERSION','3.1.79');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

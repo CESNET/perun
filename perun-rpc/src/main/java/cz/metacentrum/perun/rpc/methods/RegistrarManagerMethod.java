@@ -265,7 +265,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Gets items of specified type in Group application form, for initital registration or extension of account.
 	 *
 	 * @param group int Group <code>id</code>
-	 * @param type String Application type: INITIAL or EXTENSION
+	 * @param type String Application type: INITIAL, EXTENSION or EMBEDDED
 	 * @return List<ApplicationFormItem> Items of specified type
 	 */
 	getFormItems {
@@ -414,7 +414,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * taken from the user argument.
 	 *
 	 * @param group int Group <code>id</code>
-	 * @param type String Application type: INITIAL or EXTENSION
+	 * @param type String Application type: INITIAL, EXTENSION or EMBEDDED
 	 * @return List<ApplicationFormItemWithPrefilledValue> Form items
 	 */
 	getFormItemsWithPrefilledValues {

@@ -655,6 +655,7 @@ components:
         group: { $ref: '#/components/schemas/Group' }
         automaticApproval: { type: boolean }
         automaticApprovalExtension: { type: boolean }
+        automaticApprovalEmbedded: { type: boolean }
         moduleClassName: { type: string }
 
     Type:
@@ -728,6 +729,7 @@ components:
       enum:
         - INITIAL
         - EXTENSION
+        - EMBEDDED
 
     AppState:
       type: string
@@ -13660,7 +13662,7 @@ paths:
       summary: Gets items of specified type in Group application form, for initital registration or extension of account.
       parameters:
         - $ref: '#/components/parameters/groupId'
-        - { name: type, schema: { type: string }, in: query, description: "application type: INITIAL or EXTENSION" }
+        - { name: type, schema: { type: string }, in: query, description: "application type: INITIAL, EXTENSION or EMBEDDED" }
       responses:
         '200':
           $ref: '#/components/responses/ListOfApplicationFormItemsResponse'
