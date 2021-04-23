@@ -1459,7 +1459,7 @@ create table authz (
 
 create table groups_to_register (
     group_id integer,
-    constraint grpreg_group_fk foreign key (group_id) references groups(id)
+    constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
 );
 
 
@@ -1766,7 +1766,7 @@ grant all on members_sponsored to perun;
 grant all on groups_to_register to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.79');
+insert into configurations values ('DATABASE VERSION','3.1.80');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

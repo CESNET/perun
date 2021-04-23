@@ -1461,7 +1461,7 @@ create table authz (
 
 create table groups_to_register (
                         group_id integer,
-                        constraint grpreg_group_fk foreign key (group_id) references groups(id)
+                        constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade
 );
 
 
@@ -1668,7 +1668,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id);
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.79');
+insert into configurations values ('DATABASE VERSION','3.1.80');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');

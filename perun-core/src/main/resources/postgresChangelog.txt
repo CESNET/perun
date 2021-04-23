@@ -6,6 +6,11 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.80
+alter table groups_to_register drop constraint grpreg_group_fk;
+alter table groups_to_register add constraint grpreg_group_fk foreign key (group_id) references groups(id) on delete cascade;
+UPDATE configurations SET value='3.1.80' WHERE property='DATABASE VERSION';
+
 3.1.79
 ALTER TABLE application_form ADD COLUMN automatic_approval_embedded boolean default false not null;
 UPDATE configurations SET value='3.1.79' WHERE property='DATABASE VERSION';
