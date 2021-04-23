@@ -2452,9 +2452,37 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
 		}
 
+		itemsWithValues.stream()
+				.filter(item -> item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION)
+				.forEach(item -> setGroupsToCheckBoxForGroups(sess, item, vo));
+
 		// return prefilled form
 		return itemsWithValues;
 
+	}
+
+	/**
+	 * To the given EMBEDDED_GROUP_APPLICATION item, sets options of allowed groups.
+	 *
+	 * Example format:
+	 * 111#GroupA|222#GroupB
+	 *
+	 * @param sess session
+	 * @param item item, to which the group options will be set, only EMBEDDED_GROUP_APPLICATION is supported
+	 * @param vo vo, from which the groups for auto registration are taken
+	 */
+	private void setGroupsToCheckBoxForGroups(PerunSession sess, ApplicationFormItemWithPrefilledValue item, Vo vo) {
+		if (item.getFormItem().getType() != EMBEDDED_GROUP_APPLICATION) {
+			throw new InternalErrorException("Group options can be set only to the EMBEDDED_GROUP_APPLICATION item.");
+		}
+		List<Group> groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo);
+
+		String groupOptions = groups.stream()
+				.map(group -> group.getId() + "#" + group.getName())
+				.collect(Collectors.joining("|"));
+
+		item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);
+		item.getFormItem().getI18n().get(ApplicationFormItem.EN).setOptions(groupOptions);
 	}
 
 	/**
