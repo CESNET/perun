@@ -807,4 +807,12 @@ public interface GroupsManagerImplApi {
 	 * @param group group to add
 	 */
 	void addGroupToAutoRegistration(PerunSession sess, Group group);
+
+	/**
+	 * Check if group has automatic registration enabled.
+	 *
+	 * @param sess session
+	 * @param group group to check
+	*/
+	boolean isGroupForAutoRegistration(PerunSession sess, Group group);
 }
