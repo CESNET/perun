@@ -13,7 +13,7 @@ public class Application {
 
 	public static enum AppState { NEW, VERIFIED, APPROVED, REJECTED }
 
-	public static enum AppType { INITIAL, EXTENSION }
+	public static enum AppType { INITIAL, EXTENSION, EMBEDDED }
 
 	private int id;
 	private Vo vo;

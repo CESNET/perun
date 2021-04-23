@@ -15,6 +15,7 @@ public class ApplicationForm {
 	private Group group;
 	private boolean automaticApproval;
 	private boolean automaticApprovalExtension;
+	private boolean automaticApprovalEmbedded;
 	private String moduleClassName;
 
 	public ApplicationForm() {
@@ -58,6 +59,14 @@ public class ApplicationForm {
 
 	public void setAutomaticApprovalExtension(boolean automaticApproval) {
 		this.automaticApprovalExtension = automaticApproval;
+	}
+
+	public boolean isAutomaticApprovalEmbedded() {
+		return automaticApprovalEmbedded;
+	}
+
+	public void setAutomaticApprovalEmbedded(boolean automaticApprovalEmbedded) {
+		this.automaticApprovalEmbedded = automaticApprovalEmbedded;
 	}
 
 	public String getModuleClassName() {
