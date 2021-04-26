@@ -1,4 +1,4 @@
--- database version 3.1.79 (don't forget to update insert statement at the end of file)
+-- database version 3.1.80 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
