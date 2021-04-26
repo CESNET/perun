@@ -2,12 +2,15 @@ package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
@@ -25,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -558,6 +562,57 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 			}
 		}
 		registrarManager.createApplication(user, application, data);
+	}
+
+	@Test
+	public void testEmbeddedGroupsSubmission() throws PerunException {
+		GroupsManager groupsManager = perun.getGroupsManager();
+		ApplicationForm form = registrarManager.getFormForVo(vo);
+
+		// create embedded groups form item
+		ApplicationFormItem embeddedGroupsItem = new ApplicationFormItem();
+		embeddedGroupsItem.setType(ApplicationFormItem.Type.EMBEDDED_GROUP_APPLICATION);
+		embeddedGroupsItem.setShortname("embeddedGroups");
+		embeddedGroupsItem = registrarManager.addFormItem(session, form, embeddedGroupsItem);
+		registrarManager.updateFormItems(session, form, Collections.singletonList(embeddedGroupsItem));
+
+		// create groups in VO
+		Group group1 = new Group("GroupA", "Cool folks");
+		Group group2 = new Group("GroupB", "Cooler folks");
+		groupsManager.createGroup(session, vo, group1);
+		groupsManager.createGroup(session, vo, group2);
+
+		// create user
+		User user = new User(-1, "Jo", "Doe", "", "", "");
+		user = perun.getUsersManagerBl().createUser(session, user);
+
+		// prepare application
+		Application application = new Application();
+		application.setVo(vo);
+		application.setUser(user);
+		application.setId(-1);
+		application.setCreatedBy(session.getPerunPrincipal().getActor());
+		application.setType(Application.AppType.INITIAL);
+		application.setExtSourceName("ExtSource");
+		application.setExtSourceType(ExtSourcesManager.EXTSOURCE_IDP);
+
+		//set embedded groups as item in application and fill with our two groups
+		String embGroupsValue = String.format("Group A#%d|Group B#%d", group1.getId(), group2.getId());
+		List<ApplicationFormItemData> appItemsData = new ArrayList<>();
+		appItemsData.add(new ApplicationFormItemData(embeddedGroupsItem, "Embedded groups", embGroupsValue, "0"));
+		registrarManager.submitApplication(session, application, appItemsData);
+
+		List<Group> expectedEmbeddedGroups = List.of(group1, group2);
+
+		RegistrarManagerImpl registrarManagerImpl = AopTestUtils.getTargetObject(registrarManager);
+		assertEquals(expectedEmbeddedGroups, registrarManagerImpl.getEmbeddedGroups(session, application.getId()));
+		assertEquals(1, registrarManager.getApplicationsForUser(user).size());
+
+		registrarManager.approveApplication(session, application.getId());
+
+		assertEquals(3, registrarManager.getApplicationsForUser(user).size());
+		assertEquals(1, registrarManager.getApplicationsForGroup(session, group1, List.of("NEW", "VERIFIED")).size());
+		assertEquals(1, registrarManager.getApplicationsForGroup(session, group2, List.of("NEW", "VERIFIED")).size());
 	}
 
 	/*

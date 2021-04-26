@@ -1568,6 +1568,95 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
+	 * Returns list of all groups embedded to target VO of application
+	 * @param sess
+	 * @param appId
+	 * @return
+	 * @throws PrivilegeException
+	 * @throws RegistrarException
+	 */
+	public List<Group> getEmbeddedGroups(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, GroupNotExistsException {
+		List<ApplicationFormItemData> appFormData = getApplicationDataById(sess, appId);
+		List<Group> embeddedGroups = new ArrayList<>();
+		String groupsPipe = null;
+		for (ApplicationFormItemData item : appFormData) {
+			if (item.getFormItem().getType() == EMBEDDED_GROUP_APPLICATION) {
+				groupsPipe = item.getValue();
+			}
+		}
+
+		if (groupsPipe != null) {
+			//Format is: "Group A#124|Group B#1212|Group C#1212"
+			String[] arr = groupsPipe.split("\\|");
+			for (String el : arr) {
+				String[] subelements = el.split("#");
+				int groupId = Integer.parseInt(subelements[subelements.length - 1]);
+				embeddedGroups.add(groupsManager.getGroupById(sess, groupId));
+			}
+		}
+
+		return embeddedGroups;
+	}
+
+	/**
+	 * Submits applications to all embedded groups
+	 * @param sess
+	 * @param groups embedded groups
+	 * @param app
+	 * @throws GroupNotEmbeddedException Group is not set as embedded in VO
+	 * @throws PerunException
+	 */
+	private void submitEmbeddedGroupApplications(PerunSession sess, List<Group> groups, Application app) throws GroupNotEmbeddedException, EmbeddedGroupApplicationSubmissionError {
+		List<Integer> notEmbeddedGroupsIds = new ArrayList<>();
+
+		for (Group group : groups) {
+
+			//skip if already member of group
+			if (groupsManager.isUserMemberOfGroup(sess, app.getUser(), group)) {
+				continue;
+			}
+
+			//check if is still embedded
+			if (groupsManager.isGroupForAutoRegistration(sess, group)) {
+				notEmbeddedGroupsIds.add(group.getId());
+			}
+		}
+
+		if (!notEmbeddedGroupsIds.isEmpty()) {
+			throw new GroupNotEmbeddedException("Group(s) with ID(s): " + notEmbeddedGroupsIds + " not embedded to VO with ID " + app.getVo().getId());
+		}
+
+		Map<Integer, String> failedGroups = new HashMap<>();
+
+		for (Group group : groups) {
+			try {
+				Application groupApplication = new Application();
+				groupApplication.setUser(app.getUser());
+				groupApplication.setType(AppType.EMBEDDED);
+				groupApplication.setVo(app.getVo());
+				groupApplication.setGroup(group);
+				groupApplication.setFedInfo(app.getFedInfo());
+				groupApplication.setExtSourceName(app.getExtSourceName());
+				groupApplication.setExtSourceType(app.getExtSourceType());
+				groupApplication.setCreatedBy("Automatically generated");
+				try {
+					getFormForGroup(group);
+				} catch (FormNotExistsException e) {
+					createApplicationFormInGroup(sess, group);
+				}
+
+				submitApplication(sess, groupApplication, new ArrayList<>());
+			} catch (Exception e) {
+				failedGroups.put(group.getId(), e.getMessage());
+			}
+		}
+
+		if (!failedGroups.isEmpty()) {
+			throw new EmbeddedGroupApplicationSubmissionError(failedGroups);
+		}
+	}
+
+	/**
 	 * Process application approval in 1 transaction
 	 * !! WITHOUT members validation !!
 	 *
@@ -1577,7 +1666,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws PerunException
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException {
+	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException, InvalidLoginException, EmbeddedGroupApplicationSubmissionError, GroupNotEmbeddedException {
 
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");
@@ -1846,6 +1935,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (module != null) {
 			module.approveApplication(sess, app);
+		}
+
+
+		// for VO application with any embedded groups, submit applications to embedded groups
+		if (app.getGroup() == null) {
+			List<Group> embeddedGroups = getEmbeddedGroups(sess, appId);
+			if (!embeddedGroups.isEmpty()) {
+				submitEmbeddedGroupApplications(sess, embeddedGroups, app);
+			}
 		}
 
 		getMailManager().sendMessage(app, MailType.APP_APPROVED_USER, null, null);
@@ -2484,6 +2582,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		item.getFormItem().getI18n().get(ApplicationFormItem.CS).setOptions(groupOptions);
 		item.getFormItem().getI18n().get(ApplicationFormItem.EN).setOptions(groupOptions);
 	}
+
 
 	/**
 	 * Checks, if the given item will be displayed during the submission.
@@ -3996,15 +4095,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// store user-ext-source attributes and redirectURL from session to application object
-		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
-		if (application.getFedInfo() != null && application.getFedInfo().contains("redirectURL")) {
-			String redirectURL = StringUtils.substringBetween(application.getFedInfo().substring(application.getFedInfo().indexOf("redirectURL")), "\"", "\"");
-			if (redirectURL != null && !redirectURL.equals("null")) {
-				map.put("redirectURL", redirectURL);
+		if (application.getType() != AppType.EMBEDDED) {
+			LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
+			if (application.getFedInfo() != null && application.getFedInfo().contains("redirectURL")) {
+				String redirectURL = StringUtils.substringBetween(application.getFedInfo().substring(application.getFedInfo().indexOf("redirectURL")), "\"", "\"");
+				if (redirectURL != null && !redirectURL.equals("null")) {
+					map.put("redirectURL", redirectURL);
+				}
 			}
+			String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
+			application.setFedInfo(additionalAttrs);
 		}
-		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
-		application.setFedInfo(additionalAttrs);
 
 		Application app;
 		try {
