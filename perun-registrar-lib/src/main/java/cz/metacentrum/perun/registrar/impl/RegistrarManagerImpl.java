@@ -1617,7 +1617,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 			//check if is still embedded
-			if (groupsManager.isGroupForAutoRegistration(sess, group)) {
+			if (!groupsManager.isGroupForAutoRegistration(sess, group)) {
 				notEmbeddedGroupsIds.add(group.getId());
 			}
 		}
