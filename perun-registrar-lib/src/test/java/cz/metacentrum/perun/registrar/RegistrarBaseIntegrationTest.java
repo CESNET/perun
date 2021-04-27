@@ -584,6 +584,8 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		groupsManager.createGroup(session, vo, group1);
 		groupsManager.createGroup(session, vo, group2);
 
+		groupsManager.addGroupsToAutoRegistration(session, List.of(group1, group2));
+
 		// create user
 		User user = new User(-1, "Jo", "Doe", "", "", "");
 		user = perun.getUsersManagerBl().createUser(session, user);
@@ -623,9 +625,11 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		embeddedGroupsItem = registrarManager.addFormItem(session, form, embeddedGroupsItem);
 		registrarManager.updateFormItems(session, form, Collections.singletonList(embeddedGroupsItem));
 
+
 		// create groups in VO
 		Group group = new Group("GroupA", "Cool folks");
 		groupsManager.createGroup(session, vo, group);
+		groupsManager.addGroupsToAutoRegistration(session, List.of(group));
 
 		registrarManager.createApplicationFormInGroup(session, group);
 
