@@ -33,7 +33,11 @@ public class GroupNotAllowedToAutoRegistrationException extends PerunException {
 	 * @param group the group
 	 */
 	public GroupNotAllowedToAutoRegistrationException(String message, Group group) {
-		super(message);
+		super(message + " " + group.toString());
 		this.group = group;
+	}
+
+	public Group getGroup() {
+		return group;
 	}
 }
