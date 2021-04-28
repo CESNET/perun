@@ -57,6 +57,7 @@ public class JMSQueueManager {
 	 *
 	 */
 	public void initiateConnection() {
+		receivingMessages = false;
 		while (needToConnect) {
 
 			try {
