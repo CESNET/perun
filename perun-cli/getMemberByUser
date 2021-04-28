@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint);
+
+sub help {
+	return qq{
+	Find a member by a user and vo.
+	------------------------
+	Available options:
+	--userId   | -u user id
+	--voId     | -v VO id
+	--voName   | -V VO shortName
+	--batch    | -b batch
+	--help     | -h prints this help
+
+	};
+}
+
+my ($voId, $voShortName, $userId, $batch);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0; },
+	"batch|b"     => \$batch,
+	"voId|v=i"    => \$voId,
+	"voName|V=s"  => \$voShortName,
+	"userId|m=i"  => \$userId) || die help();
+
+# Check options
+unless (defined($userId)) { die "ERROR: userId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $membersAgent = $agent->getMembersAgent;
+my $vosAgent = $agent->getVosAgent;
+
+unless (defined $voId) {
+	unless (defined $voShortName) { die "ERROR: VO specification required.\n"; }
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
+	$voId = $vo->getId;
+}
+
+
+my $member = $membersAgent->getMemberByUser( user => $userId, vo => $voId );
+
+#output
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'ID', 'VO' );
+$table->addRow( $member->getId, $voId );
+print tableToPrint($table, $batch);
+
