@@ -5124,6 +5124,35 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group));
 	}
 
+	@Test(expected = GroupNotAllowedToAutoRegistrationException.class)
+	public void deleteSubgroupOfGroupWithStructureSyncFromAutoRegistration() throws Exception {
+		System.out.println(CLASS_NAME + "deleteSubgroupOfGroupWithStructureSyncFromAutoRegistration");
+
+		Vo vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, group, group2);
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+		perun.getExtSourcesManagerBl().addExtSource(sess, vo, es);
+
+		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSQUERY_ATTRNAME));
+		synchroAttr1.setValue("testVal");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr1);
+
+		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		synchroAttr2.setValue("testVal");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr2);
+
+		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		synchroAttr3.setValue(es.getName());
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
+
+		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME));
+		synchroAttr4.setValue(true);
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr4);
+
+		groupsManager.addGroupsToAutoRegistration(sess, Arrays.asList(group2));
+	}
+
 	@Test
 	public void isGroupForAutoRegistration() throws Exception {
 		System.out.println(CLASS_NAME + "isGroupsForAutoRegistration");

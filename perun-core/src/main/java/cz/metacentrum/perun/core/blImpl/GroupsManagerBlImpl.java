@@ -5541,7 +5541,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			try {
 				Attribute syncEnabledAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
-				if ("true".equals(syncEnabledAttr.valueAsString())) {
+				if ("true".equals(syncEnabledAttr.valueAsString()) || isGroupInStructureSynchronizationTree(sess, group)) {
 					throw new GroupNotAllowedToAutoRegistrationException("Group with synchronization cannot be added to auto registration.", group);
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
