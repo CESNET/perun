@@ -76,6 +76,7 @@ public class CreateFormItemTabItem implements TabItem {
 		aMap.put("HTML_COMMENT", "Custom HTML text");
 		aMap.put("HEADING", "Header");
 		aMap.put("TIMEZONE", "Selection of timezone");
+		aMap.put("EMBEDDED_GROUP_APPLICATION", "Groups for embedded applications");
 		inputTypes = Collections.unmodifiableMap(aMap);
 	}
 
@@ -218,7 +219,9 @@ public class CreateFormItemTabItem implements TabItem {
 					layout.setHTML(3,0,"Item is used to display customizable heading of form. Can have any HTML content.");
 				} else if (type.equals("TIMEZONE")) {
 					layout.setHTML(3,0,"Selection box with pre-defined values of UTC timezones.");
-				} else {
+				} else if (type.equals("EMBEDDED_GROUP_APPLICATION")) {
+					layout.setHTML(3,0,"Checkbox of real organization groups which the user can check and thus submit an application to these groups");
+				} else{
 					layout.setHTML(3,0,"");
 				}
 
