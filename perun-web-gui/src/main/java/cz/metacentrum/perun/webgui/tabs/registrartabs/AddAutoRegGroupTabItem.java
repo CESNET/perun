@@ -70,7 +70,7 @@ public class AddAutoRegGroupTabItem implements TabItem {
 		menu.addWidget(new HTML(""));
 
 		final GetAllGroups groups = new GetAllGroups(vo.getId());
-		groups.setCoreGroupsCheckable(true);
+		groups.setCoreGroupsCheckable(false);
 
 		// remove already added union groups from offering
 		JsonCallbackEvents localEvents = new JsonCallbackEvents() {
