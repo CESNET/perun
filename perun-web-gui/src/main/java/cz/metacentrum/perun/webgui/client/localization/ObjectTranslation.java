@@ -32,6 +32,9 @@ public interface ObjectTranslation extends Messages {
 	@DefaultMessage("Extension")
 	String applicationTypeExtension();
 
+	@DefaultMessage("Embedded")
+	String applicationTypeEmbedded();
+
 	/* ========== APPLICATION MAIL OBJECT ============ */
 
 	@DefaultMessage("Created / user")
