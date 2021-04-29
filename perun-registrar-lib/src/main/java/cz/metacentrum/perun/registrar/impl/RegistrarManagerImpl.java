@@ -2576,6 +2576,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		List<Group> groups = perun.getGroupsManagerBl().getGroupsForAutoRegistration(sess, vo);
 
 		String groupOptions = groups.stream()
+				.sorted(Comparator.comparing(Group::getName))
 				.map(group -> group.getId() + "#" + group.getName())
 				.collect(Collectors.joining("|"));
 
