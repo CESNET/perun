@@ -11,6 +11,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +65,15 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 		classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
 	}
 
+	@Test(expected = WrongReferenceAttributeValueException.class)
+	public void testGroupInAutoRegister() throws Exception {
+		System.out.println("testGroupInAutoRegister()");
+		attributeToCheck.setValue(true);
+
+		when(sess.getPerunBl().getGroupsManagerBl().isGroupForAutoRegistration(sess, group)).thenReturn(true);
+
+		classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+	}
 
 	@Test
 	public void testCorrectSemantics() throws Exception {

@@ -5553,6 +5553,57 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<List<Group>> getIndirectMembershipPaths(PerunSession sess, Member member, Group group) throws MemberNotExistsException, GroupNotExistsException {
+		if (!isGroupMember(sess, group, member))
+			throw new MemberNotExistsException("Member does not belong to this group");
+
+		return stepIntoGroup(sess, member, group);
+	}
+
+	/**
+	 * Step into group, if it matches the source, start reconstructing the path, otherwise step into all
+	 * subgroups where member is recognised and glue current group to path when returning. Included groups
+	 * are cut off after first included group. Duplicates avoided.
+	 */
+	private List<List<Group>> stepIntoGroup(PerunSession sess, Member member, Group currentGroup) {
+		List<List<Group>> pathsFromCurrentGroup = new ArrayList<>();
+
+		// reached source group, create empty list to which current group will be added at the end of this method call
+		if (isDirectGroupMember(sess, currentGroup, member)) {
+			pathsFromCurrentGroup.add(new ArrayList<Group>());
+		}
+
+		// subgroups and included groups
+		List<Group> relatedGroups = getGroupUnions(sess, currentGroup, false);
+
+		// step into every group in which the member is recognised
+		for (Group group : relatedGroups) {
+			if (isGroupMember(sess, group, member)) {
+
+				// cut paths via included groups
+				if (group.getParentGroupId() == null ||group.getParentGroupId() != currentGroup.getId()) {
+					List<Group> cutPath = new ArrayList<>();
+					cutPath.add(group);
+					pathsFromCurrentGroup.add(cutPath);
+					continue;
+				}
+
+				List<List<Group>> subPaths = stepIntoGroup(sess, member, group);
+				pathsFromCurrentGroup.addAll(subPaths);
+			}
+		}
+
+		// glue current group to all paths
+		List<List<Group>> resultPaths = new ArrayList<>();
+		for (List<Group> path : pathsFromCurrentGroup) {
+			path.add(0, currentGroup);
+			resultPaths.add(path);
+		}
+
+		return resultPaths;
+	}
+
+	@Override
 	public boolean isGroupForAutoRegistration(PerunSession sess, Group group) {
 		return this.getGroupsManagerImpl().isGroupForAutoRegistration(sess, group);
 	}

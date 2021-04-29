@@ -51,6 +51,16 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabledTest {
 		classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
 	}
 
+	@Test(expected = WrongReferenceAttributeValueException.class)
+	public void testGroupInAutoRegister() throws Exception {
+		System.out.println("testMissingGroupInAutoRegister()");
+		attributeToCheck.setValue("true");
+
+		when(sess.getPerunBl().getGroupsManagerBl().isGroupForAutoRegistration(sess, group)).thenReturn(true);
+
+		classInstance.checkAttributeSemantics(sess, group, attributeToCheck);
+	}
+
 	@Test
 	public void testCorrectSemantics() throws Exception {
 		System.out.println("testCorrectSemantics()");

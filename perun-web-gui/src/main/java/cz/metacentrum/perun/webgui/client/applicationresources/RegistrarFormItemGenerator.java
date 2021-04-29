@@ -453,6 +453,10 @@ public class RegistrarFormItemGenerator {
 			return generateTimezoneListBox();
 		}
 
+		if(item.getType().equals("EMBEDDED_GROUP_APPLICATION")){
+			return generateCheckBox();
+		}
+
 		// FIXME we can only detect always hidden items
 		if(item.getHidden().equals("ALWAYS")) {
 			this.visibleOnlyToAdmin = true;
@@ -489,6 +493,7 @@ public class RegistrarFormItemGenerator {
 				!"HTML_COMMENT".equalsIgnoreCase(item.getType()) &&
 				!"SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
 				!"AUTO_SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
+				!"EMBEDDED_GROUP_APPLICATION".equalsIgnoreCase(item.getType()) &&
 				item.isUpdatable();
 	}
 
@@ -1426,6 +1431,9 @@ public class RegistrarFormItemGenerator {
 	 * @return
 	 */
 	private String getOptions() {
+		if (item.getType().equals("EMBEDDED_GROUP_APPLICATION")) {
+			return "1#example group1|2#example group2|3#example group3";
+		}
 		String options = item.getItemTexts(locale).getOptions();
 		return options;
 	}

@@ -1350,4 +1350,15 @@ public interface GroupsManager {
 	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
 	 */
 	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotExistsException, PrivilegeException, GroupNotAllowedToAutoRegistrationException;
+
+	/**
+	 * Get unique paths of groups via which member is indirectly included to the group.
+	 * Cuts off after first included group.
+	 *
+	 * @param sess perun session
+	 * @param member member
+	 * @param group group in which the member is indirectly included
+	 * @return lists of groups [CURRENT GROUP -> SUBGROUP -> ... -> MEMBER'S SOURCE GROUP]
+	 */
+	List<List<Group>> getIndirectMembershipPaths(PerunSession sess, Member member, Group group) throws MemberNotExistsException, GroupNotExistsException, PrivilegeException;
 }

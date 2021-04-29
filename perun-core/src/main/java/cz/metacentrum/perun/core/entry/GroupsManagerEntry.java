@@ -1493,4 +1493,18 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().addGroupsToAutoRegistration(sess, groups);
 	}
 
+	@Override
+	public List<List<Group>> getIndirectMembershipPaths(PerunSession sess, Member member, Group group) throws MemberNotExistsException, GroupNotExistsException, PrivilegeException {
+
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.authorizedInternal(sess, "getIndirectMembershipPaths_Member_Group_policy", member, group)) {
+			throw new PrivilegeException(sess, "getIndirectMembershipPaths");
+		}
+
+		return getGroupsManagerBl().getIndirectMembershipPaths(sess, member, group);
+	}
 }
