@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
@@ -1872,8 +1873,9 @@ public interface GroupsManagerBl {
 	 *
 	 * @param sess session
 	 * @param groups list of groups
+	 * @throws GroupNotAllowedToAutoRegistrationException if given group cannot be added to auto registration
 	 */
-	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups);
+	void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotAllowedToAutoRegistrationException;
 
 	/**
 	 * Get unique paths of groups via which member is indirectly included to the group.

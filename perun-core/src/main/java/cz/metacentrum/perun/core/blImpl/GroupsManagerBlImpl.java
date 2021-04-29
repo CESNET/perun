@@ -70,6 +70,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAllowedToAutoRegistrationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
@@ -5532,8 +5533,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) {
+	public void addGroupsToAutoRegistration(PerunSession sess, List<Group> groups) throws GroupNotAllowedToAutoRegistrationException {
 		for (Group group : groups) {
+			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+				throw new GroupNotAllowedToAutoRegistrationException("Members group cannot be added to auto registration.", group);
+			}
+
+			try {
+				Attribute syncEnabledAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
+				if ("true".equals(syncEnabledAttr.valueAsString()) || isGroupInStructureSynchronizationTree(sess, group)) {
+					throw new GroupNotAllowedToAutoRegistrationException("Group with synchronization cannot be added to auto registration.", group);
+				}
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+				// if attribute does not exist we can skip it
+			}
+
 			this.getGroupsManagerImpl().addGroupToAutoRegistration(sess, group);
 		}
 	}
