@@ -493,6 +493,7 @@ public class RegistrarFormItemGenerator {
 				!"HTML_COMMENT".equalsIgnoreCase(item.getType()) &&
 				!"SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
 				!"AUTO_SUBMIT_BUTTON".equalsIgnoreCase(item.getType()) &&
+				!"EMBEDDED_GROUP_APPLICATION".equalsIgnoreCase(item.getType()) &&
 				item.isUpdatable();
 	}
 
